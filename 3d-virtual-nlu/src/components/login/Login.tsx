@@ -1,15 +1,16 @@
 // src/components/LoginForm.tsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from './Login.module.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeDropper, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const Login: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username và password
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showContent, setShowContent] = useState(false);
+  const navigate = useNavigate();
 
   // Xử lý sự kiện khi form được submit
   const handleSubmit = (event: React.FormEvent) => {
@@ -30,7 +31,7 @@ const Login: React.FC = () => {
 
     // Kiểm tra thông tin đăng nhập (ví dụ đơn giản)
     if (username === "admin@gmail.com" && password === "123456") {
-      alert("Login successful!");
+      navigate("/tour");
     } else {
       alert("Invalid username or password");
     }
@@ -41,40 +42,43 @@ const Login: React.FC = () => {
   }
 
   return (
-    <div className={styles.loginContainer}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div className={styles.inputGroup}>
-          <label htmlFor="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            placeholder="Enter your username"
-            className={styles.inputField}
-          />
-        </div>
-        <div className={styles.inputGroup}>
-          <label htmlFor="password">Password</label>
-          <input
-            type={showContent ? "text" : "password"}
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="Enter your password"
-            className={styles.inputField}
-          />
-          <FontAwesomeIcon className={styles.eye} onClick={handleShowContent} icon={ showContent ? faEyeSlash : faEye}></FontAwesomeIcon>
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      <Link to="/forgotPassword">Forgot Password</Link> <br />
-      <b>
-        Don't have an account? <Link to="/register">Register here!</Link>
-      </b>
+    <div style={{position:'relative'}}>
+      <div className={styles.loginContainer}>
+        <h2>Login</h2>
+        <form onSubmit={handleSubmit}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              placeholder="Enter your username"
+              className={styles.inputField}
+            />
+          </div>
+          <div className={styles.inputGroup}>
+            <label htmlFor="password">Password</label>
+            <input
+              type={showContent ? "text" : "password"}
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="Enter your password"
+              className={styles.inputField}
+            />
+            <FontAwesomeIcon className={styles.eye} onClick={handleShowContent} icon={ showContent ? faEyeSlash : faEye}></FontAwesomeIcon>
+          </div>
+          <button type="submit">Login</button>
+        </form>
+        <Link to="/forgotPassword">Forgot Password</Link> <br />
+        <b>
+          Don't have an account? <Link to="/register">Register here!</Link>
+        </b>
+      </div>
+      {/* <canvas className={styles.canvas_login}></canvas> */}
     </div>
   );
 };

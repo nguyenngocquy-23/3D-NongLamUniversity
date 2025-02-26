@@ -6,7 +6,7 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    background: url("../../assets/login_bgk1.jpg") no-repeat center;
     font-family: Arial, sans-serif;
 }
 
@@ -16,10 +16,12 @@ body {
         filter: blur(3px);
         opacity: 0;
     }
+
     50% {
         filter: blur(1px);
         opacity: 0.5;
     }
+
     100% {
         top: 0;
         filter: blur(0);
@@ -128,7 +130,7 @@ button {
     padding: 0.75rem;
     border: none;
     border-radius: 5px;
-    background: #2575fc;
+    background: #50f373;
     color: #fff;
     font-size: 1rem;
     cursor: pointer;
@@ -138,7 +140,7 @@ button {
 
 button:hover {
     transform: perspective(1000px) scale(1.1);
-    background: #8754ff;
+    background: #23c045;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
     font-weight: 800;
 }
@@ -157,11 +159,12 @@ a:hover {
     box-shadow: -1px -1px 20px rgba(0, 0, 0, 0.4);
 }
 
-.eye:hover{ 
+.eye:hover {
     cursor: pointer;
-    
+
 }
-.eye{
+
+.eye {
     position: absolute;
     top: 50px;
     right: 10px;
