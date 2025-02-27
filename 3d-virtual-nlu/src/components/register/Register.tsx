@@ -1,16 +1,16 @@
-// src/components/LoginForm.tsx
+// src/components/RegisterForm.tsx
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import styles from './Login.module.css';
+import { Link } from "react-router-dom";
+import styles from "../login/Login.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
-const Login: React.FC = () => {
-  // Khai báo state để lưu trữ giá trị của username và password
+const Register: React.FC = () => {
+  // Khai báo state để lưu trữ giá trị của username, password và confirmPassword
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [showContent, setShowContent] = useState(false);
-  const navigate = useNavigate();
 
   // Xử lý sự kiện khi form được submit
   const handleSubmit = (event: React.FormEvent) => {
@@ -29,32 +29,33 @@ const Login: React.FC = () => {
       return;
     }
 
-    // Kiểm tra thông tin đăng nhập (ví dụ đơn giản)
-    if (username === "admin@gmail.com" && password === "123456") {
-      navigate("/tour");
-    } else {
-      alert("Invalid username or password");
+    // Kiểm tra xem password và confirmPassword có khớp không
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
     }
+
+    // Nếu tất cả hợp lệ, thông báo đăng ký thành công
+    alert("Registration successful!");
+  };
+  const handleShowContent = () => {
+    setShowContent((preState) => !preState);
   };
 
-  const handleShowContent = () =>{
-    setShowContent((preState) => !preState);
-  }
-
   return (
-    <div className={styles.container} style={{position:'relative'}}>
+    <div className={styles.container} style={{ position: "relative" }}>
       <div className={styles.loginContainer}>
-        <h2>Login</h2>
+        <h2>Register</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">Username (Email)</label>
             <input
               type="text"
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               className={styles.inputField}
             />
           </div>
@@ -69,18 +70,31 @@ const Login: React.FC = () => {
               placeholder="Enter your password"
               className={styles.inputField}
             />
-            <FontAwesomeIcon className={styles.eye} onClick={handleShowContent} icon={ showContent ? faEyeSlash : faEye}></FontAwesomeIcon>
+            <FontAwesomeIcon
+              className={styles.eye}
+              style={{ right: "15px" }}
+              onClick={handleShowContent}
+              icon={showContent ? faEyeSlash : faEye}
+            ></FontAwesomeIcon>
           </div>
-          <button type="submit">Login</button>
+          <div className={styles.inputGroup}>
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              type={showContent ? "text" : "password"}
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              placeholder="Confirm your password"
+              className={styles.inputField}
+            />
+          </div>
+          <button type="submit">Register</button>
         </form>
-        <Link to="/forgotPassword">Forgot Password</Link> <br />
-        <b>
-          Don't have an account? <Link to="/register">Register here!</Link>
-        </b>
+        <Link to="/login">Already have an account? Login here!</Link>
       </div>
-      {/* <canvas className={styles.canvas_login}></canvas> */}
     </div>
   );
 };
 
-export default Login;
+export default Register;
