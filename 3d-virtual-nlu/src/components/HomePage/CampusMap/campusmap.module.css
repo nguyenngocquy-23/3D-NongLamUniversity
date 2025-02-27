@@ -1,0 +1,14 @@
+.container {
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.description {
+  font-size: 7.5vw;
+  text-transform: uppercase;
+  text-align: center;
+  max-width: 50vw;
+  line-height: 1;
+}

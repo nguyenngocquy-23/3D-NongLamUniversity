@@ -1,0 +1,36 @@
+header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.1); /* Làm mờ nền */
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+header img {
+  height: 60px;
+  padding: 1.5rem;
+}
+
+.nav {
+  display: flex;
+  gap: 20px;
+  padding-right: 1.5rem;
+  font-weight: 400;
+}
+
+.navLink {
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.navLink:hover {
+  text-decoration: underline;
+  color: #fff;
+}

@@ -1,0 +1,28 @@
+import React, { useEffect } from "react";
+import Banner from "./Banner/Banner";
+import CampusMap from "./CampusMap/CampusMap";
+import Lenis from "lenis";
+import styles from "./Home.module.css";
+import VirtualTour from "./VirtualTour/VirtualTour";
+
+const Home: React.FC = () => {
+  useEffect(() => {
+    const lenis = new Lenis();
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+  }, []);
+
+  return (
+    <main>
+      <Banner />
+      <CampusMap />
+      <VirtualTour />
+      <div className={styles.section2}></div>
+    </main>
+  );
+};
+
+export default Home;
