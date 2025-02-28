@@ -31,7 +31,7 @@ function Tour() {
       return;
     } else {
       const parent = vt.parentElement;
-      if (parent) {
+      if (parent && h1Tour) {
         console.log("oke");
         parent.style.display = "block";
         tour.style.display = "none";
@@ -43,161 +43,6 @@ function Tour() {
       }
     }
   };
-
-  // useEffect(() => {
-  //   // Mã Three.js sẽ chạy trong useEffect
-
-  //   const scene = new THREE.Scene();
-  //   const camera = new THREE.PerspectiveCamera(
-  //     75,
-  //     window.innerWidth / window.innerHeight,
-  //     0.1,
-  //     1000
-  //   );
-
-  //   const canvas = document.querySelector("#intro-tour");
-  //   if (!canvas) {
-  //     throw new Error("Canvas element not found");
-  //   }
-
-  //   const renderer = new THREE.WebGLRenderer({
-  //     canvas: canvas,
-  //   });
-
-  //   renderer.setPixelRatio(window.devicePixelRatio);
-  //   renderer.setSize(window.innerWidth, window.innerHeight);
-  //   camera.position.z = 500;
-
-  //   const geometry = new THREE.SphereGeometry(100, 128, 128);
-  //   const textureKhoa = new THREE.TextureLoader().load("khoa.jpg");
-  //   textureKhoa.wrapS = THREE.RepeatWrapping;
-  //   textureKhoa.repeat.x = -1;
-
-  //   const material = new THREE.MeshBasicMaterial({
-  //     map: textureKhoa,
-  //     side: THREE.BackSide,
-  //   });
-
-  //   const sphere = new THREE.Mesh(geometry, material);
-  //   scene.add(sphere);
-
-  //   // Thêm ánh sáng môi trường và ánh sáng điểm
-  //   const ambientLight = new THREE.AmbientLight(0x404040, 1);
-  //   scene.add(ambientLight);
-  //   const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
-  //   pointLight.position.set(100, 100, 100);
-  //   scene.add(pointLight);
-
-  //   // Ánh sáng chiếu sáng (Directional Light)
-  //   const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  //   directionalLight.position.set(1, 1, 1).normalize(); // Chỉnh vị trí ánh sáng
-  //   scene.add(directionalLight);
-
-  //   // Đặt camera bên trong hình cầu và một khoảng cách tối thiểu
-  //   const controls = new OrbitControls(camera, renderer.domElement);
-  //   controls.enableZoom = false;
-  //   controls.enablePan = false;
-  //   controls.enableDamping = true;
-  //   controls.dampingFactor = 0.3;
-  //   controls.minDistance = 0.001; // Khoảng cách tối thiểu cho zoom
-  //   controls.maxDistance = 0.002; // Khoảng cách tối đa cho zoom
-  //   controls.target.set(0, 0, 0);
-  //   controls.rotateSpeed = -1.0;
-
-  //   function animate() {
-  //     requestAnimationFrame(animate);
-  //     if (isAnimation) {
-  //       rotationY.current += 0.001;
-  //     }
-  //     sphere.rotation.y = rotationY.current;
-  //     controls.update();
-  //     renderer.render(scene, camera);
-  //   }
-
-  //   animate();
-
-  //   // Cleanup function (optional): Clear resources
-  //   return () => {
-  //     renderer.dispose();
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   // Mã Three.js sẽ chạy trong useEffect
-  //   const scene = new THREE.Scene();
-  //   const camera = new THREE.PerspectiveCamera(
-  //     75,
-  //     window.innerWidth / window.innerHeight,
-  //     0.1,
-  //     1000
-  //   );
-
-  //   const canvas = document.querySelector("#tour");
-  //   if (!canvas) {
-  //     throw new Error("Canvas element not found");
-  //   }
-
-  //   const renderer = new THREE.WebGLRenderer({
-  //     canvas: canvas,
-  //   });
-
-  //   renderer.setPixelRatio(window.devicePixelRatio);
-  //   renderer.setSize(window.innerWidth, window.innerHeight);
-  //   camera.position.z = 500;
-
-  //   const geometry = new THREE.SphereGeometry(100, 128, 128);
-  //   const textureKhoa = new THREE.TextureLoader().load("khoa.jpg");
-  //   textureKhoa.wrapS = THREE.RepeatWrapping;
-  //   textureKhoa.repeat.x = -1;
-
-  //   const material = new THREE.MeshBasicMaterial({
-  //     map: textureKhoa,
-  //     side: THREE.BackSide,
-  //   });
-
-  //   const sphere = new THREE.Mesh(geometry, material);
-  //   scene.add(sphere);
-
-  //   // Thêm ánh sáng môi trường và ánh sáng điểm
-  //   const ambientLight = new THREE.AmbientLight(0x404040, 1);
-  //   scene.add(ambientLight);
-  //   const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
-  //   pointLight.position.set(100, 100, 100);
-  //   scene.add(pointLight);
-
-  //   // Ánh sáng chiếu sáng (Directional Light)
-  //   const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  //   directionalLight.position.set(1, 1, 1).normalize(); // Chỉnh vị trí ánh sáng
-  //   scene.add(directionalLight);
-
-  //   // Đặt camera bên trong hình cầu và một khoảng cách tối thiểu
-  //   const controls = new OrbitControls(camera, renderer.domElement);
-  //   controls.enableZoom = false;
-  //   controls.enablePan = false;
-  //   controls.enableDamping = true;
-  //   controls.dampingFactor = 0.3;
-  //   controls.minDistance = 0.001; // Khoảng cách tối thiểu cho zoom
-  //   controls.maxDistance = 0.002; // Khoảng cách tối đa cho zoom
-  //   controls.target.set(0, 0, 0);
-  //   controls.rotateSpeed = -1.0;
-
-  //   function animate() {
-  //     requestAnimationFrame(animate);
-  //     if (isAnimation) {
-  //       rotationY.current += 0.001;
-  //     }
-  //     sphere.rotation.y = rotationY.current;
-  //     controls.update();
-  //     renderer.render(scene, camera);
-  //   }
-
-  //   animate();
-
-  //   // Cleanup function (optional): Clear resources
-  //   return () => {
-  //     renderer.dispose();
-  //   };
-  // }, []);
 
   useEffect(() => {
     // Khởi tạo scene, camera, renderer chung
@@ -346,7 +191,7 @@ function Tour() {
         <canvas id="tour" />
         <div className={styles.headerTour}>
           <h2>NLU360</h2>
-          <FontAwesomeIcon icon={faCircleXmark} className={styles.close_btn}/>
+          <FontAwesomeIcon icon={faCircleXmark} className={styles.close_btn} />
         </div>
       </div>
     </>

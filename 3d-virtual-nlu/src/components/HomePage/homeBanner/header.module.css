@@ -28,9 +28,11 @@ header img {
   color: #fff;
   text-decoration: none;
   font-size: 18px;
+  padding: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .navLink:hover {
-  text-decoration: underline;
   color: #fff;
 }

@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
-import Banner from "./Banner/Banner";
-import CampusMap from "./CampusMap/CampusMap";
-import Lenis from "lenis";
+import Banner from "./homeBanner/BannerContainer";
+import CampusMap from "./campusMap/CampusMap";
+import Lenis from "@studio-freight/lenis";
 import styles from "./Home.module.css";
-import VirtualTour from "./VirtualTour/VirtualTour";
+import TourOverview from "./tourOverview/TourOverview";
 
 const Home: React.FC = () => {
   useEffect(() => {
@@ -18,9 +18,12 @@ const Home: React.FC = () => {
   return (
     <main>
       <Banner />
+
       <CampusMap />
-      <VirtualTour />
-      <div className={styles.section2}></div>
+
+      <TourOverview />
+
+      {/* <div className={styles.section2}></div> */}
     </main>
   );
 };

@@ -5,6 +5,7 @@
   justify-content: center;
   height: 100vh;
   overflow: hidden;
+  background-color: aquamarine;
 }
 
 .vtBackground {
@@ -21,6 +22,6 @@
   height: 100%;
 }
 
-/* .vtImage {
+.vtImage {
   object-fit: cover;
-} */
+}

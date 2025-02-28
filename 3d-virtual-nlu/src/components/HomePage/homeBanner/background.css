@@ -120,9 +120,8 @@ main {
   font-weight: 800;
   font-size: 8rem;
   line-height: 0.88;
-  /* animation: shake 3s ease-in-out infinite; */
+  animation: shake 3s ease-in-out infinite;
 }
-/* }
 
 @keyframes shake {
   0% {
@@ -142,7 +141,7 @@ main {
   100% {
     transform: translate(0px);
   }
-} */
+}
 
 .mountain-6 {
   position: absolute;

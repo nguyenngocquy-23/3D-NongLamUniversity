@@ -1,8 +1,8 @@
 import { useScroll, useTransform, motion } from "framer-motion";
 import React, { useRef } from "react";
-import styles from "./VirtualTour.module.css";
+import styles from "./touroverview.module.css";
 
-const VirtualTour = () => {
+const TourOverview = () => {
   const container = useRef<HTMLDivElement>(null);
 
   const scroll = useScroll();
@@ -11,14 +11,16 @@ const VirtualTour = () => {
 
   return (
     <div
+      id="tourOverview"
       ref={container}
       className={styles.virtualTourContainer}
       style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
     >
       <div className={styles.vtBackground}>
         <motion.div style={{ y }} className={styles.vtBackgroundImage}>
+          <h2>Tham quan ảo</h2>
           <img
-            src="/src/assets/picture/thienly.jpg"
+            src="/src/assets/picture/background.png"
             alt="rang-dong"
             className={styles.vtImage}
           />
@@ -28,4 +30,4 @@ const VirtualTour = () => {
   );
 };
 
-export default VirtualTour;
+export default TourOverview;
