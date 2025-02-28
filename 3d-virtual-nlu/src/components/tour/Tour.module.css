@@ -26,6 +26,7 @@
 #virtual_tour.grabbing {
     cursor: grabbing;
 }
+
 .virtual_tour {
     height: 100%;
     width: 100%;
@@ -111,7 +112,10 @@ canvas {
     transition: transform 0.3s ease;
 }
 
-.fullscreen_btn, .info_btn, .playBtn, .pauseBtn {
+.fullscreen_btn,
+.info_btn,
+.playBtn,
+.pauseBtn {
     z-index: 2;
     color: white;
     transform: scale(1);
@@ -131,13 +135,16 @@ canvas {
     transform: translate(-50%, -50%);
 }
 
-.headerTour{
+.headerTour {
     top: 0;
 }
+
 .footerTour {
     bottom: 10px;
 }
-.headerTour, .footerTour {
+
+.headerTour,
+.footerTour {
     position: absolute;
     left: 0;
     width: 98%;
@@ -189,26 +196,89 @@ canvas {
 
 body:fullscreen #virtaul_tour,
 html:fullscreen #virtaul_tour {
-  width: 100vw;  /* Full width màn hình */
-  height: 100vh; /* Full height màn hình */
+    width: 100vw;
+    /* Full width màn hình */
+    height: 100vh;
+    /* Full height màn hình */
 }
 
-.inputSeach{
+.inputSeach {
     padding: 5px;
     font-size: 15px;
     width: 80%;
 }
 
-.searchBtn{
+.searchBtn {
     font-size: 20px;
     margin-left: 10px;
     transition: transform 0.3s ease;
 }
 
-.node{
-
+.containNode {
+    position: relative;
+    width: 40px;
+    height: 40px;
 }
 
-.subNode{
-    
+.containNode:hover {}
+
+.node.scale, .borderNode.scale{
+    width: 50px;
+    height: 50px;
+}
+
+.node,
+.borderNode {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.node{
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.borderNode {
+    background-color: transparent;
+    border: 2px solid white;
+    transform: scale(1);
+    animation: forNode 2s infinite ease-out;
+}
+
+@keyframes forNode {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2.5);
+    }
+}
+
+.subNode {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background-color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.infoBox{
+    position: absolute;
+    right: 0;
+    bottom: 50px;
 }
