@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import Banner from "./homeBanner/BannerContainer";
 import CampusMap from "./campusMap/CampusMap";
 import Lenis from "@studio-freight/lenis";
-import styles from "./Home.module.css";
 import TourOverview from "./tourOverview/TourOverview";
 
 const Home: React.FC = () => {
