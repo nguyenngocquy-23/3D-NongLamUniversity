@@ -4,19 +4,140 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faAmericanSignLanguageInterpreting,
   faArrowsToEye,
   faCircleXmark,
   faClose,
+  faDownLeftAndUpRightToCenter,
+  faInfoCircle,
+  faLanguage,
   faPause,
   faPlay,
+  faSearch,
+  faUpRightAndDownLeftFromCenter,
+  faVolumeHigh,
 } from "@fortawesome/free-solid-svg-icons";
+import { faInfo } from "@fortawesome/free-solid-svg-icons/faInfo";
+import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
+import {
+  FaArrowsToEye,
+  FaLanguage,
+  FaPause,
+  FaPlay,
+  FaVolumeHigh,
+} from "react-icons/fa6";
+import { FaInfoCircle, FaSearch } from "react-icons/fa";
+import { IoIosCloseCircle } from "react-icons/io";
 
 function Tour() {
   const [isAnimation, setIsAnimation] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
+  const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
+  let animationFrameId: number | null = null; // Để lưu id của requestAnimationFrame
+
+  // Hàm kiểm tra xem trình duyệt hỗ trợ fullscreen không
+  const requestFullscreen = (element: any) => {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.mozRequestFullScreen) {
+      // Firefox
+      element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) {
+      // Chrome, Safari và Opera
+      element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+      // IE/Edge
+      element.msRequestFullscreen();
+    }
+  };
+
+  const exitFullscreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      // Firefox
+      document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+      // Chrome, Safari và Opera
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      // IE/Edge
+      document.msExitFullscreen();
+    }
+  };
+
+  const toggleFullscreen = () => {
+    const canvas = document.querySelector<HTMLCanvasElement>(
+      `.${styles.virtual_tour}`
+    );
+    if (!canvas) {
+      console.log("Không tìm thấy canvas");
+      return;
+    }
+
+    if (!isFullscreen) {
+      requestFullscreen(canvas); // Chuyển canvas sang fullscreen
+      setIsFullscreen(true);
+    } else {
+      exitFullscreen(); // Thoát fullscreen
+      setIsFullscreen(false);
+    }
+  };
+
+  const toggleInfomation = () => {
+    // dependen data scene
+  };
+
+  const handleMouseDown = () => {
+    setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
+  };
+
+  const handleMouseUp = () => {
+    setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
+  };
+
+  const handleMouseEnterMenu = (event: any) => {
+    const mouse = event.clientX;
+
+    const threshold = window.innerWidth * 0.05;
+    if (mouse < threshold) {
+      setIsMenuVisible(true);
+    }
+  };
+
+  const handleCloseMenu = () => {
+    setIsMenuVisible(false);
+  };
 
   const handleAnimationChange = () => {
     setIsAnimation((prevState) => !prevState);
+  };
+  const handleClose = () => {
+    const vt = document.querySelector<HTMLCanvasElement>("#tour");
+    const tour = document.querySelector<HTMLElement>(`.${styles.tour}`);
+    const h1Tour = document.querySelector<HTMLHeadElement>(`.${styles.h1}`);
+    if (!vt) {
+      console.log("Không tìm thấy thẻ canvas");
+      return;
+    } else if (!tour) {
+      console.log("Không tìm thấy thẻ tour");
+      return;
+    } else {
+      const parent = vt.parentElement;
+      if (parent && h1Tour) {
+        parent.style.display = "none";
+        tour.style.display = "block";
+        h1Tour.style.display = "block";
+        setIsOpen(false);
+        exitFullscreen(); // Thoát fullscreen
+        setIsFullscreen(false);
+      } else {
+        console.log("Không tìm thấy thẻ cha || h1Tour");
+        return;
+      }
+    }
   };
 
   const handleVirtualTour = () => {
@@ -31,173 +152,18 @@ function Tour() {
       return;
     } else {
       const parent = vt.parentElement;
-      if (parent) {
+      if (parent && h1Tour) {
         console.log("oke");
         parent.style.display = "block";
         tour.style.display = "none";
         h1Tour.style.display = "none";
         setIsOpen(true);
       } else {
-        console.log("Không tìm thấy thẻ cha");
+        console.log("Không tìm thấy thẻ cha || h1Tour");
         return;
       }
     }
   };
-
-  // useEffect(() => {
-  //   // Mã Three.js sẽ chạy trong useEffect
-
-  //   const scene = new THREE.Scene();
-  //   const camera = new THREE.PerspectiveCamera(
-  //     75,
-  //     window.innerWidth / window.innerHeight,
-  //     0.1,
-  //     1000
-  //   );
-
-  //   const canvas = document.querySelector("#intro-tour");
-  //   if (!canvas) {
-  //     throw new Error("Canvas element not found");
-  //   }
-
-  //   const renderer = new THREE.WebGLRenderer({
-  //     canvas: canvas,
-  //   });
-
-  //   renderer.setPixelRatio(window.devicePixelRatio);
-  //   renderer.setSize(window.innerWidth, window.innerHeight);
-  //   camera.position.z = 500;
-
-  //   const geometry = new THREE.SphereGeometry(100, 128, 128);
-  //   const textureKhoa = new THREE.TextureLoader().load("khoa.jpg");
-  //   textureKhoa.wrapS = THREE.RepeatWrapping;
-  //   textureKhoa.repeat.x = -1;
-
-  //   const material = new THREE.MeshBasicMaterial({
-  //     map: textureKhoa,
-  //     side: THREE.BackSide,
-  //   });
-
-  //   const sphere = new THREE.Mesh(geometry, material);
-  //   scene.add(sphere);
-
-  //   // Thêm ánh sáng môi trường và ánh sáng điểm
-  //   const ambientLight = new THREE.AmbientLight(0x404040, 1);
-  //   scene.add(ambientLight);
-  //   const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
-  //   pointLight.position.set(100, 100, 100);
-  //   scene.add(pointLight);
-
-  //   // Ánh sáng chiếu sáng (Directional Light)
-  //   const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  //   directionalLight.position.set(1, 1, 1).normalize(); // Chỉnh vị trí ánh sáng
-  //   scene.add(directionalLight);
-
-  //   // Đặt camera bên trong hình cầu và một khoảng cách tối thiểu
-  //   const controls = new OrbitControls(camera, renderer.domElement);
-  //   controls.enableZoom = false;
-  //   controls.enablePan = false;
-  //   controls.enableDamping = true;
-  //   controls.dampingFactor = 0.3;
-  //   controls.minDistance = 0.001; // Khoảng cách tối thiểu cho zoom
-  //   controls.maxDistance = 0.002; // Khoảng cách tối đa cho zoom
-  //   controls.target.set(0, 0, 0);
-  //   controls.rotateSpeed = -1.0;
-
-  //   function animate() {
-  //     requestAnimationFrame(animate);
-  //     if (isAnimation) {
-  //       rotationY.current += 0.001;
-  //     }
-  //     sphere.rotation.y = rotationY.current;
-  //     controls.update();
-  //     renderer.render(scene, camera);
-  //   }
-
-  //   animate();
-
-  //   // Cleanup function (optional): Clear resources
-  //   return () => {
-  //     renderer.dispose();
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   // Mã Three.js sẽ chạy trong useEffect
-  //   const scene = new THREE.Scene();
-  //   const camera = new THREE.PerspectiveCamera(
-  //     75,
-  //     window.innerWidth / window.innerHeight,
-  //     0.1,
-  //     1000
-  //   );
-
-  //   const canvas = document.querySelector("#tour");
-  //   if (!canvas) {
-  //     throw new Error("Canvas element not found");
-  //   }
-
-  //   const renderer = new THREE.WebGLRenderer({
-  //     canvas: canvas,
-  //   });
-
-  //   renderer.setPixelRatio(window.devicePixelRatio);
-  //   renderer.setSize(window.innerWidth, window.innerHeight);
-  //   camera.position.z = 500;
-
-  //   const geometry = new THREE.SphereGeometry(100, 128, 128);
-  //   const textureKhoa = new THREE.TextureLoader().load("khoa.jpg");
-  //   textureKhoa.wrapS = THREE.RepeatWrapping;
-  //   textureKhoa.repeat.x = -1;
-
-  //   const material = new THREE.MeshBasicMaterial({
-  //     map: textureKhoa,
-  //     side: THREE.BackSide,
-  //   });
-
-  //   const sphere = new THREE.Mesh(geometry, material);
-  //   scene.add(sphere);
-
-  //   // Thêm ánh sáng môi trường và ánh sáng điểm
-  //   const ambientLight = new THREE.AmbientLight(0x404040, 1);
-  //   scene.add(ambientLight);
-  //   const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
-  //   pointLight.position.set(100, 100, 100);
-  //   scene.add(pointLight);
-
-  //   // Ánh sáng chiếu sáng (Directional Light)
-  //   const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  //   directionalLight.position.set(1, 1, 1).normalize(); // Chỉnh vị trí ánh sáng
-  //   scene.add(directionalLight);
-
-  //   // Đặt camera bên trong hình cầu và một khoảng cách tối thiểu
-  //   const controls = new OrbitControls(camera, renderer.domElement);
-  //   controls.enableZoom = false;
-  //   controls.enablePan = false;
-  //   controls.enableDamping = true;
-  //   controls.dampingFactor = 0.3;
-  //   controls.minDistance = 0.001; // Khoảng cách tối thiểu cho zoom
-  //   controls.maxDistance = 0.002; // Khoảng cách tối đa cho zoom
-  //   controls.target.set(0, 0, 0);
-  //   controls.rotateSpeed = -1.0;
-
-  //   function animate() {
-  //     requestAnimationFrame(animate);
-  //     if (isAnimation) {
-  //       rotationY.current += 0.001;
-  //     }
-  //     sphere.rotation.y = rotationY.current;
-  //     controls.update();
-  //     renderer.render(scene, camera);
-  //   }
-
-  //   animate();
-
-  //   // Cleanup function (optional): Clear resources
-  //   return () => {
-  //     renderer.dispose();
-  //   };
-  // }, []);
 
   useEffect(() => {
     // Khởi tạo scene, camera, renderer chung
@@ -265,16 +231,103 @@ function Tour() {
     controls.target.set(0, 0, 0);
     controls.rotateSpeed = -1.0;
 
+    let zoomLevel = 0; // Biến để lưu mức độ zoom
+
+    const zoomCamera = (delta: any) => {
+      // Cập nhật mức zoom
+      zoomLevel += delta;
+
+      // Giới hạn mức zoom
+      zoomLevel = THREE.MathUtils.clamp(zoomLevel, -200, 0);
+
+      // Lấy hướng nhìn của camera (hướng từ camera đến target)
+      const direction = new THREE.Vector3();
+      camera.getWorldDirection(direction);
+
+      // Tính toán vị trí camera mới
+      const distance = 500 + zoomLevel; // Khoảng cách từ camera đến target
+      const newPosition = new THREE.Vector3()
+        .copy(controls.target) // Lấy vị trí của target
+        .add(direction.multiplyScalar(-distance)); // Lùi lại theo hướng nhìn
+
+      // Di chuyển camera đến vị trí mới
+      camera.position.lerp(newPosition, 0.1);
+
+      // Cập nhật lại FOV nếu cần (tùy chọn)
+      camera.fov = THREE.MathUtils.lerp(75, 25, Math.abs(zoomLevel) / 200);
+      camera.updateProjectionMatrix();
+    };
+
+    const underTexture = new THREE.TextureLoader().load("../public/under.png");
+
+    const underGeometry = new THREE.CircleGeometry(30);
+    const underMaterial = new THREE.MeshBasicMaterial({
+      map: underTexture,
+      // color: 0x0000ff,
+      side: THREE.DoubleSide,
+    });
+    const underBgk = new THREE.Mesh(underGeometry, underMaterial);
+    underBgk.position.set(0, -30, 0);
+    underBgk.rotation.x -= Math.PI / 2;
+    sphere.add(underBgk);
+
+    const nodeTexture = new THREE.TextureLoader().load("../public/under.png");
+    const nodeGeometry = new THREE.SphereGeometry(5, 32, 32);
+    const nodeMaterial = new THREE.MeshBasicMaterial({
+      map: nodeTexture,
+    });
+    const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+    node.position.set(90, -5, -25);
+    sphere.add(node);
+
+    // sự kiện hover hiển thị thông tin
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    document.addEventListener("mousemove", (event) => {
+      // Chuyển đổi vị trí chuột từ pixel sang hệ tọa độ [-1, 1]
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      // Cập nhật raycaster
+      raycaster.setFromCamera(mouse, camera);
+
+      // Kiểm tra va chạm trong sphere ( Dễ nhầm lẫn với scene )
+      const intersects = raycaster.intersectObjects(sphere.children);
+      if (
+        intersects.length > 0
+        // && document.querySelector("main")?.style.display === "none"
+      ) {
+        const hoveredObject = intersects[0].object;
+
+        // Kiểm tra nếu đối tượng là moon
+        if (hoveredObject === node) {
+          // alert("enter node");
+        }
+      } else {
+        // alert("leave node");
+      }
+    });
+
+    // Sự kiện lăn chuột
+    window.addEventListener("wheel", (event) => {
+      const delta = event.deltaY * 0.1; // Tính toán độ zoom
+      if (isOpen) {
+        zoomCamera(-delta); // Gọi hàm zoom (đổi dấu để zoom in/out đúng)
+      }
+    });
+
     let rotationY = 0;
 
     // Thêm phần cập nhật cho animation chung
     function animate() {
-      requestAnimationFrame(animate);
+      if (!isAnimation) {
+        return;
+      }
+      // requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate); // Lặp lại khi isAnimation là true
 
       // Chuyển đổi giữa các cảnh hoặc điều chỉnh vật thể
-      if (isAnimation) {
-        rotationY += 0.001;
-      }
+      rotationY += 0.001;
 
       sphere.rotation.y = rotationY;
       controls.update();
@@ -285,14 +338,83 @@ function Tour() {
       }
     }
 
-    animate();
+    if (isAnimation) {
+      animate();
+    }
+
+    function moveDivWithMouse() {
+      const myDiv = document.getElementById("myDiv");
+      const parent = document.querySelector<HTMLDivElement>(
+        `.${styles.containCanvas}`
+      ); // Đảm bảo styles.containCanvas là đúng
+
+      if (!myDiv || !parent) return;
+
+      let targetX = 0;
+      let targetY = 0;
+      let currentX = 0;
+      let currentY = 0;
+      const lerpSpeed = 0.1; // Tốc độ di chuyển (thấp hơn là di chuyển chậm hơn)
+
+      // Hàm để di chuyển div mượt mà
+      function updatePosition() {
+        // Tính toán khoảng cách di chuyển từ vị trí hiện tại tới vị trí mục tiêu
+        currentX += (targetX - currentX) * lerpSpeed;
+        currentY += (targetY - currentY) * lerpSpeed;
+
+        if (!myDiv || !parent) return;
+
+        // Cập nhật vị trí của div
+        myDiv.style.left = `${currentX - myDiv.offsetWidth / 2}px`;
+        myDiv.style.top = `${currentY - myDiv.offsetHeight / 2}px`;
+
+        // Gọi lại hàm này trong vòng lặp animation
+        requestAnimationFrame(updatePosition);
+      }
+
+      // Lắng nghe sự kiện di chuyển chuột trên phần tử cha
+      parent.addEventListener("mousemove", (event) => {
+        // Lấy tọa độ chuột tương ứng với vị trí trong phần tử cha
+        const rect = parent.getBoundingClientRect();
+        console.log(event.clientX, event.clientY);
+        console.log(rect.left, rect.top);
+        targetX = event.clientX - rect.left;
+        targetY = event.clientY - rect.top;
+      });
+
+      parent.addEventListener("mouseleave", () => {
+        // Di chuyển div về vị trí ban đầu khi chuột rời khỏi phần tử cha
+        targetX = parent.offsetWidth / 2;
+        targetY = parent.offsetHeight / 2;
+      });
+
+      // Bắt đầu vòng lặp mượt mà
+      updatePosition();
+    }
+
+    moveDivWithMouse();
+
+    const pauseBtn = document.querySelector<HTMLElement>(`.${styles.pauseBtn}`);
+
+    pauseBtn?.addEventListener("click", () => {
+      setIsAnimation(false);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId); // Dừng vòng lặp animation
+      }
+    });
+    const playBtn = document.querySelector<HTMLElement>(`.${styles.playBtn}`);
+
+    playBtn?.addEventListener("click", () => {
+      setIsAnimation(true);
+      animate();
+    });
 
     // Cleanup function để giải phóng tài nguyên
     return () => {
       rendererIntroTour.dispose();
       rendererTour.dispose();
     };
-  }, [isAnimation, isOpen]); // Thêm dependancy nếu bạn muốn cập nhật lại khi thay đổi isAnimation
+  }, [isOpen]); // Thêm dependancy nếu bạn muốn cập nhật lại khi thay đổi isAnimation
 
   return (
     <>
@@ -309,24 +431,23 @@ function Tour() {
           </p>
         </div>
         <div className={styles.containCanvas}>
-          <FontAwesomeIcon
-            icon={faPause}
+          <FaPause
             className={styles.pause}
             onClick={handleAnimationChange}
             style={{ display: isAnimation ? "block" : "none" }}
-          ></FontAwesomeIcon>
-          <FontAwesomeIcon
-            icon={faPlay}
+          />
+          <FaPlay
             className={styles.play}
             onClick={handleAnimationChange}
             style={{ display: isAnimation ? "none" : "block" }}
-          ></FontAwesomeIcon>
-          <FontAwesomeIcon
-            icon={faArrowsToEye}
-            className={styles.comein}
-            onClick={handleVirtualTour}
-          ></FontAwesomeIcon>
-          <h2 className={styles.exploreText}>Khám phá ngay!</h2>
+          />
+          <div id="myDiv" style={{ position: "absolute" }}>
+            <FaArrowsToEye
+              className={styles.comein}
+              onClick={handleVirtualTour}
+            />
+            <h2 className={styles.exploreText}>Khám phá ngay!</h2>
+          </div>
           {/* intro - canvas */}
           <canvas id="intro-tour" />
         </div>
@@ -341,12 +462,79 @@ function Tour() {
           </p>
         </div>
       </div>
-      <div className={styles.virtual_tour}>
+      <div className={styles.virtual_tour} onMouseMove={handleMouseEnterMenu}>
         {/* main - canvas */}
-        <canvas id="tour" />
+        <canvas
+          id="tour"
+          onClick={handleCloseMenu}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          style={{ cursor: cursor }}
+        />
+        <div className={styles.node}>
+          <div className={styles.subNode}></div>
+        </div>
+        {/* Header chứa logo + close */}
         <div className={styles.headerTour}>
           <h2>NLU360</h2>
-          <FontAwesomeIcon icon={faCircleXmark} className={styles.close_btn}/>
+          <IoIosCloseCircle
+            className={styles.close_btn}
+            onClick={handleClose}
+          />
+        </div>
+        {/* Menu bên trái */}
+        <div
+          className={`${styles.leftMenu} ${isMenuVisible ? styles.show : ""}`}
+        >
+          <h2>NLU Tour</h2>
+          <div className={styles.search}>
+            <input type="text" className={styles.inputSeach} />
+            <FaSearch className={styles.searchBtn} />
+          </div>
+          <ul>
+            <li>Scene 1</li>
+            <li>Scene 2</li>
+            <li>Scene 3</li>
+            <li>Scene 4</li>
+            <li>Scene 5</li>
+          </ul>
+        </div>
+        {/* Footer chứa các tính năng */}
+        <div className={styles.footerTour}>
+          <i>NLU360</i>
+          <div className="contain_extension" style={{ display: "flex" }}>
+            <FaPause
+              className={styles.pauseBtn}
+              style={{ display: isAnimation ? "block" : "none" }}
+            />
+            <FaPlay
+              className={styles.playBtn}
+              style={{ display: isAnimation ? "none" : "block" }}
+            />
+            <FaLanguage
+              className={styles.info_btn}
+              onClick={toggleInfomation}
+            />
+            <FaVolumeHigh
+              className={styles.info_btn}
+              onClick={toggleInfomation}
+            />
+            <FaInfoCircle
+              className={styles.info_btn}
+              onClick={toggleInfomation}
+            />
+            {isFullscreen ? (
+              <MdFullscreenExit
+                className={styles.fullscreen_btn}
+                onClick={toggleFullscreen}
+              />
+            ) : (
+              <MdFullscreen
+                className={styles.fullscreen_btn}
+                onClick={toggleFullscreen}
+              />
+            )}
+          </div>
         </div>
       </div>
     </>
