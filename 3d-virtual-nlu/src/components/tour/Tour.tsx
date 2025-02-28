@@ -457,8 +457,7 @@ function Tour() {
             After you tour our campus virtually, take the next step and join us
             for an online information session! In these hour-long sessions, an
             admission officer and a student will share information about Harvard
-            College and answer the questions you submit through the chat. View
-            our schedule of upcoming sessions and register today!
+            College and answer the questions you submit through.
           </p>
         </div>
       </div>
