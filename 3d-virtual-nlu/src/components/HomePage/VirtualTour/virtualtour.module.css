@@ -1,0 +1,26 @@
+.virtualTourContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.vtBackground {
+  position: fixed;
+  top: -10vh;
+  left: 0;
+  height: 120vh;
+  width: 100%;
+}
+
+.vtBackgroundImage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* .vtImage {
+  object-fit: cover;
+} */
