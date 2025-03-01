@@ -1,16 +1,15 @@
-
-import { useState } from 'react'
-import './App.css'
-import RouterConfig from './components/Router'
-import Login from './components/login/Login'
-import Register from './components/register/Register'
+import "./App.css";
+import RouterConfig from "./components/Router";
+import Home from "./components/HomePage/Home";
+import { BrowserRouter as Router } from "react-router-dom";
 
 function App() {
   return (
-    <>
-      <RouterConfig/>
-      {/* <Register/> */}
-    </>
-  )
+    <Router>
+      <>
+        <RouterConfig />
+      </>
+    </Router>
+  );
 }
 export default App;

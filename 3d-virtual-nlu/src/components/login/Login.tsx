@@ -1,7 +1,7 @@
 // src/components/LoginForm.tsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import styles from './Login.module.css';
+import styles from "./Login.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
@@ -31,18 +31,18 @@ const Login: React.FC = () => {
 
     // Kiểm tra thông tin đăng nhập (ví dụ đơn giản)
     if (username === "admin@gmail.com" && password === "123456") {
-      navigate("/tour");
+      navigate("/");
     } else {
       alert("Invalid username or password");
     }
   };
 
-  const handleShowContent = () =>{
+  const handleShowContent = () => {
     setShowContent((preState) => !preState);
-  }
+  };
 
   return (
-    <div className={styles.container} style={{position:'relative'}}>
+    <div className={styles.container} style={{ position: "relative" }}>
       <div className={styles.loginContainer}>
         <h2>Login</h2>
         <form onSubmit={handleSubmit}>
@@ -69,7 +69,11 @@ const Login: React.FC = () => {
               placeholder="Enter your password"
               className={styles.inputField}
             />
-            <FontAwesomeIcon className={styles.eye} onClick={handleShowContent} icon={ showContent ? faEyeSlash : faEye}></FontAwesomeIcon>
+            <FontAwesomeIcon
+              className={styles.eye}
+              onClick={handleShowContent}
+              icon={showContent ? faEyeSlash : faEye}
+            ></FontAwesomeIcon>
           </div>
           <button type="submit">Login</button>
         </form>
