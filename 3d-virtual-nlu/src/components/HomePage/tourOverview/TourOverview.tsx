@@ -6,6 +6,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./touroverview.module.css";
+
 import {
   FaArrowsToEye,
   FaLanguage,
@@ -260,14 +261,62 @@ const TourOverview = () => {
     underBgk.rotation.x -= Math.PI / 2;
     sphere.add(underBgk);
 
-    const nodeTexture = new THREE.TextureLoader().load("../public/under.png");
-    const nodeGeometry = new THREE.SphereGeometry(5, 32, 32);
-    const nodeMaterial = new THREE.MeshBasicMaterial({
-      map: nodeTexture,
-    });
-    const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-    node.position.set(90, -5, -25);
-    sphere.add(node);
+    // // -- Node hơi khó để nhúng 1 element HTML vào sphere (đang tìm giải pháp) --
+
+    // // Tạo một canvas để vẽ div vào đó
+    // const canvas = document.createElement("canvas");
+    // const ctx = canvas.getContext("2d");
+
+    // // Cài đặt kích thước canvas
+    // canvas.width = 40;
+    // canvas.height = 40;
+
+    // // Thêm một event listener để cập nhật texture từ div vào mỗi frame
+    // const videoTexture = new THREE.CanvasTexture(canvas);
+
+    // // Tạo một mesh với video texture
+    // const nodeGeometry = new THREE.CircleGeometry(10);
+    // const nodeMaterial = new THREE.MeshBasicMaterial({
+    //   map: videoTexture,
+    // });
+
+    // // Tạo mesh và thêm vào scene
+    // const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
+    // node.position.set(90, -5, -25);
+    // sphere.add(node);
+
+    // // Đặt thời gian cập nhật texture, ví dụ: mỗi 100ms
+    // let lastUpdateTime = Date.now();
+    // const updateInterval = 100; // Cập nhật mỗi 100ms
+
+    // // Hàm cập nhật canvas từ div
+    // function updateTexture() {
+    //   // Lấy phần tử div từ DOM
+    //   const div = document.querySelector(`.${styles.containNode}`);
+    //   if (!div || !ctx) return;
+
+    //   // Kiểm tra thời gian đã trôi qua kể từ lần cập nhật cuối
+    //   const currentTime = Date.now();
+    //   if (currentTime - lastUpdateTime >= updateInterval) {
+    //     lastUpdateTime = currentTime;
+
+    //     // Dùng html2canvas để render div thành canvas
+    //     html2canvas(div).then((renderedCanvas) => {
+    //       // Vẽ canvas mới vào canvas Three.js
+    //       ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //       ctx.drawImage(renderedCanvas, 0, 0, canvas.width, canvas.height);
+
+    //       // Cập nhật texture của Three.js
+    //       videoTexture.needsUpdate = true;
+    //     });
+    //   }
+
+    //   // Lặp lại mỗi frame
+    //   requestAnimationFrame(updateTexture);
+    // }
+
+    // // Bắt đầu cập nhật texture
+    // updateTexture();
 
     // sự kiện hover hiển thị thông tin
     const raycaster = new THREE.Raycaster();
@@ -449,7 +498,9 @@ const TourOverview = () => {
           onMouseUp={handleMouseUp}
           style={{ cursor: cursor }}
         />
-        <div className={styles.node}>
+        <div className={styles.containNode}>
+          <div className={styles.borderNode}></div>
+          <div className={styles.node}></div>
           <div className={styles.subNode}></div>
         </div>
         {/* Header chứa logo + close */}
@@ -476,6 +527,15 @@ const TourOverview = () => {
             <li>Scene 4</li>
             <li>Scene 5</li>
           </ul>
+        </div>
+        {/* Hộp thông tin */}
+        <div className={styles.infoBox}>
+          <p>
+            After you tour our campus virtually, take the next step and join us
+            for an online information session! In these hour-long sessions, an
+            admission officer and a student will share information about Harvard
+            College and answer the questions you submit through.
+          </p>
         </div>
         {/* Footer chứa các tính năng */}
         <div className={styles.footerTour}>
