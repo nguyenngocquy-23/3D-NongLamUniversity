@@ -1,8 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
-import styles from "./Tour.module.css";
+// Import Libraries
+
+import { useScroll, useTransform, motion } from "framer-motion";
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+import React, { useEffect, useRef, useState } from "react";
+import styles from "./touroverview.module.css";
+
 import {
   FaArrowsToEye,
   FaLanguage,
@@ -11,17 +15,35 @@ import {
   FaVolumeHigh,
 } from "react-icons/fa6";
 import { FaInfoCircle, FaSearch } from "react-icons/fa";
+import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import { IoIosCloseCircle } from "react-icons/io";
+const TourOverview = () => {
+  // Variables ------ Start
+  const container = useRef<HTMLDivElement>(null);
 
-function Tour() {
+  const scroll = useScroll();
+
+  const y = useTransform(scroll.scrollYProgress, [0, 1], ["-10vh", "10vh"]);
+
+  /** Xử lý bởi Quý */
   const [isAnimation, setIsAnimation] = useState(true);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
-  const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
-  let animationFrameId: number | null = null; // Để lưu id của requestAnimationFrame
 
-  // Hàm kiểm tra xem trình duyệt hỗ trợ fullscreen không
+  const [isOpen, setIsOpen] = useState(false);
+
+  let animationFrameId: number | null = null;
+
+  const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
+
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+
+  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
+
+  // Variables ------ End
+
+  const handleAnimationChange = () => {
+    setIsAnimation((prevState) => !prevState);
+  };
+
   const requestFullscreen = (element: any) => {
     if (element.requestFullscreen) {
       element.requestFullscreen();
@@ -40,16 +62,28 @@ function Tour() {
   const exitFullscreen = () => {
     if (document.exitFullscreen) {
       document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) {
-      // Firefox
-      document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) {
-      // Chrome, Safari và Opera
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      // IE/Edge
-      document.msExitFullscreen();
     }
+  };
+
+  const handleMouseEnterMenu = (event: any) => {
+    const mouse = event.clientX;
+
+    const threshold = window.innerWidth * 0.05;
+    if (mouse < threshold) {
+      setIsMenuVisible(true);
+    }
+  };
+
+  const handleMouseDown = () => {
+    setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
+  };
+
+  const handleMouseUp = () => {
+    setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
+  };
+
+  const handleCloseMenu = () => {
+    setIsMenuVisible(false);
   };
 
   const toggleFullscreen = () => {
@@ -70,83 +104,55 @@ function Tour() {
     }
   };
 
-  const toggleInfomation = () => {
-    // dependen data scene
-  };
-
-  const handleMouseDown = () => {
-    setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
-  };
-
-  const handleMouseUp = () => {
-    setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
-  };
-
-  const handleMouseEnterMenu = (event: any) => {
-    const mouse = event.clientX;
-
-    const threshold = window.innerWidth * 0.05;
-    if (mouse < threshold) {
-      setIsMenuVisible(true);
-    }
-  };
-
-  const handleCloseMenu = () => {
-    setIsMenuVisible(false);
-  };
-
-  const handleAnimationChange = () => {
-    setIsAnimation((prevState) => !prevState);
-  };
-  const handleClose = () => {
+  const handleVirtualTour = () => {
     const vt = document.querySelector<HTMLCanvasElement>("#tour");
-    const tour = document.querySelector<HTMLElement>(`.${styles.tour}`);
-    const h1Tour = document.querySelector<HTMLHeadElement>(`.${styles.h1}`);
+    const tour = document.querySelector<HTMLElement>(
+      `.${styles.containCanvas}`
+    );
+
     if (!vt) {
-      console.log("Không tìm thấy thẻ canvas");
       return;
     } else if (!tour) {
-      console.log("Không tìm thấy thẻ tour");
       return;
     } else {
       const parent = vt.parentElement;
-      if (parent && h1Tour) {
+      if (parent) {
+        console.log("oke");
+        parent.style.display = "block";
+        tour.style.display = "none";
+        setIsOpen(true);
+      } else {
+        return;
+      }
+    }
+  };
+
+  const handleClose = () => {
+    const vt = document.querySelector<HTMLCanvasElement>("#tour");
+    const tour = document.querySelector<HTMLElement>(
+      `.${styles.containCanvas}`
+    );
+
+    if (!vt) {
+      return;
+    } else if (!tour) {
+      return;
+    } else {
+      const parent = vt.parentElement;
+      if (parent) {
         parent.style.display = "none";
         tour.style.display = "block";
-        h1Tour.style.display = "block";
         setIsOpen(false);
         exitFullscreen(); // Thoát fullscreen
         setIsFullscreen(false);
       } else {
-        console.log("Không tìm thấy thẻ cha || h1Tour");
         return;
       }
     }
   };
 
-  const handleVirtualTour = () => {
-    const vt = document.querySelector<HTMLCanvasElement>("#tour");
-    const tour = document.querySelector<HTMLElement>(`.${styles.tour}`);
-    const h1Tour = document.querySelector<HTMLHeadElement>(`.${styles.h1}`);
-    if (!vt) {
-      console.log("Không tìm thấy thẻ canvas");
-      return;
-    } else if (!tour) {
-      console.log("Không tìm thấy thẻ tour");
-      return;
-    } else {
-      const parent = vt.parentElement;
-      if (parent && h1Tour) {
-        console.log("oke");
-        parent.style.display = "block";
-        tour.style.display = "none";
-        h1Tour.style.display = "none";
-        setIsOpen(true);
-      } else {
-        console.log("Không tìm thấy thẻ cha || h1Tour");
-        return;
-      }
-    }
+  const toggleInfomation = () => {
+    // dependen data scene
   };
 
   useEffect(() => {
@@ -449,50 +455,40 @@ function Tour() {
   }, [isOpen]); // Thêm dependancy nếu bạn muốn cập nhật lại khi thay đổi isAnimation
 
   return (
-    <>
-      {/* sub-nav */}
-      <h1 className={styles.h1}>Virtual Tour</h1>
-      <div className={styles.tour}>
-        <div className={styles.explore}>
-          <h2 style={{ fontFamily: "serif" }}>Explore Nong Lam University</h2>
-          <p>
-            Use our Virtual Tour to discover spaces that aren't even available
-            on an in-person campus tour, such as classrooms, laboratories,
-            residence halls, and more. Even better, it's available 24 hours a
-            day, seven days a week, and never reaches capacity.
-          </p>
-        </div>
-        <div className={styles.containCanvas}>
-          <FaPause
-            className={styles.pause}
-            onClick={handleAnimationChange}
-            style={{ display: isAnimation ? "block" : "none" }}
-          />
-          <FaPlay
-            className={styles.play}
-            onClick={handleAnimationChange}
-            style={{ display: isAnimation ? "none" : "block" }}
-          />
-          <div id="myDiv" style={{ position: "absolute" }}>
-            <FaArrowsToEye
-              className={styles.comein}
-              onClick={handleVirtualTour}
+    <div
+      id="tourOverview"
+      ref={container}
+      className={styles.virtualTourContainer}
+      style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
+    >
+      <div className={styles.vtBackground}>
+        <motion.div style={{ y }} className={styles.vtBackgroundImage}>
+          <h2>Tham quan ảo</h2>
+          <div className={styles.containCanvas}>
+            <FaPause
+              className={styles.pause}
+              onClick={handleAnimationChange}
+              style={{ display: isAnimation ? "block" : "none" }}
             />
-            <h2 className={styles.exploreText}>Khám phá ngay!</h2>
+            <FaPlay
+              className={styles.play}
+              onClick={handleAnimationChange}
+              style={{ display: isAnimation ? "none" : "block" }}
+            />
+            <div id="myDiv" style={{ position: "absolute" }}>
+              <FaArrowsToEye
+                className={styles.comein}
+                onClick={handleVirtualTour}
+              />
+              <h2 className={styles.exploreText}>Khám phá ngay!</h2>
+            </div>
+
+            {/* intro - canvas */}
+            <canvas id="intro-tour" />
           </div>
-          {/* intro - canvas */}
-          <canvas id="intro-tour" />
-        </div>
-        <div className={styles.explore}>
-          <h2 style={{ fontFamily: "serif" }}>Explore Nong Lam University</h2>
-          <p>
-            After you tour our campus virtually, take the next step and join us
-            for an online information session! In these hour-long sessions, an
-            admission officer and a student will share information about Harvard
-            College and answer the questions you submit through.
-          </p>
-        </div>
+        </motion.div>
       </div>
+
       <div className={styles.virtual_tour} onMouseMove={handleMouseEnterMenu}>
         {/* main - canvas */}
         <canvas
@@ -579,8 +575,8 @@ function Tour() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
-}
+};
 
-export default Tour;
+export default TourOverview;

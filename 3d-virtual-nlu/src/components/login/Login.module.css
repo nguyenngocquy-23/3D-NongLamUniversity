@@ -1,172 +1,171 @@
 /* new */
 
 .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
-    margin: 0;
-    background: url("../../assets/login_bgk1.jpg") no-repeat center;
-    font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  background: url("/src/assets/picture/login_bgk1.jpg") no-repeat center / cover;
+  font-family: Arial, sans-serif;
 }
 
 @keyframes slideDown {
-    0% {
-        top: -300px;
-        filter: blur(3px);
-        opacity: 0;
-    }
+  0% {
+    top: -300px;
+    filter: blur(3px);
+    opacity: 0;
+  }
 
-    50% {
-        filter: blur(1px);
-        opacity: 0.5;
-    }
+  50% {
+    filter: blur(1px);
+    opacity: 0.5;
+  }
 
-    100% {
-        top: 0;
-        filter: blur(0);
-        opacity: 1;
-    }
+  100% {
+    top: 0;
+    filter: blur(0);
+    opacity: 1;
+  }
 }
 
 /* Định nghĩa keyframes cho rotation */
 @keyframes rotateAnimation {
-    0% {
-        transform: perspective(1000px) rotateX(-15deg) rotateY(20deg);
-    }
+  0% {
+    transform: perspective(1000px) rotateX(-15deg) rotateY(20deg);
+  }
 
-    50% {
-        transform: perspective(1000px) rotateX(15deg) rotateY(-20deg);
-    }
+  50% {
+    transform: perspective(1000px) rotateX(15deg) rotateY(-20deg);
+  }
 
-    100% {
-        transform: perspective(1000px) rotateX(-15deg) rotateY(20deg);
-    }
+  100% {
+    transform: perspective(1000px) rotateX(-15deg) rotateY(20deg);
+  }
 }
 
 .loginContainer {
-    position: relative;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    transform: perspective(1000px) rotateX(-15deg) rotateY(20deg);
-    transition: transform 0.5s ease;
-    /* Thêm animation ở đây */
-    animation: slideDown 0.8s ease-out forwards,
-        rotateAnimation 5s infinite alternate ease-in-out;
+  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  transform: perspective(1000px) rotateX(-15deg) rotateY(20deg);
+  transition: transform 0.5s ease;
+  /* Thêm animation ở đây */
+  animation: slideDown 0.8s ease-out forwards,
+    rotateAnimation 5s infinite alternate ease-in-out;
 }
 
 .loginContainer:hover {
-    transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+  transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
 }
 
 h2 {
-    text-align: center;
-    font-size: 30px;
-    color: #fff;
-    margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 30px;
+  color: #fff;
+  margin-bottom: 1.5rem;
 }
 
 /* Style cho các trường input */
 .inputGroup {
-    margin-bottom: 1.5rem;
-    position: relative;
+  margin-bottom: 1.5rem;
+  position: relative;
 }
 
 .inputGroup label {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 .inputField {
-    width: 90%;
-    padding: 1rem;
-    font-size: 1.2rem;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    background: transparent;
-    color: #fff;
-    outline: none;
-    transition: all 0.3s ease;
-    /* Tạo hiệu ứng mượt mà */
+  width: 90%;
+  padding: 1rem;
+  font-size: 1.2rem;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background: transparent;
+  color: #fff;
+  outline: none;
+  transition: all 0.3s ease;
+  /* Tạo hiệu ứng mượt mà */
 }
 
 /* Khi input có giá trị */
 .inputField:focus {
-    border-color: #007bff;
-    /* Màu viền thay đổi khi focus */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    /* Thêm bóng đổ */
+  border-color: #007bff;
+  /* Màu viền thay đổi khi focus */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  /* Thêm bóng đổ */
 }
 
 /* Style cho placeholder (nếu có) */
 input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-    transition: opacity 0.3s ease;
+  color: rgba(255, 255, 255, 0.7);
+  transition: opacity 0.3s ease;
 }
 
 /* Khi người dùng bắt đầu nhập vào input */
 .inputField:valid {
-    padding: 0.8rem;
-    font-size: 1.5rem;
-    /* Tăng kích thước chữ khi có giá trị */
-    transform: scale(1.1);
-    /* Phóng to nội dung */
-    transition: transform 0.3s ease, font-size 0.3s ease;
-    /* Thêm hiệu ứng cho việc thay đổi kích thước */
+  padding: 0.8rem;
+  font-size: 1.5rem;
+  /* Tăng kích thước chữ khi có giá trị */
+  transform: scale(1.1);
+  /* Phóng to nội dung */
+  transition: transform 0.3s ease, font-size 0.3s ease;
+  /* Thêm hiệu ứng cho việc thay đổi kích thước */
 }
 
 /* Khi input không có giá trị (trở lại kích thước ban đầu) */
 .inputField:not(:valid) {
-    font-size: 1.2rem;
-    /* Đặt lại kích thước font ban đầu */
-    transform: scale(1);
-    /* Đặt lại scale ban đầu */
+  font-size: 1.2rem;
+  /* Đặt lại kích thước font ban đầu */
+  transform: scale(1);
+  /* Đặt lại scale ban đầu */
 }
 
 button {
-    width: 100%;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 5px;
-    background: #50f373;
-    color: #fff;
-    font-size: 1rem;
-    cursor: pointer;
-    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
-    transition: transform 0.5s ease;
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 5px;
+  background: #50f373;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
+  transition: transform 0.5s ease;
 }
 
 button:hover {
-    transform: perspective(1000px) scale(1.1);
-    background: #23c045;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    font-weight: 800;
+  transform: perspective(1000px) scale(1.1);
+  background: #23c045;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  font-weight: 800;
 }
 
 a {
-    color: #fff;
-    line-height: 2;
-    transform: scale(1);
-    transition: all 0.5s ease;
+  color: #fff;
+  line-height: 2;
+  transform: scale(1);
+  transition: all 0.5s ease;
 }
 
 a:hover {
-    color: white;
-    opacity: 0.8 !important;
-    font-size: 20px;
-    box-shadow: -1px -1px 20px rgba(0, 0, 0, 0.4);
+  color: white;
+  opacity: 0.8 !important;
+  font-size: 20px;
+  box-shadow: -1px -1px 20px rgba(0, 0, 0, 0.4);
 }
 
 .eye:hover {
-    cursor: pointer;
-
+  cursor: pointer;
 }
 
 .eye {
-    position: absolute;
-    top: 50px;
-    right: 10px;
+  position: absolute;
+  top: 50px;
+  right: 10px;
 }
