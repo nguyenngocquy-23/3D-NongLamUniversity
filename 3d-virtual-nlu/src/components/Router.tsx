@@ -3,6 +3,7 @@ import Login from "./login/Login";
 import Register from "./register/Register";
 import ForgotPassword from "./forgotPassword/ForgotPassword";
 import Home from "./HomePage/Home";
+import TourVirtual from "./HomePage/tour/tourVirtual";
 
 function RouterConfig() {
   return (
@@ -11,6 +12,7 @@ function RouterConfig() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
+      <Route path="/tourVirtual" element={<TourVirtual />} />
     </Routes>
   );
 }
