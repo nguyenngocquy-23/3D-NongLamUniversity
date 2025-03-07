@@ -62,6 +62,84 @@ const images = [
 const Background: React.FC = () => {
   const parallaxRef = useRef<HTMLDivElement>(null);
 
+  const addFogAnimation = () => {
+    // Tìm tất cả các phần tử có className chứa "fog"
+    const fogElements = document.querySelectorAll("[class*='fog']");
+    console.log(fogElements)
+
+    fogElements.forEach((element, index) => {
+      // Tạo các giá trị ngẫu nhiên cho các keyframe
+      const randomYPosition = Math.random() * 100 - 50; // Di chuyển ngẫu nhiên lên xuống trong phạm vi -5 đến 5
+      const randomDuration = Math.random() * 2 + 5; // Thời gian chuyển động ngẫu nhiên từ 3s đến 8s
+
+      // Tạo keyframe động cho hiệu ứng di chuyển ngẫu nhiên
+      const animationName = `fogAnimation_${index}`;
+      const styleSheet = document.styleSheets[0];
+
+      // Thêm CSS animation vào stylesheet
+      styleSheet.insertRule(`
+        @keyframes ${animationName} {
+          0% {
+            transform: translateX(0);
+          }
+          50% {
+            transform: translateX(${randomYPosition}px);
+          }
+          100% {
+            transform: translateX(0);
+          }
+        }
+      `, styleSheet.cssRules.length);
+
+      // Áp dụng animation cho phần tử
+      element.style.animation = `${animationName} ${randomDuration}s infinite ease-in-out`;
+    });
+  };
+
+  useEffect(() => {
+    // Gọi hàm để thêm animation cho các phần tử khi component được mount
+    addFogAnimation();
+  }, []);
+
+  const addMountainAnimation = () => {
+    // Tìm tất cả các phần tử có className chứa "fog"
+    const fogElements = document.querySelectorAll("[class*='mountain']");
+    console.log(fogElements)
+
+    fogElements.forEach((element, index) => {
+      // Tạo các giá trị ngẫu nhiên cho các keyframe
+      const randomYPosition = Math.random() * 100 - 50; // Di chuyển ngẫu nhiên lên xuống trong phạm vi -5 đến 5
+      const randomDuration = Math.random() * 2 + 5; // Thời gian chuyển động ngẫu nhiên từ 3s đến 8s
+
+      // Tạo keyframe động cho hiệu ứng di chuyển ngẫu nhiên
+      const animationName = `fogAnimation_${index}`;
+      const styleSheet = document.styleSheets[0];
+
+      // Thêm CSS animation vào stylesheet
+      styleSheet.insertRule(`
+        @keyframes ${animationName} {
+          0% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(${randomYPosition}px);
+          }
+          100% {
+            transform: translateY(0);
+          }
+        }
+      `, styleSheet.cssRules.length);
+
+      // Áp dụng animation cho phần tử
+      element.style.animation = `${animationName} ${randomDuration}s infinite ease-in-out`;
+    });
+  };
+
+  // useEffect(() => {
+  //   // Gọi hàm để thêm animation cho các phần tử khi component được mount
+  //   addMountainAnimation();
+  // }, []);
+
   return (
     <main ref={parallaxRef}>
       {images.map((img, index) => (
