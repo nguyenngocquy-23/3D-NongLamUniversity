@@ -3,7 +3,8 @@ import Login from "./login/Login";
 import Register from "./register/Register";
 import ForgotPassword from "./forgotPassword/ForgotPassword";
 import Home from "./HomePage/Home";
-import TourVirtual from "./HomePage/tour/tourVirtual";
+import TourVirtual from "./HomePage/tour/TourVirtual";
+import Chat from "./socket/Chat.tsx";
 
 function RouterConfig() {
   return (
