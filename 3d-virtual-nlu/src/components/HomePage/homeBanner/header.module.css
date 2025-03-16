@@ -36,3 +36,29 @@ header img {
 .navLink:hover {
   color: #fff;
 }
+
+.dropdown{
+  margin-top: 10px;
+  position: relative;
+  outline: none;
+  padding: 0 20px;
+  white-space: nowrap;
+}
+
+.dropdownBtn:hover{
+  background: none !important;
+  transform: none !important;
+  opacity: 0.8;
+}
+.dropdownBtn{
+  background: none !important;
+  border: none;
+  overflow: none;
+  outline: none !important;
+}
+
+.dropdownMenu{
+  position: absolute;
+  top: 30px;
+  right: 0;
+}

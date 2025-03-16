@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import { useUser } from "../Contect.tsx";
 
 const Login: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username và password
@@ -12,16 +14,18 @@ const Login: React.FC = () => {
   const [showContent, setShowContent] = useState(false);
   const navigate = useNavigate();
 
+  const { setUser } = useUser();
+
   // Xử lý sự kiện khi form được submit
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); // Ngăn chặn việc reload trang
 
     // Kiểm tra xem username có phải là email hợp lệ không
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (!emailPattern.test(username)) {
-      alert("Please enter a valid email address.");
-      return;
-    }
+    // const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    // if (!emailPattern.test(username)) {
+    //   alert("Please enter a valid email address.");
+    //   return;
+    // }
 
     // Kiểm tra xem password có ít nhất 6 ký tự không
     if (password.length < 6) {
@@ -29,11 +33,59 @@ const Login: React.FC = () => {
       return;
     }
 
-    // Kiểm tra thông tin đăng nhập (ví dụ đơn giản)
-    if (username === "admin@gmail.com" && password === "123456") {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/login",
+        {
+          username: username,
+          password: password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Kiểm tra nếu đăng nhập thành công
+      if (response.data.statusCode !== 1000) {
+        console.log("Invalid");
+        throw new Error(
+          response.data.message || "Invalid username or password"
+        );
+      }
+
+      const responseUser = await axios.post(
+        "http://localhost:8080/api/user",
+        { username: username, password: password, },
+        {
+          headers: {
+            Authorization: response.data.data.token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Kiểm tra nếu đăng nhập thành công
+      if (responseUser.data == null) {
+        console.log("Get userInfo failed");
+        throw new Error("Get userInfo failed");
+      }
+
+      // Lấy thông tin người dùng từ response
+      const userData = responseUser.data;
+
+      // Lưu thông tin người dùng vào context
+      setUser(userData);
+
+      // Lưu token vào localStorage để sử dụng sau này
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", response.data.data.token);
+
+      // Chuyển hướng sau khi đăng nhập thành công
       navigate("/");
-    } else {
-      alert("Invalid username or password");
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Login failed. Please try again.");
     }
   };
 
