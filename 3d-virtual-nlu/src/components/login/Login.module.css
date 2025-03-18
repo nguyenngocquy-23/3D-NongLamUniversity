@@ -126,7 +126,7 @@ input::placeholder {
   /* Đặt lại scale ban đầu */
 }
 
-button {
+.loginBtn {
   width: 100%;
   padding: 0.75rem;
   border: none;
@@ -139,7 +139,7 @@ button {
   transition: transform 0.5s ease;
 }
 
-button:hover {
+.loginBtn:hover {
   transform: perspective(1000px) scale(1.1);
   background: #23c045;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);

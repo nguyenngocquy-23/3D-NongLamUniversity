@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import style from "./header.module.css"; // Import cần thiết khi sử dụng CSS Modules
 import { Link as ScrollLink } from "react-scroll";
-import { useUser } from "../../Contect.tsx";
+import { useUser } from "../../Context.tsx";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -9,8 +9,12 @@ const Header: React.FC = () => {
   const { user, setUser } = useUser(); // Lấy thông tin user từ Context
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const [socket, setSocket] = useState<WebSocket | null>(null);
 
   const handleLogout = () => {
+    if(socket){
+      socket.close();
+    }
     setUser(null); // Xóa user khỏi context
     localStorage.removeItem("user"); // Xóa user khỏi localStorage
     navigate("/login"); // Chuyển hướng về trang đăng nhập

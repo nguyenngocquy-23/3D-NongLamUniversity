@@ -5,7 +5,7 @@ import styles from "./Login.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-import { useUser } from "../Contect.tsx";
+import { useUser } from "../Context.tsx";
 
 const Login: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username và password
@@ -127,7 +127,7 @@ const Login: React.FC = () => {
               icon={showContent ? faEyeSlash : faEye}
             ></FontAwesomeIcon>
           </div>
-          <button type="submit">Login</button>
+          <button className={styles.loginBtn} type="submit">Login</button>
         </form>
         <Link to="/forgotPassword">Forgot Password</Link> <br />
         <b>
