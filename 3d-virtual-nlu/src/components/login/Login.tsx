@@ -77,9 +77,9 @@ const Login: React.FC = () => {
           </div>
           <button type="submit">Login</button>
         </form>
-        <Link to="/forgotPassword">Forgot Password</Link> <br />
+        <Link className={styles.link} to="/forgotPassword">Forgot Password</Link> <br />
         <b>
-          Don't have an account? <Link to="/register">Register here!</Link>
+          Don't have an account? <Link className={styles.link} to="/register">Register here!</Link>
         </b>
       </div>
       {/* <canvas className={styles.canvas_login}></canvas> */}

@@ -3,10 +3,14 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./TourVirtual.module.css";
 import { FaInfoCircle, FaSearch } from "react-icons/fa";
-import { FaLanguage, FaPause, FaPlay} from "react-icons/fa6";
+import { FaLanguage, FaPause, FaPlay } from "react-icons/fa6";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
-import { IoIosCloseCircle, IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
+import {
+  IoIosCloseCircle,
+  IoMdVolumeHigh,
+  IoMdVolumeOff,
+} from "react-icons/io";
+import { Link, useNavigate } from "react-router-dom";
 
 const TourVirtual = () => {
   const navigate = useNavigate();
@@ -336,6 +340,80 @@ const TourVirtual = () => {
       // }
     });
 
+    const subNode = document.querySelectorAll<HTMLElement>(`.${styles.node}`);
+
+    subNode.forEach((node) => {
+      node.addEventListener("click", () => {
+        moveAnimation("thuvien.jpg");
+      });
+    });
+
+    function moveAnimation(texturePath: string) {
+      let zoomLevel = 500; // Tương tự như moveAnimation gốc, nhưng dựa theo zoomCamera
+      let duration = 3000;
+      let startTime = performance.now();
+
+      // Lưu vị trí ban đầu của camera
+      const startPosition = camera.position.clone();
+      console.log("startPosition:", startPosition);
+
+      function animate() {
+        let t = Math.min((performance.now() - startTime) / duration, 1);
+        let easedT = easeInOutQuad(t);
+
+        // Lưu hướng nhìn ban đầu của camera
+        const startDirection = new THREE.Vector3();
+        camera.getWorldDirection(startDirection.clone());
+        console.log("startDirection:", startDirection);
+
+        // Lấy hướng nhìn của camera
+        const direction = new THREE.Vector3();
+        camera.getWorldDirection(direction);
+        console.log("direction", direction);
+
+        // Tính toán khoảng cách mới dựa trên easing
+        const distance = zoomLevel * easedT;
+
+        // Tính toán vị trí mới của camera
+        const newPosition = new THREE.Vector3()
+          .copy(startPosition)
+          .add(direction.multiplyScalar(-distance));
+
+        // Di chuyển camera đến vị trí mới bằng lerp
+        camera.position.lerp(newPosition, 0.1);
+
+        console.log(
+          `t: ${t.toFixed(2)}, Position: ${camera.position.toArray()}`
+        );
+
+        if (t < 1) {
+          rendererTour.render(scene, camera);
+          requestAnimationFrame(animate);
+        } else {
+          handleNodeChange(texturePath);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function handleNodeChange(texturePath: string) {
+      if (
+        material.map?.image.src !==
+        new URL(texturePath, window.location.href).href
+      ) {
+        material.map?.dispose();
+        new THREE.TextureLoader().load(texturePath, (newTexture) => {
+          material.map = newTexture;
+          material.needsUpdate = true;
+          rendererTour.render(scene, camera);
+        });
+      }
+    }
+
+    const easeInOutQuad = (t: number) =>
+      t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
     const playBtn = document.querySelector<HTMLElement>(`.${styles.playBtn}`);
 
     playBtn?.addEventListener("click", () => {
@@ -454,11 +532,21 @@ const TourVirtual = () => {
             <FaSearch className={styles.searchBtn} />
           </div>
           <ul>
-            <li>Scene 1</li>
-            <li>Scene 2</li>
-            <li>Scene 3</li>
-            <li>Scene 4</li>
-            <li>Scene 5</li>
+            <li className={styles.node}>
+              <span className={styles.nodeName}>Scene 1</span>
+            </li>
+            <li className={styles.node}>
+              <span className={styles.nodeName}>Scene 2</span>
+            </li>
+            <li className={styles.node}>
+              <span className={styles.nodeName}>Scene 3</span>
+            </li>
+            <li className={styles.node}>
+              <span className={styles.nodeName}>Scene 4</span>
+            </li>
+            <li className={styles.node}>
+              <span className={styles.nodeName}>Scene 5</span>
+            </li>
           </ul>
         </div>
         {/* Hộp thông tin */}
@@ -485,7 +573,10 @@ const TourVirtual = () => {
             {isMuted ? (
               <IoMdVolumeOff className={styles.info_btn} onClick={toggleMute} />
             ) : (
-              <IoMdVolumeHigh className={styles.info_btn} onClick={toggleMute} />
+              <IoMdVolumeHigh
+                className={styles.info_btn}
+                onClick={toggleMute}
+              />
             )}
             <FaInfoCircle
               className={styles.info_btn}
