@@ -63,7 +63,7 @@
   transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
 }
 
-h2 {
+.h2 {
   text-align: center;
   font-size: 30px;
   color: #fff;
@@ -146,14 +146,14 @@ input::placeholder {
   font-weight: 800;
 }
 
-a {
+.link {
   color: #fff;
   line-height: 2;
   transform: scale(1);
   transition: all 0.5s ease;
 }
 
-a:hover {
+.link:hover {
   color: white;
   opacity: 0.8 !important;
   font-size: 20px;
@@ -168,4 +168,15 @@ a:hover {
   position: absolute;
   top: 50px;
   right: 10px;
+}
+
+.error{
+  text-align: center;
+  color: rgb(255, 18, 18);
+  font-style: italic;
+  font-weight: 700;
+}
+
+.passLengthError{
+  border: 2px solid rgb(255, 18, 18);
 }

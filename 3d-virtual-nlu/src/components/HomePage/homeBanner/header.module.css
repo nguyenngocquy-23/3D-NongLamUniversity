@@ -1,4 +1,4 @@
-header {
+.header {
   position: absolute;
   top: 0;
   left: 0;
@@ -12,7 +12,7 @@ header {
   z-index: 999;
 }
 
-header img {
+.header img {
   height: 60px;
   padding: 1.5rem;
 }

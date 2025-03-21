@@ -1,13 +1,14 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
 import styles from "./Chat.module.css";
-import { useUser } from "../Context.tsx";
+// import { useUser } from "../Context.tsx";
 import {IoIosCloseCircle, IoMdSend} from 'react-icons/io';
 import axios from 'axios';
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 const Chat = () => {
     // const { roomId, userId } = useParams(); // Lấy roomId & userId từ URL
-    const {user} = useUser();
+    const user = useSelector((state: RootState) => state.auth.user);
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [messages, setMessages] = useState<{ username: string; content: string }[]>([]);
     const [inputMessage, setInputMessage] = useState("");

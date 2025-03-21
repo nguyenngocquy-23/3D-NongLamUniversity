@@ -1,23 +1,21 @@
 import { Link } from "react-router-dom";
-import style from "./header.module.css"; // Import cần thiết khi sử dụng CSS Modules
+import style from "./header.module.css";
 import { Link as ScrollLink } from "react-scroll";
-import { useUser } from "../../Context.tsx";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../redux/store.tsx";
+import { logoutUser } from "../../redux/slices/authSlice.tsx";
 
 const Header: React.FC = () => {
-  const { user, setUser } = useUser(); // Lấy thông tin user từ Context
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = () => {
-    if(socket){
-      socket.close();
-    }
-    setUser(null); // Xóa user khỏi context
-    localStorage.removeItem("user"); // Xóa user khỏi localStorage
-    navigate("/login"); // Chuyển hướng về trang đăng nhập
+    dispatch(logoutUser()); // Gọi action logout
+    navigate("/login");
   };
 
   return (
@@ -29,49 +27,37 @@ const Header: React.FC = () => {
       />
 
       <nav className={style.nav}>
-        <ScrollLink
-          to="campusMap"
-          className={style.navLink}
-          smooth={true}
-          duration={500}
-        >
+        <ScrollLink to="campusMap" className={style.navLink} smooth={true} duration={500}>
           Sơ đồ trường
         </ScrollLink>
 
-        <ScrollLink
-          to="tourOverview"
-          className={style.navLink}
-          smooth={true}
-          duration={500}
-        >
+        <ScrollLink to="tourOverview" className={style.navLink} smooth={true} duration={500}>
           Khám phá tour ảo
         </ScrollLink>
 
-        <a href="#" className={style.navLink}>
-          Chương trình đào tạo
-        </a>
+        <a href="#" className={style.navLink}>Chương trình đào tạo</a>
+
         {user ? (
           <div className={style.dropdown}>
-          {/* Username button */}
-          <button
-            className={style.dropdownBtn}
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-          >
-            👤 {user.username}
-          </button>
+            <button className={style.dropdownBtn} onClick={() => setDropdownOpen(!dropdownOpen)}>
+              👤 {user.username}
+            </button>
 
-          {/* Dropdown menu */}
-          {dropdownOpen && (
-            <ul className={style.dropdownMenu}>
-              <li>
-                <button className={style.dropdownBtn}><Link to="">Hồ sơ</Link></button>
-              </li>
-              <li>
-                <button className={style.dropdownBtn} onClick={handleLogout}>Đăng xuất</button>
-              </li>
-            </ul>
-          )}
-        </div>
+            {dropdownOpen && (
+              <ul className={style.dropdownMenu}>
+                <li>
+                  <button className={style.dropdownBtn}>
+                    <Link to="/profile">Hồ sơ</Link>
+                  </button>
+                </li>
+                <li>
+                  <button className={style.dropdownBtn} onClick={handleLogout}>
+                    Đăng xuất
+                  </button>
+                </li>
+              </ul>
+            )}
+          </div>
         ) : (
           <Link to="/login" className={style.navLink}>Đăng nhập</Link>
         )}
