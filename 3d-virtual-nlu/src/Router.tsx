@@ -5,6 +5,7 @@ import ForgotPassword from "./pages/auths/ForgotPassword.tsx";
 import Home from "./pages/visitor/Home.tsx";
 import TourVirtual from "./pages/visitor/TourVirtual.tsx";
 import Dashboard from "./pages/admin/Dashboard.tsx";
+
 import User from "./pages/admin/User.tsx";
 
 function RouterConfig() {

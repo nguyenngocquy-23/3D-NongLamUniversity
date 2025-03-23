@@ -21,8 +21,6 @@ const Home: React.FC = () => {
       <CampusMap />
 
       <TourOverview />
-
-      {/* <div className={styles.section2}></div> */}
     </main>
   );
 };

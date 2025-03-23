@@ -65,7 +65,6 @@ const Background: React.FC = () => {
   const addFogAnimation = () => {
     // Tìm tất cả các phần tử có className chứa "fog"
     const fogElements = document.querySelectorAll("[class*='fog']");
-    console.log(fogElements)
 
     fogElements.forEach((element, index) => {
       // Tạo các giá trị ngẫu nhiên cho các keyframe
@@ -89,10 +88,16 @@ const Background: React.FC = () => {
             transform: translateX(0);
           }
         }
-      `, styleSheet.cssRules.length);
+
+      `,
+        styleSheet.cssRules.length
+      );
 
       // Áp dụng animation cho phần tử
-      element.style.animation = `${animationName} ${randomDuration}s infinite ease-in-out`;
+      (
+        element as HTMLElement
+      ).style.animation = `${animationName} ${randomDuration}s infinite ease-in-out`;
+
     });
   };
 
@@ -104,7 +109,6 @@ const Background: React.FC = () => {
   const addMountainAnimation = () => {
     // Tìm tất cả các phần tử có className chứa "fog"
     const fogElements = document.querySelectorAll("[class*='mountain']");
-    console.log(fogElements)
 
     fogElements.forEach((element, index) => {
       // Tạo các giá trị ngẫu nhiên cho các keyframe
@@ -116,7 +120,9 @@ const Background: React.FC = () => {
       const styleSheet = document.styleSheets[0];
 
       // Thêm CSS animation vào stylesheet
-      styleSheet.insertRule(`
+      styleSheet.insertRule(
+        `
+
         @keyframes ${animationName} {
           0% {
             transform: translateY(0);
@@ -128,10 +134,16 @@ const Background: React.FC = () => {
             transform: translateY(0);
           }
         }
-      `, styleSheet.cssRules.length);
+
+      `,
+        styleSheet.cssRules.length
+      );
 
       // Áp dụng animation cho phần tử
-      element.style.animation = `${animationName} ${randomDuration}s infinite ease-in-out`;
+
+      (
+        element as HTMLElement
+      ).style.animation = `${animationName} ${randomDuration}s infinite ease-in-out`;
     });
   };
 

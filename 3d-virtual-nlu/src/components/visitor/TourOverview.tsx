@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import styles from "../../styles/tourOverview.module.css";
 
+
 import { FaArrowsToEye, FaPause, FaPlay } from "react-icons/fa6";
 const TourOverview = () => {
   const navigate = useNavigate();
