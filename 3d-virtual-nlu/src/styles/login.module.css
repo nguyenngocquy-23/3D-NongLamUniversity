@@ -178,6 +178,7 @@ input::placeholder {
   font-weight: 700;
 }
 
-.passLengthError{
+
+.passLengthError {
   border: 2px solid rgb(255, 18, 18);
 }

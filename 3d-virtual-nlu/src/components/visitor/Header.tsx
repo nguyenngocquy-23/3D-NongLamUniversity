@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import style from "../../styles/header.module.css";
+
 import { Link as ScrollLink } from "react-scroll";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -27,19 +28,35 @@ const Header: React.FC = () => {
       />
 
       <nav className={style.nav}>
-        <ScrollLink to="campusMap" className={style.navLink} smooth={true} duration={500}>
+
+        <ScrollLink
+          to="campusMap"
+          className={style.navLink}
+          smooth={true}
+          duration={500}
+        >
           Sơ đồ trường
         </ScrollLink>
 
-        <ScrollLink to="tourOverview" className={style.navLink} smooth={true} duration={500}>
+        <ScrollLink
+          to="tourOverview"
+          className={style.navLink}
+          smooth={true}
+          duration={500}
+        >
           Khám phá tour ảo
         </ScrollLink>
 
-        <a href="#" className={style.navLink}>Chương trình đào tạo</a>
+        <a href="#" className={style.navLink}>
+          Chương trình đào tạo
+        </a>
 
         {user ? (
           <div className={style.dropdown}>
-            <button className={style.dropdownBtn} onClick={() => setDropdownOpen(!dropdownOpen)}>
+            <button
+              className={style.dropdownBtn}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
               👤 {user.username}
             </button>
 
@@ -59,7 +76,11 @@ const Header: React.FC = () => {
             )}
           </div>
         ) : (
-          <Link to="/login" className={style.navLink}>Đăng nhập</Link>
+
+          <Link to="/login" className={style.navLink}>
+            Đăng nhập
+          </Link>
+
         )}
       </nav>
     </header>
