@@ -1,11 +1,11 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "./login/Login";
-import Register from "./register/Register";
-import ForgotPassword from "./forgotPassword/ForgotPassword";
-import Home from "./HomePage/Home";
-import TourVirtual from "./HomePage/tour/TourVirtual";
-import Dashboard from "./admin/dashboard/Dashboard.tsx";
-import User from "./admin/user/User.tsx";
+import Login from "./pages/auths/Login.tsx";
+import Register from "./pages/auths/Register.tsx";
+import ForgotPassword from "./pages/auths/ForgotPassword.tsx";
+import Home from "./pages/visitor/Home.tsx";
+import TourVirtual from "./pages/visitor/TourVirtual.tsx";
+import Dashboard from "./pages/admin/Dashboard.tsx";
+import User from "./pages/admin/User.tsx";
 
 function RouterConfig() {
   return (

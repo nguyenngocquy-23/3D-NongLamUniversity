@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./CampusMap.module.css";
+import styles from "../../styles/campusMap.module.css";
 
 const CampusMap = () => {
   return (

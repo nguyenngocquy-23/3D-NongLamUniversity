@@ -1,7 +1,7 @@
 import React, { use, useRef } from "react";
 import Header from "./Header";
 import Background from "./Background";
-import styles from "./banner.module.css";
+import styles from "../../styles/banner.module.css";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 const Banner: React.FC = () => {

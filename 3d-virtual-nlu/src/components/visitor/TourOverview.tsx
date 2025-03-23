@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
-import styles from "./touroverview.module.css";
+import styles from "../../styles/tourOverview.module.css";
 
 import { FaArrowsToEye, FaPause, FaPlay } from "react-icons/fa6";
 const TourOverview = () => {

@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import Banner from "./homeBanner/BannerContainer";
-import CampusMap from "./campusMap/CampusMap";
+import Banner from "../../components/visitor/BannerContainer";
+import CampusMap from "../../components/visitor/CampusMap";
 import Lenis from "@studio-freight/lenis";
-import TourOverview from "./tourOverview/TourOverview";
+import TourOverview from "../../components/visitor/TourOverview";
 
 const Home: React.FC = () => {
   useEffect(() => {

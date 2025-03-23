@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import styles from "./user.module.css";
+import styles from "../../styles/user.module.css";
 import { FaLock, FaUnlock } from "react-icons/fa";
 import DataTable from "react-data-table-component";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { RootState } from "../../redux/Store";
 import { MdAdminPanelSettings } from "react-icons/md";
 
 interface User {

@@ -1,7 +1,7 @@
 // src/components/RegisterForm.tsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import styles from "../login/Login.module.css";
+import styles from "../../styles/login.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 

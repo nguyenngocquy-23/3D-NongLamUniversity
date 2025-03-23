@@ -4,7 +4,7 @@ import * as THREE from "three";
 
 import { useEffect, useRef } from "react";
 
-import "./Background.css";
+import "../../styles/background.css";
 
 const images = [
   { src: "/src/assets/picture/background.png", className: "parallax bg-img" },
