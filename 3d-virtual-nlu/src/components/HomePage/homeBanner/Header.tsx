@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import style from "./header.module.css"; // Import cần thiết khi sử dụng CSS Modules
-import { Link as ScrollLink } from "react-scroll";
+import { Button, Link as ScrollLink } from "react-scroll";
 const Header: React.FC = () => {
   return (
     <header className={style.header}>
@@ -32,6 +32,11 @@ const Header: React.FC = () => {
         <a href="#" className={style.navLink}>
           Chương trình đào tạo
         </a>
+
+        <Link to="/tourManager" className={style.navLink}>
+          Quản lý Tour
+        </Link>
+
         <Link to="/login" className={style.navLink}>
           Đăng nhập
         </Link>

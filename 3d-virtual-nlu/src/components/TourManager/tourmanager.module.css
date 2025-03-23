@@ -1,0 +1,28 @@
+.container {
+  background-color: #fff;
+  width: 100vw;
+  height: 100vh;
+}
+
+.tablist {
+  background-color: #a7d477;
+  margin-top: 100px;
+  display: flex;
+  justify-content: left;
+  margin-bottom: 20px;
+  width: 100vw;
+}
+
+.subTab {
+  background-color: #a7d477;
+  color: #fff;
+  transition: all 0.3s ease;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.subTab:hover {
+  background-color: #76d411;
+}
