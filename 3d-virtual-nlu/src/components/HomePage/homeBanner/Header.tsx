@@ -1,7 +1,23 @@
 import { Link } from "react-router-dom";
 import style from "./header.module.css"; // Import cần thiết khi sử dụng CSS Modules
-import { Button, Link as ScrollLink } from "react-scroll";
+import { Link as ScrollLink } from "react-scroll";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../redux/store.tsx";
+import { logoutUser } from "../../redux/slices/authSlice.tsx";
+
 const Header: React.FC = () => {
+  const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const handleLogout = () => {
+    dispatch(logoutUser()); // Gọi action logout
+    navigate("/login");
+  };
+
   return (
     <header className={style.header}>
       <img
@@ -33,13 +49,35 @@ const Header: React.FC = () => {
           Chương trình đào tạo
         </a>
 
-        <Link to="/tourManager" className={style.navLink}>
-          Quản lý Tour
-        </Link>
+        {user ? (
+          <div className={style.dropdown}>
+            <button
+              className={style.dropdownBtn}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              👤 {user.username}
+            </button>
 
-        <Link to="/login" className={style.navLink}>
-          Đăng nhập
-        </Link>
+            {dropdownOpen && (
+              <ul className={style.dropdownMenu}>
+                <li>
+                  <button className={style.dropdownBtn}>
+                    <Link to="/profile">Hồ sơ</Link>
+                  </button>
+                </li>
+                <li>
+                  <button className={style.dropdownBtn} onClick={handleLogout}>
+                    Đăng xuất
+                  </button>
+                </li>
+              </ul>
+            )}
+          </div>
+        ) : (
+          <Link to="/login" className={style.navLink}>
+            Đăng nhập
+          </Link>
+        )}
       </nav>
     </header>
   );

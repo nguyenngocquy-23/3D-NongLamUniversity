@@ -30,7 +30,16 @@ main {
   width: 892px;
   top: calc(50% + 69px);
   left: calc(50% + 230px);
-  z-index: 3;
+  z-index: 3;animation: forMountain10 5s infinite ease;
+}
+
+@keyframe forMountain10{
+  0% {
+    transform: scale(1);
+  }
+  100%{
+    transform: scale(1.1);
+  }
 }
 
 .fog-6 {
@@ -114,34 +123,42 @@ main {
   line-height: 0.88;
   font-weight: 100;
   font-size: 5.5rem;
+  padding-top: 100px;
 }
 
 .text h1 {
   font-weight: 800;
   font-size: 8rem;
   line-height: 0.88;
-  animation: shake 3s ease-in-out infinite;
+  animation: shake 5s ease-in-out infinite;
 }
 
 @keyframes shake {
   0% {
-    transform: translate(0);
+    transform: translate(0, 0);
   }
 
-  25% {
-    transform: translate(-35px) translateY(-40px);
-  }
-  50% {
-    transform: translate(35px) translateY(40px);
+  20% {
+    transform: translate(35px, -40px); /* Di chuyển sang phải và lên trên */
   }
 
-  75% {
-    transform: translate(-35px) translateY(-40px);
+  40% {
+    transform: translateY(-40px); /* Di chuyển sang trái và xuống dưới */
   }
+
+  60% {
+    transform: translate(35px,-40px); /* Di chuyển sang phải và lên trên */
+  }
+  
+  80% {
+    transform: translateY(40px); /* Di chuyển sang phải và lên trên */
+  }
+
   100% {
-    transform: translate(0px);
+    transform: translate(0, 0); /* Trở lại vị trí ban đầu */
   }
 }
+
 
 .mountain-6 {
   position: absolute;
@@ -165,6 +182,19 @@ main {
   width: 538px;
   top: calc(50% + 250px);
   left: calc(50% + 130px);
+  /* animation: forMountain5 3s infinite ease;  */
+}
+
+@keyframes forMountain5 {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 .fog-3 {
