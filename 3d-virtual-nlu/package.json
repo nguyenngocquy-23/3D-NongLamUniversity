@@ -15,13 +15,18 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@react-three/drei": "^10.0.1",
     "@react-three/fiber": "^9.0.4",
+    "@reduxjs/toolkit": "^2.6.1",
     "@studio-freight/lenis": "^1.0.42",
+    "axios": "^1.8.3",
     "framer-motion": "^12.4.7",
     "react": "^19.0.0",
+    "react-data-table-component": "^7.7.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^7.2.0",
     "react-scroll": "^1.9.3",
+    "sweetalert2": "^11.17.2",
     "three": "^0.173.0"
   },
   "devDependencies": {

@@ -4,6 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../redux/store";
+import { loginUser } from "../redux/slices/authSlice";
 
 const Login: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username và password
@@ -11,29 +14,35 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const [showContent, setShowContent] = useState(false);
   const navigate = useNavigate();
+  const { isLoading, error} = useSelector((state: RootState) => state.auth);
+  const [isError, setIsError] = useState(false);
+  const [passLengthError, setPassLengthError] = useState(false);
 
-  // Xử lý sự kiện khi form được submit
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault(); // Ngăn chặn việc reload trang
+  const dispatch = useDispatch<AppDispatch>();
 
-    // Kiểm tra xem username có phải là email hợp lệ không
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (!emailPattern.test(username)) {
-      alert("Please enter a valid email address.");
-      return;
-    }
+  // Xử lý khi form được submit
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
-    // Kiểm tra xem password có ít nhất 6 ký tự không
-    if (password.length < 6) {
-      alert("Password must be at least 6 characters long.");
-      return;
-    }
+    // if (password.length < 6) {
+    //   setPassLengthError(true);
+    //   setIsError(false);
+    //   return;
+    // }else{
+    //   setPassLengthError(false);
+    // }
 
-    // Kiểm tra thông tin đăng nhập (ví dụ đơn giản)
-    if (username === "admin@gmail.com" && password === "123456") {
-      navigate("/");
-    } else {
-      alert("Invalid username or password");
+    try {
+      // Dispatch action đăng nhập
+      const response = await dispatch(loginUser({ username, password })).unwrap();
+      if(response.user.roleId == 1){
+        navigate("/"); // Điều hướng về trang chính sau khi đăng nhập thành công
+      }else if(response.user.roleId == 2){
+        navigate("/admin"); // Điều hướng về trang admin sau khi đăng nhập thành công
+      }
+    } catch (err) {
+      console.error(err);
+      setIsError(true);
     }
   };
 
@@ -44,7 +53,7 @@ const Login: React.FC = () => {
   return (
     <div className={styles.container} style={{ position: "relative" }}>
       <div className={styles.loginContainer}>
-        <h2>Login</h2>
+        <h2 className={styles.h2}>Login</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <label htmlFor="username">Username</label>
@@ -55,7 +64,7 @@ const Login: React.FC = () => {
               onChange={(e) => setUsername(e.target.value)}
               required
               placeholder="Enter your username"
-              className={styles.inputField}
+              className={`${styles.inputField} ${isError ? styles.passLengthError : ""}`}
             />
           </div>
           <div className={styles.inputGroup}>
@@ -67,7 +76,7 @@ const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Enter your password"
-              className={styles.inputField}
+              className={`${styles.inputField} ${passLengthError ? styles.passLengthError : ""} ${isError ? styles.passLengthError : ""} `}
             />
             <FontAwesomeIcon
               className={styles.eye}
@@ -75,7 +84,12 @@ const Login: React.FC = () => {
               icon={showContent ? faEyeSlash : faEye}
             ></FontAwesomeIcon>
           </div>
-          <button type="submit">Login</button>
+          <button className={styles.loginBtn} type="submit" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
+          </button>
+          {isError && <p className={styles.error}>{error}</p>}
+          {passLengthError && <p className={styles.error}> Mật khẩu phải có ít nhất 6 ký tự</p>}
+          {/* <button className={styles.loginBtn} type="submit">Login</button> */}
         </form>
         <Link className={styles.link} to="/forgotPassword">Forgot Password</Link> <br />
         <b>
