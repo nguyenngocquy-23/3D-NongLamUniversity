@@ -3,7 +3,7 @@ import styles from "../styles/chat.module.css";
 import { IoIosCloseCircle, IoMdSend } from "react-icons/io";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState } from "../redux/Store";
 
 const Chat = () => {
   // const { roomId, userId } = useParams(); // Lấy roomId & userId từ URL

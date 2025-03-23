@@ -6,7 +6,7 @@ import { FaLock, FaUnlock } from "react-icons/fa";
 import DataTable from "react-data-table-component";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { RootState } from "../../redux/Store";
 import { MdAdminPanelSettings } from "react-icons/md";
 
 interface User {

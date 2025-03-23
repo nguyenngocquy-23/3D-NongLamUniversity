@@ -4,8 +4,8 @@ import { Link as ScrollLink } from "react-scroll";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../redux/store.tsx";
-import { logoutUser } from "../../redux/slices/authSlice.tsx";
+import { RootState } from "../../redux/Store.tsx";
+import { logoutUser } from "../../redux/slices/AuthSlice.tsx";
 
 const Header: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);

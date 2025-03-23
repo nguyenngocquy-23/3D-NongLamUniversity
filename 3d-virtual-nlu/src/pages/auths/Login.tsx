@@ -5,8 +5,8 @@ import styles from "../../styles/login.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../redux/store";
-import { loginUser } from "../../redux/slices/authSlice";
+import { AppDispatch, RootState } from "../../redux/Store";
+import { loginUser } from "../../redux/slices/AuthSlice";
 
 const Login: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username và password

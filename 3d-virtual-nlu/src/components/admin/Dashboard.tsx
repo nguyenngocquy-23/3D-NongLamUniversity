@@ -12,8 +12,8 @@ import {
 import { MdDashboard } from "react-icons/md";
 import styles from "../../styles/dashboard.module.css";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../redux/store";
-import { logoutUser } from "../../redux/slices/authSlice";
+import { RootState } from "../../redux/Store";
+import { logoutUser } from "../../redux/slices/AuthSlice";
 
 const Dashboard = () => {
   //   const currentUser = useUser();
