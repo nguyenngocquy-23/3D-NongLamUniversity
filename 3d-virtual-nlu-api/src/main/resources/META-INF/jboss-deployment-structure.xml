@@ -1,0 +1,11 @@
+<jboss-deployment-structure>
+    <deployment>
+        <exclude-subsystems>
+            <subsystem name="mail"/>
+        </exclude-subsystems>
+        <exclusions>
+            <module name="javax.mail.api" />
+            <module name="org.jboss.ironjacamar.jdbcadapters" />
+        </exclusions>
+    </deployment>
+</jboss-deployment-structure>
