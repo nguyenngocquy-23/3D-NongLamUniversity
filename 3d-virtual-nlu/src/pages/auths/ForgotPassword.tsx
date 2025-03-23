@@ -28,7 +28,7 @@ const ForgotPassword: React.FC = () => {
   return (
     <div className={styles.container} style={{ position: "relative" }}>
       <div className={styles.loginContainer}>
-        <h2> </h2>
+        <h2>Enter your email</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <label htmlFor="username">Username</label>

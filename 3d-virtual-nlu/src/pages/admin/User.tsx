@@ -6,7 +6,7 @@ import { FaLock, FaUnlock } from "react-icons/fa";
 import DataTable from "react-data-table-component";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { RootState } from "../../redux/Store";
 import { MdAdminPanelSettings } from "react-icons/md";
 
 interface User {
@@ -153,7 +153,7 @@ function User() {
       name: "Số điện thoại",
       selector: (row: User) => row.phoneNumber,
       sortable: true,
-      width: "200px",
+        width:'200px'
     },
     {
       name: "Trạng thái",
@@ -176,13 +176,10 @@ function User() {
             )}
           </button>
         ) : (
-          <MdAdminPanelSettings
-            style={{ margin: "auto", fontSize: "25px", color: "#009879" }}
-            title="Admin nè"
-          />
+          <MdAdminPanelSettings style={{margin:'auto', fontSize:'25px', color:'#009879'}} title="Admin nè"/>
         ),
-      sortable: true,
-      width: "150px",
+        sortable: true,
+        width:'150px'
     },
   ];
 
