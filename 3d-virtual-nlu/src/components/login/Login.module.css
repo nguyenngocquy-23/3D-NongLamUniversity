@@ -147,6 +147,7 @@ input::placeholder {
 }
 
 .link {
+  text-decoration: none;
   color: #fff;
   line-height: 2;
   transform: scale(1);
