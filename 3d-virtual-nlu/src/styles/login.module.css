@@ -171,12 +171,13 @@ input::placeholder {
   right: 10px;
 }
 
-.error {
+.error{
   text-align: center;
   color: rgb(255, 18, 18);
   font-style: italic;
   font-weight: 700;
 }
+
 
 .passLengthError {
   border: 2px solid rgb(255, 18, 18);

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import style from "../../styles/header.module.css"; // Import cần thiết khi sử dụng CSS Modules
+import style from "../../styles/header.module.css";
+
 import { Link as ScrollLink } from "react-scroll";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -27,6 +28,7 @@ const Header: React.FC = () => {
       />
 
       <nav className={style.nav}>
+
         <ScrollLink
           to="campusMap"
           className={style.navLink}
@@ -74,9 +76,11 @@ const Header: React.FC = () => {
             )}
           </div>
         ) : (
+
           <Link to="/login" className={style.navLink}>
             Đăng nhập
           </Link>
+
         )}
       </nav>
     </header>

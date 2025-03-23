@@ -5,11 +5,7 @@ import styles from "../../styles/tourVirtual.module.css";
 import { FaInfoCircle, FaSearch } from "react-icons/fa";
 import { FaLanguage, FaPause, FaPlay } from "react-icons/fa6";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
-import {
-  IoIosCloseCircle,
-  IoMdVolumeHigh,
-  IoMdVolumeOff,
-} from "react-icons/io";
+import { IoIosCloseCircle, IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import Chat from "../../features/Chat";
 
@@ -551,7 +547,7 @@ const TourVirtual = () => {
           </ul>
         </div>
         {/* Hộp feedback */}
-        <Chat />
+        <Chat/>
         {/* Hộp thông tin */}
         <div className={styles.infoBox} onClick={toggleInfomation}>
           Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
