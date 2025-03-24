@@ -161,3 +161,6 @@ buildNumber.properties
 *.rdb
 
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij+all,maven,jboss,redis
+
+# mail
+src/main/resources/Mail.properties
