@@ -28,7 +28,6 @@ const Header: React.FC = () => {
       />
 
       <nav className={style.nav}>
-
         <ScrollLink
           to="campusMap"
           className={style.navLink}
@@ -76,11 +75,9 @@ const Header: React.FC = () => {
             )}
           </div>
         ) : (
-
           <Link to="/login" className={style.navLink}>
             Đăng nhập
           </Link>
-
         )}
       </nav>
     </header>

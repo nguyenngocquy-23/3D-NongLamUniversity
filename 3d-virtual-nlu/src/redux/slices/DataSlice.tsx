@@ -15,21 +15,30 @@ const initialState: DataState = {
 
 // Fetch users
 export const fetchUsers = createAsyncThunk("data/fetchUsers", async () => {
-  const response = await axios.get("https://jsonplaceholder.typicode.com/users");
+  const response = await axios.get(
+    "https://jsonplaceholder.typicode.com/users"
+  );
   return response.data;
 });
 
 // Fetch tours
 export const fetchTours = createAsyncThunk("data/fetchTours", async () => {
-  const response = await axios.get("https://jsonplaceholder.typicode.com/tours");
+  const response = await axios.get(
+    "https://jsonplaceholder.typicode.com/tours"
+  );
   return response.data;
 });
 
 // Fetch message
-export const fetchMessages = createAsyncThunk("data/fetchMessages", async () => {
-  const response = await axios.get("https://jsonplaceholder.typicode.com/messages");
-  return response.data;
-});
+export const fetchMessages = createAsyncThunk(
+  "data/fetchMessages",
+  async () => {
+    const response = await axios.get(
+      "https://jsonplaceholder.typicode.com/messages"
+    );
+    return response.data;
+  }
+);
 
 const dataSlice = createSlice({
   name: "data",
