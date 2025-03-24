@@ -51,6 +51,18 @@ public class AuthenticationService {
     protected long refreshDuration = JwtProperties.refreshDuration;
     protected String SIGN_KEY = JwtProperties.signerKey;
 
+
+    public boolean authenticate(String requestToken) {
+        boolean result = true;
+        try {
+            verifyToken(requestToken, false);
+        } catch (Exception e) {
+            result = false;
+            log.warn("Token be logouted");
+        }
+        return result;
+    }
+
     public SignedJWT verifyToken(String token, boolean isRefresh) {
         try {
             JWSVerifier jwsVerifier = new MACVerifier(SIGN_KEY.getBytes());
