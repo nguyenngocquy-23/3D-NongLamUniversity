@@ -30,4 +30,9 @@ public class UserService {
     public boolean isEmailExists(String email) {
         return userDao.getUserByEmail(email) != null;
     }
+
+    public User getUserByUserName(String username) {
+        return userDao.findByUsername(username);
+    }
+
 }
