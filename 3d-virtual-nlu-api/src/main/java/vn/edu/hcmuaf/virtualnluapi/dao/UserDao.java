@@ -152,7 +152,7 @@ public class UserDao {
     public int countAll() {
         Optional<Integer> total = ConnectionPool.getConnection().withHandle(handle ->
                         handle.createQuery("SELECT COUNT(u.id) FROM users u INNER JOIN roles r ON u.roleId = r.id WHERE r.name = :name"))
-                .bind("namSystemConstant.USER).mapTo(Integer.class).stream().findFirst();
+                .bind("name", SystemConstant.USER).mapTo(Integer.class).stream().findFirst();
         return total.orElse(0);
     }
 
