@@ -4,7 +4,7 @@ import Register from "./pages/auths/Register.tsx";
 import ForgotPassword from "./pages/auths/ForgotPassword.tsx";
 import Home from "./pages/visitor/Home.tsx";
 import TourVirtual from "./pages/visitor/TourVirtual.tsx";
-import Dashboard from "./pages/admin/Dashboard.tsx";
+import Dashboard from "./components/admin/Dashboard.tsx";
 
 import User from "./pages/admin/User.tsx";
 
