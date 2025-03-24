@@ -1,5 +1,5 @@
 import React, { Suspense, useRef, useState, useMemo } from "react";
-import styles from "../../styles/createnode.module.css";
+import styles from "../../styles/createNode.module.css";
 import { Canvas, extend, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import * as THREE from "three";
