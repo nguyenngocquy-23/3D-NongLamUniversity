@@ -27,6 +27,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.2.0",
     "react-scroll": "^1.9.3",
+    "stats.js": "^0.17.0",
     "sweetalert2": "^11.17.2",
     "three": "^0.173.0"
   },

@@ -5,9 +5,14 @@ import styles from "../../styles/tourVirtual.module.css";
 import { FaInfoCircle, FaSearch } from "react-icons/fa";
 import { FaLanguage, FaPause, FaPlay } from "react-icons/fa6";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
-import { IoIosCloseCircle, IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
+import {
+  IoIosCloseCircle,
+  IoMdVolumeHigh,
+  IoMdVolumeOff,
+} from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import Chat from "../../features/Chat";
+import Stats from "three/examples/jsm/libs/stats.module.js";
 
 const TourVirtual = () => {
   const navigate = useNavigate();
@@ -29,6 +34,13 @@ const TourVirtual = () => {
   const handleAnimationChange = () => {
     setIsAnimation((prevState) => !prevState);
   };
+
+  /**
+   * Thiết lập statistic cho trang
+   */
+  var stats = new Stats();
+  stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild(stats.dom);
 
   const requestFullscreen = (element: any) => {
     if (element.requestFullscreen) {
@@ -178,7 +190,7 @@ const TourVirtual = () => {
       zoomLevel += delta;
 
       // Giới hạn mức zoom
-      zoomLevel = THREE.MathUtils.clamp(zoomLevel, -200, 0);
+      zoomLevel = THREE.MathUtils.clamp(zoomLevel, -500, 500);
 
       // Lấy hướng nhìn của camera (hướng từ camera đến target)
       const direction = new THREE.Vector3();
@@ -216,97 +228,13 @@ const TourVirtual = () => {
     underBgk.rotation.x -= Math.PI / 2;
     sphere.add(underBgk);
 
-    // // -- Node hơi khó để nhúng 1 element HTML vào sphere (đang tìm giải pháp) --
-
-    // // Tạo một canvas để vẽ div vào đó
-    // const canvas = document.createElement("canvas");
-    // const ctx = canvas.getContext("2d");
-
-    // // Cài đặt kích thước canvas
-    // canvas.width = 40;
-    // canvas.height = 40;
-
-    // // Thêm một event listener để cập nhật texture từ div vào mỗi frame
-    // const videoTexture = new THREE.CanvasTexture(canvas);
-
-    // // Tạo một mesh với video texture
-    // const nodeGeometry = new THREE.CircleGeometry(10);
-    // const nodeMaterial = new THREE.MeshBasicMaterial({
-    //   map: videoTexture,
-    // });
-
-    // // Tạo mesh và thêm vào scene
-    // const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-    // node.position.set(90, -5, -25);
-    // sphere.add(node);
-
-    // // Đặt thời gian cập nhật texture, ví dụ: mỗi 100ms
-    // let lastUpdateTime = Date.now();
-    // const updateInterval = 100; // Cập nhật mỗi 100ms
-
-    // // Hàm cập nhật canvas từ div
-    // function updateTexture() {
-    //   // Lấy phần tử div từ DOM
-    //   const div = document.querySelector(`.${styles.containNode}`);
-    //   if (!div || !ctx) return;
-
-    //   // Kiểm tra thời gian đã trôi qua kể từ lần cập nhật cuối
-    //   const currentTime = Date.now();
-    //   if (currentTime - lastUpdateTime >= updateInterval) {
-    //     lastUpdateTime = currentTime;
-
-    //     // Dùng html2canvas để render div thành canvas
-    //     html2canvas(div).then((renderedCanvas) => {
-    //       // Vẽ canvas mới vào canvas Three.js
-    //       ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //       ctx.drawImage(renderedCanvas, 0, 0, canvas.width, canvas.height);
-
-    //       // Cập nhật texture của Three.js
-    //       videoTexture.needsUpdate = true;
-    //     });
-    //   }
-
-    //   // Lặp lại mỗi frame
-    //   requestAnimationFrame(updateTexture);
-    // }
-
-    // // Bắt đầu cập nhật texture
-    // updateTexture();
-
-    // sự kiện hover hiển thị thông tin
-    // const raycaster = new THREE.Raycaster();
-    // const mouse = new THREE.Vector2();
-    // document.addEventListener("mousemove", (event) => {
-    //   // Chuyển đổi vị trí chuột từ pixel sang hệ tọa độ [-1, 1]
-    //   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    //   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    //   // Cập nhật raycaster
-    //   raycaster.setFromCamera(mouse, camera);
-
-    //   // Kiểm tra va chạm trong sphere ( Dễ nhầm lẫn với scene )
-    //   const intersects = raycaster.intersectObjects(sphere.children);
-    //   if (
-    //     intersects.length > 0
-    //     // && document.querySelector("main")?.style.display === "none"
-    //   ) {
-    //     const hoveredObject = intersects[0].object;
-
-    //     // Kiểm tra nếu đối tượng là moon
-    //     if (hoveredObject === node) {
-    //       // alert("enter node");
-    //     }
-    //   } else {
-    //     // alert("leave node");
-    //   }
-    // });
-
     // Sự kiện lăn chuột
 
     let rotationY = 0;
 
     // Thêm phần cập nhật cho animation chung
     function animate() {
+      stats.begin();
       // if (!isAnimation) {
       //   return;
       // }
@@ -320,6 +248,7 @@ const TourVirtual = () => {
       }
       controls.update();
       rendererTour.render(scene, camera);
+      stats.end();
     }
 
     // if (isAnimation) {
@@ -331,10 +260,6 @@ const TourVirtual = () => {
     pauseBtn?.addEventListener("click", () => {
       console.log("pause");
       setIsAnimation(false);
-      // if (animationFrameId) {
-      //   cancelAnimationFrame(animationFrameId); // Dừng vòng lặp animation
-      //   animationFrameId = null;
-      // }
     });
 
     const subNode = document.querySelectorAll<HTMLElement>(`.${styles.node}`);
@@ -394,6 +319,18 @@ const TourVirtual = () => {
       requestAnimationFrame(animate);
     }
 
+    /**
+     * Sử dụng để cập nhật lại giao diện người dùng khi màn hình resize.
+     */
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+
+      camera.updateProjectionMatrix();
+      rendererTour.setSize(window.innerWidth, window.innerHeight);
+      rendererTour.render(scene, camera);
+    }
+    window.addEventListener("resize", onWindowResize, false);
+
     function handleNodeChange(texturePath: string) {
       if (
         material.map?.image.src !==
@@ -415,9 +352,6 @@ const TourVirtual = () => {
 
     playBtn?.addEventListener("click", () => {
       setIsAnimation(true);
-      // if (!animationFrameId) {
-      //   animate(); // Gọi lại vòng lặp nếu chưa có animation frame ID
-      // }
     });
 
     // Cleanup function để giải phóng tài nguyên
@@ -455,16 +389,6 @@ const TourVirtual = () => {
 
           // Lưu đối tượng utterance vào state
           setUtterance(newUtterance);
-
-          // // Sử dụng onend để xử lý sự kiện khi âm thanh kết thúc
-          // newUtterance.onend = () => {
-          //   // Sau khi phát xong, nghỉ 1 phút rồi tiếp tục
-          //   setTimeout(() => {
-          //     console.log("Đang tiếp tục sau 1 phút nghỉ");
-          //     // Gọi lại hàm đọc văn bản sau 1 phút nghỉ
-          //     readText();
-          //   }, 5000); // 60000ms = 1 phút
-          // };
 
           // Khởi tạo việc đọc văn bản
           speechSynthesis.speak(newUtterance);
@@ -547,7 +471,7 @@ const TourVirtual = () => {
           </ul>
         </div>
         {/* Hộp feedback */}
-        <Chat/>
+        <Chat />
         {/* Hộp thông tin */}
         <div className={styles.infoBox} onClick={toggleInfomation}>
           Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
