@@ -454,16 +454,16 @@ const TourVirtual = () => {
   return (
     <>
       <div className={styles.virtual_tour} onMouseMove={handleMouseEnterMenu}>
-        <Canvas
+        {/* <Canvas
           onClick={handleCloseMenu}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           style={{ cursor: cursor }}
         >
           {imagePositions.map((position, index) => (
-            <ImageOnSphere key={index} position={position} />
+          
           ))}
-        </Canvas>
+        </Canvas> */}
 
         <div className={styles.containNode}>
           <div className={styles.borderNode}></div>

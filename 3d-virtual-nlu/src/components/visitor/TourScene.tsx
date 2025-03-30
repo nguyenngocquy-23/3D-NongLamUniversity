@@ -1,5 +1,5 @@
 import { useThree } from "@react-three/fiber";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import * as THREE from "three";
 
 /**
@@ -9,11 +9,12 @@ import * as THREE from "three";
  * + Tập trung cho việc hiển thị.
  */
 
-type TourSceneProps = {
+interface TourSceneProps {
   radius: number;
-};
+  sphereRef: React.RefObject<THREE.Mesh | null>;
+}
 
-const TourScene: React.FC<TourSceneProps> = ({ radius }) => {
+const TourScene: React.FC<TourSceneProps> = ({ radius, sphereRef }) => {
   const { scene } = useThree();
 
   useEffect(() => {
@@ -28,6 +29,15 @@ const TourScene: React.FC<TourSceneProps> = ({ radius }) => {
       side: THREE.BackSide,
     });
     const sphere = new THREE.Mesh(geometry, material);
+    sphere.name = "virtual-sphere";
+
+    if (sphereRef) {
+      sphereRef.current = sphere;
+      console.log(
+        "sphereRef.current được gán trong TourScene nè",
+        sphereRef.current
+      );
+    }
 
     const axesHelper = new THREE.AxesHelper(100);
 
@@ -47,7 +57,7 @@ const TourScene: React.FC<TourSceneProps> = ({ radius }) => {
       material.dispose();
       texture.dispose();
     };
-  }, [radius, scene]);
+  }, [radius, scene, sphereRef]);
 
   return null;
 };
