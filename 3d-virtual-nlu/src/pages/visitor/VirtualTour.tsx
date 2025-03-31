@@ -8,6 +8,7 @@ import CamControls from "../../components/visitor/CamControls";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import RaycasterHandler from "../../hook/RaycasterHandler";
+import GroundHotspot from "../../components/visitor/GroundHotspot";
 
 /**
  *
@@ -59,13 +60,13 @@ const VirtualTour = () => {
 
   const radius = 100;
 
-  // const [hotspots, setHotspots] = useState<
-  //   { id: number; position: [number, number, number] }[]
-  // >([]);
+  const [hotspots, setHotspots] = useState<
+    { id: number; position: [number, number, number] }[]
+  >([]);
 
-  // const handleAddHotspot = (position: [number, number, number]) => {
-  //   setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
-  // };
+  const handleAddHotspot = (position: [number, number, number]) => {
+    setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
+  };
 
   return (
     <div className={styles.tourContainer}>
@@ -82,17 +83,14 @@ const VirtualTour = () => {
         <UpdateCameraOnResize />
         <TourScene radius={radius} sphereRef={sphereRef} />
         <CamControls radius={radius} />
-        <RaycasterHandler sphereRef={sphereRef} />
+        <RaycasterHandler
+          sphereRef={sphereRef}
+          onAddHotspot={handleAddHotspot}
+        />
 
-        {/* Render danh sách GroundHotspot
         {hotspots.map((hotspot) => (
-          <GroundHotspot
-            key={hotspot.id}
-            position={hotspot.position}
-            onClick={() => console.log(`Clicked ${hotspot.id}`)}
-          />
-        ))} */}
-        {/* <HotspotPlacer onPlace={handleAddHotspot} /> */}
+          <GroundHotspot key={hotspot.id} position={hotspot.position} />
+        ))}
       </Canvas>
       <div className={styles.tourIcons}>
         <FullScreenToggle className={styles.fullScreenToggle} />

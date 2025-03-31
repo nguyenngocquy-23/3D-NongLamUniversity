@@ -4,9 +4,13 @@ import * as THREE from "three";
 
 interface RaycasterHandlerProps {
   sphereRef: React.RefObject<THREE.Mesh | null>;
+  onAddHotspot: (position: [number, number, number]) => void;
 }
 
-const RaycasterHandler: React.FC<RaycasterHandlerProps> = ({ sphereRef }) => {
+const RaycasterHandler: React.FC<RaycasterHandlerProps> = ({
+  sphereRef,
+  onAddHotspot,
+}) => {
   const { camera } = useThree();
   const raycaster = useRef(new THREE.Raycaster());
   const mouse = useRef(new THREE.Vector2());
@@ -32,52 +36,13 @@ const RaycasterHandler: React.FC<RaycasterHandlerProps> = ({ sphereRef }) => {
       if (intersects.length > 0) {
         const point = intersects[0].point;
         console.log("Toạ độ trên bề mặt: ", point);
-      } else {
-        console.log("Không có điểm nào trên bề mặt.");
+        onAddHotspot([point.x, point.y, point.z]); // Gọi hàm thêm hotspot với toạ độ đã tính toán
       }
     };
     window.addEventListener("click", handleMouseClick);
     return () => window.removeEventListener("click", handleMouseClick);
-  }, [camera, sphereRef]);
+  }, [camera, sphereRef, onAddHotspot]);
   return null;
 };
-
-// const [hotspots, setHotspots] = useState<
-//   { id: number; position: [number, number, number] }[]
-// >([]);
-
-//   const addHotspot = useCallback(
-//     (e: any) => {
-//       const raycaster = new THREE.Raycaster();
-//       const mouse = new THREE.Vector2();
-
-//       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-//       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-//       raycaster.setFromCamera(mouse, camera);
-//       const sphere = scene.getObjectByName(sphereName);
-//       if (!sphere) return;
-
-//       const intersects = raycaster.intersectObject(sphere);
-//       if (intersects.length > 0) {
-//         const point = intersects[0].point;
-
-//         // Đẩy điểm ra ngoài bề mặt cầu một chút để tránh bị chìm
-//         const normal = new THREE.Vector3(point.x, point.y, point.z).normalize();
-//         const adjustedPosition: [number, number, number] = normal
-//           .multiplyScalar(radius - 0.5) // Dịch ra ngoài bề mặt
-//           .toArray() as [number, number, number];
-
-//         setHotspots((prev) => [
-//           ...prev,
-//           { id: prev.length + 1, position: adjustedPosition },
-//         ]);
-//       }
-//     },
-//     [camera, scene, radius]
-//   );
-
-//   return { hotspots, addHotspot };
-// };
 
 export default RaycasterHandler;
