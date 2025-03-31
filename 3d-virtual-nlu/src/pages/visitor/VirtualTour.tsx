@@ -41,6 +41,8 @@ const VirtualTour = () => {
     console.log("sphereRef.current trong VirtualTour:", sphereRef.current);
   }, [sphereRef.current]);
 
+  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
+
   useEffect(() => {
     let resizeTimer: number;
 
@@ -68,6 +70,20 @@ const VirtualTour = () => {
     setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
   };
 
+  const handledSwitchTexture = () => {
+    if (sphereRef.current) {
+      const material = sphereRef.current.material as THREE.MeshBasicMaterial;
+      const newTexture = material.map?.image.src.includes("khoa.jpg")
+        ? new THREE.TextureLoader().load("thuvien.jpg")
+        : new THREE.TextureLoader().load("khoa.jpg");
+      newTexture.wrapS = THREE.RepeatWrapping;
+      newTexture.repeat.x = -1;
+      material.map = newTexture;
+      material.needsUpdate = true;
+      console.log("Đã đổi texture!");
+    }
+  };
+
   return (
     <div className={styles.tourContainer}>
       <Canvas
@@ -86,10 +102,16 @@ const VirtualTour = () => {
         <RaycasterHandler
           sphereRef={sphereRef}
           onAddHotspot={handleAddHotspot}
+          hoveredHotspot={hoveredHotspot} //test
+          switchTexture={handledSwitchTexture}
         />
 
         {hotspots.map((hotspot) => (
-          <GroundHotspot key={hotspot.id} position={hotspot.position} />
+          <GroundHotspot
+            key={hotspot.id}
+            position={hotspot.position}
+            setHoveredHotspot={setHoveredHotspot}
+          />
         ))}
       </Canvas>
       <div className={styles.tourIcons}>

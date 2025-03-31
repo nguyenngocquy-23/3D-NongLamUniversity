@@ -1,34 +1,22 @@
 import { useFrame, useLoader } from "@react-three/fiber";
-import React, { Key, useEffect, useRef, useState } from "react";
+import React, { Key, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 type GroundHotspotProps = {
   position: [number, number, number];
+  setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test.
+  onSwitchTexture?: () => void;
 };
 
-const GroundHotspot: React.FC<GroundHotspotProps> = ({ position }) => {
+const GroundHotspot: React.FC<GroundHotspotProps> = ({
+  position,
+  setHoveredHotspot,
+  onSwitchTexture,
+}) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
   const texture = useLoader(THREE.TextureLoader, "/under.png"); // Load ảnh
   const [isHovered, setIsHovered] = useState(false);
-  // const [isCtrlPressed, setIsCtrlPressed] = useState(false);
   const targetOpacity = useRef(0.6);
   const targetScale = useRef(5);
-
-  // Lắng nghe sự kiện phím Ctrl [Ctrl + Click sẽ hover vào hotspot]
-  // useEffect(() => {
-  //   const handleKeyDown = (e: KeyboardEvent) => {
-  //     if (e.key === "Control") setIsCtrlPressed(true);
-  //     console.log("🟢 Ctrl được nhấn!");
-  //   };
-
-  //   const handleKeyUp = (e: KeyboardEvent) => {
-  //     if (e.key === "Control") setIsCtrlPressed(false);
-  //     console.log("🔴 Ctrl được thả!");
-  //   };
-  //   return () => {
-  //     window.removeEventListener("keydown", handleKeyDown);
-  //     window.removeEventListener("keyup", handleKeyUp);
-  //   };
-  // }, []);
 
   useEffect(() => {
     if (isHovered) {
@@ -56,14 +44,16 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({ position }) => {
     <mesh
       ref={hotspotRef}
       position={position}
-      rotation={[-Math.PI / 2, 0, 0]}
+      rotation={[-Math.PI / 2.2, 0, 0]}
       onPointerOver={() => {
         setIsHovered(true);
         console.log("🖱 Hover vào hotspot!", position);
+        setHoveredHotspot(hotspotRef.current); //test
       }}
       onPointerOut={() => {
         setIsHovered(false);
-        console.log("👋 Rời khỏi hotspot!");
+        console.log("Rời khỏi hotspot!");
+        setHoveredHotspot(null); //test
       }}
     >
       <planeGeometry args={[5, 5]} />
