@@ -1,7 +1,8 @@
 import { OrbitControls } from "@react-three/drei";
 import { useThree, useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import gsap from "gsap";
 
 /**
  * Nguyên lý hoạt động của OrbitControls:
@@ -14,11 +15,60 @@ import * as THREE from "three";
 
 type CamControlsProps = {
   radius: number;
+  targetPosition?: [number, number, number] | null; //test
+  sphereRef: React.RefObject<THREE.Mesh | null>;
 };
 
-const CamControls: React.FC<CamControlsProps> = ({ radius }) => {
+const CamControls: React.FC<CamControlsProps> = ({
+  radius,
+  targetPosition,
+  sphereRef,
+}) => {
   const controlsRef = useRef<any>(null);
   const { camera } = useThree();
+
+  useEffect(() => {
+    if (!targetPosition) return;
+
+    const [x, _, z] = targetPosition;
+
+    const moveVector = new THREE.Vector3(x, 0, z); //test vector.
+
+    gsap.to(camera.position, {
+      x,
+      y: 0,
+      z: z + 0.1,
+      duration: 1.5,
+      ease: "power2.out",
+      onUpdate: () => {
+        controlsRef.current.target.set(x, 0, z); // Cập nhật vị trí target của OrbitControls
+      },
+      onComplete: () => {
+        console.log("Di chuyển xong, cập nhật vị trí hình cầu! [CamControls]");
+        console.log("✅ Camera Position Sau Khi Di Chuyển:", camera.position);
+        console.log(
+          "✅ Target Sau Khi Di Chuyển:",
+          controlsRef.current?.target
+        );
+        if (sphereRef.current) {
+          sphereRef.current.position.copy(moveVector); // Cập nhật vị trí hình cầu
+          console.log(
+            "🟠 Vị trí Tâm Quả Cầu Sau Khi Cập Nhật:",
+            sphereRef.current.position
+          );
+        }
+
+        setTimeout(() => {
+          console.log("Thiết lập hệ toạ độ mới");
+          camera.position.sub(moveVector); // Đặt camera về vị trí mới
+          controlsRef.current.target.sub(moveVector); // Đặt lại target về tâm cầu
+          if (sphereRef.current) {
+            sphereRef.current.position.set(0, 0, 0);
+          }
+        }, 500);
+      },
+    });
+  }, [targetPosition, camera, sphereRef]);
 
   useFrame(() => {
     if (!controlsRef.current) return;

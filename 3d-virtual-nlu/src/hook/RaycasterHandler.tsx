@@ -1,25 +1,23 @@
 import { useThree } from "@react-three/fiber";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 interface RaycasterHandlerProps {
   sphereRef: React.RefObject<THREE.Mesh | null>;
   onAddHotspot: (position: [number, number, number]) => void;
-  hoveredHotspot: THREE.Mesh | null; //test
-  switchTexture: () => void; //test
+  hoveredHotspot: THREE.Mesh | null;
+  switchTexture: (newPosition: [number, number, number]) => void;
 }
 
 const RaycasterHandler: React.FC<RaycasterHandlerProps> = ({
   sphereRef,
   onAddHotspot,
-  hoveredHotspot, //test
-  switchTexture, //test
+  hoveredHotspot,
+  switchTexture,
 }) => {
   const { camera } = useThree();
   const raycaster = useRef(new THREE.Raycaster());
   const mouse = useRef(new THREE.Vector2());
-
-  // const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
 
   useEffect(() => {
     const handleMouseClick = (e: MouseEvent) => {
@@ -27,7 +25,12 @@ const RaycasterHandler: React.FC<RaycasterHandlerProps> = ({
 
       if (hoveredHotspot) {
         console.log("[RaycasterHandler: Đổi texture!");
-        switchTexture();
+        const newPosition: [number, number, number] = [
+          hoveredHotspot.position.x,
+          hoveredHotspot.position.y,
+          hoveredHotspot.position.z,
+        ]; //Test: Lấy vị trí của điểm hotspot đang hover.
+        switchTexture(newPosition);
         return;
       }
 

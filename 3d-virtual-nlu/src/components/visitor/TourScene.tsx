@@ -1,5 +1,5 @@
 import { useThree } from "@react-three/fiber";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import * as THREE from "three";
 
 /**
@@ -21,12 +21,9 @@ const TourScene: React.FC<TourSceneProps> = ({ radius, sphereRef }) => {
     const geometry = new THREE.SphereGeometry(radius, 128, 128);
 
     const texture = new THREE.TextureLoader().load("khoa.jpg");
-    const texture2 = new THREE.TextureLoader().load("thuvien.jpg"); //test
 
     texture.wrapS = THREE.RepeatWrapping;
     texture.repeat.x = -1;
-
-    //test
 
     const material = new THREE.MeshBasicMaterial({
       map: texture,
@@ -62,21 +59,6 @@ const TourScene: React.FC<TourSceneProps> = ({ radius, sphereRef }) => {
       texture.dispose();
     };
   }, [radius, scene, sphereRef]);
-
-  // const switchTexture = useCallback(() => {
-  // if (sphereRef.current) {
-  //   const material = sphereRef.current.material as THREE.MeshBasicMaterial;
-  //   const newTexture = material.map?.image.src.includes("khoa.jpg")
-  //     ? new THREE.TextureLoader().load("thuvien.jpg")
-  //     : new THREE.TextureLoader().load("khoa.jpg");
-  //   newTexture.wrapS = THREE.RepeatWrapping;
-  //   newTexture.repeat.x = -1;
-
-  //   material.map = newTexture;
-  //   material.needsUpdate = true;
-  //   console.log("Đã chuyển đổi texture!");
-  // }
-  // }, [sphereRef]);
 
   return null;
 };

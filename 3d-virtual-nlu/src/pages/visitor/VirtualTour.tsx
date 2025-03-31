@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import RaycasterHandler from "../../hook/RaycasterHandler";
 import GroundHotspot from "../../components/visitor/GroundHotspot";
+import gsap from "gsap";
 
 /**
  *
@@ -33,6 +34,11 @@ const UpdateCameraOnResize = () => {
 
 const VirtualTour = () => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
+
+  const [targetPosition, setTargetPosition] = useState<
+    [number, number, number] | null
+  >(null); //test
+
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -70,7 +76,7 @@ const VirtualTour = () => {
     setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
   };
 
-  const handledSwitchTexture = () => {
+  const handledSwitchTexture = (newPosition: [number, number, number]) => {
     if (sphereRef.current) {
       const material = sphereRef.current.material as THREE.MeshBasicMaterial;
       const newTexture = material.map?.image.src.includes("khoa.jpg")
@@ -78,8 +84,18 @@ const VirtualTour = () => {
         : new THREE.TextureLoader().load("khoa.jpg");
       newTexture.wrapS = THREE.RepeatWrapping;
       newTexture.repeat.x = -1;
-      material.map = newTexture;
-      material.needsUpdate = true;
+
+      gsap.to(material, {
+        opacity: 0,
+        duration: 0.5,
+        onComplete: () => {
+          material.map = newTexture;
+          material.needsUpdate = true;
+          gsap.to(material, { opacity: 1, duration: 0.5 });
+        },
+      });
+
+      setTargetPosition(newPosition); //test: Lưu vị trí mới vào state TEST
       console.log("Đã đổi texture!");
     }
   };
@@ -98,7 +114,11 @@ const VirtualTour = () => {
       >
         <UpdateCameraOnResize />
         <TourScene radius={radius} sphereRef={sphereRef} />
-        <CamControls radius={radius} />
+        <CamControls
+          radius={radius}
+          targetPosition={targetPosition}
+          sphereRef={sphereRef}
+        />
         <RaycasterHandler
           sphereRef={sphereRef}
           onAddHotspot={handleAddHotspot}
