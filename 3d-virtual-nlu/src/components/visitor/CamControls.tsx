@@ -1,9 +1,9 @@
 import { OrbitControls } from "@react-three/drei";
 import { useThree, useFrame } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { useRaycaster } from "../../hooks/useRaycaster";
 import gsap from "gsap";
-
 /**
  * Nguyên lý hoạt động của OrbitControls:
  * 1. Luôn setup camera hướng về target tâm cầu.
@@ -14,91 +14,109 @@ import gsap from "gsap";
  */
 
 type CamControlsProps = {
-  radius: number;
   targetPosition?: [number, number, number] | null; //test
   sphereRef: React.RefObject<THREE.Mesh | null>;
 };
+const zoomLevels = [75, 60, 45, 30];
 
 const CamControls: React.FC<CamControlsProps> = ({
-  radius,
   targetPosition,
   sphereRef,
 }) => {
-  const controlsRef = useRef<any>(null);
+  const controlsRef = useRef<any>(null); //OrbitControls
   const { camera } = useThree();
+  const { getIntersectionPoint } = useRaycaster();
+  const [zoomIndex, setZoomIndex] = useState(0);
+  const targetLookAt = useRef(new THREE.Vector3());
+
+  /**
+   * Xử lý sự kiện chuột : Zoom bằng cách thay đổi FOV để tránh méo ảnh.
+   */
+  const handleMouseWheel = useCallback(
+    (e: WheelEvent) => {
+      const point = getIntersectionPoint(e, sphereRef.current);
+      if (point) {
+        targetLookAt.current.copy(point);
+      }
+
+      setZoomIndex((prev) => {
+        const newIndex =
+          e.deltaY < 0
+            ? Math.min(prev + 1, zoomLevels.length - 1)
+            : Math.max(prev - 1, 0);
+
+        gsap.to(camera, {
+          fov: zoomLevels[newIndex],
+          duration: 0.8,
+          ease: "power2.out",
+          onUpdate: () => camera.updateProjectionMatrix(),
+        });
+
+        gsap.to(camera.rotation, {
+          x: targetLookAt.current.x * 0.002,
+          y: targetLookAt.current.y * 0.002,
+          z: 0,
+          duration: 0.8,
+          ease: "power2.out",
+        });
+        return newIndex;
+      });
+    },
+    [getIntersectionPoint, sphereRef]
+  );
+
+  useEffect(() => {
+    window.addEventListener("wheel", handleMouseWheel);
+    return () => {
+      window.removeEventListener("wheel", handleMouseWheel);
+    };
+  }, [handleMouseWheel]);
+
+  /**
+   *  Tính năng: Di chuyển giữa các node hotspot.
+   *  + Điểm hotspot khi click.
+   *  + Để tạo cảm giác move tới, ta thực hiện việc cho camera đi từ tâm đến hotspot.
+   *   Với hotspot di chuyển, ta sẽ cho camera đi đến hotspot và camera luôn luôn nằm trên mặt phẳng XZ tạo cảm giác giống mắt người.
+   *
+   */
+
+  // B1. Lưu vị trí cũ và target mới.
+  const currentCameraPosition = useRef(new THREE.Vector3());
+  const currentTargetPostion = useRef(new THREE.Vector3());
 
   useEffect(() => {
     if (!targetPosition) return;
 
     const [x, _, z] = targetPosition;
+    currentTargetPostion.current.set(x, 0, z); // Lưu vị trí target mới
+    currentCameraPosition.current.copy(camera.position); // lưu vị trí camera hiện tại
+  }, [targetPosition, camera]);
 
-    const moveVector = new THREE.Vector3(x, 0, z); //test vector.
+  useFrame(() => {
+    if (!targetPosition || !controlsRef.current) return;
 
-    gsap.to(camera.position, {
-      x,
-      y: 0,
-      z: z + 0.1,
-      duration: 2.5,
-      ease: "expo.out",
-      onUpdate: () => {
-        controlsRef.current.target.set(x, 0, z); // Cập nhật vị trí target của OrbitControls
-      },
-      onComplete: () => {
-        console.log("Di chuyển xong, cập nhật vị trí hình cầu! [CamControls]");
-        console.log("✅ Camera Position Sau Khi Di Chuyển:", camera.position);
-        console.log(
-          "✅ Target Sau Khi Di Chuyển:",
-          controlsRef.current?.target
-        );
-        if (sphereRef.current) {
-          sphereRef.current.position.copy(moveVector); // Cập nhật vị trí hình cầu
-          console.log(
-            "🟠 Vị trí Tâm Quả Cầu Sau Khi Cập Nhật:",
-            sphereRef.current.position
-          );
-        }
+    // Tỉ lệ di chuyển camera
+    const lerpSpeed = 0.1;
+    camera.position.lerp(currentCameraPosition.current, lerpSpeed);
+    controlsRef.current.target.lerp(currentTargetPostion.current, lerpSpeed); // Cập nhật vị trí target của OrbitControls
 
-        setTimeout(() => {
-          console.log("Thiết lập hệ toạ độ mới");
-          camera.position.sub(moveVector); // Đặt camera về vị trí mới
-          controlsRef.current.target.sub(moveVector); // Đặt lại target về tâm cầu
-          if (sphereRef.current) {
-            sphereRef.current.position.set(0, 0, 0);
-          }
-        }, 500);
-      },
-    });
-  }, [targetPosition, camera, sphereRef]);
+    if (sphereRef.current) {
+      sphereRef.current.position.lerp(currentTargetPostion.current, lerpSpeed); // Cập nhật vị trí hình cầu
+    }
 
-  // useFrame(() => {
-  //   if (!controlsRef.current) return;
-
-  //   // OrbitControls cập nhật vị trí camera trước
-  //   controlsRef.current.update();
-
-  //   // Camera gốc luôn nhìn vào tâm (0,0,0), nhưng ta cần nó quay lưng lại
-  //   const viewDir = new THREE.Vector3()
-  //     .subVectors(camera.position, new THREE.Vector3(0, 0, 0))
-  //     .normalize();
-
-  //   // Xoay 180 độ - tính vị trí mới mà camera nên nhìn
-  //   const newTarget = new THREE.Vector3().copy(camera.position).add(viewDir);
-
-  //   // Bắt camera nhìn về hướng mới
-  //   camera.lookAt(newTarget);
-  // });
+    if (camera.position.distanceTo(currentTargetPostion.current) < 0.1) {
+      camera.position.copy(currentTargetPostion.current); // Đặt camera về vị trí mới
+      controlsRef.current.target.copy(currentTargetPostion.current); // Đặt lại target về tâm cầu
+    }
+  });
 
   return (
     <OrbitControls
       ref={controlsRef}
       enablePan={false}
-      // enableZoom={true}
       enableDamping={true}
       dampingFactor={0.3}
-      // zoomSpeed={-1}
       rotateSpeed={-0.15}
-      // minDistance={radius - 80}
-      // maxDistance={radius - 20}
     />
   );
 };

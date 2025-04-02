@@ -7,7 +7,7 @@ import styles from "../../styles/virtualTour.module.css";
 import CamControls from "../../components/visitor/CamControls";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import RaycasterHandler from "../../hook/RaycasterHandler";
+import RaycasterHandler from "../../components/visitor/RaycasterHandler";
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import gsap from "gsap";
 
@@ -114,11 +114,7 @@ const VirtualTour = () => {
       >
         <UpdateCameraOnResize />
         <TourScene radius={radius} sphereRef={sphereRef} />
-        <CamControls
-          radius={radius}
-          targetPosition={targetPosition}
-          sphereRef={sphereRef}
-        />
+        <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
         <RaycasterHandler
           sphereRef={sphereRef}
           onAddHotspot={handleAddHotspot}

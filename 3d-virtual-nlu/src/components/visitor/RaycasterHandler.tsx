@@ -1,7 +1,6 @@
-import { useThree } from "@react-three/fiber";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import * as THREE from "three";
-import gsap from "gsap";
+import { useRaycaster } from "../../hooks/useRaycaster";
 
 interface RaycasterHandlerProps {
   sphereRef: React.RefObject<THREE.Mesh | null>;
@@ -16,114 +15,44 @@ const RaycasterHandler: React.FC<RaycasterHandlerProps> = ({
   hoveredHotspot,
   switchTexture,
 }) => {
-  const { camera } = useThree();
-  const raycaster = useRef(new THREE.Raycaster());
-  const mouse = useRef(new THREE.Vector2());
+  const { getIntersectionPoint } = useRaycaster();
 
   /**
-   * *Xử lý sự kiện chuột khi zoom
-   *
+   * Xử lý click chuột
    */
-  const zoomLevels = [75, 60, 45, 30]; // test1
-  const [zoomIndex, setZoomIndex] = useState(0); //test1
-  const targetLookAt = useRef(new THREE.Vector3()); //test1
-
-  useEffect(() => {
-    const handleMouseClick = (e: MouseEvent) => {
-      console.log("🖱 Click event triggered");
-
+  const handleMouseClick = useCallback(
+    (e: MouseEvent) => {
       if (hoveredHotspot) {
-        console.log("[RaycasterHandler: Đổi texture!");
-        const newPosition: [number, number, number] = [
+        switchTexture([
           hoveredHotspot.position.x,
           hoveredHotspot.position.y,
           hoveredHotspot.position.z,
-        ]; //Test: Lấy vị trí của điểm hotspot đang hover.
-        switchTexture(newPosition);
+        ]);
         return;
       }
-
-      if (!sphereRef.current) {
-        console.warn("sphereRef hiện tại là null!");
-        return;
+      const point = getIntersectionPoint(e, sphereRef.current);
+      if (point) {
+        console.log(
+          `point x : ${point.x}, point y : ${point.y}, point z : ${point.z}`
+        );
+        onAddHotspot([point.x, point.y, point.z]);
       }
-
-      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      raycaster.current.setFromCamera(mouse.current, camera);
-
-      const intersects = raycaster.current.intersectObject(
-        sphereRef.current,
-        true
-      );
-
-      if (intersects.length > 0) {
-        const point = intersects[0].point;
-        console.log("Toạ độ trên bề mặt: ", point);
-        onAddHotspot([point.x, point.y, point.z]); // Gọi hàm thêm hotspot với toạ độ đã tính toán
-      }
-    };
-    window.addEventListener("click", handleMouseClick);
-
-    return () => window.removeEventListener("click", handleMouseClick);
-  }, [camera, sphereRef, onAddHotspot, hoveredHotspot]);
-
-  /**
-   * Xử lý sự kiện cuộn chuột để zoom vào hotspot
-   */
-
-  const handleMouseWheel = useCallback(
-    (e: WheelEvent) => {
-      if (!sphereRef.current) return;
-
-      //Lấy vị trí chuột hiện tại
-      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-      raycaster.current.setFromCamera(mouse.current, camera);
-      const intersects = raycaster.current.intersectObject(
-        sphereRef.current,
-        true
-      );
-
-      if (intersects.length > 0) {
-        targetLookAt.current.copy(intersects[0].point);
-      }
-
-      setZoomIndex((prev) => {
-        const newIndex =
-          e.deltaY < 0
-            ? Math.min(prev + 1, zoomLevels.length - 1)
-            : Math.max(prev - 1, 0);
-
-        gsap.to(camera, {
-          fov: zoomLevels[newIndex],
-          duration: 0.8,
-          ease: "power2.out",
-          onUpdate: () => camera.updateProjectionMatrix(),
-        });
-
-        gsap.to(camera.rotation, {
-          x: targetLookAt.current.x * 0.002,
-          y: targetLookAt.current.y * 0.002,
-          z: 0,
-          duration: 0.8,
-          ease: "power2.out",
-        });
-
-        return newIndex;
-      });
     },
-    [camera, sphereRef]
+    [
+      hoveredHotspot,
+      switchTexture,
+      getIntersectionPoint,
+      sphereRef,
+      onAddHotspot,
+    ]
   );
 
   useEffect(() => {
-    window.addEventListener("wheel", handleMouseWheel);
+    window.addEventListener("click", handleMouseClick);
     return () => {
-      window.removeEventListener("wheel", handleMouseWheel);
+      window.removeEventListener("click", handleMouseClick);
     };
-  }, [handleMouseWheel]);
+  }, [handleMouseClick]);
 
   return null;
 };

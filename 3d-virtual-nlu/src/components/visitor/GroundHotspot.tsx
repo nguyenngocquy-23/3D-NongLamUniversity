@@ -36,14 +36,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         new THREE.Vector3(targetScale.current, targetScale.current, 1),
         0.1
       );
-      // Make the hotspot look at the camera
-      // Giữ cho hotspot luôn hướng về camera
-      // const lookAtPos = new THREE.Vector3(
-      //   camera.position.x,
-      //   hotspotRef.current.position.y,
-      //   camera.position.z
-      // );
-      // hotspotRef.current.lookAt(lookAtPos);
     }
   });
 
