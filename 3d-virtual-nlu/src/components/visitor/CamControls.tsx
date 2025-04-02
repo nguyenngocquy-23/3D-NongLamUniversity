@@ -38,8 +38,8 @@ const CamControls: React.FC<CamControlsProps> = ({
       x,
       y: 0,
       z: z + 0.1,
-      duration: 1.5,
-      ease: "power2.out",
+      duration: 2.5,
+      ease: "expo.out",
       onUpdate: () => {
         controlsRef.current.target.set(x, 0, z); // Cập nhật vị trí target của OrbitControls
       },
@@ -70,35 +70,35 @@ const CamControls: React.FC<CamControlsProps> = ({
     });
   }, [targetPosition, camera, sphereRef]);
 
-  useFrame(() => {
-    if (!controlsRef.current) return;
+  // useFrame(() => {
+  //   if (!controlsRef.current) return;
 
-    // OrbitControls cập nhật vị trí camera trước
-    controlsRef.current.update();
+  //   // OrbitControls cập nhật vị trí camera trước
+  //   controlsRef.current.update();
 
-    // Camera gốc luôn nhìn vào tâm (0,0,0), nhưng ta cần nó quay lưng lại
-    const viewDir = new THREE.Vector3()
-      .subVectors(camera.position, new THREE.Vector3(0, 0, 0))
-      .normalize();
+  //   // Camera gốc luôn nhìn vào tâm (0,0,0), nhưng ta cần nó quay lưng lại
+  //   const viewDir = new THREE.Vector3()
+  //     .subVectors(camera.position, new THREE.Vector3(0, 0, 0))
+  //     .normalize();
 
-    // Xoay 180 độ - tính vị trí mới mà camera nên nhìn
-    const newTarget = new THREE.Vector3().copy(camera.position).add(viewDir);
+  //   // Xoay 180 độ - tính vị trí mới mà camera nên nhìn
+  //   const newTarget = new THREE.Vector3().copy(camera.position).add(viewDir);
 
-    // Bắt camera nhìn về hướng mới
-    camera.lookAt(newTarget);
-  });
+  //   // Bắt camera nhìn về hướng mới
+  //   camera.lookAt(newTarget);
+  // });
 
   return (
     <OrbitControls
       ref={controlsRef}
       enablePan={false}
-      enableZoom={true}
+      // enableZoom={true}
       enableDamping={true}
       dampingFactor={0.3}
-      zoomSpeed={-1}
-      rotateSpeed={-0.25}
-      minDistance={radius - 80}
-      maxDistance={radius - 5}
+      // zoomSpeed={-1}
+      rotateSpeed={-0.15}
+      // minDistance={radius - 80}
+      // maxDistance={radius - 20}
     />
   );
 };

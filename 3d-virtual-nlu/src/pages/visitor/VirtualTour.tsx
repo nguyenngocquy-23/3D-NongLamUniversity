@@ -108,7 +108,7 @@ const VirtualTour = () => {
           aspect: windowSize.width / windowSize.height,
           near: 0.1,
           far: 1000,
-          position: [0, 0, 0.1], // Đặt vị trí mặc định của camera
+          position: [0, 0, 0.0000001], // Đặt vị trí mặc định của camera
         }}
         className={styles.tourCanvas}
       >

@@ -15,5 +15,4 @@ public class Room {
     private int id;
     private String name;
     private Timestamp createdAt;
-
 }

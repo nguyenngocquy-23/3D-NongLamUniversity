@@ -29,6 +29,7 @@ const TourScene: React.FC<TourSceneProps> = ({ radius, sphereRef }) => {
       map: texture,
       side: THREE.BackSide,
     });
+
     const sphere = new THREE.Mesh(geometry, material);
     sphere.name = "virtual-sphere";
 

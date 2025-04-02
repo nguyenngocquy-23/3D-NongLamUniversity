@@ -1,6 +1,7 @@
 import { useThree } from "@react-three/fiber";
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import gsap from "gsap";
 
 interface RaycasterHandlerProps {
   sphereRef: React.RefObject<THREE.Mesh | null>;
@@ -18,6 +19,14 @@ const RaycasterHandler: React.FC<RaycasterHandlerProps> = ({
   const { camera } = useThree();
   const raycaster = useRef(new THREE.Raycaster());
   const mouse = useRef(new THREE.Vector2());
+
+  /**
+   * *Xử lý sự kiện chuột khi zoom
+   *
+   */
+  const zoomLevels = [75, 60, 45, 30]; // test1
+  const [zoomIndex, setZoomIndex] = useState(0); //test1
+  const targetLookAt = useRef(new THREE.Vector3()); //test1
 
   useEffect(() => {
     const handleMouseClick = (e: MouseEvent) => {
@@ -56,8 +65,66 @@ const RaycasterHandler: React.FC<RaycasterHandlerProps> = ({
       }
     };
     window.addEventListener("click", handleMouseClick);
+
     return () => window.removeEventListener("click", handleMouseClick);
   }, [camera, sphereRef, onAddHotspot, hoveredHotspot]);
+
+  /**
+   * Xử lý sự kiện cuộn chuột để zoom vào hotspot
+   */
+
+  const handleMouseWheel = useCallback(
+    (e: WheelEvent) => {
+      if (!sphereRef.current) return;
+
+      //Lấy vị trí chuột hiện tại
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.current.setFromCamera(mouse.current, camera);
+      const intersects = raycaster.current.intersectObject(
+        sphereRef.current,
+        true
+      );
+
+      if (intersects.length > 0) {
+        targetLookAt.current.copy(intersects[0].point);
+      }
+
+      setZoomIndex((prev) => {
+        const newIndex =
+          e.deltaY < 0
+            ? Math.min(prev + 1, zoomLevels.length - 1)
+            : Math.max(prev - 1, 0);
+
+        gsap.to(camera, {
+          fov: zoomLevels[newIndex],
+          duration: 0.8,
+          ease: "power2.out",
+          onUpdate: () => camera.updateProjectionMatrix(),
+        });
+
+        gsap.to(camera.rotation, {
+          x: targetLookAt.current.x * 0.002,
+          y: targetLookAt.current.y * 0.002,
+          z: 0,
+          duration: 0.8,
+          ease: "power2.out",
+        });
+
+        return newIndex;
+      });
+    },
+    [camera, sphereRef]
+  );
+
+  useEffect(() => {
+    window.addEventListener("wheel", handleMouseWheel);
+    return () => {
+      window.removeEventListener("wheel", handleMouseWheel);
+    };
+  }, [handleMouseWheel]);
+
   return null;
 };
 

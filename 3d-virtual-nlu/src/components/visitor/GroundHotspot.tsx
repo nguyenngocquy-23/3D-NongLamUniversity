@@ -1,27 +1,26 @@
-import { useFrame, useLoader } from "@react-three/fiber";
-import React, { Key, useCallback, useEffect, useRef, useState } from "react";
+import { useFrame, useLoader, useThree } from "@react-three/fiber";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 type GroundHotspotProps = {
   position: [number, number, number];
   setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test.
-  onSwitchTexture?: () => void;
 };
 
 const GroundHotspot: React.FC<GroundHotspotProps> = ({
   position,
   setHoveredHotspot,
-  onSwitchTexture,
 }) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
   const texture = useLoader(THREE.TextureLoader, "/under.png"); // Load ảnh
   const [isHovered, setIsHovered] = useState(false);
   const targetOpacity = useRef(0.6);
   const targetScale = useRef(5);
+  const { camera } = useThree(); // Get camera from context
 
   useEffect(() => {
     if (isHovered) {
       targetOpacity.current = 1;
-      targetScale.current = 4;
+      targetScale.current = 3;
     } else {
       targetOpacity.current = 0.6;
       targetScale.current = 2;
@@ -37,6 +36,14 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         new THREE.Vector3(targetScale.current, targetScale.current, 1),
         0.1
       );
+      // Make the hotspot look at the camera
+      // Giữ cho hotspot luôn hướng về camera
+      // const lookAtPos = new THREE.Vector3(
+      //   camera.position.x,
+      //   hotspotRef.current.position.y,
+      //   camera.position.z
+      // );
+      // hotspotRef.current.lookAt(lookAtPos);
     }
   });
 
@@ -44,7 +51,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     <mesh
       ref={hotspotRef}
       position={position}
-      rotation={[-Math.PI / 2.2, 0, 0]}
+      rotation={[-Math.PI / 2, 0, 0]}
       onPointerOver={() => {
         setIsHovered(true);
         console.log("🖱 Hover vào hotspot!", position);
