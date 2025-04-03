@@ -1,5 +1,4 @@
 package vn.edu.hcmuaf.virtualnluapi.entity;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
