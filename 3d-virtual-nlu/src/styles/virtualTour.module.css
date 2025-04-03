@@ -1,0 +1,31 @@
+.tourContainer {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.tourIcons {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.fullScreenToggle {
+  background-color: transparent;
+  color: #fff;
+  font-size: 25px;
+  padding: 15px;
+  /* opacity: 0.5; */
+}
+
+/* .tourCanvas {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 1;
+} */

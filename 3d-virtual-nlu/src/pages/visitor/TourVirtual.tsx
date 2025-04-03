@@ -1,16 +1,23 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "../../styles/tourVirtual.module.css";
 import { FaInfoCircle, FaSearch } from "react-icons/fa";
 import { FaLanguage, FaPause, FaPlay } from "react-icons/fa6";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
-import { IoIosCloseCircle, IoMdVolumeHigh, IoMdVolumeOff } from "react-icons/io";
+import {
+  IoIosCloseCircle,
+  IoMdVolumeHigh,
+  IoMdVolumeOff,
+} from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import Chat from "../../features/Chat";
+import Stats from "three/examples/jsm/libs/stats.module.js";
+import { Canvas, useThree } from "@react-three/fiber";
 
 const TourVirtual = () => {
   const navigate = useNavigate();
+  const { gl, set, scene } = useThree();
   const [isAnimation, setIsAnimation] = useState(true);
 
   const animationFrameId = useRef<number | null>(null); // Dùng useRef để giữ animationFrameId
@@ -22,6 +29,10 @@ const TourVirtual = () => {
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
 
   const [isMuted, setIsMuted] = useState(false); // Trạng thái âm thanh
+
+  const [imagePositions, setImagePositions] = useState<
+    [number, number, number][]
+  >([]);
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
     null
   ); // Giữ lại đối tượng utterance
@@ -29,6 +40,13 @@ const TourVirtual = () => {
   const handleAnimationChange = () => {
     setIsAnimation((prevState) => !prevState);
   };
+
+  /**
+   * Thiết lập statistic cho trang
+   */
+  var stats = new Stats();
+  stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild(stats.dom);
 
   const requestFullscreen = (element: any) => {
     if (element.requestFullscreen) {
@@ -112,28 +130,24 @@ const TourVirtual = () => {
   };
 
   useEffect(() => {
-    // Khởi tạo scene, camera, renderer chung
-    const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
     );
+    camera.position.z = 500;
+    set({ camera });
 
-    const canvasTour = document.querySelector("#tour");
-    if (!canvasTour) {
+    console.log("Aspect Ratio: ", window.innerWidth / window.innerHeight);
+
+    // const canvasTour = document.querySelector("#tour");
+    if (!gl.domElement) {
       throw new Error("Canvas element not found");
     }
 
-    // Khởi tạo renderer cho từng canvas
-    const rendererTour = new THREE.WebGLRenderer({
-      canvas: canvasTour,
-    });
-
-    rendererTour.setPixelRatio(window.devicePixelRatio);
-    rendererTour.setSize(window.innerWidth, window.innerHeight);
-    camera.position.z = 500;
+    gl.setPixelRatio(window.devicePixelRatio);
+    gl.setSize(window.innerWidth, window.innerHeight);
 
     // Tạo geometry và texture chung
     const geometry = new THREE.SphereGeometry(100, 128, 128);
@@ -161,13 +175,13 @@ const TourVirtual = () => {
     scene.add(directionalLight);
 
     // Đặt OrbitControls cho camera
-    const controls = new OrbitControls(camera, rendererTour.domElement);
+    const controls = new OrbitControls(camera, gl.domElement);
     controls.enableZoom = false;
     controls.enablePan = false;
     controls.enableDamping = true;
     controls.dampingFactor = 0.3;
-    controls.minDistance = 0.001;
-    controls.maxDistance = 0.002;
+    controls.minDistance = 50;
+    controls.maxDistance = 90;
     controls.target.set(0, 0, 0);
     controls.rotateSpeed = -1.0;
 
@@ -178,7 +192,7 @@ const TourVirtual = () => {
       zoomLevel += delta;
 
       // Giới hạn mức zoom
-      zoomLevel = THREE.MathUtils.clamp(zoomLevel, -200, 0);
+      zoomLevel = THREE.MathUtils.clamp(zoomLevel, -500, 500);
 
       // Lấy hướng nhìn của camera (hướng từ camera đến target)
       const direction = new THREE.Vector3();
@@ -195,6 +209,7 @@ const TourVirtual = () => {
 
       // Cập nhật lại FOV nếu cần (tùy chọn)
       camera.fov = THREE.MathUtils.lerp(75, 25, Math.abs(zoomLevel) / 200);
+
       camera.updateProjectionMatrix();
     };
 
@@ -216,97 +231,13 @@ const TourVirtual = () => {
     underBgk.rotation.x -= Math.PI / 2;
     sphere.add(underBgk);
 
-    // // -- Node hơi khó để nhúng 1 element HTML vào sphere (đang tìm giải pháp) --
-
-    // // Tạo một canvas để vẽ div vào đó
-    // const canvas = document.createElement("canvas");
-    // const ctx = canvas.getContext("2d");
-
-    // // Cài đặt kích thước canvas
-    // canvas.width = 40;
-    // canvas.height = 40;
-
-    // // Thêm một event listener để cập nhật texture từ div vào mỗi frame
-    // const videoTexture = new THREE.CanvasTexture(canvas);
-
-    // // Tạo một mesh với video texture
-    // const nodeGeometry = new THREE.CircleGeometry(10);
-    // const nodeMaterial = new THREE.MeshBasicMaterial({
-    //   map: videoTexture,
-    // });
-
-    // // Tạo mesh và thêm vào scene
-    // const node = new THREE.Mesh(nodeGeometry, nodeMaterial);
-    // node.position.set(90, -5, -25);
-    // sphere.add(node);
-
-    // // Đặt thời gian cập nhật texture, ví dụ: mỗi 100ms
-    // let lastUpdateTime = Date.now();
-    // const updateInterval = 100; // Cập nhật mỗi 100ms
-
-    // // Hàm cập nhật canvas từ div
-    // function updateTexture() {
-    //   // Lấy phần tử div từ DOM
-    //   const div = document.querySelector(`.${styles.containNode}`);
-    //   if (!div || !ctx) return;
-
-    //   // Kiểm tra thời gian đã trôi qua kể từ lần cập nhật cuối
-    //   const currentTime = Date.now();
-    //   if (currentTime - lastUpdateTime >= updateInterval) {
-    //     lastUpdateTime = currentTime;
-
-    //     // Dùng html2canvas để render div thành canvas
-    //     html2canvas(div).then((renderedCanvas) => {
-    //       // Vẽ canvas mới vào canvas Three.js
-    //       ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //       ctx.drawImage(renderedCanvas, 0, 0, canvas.width, canvas.height);
-
-    //       // Cập nhật texture của Three.js
-    //       videoTexture.needsUpdate = true;
-    //     });
-    //   }
-
-    //   // Lặp lại mỗi frame
-    //   requestAnimationFrame(updateTexture);
-    // }
-
-    // // Bắt đầu cập nhật texture
-    // updateTexture();
-
-    // sự kiện hover hiển thị thông tin
-    // const raycaster = new THREE.Raycaster();
-    // const mouse = new THREE.Vector2();
-    // document.addEventListener("mousemove", (event) => {
-    //   // Chuyển đổi vị trí chuột từ pixel sang hệ tọa độ [-1, 1]
-    //   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    //   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    //   // Cập nhật raycaster
-    //   raycaster.setFromCamera(mouse, camera);
-
-    //   // Kiểm tra va chạm trong sphere ( Dễ nhầm lẫn với scene )
-    //   const intersects = raycaster.intersectObjects(sphere.children);
-    //   if (
-    //     intersects.length > 0
-    //     // && document.querySelector("main")?.style.display === "none"
-    //   ) {
-    //     const hoveredObject = intersects[0].object;
-
-    //     // Kiểm tra nếu đối tượng là moon
-    //     if (hoveredObject === node) {
-    //       // alert("enter node");
-    //     }
-    //   } else {
-    //     // alert("leave node");
-    //   }
-    // });
-
     // Sự kiện lăn chuột
 
     let rotationY = 0;
 
     // Thêm phần cập nhật cho animation chung
     function animate() {
+      stats.begin();
       // if (!isAnimation) {
       //   return;
       // }
@@ -319,7 +250,8 @@ const TourVirtual = () => {
         sphere.rotation.y = rotationY;
       }
       controls.update();
-      rendererTour.render(scene, camera);
+      gl.render(scene, camera);
+      stats.end();
     }
 
     // if (isAnimation) {
@@ -331,10 +263,6 @@ const TourVirtual = () => {
     pauseBtn?.addEventListener("click", () => {
       console.log("pause");
       setIsAnimation(false);
-      // if (animationFrameId) {
-      //   cancelAnimationFrame(animationFrameId); // Dừng vòng lặp animation
-      //   animationFrameId = null;
-      // }
     });
 
     const subNode = document.querySelectorAll<HTMLElement>(`.${styles.node}`);
@@ -384,7 +312,7 @@ const TourVirtual = () => {
         );
 
         if (t < 1) {
-          rendererTour.render(scene, camera);
+          gl.render(scene, camera);
           requestAnimationFrame(animate);
         } else {
           handleNodeChange(texturePath);
@@ -393,6 +321,18 @@ const TourVirtual = () => {
 
       requestAnimationFrame(animate);
     }
+
+    /**
+     * Sử dụng để cập nhật lại giao diện người dùng khi màn hình resize.
+     */
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+
+      camera.updateProjectionMatrix();
+      gl.setSize(window.innerWidth, window.innerHeight);
+      gl.render(scene, camera);
+    }
+    window.addEventListener("resize", onWindowResize, false);
 
     function handleNodeChange(texturePath: string) {
       if (
@@ -403,7 +343,7 @@ const TourVirtual = () => {
         new THREE.TextureLoader().load(texturePath, (newTexture) => {
           material.map = newTexture;
           material.needsUpdate = true;
-          rendererTour.render(scene, camera);
+          gl.render(scene, camera);
         });
       }
     }
@@ -415,19 +355,45 @@ const TourVirtual = () => {
 
     playBtn?.addEventListener("click", () => {
       setIsAnimation(true);
-      // if (!animationFrameId) {
-      //   animate(); // Gọi lại vòng lặp nếu chưa có animation frame ID
-      // }
     });
+
+    /** Tính toán 4 vector góc nhìn giới hạn (Theo trục YZ và trục XZ)
+     * Tập hợp các vector nằm trong này sẽ là toàn bộ góc nhìn của camera trong hình cầu.
+     * *near plane : 0.1 mà hình cầu có bán kính 100.
+     * => near plane = 100.1 thì không nhìn thấy quả cầu nữa!
+     */
+    const raycaster = new THREE.Raycaster(); // Tạo raycaster để xác định vị trí chuột
+    const mouse = new THREE.Vector2(); // Tạo vector để lưu vị trí chuột
+
+    const mouseClick = (event: MouseEvent) => {
+      if (!gl.domElement) {
+        return;
+      }
+
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects([sphere]);
+      if (intersects.length > 0) {
+        const point = intersects[0].point;
+        setImagePositions((prev) => [...prev, [point.x, point.y, point.z]]);
+        console.log("Toạ độ điểm chạm:", point);
+      }
+    };
+
+    window.addEventListener("click", mouseClick);
 
     // Cleanup function để giải phóng tài nguyên
     return () => {
-      rendererTour.dispose();
+      gl.dispose();
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current); // Dừng vòng lặp khi component unmount
       }
+
+      window.removeEventListener("click", mouseClick);
     };
-  }, []);
+  }, [set]);
 
   // Hàm để đọc văn bản
   const readText = () => {
@@ -455,16 +421,6 @@ const TourVirtual = () => {
 
           // Lưu đối tượng utterance vào state
           setUtterance(newUtterance);
-
-          // // Sử dụng onend để xử lý sự kiện khi âm thanh kết thúc
-          // newUtterance.onend = () => {
-          //   // Sau khi phát xong, nghỉ 1 phút rồi tiếp tục
-          //   setTimeout(() => {
-          //     console.log("Đang tiếp tục sau 1 phút nghỉ");
-          //     // Gọi lại hàm đọc văn bản sau 1 phút nghỉ
-          //     readText();
-          //   }, 5000); // 60000ms = 1 phút
-          // };
 
           // Khởi tạo việc đọc văn bản
           speechSynthesis.speak(newUtterance);
@@ -498,14 +454,17 @@ const TourVirtual = () => {
   return (
     <>
       <div className={styles.virtual_tour} onMouseMove={handleMouseEnterMenu}>
-        {/* main - canvas */}
-        <canvas
-          id="tour"
+        {/* <Canvas
           onClick={handleCloseMenu}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           style={{ cursor: cursor }}
-        />
+        >
+          {imagePositions.map((position, index) => (
+          
+          ))}
+        </Canvas> */}
+
         <div className={styles.containNode}>
           <div className={styles.borderNode}></div>
           <div className={styles.node}></div>
@@ -547,12 +506,13 @@ const TourVirtual = () => {
           </ul>
         </div>
         {/* Hộp feedback */}
-        <Chat/>
+        <Chat />
         {/* Hộp thông tin */}
         <div className={styles.infoBox} onClick={toggleInfomation}>
           Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
           Lâm Thành phố Hồ Chí Minh
         </div>
+
         {/* Footer chứa các tính năng */}
         <div className={styles.footerTour}>
           <i>NLU360</i>

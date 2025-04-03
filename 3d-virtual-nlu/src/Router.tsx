@@ -7,6 +7,7 @@ import TourVirtual from "./pages/visitor/TourVirtual.tsx";
 import Dashboard from "./components/admin/Dashboard.tsx";
 
 import User from "./pages/admin/User.tsx";
+import VirtualTour from "./pages/visitor/VirtualTour.tsx";
 
 function RouterConfig() {
   return (
@@ -16,6 +17,7 @@ function RouterConfig() {
       <Route path="/register" element={<Register />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/tourVirtual" element={<TourVirtual />} />
+      <Route path="/virtualTour" element={<VirtualTour />} />
       {/* admin */}
       <Route path="/admin" element={<Dashboard />}>
         <Route index element={<Dashboard />} />
