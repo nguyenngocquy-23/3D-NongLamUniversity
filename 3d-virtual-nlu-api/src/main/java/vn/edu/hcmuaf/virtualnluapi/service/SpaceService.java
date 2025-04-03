@@ -10,6 +10,7 @@ import vn.edu.hcmuaf.virtualnluapi.dao.SpaceDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceReadRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceResponse;
 
 import java.util.List;
@@ -26,5 +27,8 @@ public class SpaceService {
     }
     public List<SpaceResponse> getSpaceByFieldId(SpaceReadRequest req) {
         return spaceDao.getSpaceByFieldId(req);
+    }
+    public List<SpaceFullResponse> getAllSpaces() {
+        return spaceDao.getAllSpaces();
     }
 }
