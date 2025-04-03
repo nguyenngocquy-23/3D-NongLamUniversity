@@ -480,7 +480,7 @@ const TourVirtual = () => {
         </div>
         {/* Menu bên trái */}
         <div
-          className={`${styles.leftMenu} ${isMenuVisible ? styles.show : ""}`}
+          className={`${styles.right_menu} ${isMenuVisible ? styles.show : ""}`}
         >
           <h2>NLU Tour</h2>
           <div className={styles.search}>
