@@ -13,6 +13,7 @@ import vn.edu.hcmuaf.virtualnluapi.utils.EncryptUtil;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @ApplicationScoped
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -35,4 +36,7 @@ public class UserService {
         return userDao.findByUsername(username);
     }
 
+    public List<User> getAllUser() {
+        return userDao.getAllUser();
+    }
 }

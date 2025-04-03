@@ -141,9 +141,9 @@ public class UserDao {
         });
     }
 
-    public List<User> getAllCustomer() {
+    public List<User> getAllUser() {
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("select id from users where roleId = 1")
+            return handle.createQuery("select id, username, email, status, createdAt from users where roleId = 1")
                     .mapToBean(User.class)
                     .list();
         });

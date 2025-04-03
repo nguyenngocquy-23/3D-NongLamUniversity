@@ -1,4 +1,5 @@
 package vn.edu.hcmuaf.virtualnluapi.entity;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,9 +10,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Node {
-    int id, spaceId;
-    String url, name, description;
+public class Space {
+    int id, fieldId;
+    String name, description;
     byte status;
     LocalDateTime createdAt, updatedAt;
 }
