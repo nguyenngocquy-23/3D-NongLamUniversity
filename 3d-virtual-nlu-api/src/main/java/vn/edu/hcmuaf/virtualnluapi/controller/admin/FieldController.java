@@ -38,6 +38,6 @@ public class FieldController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse<List<FieldResponse>> getFields() {
-        return ApiResponse.<List<FieldResponse>>builder().statusCode(1000).message("Lay danh sach field thanh cong").data(fieldService.getFields()).build();
+        return ApiResponse.<List<FieldResponse>>builder().statusCode(1000).message("Lay danh sach field thanh cong").data(fieldService.getAllFields()).build();
     }
 }

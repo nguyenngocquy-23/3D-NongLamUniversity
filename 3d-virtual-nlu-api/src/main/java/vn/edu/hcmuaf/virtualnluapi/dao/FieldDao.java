@@ -22,11 +22,20 @@ public class FieldDao {
         });
     }
 
-    public List<FieldResponse> getFields(){
+    public List<FieldResponse> getAllFields(){
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery("SELECT id, name FROM fields")
                     .mapToBean(FieldResponse.class)
                     .list();
+        });
+    }
+
+    public FieldResponse getFieldById(int id) {
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery("SELECT id, name FROM  fields WHERE id = :id")
+                    .bind("id", id)
+                    .mapToBean(FieldResponse.class)
+                    .one();
         });
     }
 }

@@ -24,7 +24,11 @@ public class FieldService {
         return fieldDao.insertField(req);
     }
 
-    public List<FieldResponse> getFields() {
-        return fieldDao.getFields();
+    public List<FieldResponse> getAllFields() {
+        return fieldDao.getAllFields();
+    }
+
+    public FieldResponse getFieldById(int id) {
+        return fieldDao.getFieldById(id);
     }
 }

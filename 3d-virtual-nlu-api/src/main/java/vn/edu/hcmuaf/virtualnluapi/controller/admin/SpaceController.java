@@ -11,6 +11,7 @@ import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceReadRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.FieldService;
 import vn.edu.hcmuaf.virtualnluapi.service.SpaceService;
@@ -40,6 +41,14 @@ public class SpaceController {
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse<List<SpaceResponse>> getSpaceByFieldId(SpaceReadRequest req) {
         List<SpaceResponse> result = spaceService.getSpaceByFieldId(req);
-        return ApiResponse.<List<SpaceResponse>>builder().statusCode(1000).message("Lay danh sach space thanh cong").data(result).build();
+        return ApiResponse.<List<SpaceResponse>>builder().statusCode(1000).message("Lay danh sach ten space thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<SpaceFullResponse>> getAllSpaces() {
+        List<SpaceFullResponse> result = spaceService.getAllSpaces();
+        return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Lay danh sach space thanh cong").data(result).build();
     }
 }
