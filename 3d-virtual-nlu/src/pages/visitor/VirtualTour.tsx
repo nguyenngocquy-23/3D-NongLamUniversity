@@ -34,6 +34,9 @@ const UpdateCameraOnResize = () => {
 
 const VirtualTour = () => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
+  const [sphereCenter, setSphereCenter] = useState<[number, number, number]>([
+    0, 0, 0,
+  ]);
 
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
@@ -95,8 +98,20 @@ const VirtualTour = () => {
         },
       });
 
-      setTargetPosition(newPosition); //test: Lưu vị trí mới vào state TEST
-      console.log("Đã đổi texture!");
+      //   setTargetPosition(newPosition); //test: Lưu vị trí mới vào state TEST
+      //   console.log("Đã đổi texture!");
+      // }
+      setSphereCenter(newPosition);
+      setHotspots((prevHotspots) =>
+        prevHotspots.map(({ id, position }) => ({
+          id,
+          position: [
+            position[0] - newPosition[0],
+            position[1] - newPosition[1],
+            position[2] - newPosition[2],
+          ],
+        }))
+      );
     }
   };
 

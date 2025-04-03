@@ -1,3 +1,4 @@
+import { useTexture } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import React, { useEffect } from "react";
 import * as THREE from "three";
@@ -16,7 +17,6 @@ interface TourSceneProps {
 
 const TourScene: React.FC<TourSceneProps> = ({ radius, sphereRef }) => {
   const { scene } = useThree();
-
   useEffect(() => {
     const geometry = new THREE.SphereGeometry(radius, 128, 128);
 
