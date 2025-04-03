@@ -13,8 +13,16 @@ import { validateAndNavigate } from "../../features/PreValidate";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, useTexture } from "@react-three/drei";
 
+interface Task1Props{
+  isOpen1: boolean;
+  nameNode: string;
+  setNameNode: (nameNode: string) => void;
+  desNode: string;
+  setDesNode: (desNode: string) => void;
+}
+
 // Component cho Task1
-const Task1 = ({ nameNode, setNameNode, despNode, setDespNode, isOpen1 }) => (
+const Task1 = ({ isOpen1, nameNode, setNameNode, desNode, setDesNode }: Task1Props) => (
   <div className={`${styles.task1} ${isOpen1 ? styles.open_task1 : ""}`}>
     <h3>1. Thông tin không gian</h3>
     <div className={styles.contain_input}>
@@ -32,19 +40,41 @@ const Task1 = ({ nameNode, setNameNode, despNode, setDespNode, isOpen1 }) => (
       <textarea
         className={styles.descript_input}
         placeholder="Mô tả không gian.."
-        value={despNode}
-        onChange={(e) => setDespNode(e.target.value)}
+        value={desNode}
+        onChange={(e) => setDesNode(e.target.value)}
       />
     </div>
   </div>
 );
 
+interface Task2Props {
+  isOpen2: boolean;
+  angle: number;
+  setAngle: (angle: number) => void;
+  lightIntensity: number;
+  setLightIntensity: (lightIntensity: number) => void;
+  autoRotate: boolean;
+  setAutoRotate: (autoRotate: boolean) => void;
+  speedRotate: number;
+  setSpeedRotate: (speedRotate: number) => void;
+}
+
 // Component cho Task2
-const Task2 = ({ isOpen2, angle, setAngle }) => (
+const Task2 = ({
+  isOpen2,
+  angle,
+  setAngle,
+  lightIntensity,
+  setLightIntensity,
+  autoRotate,
+  setAutoRotate,
+  speedRotate,
+  setSpeedRotate,
+}: Task2Props) => (
   <div className={`${styles.task2} ${isOpen2 ? styles.open_task2 : ""}`}>
     <h3>2. Thông số không gian</h3>
-    <div>
-      <label className={styles.label}>Hướng nhìn:</label>
+    <div className={styles.contain_input}>
+      <label className={styles.label}>Hướng nhìn mặc định:</label>
       <input
         type="range"
         min="0"
@@ -55,21 +85,46 @@ const Task2 = ({ isOpen2, angle, setAngle }) => (
         placeholder="Hướng nhìn"
         onChange={(e) => setAngle(Number(e.target.value))}
       />
-      <p>x</p>
     </div>
-    <div>
+    <div className={styles.contain_input}>
       <label className={styles.label}>Độ dịch chuyển:</label>
       <input type="range" className={styles.name_input} />
     </div>
-    <div>
+    <div className={styles.contain_input}>
       <label className={styles.label}>Ánh sáng:</label>
-      <input type="range" />
+      <input
+        type="range"
+        min="1"
+        max="8"
+        step="0.1"
+        value={lightIntensity}
+        onChange={(e) => setLightIntensity(parseFloat(e.target.value))}
+      />
     </div>
-    <div>
+    <div className={styles.contain_input}>
       <label className={styles.label}>Tự động xoay:</label>
-      <input type="checkbox" />
+      <input
+        type="checkbox"
+        checked={autoRotate} // Thiết lập giá trị checked cho checkbox
+        onChange={(e) => setAutoRotate(e.target.checked)} // Cập nhật autoRotate
+      />
     </div>
-    <div>
+    {autoRotate ? (
+      <div className={styles.contain_input}>
+        <label className={styles.label}>Tốc độ xoay:</label>
+        <input
+          type="range"
+          min="0.5"
+          max="2"
+          step="0.1"
+          value={speedRotate}
+          onChange={(e) => setSpeedRotate(parseFloat(e.target.value))}
+        />
+      </div>
+    ) : (
+      ""
+    )}
+    <div className={styles.contain_input}>
       <label className={styles.label}>Độ phóng to:</label>
       <input type="range" />
     </div>
@@ -80,25 +135,25 @@ const Task2 = ({ isOpen2, angle, setAngle }) => (
 const Task3 = ({ isOpen3 }) => (
   <div className={`${styles.task3} ${isOpen3 ? styles.open_task3 : ""}`}>
     <h3>3. Tạo điểm di chuyển</h3>
-    <div>
+    <div className={styles.contain_input}>
       <label className={styles.label}>Biểu tượng:</label>
       <FaHome />
       <input type="checkbox" />
       <FaClock />
       <input type="checkbox" />
     </div>
-    <div>
+    <div className={styles.contain_input}>
       <label className={styles.label}>Điểm di chuyển:</label>
       <button>Chọn điểm di chuyển</button>
     </div>
-    <div>
+    <div className={styles.contain_input}>
       <label className={styles.label}>Âm thanh di chuyển:</label>
       <FaHome />
       <input type="checkbox" />
       <FaClock />
       <input type="checkbox" />
     </div>
-    <div>
+    <div className={styles.contain_input}>
       <label className={styles.label}>Hiệu ứng di chuyển:</label>
       <FaHome />
       <input type="checkbox" />
@@ -129,7 +184,7 @@ const Task4 = ({ isOpen4 }) => (
 // Component cho Task5
 const Task5 = ({ isOpen5 }) => (
   <div className={`${styles.task5} ${isOpen5 ? styles.open_task5 : ""}`}>
-    <h3>5. Tạo chú thích</h3>
+    <h3>5. Chèn mô hình 3D</h3>
     <div>
       <label className={styles.label}>Biểu tượng:</label>
       <FaHome />
@@ -157,12 +212,18 @@ const Node: React.FC<NodeProps> = ({ url }) => {
   return (
     <mesh>
       <sphereGeometry args={[500, 128, 128]} />
-      <meshBasicMaterial map={texture} side={THREE.BackSide} />
+      <meshStandardMaterial map={texture} side={THREE.BackSide} /> // sử dụng
+      standard để phản chiếu ánh sáng, basic thì không
     </mesh>
   );
 };
 
-const Scene = ({ cameraPosition }) => {
+interface SceneProps {
+  cameraPosition: [number, number, number];
+  lightIntensity: number;
+}
+
+const Scene = ({ cameraPosition, lightIntensity }: SceneProps) => {
   const { camera } = useThree();
 
   useEffect(() => {
@@ -170,7 +231,23 @@ const Scene = ({ cameraPosition }) => {
     camera.updateProjectionMatrix(); // Cập nhật lại camera
   }, [cameraPosition]); // Chạy mỗi khi cameraPosition thay đổi
 
-  return null;
+  return (
+    <>
+      <ambientLight intensity={lightIntensity} color="#ffffff" />
+      <pointLight
+        position={[100, 100, 100]}
+        color="#ffcc00"
+        castShadow
+        intensity={lightIntensity}
+      />
+      <directionalLight
+        position={[5, 5, 5]}
+        intensity={lightIntensity}
+        color="#ffffff"
+        castShadow
+      />
+    </>
+  );
 };
 
 const CreateTourStep2 = () => {
@@ -184,14 +261,17 @@ const CreateTourStep2 = () => {
   const [isDone1, setIsDone1] = useState(false);
   // item task 1
   const [nameNode, setNameNode] = useState("");
-  const [despNode, setDespNode] = useState("");
+  const [desNode, setDesNode] = useState("");
   const user = useSelector((state: RootState) => state.auth.user);
   const panoramaURL = useSelector(
     (state: RootState) => state.panorama.panoramaUrl
   );
   const spaceId = useSelector((state: RootState) => state.panorama.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
-  // const [cameraPosition, setCameraPosition] = useState<[number, number, number]>([0, 0, 0.1]);
+
+  const [lightIntensity, setLightIntensity] = useState(2);
+  const [autoRotate, setAutoRotate] = useState(false);
+  const [speedRotate, setSpeedRotate] = useState(1);
   const [angle, setAngle] = useState(0); // Góc quay quanh trục Y
   const radius = 100; // Bán kính quay
 
@@ -241,11 +321,11 @@ const CreateTourStep2 = () => {
       userId: user.id,
       url: panoramaURL,
       name: nameNode,
-      description: despNode,
+      description: desNode,
     });
     if (response.data.statusCode == 1000) {
       Swal.fire("Thành công", "Tạo tour thành công", "success");
-      navigate(`${location.pathname}/3`);
+      navigate(`${location.pathname.replace("/2", "")}/3`);
     } else {
       Swal.fire("Loi", "Tạo tour that bai", "error");
     }
@@ -253,14 +333,14 @@ const CreateTourStep2 = () => {
 
   useEffect(() => {
     const handleCheckTask1 = () => {
-      if (nameNode.trim() != "" && despNode.trim() != "") {
+      if (nameNode.trim() != "" && desNode.trim() != "") {
         setIsDone1(true);
       } else {
         setIsDone1(false);
       }
     };
     handleCheckTask1();
-  }, [nameNode, despNode]);
+  }, [nameNode, desNode]);
 
   const handleOpenTask = (taskIndex: number) => {
     // Nếu taskIndex đã được mở, thì đóng nó, ngược lại mở task mới
@@ -279,13 +359,16 @@ const CreateTourStep2 = () => {
           onMouseUp={handleMouseUp}
           style={{ cursor: cursor }}
         >
-          {/* <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} /> */}
-          <Scene cameraPosition={cameraPosition} />
+          <Scene
+            cameraPosition={cameraPosition}
+            lightIntensity={lightIntensity}
+          />
           <OrbitControls
             enableZoom={true}
             rotateSpeed={1.5}
             enablePan={false}
+            autoRotate={autoRotate}
+            autoRotateSpeed={speedRotate}
           />
           <Node url={panoramaURL ?? "/khoa.jpg"} />
         </Canvas>
@@ -340,14 +423,20 @@ const CreateTourStep2 = () => {
         <Task1
           nameNode={nameNode}
           setNameNode={setNameNode}
-          despNode={despNode}
-          setDespNode={setDespNode}
+          desNode={desNode}
+          setDesNode={setDesNode}
           isOpen1={openTaskIndex === 1}
         />
         <Task2
           isOpen2={openTaskIndex === 2}
           angle={angle}
           setAngle={setAngle}
+          lightIntensity={lightIntensity}
+          setLightIntensity={setLightIntensity}
+          autoRotate={autoRotate}
+          setAutoRotate={setAutoRotate}
+          speedRotate={speedRotate}
+          setSpeedRotate={setSpeedRotate}
         />
         <Task3 isOpen3={openTaskIndex === 3} />
         <Task4 isOpen4={openTaskIndex === 4} />

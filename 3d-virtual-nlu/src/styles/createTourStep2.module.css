@@ -166,11 +166,12 @@
   display: flex;
   margin-top: 10px;
   width: 100%;
+  margin-bottom: 20px;
 }
 
 .label {
   display: inline-block;
-  width: 100px;
+  width: 150px;
   margin-right: 20px;
 }
 
