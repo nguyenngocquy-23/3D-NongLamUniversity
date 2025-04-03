@@ -51,7 +51,6 @@ public class AuthenticationService {
     protected long refreshDuration = JwtProperties.refreshDuration;
     protected String SIGN_KEY = JwtProperties.signerKey;
 
-
     public boolean authenticate(String requestToken) {
         boolean result = true;
         try {
@@ -91,6 +90,18 @@ public class AuthenticationService {
         }
     }
 
+    public LoginResponse refreshToken(String token) throws ParseException {
+        var signToken = verifyToken(token, true);
+        var username = signToken.getJWTClaimsSet().getSubject();
+        var user = userDao.findByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Username not found");
+        }
+        return new LoginResponse().builder()
+                .token(generateToken(user))
+                .authenticated(true)
+                .build();
+    }
 
     public User signup(UserRegisterRequest userRegisterDTO) {
         // encrypt Password
