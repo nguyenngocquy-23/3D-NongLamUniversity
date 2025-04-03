@@ -9,7 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.NodeService;
+
+import java.util.List;
 
 @Path("/admin/node")
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
@@ -27,5 +31,13 @@ public class NodeController {
         } else{
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi tao node").data(result).build();
         }
+    }
+
+    @POST
+    @Path("/all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getAllNodes() {
+        List<NodeFullResponse> result = nodeService.getAllNodes();
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 }

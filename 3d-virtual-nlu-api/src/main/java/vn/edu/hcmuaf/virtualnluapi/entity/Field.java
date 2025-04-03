@@ -1,9 +1,7 @@
 package vn.edu.hcmuaf.virtualnluapi.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
@@ -11,8 +9,10 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Field {
-    private int id;
-    private String name;
-    private LocalDateTime createdAt, updatedAt;
+    int id;
+    String name;
+    byte status;
+    LocalDateTime createdAt, updatedAt;
 }
