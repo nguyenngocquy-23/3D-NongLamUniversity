@@ -18,8 +18,8 @@ interface AuthState {
 
 // Trạng thái ban đầu
 const initialState: AuthState = {
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
-  token: localStorage.getItem('token') || 'null',
+  user: JSON.parse(sessionStorage.getItem('user') || 'null'),
+  token: sessionStorage.getItem('token') || 'null',
   isLoading: false,
   error: null,
 };
@@ -62,8 +62,8 @@ const authSlice = createSlice({
     logoutUser: (state) => {
       state.user = null;
       state.token = null;
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("token");
     },
   },
   extraReducers: (builder) => {
@@ -76,8 +76,8 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
-        localStorage.setItem("user", JSON.stringify(action.payload.user));
-        localStorage.setItem("token", JSON.stringify(action.payload.token));
+        sessionStorage.setItem("user", JSON.stringify(action.payload.user));
+        sessionStorage.setItem("token", action.payload.token);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;

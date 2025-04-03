@@ -4,21 +4,30 @@ import axios from "axios";
 interface DataState {
   users: any[];
   messages: any[];
+  fields: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
 }
 
 const initialState: DataState = {
   users: [],
   messages: [],
+  fields: [],
   status: "idle",
 };
 
 // Fetch users
-export const fetchUsers = createAsyncThunk("data/fetchUsers", async () => {
-  const response = await axios.get(
-    "https://jsonplaceholder.typicode.com/users"
-  );
-  return response.data;
+export const fetchUsers = createAsyncThunk("data/fetchUsers", async (_,{ rejectWithValue }) => {
+  try{
+    const response = await axios.get(
+      "http://localhost:8080/api/user",
+      {
+        headers: {Authorization: sessionStorage.getItem("token")}
+      }
+    );
+    return response.data.data;
+  }catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || "Lấy danh sách người dùng thất bại. Vui lòng kiểm tra lại.");
+  }
 });
 
 // Fetch tours
@@ -30,13 +39,13 @@ export const fetchTours = createAsyncThunk("data/fetchTours", async () => {
 });
 
 // Fetch message
-export const fetchMessages = createAsyncThunk(
-  "data/fetchMessages",
+export const fetchFields = createAsyncThunk(
+  "data/fetchFields",
   async () => {
     const response = await axios.get(
-      "https://jsonplaceholder.typicode.com/messages"
+      "http://localhost:8080/api/admin/field"
     );
-    return response.data;
+    return response.data.data;
   }
 );
 
@@ -68,14 +77,14 @@ const dataSlice = createSlice({
         state.status = "failed";
       })
 
-      .addCase(fetchMessages.pending, (state) => {
+      .addCase(fetchFields.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchMessages.fulfilled, (state, action) => {
+      .addCase(fetchFields.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.users = action.payload;
+        state.fields = action.payload;
       })
-      .addCase(fetchMessages.rejected, (state) => {
+      .addCase(fetchFields.rejected, (state) => {
         state.status = "failed";
       });
   },
