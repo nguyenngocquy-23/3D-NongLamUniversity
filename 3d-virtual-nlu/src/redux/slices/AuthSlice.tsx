@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from 'axios'
+import axios from "axios";
 
 // Định nghĩa kiểu dữ liệu người dùng
 interface User {
@@ -27,12 +27,20 @@ const initialState: AuthState = {
 // Thunk API đăng nhập
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({ username, password }: { username: string; password: string }, { rejectWithValue }) => {
+  async (
+    { username, password }: { username: string; password: string },
+    { rejectWithValue }
+  ) => {
     try {
       // Gọi API đăng nhập
-      const response = await axios.post("http://localhost:8080/api/login", { username, password });
+      const response = await axios.post("http://localhost:8080/api/login", {
+        username,
+        password,
+      });
       if (response.data.statusCode !== 1000) {
-        throw new Error(response.data.message || "Invalid username or password");
+        throw new Error(
+          response.data.message || "Invalid username or password"
+        );
       }
 
       // Gọi API lấy thông tin user
@@ -40,7 +48,10 @@ export const loginUser = createAsyncThunk(
         "http://localhost:8080/api/user",
         { username, password },
         {
-          headers: { Authorization: response.data.data.token, "Content-Type": "application/json" },
+          headers: {
+            Authorization: response.data.data.token,
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -49,7 +60,10 @@ export const loginUser = createAsyncThunk(
         token: response.data.data.token,
       };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại.");
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại."
+      );
     }
   }
 );

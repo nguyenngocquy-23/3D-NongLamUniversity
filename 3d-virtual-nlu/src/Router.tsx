@@ -15,6 +15,7 @@ import CreateTourStep2 from "./pages/admin/CreateTourStep2.tsx";
 import CreateTourStep3 from "./pages/admin/CreateTourStep3.tsx";
 import CreateTourStep4 from "./pages/admin/CreateTourStep4.tsx";
 import PageNotFound from "./pages/Page404.tsx";
+import VirtualTour from "./pages/visitor/VirtualTour.tsx";
 
 function RouterConfig() {
   return (
@@ -23,7 +24,7 @@ function RouterConfig() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
-      <Route path="/virtualTour" element={<TourVirtual />} />
+      <Route path="/virtualTour" element={<VirtualTour />} />
       {/* admin */}
       <Route path="/admin/" element={<Layout />}>
         <Route index element={<Dashboard />} />
