@@ -14,7 +14,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const [showContent, setShowContent] = useState(false);
   const navigate = useNavigate();
-  const { isLoading, error} = useSelector((state: RootState) => state.auth);
+  const { isLoading, error } = useSelector((state: RootState) => state.auth);
   const [isError, setIsError] = useState(false);
   const [passLengthError, setPassLengthError] = useState(false);
 
@@ -34,15 +34,17 @@ const Login: React.FC = () => {
 
     try {
       // Dispatch action đăng nhập
-      const response = await dispatch(loginUser({ username, password })).unwrap();
-      if(response.user.roleId == 1){
+      const response = await dispatch(
+        loginUser({ username, password })
+      ).unwrap();
+      if (response.user.roleId == 1) {
         navigate("/"); // Điều hướng về trang chính sau khi đăng nhập thành công
-      }else if(response.user.roleId == 2){
+      } else if (response.user.roleId == 2) {
         navigate("/admin"); // Điều hướng về trang admin sau khi đăng nhập thành công
       }
-    } catch (err) {
-      console.error(err);
-      setIsError(true);
+    } catch (err:any) {
+        console.error(err);
+        setIsError(true);
     }
   };
 
@@ -64,7 +66,9 @@ const Login: React.FC = () => {
               onChange={(e) => setUsername(e.target.value)}
               required
               placeholder="Enter your username"
-              className={`${styles.inputField} ${isError ? styles.passLengthError : ""}`}
+              className={`${styles.inputField} ${
+                isError ? styles.passLengthError : ""
+              }`}
             />
           </div>
           <div className={styles.inputGroup}>
@@ -76,7 +80,9 @@ const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Enter your password"
-              className={`${styles.inputField} ${passLengthError ? styles.passLengthError : ""} ${isError ? styles.passLengthError : ""} `}
+              className={`${styles.inputField} ${
+                passLengthError ? styles.passLengthError : ""
+              } ${isError ? styles.passLengthError : ""} `}
             />
             <FontAwesomeIcon
               className={styles.eye}
@@ -84,16 +90,28 @@ const Login: React.FC = () => {
               icon={showContent ? faEyeSlash : faEye}
             ></FontAwesomeIcon>
           </div>
-          <button className={styles.loginBtn} type="submit" disabled={isLoading}>
+          <button
+            className={styles.loginBtn}
+            type="submit"
+            disabled={isLoading}
+          >
             {isLoading ? "Logging in..." : "Login"}
           </button>
           {isError && <p className={styles.error}>{error}</p>}
-          {passLengthError && <p className={styles.error}> Mật khẩu phải có ít nhất 6 ký tự</p>}
+          {passLengthError && (
+            <p className={styles.error}> Mật khẩu phải có ít nhất 6 ký tự</p>
+          )}
           {/* <button className={styles.loginBtn} type="submit">Login</button> */}
         </form>
-        <Link className={styles.link} to="/forgotPassword">Forgot Password</Link> <br />
+        <Link className={styles.link} to="/forgotPassword">
+          Forgot Password
+        </Link>{" "}
+        <br />
         <b>
-          Don't have an account? <Link className={styles.link} to="/register">Register here!</Link>
+          Don't have an account?{" "}
+          <Link className={styles.link} to="/register">
+            Register here!
+          </Link>
         </b>
       </div>
       {/* <canvas className={styles.canvas_login}></canvas> */}

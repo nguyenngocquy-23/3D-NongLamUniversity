@@ -48,11 +48,15 @@ const RaycasterHandler: React.FC<RaycasterHandlerProps> = ({
   );
 
   useEffect(() => {
+    if (!sphereRef.current) {
+      console.warn("sphereRef.current chưa sẵn sàng!");
+      return; // Ngăn lỗi xảy ra khi sphereRef chưa được gán
+    }
     window.addEventListener("click", handleMouseClick);
     return () => {
       window.removeEventListener("click", handleMouseClick);
     };
-  }, [handleMouseClick]);
+  }, [handleMouseClick, sphereRef.current]);
 
   return null;
 };

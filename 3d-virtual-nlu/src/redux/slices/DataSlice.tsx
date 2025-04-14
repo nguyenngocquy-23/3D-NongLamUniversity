@@ -5,6 +5,7 @@ interface DataState {
   users: any[];
   messages: any[];
   fields: any[];
+  spaces: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
 }
 
@@ -12,6 +13,7 @@ const initialState: DataState = {
   users: [],
   messages: [],
   fields: [],
+  spaces: [],
   status: "idle",
 };
 
@@ -38,12 +40,22 @@ export const fetchTours = createAsyncThunk("data/fetchTours", async () => {
   return response.data;
 });
 
-// Fetch message
+// Fetch field
 export const fetchFields = createAsyncThunk(
   "data/fetchFields",
   async () => {
     const response = await axios.get(
       "http://localhost:8080/api/admin/field"
+    );
+    return response.data.data;
+  }
+);
+// Fetch space
+export const fetchSpaces = createAsyncThunk(
+  "data/fetchSpaces",
+  async () => {
+    const response = await axios.get(
+      "http://localhost:8080/api/admin/space/all"
     );
     return response.data.data;
   }
@@ -85,6 +97,17 @@ const dataSlice = createSlice({
         state.fields = action.payload;
       })
       .addCase(fetchFields.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchSpaces.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchSpaces.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.spaces = action.payload;
+      })
+      .addCase(fetchSpaces.rejected, (state) => {
         state.status = "failed";
       });
   },

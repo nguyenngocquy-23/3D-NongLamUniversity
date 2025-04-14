@@ -1,9 +1,9 @@
 import React, { Suspense, useRef, useEffect, useState, useMemo } from "react";
-import styles from "../styles/createTour.module.css";
+import styles from "../styles/createTourStep2.module.css";
 import { Canvas, events, extend, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { FaAngleLeft, FaBackward } from "react-icons/fa6";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, useTexture } from "@react-three/drei";
 import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,24 +30,66 @@ const Controls: React.FC = () => {
   );
 };
 
-interface DomeProps {
-  panoramaURL: string;
+interface NodeProps {
+  url: string;
+  radius: number;
+  sphereRef: React.RefObject<THREE.Mesh | null>;
+  lightIntensity: number;
 }
 
-const Dome: React.FC<DomeProps> = ({ panoramaURL }) => {
-  const texture = useMemo(
-    () => new THREE.TextureLoader().load(panoramaURL),
-    [panoramaURL]
-  );
+const Node: React.FC<NodeProps> = ({
+  url,
+  radius,
+  sphereRef,
+  lightIntensity,
+}) => {
+  const texture = useTexture(url);
+  // const texture = new THREE.TextureLoader().load(url);
   texture.wrapS = THREE.RepeatWrapping;
   texture.repeat.x = -1;
 
   return (
-    <mesh>
-      <sphereGeometry args={[100, 128, 128]} />
-      <meshBasicMaterial map={texture} side={THREE.BackSide} />
+    <mesh
+      ref={(el) => {
+        if (el && sphereRef) {
+          sphereRef.current = el;
+          console.log("sphereRef được gán trong Node:", sphereRef.current);
+        }
+      }}
+    >
+      <ambientLight intensity={lightIntensity} color="#ffffff" />
+      <pointLight
+        position={[100, 100, 100]}
+        color="#ffcc00"
+        castShadow
+        intensity={lightIntensity}
+      />
+      <directionalLight
+        position={[5, 5, 5]}
+        intensity={lightIntensity}
+        color="#ffffff"
+        castShadow
+      />
+      <sphereGeometry args={[radius, 128, 128]} />
+      <meshStandardMaterial map={texture} side={THREE.BackSide} /> // sử dụng
+      standard để phản chiếu ánh sáng, basic thì không
     </mesh>
   );
+};
+
+interface SceneProps {
+  cameraPosition: [number, number, number];
+}
+
+const Scene = ({ cameraPosition }: SceneProps) => {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    camera.position.set(...cameraPosition);
+    camera.updateProjectionMatrix(); // Cập nhật lại camera
+  }, [cameraPosition]); // Chạy mỗi khi cameraPosition thay đổi
+
+  return null;
 };
 
 const UpdateNode: React.FC = () => {
@@ -62,124 +104,46 @@ const UpdateNode: React.FC = () => {
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
     []
   );
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>(); // hotspot
+  const sphereRef = useRef<THREE.Mesh | null>(null);
 
-  // Lấy danh sách fields từ Redux
-  const fields = useSelector((state: RootState) => state.data.fields);
+  const [lightIntensity, setLightIntensity] = useState(2);
+  const [autoRotate, setAutoRotate] = useState(false);
+  const [speedRotate, setSpeedRotate] = useState(1);
+  const [angle, setAngle] = useState(90); // Góc quay quanh trục Y
+  const radius = 100; // Bán kính quay
+  const originalZ = 0.0000001; // Bán kính quay
 
-  useEffect(() => {
-    dispatch(fetchFields()); // Gọi API khi component được render
-  }, [dispatch]);
-
-  // Lấy danh sách space theo field
-  const handleSelectField = async (event: any) => {
-    const fieldId = event?.target.value;
-
-    if (!fieldId) {
-      setListSpace([]); // Nếu chọn "-- Chọn lĩnh vực --", reset danh sách spaces
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/api/admin/space/byField",
-        { fieldId: fieldId }
-      );
-      const listSpace = response.data.data;
-      console.log("listSpace", listSpace);
-      setListSpace(listSpace);
-    } catch {
-      console.log("call api choose field error");
-    }
-  };
-
-  // Chon space
-  const handleSelectSpace = async (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setSelectSoace(event.target.value);
-    dispatch(setSpaceId(event.target.value));
-  };
-
-  //* Xử lý khi thay đổi hình ảnh
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setPanoramaURL(URL.createObjectURL(file));
-    }
-  };
-
-  const handleUploadPanorama = async () => {
-    if (selectSpace == "" || selectSpace == null) {
-      Swal.fire("Loi", "Vui long chon khong gian", "error");
-      return;
-    }
-    if (!selectedFile) {
-      Swal.fire("Loi", "Vui long nhap anh khong gian", "error");
-      return;
-    }
-    setIsLoading(true);
-
-    try {
-      let imgUrl;
-
-      if (
-        selectedFile?.type === "image/png" ||
-        selectedFile?.type === "image/jpg" ||
-        selectedFile?.type === "image/jpeg"
-      ) {
-        const image = new FormData();
-        image.append("file", selectedFile);
-        image.append("cloud_name", CLOUD_NAME);
-        image.append("upload_preset", UPLOAD_PRESET);
-
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`,
-          {
-            method: "post",
-            body: image,
-          }
-        );
-        const imgData = await response.json();
-
-        imgUrl = imgData.url.toString();
-        setPanoramaURL(imgUrl.secure_url);
-        console.log("Before dispatch:", imgUrl);
-        dispatch(setPanoramaUrl(imgUrl));
-        navigate(`${location.pathname}/2`);
-      }
-      alert("Tải ảnh thành công" + imgUrl);
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
-    }
-  };
+  // Tính toán vị trí camera từ góc quay quanh trục Y
+  const cameraPosition = useMemo((): [number, number, number] => {
+    const radians = (angle * Math.PI) / 180; // Chuyển độ sang radian
+    // return [radius * Math.cos(radians), 0, radius * Math.sin(radians) + 0.1]; // Camera quay quanh trục Y
+    return [originalZ * Math.cos(radians), 0, originalZ * Math.sin(radians)]; // Camera quay quanh trục Y
+  }, [angle]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.navigateBar}>
-        <FaAngleLeft />
-      </div>
-      <div className={styles.listTour}>
-        
-      <div className={styles.title}>
-        <b>Danh sách tour</b>
-      </div>
-      <div className={styles.tours} style={{color:"black"}}>
-        <ul>
-          <li>stt/ id</li>
-          <li> ten linh vuc</li>
-          <li>ten khong gian</li>
-          <li>ten node</li>
-          <li>mo ta</li>
-          <li>trang thai</li>
-          <li>thoi gian cap nhat</li>
-        </ul>
-      </div>
-      </div>
+    <div className={styles.preview_tour}>
+      <Canvas
+        camera={{
+          fov: 75,
+          position: cameraPosition,
+          aspect: window.innerWidth / window.innerHeight,
+        }}
+      >
+        <Node
+          url={panoramaURL ?? "/khoa.jpg"}
+          radius={radius}
+          sphereRef={sphereRef}
+          lightIntensity={lightIntensity}
+        />
+        <Scene cameraPosition={cameraPosition} />
+        <OrbitControls
+          rotateSpeed={0.5}
+          // autoRotate={autoRotate}
+          autoRotate={false}
+          autoRotateSpeed={speedRotate}
+        />
+      </Canvas>
     </div>
   );
 };

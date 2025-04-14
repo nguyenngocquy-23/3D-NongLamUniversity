@@ -5,15 +5,7 @@
   background-color: white;
   /* position: relative; */
   padding: 0 20px;
-  padding-top: 10px;
   box-sizing: border-box;
-}
-
-.navigateBar {
-  display: flex;
-  justify-content: space-between;
-  color: #333;
-  align-items: center;
 }
 
 .processBar {
