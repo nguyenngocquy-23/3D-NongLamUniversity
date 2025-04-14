@@ -60,6 +60,9 @@ export const loginUser = createAsyncThunk(
         token: response.data.data.token,
       };
     } catch (error: any) {
+      if (error.code === "ERR_NETWORK") {
+        return rejectWithValue("Không thể kết nối đến server. Vui lòng thử lại sau.");
+      }
       return rejectWithValue(
         error.response?.data?.message ||
           "Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại."

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/createTour.module.css";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { OrbitControls, useTexture } from "@react-three/drei";
+import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import { useDispatch, useSelector } from "react-redux";
 import { setSpaceId } from "../../redux/slices/PanoramaSlice.tsx";
 import { AppDispatch, RootState } from "../../redux/Store.tsx";
@@ -16,7 +16,6 @@ interface DomeProps {
 
 const Dome: React.FC<DomeProps> = ({ panoramaURL }) => {
   const texture = useTexture(panoramaURL);
-  // const texture = new THREE.TextureLoader().load(panoramaURL);
   texture.wrapS = THREE.RepeatWrapping;
   texture.repeat.x = -1;
 
@@ -26,6 +25,38 @@ const Dome: React.FC<DomeProps> = ({ panoramaURL }) => {
       <meshBasicMaterial map={texture} side={THREE.BackSide} />
     </mesh>
   );
+};
+
+const moveSpeed = 0.5;
+
+const CameraControls = () => {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowUp":
+          camera.position.z -= moveSpeed;
+          break;
+        case "ArrowDown":
+          camera.position.z += moveSpeed;
+          break;
+        case "ArrowLeft":
+          camera.position.x -= moveSpeed;
+          break;
+        case "ArrowRight":
+          camera.position.x += moveSpeed;
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [camera]);
+
+  return null;
 };
 
 interface BoardUploadProps {
@@ -127,6 +158,7 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
               <input
                 type="file"
                 accept="image/png, image/jpg, image/jpeg"
+                // accept="*/*"
                 onChange={handleFileChange}
               />
             </p>
@@ -146,18 +178,33 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
         <div className={fullPreview ? styles.fullPreview : styles.panoPreview}>
           {/* <div className={styles.panoPreview}> */}
           <Canvas
-            camera={{ position: [0, 0, 2.5], fov: 75 }}
+            camera={{ position: [0, 0, 0.01], fov: 75 }}
             style={{ width: "100%", height: "100%" }}
           >
             <OrbitControls
               enableZoom={true}
-              rotateSpeed={1.5}
+              rotateSpeed={0.5}
               enablePan={false}
-              autoRotate={true}
-              autoRotateSpeed={0.5}
+              // autoRotate={true}
+              // autoRotateSpeed={0.5}
             />
+            <CameraControls />
             <Dome panoramaURL={panoramaURL} />
           </Canvas>
+          {/* test modal 3D */}
+          {/* <Canvas
+            camera={{ position: [5, 0, 0.01], fov: 75 }}
+            style={{ width: "100%", height: "100%" }}
+          >
+            <OrbitControls
+              enableZoom={true}
+              rotateSpeed={0.5}
+              enablePan={false}
+              autoRotate={true}
+              autoRotateSpeed={2.5}
+            />
+            <Dome panoramaURL={panoramaURL} />
+          </Canvas> */}
           <button className={styles.preview_button} onClick={handleFullPreview}>
             Chế độ xem
           </button>

@@ -12,25 +12,34 @@ import {
 import { MdDashboard } from "react-icons/md";
 import styles from "../../styles/layout.module.css";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../redux/Store";
+import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
+import { fetchFields, fetchSpaces } from "../../redux/slices/DataSlice";
 
 const Layout = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
 
+
+  useEffect(() => {
+    dispatch(fetchFields());
+    dispatch(fetchSpaces());
+  }, [dispatch]);
+
   useEffect(() => {
     console.log("currentUser", currentUser);
-    if (
-      currentUser == undefined ||
-      currentUser == null ||
-      (currentUser && currentUser.roleId !== 2)
-    ) {
-      navigate("/unauthorized");
+    if(location.pathname !== "/login"){
+      if (
+        currentUser == undefined ||
+        currentUser == null ||
+        (currentUser && currentUser.roleId !== 2)
+      ) {
+        navigate("/unauthorized");
+      }
     }
   }, [navigate]);
 
@@ -57,9 +66,7 @@ const Layout = () => {
           <Link to="/admin/fields">
             <li
               className={
-                location.pathname === "/admin/fields"
-                  ? styles.click
-                  : ""
+                location.pathname === "/admin/fields" ? styles.click : ""
               }
             >
               Quản Lý Lĩnh vực
@@ -68,9 +75,7 @@ const Layout = () => {
           <Link to="/admin/spaces">
             <li
               className={
-                location.pathname === "/admin/spaces"
-                  ? styles.click
-                  : ""
+                location.pathname === "/admin/spaces" ? styles.click : ""
               }
             >
               Quản Lý Không gian
@@ -78,14 +83,12 @@ const Layout = () => {
           </Link>
           <Link to="/admin/tours">
             <li
-              className={
-                location.pathname.includes("our") ? styles.click : ""
-              }
+              className={location.pathname.includes("our") ? styles.click : ""}
             >
               Quản Lý Tour
             </li>
           </Link>
-        
+
           <Link to="/admin/users">
             <li
               className={
