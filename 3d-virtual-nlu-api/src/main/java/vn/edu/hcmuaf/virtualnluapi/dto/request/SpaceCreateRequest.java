@@ -13,5 +13,5 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class SpaceCreateRequest {
     int fieldId;
-    String name, description;
+    String name, code, description;
 }

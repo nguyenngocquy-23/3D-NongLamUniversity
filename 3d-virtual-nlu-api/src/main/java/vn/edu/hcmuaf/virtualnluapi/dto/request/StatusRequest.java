@@ -11,9 +11,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-public class NodeCreateRequest {
-    int spaceId, userId;
-    String url, name, description;
-    byte autoRotate;
-    double positionX, positionY, positionZ, lightIntensity, speedRotate;
+public class StatusRequest {
+    int id;
+    byte status;
 }

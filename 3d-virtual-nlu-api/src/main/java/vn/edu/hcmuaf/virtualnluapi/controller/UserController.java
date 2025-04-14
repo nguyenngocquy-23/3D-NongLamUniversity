@@ -43,7 +43,7 @@ public class UserController {
         boolean authenticated = authenticationService.authenticate(token);
         List<User> users = userService.getAllUser();
         if(!authenticated){
-            return ApiResponse.<List<User>>builder().statusCode(5000).message("loi khi lay danh sach").data(null).build();
+            return ApiResponse.<List<User>>builder().statusCode(5000).message("loi xac thuc").data(null).build();
         }
         return ApiResponse.<List<User>>builder().statusCode(1000).message("lay danh sach thanh cong").data(users).build();
     }

@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SpaceFullResponse {
+    int id;
     String fieldName, name, description;
+    byte status;
     LocalDateTime updatedAt;
 }
