@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import styles from "../../styles/createTourStep2.module.css";
 import { FaAngleLeft, FaAngleRight, FaClock } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
@@ -10,10 +10,12 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { FaHome } from "react-icons/fa";
 import { validateAndNavigate } from "../../features/PreValidate";
-import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls, useTexture } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
+import RaycasterHandler from "../../components/visitor/RaycasterHandler";
+import GroundHotspot from "../../components/visitor/GroundHotspot";
 
-interface Task1Props{
+interface Task1Props {
   isOpen1: boolean;
   nameNode: string;
   setNameNode: (nameNode: string) => void;
@@ -22,7 +24,13 @@ interface Task1Props{
 }
 
 // Component cho Task1
-const Task1 = ({ isOpen1, nameNode, setNameNode, desNode, setDesNode }: Task1Props) => (
+const Task1 = ({
+  isOpen1,
+  nameNode,
+  setNameNode,
+  desNode,
+  setDesNode,
+}: Task1Props) => (
   <div className={`${styles.task1} ${isOpen1 ? styles.open_task1 : ""}`}>
     <h3>1. Thông tin không gian</h3>
     <div className={styles.contain_input}>
@@ -131,16 +139,20 @@ const Task2 = ({
   </div>
 );
 
+interface Task3Props {
+  isOpen3: boolean;
+}
+
 // Component cho Task3
-const Task3 = ({ isOpen3 }) => (
+const Task3 = ({ isOpen3 }: Task3Props) => (
   <div className={`${styles.task3} ${isOpen3 ? styles.open_task3 : ""}`}>
     <h3>3. Tạo điểm di chuyển</h3>
     <div className={styles.contain_input}>
       <label className={styles.label}>Biểu tượng:</label>
+      <input type="checkbox" />
       <FaHome />
       <input type="checkbox" />
       <FaClock />
-      <input type="checkbox" />
     </div>
     <div className={styles.contain_input}>
       <label className={styles.label}>Điểm di chuyển:</label>
@@ -163,8 +175,12 @@ const Task3 = ({ isOpen3 }) => (
   </div>
 );
 
+interface Task4Props {
+  isOpen4: boolean;
+}
+
 // Component cho Task4
-const Task4 = ({ isOpen4 }) => (
+const Task4 = ({ isOpen4 }: Task4Props) => (
   <div className={`${styles.task4} ${isOpen4 ? styles.open_task4 : ""}`}>
     <h3>4. Tạo chú thích</h3>
     <div>
@@ -181,8 +197,36 @@ const Task4 = ({ isOpen4 }) => (
   </div>
 );
 
+interface ModelProps {
+  modelURL: string;
+}
+const Model: React.FC<ModelProps> = ({ modelURL }) => {
+  const { scene } = useGLTF(modelURL);
+  const modelRef = useRef<THREE.Group>(null);
+
+  // Xoay model liên tục mỗi frame
+  useFrame(() => {
+    if (modelRef.current) {
+      modelRef.current.rotation.y += 0.01; // Tốc độ xoay
+    }
+  });
+
+  return (
+    <group ref={modelRef} position={[30, -10, -10]} scale={3}>
+      <primitive object={scene}>
+        <ambientLight color={"#fff"} intensity={1} />
+        <pointLight position={[10, 10, 10]} intensity={1} />
+        <directionalLight position={[5, 5, 5]} intensity={1} />
+      </primitive>
+    </group>
+  );
+};
+
+interface Task5Props {
+  isOpen5: boolean;
+}
 // Component cho Task5
-const Task5 = ({ isOpen5 }) => (
+const Task5 = ({ isOpen5 }: Task5Props) => (
   <div className={`${styles.task5} ${isOpen5 ? styles.open_task5 : ""}`}>
     <h3>5. Chèn mô hình 3D</h3>
     <div>
@@ -201,38 +245,31 @@ const Task5 = ({ isOpen5 }) => (
 
 interface NodeProps {
   url: string;
+  radius: number;
+  sphereRef: React.RefObject<THREE.Mesh | null>;
+  lightIntensity: number;
 }
 
-const Node: React.FC<NodeProps> = ({ url }) => {
+const Node: React.FC<NodeProps> = ({
+  url,
+  radius,
+  sphereRef,
+  lightIntensity,
+}) => {
   const texture = useTexture(url);
   // const texture = new THREE.TextureLoader().load(url);
   texture.wrapS = THREE.RepeatWrapping;
   texture.repeat.x = -1;
 
   return (
-    <mesh>
-      <sphereGeometry args={[500, 128, 128]} />
-      <meshStandardMaterial map={texture} side={THREE.BackSide} /> // sử dụng
-      standard để phản chiếu ánh sáng, basic thì không
-    </mesh>
-  );
-};
-
-interface SceneProps {
-  cameraPosition: [number, number, number];
-  lightIntensity: number;
-}
-
-const Scene = ({ cameraPosition, lightIntensity }: SceneProps) => {
-  const { camera } = useThree();
-
-  useEffect(() => {
-    camera.position.set(...cameraPosition);
-    camera.updateProjectionMatrix(); // Cập nhật lại camera
-  }, [cameraPosition]); // Chạy mỗi khi cameraPosition thay đổi
-
-  return (
-    <>
+    <mesh
+      ref={(el) => {
+        if (el && sphereRef) {
+          sphereRef.current = el;
+          console.log("sphereRef được gán trong Node:", sphereRef.current);
+        }
+      }}
+    >
       <ambientLight intensity={lightIntensity} color="#ffffff" />
       <pointLight
         position={[100, 100, 100]}
@@ -246,8 +283,26 @@ const Scene = ({ cameraPosition, lightIntensity }: SceneProps) => {
         color="#ffffff"
         castShadow
       />
-    </>
+      <sphereGeometry args={[radius, 128, 128]} />
+      <meshStandardMaterial map={texture} side={THREE.BackSide} /> // sử dụng
+      standard để phản chiếu ánh sáng, basic thì không
+    </mesh>
   );
+};
+
+interface SceneProps {
+  cameraPosition: [number, number, number];
+}
+
+const Scene = ({ cameraPosition }: SceneProps) => {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    camera.position.set(...cameraPosition);
+    camera.updateProjectionMatrix(); // Cập nhật lại camera
+  }, [cameraPosition]); // Chạy mỗi khi cameraPosition thay đổi
+
+  return null;
 };
 
 const CreateTourStep2 = () => {
@@ -269,16 +324,29 @@ const CreateTourStep2 = () => {
   const spaceId = useSelector((state: RootState) => state.panorama.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
 
+  // hotspot
+  const sphereRef = useRef<THREE.Mesh | null>(null);
+  const [hotspots, setHotspots] = useState<
+    { id: number; position: [number, number, number] }[]
+  >([]);
+
+  const handleAddHotspot = (position: [number, number, number]) => {
+    setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
+  };
+  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
+
   const [lightIntensity, setLightIntensity] = useState(2);
   const [autoRotate, setAutoRotate] = useState(false);
   const [speedRotate, setSpeedRotate] = useState(1);
-  const [angle, setAngle] = useState(0); // Góc quay quanh trục Y
+  const [angle, setAngle] = useState(90); // Góc quay quanh trục Y
   const radius = 100; // Bán kính quay
+  const originalZ = 0.0000001; // Bán kính quay
 
   // Tính toán vị trí camera từ góc quay quanh trục Y
-  const cameraPosition = useMemo(() => {
+  const cameraPosition = useMemo((): [number, number, number] => {
     const radians = (angle * Math.PI) / 180; // Chuyển độ sang radian
-    return [radius * Math.cos(radians), 0, radius * Math.sin(radians) + 0.1]; // Camera quay quanh trục Y
+    // return [radius * Math.cos(radians), 0, radius * Math.sin(radians) + 0.1]; // Camera quay quanh trục Y
+    return [originalZ * Math.cos(radians), 0, originalZ * Math.sin(radians)]; // Camera quay quanh trục Y
   }, [angle]);
 
   // const isValid = validateAndNavigate(
@@ -294,8 +362,12 @@ const CreateTourStep2 = () => {
   // if (!isValid) {
   //   return;
   // }
+  const handledSwitchTexture = () => {};
 
   const handleOpenMenu = () => {
+    if (isMenuVisible) {
+      setOpenTaskIndex(null);
+    }
     setIsMenuVisible((preState) => !preState);
   };
 
@@ -303,11 +375,11 @@ const CreateTourStep2 = () => {
     navigate("/admin/createTour");
   };
 
-  const handleMouseDown = (event: any) => {
+  const handleMouseDown = () => {
     setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
   };
 
-  const handleMouseUp = (event: any) => {
+  const handleMouseUp = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
 
@@ -322,6 +394,12 @@ const CreateTourStep2 = () => {
       url: panoramaURL,
       name: nameNode,
       description: desNode,
+      positionX: cameraPosition[0],
+      positionY: cameraPosition[1],
+      positionZ: cameraPosition[2],
+      lightIntensity: lightIntensity,
+      autoRotate: autoRotate ? 1 : 0,
+      speedRotate: speedRotate,
     });
     if (response.data.statusCode == 1000) {
       Swal.fire("Thành công", "Tạo tour thành công", "success");
@@ -354,23 +432,46 @@ const CreateTourStep2 = () => {
       <div className={styles.preview_tour}>
         {/* main - canvas */}
         <Canvas
-          camera={{ fov: 75, position: cameraPosition }}
+          camera={{
+            fov: 75,
+            position: cameraPosition,
+            aspect: window.innerWidth / window.innerHeight,
+          }}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
-          style={{ cursor: cursor }}
+          // style={{ cursor: cursor }}
         >
-          <Scene
-            cameraPosition={cameraPosition}
+          <Node
+            url={panoramaURL ?? "/khoa.jpg"}
+            radius={radius}
+            sphereRef={sphereRef}
             lightIntensity={lightIntensity}
           />
+          <Scene cameraPosition={cameraPosition} />
           <OrbitControls
-            enableZoom={true}
-            rotateSpeed={1.5}
-            enablePan={false}
-            autoRotate={autoRotate}
+            rotateSpeed={0.5}
+            // autoRotate={autoRotate}
+            autoRotate={false}
             autoRotateSpeed={speedRotate}
           />
-          <Node url={panoramaURL ?? "/khoa.jpg"} />
+          {sphereRef.current && (
+            <RaycasterHandler
+              sphereRef={sphereRef}
+              onAddHotspot={handleAddHotspot}
+              hoveredHotspot={hoveredHotspot} //test
+              switchTexture={handledSwitchTexture}
+            />
+          )}
+
+          {hotspots.map((hotspot) => (
+            <GroundHotspot
+              key={hotspot.id}
+              position={hotspot.position}
+              setHoveredHotspot={setHoveredHotspot}
+            />
+          ))}
+
+          <Model modelURL={"/thienly.glb"} />
         </Canvas>
 
         {/* Header chứa logo + close */}

@@ -7,16 +7,16 @@
 @keyframes fadeIn {
   0% {
     opacity: 0;
-    transform: scale(0);
+    /* transform: scale(0); */
   }
 
   100% {
     opacity: 1;
-    transform: scale(1);
+    /* transform: scale(1); */
   }
 }
 
-#preview_tour.grabbing {
+.preview_tour.grabbing {
   cursor: grabbing;
 }
 .preview_tour {
@@ -25,7 +25,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  animation: fadeIn 1s ease;
+  animation: fadeIn 1.5s ease-in-out;
   z-index: 999;
   overflow: hidden;
 }
