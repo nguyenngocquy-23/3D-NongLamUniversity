@@ -1,0 +1,94 @@
+.container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(rgba(255, 255, 255, 1), rgba(0, 0, 0, 1));
+    /* background-color: #979797; */
+    z-index: 10000;
+    /* animation: fadeIn 1s ease-in forwards; */
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes bounceOnFall {
+    0% {
+        transform: translateY(-400px);
+    }
+
+    50% {
+        transform: translateY(0px);
+    }
+
+    60% {
+        transform: translateY(-30px);
+    }
+
+    71% {
+        transform: translateY(0);
+    }
+    
+    80% {
+        transform: translateY(-15px);
+    }
+    
+    88% {
+        transform: translateY(0);
+    }
+
+    95% {
+        transform: translateY(-5px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.canvas{
+    position: absolute !important;
+    animation: bounceOnFall 1.5s ease-out;
+}
+
+.option {
+    display: grid;
+    grid-column: 1;
+}
+
+.icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.name_option {
+    margin-left: 30px;
+}
+
+.option_button:hover {
+    width: 200px;
+}
+
+.option_button {
+    width: 50px;
+    height: auto;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
+    position: relative;
+    border-radius: 0;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    transition: all .5s ease;
+    outline: none !important;
+}

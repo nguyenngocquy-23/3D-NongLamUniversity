@@ -15,7 +15,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
-import { fetchFields, fetchSpaces } from "../../redux/slices/DataSlice";
+import { fetchFields, fetchHotspotTypes, fetchSpaces } from "../../redux/slices/DataSlice";
 
 const Layout = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -28,20 +28,21 @@ const Layout = () => {
   useEffect(() => {
     dispatch(fetchFields());
     dispatch(fetchSpaces());
+    dispatch(fetchHotspotTypes());
   }, [dispatch]);
 
-  useEffect(() => {
-    console.log("currentUser", currentUser);
-    if(location.pathname !== "/login"){
-      if (
-        currentUser == undefined ||
-        currentUser == null ||
-        (currentUser && currentUser.roleId !== 2)
-      ) {
-        navigate("/unauthorized");
-      }
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   console.log("currentUser", currentUser);
+  //   if(location.pathname !== "/login"){
+  //     if (
+  //       currentUser == undefined ||
+  //       currentUser == null ||
+  //       (currentUser && currentUser.roleId !== 2)
+  //     ) {
+  //       navigate("/unauthorized");
+  //     }
+  //   }
+  // }, [navigate]);
 
   const handleLogout = () => {
     dispatch(logoutUser());
