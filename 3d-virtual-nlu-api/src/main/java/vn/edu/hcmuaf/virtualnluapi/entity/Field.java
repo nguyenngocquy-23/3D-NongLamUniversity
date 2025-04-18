@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Field {
     int id;
-    String name;
+    String name, code;
     byte status;
     LocalDateTime createdAt, updatedAt;
 }

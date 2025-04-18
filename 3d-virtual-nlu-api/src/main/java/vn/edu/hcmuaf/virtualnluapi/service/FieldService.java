@@ -6,9 +6,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.FieldDao;
-import vn.edu.hcmuaf.virtualnluapi.dao.SpaceDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 
 import java.util.List;
@@ -30,5 +29,9 @@ public class FieldService {
 
     public FieldResponse getFieldById(int id) {
         return fieldDao.getFieldById(id);
+    }
+
+    public boolean changeStatusField(StatusRequest req) {
+        return fieldDao.changeStatusField(req);
     }
 }

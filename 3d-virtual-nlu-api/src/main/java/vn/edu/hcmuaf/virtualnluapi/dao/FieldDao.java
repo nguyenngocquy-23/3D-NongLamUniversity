@@ -3,6 +3,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 import jakarta.enterprise.context.ApplicationScoped;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 
 import java.time.LocalDateTime;
@@ -13,8 +14,10 @@ public class FieldDao {
 
     public boolean insertField(FieldCreateRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
-            int i = handle.createUpdate("INSERT INTO fields (name, createdAt, updatedAt) VALUES (:name, :createdAt, :updatedAt)")
+            int i = handle.createUpdate("INSERT INTO fields (name, code, status, createdAt, updatedAt) VALUES (:name, :code, :status, :createdAt, :updatedAt)")
                     .bind("name", req.getName())
+                    .bind("code", req.getCode())
+                    .bind("status", 1)
                     .bind("createdAt", LocalDateTime.now())
                     .bind("updatedAt", LocalDateTime.now())
                     .execute();
@@ -24,7 +27,7 @@ public class FieldDao {
 
     public List<FieldResponse> getAllFields() {
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("SELECT id, name FROM fields")
+            return handle.createQuery("SELECT id, code, name, status, updatedAt FROM fields")
                     .mapToBean(FieldResponse.class)
                     .list();
         });
@@ -36,6 +39,16 @@ public class FieldDao {
                     .bind("id", id)
                     .mapToBean(FieldResponse.class)
                     .one();
+        });
+    }
+
+    public boolean changeStatusField(StatusRequest req) {
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int i = handle.createUpdate("UPDATE fields SET status = :status WHERE id = :id")
+                    .bind("status", req.getStatus() == 0 ? "1" : "0" )
+                    .bind("id", req.getId())
+                    .execute();
+            return i > 0;
         });
     }
 }

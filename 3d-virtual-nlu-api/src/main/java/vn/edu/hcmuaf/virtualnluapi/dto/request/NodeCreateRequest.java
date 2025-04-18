@@ -14,4 +14,6 @@ import lombok.experimental.FieldDefaults;
 public class NodeCreateRequest {
     int spaceId, userId;
     String url, name, description;
+    byte autoRotate;
+    double positionX, positionY, positionZ, lightIntensity, speedRotate;
 }

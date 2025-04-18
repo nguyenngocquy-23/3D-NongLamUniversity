@@ -5,7 +5,7 @@
     background-color: white;
     position: relative;
     padding: 0 20px;
-    padding-top: 30px;
+    /* padding-top: 30px; */
     box-sizing: border-box;
 }
 
@@ -38,15 +38,16 @@
     overflow: hidden; /* Ẩn nội dung khi đóng */
     transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
     display: flex;
+    padding-top: 20px;
 }
 
 .show{
     max-height: 300px;
     opacity: 1;
-    /* animation: showFeature 0.5s ease-in-out forwards; */
+    /* animation: showTour 0.5s ease-in-out forwards; */
 }
 
-@keyframes showFeature{
+@keyframes showTour{
     0%{
         opacity: 0;
         transform: translateY(-10px);
