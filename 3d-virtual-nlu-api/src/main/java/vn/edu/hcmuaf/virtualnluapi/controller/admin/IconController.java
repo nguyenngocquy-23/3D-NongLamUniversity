@@ -26,7 +26,6 @@ public class IconController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response insertIcon (IconCreateRequest iconReq) {
         IconResponse iconResp = iconService.insertIcon(iconReq);
-        System.out.println(iconResp.toString());
         if(iconResp != null) {
             ApiResponse<IconResponse> resp = ApiResponse.<IconResponse>builder().
                     statusCode(201)

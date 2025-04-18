@@ -92,24 +92,6 @@ const CamControls: React.FC<CamControlsProps> = ({
     currentCameraPosition.current.copy(camera.position); // lưu vị trí camera hiện tại
   }, [targetPosition, camera]);
 
-  useFrame(() => {
-    if (!targetPosition || !controlsRef.current) return;
-
-    // Tỉ lệ di chuyển camera
-    // const lerpSpeed = 0.1;
-    // camera.position.lerp(currentCameraPosition.current, lerpSpeed);
-    // controlsRef.current.target.lerp(currentTargetPostion.current, lerpSpeed); // Cập nhật vị trí target của OrbitControls
-
-    // if (sphereRef.current) {
-    //   sphereRef.current.position.lerp(currentTargetPostion.current, lerpSpeed); // Cập nhật vị trí hình cầu
-    // }
-
-    // if (camera.position.distanceTo(currentTargetPostion.current) < 0.1) {
-    //   camera.position.copy(currentTargetPostion.current); // Đặt camera về vị trí mới
-    //   controlsRef.current.target.copy(currentTargetPostion.current); // Đặt lại target về tâm cầu
-    // }
-  });
-
   return (
     <OrbitControls
       ref={controlsRef}

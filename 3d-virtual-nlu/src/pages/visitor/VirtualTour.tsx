@@ -72,11 +72,14 @@ const VirtualTour = () => {
   const radius = 100;
 
   const [hotspots, setHotspots] = useState<
-    { id: number; position: [number, number, number] }[]
+    { id: number; position: [number, number, number]; type: "floor" | "info" }[]
   >([]);
 
-  const handleAddHotspot = (position: [number, number, number]) => {
-    setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
+  const handleAddHotspot = (
+    position: [number, number, number],
+    type: "floor" | "info"
+  ) => {
+    setHotspots((prev) => [...prev, { id: prev.length + 1, position, type }]);
   };
 
   const handledSwitchTexture = (newPosition: [number, number, number]) => {
@@ -101,17 +104,18 @@ const VirtualTour = () => {
       //   setTargetPosition(newPosition); //test: Lưu vị trí mới vào state TEST
       //   console.log("Đã đổi texture!");
       // }
-      setSphereCenter(newPosition);
-      setHotspots((prevHotspots) =>
-        prevHotspots.map(({ id, position }) => ({
-          id,
-          position: [
-            position[0] - newPosition[0],
-            position[1] - newPosition[1],
-            position[2] - newPosition[2],
-          ],
-        }))
-      );
+      // setSphereCenter(newPosition);
+      // setHotspots((prevHotspots) =>
+      //   prevHotspots.map(({ id, position, type }) => ({
+      //     id,
+      //     position: [
+      //       position[0] - newPosition[0],
+      //       position[1] - newPosition[1],
+      //       position[2] - newPosition[2],
+      //     ],
+      //     type,
+      //   }))
+      // );
     }
   };
 
@@ -131,8 +135,9 @@ const VirtualTour = () => {
         <TourScene radius={radius} sphereRef={sphereRef} />
         <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
         <RaycasterHandler
+          radius={radius}
           sphereRef={sphereRef}
-          onAddHotspot={handleAddHotspot}
+          onAddHotspot={(position, type) => handleAddHotspot(position, type)}
           hoveredHotspot={hoveredHotspot} //test
           switchTexture={handledSwitchTexture}
         />
@@ -141,6 +146,7 @@ const VirtualTour = () => {
           <GroundHotspot
             key={hotspot.id}
             position={hotspot.position}
+            type={hotspot.type}
             setHoveredHotspot={setHoveredHotspot}
           />
         ))}

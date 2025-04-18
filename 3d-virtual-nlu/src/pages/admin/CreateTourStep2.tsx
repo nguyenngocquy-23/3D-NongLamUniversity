@@ -245,7 +245,7 @@ const CreateTourStep2 = () => {
     });
     if (response.data.statusCode == 1000) {
       Swal.fire("Thành công", "Tạo tour thành công", "success");
-      navigate(`${location.pathname}/3`);
+      navigate(`${location.pathname.replace("/2", "")}/3`);
     } else {
       Swal.fire("Loi", "Tạo tour that bai", "error");
     }
