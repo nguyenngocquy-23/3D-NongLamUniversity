@@ -9,7 +9,6 @@ import Dashboard from "./pages/admin/Dashboard.tsx";
 import User from "./pages/admin/User.tsx";
 import Layout from "./components/admin/Layout.tsx";
 import CreateTour from "./features/CreateTour.tsx";
-import UpdateTour from "./pages/admin/ManagerTour.tsx";
 import ManagerTour from "./pages/admin/BoardFeatureTour.tsx";
 import CreateTourStep2 from "./pages/admin/CreateTourStep2.tsx";
 import CreateTourStep3 from "./pages/admin/CreateTourStep3.tsx";
@@ -20,6 +19,7 @@ import Field from "./pages/admin/ManagerField.tsx";
 import Space from "./pages/admin/ManagerSpace.tsx";
 import ManageNode from "./pages/admin/ManagerTour.tsx";
 import UpdateNode from "./features/UpdateTour.tsx";
+import Model from "./components/admin/Model.tsx";
 
 function RouterConfig() {
   return (
@@ -42,6 +42,7 @@ function RouterConfig() {
         <Route path="createTour/4" element={<CreateTourStep4 />} />
         <Route path="manageTour" element={<ManageNode />} />
         <Route path="updateTour" element={<UpdateNode />} />
+        <Route path="model" element={<Model />} />
       </Route>
       {/* Nếu URL không đúng, điều hướng đến trang lỗi */}
       <Route path="*" element={<PageNotFound/>}/>
