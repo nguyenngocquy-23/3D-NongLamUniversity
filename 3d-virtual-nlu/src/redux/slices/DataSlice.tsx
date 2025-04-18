@@ -6,6 +6,7 @@ interface DataState {
   messages: any[];
   fields: any[];
   spaces: any[];
+  hotspotTypes: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
 }
 
@@ -14,6 +15,7 @@ const initialState: DataState = {
   messages: [],
   fields: [],
   spaces: [],
+  hotspotTypes: [],
   status: "idle",
 };
 
@@ -56,6 +58,16 @@ export const fetchSpaces = createAsyncThunk(
   async () => {
     const response = await axios.get(
       "http://localhost:8080/api/admin/space/all"
+    );
+    return response.data.data;
+  }
+);
+// Fetch hotspot type
+export const fetchHotspotTypes = createAsyncThunk(
+  "data/fetchHotspotTypes",
+  async () => {
+    const response = await axios.get(
+      "http://localhost:8080/api/admin/hotspotType"
     );
     return response.data.data;
   }
@@ -108,6 +120,17 @@ const dataSlice = createSlice({
         state.spaces = action.payload;
       })
       .addCase(fetchSpaces.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchHotspotTypes.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchHotspotTypes.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.hotspotTypes = action.payload;
+      })
+      .addCase(fetchHotspotTypes.rejected, (state) => {
         state.status = "failed";
       });
   },
