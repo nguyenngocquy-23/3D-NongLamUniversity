@@ -9,13 +9,10 @@ import { RootState } from "../../redux/Store";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { FaHome } from "react-icons/fa";
-import { validateAndNavigate } from "../../features/PreValidate";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
-import RaycasterHandler from "../../components/visitor/RaycasterHandler";
-import GroundHotspot from "../../components/visitor/GroundHotspot";
-import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import { useRaycaster } from "../../hooks/useRaycaster";
+import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 
 interface Task1Props {
   isOpen1: boolean;
@@ -25,7 +22,7 @@ interface Task1Props {
   setDesNode: (desNode: string) => void;
 }
 
-// Component cho Task1
+// T
 const Task1 = ({
   isOpen1,
   nameNode,
@@ -162,7 +159,6 @@ const Task3 = ({
   );
 
   const handleChooseType = (typeIndex: number) => {
-    console.log('choose type')
     setOpenTypeIndex((prevIndex) =>
       prevIndex === typeIndex ? null : typeIndex
     );
@@ -184,15 +180,12 @@ const Task3 = ({
           onChange={(e) => handleChooseType(Number(e.target.value))}
         >
           {hotspotType.map((type) => (
-            <option value={type.id}>
-              {type.name}
-            </option>
+            <option value={type.id}>{type.name}</option>
           ))}
         </select>
       </div>
       <TypeNavigation isOpenTypeNavigation={openTypeIndex == 1} />
       <TypeInfomation isOpenTypeInfomation={openTypeIndex == 2} />
-      {/* <TypeMedia isOpenTypeMedia={openTypeIndex == 3} /> */}
       <TypeModel
         isOpenTypeModel={openTypeIndex == 4}
         hotspotModels={hotspotModels}
@@ -326,7 +319,9 @@ TypeModelProps) => {
 
   return (
     <div
-      className={`${styles.type_model} ${isOpenTypeModel ? styles.open_type_model : ""}`}
+      className={`${styles.type_model} ${
+        isOpenTypeModel ? styles.open_type_model : ""
+      }`}
     >
       <div>
         <label className={styles.label}>Biểu tượng:</label>
@@ -486,7 +481,7 @@ const CreateTourStep2 = () => {
   const [desNode, setDesNode] = useState("");
   const user = useSelector((state: RootState) => state.auth.user);
   const panoramaURL = useSelector(
-    (state: RootState) => state.panorama.panoramaUrl
+    (state: RootState) => state.panorama.panoramaUrls
   );
   const spaceId = useSelector((state: RootState) => state.panorama.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
@@ -529,19 +524,6 @@ const CreateTourStep2 = () => {
 
   const [assignable, setAssignable] = useState(false);
 
-  // const isValid = validateAndNavigate(
-  //   [
-  //     { value: user, name: user },
-  //     { value: panoramaURL, name: panoramaURL },
-  //     { value: spaceId, name: spaceId },
-  //   ],
-  //   "/admin/createTour",
-  //   "Vui lòng hoàn tất bước trước đó để tiếp tục!"
-  // );
-
-  // if (!isValid) {
-  //   return;
-  // }
   const handledSwitchTexture = () => {};
 
   const handleOpenMenu = () => {
@@ -622,7 +604,7 @@ const CreateTourStep2 = () => {
           // style={{ cursor: cursor }}
         >
           <Node
-            url={panoramaURL ?? "/khoa.jpg"}
+            url={panoramaURL[0] ?? "/khoa.jpg"}
             radius={radius}
             sphereRef={sphereRef}
             lightIntensity={lightIntensity}
@@ -705,15 +687,6 @@ const CreateTourStep2 = () => {
             <li className={styles.task} onClick={() => handleOpenTask(3)}>
               <span className={styles.task_name}>Tạo điểm nhấn</span>
             </li>
-            {/* <li className={styles.task} onClick={() => handleOpenTask(3)}>
-              <span className={styles.task_name}>Tạo điểm di chuyển</span>
-            </li>
-            <li className={styles.task} onClick={() => handleOpenTask(4)}>
-              <span className={styles.task_name}>Tạo chú thích</span>
-            </li>
-            <li className={styles.task} onClick={() => handleOpenTask(5)}>
-              <span className={styles.task_name}>Chèn mô hình 3D</span>
-            </li> */}
           </ul>
           <button className={styles.done_button} onClick={handleDoneStep2}>
             Tiếp tục
@@ -721,23 +694,18 @@ const CreateTourStep2 = () => {
         </div>
 
         {/* Box chứa node */}
-        <div className={styles.node_box}>
+        <div className={styles.nodeThumbn}>
           {/* list node */}
           <div className={styles.node}>
-              <div className={styles.node_view}>
-
-              </div>
-              <span>Name</span>
+            <div className={styles.node_view}></div>
+            <span>Name</span>
           </div>
           <div className={styles.node}>
-              <div className={styles.node_view}>
-
-              </div>
-              <span>Name</span>
+            <div className={styles.node_view}></div>
+            <span>Name</span>
           </div>
-          {/* add node */}
           <div className={styles.add_node_button}>
-              <FaPlus />
+            <FaPlus />
           </div>
         </div>
 
@@ -766,13 +734,6 @@ const CreateTourStep2 = () => {
           assignable={assignable}
           setAssignable={setAssignable}
         />
-        {/* <Task4 isOpen4={openTaskIndex === 4} />
-        <Task5
-          isOpen5={openTaskIndex === 5}
-          hotspotModels={hotspotModels}
-          assignable={assignable}
-          setAssignable={setAssignable}
-        /> */}
       </div>
     </>
   );

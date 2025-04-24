@@ -1,13 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RiNumbersFill } from "react-icons/ri";
+
+
+interface PanoramaConfig {
+  
+}
+
 
 interface panoramaState {
-  panoramaUrl: string | null;
+  panoramaUrls: string[];
   spaceId: string | null;
 }
 
 const initialState: panoramaState = {
-  panoramaUrl: null,
+  panoramaUrls: [],
   spaceId: null,
 };
 
@@ -15,8 +20,14 @@ const panoramaSlice = createSlice({
   name: "panorama",
   initialState,
   reducers: {
-    setPanoramaUrl: (state, action: PayloadAction<string>) => {
-      state.panoramaUrl = action.payload;
+    addPanoramaUrl: (state, action: PayloadAction<string>) => {
+      state.panoramaUrls.push(action.payload);
+    },
+    removePanoramaUrl: (state, action: PayloadAction<number>) => {
+      state.panoramaUrls.splice(action.payload, 1); //xoá ảnh theo index.
+    },
+    clearPanoramaUrls: (state) => {
+      state.panoramaUrls = [];
     },
     setSpaceId: (state, action: PayloadAction<string>) => {
       state.spaceId = action.payload;
@@ -24,5 +35,10 @@ const panoramaSlice = createSlice({
   },
 });
 
-export const { setPanoramaUrl, setSpaceId } = panoramaSlice.actions;
+export const {
+  addPanoramaUrl,
+  removePanoramaUrl,
+  clearPanoramaUrls,
+  setSpaceId,
+} = panoramaSlice.actions;
 export default panoramaSlice.reducer;

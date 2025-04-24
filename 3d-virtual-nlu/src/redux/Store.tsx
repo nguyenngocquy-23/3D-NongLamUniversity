@@ -1,13 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/AuthSlice.tsx";
 import dataReducer from "./slices/DataSlice.tsx";
-import panoramaReducer from "./slices/PanoramaSlice.tsx";
+import panoramaReducer from "./slices/PanoramaSlice.ts";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     data: dataReducer,
-    panorama: panoramaReducer,
+    panoramas: panoramaReducer,
   },
 });
 
