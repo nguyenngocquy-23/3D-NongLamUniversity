@@ -20,6 +20,7 @@ import Space from "./pages/admin/ManagerSpace.tsx";
 import ManageNode from "./pages/admin/ManagerTour.tsx";
 import UpdateNode from "./features/UpdateTour.tsx";
 import Model from "./components/admin/Model.tsx";
+import Waiting from "./components/Waiting.tsx";
 
 function RouterConfig() {
   return (

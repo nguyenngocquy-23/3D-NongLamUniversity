@@ -1,9 +1,8 @@
-package vn.edu.hcmuaf.virtualnluapi.controller;
+package vn.edu.hcmuaf.virtualnluapi.controller.auth;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserLoginRequest;

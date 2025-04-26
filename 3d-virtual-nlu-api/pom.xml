@@ -106,7 +106,6 @@
             <version>10.0.0</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.cloudinary</groupId>
             <artifactId>cloudinary-http5</artifactId>
@@ -120,8 +119,6 @@
             <version>1.18.38</version>
             <scope>provided</scope>
         </dependency>
-
-
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-multipart-provider</artifactId>

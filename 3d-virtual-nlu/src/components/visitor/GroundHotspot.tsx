@@ -1,5 +1,5 @@
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 type HotspotType = "floor" | "info";
@@ -20,8 +20,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const targetOpacity = useRef(0.6);
   const targetScale = useRef(5);
-  const rotation: [number, number, number] =
-    type === "floor" ? [-Math.PI / 2, 0, 0] : [0, 0, 0];
   useEffect(() => {
     if (isHovered) {
       targetOpacity.current = 1;
@@ -51,7 +49,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     <mesh
       ref={hotspotRef}
       position={position}
-      rotation={rotation}
+      // rotation={rotation}
       onPointerOver={() => {
         setIsHovered(true);
         console.log("🖱 Hover vào hotspot!", position);

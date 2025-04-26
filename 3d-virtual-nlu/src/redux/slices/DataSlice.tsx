@@ -6,7 +6,9 @@ interface DataState {
   messages: any[];
   fields: any[];
   spaces: any[];
+  nodes: any[];
   hotspotTypes: any[];
+  masterNodes: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
 }
 
@@ -15,53 +17,59 @@ const initialState: DataState = {
   messages: [],
   fields: [],
   spaces: [],
+  nodes: [],
   hotspotTypes: [],
+  masterNodes: [],
   status: "idle",
 };
 
 // Fetch users
-export const fetchUsers = createAsyncThunk("data/fetchUsers", async (_,{ rejectWithValue }) => {
-  try{
-    const response = await axios.get(
-      "http://localhost:8080/api/user",
-      {
-        headers: {Authorization: sessionStorage.getItem("token")}
-      }
-    );
-    return response.data.data;
-  }catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || "Lấy danh sách người dùng thất bại. Vui lòng kiểm tra lại.");
+export const fetchUsers = createAsyncThunk(
+  "data/fetchUsers",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/user", {
+        headers: { Authorization: sessionStorage.getItem("token") },
+      });
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Lấy danh sách người dùng thất bại. Vui lòng kiểm tra lại."
+      );
+    }
   }
-});
+);
 
-// Fetch tours
-export const fetchTours = createAsyncThunk("data/fetchTours", async () => {
-  const response = await axios.get(
-    "https://jsonplaceholder.typicode.com/tours"
-  );
-  return response.data;
-});
+// Fetch nodes
+export const fetchNodes = createAsyncThunk(
+  "data/fetchNodes",
+  async () => {
+    const response = await axios.post("http://localhost:8080/api/admin/node/all");
+    console.log('nodes........',response.data.data)
+    return response.data.data;
+  }
+);
+
+// Fetch master nodes
+export const fetchMasterNodes = createAsyncThunk(
+  "data/fetchMasterNodes",
+  async () => {
+    const response = await axios.post("http://localhost:8080/api/node/master");
+    return response.data.data;
+  }
+);
 
 // Fetch field
-export const fetchFields = createAsyncThunk(
-  "data/fetchFields",
-  async () => {
-    const response = await axios.get(
-      "http://localhost:8080/api/admin/field"
-    );
-    return response.data.data;
-  }
-);
+export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
+  const response = await axios.get("http://localhost:8080/api/admin/field");
+  return response.data.data;
+});
 // Fetch space
-export const fetchSpaces = createAsyncThunk(
-  "data/fetchSpaces",
-  async () => {
-    const response = await axios.get(
-      "http://localhost:8080/api/admin/space/all"
-    );
-    return response.data.data;
-  }
-);
+export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
+  const response = await axios.get("http://localhost:8080/api/admin/space/all");
+  return response.data.data;
+});
 // Fetch hotspot type
 export const fetchHotspotTypes = createAsyncThunk(
   "data/fetchHotspotTypes",
@@ -90,14 +98,25 @@ const dataSlice = createSlice({
         state.status = "failed";
       })
 
-      .addCase(fetchTours.pending, (state) => {
+      .addCase(fetchNodes.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchTours.fulfilled, (state, action) => {
+      .addCase(fetchNodes.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.users = action.payload;
+        state.nodes = action.payload;
       })
-      .addCase(fetchTours.rejected, (state) => {
+      .addCase(fetchNodes.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchMasterNodes.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchMasterNodes.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.masterNodes = action.payload;
+      })
+      .addCase(fetchMasterNodes.rejected, (state) => {
         state.status = "failed";
       })
 

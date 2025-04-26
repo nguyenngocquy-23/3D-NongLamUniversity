@@ -5,6 +5,7 @@
   top: 0;
   left: 0;
   z-index: 1;
+  overflow: hidden;
 }
 
 .tourIcons {
@@ -21,11 +22,47 @@
   /* opacity: 0.5; */
 }
 
-/* .tourCanvas {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
+.headerTour {
   top: 0;
+}
+
+.footerTour {
+  bottom: 10px;
+}
+
+.headerTour {
+  position: absolute;
   left: 0;
-  z-index: 1;
-} */
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+  padding: 0 20px;
+}
+
+.infoBox {
+  position: absolute;
+  display: none;
+  width: 200px;
+  height: 200px;
+  overflow-y: auto;
+  bottom: -100px;
+  right: 10px;
+}
+
+.close_btn:hover {
+  cursor: pointer;
+  opacity: 0.7;
+  transform: scale(1.2);
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.close_btn {
+  font-size: 30px;
+  z-index: 2;
+  color: white;
+  margin: 10px;
+  transition: transform 0.3s ease;
+}

@@ -23,6 +23,8 @@ const CamControls: React.FC<CamControlsProps> = ({
   targetPosition,
   sphereRef,
 }) => {
+  const { gl } = useThree();
+  const canvas = gl.domElement;
   const controlsRef = useRef<any>(null); //OrbitControls
   const { camera } = useThree();
   const { getIntersectionPoint } = useRaycaster();
@@ -66,9 +68,9 @@ const CamControls: React.FC<CamControlsProps> = ({
   );
 
   useEffect(() => {
-    window.addEventListener("wheel", handleMouseWheel);
+    canvas.addEventListener("wheel", handleMouseWheel);
     return () => {
-      window.removeEventListener("wheel", handleMouseWheel);
+      canvas.removeEventListener("wheel", handleMouseWheel);
     };
   }, [handleMouseWheel]);
 
