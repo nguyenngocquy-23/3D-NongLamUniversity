@@ -32,7 +32,19 @@ const UpdateCameraOnResize = () => {
   return null;
 };
 
-const VirtualTour = () => {
+/**
+ * Nhằm mục đích tái sử dụng Virtual Tour.
+ * => Nhận vào 1 texture url (Test)
+ * Chúng ta sẽ cần nhận vào 1 danh sách thông tin url để hiển thị
+ * Virtual Tour sẽ nằm ở 2 dạng chính:
+ * 1. Hiển thị khi thêm tour mới.
+ * 2. Hiển thị màn hình cho phép người dùng di chuyển tại giao diện.
+ */
+type VirtualTourProps = {
+  textureUrl: string;
+};
+
+const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const [sphereCenter, setSphereCenter] = useState<[number, number, number]>([
     0, 0, 0,
@@ -116,7 +128,11 @@ const VirtualTour = () => {
         className={styles.tourCanvas}
       >
         <UpdateCameraOnResize />
-        <TourScene radius={radius} sphereRef={sphereRef} />
+        <TourScene
+          radius={radius}
+          sphereRef={sphereRef}
+          textureCurrent={textureUrl}
+        />
         <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
         <RaycasterHandler
           radius={radius}

@@ -13,7 +13,9 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import { useRaycaster } from "../../hooks/useRaycaster";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
+import VirtualTour from "../visitor/VirtualTour";
 
+//Tuỳ chỉnh thông tin không gian.
 interface Task1Props {
   isOpen1: boolean;
   nameNode: string;
@@ -22,7 +24,6 @@ interface Task1Props {
   setDesNode: (desNode: string) => void;
 }
 
-// T
 const Task1 = ({
   isOpen1,
   nameNode,
@@ -54,6 +55,7 @@ const Task1 = ({
   </div>
 );
 
+// Tuỳ chỉnh thông số kỹ thuật.
 interface Task2Props {
   isOpen2: boolean;
   angle: number;
@@ -65,8 +67,6 @@ interface Task2Props {
   speedRotate: number;
   setSpeedRotate: (speedRotate: number) => void;
 }
-
-// Component cho Task2
 const Task2 = ({
   isOpen2,
   angle,
@@ -138,63 +138,66 @@ const Task2 = ({
   </div>
 );
 
-interface Task3Props {
-  isOpen3: boolean;
-  assignable: boolean;
-  setAssignable: (value: boolean) => void;
-  hotspotModels: HotspotModel[];
-  setHotspotModels: (value: HotspotModel[]) => void;
-}
+// //Tuỳ chỉnh thêm các điểm nóng.
+// interface Task3Props {
+//   isOpen3: boolean;
+//   assignable: boolean;
+//   setAssignable: (value: boolean) => void;
+//   hotspotModels: HotspotModel[];
+//   setHotspotModels: (value: HotspotModel[]) => void;
+// }
 
 // Component cho Task3
-const Task3 = ({
-  isOpen3,
-  assignable,
-  setAssignable,
-  hotspotModels,
-}: Task3Props) => {
-  const [openTypeIndex, setOpenTypeIndex] = useState<number | null>(1); // State để lưu index của type đang mở
-  const hotspotType = useSelector(
-    (state: RootState) => state.data.hotspotTypes
-  );
+// const Task3 = ({
+//   isOpen3,
+//   assignable,
+//   setAssignable,
+//   hotspotModels,
+// }: Task3Props) => {
+//   const [openTypeIndex, setOpenTypeIndex] = useState<number | null>(1); // State để lưu index của type đang mở
+//   const hotspotType = useSelector(
+//     (state: RootState) => state.data.hotspotTypes
+//   );
 
-  const handleChooseType = (typeIndex: number) => {
-    setOpenTypeIndex((prevIndex) =>
-      prevIndex === typeIndex ? null : typeIndex
-    );
-  };
+//   const handleChooseType = (typeIndex: number) => {
+//     setOpenTypeIndex((prevIndex) =>
+//       prevIndex === typeIndex ? null : typeIndex
+//     );
+//   };
 
-  return (
-    <div className={`${styles.task3} ${isOpen3 ? styles.open_task3 : ""}`}>
-      <div className="header" style={{ display: "flex", position: "relative" }}>
-        <h3>3. Tạo điểm nhấn</h3>
-        <select
-          name=""
-          id=""
-          style={{
-            position: "absolute",
-            right: "10px",
-            top: "50%",
-            transform: "translateY(-50%)",
-          }}
-          onChange={(e) => handleChooseType(Number(e.target.value))}
-        >
-          {hotspotType.map((type) => (
-            <option value={type.id}>{type.name}</option>
-          ))}
-        </select>
-      </div>
-      <TypeNavigation isOpenTypeNavigation={openTypeIndex == 1} />
-      <TypeInfomation isOpenTypeInfomation={openTypeIndex == 2} />
-      <TypeModel
-        isOpenTypeModel={openTypeIndex == 4}
-        hotspotModels={hotspotModels}
-        assignable={assignable}
-        setAssignable={setAssignable}
-      />
-    </div>
-  );
-};
+//   return (
+//     <div className={`${styles.task3} ${isOpen3 ? styles.open_task3 : ""}`}>
+//       <div className="header" style={{ display: "flex", position: "relative" }}>
+//         <h3>3. Tạo điểm nhấn</h3>
+//         <select
+//           name=""
+//           id=""
+//           style={{
+//             position: "absolute",
+//             right: "10px",
+//             top: "50%",
+//             transform: "translateY(-50%)",
+//           }}
+//           onChange={(e) => handleChooseType(Number(e.target.value))}
+//         >
+//           {hotspotType.map((type) => (
+//             <option value={type.id}>{type.name}</option>
+//           ))}
+//         </select>
+//       </div>
+//       <TypeNavigation isOpenTypeNavigation={openTypeIndex == 1} />
+//       <TypeInfomation isOpenTypeInfomation={openTypeIndex == 2} />
+//       <TypeModel
+//         isOpenTypeModel={openTypeIndex == 4}
+//         hotspotModels={hotspotModels}
+//         assignable={assignable}
+//         setAssignable={setAssignable}
+//       />
+//     </div>
+//   );
+// };
+
+// Điểm nóng task3 - Điểm di chuyển.
 interface TypeNavigationProps {
   isOpenTypeNavigation: boolean;
 }
@@ -492,6 +495,7 @@ const CreateTourStep2 = () => {
   );
 
   const currentPanoramaUrl = panoramaList[currentSelectPosition]?.url;
+  console.log("Ảnh hiện tại", currentPanoramaUrl);
 
   const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
@@ -602,7 +606,7 @@ const CreateTourStep2 = () => {
     <>
       <div className={styles.preview_tour}>
         {/* main - canvas */}
-        <Canvas
+        {/* <Canvas
           camera={{
             fov: 75,
             position: cameraPosition,
@@ -622,18 +626,8 @@ const CreateTourStep2 = () => {
           <OrbitControls
             rotateSpeed={0.5}
             autoRotate={autoRotate}
-            // autoRotate={true}
             autoRotateSpeed={speedRotate}
           />
-
-          {/* {sphereRef.current && (
-            <RaycasterHandler
-              sphereRef={sphereRef}
-              onAddHotspot={handleAddHotspot}
-              hoveredHotspot={hoveredHotspot} //test
-              switchTexture={handledSwitchTexture}
-            />
-          )} */}
 
           <RaycastOnTask5
             isActive={openTaskIndex === 5}
@@ -643,14 +637,6 @@ const CreateTourStep2 = () => {
             setAssignable={setAssignable}
           />
 
-          {/* {hotspots.map((hotspot) => (
-            <GroundHotspot
-              key={hotspot.id}
-              position={hotspot.position}
-              setHoveredHotspot={setHoveredHotspot}
-            />
-          ))} */}
-
           {hotspotModels.map((hotspot) => (
             <GroundHotspotModel
               key={hotspot.id}
@@ -659,8 +645,12 @@ const CreateTourStep2 = () => {
             />
           ))}
 
-          {/* <Model modelURL={"/thienly.glb"} /> */}
-        </Canvas>
+        </Canvas> */}
+        <div>
+        <VirtualTour textureUrl={currentPanoramaUrl} />
+
+        </div>
+
 
         {/* Header chứa logo + close */}
         <div className={styles.header_tour}>
@@ -737,12 +727,12 @@ const CreateTourStep2 = () => {
           speedRotate={speedRotate}
           setSpeedRotate={setSpeedRotate}
         />
-        <Task3
+        {/* <Task3
           isOpen3={openTaskIndex === 3}
           hotspotModels={hotspotModels}
           assignable={assignable}
           setAssignable={setAssignable}
-        />
+        /> */}
       </div>
     </>
   );
