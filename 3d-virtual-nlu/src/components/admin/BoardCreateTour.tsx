@@ -4,11 +4,12 @@ import { Canvas, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import { useDispatch, useSelector } from "react-redux";
-import { setSpaceId } from "../../redux/slices/PanoramaSlice.tsx";
+import { setSpaceId } from "../../redux/slices/PanoramaSlice.ts";
 import { AppDispatch, RootState } from "../../redux/Store.tsx";
 import { fetchFields } from "../../redux/slices/DataSlice.tsx";
 import axios from "axios";
 import { IoIosCloseCircle } from "react-icons/io";
+import UploadFile from "./UploadFile.tsx";
 
 interface DomeProps {
   panoramaURL: string;
@@ -61,12 +62,12 @@ const CameraControls = () => {
 
 interface BoardUploadProps {
   onSelectSpace: (spaceId: string) => void;
-  onSelectFile: (file: File) => void;
+  onSelectFiles: (files: File[]) => void;
 }
 
 const BoardUploader: React.FC<BoardUploadProps> = ({
   onSelectSpace,
-  onSelectFile,
+  onSelectFiles,
 }) => {
   const [panoramaURL, setPanoramaURL] = useState<string | null>(null);
   const [fullPreview, setFullPreview] = useState(false);
@@ -119,10 +120,14 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
 
   // Xử lý khi thay đổi hình ảnh
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onSelectFile(file);
-      setPanoramaURL(URL.createObjectURL(file));
+    const files = e.target.files;
+
+    if (files && files.length > 0) {
+      const fileArray = Array.from(files);
+      onSelectFiles(fileArray);
+      // const previews = fileArray.map(file => URL.createObjectURL(file));
+      // setPanoramaURLs(previews);
+      setPanoramaURL(URL.createObjectURL(fileArray[0]));
     }
   };
 
@@ -161,20 +166,9 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
             ))}
           </select>
         </div>
+        {/* Form upload ảnh. */}
         <div className={styles.panosCard}>
-          <form className={styles.panosForm}>
-            <label className={styles.label}>Ảnh 360 độ: </label>
-            <label className={styles.upload_button}>
-              Tải ảnh lên
-              <input
-                type="file"
-                accept="image/png, image/jpg, image/jpeg"
-                // accept="*/*"
-                onChange={handleFileChange}
-                hidden
-              />
-            </label>
-          </form>
+          <UploadFile className={styles.uploadForm} />
         </div>
       </div>
       {fullPreview ? (
@@ -188,7 +182,6 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
       )}
       {panoramaURL && (
         <div className={fullPreview ? styles.fullPreview : styles.panoPreview}>
-          {/* <div className={styles.panoPreview}> */}
           <Canvas
             camera={{ position: [0, 0, 0.01], fov: 75 }}
             style={{ width: "100%", height: "100%", borderRadius: fullPreview ? "0" : "10px"}}
@@ -197,26 +190,10 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
               enableZoom={true}
               rotateSpeed={0.5}
               enablePan={false}
-              // autoRotate={true}
-              // autoRotateSpeed={0.5}
             />
             <CameraControls />
             <Dome panoramaURL={panoramaURL} />
           </Canvas>
-          {/* test modal 3D */}
-          {/* <Canvas
-            camera={{ position: [5, 0, 0.01], fov: 75 }}
-            style={{ width: "100%", height: "100%" }}
-          >
-            <OrbitControls
-              enableZoom={true}
-              rotateSpeed={0.5}
-              enablePan={false}
-              autoRotate={true}
-              autoRotateSpeed={2.5}
-            />
-            <Dome panoramaURL={panoramaURL} />
-          </Canvas> */}
           <button className={styles.preview_button} onClick={handleFullPreview}>
             Chế độ xem
           </button>

@@ -32,48 +32,20 @@ const UpdateCameraOnResize = () => {
   return null;
 };
 
-const VideoNode: React.FC = () => {
-  const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
-
-  useEffect(() => {
-    const video = document.createElement("video");
-    video.src = "/video.mp4";
-    video.crossOrigin = "anonymous";
-    video.muted = true;
-    video.playsInline = true;
-    video.loop = true;
-    video.autoplay = true;
-    video.style.display = "none";
-
-    document.body.appendChild(video);
-
-    video.addEventListener("canplaythrough", () => {
-      video.play().catch((err) => console.warn("Video play error:", err));
-    });
-
-    const tex = new THREE.VideoTexture(video);
-    setTexture(tex); // <- Trigger re-render
-
-    return () => {
-      video.pause();
-      video.src = "";
-      video.remove();
-      tex.dispose();
-    };
-  }, []);
-
-  if (!texture) return null; // Đợi khi đã có texture mới render
-
-  return (
-    <mesh position={[0, 0, -50]} rotation={[0, Math.PI, 0]}>
-      <planeGeometry args={[50, 40]} />
-      {/* <cylinderGeometry args={[10, 10, 10, 64, 1, true, 0, Math.PI / 2]} /> */}
-      <meshBasicMaterial map={texture} side={THREE.DoubleSide} />
-    </mesh>
-  );
+/**
+ * Nhằm mục đích tái sử dụng Virtual Tour.
+ * => Nhận vào 1 texture url (Test)
+ * Chúng ta sẽ cần nhận vào 1 danh sách thông tin url để hiển thị
+ * Virtual Tour sẽ nằm ở 2 dạng chính:
+ * 1. Hiển thị khi thêm tour mới.
+ * 2. Hiển thị màn hình cho phép người dùng di chuyển tại giao diện.
+ */
+type VirtualTourProps = {
+  textureUrl: string;
 };
 
-const VirtualTour = () => {
+const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
+
   const [isAnimation, setIsAnimation] = useState(true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
@@ -128,11 +100,14 @@ const VirtualTour = () => {
   const radius = 100;
 
   const [hotspots, setHotspots] = useState<
-    { id: number; position: [number, number, number] }[]
+    { id: number; position: [number, number, number]; type: "floor" | "info" }[]
   >([]);
 
-  const handleAddHotspot = (position: [number, number, number]) => {
-    setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
+  const handleAddHotspot = (
+    position: [number, number, number],
+    type: "floor" | "info"
+  ) => {
+    setHotspots((prev) => [...prev, { id: prev.length + 1, position, type }]);
   };
 
   const handledSwitchTexture = (newPosition: [number, number, number]) => {
@@ -153,21 +128,6 @@ const VirtualTour = () => {
           gsap.to(material, { opacity: 1, duration: 0.5 });
         },
       });
-
-      //   setTargetPosition(newPosition); //test: Lưu vị trí mới vào state TEST
-      //   console.log("Đã đổi texture!");
-      // }
-      setSphereCenter(newPosition);
-      setHotspots((prevHotspots) =>
-        prevHotspots.map(({ id, position }) => ({
-          id,
-          position: [
-            position[0] - newPosition[0],
-            position[1] - newPosition[1],
-            position[2] - newPosition[2],
-          ],
-        }))
-      );
     }
   };
 
@@ -311,12 +271,16 @@ const VirtualTour = () => {
         onMouseDown={handleCloseMenu}
       >
         <UpdateCameraOnResize />
-        <TourScene radius={radius} sphereRef={sphereRef} />
-        <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
-        {/* <VideoNode /> */}
-        {/* <RaycasterHandler
+        <TourScene
+          radius={radius}
           sphereRef={sphereRef}
-          onAddHotspot={handleAddHotspot}
+          textureCurrent={textureUrl}
+        />
+        <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
+        {/* <RaycasterHandler
+          radius={radius}
+          sphereRef={sphereRef}
+          onAddHotspot={(position, type) => handleAddHotspot(position, type)}
           hoveredHotspot={hoveredHotspot} //test
           switchTexture={handledSwitchTexture}
         /> */}
@@ -324,6 +288,7 @@ const VirtualTour = () => {
           <GroundHotspot
             key={hotspot.id}
             position={hotspot.position}
+            type={hotspot.type}
             setHoveredHotspot={setHoveredHotspot}
           />
         ))} */}

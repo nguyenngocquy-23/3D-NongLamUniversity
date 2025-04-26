@@ -13,7 +13,6 @@ public class JwtProperties {
             e.printStackTrace();
         }
     }
-
     public static final String signerKey = properties.getProperty("jwt.signerKey");
     public static final int enableDuration = Integer.parseInt(properties.getProperty("jwt.enable-duration"));
     public static final int refreshDuration = Integer.parseInt(properties.getProperty("jwt.refresh-duration"));

@@ -1,7 +1,6 @@
 package vn.edu.hcmuaf.virtualnluapi.entity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -11,8 +10,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Icon {
-    int id;
-    String url, name;
-    boolean isActive;
-    Timestamp createdAt;
+        int id;
+        String name;
+        String url;
+        LocalDateTime createdAt;
+        boolean isActive;
 }

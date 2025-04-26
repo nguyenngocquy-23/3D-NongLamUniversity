@@ -1,13 +1,9 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaUpload,
   FaPlus,
-  FaAngleDown,
-  FaAngleUp,
 } from "react-icons/fa6";
 import styles from "../../styles/managerTour.module.css";
-import { color } from "framer-motion";
 
 const ManagerTour = () => {
 

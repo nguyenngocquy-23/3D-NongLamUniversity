@@ -6,6 +6,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Path("/admin/field")
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
+@AllArgsConstructor
 @RequiredArgsConstructor(onConstructor_ = @Inject)
 public class FieldController {
     @Inject

@@ -1,0 +1,26 @@
+package vn.edu.hcmuaf.virtualnluapi.service;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.Entity;
+import vn.edu.hcmuaf.virtualnluapi.dao.HotspotDao;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotNavCreateRequest;
+
+import java.util.List;
+
+@ApplicationScoped
+public class HotspotService {
+
+    @Inject
+    private HotspotDao hotspotDao;
+
+    public boolean insertOnlyNavigation(HotspotNavCreateRequest req) {
+        return hotspotDao.insertHotspotNavigation(req);
+    }
+
+    public boolean insertMutipleNavigation(List<HotspotNavCreateRequest> reqs) {
+        return hotspotDao.insertHotspotNavigation(reqs);
+    }
+
+
+}

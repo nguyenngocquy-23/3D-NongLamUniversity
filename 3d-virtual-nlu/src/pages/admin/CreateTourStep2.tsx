@@ -9,7 +9,6 @@ import { RootState } from "../../redux/Store";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { FaHome } from "react-icons/fa";
-import { validateAndNavigate } from "../../features/PreValidate";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Line, OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import RaycasterHandler from "../../components/visitor/RaycasterHandler";
@@ -18,6 +17,7 @@ import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import { useRaycaster } from "../../hooks/useRaycaster";
 import PointMedia from "../../components/admin/PointMedia";
 
+//Tuỳ chỉnh thông tin không gian.
 interface Task1Props {
   isOpen1: boolean;
   nameNode: string;
@@ -26,7 +26,6 @@ interface Task1Props {
   setDesNode: (desNode: string) => void;
 }
 
-// Component cho Task1
 const Task1 = ({
   isOpen1,
   nameNode,
@@ -58,6 +57,7 @@ const Task1 = ({
   </div>
 );
 
+// Tuỳ chỉnh thông số kỹ thuật.
 interface Task2Props {
   isOpen2: boolean;
   angle: number;
@@ -69,8 +69,6 @@ interface Task2Props {
   speedRotate: number;
   setSpeedRotate: (speedRotate: number) => void;
 }
-
-// Component cho Task2
 const Task2 = ({
   isOpen2,
   angle,
@@ -142,6 +140,66 @@ const Task2 = ({
   </div>
 );
 
+// //Tuỳ chỉnh thêm các điểm nóng.
+// interface Task3Props {
+//   isOpen3: boolean;
+//   assignable: boolean;
+//   setAssignable: (value: boolean) => void;
+//   hotspotModels: HotspotModel[];
+//   setHotspotModels: (value: HotspotModel[]) => void;
+// }
+
+// Component cho Task3
+// const Task3 = ({
+//   isOpen3,
+//   assignable,
+//   setAssignable,
+//   hotspotModels,
+// }: Task3Props) => {
+//   const [openTypeIndex, setOpenTypeIndex] = useState<number | null>(1); // State để lưu index của type đang mở
+//   const hotspotType = useSelector(
+//     (state: RootState) => state.data.hotspotTypes
+//   );
+
+//   const handleChooseType = (typeIndex: number) => {
+//     setOpenTypeIndex((prevIndex) =>
+//       prevIndex === typeIndex ? null : typeIndex
+//     );
+//   };
+
+//   return (
+//     <div className={`${styles.task3} ${isOpen3 ? styles.open_task3 : ""}`}>
+//       <div className="header" style={{ display: "flex", position: "relative" }}>
+//         <h3>3. Tạo điểm nhấn</h3>
+//         <select
+//           name=""
+//           id=""
+//           style={{
+//             position: "absolute",
+//             right: "10px",
+//             top: "50%",
+//             transform: "translateY(-50%)",
+//           }}
+//           onChange={(e) => handleChooseType(Number(e.target.value))}
+//         >
+//           {hotspotType.map((type) => (
+//             <option value={type.id}>{type.name}</option>
+//           ))}
+//         </select>
+//       </div>
+//       <TypeNavigation isOpenTypeNavigation={openTypeIndex == 1} />
+//       <TypeInfomation isOpenTypeInfomation={openTypeIndex == 2} />
+//       <TypeModel
+//         isOpenTypeModel={openTypeIndex == 4}
+//         hotspotModels={hotspotModels}
+//         assignable={assignable}
+//         setAssignable={setAssignable}
+//       />
+//     </div>
+//   );
+// };
+
+// Điểm nóng task3 - Điểm di chuyển.
 interface VideoMesh {
   id: string;
   videoUrl: string;
@@ -904,10 +962,21 @@ const CreateTourStep2 = () => {
   const [nameNode, setNameNode] = useState("");
   const [desNode, setDesNode] = useState("");
   const user = useSelector((state: RootState) => state.auth.user);
-  const panoramaURL = useSelector(
-    (state: RootState) => state.panorama.panoramaUrl
+  // const panoramaURL = useSelector(
+  //   (state: RootState) => state.panorama.panoramaUrls
+  // );
+
+  const { panoramaList, currentSelectPosition } = useSelector(
+    (state: RootState) => ({
+      panoramaList: state.panoramas.panoramaList,
+      currentSelectPosition: state.panoramas.currentSelectedPosition,
+    })
   );
-  const spaceId = useSelector((state: RootState) => state.panorama.spaceId);
+
+  const currentPanoramaUrl = panoramaList[currentSelectPosition]?.url;
+  console.log("Ảnh hiện tại", currentPanoramaUrl);
+
+  const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
 
   // hotspot
@@ -983,19 +1052,6 @@ const CreateTourStep2 = () => {
   const [assignable, setAssignable] = useState(false);
   const [chooseCornerMediaPoint, setChooseCornerMediaPoint] = useState(false);
 
-  // const isValid = validateAndNavigate(
-  //   [
-  //     { value: user, name: user },
-  //     { value: panoramaURL, name: panoramaURL },
-  //     { value: spaceId, name: spaceId },
-  //   ],
-  //   "/admin/createTour",
-  //   "Vui lòng hoàn tất bước trước đó để tiếp tục!"
-  // );
-
-  // if (!isValid) {
-  //   return;
-  // }
   const handledSwitchTexture = () => {};
 
   const handleOpenMenu = () => {
@@ -1022,7 +1078,7 @@ const CreateTourStep2 = () => {
     const response = await axios.post("http://localhost:8080/api/admin/node", {
       spaceId: spaceId,
       userId: user.id,
-      url: panoramaURL,
+      url: currentPanoramaUrl,
       name: nameNode,
       description: desNode,
       positionX: cameraPosition[0],
@@ -1061,7 +1117,7 @@ const CreateTourStep2 = () => {
     <>
       <div className={styles.preview_tour}>
         {/* main - canvas */}
-        <Canvas
+        {/* <Canvas
           camera={{
             fov: 75,
             position: cameraPosition,
@@ -1072,7 +1128,7 @@ const CreateTourStep2 = () => {
           // style={{ cursor: cursor }}
         >
           <Node
-            url={panoramaURL ?? "/khoa.jpg"}
+            url={currentPanoramaUrl ?? "/khoa.jpg"}
             radius={radius}
             sphereRef={sphereRef}
             lightIntensity={lightIntensity}
@@ -1081,7 +1137,6 @@ const CreateTourStep2 = () => {
           <OrbitControls
             rotateSpeed={0.5}
             autoRotate={autoRotate}
-            // autoRotate={true}
             autoRotateSpeed={speedRotate}
           />
 
@@ -1101,7 +1156,6 @@ const CreateTourStep2 = () => {
             assignable={assignable}
             setAssignable={setAssignable}
           />
-
           {/* {hotspots.map((hotspot) => (
             <GroundHotspot
               key={hotspot.id}
@@ -1116,7 +1170,9 @@ const CreateTourStep2 = () => {
               setHoveredHotspot={setHoveredHotspot}
             />
           ))}
-
+<!--         <div>
+        <VirtualTour textureUrl={currentPanoramaUrl} />
+        </div> -->
           <RaycastOnMedia
             isActive={chooseCornerMediaPoint}
             onAddPoint={handleAddPoint}
@@ -1193,15 +1249,6 @@ const CreateTourStep2 = () => {
             <li className={styles.task} onClick={() => handleOpenTask(3)}>
               <span className={styles.task_name}>Tạo điểm nhấn</span>
             </li>
-            {/* <li className={styles.task} onClick={() => handleOpenTask(3)}>
-              <span className={styles.task_name}>Tạo điểm di chuyển</span>
-            </li>
-            <li className={styles.task} onClick={() => handleOpenTask(4)}>
-              <span className={styles.task_name}>Tạo chú thích</span>
-            </li>
-            <li className={styles.task} onClick={() => handleOpenTask(5)}>
-              <span className={styles.task_name}>Chèn mô hình 3D</span>
-            </li> */}
           </ul>
           <button className={styles.done_button} onClick={handleDoneStep2}>
             Tiếp tục
@@ -1209,7 +1256,7 @@ const CreateTourStep2 = () => {
         </div>
 
         {/* Box chứa node */}
-        <div className={styles.node_box}>
+        <div className={styles.nodeThumbn}>
           {/* list node */}
           <div className={styles.node}>
             <div className={styles.node_view}></div>
@@ -1219,7 +1266,6 @@ const CreateTourStep2 = () => {
             <div className={styles.node_view}></div>
             <span>Name</span>
           </div>
-          {/* add node */}
           <div className={styles.add_node_button}>
             <FaPlus />
           </div>
@@ -1244,7 +1290,7 @@ const CreateTourStep2 = () => {
           speedRotate={speedRotate}
           setSpeedRotate={setSpeedRotate}
         />
-        <Task3
+        {/* <Task3
           isOpen3={openTaskIndex === 3}
           hotspotModels={hotspotModels}
           videoMeshes={videoMeshes} // danh sách các mesh đã hoàn tất

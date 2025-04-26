@@ -54,8 +54,9 @@
 }
 
 .upPanosSection {
+  background-color: #f8f8e1;
+  color: #000;
   position: relative;
-  background-color: lightgray;
   padding: 10px;
   border-radius: 10px;
   width: 100%;
@@ -67,6 +68,16 @@
 
 .item{
   margin-bottom: 10px;
+}
+
+.uploadForm .fileBtn {
+  font-size: 18px;
+  background-color: rgb(24, 23, 22);
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .label {

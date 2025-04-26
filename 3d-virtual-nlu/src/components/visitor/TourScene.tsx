@@ -13,14 +13,19 @@ import * as THREE from "three";
 interface TourSceneProps {
   radius: number;
   sphereRef: React.RefObject<THREE.Mesh | null>;
+  textureCurrent: string;
 }
 
-const TourScene: React.FC<TourSceneProps> = ({ radius, sphereRef }) => {
+const TourScene: React.FC<TourSceneProps> = ({
+  radius,
+  sphereRef,
+  textureCurrent,
+}) => {
   const { scene } = useThree();
   useEffect(() => {
     const geometry = new THREE.SphereGeometry(radius, 128, 128);
 
-    const texture = new THREE.TextureLoader().load("khoa.jpg");
+    const texture = new THREE.TextureLoader().load(textureCurrent);
 
     texture.wrapS = THREE.RepeatWrapping;
     texture.repeat.x = -1;

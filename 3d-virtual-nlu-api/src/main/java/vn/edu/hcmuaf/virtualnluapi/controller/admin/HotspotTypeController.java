@@ -35,16 +35,4 @@ public class HotspotTypeController {
                 .data(allType)
                 .build();
     }
-//
-//    @POST
-//    @Path("/changeIconDefault")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public ApiResponse<Boolean> changeIconDefault(Request req) {
-//        boolean result = HotspotTypeService.changeIconDefault(req);
-//        if (result) {
-//            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi icon thanh cong").data(result).build();
-//        } else {
-//            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi icon").data(result).build();
-//        }
-//    }
 }

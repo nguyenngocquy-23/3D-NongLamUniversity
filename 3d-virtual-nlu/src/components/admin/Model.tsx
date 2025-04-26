@@ -16,7 +16,7 @@ const Node: React.FC<NodeProps> = ({ url }) => {
   const { gl } = useThree();
   const [rotate, setRotate] = useState(true);
 
-  const texture = useTexture("/floor.png");
+  // const texture = useTexture("/floor.png");
 
   useEffect(() => {
     const loader = new GLTFLoader();

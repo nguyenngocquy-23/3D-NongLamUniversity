@@ -12,7 +12,7 @@ import java.util.List;
 @ApplicationScoped
 public class FieldDao {
 
-    public boolean insertField(FieldCreateRequest req){
+    public boolean insertField(FieldCreateRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int i = handle.createUpdate("INSERT INTO fields (name, code, status, createdAt, updatedAt) VALUES (:name, :code, :status, :createdAt, :updatedAt)")
                     .bind("name", req.getName())
@@ -25,9 +25,9 @@ public class FieldDao {
         });
     }
 
-    public List<FieldResponse> getAllFields(){
+    public List<FieldResponse> getAllFields() {
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("SELECT id, code, name, status, updatedAt FROM fields")
+            return handle.createQuery("SELECT id, name, status, updatedAt FROM fields")
                     .mapToBean(FieldResponse.class)
                     .list();
         });

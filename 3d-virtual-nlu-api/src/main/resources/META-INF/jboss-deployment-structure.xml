@@ -7,12 +7,8 @@
             <module name="javax.mail.api" />
             <module name="org.jboss.ironjacamar.jdbcadapters" />
         </exclusions>
-        <exclude-subsystems>
-            <subsystem name="jaxrs" />
-        </exclude-subsystems>
-        <exclusions>
-            <module name="org.jboss.resteasy.resteasy-jaxrs" />
-            <module name="org.jboss.resteasy.resteasy-multipart-provider" />
-        </exclusions>
+        <dependencies>
+            <module name="org.jboss.resteasy.resteasy-multipart-provider"/>
+        </dependencies>
     </deployment>
 </jboss-deployment-structure>
