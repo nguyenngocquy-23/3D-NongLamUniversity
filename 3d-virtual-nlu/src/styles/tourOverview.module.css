@@ -123,6 +123,7 @@ canvas {
   transition: all 0.3s ease-in-out;
   opacity: 0.8;
   color: green;
+  z-index: 2;
   cursor: pointer;
 }
 
@@ -159,80 +160,7 @@ canvas {
   left: 50%;
   color: green;
   width: 400px;
+  text-align: center;
+  z-index: 1;
   transform: translate(-50%, -50%);
-}
-
-.headerTour {
-  top: 0;
-}
-.footerTour {
-  bottom: 10px;
-}
-.headerTour,
-.footerTour {
-  position: absolute;
-  left: 0;
-  width: 98%;
-  height: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 2;
-  padding: 0 20px;
-}
-
-.leftMenu {
-  position: absolute;
-  top: 0;
-  left: -300px;
-  /* Ẩn menu bên trái */
-  width: 300px;
-  height: 100%;
-  background-color: #333;
-  color: white;
-  transition: left 0.5s ease;
-  z-index: 3;
-  overflow-y: scroll;
-}
-
-.leftMenu.show {
-  left: 0;
-  /* Hiển thị menu khi con chuột vào */
-}
-
-.leftMenu ul {
-  list-style-type: none;
-  margin-top: 10px;
-  padding: 0;
-}
-
-.leftMenu li:hover {
-  opacity: 0.8;
-  font-size: 25px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-}
-
-.leftMenu li {
-  padding: 40px 0;
-  opacity: 0.5;
-  transition: all 0.3s ease;
-  width: 100%;
-}
-
-body:fullscreen #virtaul_tour,
-html:fullscreen #virtaul_tour {
-  width: 100vw; /* Full width màn hình */
-  height: 100vh; /* Full height màn hình */
-}
-
-.inputSeach {
-  padding: 5px;
-  font-size: 15px;
-  width: 80%;
-}
-
-.searchBtn {
-  font-size: 20px;
-  margin-left: 10px;
-  transition: transform 0.3s ease;
 }
