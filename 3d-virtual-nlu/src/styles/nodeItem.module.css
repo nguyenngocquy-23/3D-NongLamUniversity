@@ -67,7 +67,7 @@
 }
 
 .status_open,
-.status_close {
+.status_stop {
     border-radius: 50%;
     width: 10px;
     height: 10px;
@@ -78,6 +78,6 @@
     background-color: rgb(0, 255, 0);
 }
 
-.status_close {
+.status_stop {
     background-color: red;
 }

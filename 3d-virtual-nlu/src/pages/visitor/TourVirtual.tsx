@@ -78,6 +78,9 @@ const TourVirtual = () => {
     }
   };
 
+  const handleCloseMenu = () => {
+    setIsMenuVisible(false);
+  };
   const handleMouseDown = (event: any) => {
     setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
   };
@@ -86,9 +89,6 @@ const TourVirtual = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
 
-  const handleCloseMenu = () => {
-    setIsMenuVisible(false);
-  };
 
   const toggleFullscreen = () => {
     const canvas = document.querySelector<HTMLCanvasElement>(

@@ -39,7 +39,7 @@ const TourOverview = () => {
     //     return;
     //   }
     // }
-    navigate("/tourVirtual");
+    navigate("/virtualTour");
   };
 
   useEffect(() => {

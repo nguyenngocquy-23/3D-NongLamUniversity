@@ -1,27 +1,16 @@
-import React, { Suspense, useRef, useEffect, useState, useMemo } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import styles from "../../styles/managerTour.module.css";
 import stylesBar from "../../styles/common/navigateBar.module.css";
 import stylesUser from "../../styles/user.module.css";
 import * as THREE from "three";
-import {
-  FaAngleDown,
-  FaAngleLeft,
-  FaAngleUp,
-  FaBackward,
-} from "react-icons/fa6";
+import { FaAngleDown, FaAngleLeft, FaAngleUp } from "react-icons/fa6";
 import { OrbitControls } from "@react-three/drei";
 import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setPanoramaUrl,
-  setSpaceId,
-} from "../../redux/slices/PanoramaSlice.tsx";
 import { AppDispatch, RootState } from "../../redux/Store.tsx";
-import { fetchFields } from "../../redux/slices/DataSlice.tsx";
-import axios from "axios";
-import Swal from "sweetalert2";
 import { NodeItem } from "../../components/admin/NodeItem.tsx";
+import SearchBar from "../../features/SearchBar.tsx";
 
 interface ControlsProps {
   enableZoom?: boolean;
@@ -81,18 +70,31 @@ const ManageNode: React.FC = () => {
     setIsToggle((preState) => !preState);
   };
 
-  const spaces = useSelector((state: RootState) => state.data.spaces);
+  const nodes = useSelector((state: RootState) => state.data.nodes);
 
   // Chon space
-  const handleSelectSpace = () => {
-    navigate("/admin/updateTour");
+  const handleSelectNode = (node: any) => {
+    navigate("/admin/updateTour", { state: node });
   };
+
+  //search
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredNodes = nodes.filter((node) =>
+    node.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    node.spaceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    node.fieldName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className={stylesUser.container}>
-      <div>
+      <div className={stylesBar.navigateBar}>
         <FaAngleLeft />
         <h2 className={stylesBar.h2}>Danh sách tour</h2>
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          placeholder="Tìm theo tên không gian..."
+        />
       </div>
       <div className={styles.title} onClick={toggleFeature}>
         <b>Tên không gian</b>
@@ -103,11 +105,31 @@ const ManageNode: React.FC = () => {
         )}
       </div>
       <div className={styles.listTour}>
-        <div style={{ display: "flex", flexWrap: 'wrap', justifyContent: "flex-start", gap: '3.5%', marginLeft:'20px' }}>
-          <NodeItem onclick={handleSelectSpace}/>
-          <NodeItem onclick={handleSelectSpace} />
-          <NodeItem onclick={handleSelectSpace} />
-          <NodeItem onclick={handleSelectSpace} />
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "flex-start",
+            gap: "3.5%",
+            marginLeft: "20px",
+          }}
+        >
+          {filteredNodes.map((node) => (
+            <NodeItem
+              key={node.id}
+              {...node}
+              id={node.id}
+              userId={node.userId}
+              status={node.status}
+              name={node.name}
+              fieldName={node.fieldName}
+              spaceName={node.spaceName}
+              description={node.description}
+              updatedAt={node.updatedAt}
+              url={node.url}
+              onclick={() => handleSelectNode(node)}
+            />
+          ))}
         </div>
       </div>
     </div>

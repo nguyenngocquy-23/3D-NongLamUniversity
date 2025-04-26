@@ -46,7 +46,7 @@ public class SpaceDao {
 
     public List<SpaceFullResponse> getAllSpaces() {
         String sql = """
-                SELECT f.name as fieldName, s.name, s.description, s.status, s.updatedAt
+                SELECT s.id, f.name as fieldName, s.name, s.description, s.status, s.updatedAt
                  FROM spaces s
                  JOIN fields f ON s.fieldId = f.id
                 """;

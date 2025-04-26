@@ -15,7 +15,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
-import { fetchFields, fetchHotspotTypes, fetchSpaces } from "../../redux/slices/DataSlice";
+import { fetchFields, fetchHotspotTypes, fetchNodes, fetchSpaces } from "../../redux/slices/DataSlice";
 
 const Layout = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -29,6 +29,7 @@ const Layout = () => {
     dispatch(fetchFields());
     dispatch(fetchSpaces());
     dispatch(fetchHotspotTypes());
+    dispatch(fetchNodes());
   }, [dispatch]);
 
   // useEffect(() => {

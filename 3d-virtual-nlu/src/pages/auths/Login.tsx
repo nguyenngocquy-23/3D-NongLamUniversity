@@ -7,6 +7,9 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { loginUser } from "../../redux/slices/AuthSlice";
+import { FaRegUser, FaUser } from "react-icons/fa6";
+import { FaUserAlt } from "react-icons/fa";
+import { CiLock } from "react-icons/ci";
 
 const Login: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username và password
@@ -53,12 +56,12 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className={styles.container} style={{ position: "relative" }}>
+    <div className={styles.container}>
       <div className={styles.loginContainer}>
         <h2 className={styles.h2}>Login</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
-            <label htmlFor="username">Username</label>
+            <FaRegUser className={styles.icon}/>
             <input
               type="text"
               id="username"
@@ -72,7 +75,7 @@ const Login: React.FC = () => {
             />
           </div>
           <div className={styles.inputGroup}>
-            <label htmlFor="password">Password</label>
+            <CiLock className={styles.icon}/>
             <input
               type={showContent ? "text" : "password"}
               id="password"

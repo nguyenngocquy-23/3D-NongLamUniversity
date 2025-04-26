@@ -1,16 +1,15 @@
 import TourScene from "../../components/visitor/TourScene";
-import FullScreenToggle from "../../components/visitor/FullScreenToggle";
-import StatsPanel from "../../components/visitor/StatsPanel";
-import SoundControl from "../../components/visitor/SoundControl";
 import { Canvas, useThree } from "@react-three/fiber";
 import styles from "../../styles/virtualTour.module.css";
 import CamControls from "../../components/visitor/CamControls";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import RaycasterHandler from "../../components/visitor/RaycasterHandler";
-import GroundHotspot from "../../components/visitor/GroundHotspot";
 import gsap from "gsap";
-import { useTexture } from "@react-three/drei";
+import Chat from "../../features/Chat.tsx";
+import { useNavigate } from "react-router-dom";
+import { IoIosCloseCircle } from "react-icons/io";
+import FooterTour from "../../components/visitor/FooterTour.tsx";
+import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 
 /**
  *
@@ -34,41 +33,62 @@ const UpdateCameraOnResize = () => {
 };
 
 const VideoNode: React.FC = () => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const textureRef = useRef<THREE.VideoTexture | null>(null);
+  const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
 
   useEffect(() => {
-    // Tạo video element
     const video = document.createElement("video");
-    video.src = "/video.mp4"; // Đường dẫn tới video
-    video.crossOrigin = "anonymous"; // Thêm nếu video nằm trên domain khác
-    video.loop = true; // Lặp video
-    video.muted = true; // Tắt âm thanh
-    video.play(); // Bắt đầu phát video
-    video.style.position = "absolute";
-    video.style.zIndex = "10000";
+    video.src = "/video.mp4";
+    video.crossOrigin = "anonymous";
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
+    video.autoplay = true;
+    video.style.display = "none";
 
-    // Tạo video texture
-    const texture = new THREE.VideoTexture(video);
-    textureRef.current = texture;
+    document.body.appendChild(video);
+
+    video.addEventListener("canplaythrough", () => {
+      video.play().catch((err) => console.warn("Video play error:", err));
+    });
+
+    const tex = new THREE.VideoTexture(video);
+    setTexture(tex); // <- Trigger re-render
 
     return () => {
-      // Dọn dẹp khi component bị gỡ bỏ
       video.pause();
-      video.src = ""; // Giải phóng tài nguyên
-      texture.dispose(); // Giải phóng texture
+      video.src = "";
+      video.remove();
+      tex.dispose();
     };
   }, []);
 
+  if (!texture) return null; // Đợi khi đã có texture mới render
+
   return (
-    <mesh position={[0, 0, -10]} rotation={[0, Math.PI, 0]}>
-      <cylinderGeometry args={[10, 10, 10, 64, 1, true, 0, Math.PI / 2]} />
-      <meshBasicMaterial map={textureRef.current} side={THREE.DoubleSide} />
+    <mesh position={[0, 0, -50]} rotation={[0, Math.PI, 0]}>
+      <planeGeometry args={[50, 40]} />
+      {/* <cylinderGeometry args={[10, 10, 10, 64, 1, true, 0, Math.PI / 2]} /> */}
+      <meshBasicMaterial map={texture} side={THREE.DoubleSide} />
     </mesh>
   );
 };
 
 const VirtualTour = () => {
+  const [isAnimation, setIsAnimation] = useState(true);
+
+  const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
+
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+
+  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
+
+  const [isMuted, setIsMuted] = useState(false); // Trạng thái âm thanh
+
+  const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
+    null
+  ); // Giữ lại đối tượng utterance
+
+  const navigate = useNavigate();
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const [sphereCenter, setSphereCenter] = useState<[number, number, number]>([
     0, 0, 0,
@@ -151,6 +171,131 @@ const VirtualTour = () => {
     }
   };
 
+  const handleClose = () => {
+    navigate("/");
+  };
+
+  const requestFullscreen = (element: any) => {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.mozRequestFullScreen) {
+      // Firefox
+      element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) {
+      // Chrome, Safari và Opera
+      element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+      // IE/Edge
+      element.msRequestFullscreen();
+    }
+  };
+
+  const exitFullscreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  };
+
+  const toggleFullscreen = () => {
+    // const canvas = canvasRef.current;
+    // if(!canvas) return;
+    const containerCanvas = document.querySelector(`.${styles.tourContainer}`);
+    console.log(containerCanvas);
+    if (!containerCanvas) return;
+    if (!isFullscreen) {
+      requestFullscreen(containerCanvas); // Chuyển canvas sang fullscreen
+      setIsFullscreen(true);
+    } else {
+      exitFullscreen(); // Thoát fullscreen
+      setIsFullscreen(false);
+    }
+  };
+
+  let isOpenInfo = true;
+  const toggleInfomation = () => {
+    const divInfo = document.querySelector<HTMLElement>(`.${styles.infoBox}`);
+    if (!divInfo) {
+      return;
+    }
+    if (isOpenInfo) {
+      divInfo.style.display = "block";
+      divInfo.style.bottom = "50px";
+      isOpenInfo = false;
+    } else {
+      divInfo.style.display = "none";
+      divInfo.style.bottom = "-100px";
+      isOpenInfo = true;
+    }
+  };
+  // Hàm bật/tắt âm thanh
+  const toggleMute = () => {
+    setIsMuted((preState) => !preState);
+  };
+
+  // Hàm để đọc văn bản
+  const readText = () => {
+    const textInfo = document.querySelector(`.${styles.infoBox}`)?.textContent;
+    console.log(textInfo);
+
+    // Kiểm tra xem API SpeechSynthesis có sẵn không
+    if ("speechSynthesis" in window) {
+      // Kiểm tra nếu textInfo có giá trị trước khi đọc
+      if (textInfo) {
+        // Nếu không có utterance hiện tại, tạo một đối tượng mới
+        if (!utterance) {
+          const newUtterance = new SpeechSynthesisUtterance(textInfo);
+          // Bạn có thể tùy chỉnh các thuộc tính của lời nói
+          newUtterance.lang = "vi-VN"; // Chọn ngôn ngữ (ở đây là tiếng Việt)
+          newUtterance.pitch = 1; // Điều chỉnh độ cao của giọng nói
+          newUtterance.rate = 1; // Điều chỉnh tốc độ đọc
+
+          // Kiểm tra trạng thái âm thanh
+          if (isMuted) {
+            newUtterance.volume = 0; // Tắt âm thanh
+          } else {
+            newUtterance.volume = 1; // Bật âm thanh
+          }
+
+          // Lưu đối tượng utterance vào state
+          setUtterance(newUtterance);
+
+          // Khởi tạo việc đọc văn bản
+          speechSynthesis.speak(newUtterance);
+        } else {
+          // Nếu âm thanh bị tắt, tạm dừng việc phát âm thanh
+          if (isMuted) {
+            speechSynthesis.pause();
+          } else {
+            // Nếu âm thanh bật, tiếp tục phát âm thanh từ điểm dừng
+            speechSynthesis.resume();
+          }
+        }
+      } else {
+        console.error("Không tìm thấy văn bản để đọc.");
+      }
+    } else {
+      console.error("Speech synthesis API is not supported in this browser.");
+    }
+  };
+
+  const handleMouseEnterMenu = (event: any) => {
+    const mouse = event.clientX;
+
+    const threshold = window.innerWidth * 0.05;
+    if (mouse < threshold) {
+      setIsMenuVisible(true);
+    }
+  };
+
+  const handleCloseMenu = () => {
+    setIsMenuVisible(false);
+  };
+
+  // Gọi hàm để đọc văn bản khi thay đổi trạng thái âm thanh
+  useEffect(() => {
+    readText();
+  }, [isAnimation, isMuted]);
+
   return (
     <div className={styles.tourContainer}>
       <Canvas
@@ -162,31 +307,51 @@ const VirtualTour = () => {
           position: [0, 0, 0.0000001], // Đặt vị trí mặc định của camera
         }}
         className={styles.tourCanvas}
+        onMouseMove={handleMouseEnterMenu}
+        onMouseDown={handleCloseMenu}
       >
         <UpdateCameraOnResize />
         <TourScene radius={radius} sphereRef={sphereRef} />
         <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
-        <VideoNode />
-        <RaycasterHandler
+        {/* <VideoNode /> */}
+        {/* <RaycasterHandler
           sphereRef={sphereRef}
           onAddHotspot={handleAddHotspot}
           hoveredHotspot={hoveredHotspot} //test
           switchTexture={handledSwitchTexture}
-        />
-
-        {hotspots.map((hotspot) => (
+        /> */}
+        {/* {hotspots.map((hotspot) => (
           <GroundHotspot
             key={hotspot.id}
             position={hotspot.position}
             setHoveredHotspot={setHoveredHotspot}
           />
-        ))}
+        ))} */}
       </Canvas>
-      <div className={styles.tourIcons}>
-        <FullScreenToggle className={styles.fullScreenToggle} />
-        <SoundControl className={styles.fullScreenToggle} />
+      {/* Header chứa logo + close */}
+      <div className={styles.headerTour}>
+        <h2>NLU360</h2>
+        <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
-      <StatsPanel className={styles.statsPanel} />
+      {/* Menu bên trái */}
+      <LeftMenuTour isMenuVisible={isMenuVisible} />
+      {/* Hộp feedback */}
+      <Chat />
+      {/* Footer chứa các tính năng */}
+      <FooterTour
+        isAnimation={isAnimation}
+        isMuted={isMuted}
+        isFullscreen={isFullscreen}
+        toggleInfomation={toggleInfomation}
+        toggleFullscreen={toggleFullscreen}
+        toggleMute={toggleMute}
+      />
+      {/* Hộp thông tin */}
+      <div className={styles.infoBox} onClick={toggleInfomation}>
+        Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
+        Lâm Thành phố Hồ Chí Minh
+      </div>{" "}
+      {/* <StatsPanel className={styles.statsPanel} /> */}
     </div>
   );
 };

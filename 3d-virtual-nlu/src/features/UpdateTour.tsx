@@ -1,17 +1,13 @@
-import React, { Suspense, useRef, useEffect, useState, useMemo } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import styles from "../styles/createTourStep2.module.css";
-import { Canvas, events, extend, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { FaAngleLeft, FaBackward } from "react-icons/fa6";
+import { FaAngleLeft } from "react-icons/fa6";
 import { OrbitControls, useTexture } from "@react-three/drei";
 import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { setPanoramaUrl, setSpaceId } from "../redux/slices/PanoramaSlice.tsx";
-import { AppDispatch, RootState } from "../redux/Store.tsx";
-import { fetchFields } from "../redux/slices/DataSlice.tsx";
-import axios from "axios";
-import Swal from "sweetalert2";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../redux/Store.tsx";
 
 interface ControlsProps {
   enableZoom?: boolean;
@@ -93,17 +89,9 @@ const Scene = ({ cameraPosition }: SceneProps) => {
 };
 
 const UpdateNode: React.FC = () => {
-  const [activeStep, setActiveStep] = useState(1);
   const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
   const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [panoramaURL, setPanoramaURL] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectSpace, setSelectSoace] = useState("");
-  const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
-    []
-  );
   const dispatch = useDispatch<AppDispatch>(); // hotspot
   const sphereRef = useRef<THREE.Mesh | null>(null);
 
@@ -121,6 +109,17 @@ const UpdateNode: React.FC = () => {
     return [originalZ * Math.cos(radians), 0, originalZ * Math.sin(radians)]; // Camera quay quanh trục Y
   }, [angle]);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const tourData = location.state;
+
+  console.log("Tour nhận được:", tourData);
+
+  const handleClose = () => {
+    console.log('close manage tour')
+    navigate("/admin/manageTour");
+  };
+
   return (
     <div className={styles.preview_tour}>
       <Canvas
@@ -131,19 +130,24 @@ const UpdateNode: React.FC = () => {
         }}
       >
         <Node
-          url={panoramaURL ?? "/khoa.jpg"}
+          url={tourData.url ?? "/khoa.jpg"}
           radius={radius}
           sphereRef={sphereRef}
-          lightIntensity={lightIntensity}
+          lightIntensity={tourData.lightIntensity}
         />
-        <Scene cameraPosition={cameraPosition} />
+        <Scene cameraPosition={[tourData.positionX, tourData.positionY, tourData.positionZ]} />
         <OrbitControls
           rotateSpeed={0.5}
-          // autoRotate={autoRotate}
-          autoRotate={false}
-          autoRotateSpeed={speedRotate}
+          autoRotate={tourData.autoRotate}
+          autoRotateSpeed={tourData.speedRotate}
         />
       </Canvas>
+      <div className={styles.header_tour}>
+        <div className={styles.step_title}>
+          <FaAngleLeft className={styles.back_btn} onClick={()=>handleClose()} />
+          <h2> Quay lại</h2>
+        </div>
+      </div>
     </div>
   );
 };
