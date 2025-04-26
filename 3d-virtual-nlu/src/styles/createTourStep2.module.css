@@ -75,7 +75,7 @@
   color: white;
   transition: right 0.5s ease;
   z-index: 3;
-  overflow-y: scroll;
+  overflow-y: hidden;
 }
 
 .right_menu.show {
@@ -149,20 +149,19 @@
   opacity: 1;
 }
 
-.type_navigation, .type_infomation, .type_model{
+.type_navigation, .type_infomation, .type_model, .type_media{
   width: 40vw;
   height: 0;
-  /* background: none; */
-  /* position: absolute;
-  left: 20px;
-  bottom: 20px; */
   border-radius: 10px;
   opacity: 0;
-  padding: 10px;
+  padding: 0 10px;
+  overflow: hidden;      /* Ngăn nội dung tràn ra */
+  pointer-events: none;  /* Vô hiệu tương tác */
   transition: height 1s ease-in-out, opacity 1s ease-in-out;
 }
-.open_type_navigation, .open_type_infomation, .open_type_model{
+.open_type_navigation, .open_type_infomation, .open_type_model, .open_type_media{
   opacity: 1;
+  pointer-events: auto;
 }
 .open_type_navigation{
   height: 300px;
@@ -172,6 +171,37 @@
 }
 .open_type_model{
   height: 300px;
+}
+.open_type_media{
+  height: 300px;
+}
+
+.mode_button{
+  cursor: pointer;
+  border-radius: 5px;
+  width: 50%;
+  height: auto;
+  opacity: 0.8;
+  border: none;
+  outline: none !important;
+  /* background-color: transparent;
+  border-bottom: 2px solid #333; */
+}
+
+.choosed{
+  outline: none;
+  border: none;
+  background-color: green;
+  opacity: 1;
+  pointer-events: none;
+}
+
+.frame{
+  width: 80px;
+  height: 80px;
+  border-radius: 5px;
+  background-color: rgba(0,0,0,0.5);
+  position: relative;
 }
 
 .link {

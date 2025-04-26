@@ -1,5 +1,5 @@
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 type GroundHotspotProps = {
   position: [number, number, number];
@@ -15,7 +15,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const targetOpacity = useRef(0.6);
   const targetScale = useRef(5);
-  const { camera } = useThree(); // Get camera from context
 
   useEffect(() => {
     if (isHovered) {
