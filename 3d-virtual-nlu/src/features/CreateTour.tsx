@@ -84,53 +84,7 @@ const CreateNode: React.FC = () => {
   };
 
   const handleUploadPanorama = async () => {
-    if (selectSpace == "" || selectSpace == null) {
-      Swal.fire("Lỗi", "Vui lòng chọn không gian", "error");
-      return;
-    }
-    if (!selectedFiles) {
-      Swal.fire("Lỗi", "Vui lòng nhập ảnh không gian", "error");
-      return;
-    }
-    setIsLoading(true);
-
-    try {
-      const uploadPromises = selectedFiles.map(async (file) => {
-        if (["image/png", "image/jpg", "image/jpeg"].includes(file.type)) {
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("cloud_name", CLOUD_NAME);
-          formData.append("upload_preset", UPLOAD_PRESET);
-
-          const response = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`,
-            { method: "POST", body: formData }
-          );
-          const imgData = await response.json();
-          return { file, url: imgData.secure_url };
-        } else {
-          return { file, url: null };
-        }
-      });
-
-      const uploadedResults = await Promise.all(uploadPromises);
-      const validResults = uploadedResults.filter(
-        (result) => result.url !== null
-      );
-
-      validResults.forEach(({ url }) => {
-        dispatch(addPanoramaUrl(url!)); // đẩy từng URL vào Redux
-      });
-
-      setPanoramaURLs(validResults.map((result) => result.url!));
-      alert(`Đã tải ${validResults.length} ảnh thành công!`);
-      navigate(`${location.pathname}/2`);
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Lỗi", "Đã xảy ra lỗi khi tải ảnh!", "error");
-    } finally {
-      setIsLoading(false);
-    }
+    navigate(`${location.pathname}/2`);
   };
 
   return (

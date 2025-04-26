@@ -480,10 +480,20 @@ const CreateTourStep2 = () => {
   const [nameNode, setNameNode] = useState("");
   const [desNode, setDesNode] = useState("");
   const user = useSelector((state: RootState) => state.auth.user);
-  const panoramaURL = useSelector(
-    (state: RootState) => state.panorama.panoramaUrls
+  // const panoramaURL = useSelector(
+  //   (state: RootState) => state.panorama.panoramaUrls
+  // );
+
+  const { panoramaList, currentSelectPosition } = useSelector(
+    (state: RootState) => ({
+      panoramaList: state.panoramas.panoramaList,
+      currentSelectPosition: state.panoramas.currentSelectedPosition,
+    })
   );
-  const spaceId = useSelector((state: RootState) => state.panorama.spaceId);
+
+  const currentPanoramaUrl = panoramaList[currentSelectPosition]?.url;
+
+  const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
 
   // hotspot
@@ -549,11 +559,10 @@ const CreateTourStep2 = () => {
   const handleDoneStep2 = async () => {
     console.log("spaceId: ", spaceId);
     console.log("userId: ", user.id);
-    console.log("panoramaURL: ", panoramaURL);
     const response = await axios.post("http://localhost:8080/api/admin/node", {
       spaceId: spaceId,
       userId: user.id,
-      url: panoramaURL,
+      url: currentPanoramaUrl,
       name: nameNode,
       description: desNode,
       positionX: cameraPosition[0],
@@ -604,7 +613,7 @@ const CreateTourStep2 = () => {
           // style={{ cursor: cursor }}
         >
           <Node
-            url={panoramaURL[0] ?? "/khoa.jpg"}
+            url={currentPanoramaUrl ?? "/khoa.jpg"}
             radius={radius}
             sphereRef={sphereRef}
             lightIntensity={lightIntensity}

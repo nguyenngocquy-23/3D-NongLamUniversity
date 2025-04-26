@@ -4,7 +4,7 @@ import { Canvas, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import { useDispatch, useSelector } from "react-redux";
-import { setSpaceId } from "../../redux/slices/PanoramaSlice.tsx";
+import { setSpaceId } from "../../redux/slices/PanoramaSlice.ts";
 import { AppDispatch, RootState } from "../../redux/Store.tsx";
 import { fetchFields } from "../../redux/slices/DataSlice.tsx";
 import axios from "axios";

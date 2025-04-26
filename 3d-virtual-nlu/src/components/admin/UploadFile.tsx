@@ -4,6 +4,8 @@ import { FaRegFileImage } from "react-icons/fa6";
 import { MdDeleteForever } from "react-icons/md";
 import styles from "../../styles/uploadFile.module.css";
 import axios, { AxiosError } from "axios";
+import { setPanoramas } from "../../redux/slices/PanoramaSlice";
+import { useDispatch } from "react-redux";
 
 type UploadFileProps = {
   className?: string;
@@ -22,6 +24,7 @@ interface ApiResponse<T> {
 
 const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const dispatch = useDispatch();
 
   //Biến state để theo dõi thông tin của 1 file
   const [selectedFile, setSelectFiles] = useState<File[]>([]);
@@ -101,8 +104,17 @@ const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
         }
       );
       if (resp.data.statusCode === 200) {
-        console.log("Upload success", resp.data.data);
         setUploadStatus("done");
+        const data = resp.data.data;
+
+        const formattedData = data
+          .filter((item) => item.originalFileName && item.url) // nếu không đủ => bỏ.
+          .map((item) => ({
+            originalFileName: item.originalFileName!,
+            url: item.url!,
+          }));
+
+        dispatch(setPanoramas(formattedData));
       } else {
         console.log("upload error: ", resp.data.message);
         setUploadStatus("select");

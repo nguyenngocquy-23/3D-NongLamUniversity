@@ -19,7 +19,7 @@ export interface PanoramaConfig {
 
 export interface PanoramaItem {
   id?: number;
-  spaceId: number;
+  spaceId: string;
   url: string;
   config: PanoramaConfig;
 }
@@ -27,7 +27,7 @@ export interface PanoramaItem {
 interface PanoramaState {
   panoramaList: PanoramaItem[];
   currentSelectedPosition: number;
-  spaceId: number | null;
+  spaceId: string | null;
 }
 
 const initialState: PanoramaState = {
@@ -40,16 +40,19 @@ const panoramaSlice = createSlice({
   name: "panoramas",
   initialState,
   reducers: {
-    setSpaceId(state, action: PayloadAction<number>) {
+    setSpaceId(state, action: PayloadAction<string>) {
       state.spaceId = action.payload;
     },
     // Upload panorama lần đầu tiên
-    setPanoramas(state, action: PayloadAction<string[]>) {
-      state.panoramaList = action.payload.map((url, index) => ({
-        url,
+    setPanoramas(
+      state,
+      action: PayloadAction<Array<{ originalFileName: string; url: string }>>
+    ) {
+      state.panoramaList = action.payload.map((item, index) => ({
+        url: item.url,
         spaceId: state.spaceId!,
         config: {
-          name: "",
+          name: item.originalFileName,
           description: "",
           positionX: 0,
           positionY: 0,
@@ -57,7 +60,7 @@ const panoramaSlice = createSlice({
           autoRotate: 0,
           speedRotate: 0,
           lightIntensity: 1,
-          status: index === 0 ? 1:  2,
+          status: index === 0 ? 1 : 2,
         },
       }));
       state.currentSelectedPosition = 0;
@@ -88,9 +91,8 @@ const panoramaSlice = createSlice({
     setMasterPanorama(state, action: PayloadAction<number>) {
       const masterIndex = action.payload;
       state.panoramaList.forEach((item, index) => {
-        item.config.status = index === masterIndex ? 1 : 2
+        item.config.status = index === masterIndex ? 1 : 2;
       });
-   
     },
     updatePanoConfig(
       state,
@@ -119,6 +121,6 @@ export const {
   selectPanorama,
   setMasterPanorama,
   updatePanoConfig,
-  clearPanorama
+  clearPanorama,
 } = panoramaSlice.actions;
 export default panoramaSlice.reducer;
