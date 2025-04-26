@@ -1,4 +1,4 @@
-package vn.edu.hcmuaf.virtualnluapi.controller;
+package vn.edu.hcmuaf.virtualnluapi.controller.auth;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;

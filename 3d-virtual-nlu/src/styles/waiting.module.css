@@ -1,0 +1,38 @@
+/* Chế độ hiển thị toàn trang với background cho trang loading */
+.loading_container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    /* Màu nền mờ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.video {
+    width: 500px;
+    height: 500px;
+}
+
+.shadow {
+    width: 250px;
+    height: 20px;
+    opacity: 0.5;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 150px;
+}
+
+.shadow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
+    filter: blur(5px);
+    z-index: -1;
+}

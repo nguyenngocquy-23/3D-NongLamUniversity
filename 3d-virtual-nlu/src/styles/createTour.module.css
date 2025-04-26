@@ -56,11 +56,18 @@
 .upPanosSection {
   background-color: #f8f8e1;
   color: #000;
+  position: relative;
   padding: 10px;
   border-radius: 10px;
+  width: 100%;
   height: 70%;
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
+  transition: all .3s ease-in-out;
+}
+
+.item{
+  margin-bottom: 10px;
 }
 
 .uploadForm .fileBtn {
@@ -73,12 +80,13 @@
   flex-direction: column;
 }
 
-/* 
 .label {
   display: inline-block;
   width: 100px;
   margin-right: 20px;
-} */
+  color: #333;
+  font-weight: 600;
+}
 
 .fullPreview {
   position: fixed;
@@ -102,11 +110,20 @@
   }
 }
 
+.leftForm{
+  position: absolute;
+  left: 30px;
+  top: 20px;
+}
+
 .panoPreview {
   width: 40vw;
   height: 40vh;
-  border-radius: 10px;
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: absolute;
+  right: 30px;
+  top: 20px;
 }
 
 .close_btn:hover {
@@ -123,4 +140,49 @@
   top: 15px;
   right: 15px;
   transition: transform 0.5s ease-in-out;
+}
+
+.custom_select {
+  appearance: none;
+  /* ẩn mũi tên mặc định */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+
+  width: 200px;
+  padding: 5px 20px;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 15px;
+  outline: none;
+
+  background-image: url('/vite.svg');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+.preview_button{
+  margin-top: 15px;
+}
+
+.upload_button,
+.preview_button
+{
+  display: inline-block;
+  padding: 5px 16px;
+  background-color: #1e88e5;
+  color: white;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.upload_button:hover,
+.preview_button:hover
+{
+  background-color: #1565c0;
 }

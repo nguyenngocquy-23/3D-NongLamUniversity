@@ -9,6 +9,7 @@
   margin: 0;
   background: url("/src/assets/picture/login_bgk1.jpg") no-repeat center / cover;
   font-family: Arial, sans-serif;
+  position: relative;
 }
 
 @keyframes slideDown {
@@ -24,43 +25,25 @@
   }
 
   100% {
-    top: 0;
+    top: 50%;
+    transform: translateY(-50%);
     filter: blur(0);
     opacity: 1;
   }
 }
 
-/* Định nghĩa keyframes cho rotation */
-@keyframes rotateAnimation {
-  0% {
-    transform: perspective(1000px) rotateX(-15deg) rotateY(20deg);
-  }
-
-  50% {
-    transform: perspective(1000px) rotateX(15deg) rotateY(-20deg);
-  }
-
-  100% {
-    transform: perspective(1000px) rotateX(-15deg) rotateY(20deg);
-  }
-}
-
 .loginContainer {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  right: 5%;
+  transform: translateY(-50%);
   background: rgba(255, 255, 255, 0.1);
-  padding: 2rem;
+  padding: 2rem 3rem;
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  transform: perspective(1000px) rotateX(-15deg) rotateY(20deg);
+  backdrop-filter: blur(5px);
   transition: transform 0.5s ease;
-  /* Thêm animation ở đây */
-  animation: slideDown 0.8s ease-out forwards,
-    rotateAnimation 5s infinite alternate ease-in-out;
-}
-
-.loginContainer:hover {
-  transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+  animation: slideDown 0.8s ease-out forwards;
 }
 
 .h2 {
@@ -74,56 +57,30 @@
 .inputGroup {
   margin-bottom: 1.5rem;
   position: relative;
+  border-radius: 10px;
+  border: 1px solid #333;
 }
 
-.inputGroup label {
-  font-size: 18px;
+.icon {
+  font-weight: 800;
+  margin-left: 10px;
 }
 
 .inputField {
   width: 90%;
   padding: 1rem;
-  font-size: 1.2rem;
-  border: 2px solid #ccc;
-  border-radius: 5px;
+  font-size: 1rem;
+  border: none;
   background: transparent;
   color: #fff;
   outline: none;
   transition: all 0.3s ease;
-  /* Tạo hiệu ứng mượt mà */
-}
-
-/* Khi input có giá trị */
-.inputField:focus {
-  border-color: #007bff;
-  /* Màu viền thay đổi khi focus */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  /* Thêm bóng đổ */
 }
 
 /* Style cho placeholder (nếu có) */
 input::placeholder {
   color: rgba(255, 255, 255, 0.7);
   transition: opacity 0.3s ease;
-}
-
-/* Khi người dùng bắt đầu nhập vào input */
-.inputField:valid {
-  padding: 0.8rem;
-  font-size: 1.5rem;
-  /* Tăng kích thước chữ khi có giá trị */
-  transform: scale(1.1);
-  /* Phóng to nội dung */
-  transition: transform 0.3s ease, font-size 0.3s ease;
-  /* Thêm hiệu ứng cho việc thay đổi kích thước */
-}
-
-/* Khi input không có giá trị (trở lại kích thước ban đầu) */
-.inputField:not(:valid) {
-  font-size: 1.2rem;
-  /* Đặt lại kích thước font ban đầu */
-  transform: scale(1);
-  /* Đặt lại scale ban đầu */
 }
 
 .loginBtn {
@@ -161,23 +118,20 @@ input::placeholder {
   box-shadow: -1px -1px 20px rgba(0, 0, 0, 0.4);
 }
 
-.eye:hover {
-  cursor: pointer;
-}
-
 .eye {
+  cursor: pointer;
   position: absolute;
-  top: 50px;
+  top: 50%;
+  transform: translateY(-50%);
   right: 10px;
 }
 
-.error{
+.error {
   text-align: center;
   color: rgb(255, 18, 18);
   font-style: italic;
   font-weight: 700;
 }
-
 
 .passLengthError {
   border: 2px solid rgb(255, 18, 18);

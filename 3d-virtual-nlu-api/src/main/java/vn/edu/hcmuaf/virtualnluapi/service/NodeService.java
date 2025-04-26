@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.entity.Space;
@@ -26,5 +27,9 @@ public class NodeService {
 
     public List<NodeFullResponse> getAllNodes() {
         return nodeDao.getAllNodes();
+    }
+
+    public List<MasterNodeResponse> getAllMasterNodes() {
+        return nodeDao.getAllMasterNodes();
     }
 }

@@ -22,7 +22,7 @@ const Node: React.FC<NodeProps> = ({ url }) => {
     const loader = new GLTFLoader();
     console.error("Load GLB:");
     loader.load(
-      "/thienly.glb",
+      "/gheda.glb",
       (gltf) => {
         const scene = gltf.scene;
         if (modelRef.current) {
@@ -104,6 +104,7 @@ const Model: React.FC<ModelProps> = ({ onClose, title, fields, apiUrl }) => {
         </button>
       </div>
       <Canvas
+        shadows
         className={styles.canvas}
         camera={{
           fov: 75,

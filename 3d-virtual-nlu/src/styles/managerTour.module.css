@@ -9,10 +9,11 @@
     box-sizing: border-box;
 }
 
-.title:hover{
+.title:hover {
     cursor: pointer;
 }
-.title{
+
+.title {
     color: #333;
     width: 95%;
     height: auto;
@@ -23,7 +24,7 @@
     position: relative;
 }
 
-.iconDown{  
+.iconDown {
     position: absolute;
     margin-left: 10px;
     right: 0;
@@ -35,49 +36,54 @@
     background-color: white;
     position: relative;
     justify-content: space-around;
-    overflow: hidden; /* Ẩn nội dung khi đóng */
+    overflow: hidden;
+    /* Ẩn nội dung khi đóng */
     transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
     display: flex;
     padding-top: 20px;
 }
 
-.show{
+.show {
     max-height: 300px;
     opacity: 1;
     /* animation: showTour 0.5s ease-in-out forwards; */
 }
 
-@keyframes showTour{
-    0%{
+@keyframes showTour {
+    0% {
         opacity: 0;
         transform: translateY(-10px);
     }
-    100%{
+
+    100% {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-.feature:hover{
+.feature:hover {
     cursor: pointer;
     /* opacity: 0.8; */
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7));
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7));
 }
-.feature{
-    background: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,0.5));
+
+.feature {
+    background: linear-gradient(rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.5));
     border-radius: 10px;
     width: 45%;
     height: 200px;
     text-align: center;
     padding-top: 50px;
     color: #fff;
-    text-decoration: none; 
+    text-decoration: none;
 }
 
-.iconFeature{
-    padding: 20px;
+.iconFeature {
     font-size: 25px;
+    width: 50px;
+    height: 50px;
+    padding: 10px;
     font-weight: 1000;
     border-radius: 50%;
-    background: linear-gradient(rgba(0,0,0,0.8), rgba(255,255,255,0.3));
+    background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0.3));
 }

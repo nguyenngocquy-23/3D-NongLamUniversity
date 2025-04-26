@@ -134,9 +134,14 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
   return (
     <section className={styles.upPanosSection}>
       <div className={styles.leftForm}>
-        <div>
+        <div className={styles.item}>
           <label className={styles.label}>Lĩnh vực:</label>
-          <select name="field" id="field" onChange={handleSelectField}>
+          <select
+            className={styles.custom_select}
+            name="field"
+            id="field"
+            onChange={handleSelectField}
+          >
             <option value="">-- Chọn lĩnh vực --</option>
             {fields.map((field) => (
               <option key={field.id} value={field.id}>
@@ -145,9 +150,14 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
             ))}
           </select>
         </div>
-        <div>
+        <div className={styles.item}>
           <label className={styles.label}>Không gian:</label>
-          <select name="space" id="space" onChange={handleSelectSpace}>
+          <select
+            className={styles.custom_select}
+            name="space"
+            id="space"
+            onChange={handleSelectSpace}
+          >
             <option value="">-- Chọn không gian --</option>
             {listSpace.map((space) => (
               <option key={space.id} value={space.id}>
@@ -174,7 +184,7 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
         <div className={fullPreview ? styles.fullPreview : styles.panoPreview}>
           <Canvas
             camera={{ position: [0, 0, 0.01], fov: 75 }}
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "100%", height: "100%", borderRadius: fullPreview ? "0" : "10px"}}
           >
             <OrbitControls
               enableZoom={true}

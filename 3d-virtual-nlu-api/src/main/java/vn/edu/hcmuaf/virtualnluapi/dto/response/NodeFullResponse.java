@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Builder
@@ -12,7 +13,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NodeFullResponse {
-    int userId;
-    String spaceName, name, description, url;
-    LocalDateTime updatedAt;
+    int id,userId;
+    String fieldName, spaceName, name, description, url;
+    double positionX,positionY,positionZ, lightIntensity, speedRotate;
+    byte status, autoRotate;
+    Timestamp updatedAt;
 }
