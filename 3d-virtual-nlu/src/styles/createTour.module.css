@@ -54,18 +54,31 @@
 }
 
 .upPanosSection {
-  background-color: lightgray;
+  background-color: #f8f8e1;
+  color: #000;
   padding: 10px;
   border-radius: 10px;
   height: 70%;
   display: flex;
+  justify-content: center;
 }
 
+.uploadForm .fileBtn {
+  font-size: 18px;
+  background-color: rgb(24, 23, 22);
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* 
 .label {
   display: inline-block;
   width: 100px;
   margin-right: 20px;
-}
+} */
 
 .fullPreview {
   position: fixed;
@@ -83,7 +96,7 @@
   0% {
     opacity: 0;
   }
-  
+
   100% {
     opacity: 1;
   }
@@ -96,14 +109,14 @@
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.close_btn:hover{
+.close_btn:hover {
   cursor: pointer;
   opacity: 0.7;
   transform: scale(1.2);
   color: rgba(0, 0, 0, 0.5);
 }
 
-.close_btn{
+.close_btn {
   font-size: 30px;
   position: fixed;
   z-index: 11;

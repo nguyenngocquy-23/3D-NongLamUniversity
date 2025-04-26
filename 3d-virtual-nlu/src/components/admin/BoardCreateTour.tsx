@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "../../redux/Store.tsx";
 import { fetchFields } from "../../redux/slices/DataSlice.tsx";
 import axios from "axios";
 import { IoIosCloseCircle } from "react-icons/io";
+import UploadFile from "./UploadFile.tsx";
 
 interface DomeProps {
   panoramaURL: string;
@@ -155,19 +156,9 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
             ))}
           </select>
         </div>
+        {/* Form upload ảnh. */}
         <div className={styles.panosCard}>
-          <form className={styles.panosForm}>
-            <p>
-              <label className={styles.label}>Ảnh 360 độ: </label>
-              <input
-                type="file"
-                accept="image/png, image/jpg, image/jpeg"
-                multiple
-                // accept="*/*"
-                onChange={handleFileChange}
-              />
-            </p>
-          </form>
+          <UploadFile className={styles.uploadForm} />
         </div>
       </div>
       {fullPreview ? (
@@ -189,7 +180,6 @@ const BoardUploader: React.FC<BoardUploadProps> = ({
               enableZoom={true}
               rotateSpeed={0.5}
               enablePan={false}
-              // autoRotatSpeed={0.5}
             />
             <CameraControls />
             <Dome panoramaURL={panoramaURL} />

@@ -27,7 +27,7 @@ public class FieldDao {
 
     public List<FieldResponse> getAllFields() {
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("SELECT id, code, name, status, updatedAt FROM fields")
+            return handle.createQuery("SELECT id, name, status, updatedAt FROM fields")
                     .mapToBean(FieldResponse.class)
                     .list();
         });
