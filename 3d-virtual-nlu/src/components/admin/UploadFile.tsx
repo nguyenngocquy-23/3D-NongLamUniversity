@@ -24,16 +24,25 @@ const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   //Biến state để theo dõi thông tin của 1 file
-  const [selectedFile, setSelectFiles] = useState<File | null>(null);
+  const [selectedFile, setSelectFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState<number>(0);
   const [uploadStatus, setUploadStatus] = useState<
     "select" | "uploading" | "done"
   >("select"); //select | uploading | done
 
-  // Xử lý sự kiện thêm file
+  // Xử lý sự kiện thêm file (nhiều file 1 lần.)
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0)
-      setSelectFiles(e.target.files[0]);
+    if (!e.target.files) return;
+
+    const newFiles = Array.from(e.target.files);
+    const combinedFiles = [...selectedFile, ...newFiles];
+
+    if (combinedFiles.length > 5) {
+      alert("upload tối đa 5 ảnh.");
+      return;
+    }
+
+    setSelectFiles(combinedFiles);
   };
 
   const onChooseFile = () => {
@@ -44,9 +53,15 @@ const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
     if (inputRef.current) {
       inputRef.current.value = "";
     }
-    setSelectFiles(null);
+    setSelectFiles([]);
     setProgress(0);
     setUploadStatus("select");
+  };
+
+  const removeFile = (index: number) => {
+    const newFiles = [...selectedFile];
+    newFiles.splice(index, 1);
+    setSelectFiles(newFiles);
   };
 
   const handleUpload = async (): Promise<void> => {
@@ -56,17 +71,22 @@ const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
       return;
     }
 
+    if (selectedFile.length === 0) {
+      alert("Vui lòng chọn ít nhất 1 files.");
+      return;
+    }
+
     try {
       // Post file to Server.
       setUploadStatus("uploading");
 
       const formData = new FormData();
-      if (selectedFile) {
-        formData.append("file", selectedFile);
-      }
+      selectedFile.forEach((file) => {
+        formData.append("file", file);
+      });
 
-      const resp = await axios.post<ApiResponse<CloudinaryUploadResp>>(
-        "http://localhost:8080/api/admin/node/upload",
+      const resp = await axios.post<ApiResponse<CloudinaryUploadResp[]>>(
+        "http://localhost:8080/api/admin/node/uploadMulti",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -100,10 +120,11 @@ const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
         ref={inputRef}
         type="file"
         onChange={handleFileChange}
+        multiple
         style={{ display: "none" }}
       />
 
-      {!selectedFile && (
+      {selectedFile.length === 0 && (
         <button
           className={`
         ${styles.fileBtn}`}
@@ -117,33 +138,42 @@ const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
       )}
 
       {/* Thông tin file và tiến trình khi tải lên */}
-      {selectedFile && (
+      {selectedFile.length > 0 && (
         <>
-          <div className={styles.fileCards}>
-            <span>
-              <FaRegFileImage />
-            </span>
+          <div className={styles.fileCardsWrapper}>
+            {selectedFile.map((file, index) => (
+              <div className={styles.fileCards} key={index}>
+                <span>
+                  <FaRegFileImage />
+                </span>
 
-            <div className={styles.fileInfo}>
-              <div className={styles.fileContent}>
-                <h6>{selectedFile.name}</h6>
-                <div className={styles.progressBg}>
-                  <div
-                    className={styles.progress}
-                    style={{ width: `${progress}%` }}
-                  ></div>
+                <div className={styles.fileInfo}>
+                  <div className={styles.fileContent}>
+                    <h6>{file.name}</h6>
+                  </div>
+
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => removeFile(index)}
+                  >
+                    <MdDeleteForever />
+                  </button>
                 </div>
               </div>
+            ))}
 
-              <button className={styles.deleteBtn} onClick={clearFileInput}>
-                <MdDeleteForever />
-              </button>
+            <div className={styles.progressBg}>
+              <div
+                className={styles.progress}
+                style={{ width: `${progress}%` }}
+              ></div>
             </div>
+
+            {/* Button: Thực hiện việc gửi file lên Cloudinary */}
+            <button className={styles.uploadBtn} onClick={handleUpload}>
+              {uploadStatus === "done" ? "Xoá tất cả" : "Tải lên"}
+            </button>
           </div>
-          {/* Button: Thực hiện việc gửi file lên Cloudinary */}
-          <button className={styles.uploadBtn} onClick={handleUpload}>
-            Tải lên
-          </button>
         </>
       )}
     </div>
