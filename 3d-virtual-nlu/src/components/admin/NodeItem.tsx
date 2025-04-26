@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import styles from "../../styles/nodeItem.module.css";
 import * as THREE from "three";
 import { useState } from "react";
+import { formatTimestampToDate } from "../../utils/formatTimestamp";
 
 interface NodeProps {
   panoramaURL: string;
@@ -23,37 +24,78 @@ const Node: React.FC<NodeProps> = ({ panoramaURL }) => {
 
 interface NodeItemProps {
   onclick: () => void;
+  id: number;
+  userId: number;
+  status: number;
+  name: string;
+  fieldName: string;
+  spaceName: string;
+  description: string;
+  url: string;
+  updatedAt: number;
 }
 
-export const NodeItem = ({onclick}:NodeItemProps) => {
+export const NodeItem = ({
+  onclick,
+  id,
+  userId,
+  status,
+  name,
+  fieldName,
+  spaceName,
+  description,
+  url,
+  updatedAt
+}: NodeItemProps) => {
   const [isShow, setIsShow] = useState(false);
 
   const handleMouseEnter = () => {
     setIsShow(true);
-  }
+  };
   const handleMouseLeave = () => {
     setIsShow(false);
-  }
+  };
   return (
     <div className={styles.container} onClick={onclick}>
-      <Canvas camera={{ fov: 75, position: [0, 0, 1] }} className={`${styles.canvas} ${isShow ? styles.show : styles.hide}`}>
-        <Node panoramaURL={"http://res.cloudinary.com/dkoc6kbg1/image/upload/v1743764249/ytpe4houlfanawvz2scc.jpg"} />
+      <Canvas
+        camera={{ fov: 75, position: [0, 0, 1] }}
+        className={`${styles.canvas} ${isShow ? styles.show : styles.hide}`}
+      >
+        <Node panoramaURL={url} />
         <OrbitControls autoRotate={true} autoRotateSpeed={1} />
       </Canvas>
-      <div className={styles.info} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div
+        className={styles.info}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <div className={styles.header}>
-          <b>Giảng đường</b>
-          <b>Rạng Đông</b>
+          <b>{fieldName}</b>
+          <b>{spaceName}</b>
         </div>
         <div className={styles.name}>
-          <b>Tiền sãnh</b>
+          <b>{name}</b>
         </div>
         <div className={styles.footer}>
           <div className={styles.status}>
-            <div className={styles.status_open}></div>
-            <b>Đang hoạt động</b>
+            {status == 0 ? (
+              <>
+                <div className={styles.status_stop}></div>
+                <b>Ngưng hoạt động</b>
+              </>
+            ) : status == 1 ? (
+              <>
+                <div className={styles.status_open}></div>
+                <b>Đang hoạt động</b>
+              </>
+            ) : (
+              <>
+                <div className={styles.status_open}></div>
+                <b>Đang hoạt động <span style={{color:'red'}}>*</span></b>
+              </>
+            )}
           </div>
-          <b>3/3/2025</b>
+          <b>{formatTimestampToDate(updatedAt)}</b>
         </div>
       </div>
     </div>
