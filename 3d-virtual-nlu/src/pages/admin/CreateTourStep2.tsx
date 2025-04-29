@@ -4,7 +4,7 @@ import styles from "../../styles/createTourStep2.module.css";
 import { FaAngleLeft, FaAngleRight, FaClock, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -13,6 +13,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import { useRaycaster } from "../../hooks/useRaycaster";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
+import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 
 //Tuỳ chỉnh thông tin không gian.
 interface Task1Props {
@@ -422,7 +423,6 @@ const Node: React.FC<NodeProps> = ({
   lightIntensity,
 }) => {
   const texture = useTexture(url);
-  // const texture = new THREE.TextureLoader().load(url);
   texture.wrapS = THREE.RepeatWrapping;
   texture.repeat.x = -1;
 
@@ -472,7 +472,23 @@ const Scene = ({ cameraPosition }: SceneProps) => {
 const CreateTourStep2 = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  /**
+   * Xử lý toggle hiển thị menu - start
+   */
+
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+
+  const handleOpenMenu = () => {
+    if (isMenuVisible) {
+      setOpenTaskIndex(null);
+    }
+    setIsMenuVisible((preState) => !preState);
+  };
+
+  /**
+   * Xử lý toggle hiển thị menu - end
+   */
 
   const [openTaskIndex, setOpenTaskIndex] = useState<number | null>(null); // State để lưu index của task đang mở
 
@@ -482,19 +498,6 @@ const CreateTourStep2 = () => {
   const [nameNode, setNameNode] = useState("");
   const [desNode, setDesNode] = useState("");
   const user = useSelector((state: RootState) => state.auth.user);
-  // const panoramaURL = useSelector(
-  //   (state: RootState) => state.panorama.panoramaUrls
-  // );
-
-  const { panoramaList, currentSelectPosition } = useSelector(
-    (state: RootState) => ({
-      panoramaList: state.panoramas.panoramaList,
-      currentSelectPosition: state.panoramas.currentSelectedPosition,
-    })
-  );
-
-  const currentPanoramaUrl = panoramaList[currentSelectPosition]?.url;
-  console.log("Ảnh hiện tại", currentPanoramaUrl);
 
   const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
@@ -538,13 +541,6 @@ const CreateTourStep2 = () => {
   const [assignable, setAssignable] = useState(false);
 
   const handledSwitchTexture = () => {};
-
-  const handleOpenMenu = () => {
-    if (isMenuVisible) {
-      setOpenTaskIndex(null);
-    }
-    setIsMenuVisible((preState) => !preState);
-  };
 
   const handleClose = () => {
     navigate("/admin/createTour");
@@ -595,11 +591,23 @@ const CreateTourStep2 = () => {
   }, [nameNode, desNode]);
 
   const handleOpenTask = (taskIndex: number) => {
-    // Nếu taskIndex đã được mở, thì đóng nó, ngược lại mở task mới
     setOpenTaskIndex((prevIndex) =>
       prevIndex === taskIndex ? null : taskIndex
     );
   };
+  // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
+  const dispatch = useDispatch();
+  const { panoramaList, currentSelectedPosition } = useSelector(
+    (state: RootState) => state.panoramas
+  );
+
+  const handleSelectNode = (index: number) => {
+    dispatch(selectPanorama(index));
+  };
+
+  //
+
+  const currentPanoramaUrl = panoramaList[currentSelectedPosition]?.url;
 
   return (
     <>
@@ -645,15 +653,24 @@ const CreateTourStep2 = () => {
 
         <div className={styles.header_tour}>
           <div className={styles.thumbnailsBox}>
-            {/* list node */}
-            <div className={styles.node}>
-              <div className={styles.nodeView}></div>
-              <span>Name</span>
-            </div>
-            <div className={styles.node}>
-              <div className={styles.nodeView}></div>
-              <span>Name</span>
-            </div>
+            {panoramaList.map((item, index) => (
+              <div key={index} className={styles.node}>
+                <div
+                  className={` ${styles.nodeView}  ${
+                    index === currentSelectedPosition ? styles.nodeSelected : ""
+                  }`}
+                  onClick={() => handleSelectNode(index)}
+                >
+                  <img
+                    src={item.url}
+                    alt={item.config.name}
+                    className={styles.thumbnailImg}
+                  />
+                </div>
+                <span>{item.config.name}</span>
+              </div>
+            ))}
+
             <div className={styles.add_node_button}>
               <FaPlus />
             </div>
@@ -672,7 +689,7 @@ const CreateTourStep2 = () => {
               className={styles.show_menu}
               onClick={handleOpenMenu}
             />
-            <h2>Task</h2>
+            <h2>Tuỳ chỉnh</h2>
           </div>
           <ul>
             <li
@@ -680,10 +697,10 @@ const CreateTourStep2 = () => {
               onClick={() => handleOpenTask(1)}
             >
               <div className="check_done"></div>
-              <span className={styles.task_name}>Thông tin không gian</span>
+              <span className={styles.task_name}>Thông tin</span>
             </li>
             <li className={styles.task} onClick={() => handleOpenTask(2)}>
-              <span className={styles.task_name}>Thông số không gian</span>
+              <span className={styles.task_name}>Thông số cơ bản</span>
             </li>
             <li className={styles.task} onClick={() => handleOpenTask(3)}>
               <span className={styles.task_name}>Tạo điểm nhấn</span>

@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/createTour.module.css";
-import { Canvas, useThree } from "@react-three/fiber";
-import * as THREE from "three";
-import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import { useDispatch, useSelector } from "react-redux";
 import { setSpaceId } from "../../redux/slices/PanoramaSlice.ts";
 import { AppDispatch, RootState } from "../../redux/Store.tsx";
