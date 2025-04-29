@@ -10,8 +10,6 @@ import { useNavigate } from "react-router-dom";
 import { IoIosCloseCircle } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
-import RaycasterHandler from "../../components/visitor/RaycasterHandler.tsx";
-import GroundHotspot from "../../components/visitor/GroundHotspot.tsx";
 
 /**
  *
@@ -296,7 +294,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
         isFullscreen={isFullscreen}
         toggleInfomation={toggleInfomation}
         toggleFullscreen={toggleFullscreen}
-        toggleMute={toggleMute}
+        toggleMute={toggleMute} 
       />
       {/* Hộp thông tin */}
       <div className={styles.infoBox} onClick={toggleInfomation}>

@@ -23,7 +23,7 @@ const Chat = () => {
   const [isSelectOption, setIsSelectOption] = useState(0);
 
   useEffect(() => {
-    // if (!roomId || !userId) return;
+ 
     if (!user) return;
 
     const wsUrl = `ws://localhost:8080/chat/1/${user?.id}`;
