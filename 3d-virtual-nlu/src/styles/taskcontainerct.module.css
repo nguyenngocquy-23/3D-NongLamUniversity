@@ -1,0 +1,12 @@
+.taskContainer {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4));
+  width: 40vw;
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  border-radius: 10px;
+  opacity: 0;
+  padding: 10px;
+  transition: height 1s ease-in-out, opacity 1s ease-in-out;
+  opacity: 1;
+}

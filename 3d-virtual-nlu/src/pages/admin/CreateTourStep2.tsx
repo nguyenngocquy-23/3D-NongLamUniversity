@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, Component } from "react";
 import styles from "../../styles/createTourStep2.module.css";
 import { FaAngleLeft, FaAngleRight, FaClock, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
@@ -14,6 +14,9 @@ import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import { useRaycaster } from "../../hooks/useRaycaster";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import { selectPanorama } from "../../redux/slices/PanoramaSlice";
+import RightMenuCreateTour from "../../components/admin/RightMenuCT";
+import TaskContainerCT from "../../components/admin/TaskContainerCT";
+import UploadFile from "../../components/admin/UploadFile";
 
 //Tuỳ chỉnh thông tin không gian.
 interface Task1Props {
@@ -490,7 +493,7 @@ const CreateTourStep2 = () => {
    * Xử lý toggle hiển thị menu - end
    */
 
-  const [openTaskIndex, setOpenTaskIndex] = useState<number | null>(null); // State để lưu index của task đang mở
+  // const [openTaskIndex, setOpenTaskIndex] = useState<number | null>(null); // State để lưu index của task đang mở
 
   // check done task
   const [isDone1, setIsDone1] = useState(false);
@@ -554,31 +557,6 @@ const CreateTourStep2 = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
 
-  // thiết lập hoàn tất bước 2
-  const handleDoneStep2 = async () => {
-    console.log("spaceId: ", spaceId);
-    console.log("userId: ", user.id);
-    const response = await axios.post("http://localhost:8080/api/admin/node", {
-      spaceId: spaceId,
-      userId: user.id,
-      url: currentPanoramaUrl,
-      name: nameNode,
-      description: desNode,
-      positionX: cameraPosition[0],
-      positionY: cameraPosition[1],
-      positionZ: cameraPosition[2],
-      lightIntensity: lightIntensity,
-      autoRotate: autoRotate ? 1 : 0,
-      speedRotate: speedRotate,
-    });
-    if (response.data.statusCode == 1000) {
-      Swal.fire("Thành công", "Tạo tour thành công", "success");
-      navigate(`${location.pathname.replace("/2", "")}/3`);
-    } else {
-      Swal.fire("Loi", "Tạo tour that bai", "error");
-    }
-  };
-
   useEffect(() => {
     const handleCheckTask1 = () => {
       if (nameNode.trim() != "" && desNode.trim() != "") {
@@ -590,11 +568,12 @@ const CreateTourStep2 = () => {
     handleCheckTask1();
   }, [nameNode, desNode]);
 
-  const handleOpenTask = (taskIndex: number) => {
-    setOpenTaskIndex((prevIndex) =>
-      prevIndex === taskIndex ? null : taskIndex
-    );
-  };
+  // const handleOpenTask = (taskIndex: number) => {
+  //   setOpenTaskIndex((prevIndex) =>
+  //     prevIndex === taskIndex ? null : taskIndex
+  //   );
+  // };
+
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
   const dispatch = useDispatch();
   const { panoramaList, currentSelectedPosition } = useSelector(
@@ -605,7 +584,36 @@ const CreateTourStep2 = () => {
     dispatch(selectPanorama(index));
   };
 
-  //
+  const [activeTaskId, setActiveTaskId] = useState<number>(1);
+  const [completedTaskIds, setCompletedTaskIds] = useState<number[]>([]);
+  const [openTaskIndex, setOpenTaskIndex] = useState<number | null>(null);
+
+  const tasks = [
+    {
+      id: 1,
+      title: "Thông tin hiển thị",
+      content: <p> Form ở đây he.</p>,
+    },
+    {
+      id: 2,
+      title: "Thông số cơ bản",
+      content: <p> Form nè bạn iu</p>,
+    },
+  ];
+
+  const handleSave = () => {
+    if (!completedTaskIds.includes(activeTaskId)) {
+      setCompletedTaskIds([...completedTaskIds, activeTaskId]);
+    }
+    const nextIndex = tasks.findIndex((t) => t.id === activeTaskId) + 1;
+    if (tasks[nextIndex]) {
+      setActiveTaskId(tasks[nextIndex].id);
+    }
+  };
+
+  const handleOpenTask = (id: number) => {
+    setOpenTaskIndex((prev) => (prev === id ? null : id));
+  };
 
   const currentPanoramaUrl = panoramaList[currentSelectedPosition]?.url;
 
@@ -680,36 +688,40 @@ const CreateTourStep2 = () => {
           </div>
         </div>
 
-        {/* Menu bên phải */}
-        <div
-          className={`${styles.right_menu} ${isMenuVisible ? styles.show : ""}`}
-        >
-          <div style={{ display: "flex" }}>
-            <FaAngleRight
-              className={styles.show_menu}
-              onClick={handleOpenMenu}
+        {/* Hiển thị menu bên phải.*/}
+
+        {isMenuVisible && (
+          <div className={`${styles.rightMenu} ${styles.show}`}>
+            <div className={styles.rightTitle}>
+              <FaAngleRight
+                className={styles.showMenu}
+                onClick={handleOpenMenu}
+              />
+              <h2>Cấu hình</h2>
+            </div>
+            <RightMenuCreateTour
+              tasks={tasks}
+              activeTaskId={activeTaskId}
+              completedTaskIds={completedTaskIds}
+              onSelectTask={(id) => {
+                if (id === 1 || completedTaskIds.includes(id - 1)) {
+                  setActiveTaskId(id);
+                }
+              }}
+              openTaskIndex={openTaskIndex}
+              setOpenTaskIndex={handleOpenTask}
             />
-            <h2>Tuỳ chỉnh</h2>
           </div>
-          <ul>
-            <li
-              className={`${isDone1 ? styles.done_task : styles.task}`}
-              onClick={() => handleOpenTask(1)}
-            >
-              <div className="check_done"></div>
-              <span className={styles.task_name}>Thông tin</span>
-            </li>
-            <li className={styles.task} onClick={() => handleOpenTask(2)}>
-              <span className={styles.task_name}>Thông số cơ bản</span>
-            </li>
-            <li className={styles.task} onClick={() => handleOpenTask(3)}>
-              <span className={styles.task_name}>Tạo điểm nhấn</span>
-            </li>
-          </ul>
-          <button className={styles.done_button} onClick={handleDoneStep2}>
-            Tiếp tục
-          </button>
-        </div>
+        )}
+        {openTaskIndex !== null && (
+          <TaskContainerCT
+            id={activeTaskId}
+            name={tasks.find((t) => t.id === activeTaskId)?.title || ""}
+            onSave={handleSave}
+          >
+            {tasks.find((t) => t.id === activeTaskId)?.content}
+          </TaskContainerCT>
+        )}
 
         {/* Render các component task */}
         <Task1
