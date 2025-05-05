@@ -6,9 +6,6 @@ import { IoMdMenu } from "react-icons/io";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
-import axios from "axios";
-import Swal from "sweetalert2";
-import { FaHome } from "react-icons/fa";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import { useRaycaster } from "../../hooks/useRaycaster";
@@ -16,374 +13,20 @@ import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 import RightMenuCreateTour from "../../components/admin/RightMenuCT";
 import TaskContainerCT from "../../components/admin/TaskContainerCT";
-import UploadFile from "../../components/admin/UploadFile";
-
-//Tuỳ chỉnh thông tin không gian.
-interface Task1Props {
-  isOpen1: boolean;
-  nameNode: string;
-  setNameNode: (nameNode: string) => void;
-  desNode: string;
-  setDesNode: (desNode: string) => void;
-}
-
-const Task1 = ({
-  isOpen1,
-  nameNode,
-  setNameNode,
-  desNode,
-  setDesNode,
-}: Task1Props) => (
-  <div className={`${styles.task1} ${isOpen1 ? styles.open_task1 : ""}`}>
-    <h3>1. Thông tin không gian</h3>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Tên:</label>
-      <input
-        type="text"
-        className={styles.name_input}
-        placeholder="Tên không gian"
-        value={nameNode}
-        onChange={(e) => setNameNode(e.target.value)}
-      />
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Giới thiệu:</label>
-      <textarea
-        className={styles.descript_input}
-        placeholder="Mô tả không gian.."
-        value={desNode}
-        onChange={(e) => setDesNode(e.target.value)}
-      />
-    </div>
-  </div>
-);
-
-// Tuỳ chỉnh thông số kỹ thuật.
-interface Task2Props {
-  isOpen2: boolean;
-  angle: number;
-  setAngle: (angle: number) => void;
-  lightIntensity: number;
-  setLightIntensity: (lightIntensity: number) => void;
-  autoRotate: boolean;
-  setAutoRotate: (autoRotate: boolean) => void;
-  speedRotate: number;
-  setSpeedRotate: (speedRotate: number) => void;
-}
-const Task2 = ({
-  isOpen2,
-  angle,
-  setAngle,
-  lightIntensity,
-  setLightIntensity,
-  autoRotate,
-  setAutoRotate,
-  speedRotate,
-  setSpeedRotate,
-}: Task2Props) => (
-  <div className={`${styles.task2} ${isOpen2 ? styles.open_task2 : ""}`}>
-    <h3>2. Thông số không gian</h3>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Hướng nhìn mặc định:</label>
-      <input
-        type="range"
-        min="0"
-        max="360"
-        step="1"
-        value={angle}
-        className={styles.name_input}
-        placeholder="Hướng nhìn"
-        onChange={(e) => setAngle(Number(e.target.value))}
-      />
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Độ dịch chuyển:</label>
-      <input type="range" className={styles.name_input} />
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Ánh sáng:</label>
-      <input
-        type="range"
-        min="1"
-        max="8"
-        step="0.1"
-        value={lightIntensity}
-        onChange={(e) => setLightIntensity(parseFloat(e.target.value))}
-      />
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Tự động xoay:</label>
-      <input
-        type="checkbox"
-        checked={autoRotate} // Thiết lập giá trị checked cho checkbox
-        onChange={(e) => setAutoRotate(e.target.checked)} // Cập nhật autoRotate
-      />
-    </div>
-    {autoRotate ? (
-      <div className={styles.contain_input}>
-        <label className={styles.label}>Tốc độ xoay:</label>
-        <input
-          type="range"
-          min="0"
-          max="2"
-          step="0.1"
-          value={speedRotate}
-          onChange={(e) => setSpeedRotate(parseFloat(e.target.value))}
-        />
-      </div>
-    ) : (
-      ""
-    )}
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Độ phóng to:</label>
-      <input type="range" />
-    </div>
-  </div>
-);
+import { useSequentialTasks } from "../../hooks/useSequentialTasks";
+import Task1DisplayInfo from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
+import Task2 from "../../components/admin/taskCreateTourList/Task2BasicConfig";
+import { title } from "framer-motion/client";
 
 // //Tuỳ chỉnh thêm các điểm nóng.
-// interface Task3Props {
-//   isOpen3: boolean;
-//   assignable: boolean;
-//   setAssignable: (value: boolean) => void;
-//   hotspotModels: HotspotModel[];
-//   setHotspotModels: (value: HotspotModel[]) => void;
-// }
-
-// Component cho Task3
-// const Task3 = ({
-//   isOpen3,
-//   assignable,
-//   setAssignable,
-//   hotspotModels,
-// }: Task3Props) => {
-//   const [openTypeIndex, setOpenTypeIndex] = useState<number | null>(1); // State để lưu index của type đang mở
-//   const hotspotType = useSelector(
-//     (state: RootState) => state.data.hotspotTypes
-//   );
-
-//   const handleChooseType = (typeIndex: number) => {
-//     setOpenTypeIndex((prevIndex) =>
-//       prevIndex === typeIndex ? null : typeIndex
-//     );
-//   };
-
-//   return (
-//     <div className={`${styles.task3} ${isOpen3 ? styles.open_task3 : ""}`}>
-//       <div className="header" style={{ display: "flex", position: "relative" }}>
-//         <h3>3. Tạo điểm nhấn</h3>
-//         <select
-//           name=""
-//           id=""
-//           style={{
-//             position: "absolute",
-//             right: "10px",
-//             top: "50%",
-//             transform: "translateY(-50%)",
-//           }}
-//           onChange={(e) => handleChooseType(Number(e.target.value))}
-//         >
-//           {hotspotType.map((type) => (
-//             <option value={type.id}>{type.name}</option>
-//           ))}
-//         </select>
-//       </div>
-//       <TypeNavigation isOpenTypeNavigation={openTypeIndex == 1} />
-//       <TypeInfomation isOpenTypeInfomation={openTypeIndex == 2} />
-//       <TypeModel
-//         isOpenTypeModel={openTypeIndex == 4}
-//         hotspotModels={hotspotModels}
-//         assignable={assignable}
-//         setAssignable={setAssignable}
-//       />
-//     </div>
-//   );
-// };
-
-// Điểm nóng task3 - Điểm di chuyển.
-interface TypeNavigationProps {
-  isOpenTypeNavigation: boolean;
-}
-
-// Component cho Task3
-const TypeNavigation = ({ isOpenTypeNavigation }: TypeNavigationProps) => (
-  <div
-    className={`${styles.type_navigation} ${
-      isOpenTypeNavigation ? styles.open_type_navigation : ""
-    }`}
-  >
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Biểu tượng:</label>
-      <input type="checkbox" />
-      <FaHome />
-      <input type="checkbox" />
-      <FaClock />
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Điểm di chuyển:</label>
-      <button>Chọn điểm di chuyển</button>
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Âm thanh di chuyển:</label>
-      <FaHome />
-      <input type="checkbox" />
-      <FaClock />
-      <input type="checkbox" />
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Hiệu ứng di chuyển:</label>
-      <FaHome />
-      <input type="checkbox" />
-      <FaClock />
-      <input type="checkbox" />
-    </div>
-  </div>
-);
-
-interface TypeInfomationProps {
-  isOpenTypeInfomation: boolean;
-}
-
-// Component cho Task4
-const TypeInfomation = ({ isOpenTypeInfomation }: TypeInfomationProps) => (
-  <div
-    className={`${styles.type_infomation} ${
-      isOpenTypeInfomation ? styles.open_type_infomation : ""
-    }`}
-  >
-    <div>
-      <label className={styles.label}>Biểu tượng:</label>
-      <FaHome />
-      <input type="checkbox" />
-      <FaClock />
-      <input type="checkbox" />
-    </div>
-    <div>
-      <label className={styles.label}>Vị trí chú thích:</label>
-      <button>Chọn vị trí</button>
-    </div>
-  </div>
-);
-
-interface ModelProps {
-  modelURL: string;
-}
-const Model: React.FC<ModelProps> = ({ modelURL }) => {
-  const { scene } = useGLTF(modelURL);
-  const modelRef = useRef<THREE.Group>(null);
-
-  // Xoay model liên tục mỗi frame
-  useFrame(() => {
-    if (modelRef.current) {
-      modelRef.current.rotation.y += 0.01; // Tốc độ xoay
-    }
-  });
-
-  return (
-    <group ref={modelRef} position={[30, -10, -10]} scale={3}>
-      <primitive object={scene}>
-        <ambientLight color={"#fff"} intensity={1} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
-        <directionalLight position={[5, 5, 5]} intensity={1} />
-      </primitive>
-    </group>
-  );
-};
-
-interface HotspotModel {
-  id: number;
-  position: [number, number, number];
-  modelURL?: string;
-  assigned?: boolean;
-}
-
-interface TypeModelProps {
-  isOpenTypeModel: boolean;
-  assignable: boolean;
-  setAssignable: (value: boolean) => void;
-  hotspotModels: HotspotModel[];
-  // setHotspotModels: (value: HotspotModel[]) => void;
-}
-// Component cho Task5
-const TypeModel = ({
-  isOpenTypeModel,
-  assignable,
-  setAssignable,
-  hotspotModels,
-}: // setHotspotModels,
-TypeModelProps) => {
-  const [panoramaURL, setPanoramaURL] = useState<string | null>(null);
-  const handleAssign = () => {
-    setAssignable(true);
-  };
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPanoramaURL(URL.createObjectURL(file));
-    }
-  };
-
-  return (
-    <div
-      className={`${styles.type_model} ${
-        isOpenTypeModel ? styles.open_type_model : ""
-      }`}
-    >
-      <div>
-        <label className={styles.label}>Biểu tượng:</label>
-        <FaHome />
-        <input type="checkbox" />
-        <FaClock />
-        <input type="checkbox" />
-      </div>
-      <div>
-        <label className={styles.label}>Vị trí mô hình:</label>
-        <button onClick={handleAssign}>Chọn vị trí</button>
-      </div>
-      {hotspotModels.map((hpm) => (
-        <div key={hpm.id}>
-          <div
-            style={{
-              backgroundColor: "white",
-              color: "black",
-              borderRadius: "50%",
-              width: "30px",
-              height: "30px",
-              textAlign: "center",
-            }}
-          >
-            {hpm.id}
-          </div>
-          <p>
-            <span style={{ color: "pink" }}> {hpm.position[0]} </span>
-            <span style={{ color: "yellow" }}> {hpm.position[1]} </span>
-            <span style={{ color: "lightblue" }}> {hpm.position[2]} </span>
-          </p>
-          <p> {hpm.modelURL}</p>
-          <div>
-            <label className={styles.label}>Tệp mô hình:</label>
-            <input
-              type="file"
-              accept=".glb, .gltf"
-              // accept="*/*"
-              onChange={handleFileChange}
-            />
-          </div>
-          <button>Thiết lập</button>
-        </div>
-      ))}
-    </div>
-  );
-};
 
 const RaycastOnTask5 = ({
-  isActive,
   onAddHotspot,
   sphereRef,
   assignable,
   setAssignable,
 }: {
-  isActive: boolean;
+  // isActive: boolean;
   onAddHotspot: (position: [number, number, number]) => void;
   sphereRef: React.RefObject<THREE.Mesh | null>;
   assignable: boolean;
@@ -392,7 +35,7 @@ const RaycastOnTask5 = ({
   const { getIntersectionPoint } = useRaycaster();
 
   useEffect(() => {
-    if (!isActive || !assignable) return;
+    // if (!isActive || !assignable) return;
 
     const handleClick = (event: MouseEvent) => {
       const point = getIntersectionPoint(event, sphereRef.current);
@@ -407,7 +50,7 @@ const RaycastOnTask5 = ({
       setAssignable(false);
       window.removeEventListener("click", handleClick);
     };
-  }, [isActive, assignable]);
+  }, [assignable]);
 
   return null; // không render gì cả, chỉ xử lý raycast khi Task5 mở
 };
@@ -484,7 +127,7 @@ const CreateTourStep2 = () => {
 
   const handleOpenMenu = () => {
     if (isMenuVisible) {
-      setOpenTaskIndex(null);
+      // setOpenTaskIndex(null);
     }
     setIsMenuVisible((preState) => !preState);
   };
@@ -493,10 +136,7 @@ const CreateTourStep2 = () => {
    * Xử lý toggle hiển thị menu - end
    */
 
-  // const [openTaskIndex, setOpenTaskIndex] = useState<number | null>(null); // State để lưu index của task đang mở
-
   // check done task
-  const [isDone1, setIsDone1] = useState(false);
   // item task 1
   const [nameNode, setNameNode] = useState("");
   const [desNode, setDesNode] = useState("");
@@ -557,22 +197,16 @@ const CreateTourStep2 = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
 
-  useEffect(() => {
-    const handleCheckTask1 = () => {
-      if (nameNode.trim() != "" && desNode.trim() != "") {
-        setIsDone1(true);
-      } else {
-        setIsDone1(false);
-      }
-    };
-    handleCheckTask1();
-  }, [nameNode, desNode]);
-
-  // const handleOpenTask = (taskIndex: number) => {
-  //   setOpenTaskIndex((prevIndex) =>
-  //     prevIndex === taskIndex ? null : taskIndex
-  //   );
-  // };
+  // useEffect(() => {
+  //   const handleCheckTask1 = () => {
+  //     if (nameNode.trim() != "" && desNode.trim() != "") {
+  //       setIsDone1(true);
+  //     } else {
+  //       setIsDone1(false);
+  //     }
+  //   };
+  //   handleCheckTask1();
+  // }, [nameNode, desNode]);
 
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
   const dispatch = useDispatch();
@@ -584,36 +218,74 @@ const CreateTourStep2 = () => {
     dispatch(selectPanorama(index));
   };
 
-  const [activeTaskId, setActiveTaskId] = useState<number>(1);
-  const [completedTaskIds, setCompletedTaskIds] = useState<number[]>([]);
-  const [openTaskIndex, setOpenTaskIndex] = useState<number | null>(null);
+  const getTaskContentById = (id: number): React.ReactNode => {
+    switch (id) {
+      case 1:
+        return (
+          <>
+            <Task1DisplayInfo
+              nameNode={nameNode}
+              setNameNode={setNameNode}
+              desNode={desNode}
+              setDesNode={setDesNode}
+            />
+          </>
+        );
+      case 2:
+        return (
+          <>
+            <Task2
+              isOpen2={openTaskIndex === 2}
+              angle={angle}
+              setAngle={setAngle}
+              lightIntensity={lightIntensity}
+              setLightIntensity={setLightIntensity}
+              autoRotate={autoRotate}
+              setAutoRotate={setAutoRotate}
+              speedRotate={speedRotate}
+              setSpeedRotate={setSpeedRotate}
+            />
+          </>
+        );
+      case 3:
+        return (
+          <>
+            <RaycastOnTask5
+              onAddHotspot={handleAddHotspot}
+              sphereRef={sphereRef}
+              assignable={assignable}
+              setAssignable={setAssignable}
+            />
+          </>
+        );
+      default:
+        return null;
+    }
+  };
 
   const tasks = [
     {
       id: 1,
       title: "Thông tin hiển thị",
-      content: <p> Form ở đây he.</p>,
     },
     {
       id: 2,
       title: "Thông số cơ bản",
-      content: <p> Form nè bạn iu</p>,
+    },
+    {
+      id: 3,
+      title: "Chèn mô hình",
     },
   ];
 
-  const handleSave = () => {
-    if (!completedTaskIds.includes(activeTaskId)) {
-      setCompletedTaskIds([...completedTaskIds, activeTaskId]);
-    }
-    const nextIndex = tasks.findIndex((t) => t.id === activeTaskId) + 1;
-    if (tasks[nextIndex]) {
-      setActiveTaskId(tasks[nextIndex].id);
-    }
-  };
-
-  const handleOpenTask = (id: number) => {
-    setOpenTaskIndex((prev) => (prev === id ? null : id));
-  };
+  const {
+    openTaskIndex,
+    completedTaskIds,
+    unlockedTaskIds,
+    handleOpenTask,
+    handleSaveTask,
+    reset,
+  } = useSequentialTasks(tasks.length);
 
   const currentPanoramaUrl = panoramaList[currentSelectedPosition]?.url;
 
@@ -640,14 +312,6 @@ const CreateTourStep2 = () => {
             rotateSpeed={0.5}
             autoRotate={autoRotate}
             autoRotateSpeed={speedRotate}
-          />
-
-          <RaycastOnTask5
-            isActive={openTaskIndex === 5}
-            onAddHotspot={handleAddHotspot}
-            sphereRef={sphereRef}
-            assignable={assignable}
-            setAssignable={setAssignable}
           />
 
           {hotspotModels.map((hotspot) => (
@@ -699,49 +363,26 @@ const CreateTourStep2 = () => {
               />
               <h2>Cấu hình</h2>
             </div>
+
             <RightMenuCreateTour
               tasks={tasks}
-              activeTaskId={activeTaskId}
-              completedTaskIds={completedTaskIds}
-              onSelectTask={(id) => {
-                if (id === 1 || completedTaskIds.includes(id - 1)) {
-                  setActiveTaskId(id);
-                }
-              }}
               openTaskIndex={openTaskIndex}
-              setOpenTaskIndex={handleOpenTask}
+              completedTaskIds={completedTaskIds}
+              unlockedTaskIds={unlockedTaskIds}
+              onTaskClick={handleOpenTask}
             />
           </div>
         )}
         {openTaskIndex !== null && (
           <TaskContainerCT
-            id={activeTaskId}
-            name={tasks.find((t) => t.id === activeTaskId)?.title || ""}
-            onSave={handleSave}
+            id={openTaskIndex}
+            name={tasks.find((t) => t.id === openTaskIndex)?.title || ""}
+            onSave={() => handleSaveTask(openTaskIndex)}
           >
-            {tasks.find((t) => t.id === activeTaskId)?.content}
+            {getTaskContentById(openTaskIndex)}
           </TaskContainerCT>
         )}
 
-        {/* Render các component task */}
-        <Task1
-          nameNode={nameNode}
-          setNameNode={setNameNode}
-          desNode={desNode}
-          setDesNode={setDesNode}
-          isOpen1={openTaskIndex === 1}
-        />
-        <Task2
-          isOpen2={openTaskIndex === 2}
-          angle={angle}
-          setAngle={setAngle}
-          lightIntensity={lightIntensity}
-          setLightIntensity={setLightIntensity}
-          autoRotate={autoRotate}
-          setAutoRotate={setAutoRotate}
-          speedRotate={speedRotate}
-          setSpeedRotate={setSpeedRotate}
-        />
         {/* <Task3
           isOpen3={openTaskIndex === 3}
           hotspotModels={hotspotModels}

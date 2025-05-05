@@ -15,8 +15,11 @@ ul .taskRow {
   padding: 16px;
   border-radius: 6px;
   backdrop-filter: blur(7px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.taskName {
-  margin-left: 30px;
+.taskIcon {
+  margin-left: auto;
 }

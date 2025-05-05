@@ -173,83 +173,15 @@
   margin-left: 10px;
 }
 
-/* .rightMenu ul {
-  list-style-type: none;
-  margin-top: 10px;
-  padding: 0;
-}
-
-.rightMenu .task:hover {
-  cursor: pointer;
-  opacity: 1;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-  background-size: 120%;
-  background-position: center;
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.4),
-    rgba(255, 255, 255, 0.2)
-  );
-}
-
-.right_menu .task_name {
-  margin-left: 30px;
-}
-.right_menu .done_task {
-  background: linear-gradient(
-    to right,
-    rgba(1, 192, 58, 1),
-    rgba(12, 204, 22, 0.7)
-  );
-  background-position: center;
-  background-size: 100%;
-  padding: 30px 0;
-  opacity: 0.9;
-  transition: all 0.3s ease;
-  width: 100%;
-  font-weight: 700;
-}
-
-.right_menu .task {
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.2),
-    rgba(255, 255, 255, 0.5)
-  );
-  background-position: center;
-  background-size: 100%;
-  padding: 30px 0;
-  opacity: 0.9;
-  transition: all 0.3s ease;
-  width: 100%;
-  font-weight: 700;
-} */
-
 .task1,
 .task2,
 .task3 {
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4));
-  width: 40vw;
-  height: 0;
-  position: absolute;
+  /*  
   left: 20px;
   bottom: 20px;
   border-radius: 10px;
-  opacity: 0;
-  padding: 10px;
+  padding: 10px; */
   transition: height 1s ease-in-out, opacity 1s ease-in-out;
-}
-.open_task1 {
-  height: 250px;
-  opacity: 1;
-}
-.open_task2 {
-  height: 400px;
-  opacity: 1;
-}
-.open_task3 {
-  height: 400px;
-  opacity: 1;
 }
 
 .type_navigation,

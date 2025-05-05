@@ -30,9 +30,11 @@ const CreateNode: React.FC = () => {
    * > 2. Thiết lập thông số.
    * >> 2.1. Thông tin không gian (Cho từng ảnh)
    * >> 2.2. Thông số kỹ thuật cho từng ảnh.
-   * >> 2.3. Tạo điểm tương tác.
-   * > 3. Xem trước và kiểm tra.
-   * > 4. Lưu vào database.
+   * > 3. Thiết lập điểm tương tác
+   * >> 3.1. Thêm điểm di chuyển.
+   * >> 3.2. Thêm điểm thông tin.
+   * >> 3.3. Thêm mô hình.
+   * > 4. Xem trước và xuất bản.
    */
 
   const CREATE_TOUR_STEPS = [
