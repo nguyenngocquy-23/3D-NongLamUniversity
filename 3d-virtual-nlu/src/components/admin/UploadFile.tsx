@@ -9,7 +9,7 @@ import { useDispatch } from "react-redux";
 
 type UploadFileProps = {
   className?: string;
-  index: number;
+  index?: number;
   onUploaded?: (urls: string, index: number) => void;
 };
 
@@ -118,7 +118,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ className, index, onUploaded })
 
           if (onUploaded) {
             const url = formattedData[0].url;
-          onUploaded(url, index);
+          onUploaded(url, index ?? 0);
         }else{
           dispatch(setPanoramas(formattedData));
         }
