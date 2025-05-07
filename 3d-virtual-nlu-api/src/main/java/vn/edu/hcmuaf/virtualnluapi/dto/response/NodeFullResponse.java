@@ -17,5 +17,5 @@ public class NodeFullResponse {
     String fieldName, spaceName, name, description, url;
     double positionX,positionY,positionZ, lightIntensity, speedRotate;
     byte status, autoRotate;
-    Timestamp updatedAt;
+    LocalDateTime updatedAt;
 }

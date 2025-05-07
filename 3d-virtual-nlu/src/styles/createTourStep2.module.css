@@ -163,17 +163,8 @@
   opacity: 1;
   pointer-events: auto;
 }
-.open_type_navigation{
-  height: 300px;
-}
-.open_type_infomation{
-  height: 300px;
-}
-.open_type_model{
-  height: 300px;
-}
-.open_type_media{
-  height: 300px;
+.open_type_navigation, .open_type_infomation, .open_type_model, .open_type_media{
+  height: 95%;
 }
 
 .mode_button{

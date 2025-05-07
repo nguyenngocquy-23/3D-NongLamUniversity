@@ -121,9 +121,12 @@ public class NodeController {
             List<CloudinaryUploadResponse> responses = new ArrayList<>();
             for(InputPart filepart : fileParts) {
                 String fileName = getFileName(filepart.getHeaders());
+                String baseName = fileName.contains(".")
+                        ? fileName.substring(0, fileName.lastIndexOf('.'))
+                        : fileName;
                 InputStream fileInputStream = filepart.getBody(InputStream.class, null);
 
-                String imgUrl = cloudinaryService.uploadPanorama(fileInputStream, fileName, CloudinaryProperties.uploadPanoFolder);
+                String imgUrl = cloudinaryService.uploadPanorama(fileInputStream, baseName, CloudinaryProperties.uploadPanoFolder);
                 CloudinaryUploadResponse resp = CloudinaryUploadResponse.builder().originalFileName(fileName).url(imgUrl).build();
                 responses.add(resp);
             }
@@ -154,6 +157,4 @@ public class NodeController {
         }
         return "unknown";
     }
-
-
 }
