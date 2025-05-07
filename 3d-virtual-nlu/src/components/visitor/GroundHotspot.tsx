@@ -49,7 +49,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     <mesh
       ref={hotspotRef}
       position={position}
-      // rotation={rotation}
       onPointerOver={() => {
         setIsHovered(true);
         console.log("🖱 Hover vào hotspot!", position);

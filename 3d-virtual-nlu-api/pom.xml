@@ -125,8 +125,6 @@
             <version>6.2.5.Final</version>
             <scope>provided</scope>
         </dependency>
-
-
     </dependencies>
 
     <build>

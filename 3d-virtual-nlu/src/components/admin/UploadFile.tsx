@@ -9,6 +9,8 @@ import { useDispatch } from "react-redux";
 
 type UploadFileProps = {
   className?: string;
+  index?: number;
+  onUploaded?: (urls: string, index: number) => void;
 };
 
 interface CloudinaryUploadResp {
@@ -22,7 +24,11 @@ interface ApiResponse<T> {
   data: T;
 }
 
-const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
+const UploadFile: React.FC<UploadFileProps> = ({
+  className,
+  index,
+  onUploaded,
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
 
@@ -114,7 +120,12 @@ const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
             url: item.url!,
           }));
 
-        dispatch(setPanoramas(formattedData));
+        if (onUploaded) {
+          const url = formattedData[0].url;
+          onUploaded(url, index ?? 0);
+        } else {
+          dispatch(setPanoramas(formattedData));
+        }
       } else {
         console.log("upload error: ", resp.data.message);
         setUploadStatus("select");
@@ -132,16 +143,14 @@ const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
         ref={inputRef}
         type="file"
         onChange={handleFileChange}
-        multiple
+        accept={className == "upload_model" ? ".glb, .gltf" : ""}
+        multiple={className == "upload_model" ? false : true}
         style={{ display: "none" }}
       />
 
       {selectedFile.length === 0 && (
         <button
-          className={`
-        ${styles.fileBtn}
-        
-        `}
+          className={`${className ? styles[className] : ""} ${styles.fileBtn}`}
           onClick={onChooseFile}
         >
           <span className={styles.uploadIcon}>

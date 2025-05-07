@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import styles from "../../styles/createTour.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setSpaceId } from "../../redux/slices/PanoramaSlice.ts";
-import { AppDispatch, RootState } from "../../redux/Store.tsx";
-import { fetchFields } from "../../redux/slices/DataSlice.tsx";
+import { AppDispatch, RootState } from "../../redux/Store.ts";
+import { fetchFields } from "../../redux/slices/DataSlice.ts";
 import axios from "axios";
 import UploadFile from "./UploadFile.tsx";
 
@@ -65,7 +65,7 @@ const BoardUploader: React.FC<BoardUploadProps> = ({ onSelectSpace }) => {
             id="field"
             onChange={handleSelectField}
           >
-            <option value="">Chọn lĩnh vực</option>
+            <option value="">-- Chọn lĩnh vực --</option>
             {fields.map((field) => (
               <option key={field.id} value={field.id}>
                 {field.name}

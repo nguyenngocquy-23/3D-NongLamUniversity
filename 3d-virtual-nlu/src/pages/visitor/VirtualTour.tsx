@@ -257,6 +257,21 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
         />
         <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
         {/* <CamControls targetPosition={targetPosition} sphereRef={sphereRef} /> */}
+        {/* <RaycasterHandler
+          radius={radius}
+          sphereRef={sphereRef}
+          onAddHotspot={(position, type) => handleAddHotspot(position, type)}
+          hoveredHotspot={hoveredHotspot} //test
+          switchTexture={handledSwitchTexture}
+        /> */}
+        {/* {hotspots.map((hotspot) => (
+          <GroundHotspot
+            key={hotspot.id}
+            position={hotspot.position}
+            type={hotspot.type}
+            setHoveredHotspot={setHoveredHotspot}
+          />
+        ))} */}
       </Canvas>
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>

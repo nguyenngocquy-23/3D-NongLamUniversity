@@ -23,7 +23,6 @@ const Chat = () => {
   const [isSelectOption, setIsSelectOption] = useState(0);
 
   useEffect(() => {
- 
     if (!user) return;
 
     const wsUrl = `ws://localhost:8080/chat/1/${user?.id}`;
@@ -178,8 +177,7 @@ const Chat = () => {
             </button>
           </>
         ) : (
-          <>
-          </>
+          <></>
         )}
       </div>
       <div className={styles.chatIcon} onClick={handleOpenChatBox}>
