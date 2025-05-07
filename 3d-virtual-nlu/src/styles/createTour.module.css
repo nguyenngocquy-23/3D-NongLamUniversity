@@ -1,6 +1,6 @@
 .container {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   border-radius: 8px;
   background-color: white;
   /* position: relative; */
@@ -54,19 +54,18 @@
 }
 
 .upPanosSection {
-  background-color: #f8f8e1;
-  color: #000;
   position: relative;
+  background-color: lightgray;
   padding: 10px;
   border-radius: 10px;
   width: 100%;
   height: 70%;
   display: flex;
   justify-content: space-around;
-  transition: all .3s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
-.item{
+.item {
   margin-bottom: 10px;
 }
 
@@ -110,7 +109,7 @@
   }
 }
 
-.leftForm{
+.leftForm {
   position: absolute;
   left: 30px;
   top: 20px;
@@ -158,19 +157,18 @@
   font-size: 15px;
   outline: none;
 
-  background-image: url('/vite.svg');
+  background-image: url("/vite.svg");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 12px;
 }
 
-.preview_button{
+.preview_button {
   margin-top: 15px;
 }
 
 .upload_button,
-.preview_button
-{
+.preview_button {
   display: inline-block;
   padding: 5px 16px;
   background-color: #1e88e5;
@@ -182,7 +180,6 @@
 }
 
 .upload_button:hover,
-.preview_button:hover
-{
+.preview_button:hover {
   background-color: #1565c0;
 }

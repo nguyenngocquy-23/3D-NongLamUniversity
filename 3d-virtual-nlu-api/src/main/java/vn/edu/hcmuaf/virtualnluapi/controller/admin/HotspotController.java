@@ -25,7 +25,6 @@ public class HotspotController {
     @Path("/add")
     public ApiResponse<Boolean> insertMultipleHotspot(List<HotspotNavCreateRequest> reqs) {
             boolean result = hotspotService.insertMutipleNavigation(reqs);
-            
         if (result){
             return ApiResponse.<Boolean>builder().statusCode(201).message("Create successful.").data(result).build();
         } else{

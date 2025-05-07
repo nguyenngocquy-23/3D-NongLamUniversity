@@ -16,35 +16,24 @@
   }
 }
 
-.preview_tour.grabbing {
+/* .preview_tour.grabbing {
   cursor: grabbing;
-}
-.preview_tour {
+} */
+.previewTour {
+  /* width: 100%;
+  height: 100%; */
   width: 100vw;
   height: 100vh;
   position: fixed;
   top: 0;
   left: 0;
-  animation: fadeIn 1.5s ease-in-out;
   z-index: 999;
+
+  /* position: relative; */
+  animation: fadeIn 1.5s ease-in-out;
   overflow: hidden;
-}
-
-.back_btn:hover,
-.show_menu:hover,
-.fullscreen_btn:hover{
-  cursor: pointer;
-  opacity: 0.7;
-  transform: scale(1.2);
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.back_btn ,.show_menu{
-  font-size: 30px;
-  z-index: 2;
-  color: white;
-  margin: 10px;
-  transition: transform 0.3s ease;
+  border-radius: 10px;
+  /* margin-bottom: 20px; */
 }
 
 .header_tour {
@@ -53,9 +42,28 @@
   left: 0;
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  margin-top: 5px;
+  /* z-index: 2; */
+}
+
+.back_btn:hover,
+.show_menu:hover,
+.fullscreen_btn:hover {
+  cursor: pointer;
+  opacity: 0.7;
+  transform: scale(1.2);
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.back_btn,
+.show_menu {
+  font-size: 30px;
   z-index: 2;
+  color: white;
+  margin: 10px;
+  transition: transform 0.3s ease;
 }
 
 .step_title {
@@ -64,110 +72,153 @@
   z-index: 2;
 }
 
-.right_menu {
+/*      Box đại diện cho mỗi node.  */
+
+.thumbnailsBox {
+  display: flex;
+  gap: 5px;
+  max-width: 50%;
+  background: url("/public/shelf.png") no-repeat;
+  background-size: contain;
+  background-position-y: bottom;
+}
+
+.node {
+  text-align: center;
+  color: black;
+}
+
+.nodeView {
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  background-color: white;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.3);
+}
+.nodeView img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  transform: scale(1.1) perspective(500px) rotateX(10deg);
+  transition: 0.3s ease;
+}
+.nodeSelected {
+  border: 2px solid #f2ff00;
+}
+
+/* 
+.add_node_button:hover{
+  opacity: 0.8;
+  font-size: 35px;
+} */
+.add_node_button {
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  color: #333;
+  font-size: 30px;
+  font-weight: 800;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.toggleRightMenu {
+  position: absolute;
+  right: 0;
+}
+
+.done_button {
+  margin-top: 10px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.rightMenu {
   position: absolute;
   top: 0;
-  right: -300px;
-  /* Ẩn menu bên phải */
+  right: 0;
   width: 300px;
   height: 100%;
   background-color: #333;
   color: white;
   transition: right 0.5s ease;
-  z-index: 3;
-  overflow-y: hidden;
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Màu nền trong suốt (tuỳ chỉnh opacity) */
+  backdrop-filter: blur(5px);
 }
 
-.right_menu.show {
-  background: linear-gradient(to bottom,rgba(0,0,0,1), rgba(255,255,255,0.5));
-  right: 0;
-  /* Hiển thị menu khi con chuột vào */
+.rightMenu .rightTitle {
+  margin-top: 20px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #fff;
 }
 
-.right_menu ul {
-  list-style-type: none;
-  margin-top: 10px;
-  padding: 0;
-}
-
-.right_menu .task:hover {
-  cursor: pointer;
-  opacity: 1;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-  background-size: 120%;
-  background-position: center;
-  background: linear-gradient(to right ,rgba(0,0,0,0.4), rgba(255,255,255,0.2));
-}
-
-.right_menu .task_name{
-  margin-left: 30px;
-}
-.right_menu .done_task{
-  background: linear-gradient(to right,rgba(1, 192, 58, 1), rgba(12, 204, 22, 0.7));
-  background-position: center;
-  background-size: 100%;
-  padding: 30px 0;
-  opacity: 0.9;
-  transition: all 0.3s ease;
-  width: 100%;
-  font-weight: 700;
-}
-
-.right_menu .task {
-  background: linear-gradient(to right,rgba(0,0,0,0.2), rgba(255,255,255,0.5));
-  background-position: center;
-  background-size: 100%;
-  padding: 30px 0;
-  opacity: 0.9;
-  transition: all 0.3s ease;
-  width: 100%;
-  font-weight: 700;
-}
-
-.task1, .task2, .task3{
-  background: linear-gradient(to right ,rgba(0,0,0,0.7), rgba(0,0,0,0.4));
-  width: 40vw;
-  height: 0;
+.rightMenu .rightTitle .showMenu {
   position: absolute;
+  left: 0;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  margin-left: 10px;
+}
+
+.task1,
+.task2,
+.task3 {
+  /*  
   left: 20px;
   bottom: 20px;
   border-radius: 10px;
-  opacity: 0;
-  padding: 10px;
+  padding: 10px; */
   transition: height 1s ease-in-out, opacity 1s ease-in-out;
 }
-.open_task1{
-  height: 250px;
-  opacity: 1;
-}
-.open_task2{
-  height: 400px;
-  opacity: 1;
-}
-.open_task3{
-  height: 400px;
-  opacity: 1;
-}
 
-.type_navigation, .type_infomation, .type_model, .type_media{
+.type_navigation,
+.type_infomation,
+.type_model,
+.type_media {
   width: 40vw;
   height: 0;
   border-radius: 10px;
   opacity: 0;
   padding: 0 10px;
-  overflow: hidden;      /* Ngăn nội dung tràn ra */
-  pointer-events: none;  /* Vô hiệu tương tác */
+  overflow: hidden; /* Ngăn nội dung tràn ra */
+  pointer-events: none; /* Vô hiệu tương tác */
   transition: height 1s ease-in-out, opacity 1s ease-in-out;
 }
-.open_type_navigation, .open_type_infomation, .open_type_model, .open_type_media{
+.open_type_navigation,
+.open_type_infomation,
+.open_type_model,
+.open_type_media {
   opacity: 1;
   pointer-events: auto;
 }
-.open_type_navigation, .open_type_infomation, .open_type_model, .open_type_media{
+.open_type_navigation,
+.open_type_infomation,
+.open_type_model,
+.open_type_media {
   height: 95%;
 }
 
-.mode_button{
+.mode_button {
   cursor: pointer;
   border-radius: 5px;
   width: 50%;
@@ -179,7 +230,7 @@
   border-bottom: 2px solid #333; */
 }
 
-.choosed{
+.choosed {
   outline: none;
   border: none;
   background-color: green;
@@ -187,11 +238,42 @@
   pointer-events: none;
 }
 
-.frame{
+.frame {
   width: 80px;
   height: 80px;
   border-radius: 5px;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+.open_type_media {
+  height: 300px;
+}
+
+.mode_button {
+  cursor: pointer;
+  border-radius: 5px;
+  width: 50%;
+  height: auto;
+  opacity: 0.8;
+  border: none;
+  outline: none !important;
+  /* background-color: transparent;
+  border-bottom: 2px solid #333; */
+}
+
+.choosed {
+  outline: none;
+  border: none;
+  background-color: green;
+  opacity: 1;
+  pointer-events: none;
+}
+
+.frame {
+  width: 80px;
+  height: 80px;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.5);
   position: relative;
 }
 
@@ -200,7 +282,7 @@
   color: #fff;
 }
 
-.contain_input{
+.contain_input {
   display: flex;
   margin-top: 10px;
   width: 100%;
@@ -213,64 +295,7 @@
   margin-right: 20px;
 }
 
-.descript_input{
+.descript_input {
   width: 70%;
   height: 100px;
-}
-
-.done_button{
-  margin-top: 10px;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.node_box{
-  display: flex;
-  gap: 10px;
-  /* padding: 20px; */
-  padding-top: 30px;
-  /* border-radius: 10px; */
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 50%;
-  height: 80px;
-  /* background-color: red; */
-  background: url("/public/shelf.png") no-repeat;
-  background-size: contain;
-  background-position-y: bottom;
-}
-
-.node{
-  text-align: center;
-  color: black;
-}
-
-.node_view{
-  cursor: pointer;
-  width: 60px;
-  height: 60px;
-  background-color: white;
-  border-radius: 50%;
-}
-/* 
-.add_node_button:hover{
-  opacity: 0.8;
-  font-size: 35px;
-} */
-.add_node_button{
-  cursor: pointer;
-  width: 60px;
-  height: 60px;
-  background-color: white;
-  border-radius: 50%;
-  display: flex;
-  color: #333;
-  font-size: 30px;
-  font-weight: 800;
-  text-align: center;
-  justify-content: center;
-  align-items: center;
 }
