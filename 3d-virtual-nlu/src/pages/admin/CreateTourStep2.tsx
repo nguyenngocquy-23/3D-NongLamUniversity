@@ -14,9 +14,10 @@ import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 import RightMenuCreateTour from "../../components/admin/RightMenuCT";
 import TaskContainerCT from "../../components/admin/TaskContainerCT";
 import { useSequentialTasks } from "../../hooks/useSequentialTasks";
-import Task1DisplayInfo from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
 import Task2 from "../../components/admin/taskCreateTourList/Task2BasicConfig";
-import { title } from "framer-motion/client";
+import Task1 from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
+import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
+import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 
 // //Tuỳ chỉnh thêm các điểm nóng.
 
@@ -102,15 +103,35 @@ const Node: React.FC<NodeProps> = ({
 
 interface SceneProps {
   cameraPosition: [number, number, number];
+  selectedIndex: number;
+  cameraRef?: React.RefObject<THREE.PerspectiveCamera | null>;
 }
 
-const Scene = ({ cameraPosition }: SceneProps) => {
+// const Scene = ({ cameraPosition }: SceneProps) => {
+//   const { camera } = useThree();
+
+//   useEffect(() => {
+//     camera.position.set(...cameraPosition);
+//     camera.updateProjectionMatrix();
+//   }, [cameraPosition]);
+
+//   return null;
+// };
+
+const Scene = ({ cameraPosition, selectedIndex, cameraRef }: SceneProps) => {
   const { camera } = useThree();
+  const prevIndex = useRef<number | null>(null);
 
   useEffect(() => {
-    camera.position.set(...cameraPosition);
-    camera.updateProjectionMatrix(); // Cập nhật lại camera
-  }, [cameraPosition]); // Chạy mỗi khi cameraPosition thay đổi
+    if (prevIndex.current !== selectedIndex) {
+      camera.position.set(...cameraPosition);
+      camera.updateProjectionMatrix();
+      prevIndex.current !== selectedIndex;
+    }
+    if (cameraRef && camera instanceof THREE.PerspectiveCamera) {
+      cameraRef.current = camera;
+    }
+  }, [selectedIndex]);
 
   return null;
 };
@@ -136,10 +157,6 @@ const CreateTourStep2 = () => {
    * Xử lý toggle hiển thị menu - end
    */
 
-  // check done task
-  // item task 1
-  const [nameNode, setNameNode] = useState("");
-  const [desNode, setDesNode] = useState("");
   const user = useSelector((state: RootState) => state.auth.user);
 
   const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
@@ -165,29 +182,15 @@ const CreateTourStep2 = () => {
     setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
     setHotspotModels((prev) => [...prev, { id: prev.length + 1, position }]);
   };
+
   const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
 
-  const [lightIntensity, setLightIntensity] = useState(2);
-  const [autoRotate, setAutoRotate] = useState(false);
-  const [speedRotate, setSpeedRotate] = useState(1);
-  const [angle, setAngle] = useState(90); // Góc quay quanh trục Y
   const radius = 100; // Bán kính quay
   const originalZ = 0.0000001; // Bán kính quay
-
-  // Tính toán vị trí camera từ góc quay quanh trục Y
-  const cameraPosition = useMemo((): [number, number, number] => {
-    const radians = (angle * Math.PI) / 180; // Chuyển độ sang radian
-    // return [radius * Math.cos(radians), 0, radius * Math.sin(radians) + 0.1]; // Camera quay quanh trục Y
-    return [originalZ * Math.cos(radians), 0, originalZ * Math.sin(radians)]; // Camera quay quanh trục Y
-  }, [angle]);
 
   const [assignable, setAssignable] = useState(false);
 
   const handledSwitchTexture = () => {};
-
-  const handleClose = () => {
-    navigate("/admin/createTour");
-  };
 
   const handleMouseDown = () => {
     setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
@@ -197,22 +200,35 @@ const CreateTourStep2 = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
 
-  // useEffect(() => {
-  //   const handleCheckTask1 = () => {
-  //     if (nameNode.trim() != "" && desNode.trim() != "") {
-  //       setIsDone1(true);
-  //     } else {
-  //       setIsDone1(false);
-  //     }
-  //   };
-  //   handleCheckTask1();
-  // }, [nameNode, desNode]);
-
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
+
   const dispatch = useDispatch();
   const { panoramaList, currentSelectedPosition } = useSelector(
     (state: RootState) => state.panoramas
   );
+
+  // Panorama hiện tại.
+  const currentPanorama = panoramaList[currentSelectedPosition];
+
+  /**
+   * Lấy URL panorama hiện tại - hoặc dùng mặc định.
+   */
+  const currentPanoramaUrl = currentPanorama?.url ?? "/khoa.jpg";
+
+  const {
+    positionX = 0,
+    positionY = 0,
+    positionZ = 0,
+    lightIntensity = 1,
+    autoRotate = 0,
+    speedRotate = 0,
+  } = currentPanorama?.config ?? {};
+
+  const cameraPosition: [number, number, number] = [
+    positionX,
+    positionY,
+    positionZ,
+  ];
 
   const handleSelectNode = (index: number) => {
     dispatch(selectPanorama(index));
@@ -223,38 +239,23 @@ const CreateTourStep2 = () => {
       case 1:
         return (
           <>
-            <Task1DisplayInfo
-              nameNode={nameNode}
-              setNameNode={setNameNode}
-              desNode={desNode}
-              setDesNode={setDesNode}
-            />
+            <Task1 />
           </>
         );
       case 2:
         return (
           <>
-            <Task2
-              isOpen2={openTaskIndex === 2}
-              angle={angle}
-              setAngle={setAngle}
-              lightIntensity={lightIntensity}
-              setLightIntensity={setLightIntensity}
-              autoRotate={autoRotate}
-              setAutoRotate={setAutoRotate}
-              speedRotate={speedRotate}
-              setSpeedRotate={setSpeedRotate}
-            />
+            <Task2 cameraRef={cameraRef} />
           </>
         );
       case 3:
         return (
           <>
-            <RaycastOnTask5
-              onAddHotspot={handleAddHotspot}
-              sphereRef={sphereRef}
+            <Task3
               assignable={assignable}
               setAssignable={setAssignable}
+              hotspotModels={hotspotModels}
+              setHotspotModels={setHotspotModels}
             />
           </>
         );
@@ -274,7 +275,7 @@ const CreateTourStep2 = () => {
     },
     {
       id: 3,
-      title: "Chèn mô hình",
+      title: "Thiết lập điểm tương tác",
     },
   ];
 
@@ -286,8 +287,7 @@ const CreateTourStep2 = () => {
     handleSaveTask,
     reset,
   } = useSequentialTasks(tasks.length);
-
-  const currentPanoramaUrl = panoramaList[currentSelectedPosition]?.url;
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 
   return (
     <>
@@ -295,8 +295,10 @@ const CreateTourStep2 = () => {
         <Canvas
           camera={{
             fov: 75,
-            position: cameraPosition,
             aspect: window.innerWidth / window.innerHeight,
+            near: 0.1,
+            far: 1000,
+            position: cameraPosition,
           }}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
@@ -307,10 +309,16 @@ const CreateTourStep2 = () => {
             sphereRef={sphereRef}
             lightIntensity={lightIntensity}
           />
-          <Scene cameraPosition={cameraPosition} />
+          <UpdateCameraOnResize />
+          <Scene
+            cameraPosition={cameraPosition}
+            selectedIndex={currentSelectedPosition}
+            cameraRef={cameraRef}
+          />
+
           <OrbitControls
             rotateSpeed={0.5}
-            autoRotate={autoRotate}
+            autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
           />
 

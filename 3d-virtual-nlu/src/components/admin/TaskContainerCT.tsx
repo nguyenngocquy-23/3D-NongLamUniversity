@@ -31,6 +31,7 @@ const TaskContainerCT: React.FC<TaskContainerCTProps> = ({
       <div className={styles.taskContent}>{children}</div>
 
       <button className={styles.taskSave} onClick={onSave}>
+        <span>Lưu</span>
         <IoIosSave />
       </button>
     </div>

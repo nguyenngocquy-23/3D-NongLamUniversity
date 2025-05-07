@@ -1,60 +1,12 @@
-interface Task3Props {
-  isOpen3: boolean;
-  assignable: boolean;
-  setAssignable: (value: boolean) => void;
-  hotspotModels: HotspotModel[];
-  setHotspotModels: (value: HotspotModel[]) => void;
-}
-
-// Component cho Task3
-const Task3 = ({
-  isOpen3,
-  assignable,
-  setAssignable,
-  hotspotModels,
-}: Task3Props) => {
-  const [openTypeIndex, setOpenTypeIndex] = useState<number | null>(1); // State để lưu index của type đang mở
-  const hotspotType = useSelector(
-    (state: RootState) => state.data.hotspotTypes
-  );
-
-  const handleChooseType = (typeIndex: number) => {
-    setOpenTypeIndex((prevIndex) =>
-      prevIndex === typeIndex ? null : typeIndex
-    );
-  };
-
-  return (
-    <div className={`${styles.task3} ${isOpen3 ? styles.open_task3 : ""}`}>
-      <div className="header" style={{ display: "flex", position: "relative" }}>
-        <h3>3. Tạo điểm nhấn</h3>
-        <select
-          name=""
-          id=""
-          style={{
-            position: "absolute",
-            right: "10px",
-            top: "50%",
-            transform: "translateY(-50%)",
-          }}
-          onChange={(e) => handleChooseType(Number(e.target.value))}
-        >
-          {hotspotType.map((type) => (
-            <option value={type.id}>{type.name}</option>
-          ))}
-        </select>
-      </div>
-      <TypeNavigation isOpenTypeNavigation={openTypeIndex == 1} />
-      <TypeInfomation isOpenTypeInfomation={openTypeIndex == 2} />
-      <TypeModel
-        isOpenTypeModel={openTypeIndex == 4}
-        hotspotModels={hotspotModels}
-        assignable={assignable}
-        setAssignable={setAssignable}
-      />
-    </div>
-  );
-};
+import { useRef, useState } from "react";
+import styles from "../../../styles/tasklistCT/task3.module.css";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/Store";
+import { FaHome } from "react-icons/fa";
+import { FaClock } from "react-icons/fa6";
+import { useGLTF } from "@react-three/drei";
+import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
 
 // Điểm nóng task3 - Điểm di chuyển.
 interface TypeNavigationProps {
@@ -231,3 +183,55 @@ TypeModelProps) => {
     </div>
   );
 };
+
+interface Task3Props {
+  assignable: boolean;
+  setAssignable: (value: boolean) => void;
+  hotspotModels: HotspotModel[];
+  setHotspotModels: (value: HotspotModel[]) => void;
+}
+
+const Task3 = ({ assignable, setAssignable, hotspotModels }: Task3Props) => {
+  const [openTypeIndex, setOpenTypeIndex] = useState<number | null>(1); // State để lưu index của type đang mở
+  const hotspotType = useSelector(
+    (state: RootState) => state.data.hotspotTypes
+  );
+
+  const handleChooseType = (typeIndex: number) => {
+    setOpenTypeIndex((prevIndex) =>
+      prevIndex === typeIndex ? null : typeIndex
+    );
+  };
+
+  return (
+    <div className={`${styles.task3} ${styles.open_task3}`}>
+      <div className="header" style={{ display: "flex", position: "relative" }}>
+        <h3>3. Tạo điểm nhấn</h3>
+        <select
+          name=""
+          id=""
+          style={{
+            position: "absolute",
+            right: "10px",
+            top: "50%",
+            transform: "translateY(-50%)",
+          }}
+          onChange={(e) => handleChooseType(Number(e.target.value))}
+        >
+          {hotspotType.map((type) => (
+            <option value={type.id}>{type.name}</option>
+          ))}
+        </select>
+      </div>
+      <TypeNavigation isOpenTypeNavigation={openTypeIndex == 1} />
+      <TypeInfomation isOpenTypeInfomation={openTypeIndex == 2} />
+      <TypeModel
+        isOpenTypeModel={openTypeIndex == 4}
+        hotspotModels={hotspotModels}
+        assignable={assignable}
+        setAssignable={setAssignable}
+      />
+    </div>
+  );
+};
+export default Task3;

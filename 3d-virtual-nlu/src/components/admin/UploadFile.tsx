@@ -127,7 +127,7 @@ const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
   };
 
   return (
-    <div className={`${className} ${styles.uploadWrapper}`}>
+    <div className={`${styles.uploadWrapper}`}>
       <input
         ref={inputRef}
         type="file"
@@ -139,7 +139,9 @@ const UploadFile: React.FC<UploadFileProps> = ({ className }) => {
       {selectedFile.length === 0 && (
         <button
           className={`
-        ${styles.fileBtn}`}
+        ${styles.fileBtn}
+        
+        `}
           onClick={onChooseFile}
         >
           <span className={styles.uploadIcon}>

@@ -1,38 +1,49 @@
+import { useDispatch, useSelector } from "react-redux";
 import styles from "../../../styles/tasklistCT/task1.module.css";
-interface Task1Props {
-  nameNode: string;
-  setNameNode: (nameNode: string) => void;
-  desNode: string;
-  setDesNode: (desNode: string) => void;
-}
+import { RootState } from "../../../redux/Store";
+import { updatePanoConfig } from "../../../redux/slices/PanoramaSlice";
 
-const Task1DisplayInfo = ({
-  nameNode,
-  setNameNode,
-  desNode,
-  setDesNode,
-}: Task1Props) => (
-  <div className={styles.task1}>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Tên:</label>
-      <input
-        type="text"
-        className={styles.name_input}
-        placeholder="Tên không gian"
-        value={nameNode}
-        onChange={(e) => setNameNode(e.target.value)}
-      />
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Giới thiệu:</label>
-      <textarea
-        className={styles.descript_input}
-        placeholder="Mô tả không gian.."
-        value={desNode}
-        onChange={(e) => setDesNode(e.target.value)}
-      />
-    </div>
-  </div>
-);
+const Task1 = () => {
+  const dispatch = useDispatch();
+  const { panoramaList, currentSelectedPosition } = useSelector(
+    (state: RootState) => state.panoramas
+  );
 
-export default Task1DisplayInfo;
+  const currentPanorama = panoramaList[currentSelectedPosition];
+  if (!currentPanorama) return null;
+
+  const { name = "", description = "" } = currentPanorama.config ?? {};
+  const handleChange = (field: "name" | "description", value: string) => {
+    dispatch(
+      updatePanoConfig({
+        index: currentSelectedPosition,
+        config: { [field]: value },
+      })
+    );
+  };
+  return (
+    <div className={styles.task1}>
+      <div className={styles.contain_input}>
+        <label className={styles.label}>Tên:</label>
+        <input
+          type="text"
+          className={styles.name_input}
+          placeholder="Tên không gian"
+          value={name}
+          onChange={(e) => handleChange("name", e.target.value)}
+        />
+      </div>
+      <div className={styles.contain_input}>
+        <label className={styles.label}>Giới thiệu:</label>
+        <textarea
+          className={styles.descript_input}
+          placeholder="Mô tả không gian.."
+          value={description}
+          onChange={(e) => handleChange("description", e.target.value)}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Task1;

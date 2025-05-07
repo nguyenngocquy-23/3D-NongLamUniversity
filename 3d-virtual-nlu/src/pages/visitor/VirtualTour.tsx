@@ -10,27 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { IoIosCloseCircle } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
-
-/**
- *
- * Dành cho việc resize camera và canvas.
- */
-
-const UpdateCameraOnResize = () => {
-  const { camera, gl } = useThree();
-  useEffect(() => {
-    const handleResize = () => {
-      const perspectiveCamera = camera as THREE.PerspectiveCamera;
-      perspectiveCamera.aspect = window.innerWidth / window.innerHeight;
-      perspectiveCamera.updateProjectionMatrix();
-      gl.setSize(window.innerWidth, window.innerHeight);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [camera, gl]);
-  return null;
-};
+import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -276,7 +256,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           textureCurrent={textureUrl}
         />
         <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
-        <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
+        {/* <CamControls targetPosition={targetPosition} sphereRef={sphereRef} /> */}
       </Canvas>
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>
@@ -294,7 +274,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
         isFullscreen={isFullscreen}
         toggleInfomation={toggleInfomation}
         toggleFullscreen={toggleFullscreen}
-        toggleMute={toggleMute} 
+        toggleMute={toggleMute}
       />
       {/* Hộp thông tin */}
       <div className={styles.infoBox} onClick={toggleInfomation}>

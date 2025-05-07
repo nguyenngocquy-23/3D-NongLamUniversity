@@ -52,11 +52,11 @@ const CreateNode: React.FC = () => {
       Component: () => <CreateTourStep2 />,
     },
     {
-      name: "Thiết lập điểm tương tác",
+      name: "Xem trước và xuất bản",
       Component: () => <div>Abc xyz</div>,
     },
     {
-      name: "Xem trước và xuất bản",
+      name: "Chờ duyệt từ quản trị viên",
       Component: () => <div> Okela </div>,
     },
   ];
