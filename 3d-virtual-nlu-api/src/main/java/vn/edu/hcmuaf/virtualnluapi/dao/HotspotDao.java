@@ -145,40 +145,5 @@ public class HotspotDao {
                 }
         );
     }
-//
-//    public boolean insertHotspotModel(HotspotModelCreateRequest req) {
-//        String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale) " +
-//                "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale)";
-//        String sqlInsertModel = "INSERT INTO hotspot_models(hotspotId, modelUrl, name, description) " +
-//                "VALUES(:hotspotId, :targetNodeId, :modelUrl, :name, :description)";
-//
-//        return ConnectionPool.getConnection().inTransaction(
-//                handle -> {
-//                    int idHotspot = handle.createUpdate(sqlInsertHotspot)
-//                            .bind("nodeId", req.getNodeId())
-//                            .bind("type", req.getType())
-//                            .bind("iconId", req.getIconId())
-//                            .bind("posX", req.getPositionX())
-//                            .bind("posY", req.getPositionY())
-//                            .bind("posZ", req.getPositionZ())
-//                            .bind(("pitchX"), req.getPitchX())
-//                            .bind(("yawY"), req.getYawY())
-//                            .bind(("rollZ"), req.getRollZ())
-//                            .bind(("scale"), req.getScale())
-//                            .executeAndReturnGeneratedKeys()
-//                            .mapTo(Integer.class)
-//                            .one();
-//
-//                    // Navigation.
-//                    int rows = handle.createUpdate(sqlInsertModel)
-//                            .bind("hotspotId", idHotspot)
-//                            .bind("modelUrl", req.getModelUrl())
-//                            .bind("name", req.getName())
-//                            .bind("description", req.getDescription())
-//                            .execute();
-//                    return rows == 1;
-//                }
-//        );
-//    }
 
 }
