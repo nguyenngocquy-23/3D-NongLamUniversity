@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.Entity;
 import vn.edu.hcmuaf.virtualnluapi.dao.HotspotDao;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotModelCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotNavCreateRequest;
 
 import java.util.List;
@@ -16,6 +17,10 @@ public class HotspotService {
 
     public boolean insertOnlyNavigation(HotspotNavCreateRequest req) {
         return hotspotDao.insertHotspotNavigation(req);
+    }
+
+    public boolean insertModel(List<HotspotModelCreateRequest> req) {
+        return hotspotDao.insertHotspotModel(req);
     }
 
     public boolean insertMutipleNavigation(List<HotspotNavCreateRequest> reqs) {

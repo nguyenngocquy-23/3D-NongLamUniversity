@@ -16,6 +16,7 @@ import GroundHotspot from "../../components/visitor/GroundHotspot";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import { useRaycaster } from "../../hooks/useRaycaster";
 import PointMedia from "../../components/admin/PointMedia";
+import UploadFile from "../../components/admin/UploadFile";
 
 //Tuỳ chỉnh thông tin không gian.
 interface Task1Props {
@@ -210,8 +211,8 @@ interface Task3Props {
   isOpen3: boolean;
   assignable: boolean;
   setAssignable: (value: boolean) => void;
-  hotspotModels: HotspotModel[];
-  setHotspotModels: (value: HotspotModel[]) => void;
+  hotspotModels: HotspotModelCreateRequest[];
+  setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
   chooseCornerMediaPoint: boolean;
   setChooseCornerMediaPoint: (value: boolean) => void;
   videoMeshes: VideoMesh[]; // danh sách mesh đã xong
@@ -226,6 +227,7 @@ const Task3 = ({
   assignable,
   setAssignable,
   hotspotModels,
+  setHotspotModels,
   chooseCornerMediaPoint,
   setChooseCornerMediaPoint,
   videoMeshes,
@@ -276,6 +278,7 @@ const Task3 = ({
       <TypeModel
         isOpenTypeModel={openTypeIndex == 4}
         hotspotModels={hotspotModels}
+        setHotspotModels={setHotspotModels}
         assignable={assignable}
         setAssignable={setAssignable}
       />
@@ -584,61 +587,66 @@ const TypeMedia = ({
   );
 };
 
-interface ModelProps {
-  modelURL: string;
-}
-const Model: React.FC<ModelProps> = ({ modelURL }) => {
-  const { scene } = useGLTF(modelURL);
-  const modelRef = useRef<THREE.Group>(null);
-
-  // Xoay model liên tục mỗi frame
-  useFrame(() => {
-    if (modelRef.current) {
-      modelRef.current.rotation.y += 0.01; // Tốc độ xoay
-    }
-  });
-
-  return (
-    <group ref={modelRef} position={[30, -10, -10]} scale={3}>
-      <primitive object={scene}>
-        <ambientLight color={"#fff"} intensity={1} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
-        <directionalLight position={[5, 5, 5]} intensity={1} />
-      </primitive>
-    </group>
-  );
-};
-
-interface HotspotModel {
-  id: number;
-  position: [number, number, number];
-  modelURL?: string;
-  assigned?: boolean;
-}
-
 interface TypeModelProps {
   isOpenTypeModel: boolean;
   assignable: boolean;
   setAssignable: (value: boolean) => void;
-  hotspotModels: HotspotModel[];
-  // setHotspotModels: (value: HotspotModel[]) => void;
+  hotspotModels: HotspotModelCreateRequest[];
+  setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
 }
+
+export interface HotspotModelCreateRequest {
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  modelUrl: string;
+  name: string;
+  description: string;
+}
+
 // Component cho Task5
 const TypeModel = ({
   isOpenTypeModel,
   assignable,
   setAssignable,
   hotspotModels,
-}: // setHotspotModels,
-TypeModelProps) => {
-  const [panoramaURL, setPanoramaURL] = useState<string | null>(null);
+  setHotspotModels,
+}: TypeModelProps) => {
+  const handleUploadedFile = (url: string, index: number) => {
+    const updated = [...hotspotModels];
+    updated[index].modelUrl = url;
+    setHotspotModels(updated); // nếu bạn có hàm setHotspotModels
+  };
+
   const handleAssign = () => {
     setAssignable(true);
   };
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPanoramaURL(URL.createObjectURL(file));
+
+  const handleUpModel = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/v1/admin/hotspot/addModel",
+        hotspotModels,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.statusCode === 1000) {
+        console.log("✅ Upload model thành công!", response.data);
+      } else {
+        console.warn("❌ Upload thất bại:", response.data.message);
+      }
+    } catch (error) {
+      console.error("🚨 Lỗi khi gọi API:", error);
     }
   };
 
@@ -649,13 +657,6 @@ TypeModelProps) => {
       }`}
     >
       <div>
-        <label className={styles.label}>Biểu tượng:</label>
-        <FaHome />
-        <input type="checkbox" />
-        <FaClock />
-        <input type="checkbox" />
-      </div>
-      <div>
         <label className={styles.label}>Vị trí mô hình:</label>
         <button
           onClick={() => {
@@ -665,38 +666,45 @@ TypeModelProps) => {
           Chọn vị trí
         </button>
       </div>
-      {hotspotModels.map((hpm) => (
-        <div key={hpm.id}>
-          <div
-            style={{
-              backgroundColor: "white",
-              color: "black",
-              borderRadius: "50%",
-              width: "30px",
-              height: "30px",
-              textAlign: "center",
-            }}
-          >
-            {hpm.id}
+      <div style={{ height:'75%', overflowY: "auto" }}>
+        {hotspotModels.map((hpm, index) => (
+          <div key={index + 1}>
+            <div
+              style={{
+                backgroundColor: "white",
+                color: "black",
+                borderRadius: "50%",
+                width: "30px",
+                height: "30px",
+                textAlign: "center",
+              }}
+            >
+              {index + 1}
+            </div>
+            <div>
+              <label className={styles.label}>Biểu tượng:</label>
+              <FaHome />
+              <input type="checkbox" />
+              <FaClock />
+              <input type="checkbox" />
+            </div>
+            <p>
+              <span style={{ color: "pink" }}> {hpm.positionX} </span>
+              <span style={{ color: "yellow" }}> {hpm.positionY} </span>
+              <span style={{ color: "lightblue" }}> {hpm.positionZ} </span>
+            </p>
+            <div style={{ display: "flex" }}>
+              <label className={styles.label}>Tệp mô hình:</label>
+              <UploadFile
+                className="upload_model"
+                index={index}
+                onUploaded={handleUploadedFile}
+              />
+            </div>
           </div>
-          <p>
-            <span style={{ color: "pink" }}> {hpm.position[0]} </span>
-            <span style={{ color: "yellow" }}> {hpm.position[1]} </span>
-            <span style={{ color: "lightblue" }}> {hpm.position[2]} </span>
-          </p>
-          <p> {hpm.modelURL}</p>
-          <div>
-            <label className={styles.label}>Tệp mô hình:</label>
-            <input
-              type="file"
-              accept=".glb, .gltf"
-              // accept="*/*"
-              onChange={handleFileChange}
-            />
-          </div>
-          <button>Thiết lập</button>
-        </div>
-      ))}
+        ))}
+      </div>
+      <button onClick={() => handleUpModel()}>Thiết lập</button>
     </div>
   );
 };
@@ -768,6 +776,55 @@ const RaycastOnMedia = ({
   }, [isActive, cornerPoints]);
 
   return null;
+};
+
+const RaycastOnModel = ({
+  isActive,
+  addHotspotModel,
+  sphereRef,
+  assignable,
+  setAssignable,
+}: {
+  isActive: boolean;
+  addHotspotModel: (model: HotspotModelCreateRequest) => void;
+  sphereRef: React.RefObject<THREE.Mesh | null>;
+  assignable: boolean;
+  setAssignable: (value: boolean) => void;
+}) => {
+  const { getIntersectionPoint } = useRaycaster();
+
+  useEffect(() => {
+    if (!isActive || !assignable) return;
+
+    const handleClick = (event: MouseEvent) => {
+      const point = getIntersectionPoint(event, sphereRef.current);
+      if (point) {
+        setAssignable(false);
+        addHotspotModel({
+          type: 1,
+          iconId: 1,
+          positionX: point.x,
+          positionY: point.y,
+          positionZ: point.z,
+          pitchX: 10,
+          yawY: 15,
+          rollZ: 5,
+          scale: 1,
+          modelUrl: "",
+          name: "Second model",
+          description: "Another test",
+        });
+      }
+    };
+
+    window.addEventListener("click", handleClick);
+    return () => {
+      setAssignable(false);
+      window.removeEventListener("click", handleClick);
+    };
+  }, [isActive, assignable]);
+
+  return null; // không render gì cả, chỉ xử lý raycast khi Task5 mở
 };
 
 interface NodeProps {
@@ -1020,19 +1077,14 @@ const CreateTourStep2 = () => {
   };
 
   // hostpost model
-  type HotspotModel = {
-    id: number;
-    position: [number, number, number];
-    modelURL?: string; // model gán vào hotspot
-    assigned?: boolean; // đã gán mô hình chưa
+  const [hotspotModels, setHotspotModels] = useState<
+    HotspotModelCreateRequest[]
+  >([]);
+
+  const addHotspotModel = (newModel: HotspotModelCreateRequest) => {
+    setHotspotModels((prev) => [...prev, newModel]);
   };
 
-  const [hotspotModels, setHotspotModels] = useState<HotspotModel[]>([]);
-
-  const handleAddHotspot = (position: [number, number, number]) => {
-    setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
-    setHotspotModels((prev) => [...prev, { id: prev.length + 1, position }]);
-  };
   const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
 
   const [lightIntensity, setLightIntensity] = useState(2);
@@ -1117,7 +1169,7 @@ const CreateTourStep2 = () => {
     <>
       <div className={styles.preview_tour}>
         {/* main - canvas */}
-        {/* <Canvas
+        <Canvas
           camera={{
             fov: 75,
             position: cameraPosition,
@@ -1149,9 +1201,17 @@ const CreateTourStep2 = () => {
             />
           )} */}
 
-          <RaycastOnTask3
+          {/* <RaycastOnTask3
             isActive={openTaskIndex === 3}
             onAddHotspot={handleAddHotspot}
+            sphereRef={sphereRef}
+            assignable={assignable}
+            setAssignable={setAssignable}
+          /> */}
+
+          <RaycastOnModel
+            isActive={openTaskIndex === 3}
+            addHotspotModel={addHotspotModel}
             sphereRef={sphereRef}
             assignable={assignable}
             setAssignable={setAssignable}
@@ -1163,16 +1223,20 @@ const CreateTourStep2 = () => {
               setHoveredHotspot={setHoveredHotspot}
             />
           ))} */}
-          {hotspotModels.map((hotspot) => (
+          {hotspotModels.map((hotspot, index) => (
             <GroundHotspotModel
-              key={hotspot.id}
-              position={hotspot.position}
+              key={index}
+              position={[
+                hotspot.positionX,
+                hotspot.positionY,
+                hotspot.positionZ,
+              ]}
               setHoveredHotspot={setHoveredHotspot}
             />
           ))}
-<!--         <div>
+          {/* <div>
         <VirtualTour textureUrl={currentPanoramaUrl} />
-        </div> -->
+        </div> */}
           <RaycastOnMedia
             isActive={chooseCornerMediaPoint}
             onAddPoint={handleAddPoint}
@@ -1290,9 +1354,10 @@ const CreateTourStep2 = () => {
           speedRotate={speedRotate}
           setSpeedRotate={setSpeedRotate}
         />
-        {/* <Task3
+        <Task3
           isOpen3={openTaskIndex === 3}
           hotspotModels={hotspotModels}
+          setHotspotModels={setHotspotModels}
           videoMeshes={videoMeshes} // danh sách các mesh đã hoàn tất
           currentPoints={currentPoints} // mesh đang chọn
           setCurrentPoints={setCurrentPoints} // thêm điểm
