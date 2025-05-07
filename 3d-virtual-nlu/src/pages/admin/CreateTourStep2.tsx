@@ -106,18 +106,6 @@ interface SceneProps {
   selectedIndex: number;
   cameraRef?: React.RefObject<THREE.PerspectiveCamera | null>;
 }
-
-// const Scene = ({ cameraPosition }: SceneProps) => {
-//   const { camera } = useThree();
-
-//   useEffect(() => {
-//     camera.position.set(...cameraPosition);
-//     camera.updateProjectionMatrix();
-//   }, [cameraPosition]);
-
-//   return null;
-// };
-
 const Scene = ({ cameraPosition, selectedIndex, cameraRef }: SceneProps) => {
   const { camera } = useThree();
   const prevIndex = useRef<number | null>(null);
