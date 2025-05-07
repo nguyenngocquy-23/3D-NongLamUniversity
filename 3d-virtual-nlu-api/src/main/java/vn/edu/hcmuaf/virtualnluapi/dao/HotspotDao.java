@@ -6,6 +6,8 @@ import org.jdbi.v3.core.statement.PreparedBatch;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotModelCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotNavCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotModelResponse;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -145,40 +147,20 @@ public class HotspotDao {
                 }
         );
     }
-//
-//    public boolean insertHotspotModel(HotspotModelCreateRequest req) {
-//        String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale) " +
-//                "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale)";
-//        String sqlInsertModel = "INSERT INTO hotspot_models(hotspotId, modelUrl, name, description) " +
-//                "VALUES(:hotspotId, :targetNodeId, :modelUrl, :name, :description)";
-//
-//        return ConnectionPool.getConnection().inTransaction(
-//                handle -> {
-//                    int idHotspot = handle.createUpdate(sqlInsertHotspot)
-//                            .bind("nodeId", req.getNodeId())
-//                            .bind("type", req.getType())
-//                            .bind("iconId", req.getIconId())
-//                            .bind("posX", req.getPositionX())
-//                            .bind("posY", req.getPositionY())
-//                            .bind("posZ", req.getPositionZ())
-//                            .bind(("pitchX"), req.getPitchX())
-//                            .bind(("yawY"), req.getYawY())
-//                            .bind(("rollZ"), req.getRollZ())
-//                            .bind(("scale"), req.getScale())
-//                            .executeAndReturnGeneratedKeys()
-//                            .mapTo(Integer.class)
-//                            .one();
-//
-//                    // Navigation.
-//                    int rows = handle.createUpdate(sqlInsertModel)
-//                            .bind("hotspotId", idHotspot)
-//                            .bind("modelUrl", req.getModelUrl())
-//                            .bind("name", req.getName())
-//                            .bind("description", req.getDescription())
-//                            .execute();
-//                    return rows == 1;
-//                }
-//        );
-//    }
 
+    public List<HotspotModelResponse> getModelByNodeId(NodeIdRequest reqs) {
+        String sql = """
+                SELECT h.type, h.iconId, h.positionX, h.positionY, h.positionZ, h.pitchX, h.yawY, h.rollZ, h.scale, m.modelUrl, m.name, m.description
+                FROM hotspots AS h
+                JOIN hotspot_models AS m ON h.id = m.hotspotId
+                WHERE h.nodeId = :nodeId
+                """;
+
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .bind("nodeId", reqs.getId())
+                    .mapTo(HotspotModelResponse.class)
+                    .list();
+        });
+    }
 }

@@ -18,8 +18,8 @@ interface AuthState {
 
 // Trạng thái ban đầu
 const initialState: AuthState = {
-  user: JSON.parse(sessionStorage.getItem('user') || 'null'),
-  token: sessionStorage.getItem('token') || 'null',
+  user: JSON.parse(sessionStorage.getItem("user") || "null"),
+  token: sessionStorage.getItem("token") || "null",
   isLoading: false,
   error: null,
 };
@@ -61,7 +61,9 @@ export const loginUser = createAsyncThunk(
       };
     } catch (error: any) {
       if (error.code === "ERR_NETWORK") {
-        return rejectWithValue("Không thể kết nối đến server. Vui lòng thử lại sau.");
+        return rejectWithValue(
+          "Không thể kết nối đến server. Vui lòng thử lại sau."
+        );
       }
       return rejectWithValue(
         error.response?.data?.message ||

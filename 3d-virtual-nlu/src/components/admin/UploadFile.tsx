@@ -24,7 +24,11 @@ interface ApiResponse<T> {
   data: T;
 }
 
-const UploadFile: React.FC<UploadFileProps> = ({ className, index, onUploaded }) => {
+const UploadFile: React.FC<UploadFileProps> = ({
+  className,
+  index,
+  onUploaded,
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
 
@@ -115,11 +119,10 @@ const UploadFile: React.FC<UploadFileProps> = ({ className, index, onUploaded })
             originalFileName: item.originalFileName!,
             url: item.url!,
           }));
-
-          if (onUploaded) {
-            const url = formattedData[0].url;
+        if (onUploaded) {
+          const url = formattedData[0].url;
           onUploaded(url, index ?? 0);
-        }else{
+        } else {
           dispatch(setPanoramas(formattedData));
         }
       } else {

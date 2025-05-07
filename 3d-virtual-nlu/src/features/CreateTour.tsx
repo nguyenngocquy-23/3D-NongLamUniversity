@@ -1,105 +1,67 @@
-import React, { useRef, useEffect, useState, useMemo } from "react";
+import React, { useRef, useEffect, useState, useMemo, Component } from "react";
 import styles from "../styles/createTour.module.css";
-import * as THREE from "three";
-import { FaAngleLeft } from "react-icons/fa6";
-import { OrbitControls } from "@react-three/drei";
-import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { addPanoramaUrl, setSpaceId } from "../redux/slices/PanoramaSlice.tsx";
-import { AppDispatch, RootState } from "../redux/Store.ts";
-import { fetchFields } from "../redux/slices/DataSlice.ts";
-import Swal from "sweetalert2";
-import ProcessBar from "../components/admin/ProcessBar.tsx";
 import BoardUploader from "../components/admin/BoardCreateTour.tsx";
-
-interface ControlsProps {
-  enableZoom?: boolean;
-}
-
-const Controls: React.FC = () => {
-  const controlsRef = useRef<OrbitControlsImpl>(null);
-
-  return (
-    <OrbitControls
-      ref={controlsRef}
-      enableZoom={false}
-      autoRotate={true}
-      autoRotateSpeed={0.5}
-    />
-  );
-};
-
-interface DomeProps {
-  panoramaURL: string;
-}
-
-const Dome: React.FC<DomeProps> = ({ panoramaURL }) => {
-  const texture = useMemo(
-    () => new THREE.TextureLoader().load(panoramaURL),
-    [panoramaURL]
-  );
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.repeat.x = -1;
-
-  return (
-    <mesh>
-      <sphereGeometry args={[100, 128, 128]} />
-      <meshBasicMaterial map={texture} side={THREE.BackSide} />
-    </mesh>
-  );
-};
+import CreateTourStepper from "../components/admin/CreateTourStepper.tsx";
+import CreateTourStep2 from "../pages/admin/CreateTourStep2.tsx";
 
 const CreateNode: React.FC = () => {
-  const [activeStep, setActiveStep] = useState(1);
-  const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
-  const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
-
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [panoramaURLs, setPanoramaURLs] = useState<string[]>([]);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectSpace, setSelectSpace] = useState("");
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
     []
   );
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // Lấy danh sách fields từ Redux
-  const fields = useSelector((state: RootState) => state.data.fields);
-
-  useEffect(() => {
-    dispatch(fetchFields()); // Gọi API khi component được render
-  }, [dispatch]);
 
   const handleSelectSpace = (spaceId: string) => {
     setSelectSpace(spaceId);
   };
 
-  //
   const handleSelectFiles = (files: File[]) => {
     setSelectedFiles(files);
   };
 
-  const handleUploadPanorama = async () => {
-    navigate(`${location.pathname}/2`);
-  };
+  /**
+   * Sử dụng Stepper cho việc tạo tour.
+   * > 1. Khởi tạo tour.
+   * >> 1.1. Chọn lĩnh vực.
+   * >> 1.2. Chọn không gian tạo tour.
+   * >> 1.3. Upload ảnh 360 độ (tối đa 5 files.)
+   * > 2. Thiết lập thông số.
+   * >> 2.1. Thông tin không gian (Cho từng ảnh)
+   * >> 2.2. Thông số kỹ thuật cho từng ảnh.
+   * > 3. Thiết lập điểm tương tác
+   * >> 3.1. Thêm điểm di chuyển.
+   * >> 3.2. Thêm điểm thông tin.
+   * >> 3.3. Thêm mô hình.
+   * > 4. Xem trước và xuất bản.
+   */
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.navigateBar}>
-        <FaAngleLeft />
-        <button onClick={handleUploadPanorama}>Tiếp tục</button>
-      </div>
-      <ProcessBar activeStep={activeStep} />
-      <BoardUploader
-        onSelectSpace={handleSelectSpace}
-        onSelectFiles={handleSelectFiles}
-      />
-    </div>
-  );
+  const CREATE_TOUR_STEPS = [
+    {
+      name: "Khởi tạo",
+      Component: () => (
+        <BoardUploader
+          onSelectSpace={handleSelectSpace}
+          onSelectFiles={handleSelectFiles}
+        />
+      ),
+    },
+    {
+      name: "Tuỳ chỉnh không gian",
+      Component: () => <CreateTourStep2 />,
+    },
+    {
+      name: "Xem trước và xuất bản",
+      Component: () => <div>Abc xyz</div>,
+    },
+    {
+      name: "Chờ duyệt từ quản trị viên",
+      Component: () => <div> Okela </div>,
+    },
+  ];
+
+  return <CreateTourStepper stepsConfig={CREATE_TOUR_STEPS} />;
 };
 
 export default CreateNode;

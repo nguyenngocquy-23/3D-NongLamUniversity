@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import vn.edu.hcmuaf.virtualnluapi.dao.HotspotDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotModelCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotNavCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotModelResponse;
 
 import java.util.List;
 
@@ -27,5 +29,7 @@ public class HotspotService {
         return hotspotDao.insertHotspotNavigation(reqs);
     }
 
-
+    public List<HotspotModelResponse> getModelByNodeId(NodeIdRequest reqs) {
+        return hotspotDao.getModelByNodeId(reqs);
+    }
 }

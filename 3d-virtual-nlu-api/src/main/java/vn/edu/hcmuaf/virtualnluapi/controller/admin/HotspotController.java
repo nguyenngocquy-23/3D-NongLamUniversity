@@ -8,7 +8,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotModelCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotNavCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotModelResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
 
 import java.util.List;
@@ -25,7 +27,6 @@ public class HotspotController {
     @Path("/add")
     public ApiResponse<Boolean> insertMultipleHotspot(List<HotspotNavCreateRequest> reqs) {
             boolean result = hotspotService.insertMutipleNavigation(reqs);
-            
         if (result){
             return ApiResponse.<Boolean>builder().statusCode(201).message("Create successful.").data(result).build();
         } else{
@@ -44,6 +45,20 @@ public class HotspotController {
             return ApiResponse.<Boolean>builder().statusCode(1000).message("Insert hotspot model successful.").data(result).build();
         } else{
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Insert hotspot model failed! Please check.").data(result).build();
+        }
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/getHotspotModel")
+    public ApiResponse<List<HotspotModelResponse>> getModelByNodeId(NodeIdRequest reqs) {
+        List<HotspotModelResponse> result = hotspotService.getModelByNodeId(reqs);
+
+        if (result.size() > 0){
+            return ApiResponse.<List<HotspotModelResponse>>builder().statusCode(1000).message("Insert hotspot model successful.").data(result).build();
+        } else{
+            return ApiResponse.<List<HotspotModelResponse>>builder().statusCode(5000).message("Insert hotspot model failed! Please check.").data(result).build();
         }
     }
 }

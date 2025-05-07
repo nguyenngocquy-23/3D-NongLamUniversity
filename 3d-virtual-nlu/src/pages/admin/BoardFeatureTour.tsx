@@ -1,12 +1,8 @@
 import { Link } from "react-router-dom";
-import {
-  FaUpload,
-  FaPlus,
-} from "react-icons/fa6";
+import { FaUpload, FaPlus } from "react-icons/fa6";
 import styles from "../../styles/managerTour.module.css";
 
 const ManagerTour = () => {
-
   return (
     <div className={styles.container}>
       <div className={styles.features}>

@@ -25,8 +25,8 @@ const TourScene: React.FC<TourSceneProps> = ({
   useEffect(() => {
     const geometry = new THREE.SphereGeometry(radius, 128, 128);
 
-    const texture = new THREE.TextureLoader().load("/khoa.jpg");
-    // const texture = new THREE.TextureLoader().load(textureCurrent);
+   // const texture = new THREE.TextureLoader().load("/khoa.jpg");
+   const texture = new THREE.TextureLoader().load(textureCurrent);
 
     texture.wrapS = THREE.RepeatWrapping;
     texture.repeat.x = -1;
