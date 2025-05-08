@@ -19,6 +19,8 @@ import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import PointMedia from "../../components/admin/PointMedia";
 import { useRaycaster } from "../../hooks/useRaycaster";
+import TourScene from "../../components/visitor/TourScene";
+import CamControls from "../../components/visitor/CamControls";
 
 // //Tuỳ chỉnh thêm các điểm nóng.
 
@@ -188,82 +190,12 @@ export interface HotspotModelCreateRequest {
   description: string;
 }
 
-interface NodeProps {
-  url: string;
-  radius: number;
-  sphereRef: React.RefObject<THREE.Mesh | null>;
-  lightIntensity: number;
-}
-
-const Node: React.FC<NodeProps> = ({
-  url,
-  radius,
-  sphereRef,
-  lightIntensity,
-}) => {
-  const texture = useTexture(url);
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.repeat.x = -1;
-
-  return (
-    <mesh
-      ref={(el) => {
-        if (el && sphereRef) {
-          sphereRef.current = el;
-        }
-        5;
-      }}
-    >
-      <ambientLight intensity={lightIntensity} color="#ffffff" />
-      <pointLight
-        position={[100, 100, 100]}
-        color="#ffcc00"
-        castShadow
-        intensity={lightIntensity}
-      />
-      <directionalLight
-        position={[5, 5, 5]}
-        intensity={lightIntensity}
-        color="#ffffff"
-        castShadow
-      />
-      <sphereGeometry args={[radius, 128, 128]} />
-      <meshStandardMaterial map={texture} side={THREE.BackSide} />
-    </mesh>
-  );
-};
-
-interface SceneProps {
-  cameraPosition: [number, number, number];
-  selectedIndex: number;
-  cameraRef?: React.RefObject<THREE.PerspectiveCamera | null>;
-}
-const Scene = ({ cameraPosition, selectedIndex, cameraRef }: SceneProps) => {
-  const { camera } = useThree();
-  const prevIndex = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (prevIndex.current !== selectedIndex) {
-      camera.position.set(...cameraPosition);
-      camera.updateProjectionMatrix();
-      prevIndex.current !== selectedIndex;
-    }
-    if (cameraRef && camera instanceof THREE.PerspectiveCamera) {
-      cameraRef.current = camera;
-    }
-  }, [selectedIndex]);
-
-  return null;
-};
-
 const RaycastOnModel = ({
-  isActive,
   addHotspotModel,
   sphereRef,
   assignable,
   setAssignable,
 }: {
-  isActive: boolean;
   addHotspotModel: (model: HotspotModelCreateRequest) => void;
   sphereRef: React.RefObject<THREE.Mesh | null>;
   assignable: boolean;
@@ -272,11 +204,14 @@ const RaycastOnModel = ({
   const { getIntersectionPoint } = useRaycaster();
 
   useEffect(() => {
-    if (!isActive || !assignable) return;
+    if (!assignable) return;
 
     const handleClick = (event: MouseEvent) => {
       const point = getIntersectionPoint(event, sphereRef.current);
       if (point) {
+        console.log(
+          `3 giá trị lần lượt là: ${point.x} , ${point.y} , ${point.z}`
+        );
         setAssignable(false);
         addHotspotModel({
           type: 1,
@@ -300,15 +235,12 @@ const RaycastOnModel = ({
       setAssignable(false);
       window.removeEventListener("click", handleClick);
     };
-  }, [isActive, assignable]);
+  }, [assignable]);
 
   return null; // không render gì cả, chỉ xử lý raycast khi Task5 mở
 };
 
 const CreateTourStep2 = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
   /**
    * Xử lý toggle hiển thị menu - start
    */
@@ -331,8 +263,6 @@ const CreateTourStep2 = () => {
   const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
 
-  // hotspot
-  const sphereRef = useRef<THREE.Mesh | null>(null);
   const [hotspots, setHotspots] = useState<
     { id: number; position: [number, number, number] }[]
   >([]);
@@ -389,7 +319,6 @@ const CreateTourStep2 = () => {
 
   const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
 
-  const radius = 100; // Bán kính quay
   const originalZ = 0.0000001; // Bán kính quay
 
   const [assignable, setAssignable] = useState(false);
@@ -404,6 +333,19 @@ const CreateTourStep2 = () => {
   const handleMouseUp = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
+
+  // Phần mình đang sửa. ------------------------START.
+
+  /**
+   * Khởi tạo sphereRef: sphere ban đầu của hình cầu.
+   */
+  const sphereRef = useRef<THREE.Mesh | null>(null);
+
+  const [targetPosition, setTargetPosition] = useState<
+    [number, number, number] | null
+  >(null); //test
+
+  const RADIUS = 100;
 
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
 
@@ -457,7 +399,6 @@ const CreateTourStep2 = () => {
         return (
           <>
             <Task3
-              isOpen3={openTaskIndex === 3}
               hotspotModels={hotspotModels}
               setHotspotModels={setHotspotModels}
               videoMeshes={videoMeshes} // danh sách các mesh đã hoàn tất
@@ -499,6 +440,7 @@ const CreateTourStep2 = () => {
     handleSaveTask,
     reset,
   } = useSequentialTasks(tasks.length);
+
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 
   return (
@@ -515,32 +457,29 @@ const CreateTourStep2 = () => {
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
         >
-          <Node
-            url={currentPanoramaUrl ?? "/khoa.jpg"}
-            radius={radius}
+          <UpdateCameraOnResize />
+          <TourScene
+            radius={RADIUS}
             sphereRef={sphereRef}
+            textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             lightIntensity={lightIntensity}
           />
-          <UpdateCameraOnResize />
-          <Scene
-            cameraPosition={cameraPosition}
-            selectedIndex={currentSelectedPosition}
-            cameraRef={cameraRef}
-          />
 
-          <OrbitControls
-            rotateSpeed={0.5}
+          <CamControls
+            targetPosition={targetPosition}
+            sphereRef={sphereRef}
+            cameraRef={cameraRef}
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
           />
 
           <RaycastOnModel
-            isActive={openTaskIndex === 3}
             addHotspotModel={addHotspotModel}
             sphereRef={sphereRef}
             assignable={assignable}
             setAssignable={setAssignable}
           />
+
           {/* {hotspots.map((hotspot) => (
             <GroundHotspot
               key={hotspot.id}
@@ -560,7 +499,6 @@ const CreateTourStep2 = () => {
             />
           ))}
           {/* <div>
-        <VirtualTour textureUrl={currentPanoramaUrl} />
         </div> */}
           <RaycastOnMedia
             isActive={chooseCornerMediaPoint}
@@ -584,6 +522,8 @@ const CreateTourStep2 = () => {
           ))}
           {currentPoints.length > 1 &&
             currentPoints.map((point, i) => {
+              console.log("KẺ NÈ NÍ ƠI", i);
+
               if (i < currentPoints.length - 1)
                 return (
                   <Line

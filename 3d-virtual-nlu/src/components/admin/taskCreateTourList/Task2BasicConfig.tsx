@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 // Tuỳ chỉnh thông số kỹ thuật.
 
-const RADIUS = 100;
 const originalZ = 0.0000001;
 
 type Task2Props = {
@@ -94,16 +93,6 @@ const Task2 = ({ cameraRef }: Task2Props) => {
   const handleAngleChange = (value: number) => {
     setAngle(value); // Cập nhật góc - trigger useMemo + useEffect
   };
-
-  // useEffect(() => {
-  //   if (currentPanorama?.config) {
-  //     const { positionX = 0, positionZ = originalZ } = currentPanorama.config;
-  //     setAngle(getAngleFromXZ(positionX, positionZ));
-  //   }
-  // }, [currentPanorama]);
-  // useEffect(() => {
-  //   setAngle(getAngleFromXZ(positionX, positionZ));
-  // }, [positionX, positionZ]);
 
   useEffect(() => {
     if (cameraRef?.current) {

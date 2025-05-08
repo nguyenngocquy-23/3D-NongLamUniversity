@@ -57,8 +57,6 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
     console.log("sphereRef.current trong VirtualTour:", sphereRef.current);
   }, [sphereRef.current]);
 
-  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
-
   useEffect(() => {
     let resizeTimer: number;
 
@@ -254,9 +252,14 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           radius={radius}
           sphereRef={sphereRef}
           textureCurrent={textureUrl}
+          lightIntensity={0.5}
         />
-        <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
-        {/* <CamControls targetPosition={targetPosition} sphereRef={sphereRef} /> */}
+        <CamControls
+          targetPosition={targetPosition}
+          sphereRef={sphereRef}
+          autoRotate={true}
+          autoRotateSpeed={0.5}
+        />
         {/* <RaycasterHandler
           radius={radius}
           sphereRef={sphereRef}

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import React, { useState, useEffect, useRef } from "react";
-import styles from "../../../styles/createTourStep2.module.css";
+import styles from "../../../styles/tasklistCT/task3.module.css";
 import { FaClock } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/Store";
@@ -8,6 +8,7 @@ import { FaHome } from "react-icons/fa";
 import axios from "axios";
 import UploadFile from "../UploadFile";
 import { useRaycaster } from "../../../hooks/useRaycaster";
+import TypeNavigation from "./HotspotNavigation";
 
 interface VideoMesh {
   id: string;
@@ -16,7 +17,6 @@ interface VideoMesh {
 }
 
 interface Task3Props {
-  isOpen3: boolean;
   assignable: boolean;
   setAssignable: (value: boolean) => void;
   hotspotModels: HotspotModelCreateRequest[];
@@ -31,7 +31,6 @@ interface Task3Props {
 
 // Component cho Task3
 const Task3 = ({
-  isOpen3,
   assignable,
   setAssignable,
   hotspotModels,
@@ -55,16 +54,10 @@ const Task3 = ({
   };
 
   return (
-    <div className={`${styles.task3} ${isOpen3 ? styles.open_task3 : ""}`}>
-      <div className="header" style={{ display: "flex", position: "relative" }}>
-        <h3>3. Tạo điểm tương tác</h3>
+    <div className={styles.task3}>
+      <div className={styles.select_header}>
         <select
-          style={{
-            position: "absolute",
-            right: "10px",
-            top: "50%",
-            transform: "translateY(-50%)",
-          }}
+          className={styles.select_type}
           onChange={(e) => handleChooseType(Number(e.target.value))}
         >
           {hotspotType.map((type) => (
@@ -93,44 +86,6 @@ const Task3 = ({
     </div>
   );
 };
-interface TypeNavigationProps {
-  isOpenTypeNavigation: boolean;
-}
-
-// Component cho type navigation
-const TypeNavigation = ({ isOpenTypeNavigation }: TypeNavigationProps) => (
-  <div
-    className={`${styles.type_navigation} ${
-      isOpenTypeNavigation ? styles.open_type_navigation : ""
-    }`}
-  >
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Biểu tượng:</label>
-      <input type="checkbox" />
-      <FaHome />
-      <input type="checkbox" />
-      <FaClock />
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Điểm di chuyển:</label>
-      <button>Chọn điểm di chuyển</button>
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Âm thanh di chuyển:</label>
-      <FaHome />
-      <input type="checkbox" />
-      <FaClock />
-      <input type="checkbox" />
-    </div>
-    <div className={styles.contain_input}>
-      <label className={styles.label}>Hiệu ứng di chuyển:</label>
-      <FaHome />
-      <input type="checkbox" />
-      <FaClock />
-      <input type="checkbox" />
-    </div>
-  </div>
-);
 
 interface TypeInfomationProps {
   isOpenTypeInfomation: boolean;
