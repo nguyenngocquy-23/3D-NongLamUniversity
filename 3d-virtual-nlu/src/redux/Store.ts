@@ -2,12 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/AuthSlice.ts";
 import dataReducer from "./slices/DataSlice.ts";
 import panoramaReducer from "./slices/PanoramaSlice.ts";
+import hotspotReducer from "./slices/HotspotSlice.ts";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     data: dataReducer,
     panoramas: panoramaReducer,
+    hotspots: hotspotReducer,
   },
 });
 

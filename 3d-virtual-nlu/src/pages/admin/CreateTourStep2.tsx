@@ -350,12 +350,14 @@ const CreateTourStep2 = () => {
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
 
   const dispatch = useDispatch();
-  const { panoramaList, currentSelectedPosition } = useSelector(
+  const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
 
   // Panorama hiện tại.
-  const currentPanorama = panoramaList[currentSelectedPosition];
+  const currentPanorama = panoramaList.find(
+    (pano) => pano.id === currentSelectId
+  );
 
   /**
    * Lấy URL panorama hiện tại - hoặc dùng mặc định.
@@ -377,8 +379,8 @@ const CreateTourStep2 = () => {
     positionZ,
   ];
 
-  const handleSelectNode = (index: number) => {
-    dispatch(selectPanorama(index));
+  const handleSelectNode = (id: string) => {
+    dispatch(selectPanorama(id));
   };
 
   const getTaskContentById = (id: number): React.ReactNode => {
@@ -547,13 +549,13 @@ const CreateTourStep2 = () => {
         {/* Header chứa logo + close */}
         <div className={styles.header_tour}>
           <div className={styles.thumbnailsBox}>
-            {panoramaList.map((item, index) => (
-              <div key={index} className={styles.node}>
+            {panoramaList.map((item) => (
+              <div key={item.id} className={styles.node}>
                 <div
                   className={` ${styles.nodeView}  ${
-                    index === currentSelectedPosition ? styles.nodeSelected : ""
+                    item.id === currentSelectId ? styles.nodeSelected : ""
                   }`}
-                  onClick={() => handleSelectNode(index)}
+                  onClick={() => handleSelectNode(item.id)}
                 >
                   <img
                     src={item.url}

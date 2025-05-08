@@ -14,11 +14,11 @@ type Task2Props = {
 
 const Task2 = ({ cameraRef }: Task2Props) => {
   const dispatch = useDispatch();
-  const { panoramaList, currentSelectedPosition } = useSelector(
-    (state: RootState) => state.panoramas
-  );
+  const { panoramaList, currentSelectId, currentSelectedPosition } =
+    useSelector((state: RootState) => state.panoramas);
 
-  const currentPanorama = panoramaList[currentSelectedPosition];
+  const currentPanorama = panoramaList.find((p) => p.id === currentSelectId);
+  // const currentPanorama = panoramaList[currentSelectedPosition];
   if (!currentPanorama) return null;
 
   const {
@@ -71,7 +71,7 @@ const Task2 = ({ cameraRef }: Task2Props) => {
       );
       setAngle(newAngle);
     }
-  }, [currentSelectedPosition]);
+  }, [currentSelectId]);
 
   const cameraPosition = useMemo((): [number, number, number] => {
     const radians = (angle * Math.PI) / 180;
@@ -84,7 +84,7 @@ const Task2 = ({ cameraRef }: Task2Props) => {
   ) => {
     dispatch(
       updatePanoConfig({
-        index: currentSelectedPosition,
+        id: currentPanorama.id,
         config: { [field]: value },
       })
     );
@@ -104,7 +104,7 @@ const Task2 = ({ cameraRef }: Task2Props) => {
     // Optional: update Redux (chỉ lưu lại)
     dispatch(
       updatePanoConfig({
-        index: currentSelectedPosition,
+        id: currentPanorama.id,
         config: {
           positionX: cameraPosition[0],
           positionY: cameraPosition[1],

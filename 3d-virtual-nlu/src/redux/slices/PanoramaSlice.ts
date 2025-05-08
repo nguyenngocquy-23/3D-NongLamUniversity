@@ -1,10 +1,13 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, nanoid } from "@reduxjs/toolkit";
 
 export interface PanoramaConfig {
   /**
-   * + id tự tăng khi đẩy vào database.
+   * + id: sử dụng nanoid để tạo id tạm trước khi đưa vào database.
+   * => Điều này giúp đỡ phải lồng các hotspot vào gây khó khăn trong việc xử lý.
+   *
    * + createdAt, updatedAt: default theo db
    * + status: phân biệt node chủ - node con.
+   * Master node: status =2, Slave node : status =1
    */
   name: string;
   description: string;
@@ -18,7 +21,7 @@ export interface PanoramaConfig {
 }
 
 export interface PanoramaItem {
-  id?: number;
+  id: string; //nanoid => id là string.
   spaceId: string;
   url: string;
   config: PanoramaConfig;
@@ -27,12 +30,14 @@ export interface PanoramaItem {
 interface PanoramaState {
   panoramaList: PanoramaItem[];
   currentSelectedPosition: number;
+  currentSelectId: string | null;
   spaceId: string | null;
 }
 
 const initialState: PanoramaState = {
   panoramaList: [],
   currentSelectedPosition: 0,
+  currentSelectId: null,
   spaceId: null,
 };
 
@@ -48,7 +53,8 @@ const panoramaSlice = createSlice({
       state,
       action: PayloadAction<Array<{ originalFileName: string; url: string }>>
     ) {
-      state.panoramaList = action.payload.map((item, index) => ({
+      const panoramas = action.payload.map((item, index) => ({
+        id: nanoid(),
         url: item.url,
         spaceId: state.spaceId!,
         config: {
@@ -60,15 +66,18 @@ const panoramaSlice = createSlice({
           autoRotate: 0,
           speedRotate: 0,
           lightIntensity: 1,
-          status: index === 0 ? 1 : 2,
+          status: index === 0 ? 2 : 1,
         },
       }));
+      state.panoramaList = panoramas;
+      state.currentSelectId = panoramas[0]?.id || null;
       state.currentSelectedPosition = 0;
     },
 
     addPanorama(state, action: PayloadAction<string>) {
       if (state.panoramaList.length < 5 && state.spaceId !== null) {
-        state.panoramaList.push({
+        const newPanorama: PanoramaItem = {
+          id: nanoid(),
           url: action.payload,
           spaceId: state.spaceId,
           config: {
@@ -80,35 +89,60 @@ const panoramaSlice = createSlice({
             autoRotate: 0,
             speedRotate: 0,
             lightIntensity: 1,
-            status: 2,
+            status: 1,
           },
-        });
+        };
+
+        state.panoramaList.push(newPanorama);
+        // nếu cần thiết, nên cho nó là cái được chọn luôn.
+        // state.currentSelectId = newPanorama.id;
       }
     },
-    selectPanorama(state, action: PayloadAction<number>) {
-      state.currentSelectedPosition = action.payload;
+    selectPanorama(state, action: PayloadAction<string>) {
+      // state.currentSelectedPosition = action.payload;
+      state.currentSelectId = action.payload;
     },
-    setMasterPanorama(state, action: PayloadAction<number>) {
-      const masterIndex = action.payload;
-      state.panoramaList.forEach((item, index) => {
-        item.config.status = index === masterIndex ? 1 : 2;
+    setMasterPanorama(state, action: PayloadAction<string>) {
+      const masterId = action.payload;
+      state.panoramaList.forEach((item) => {
+        item.config.status = item.id === masterId ? 2 : 1;
       });
     },
+    // updatePanoConfig(
+    //   state,
+    //   action: PayloadAction<{ index: number; config: Partial<PanoramaConfig> }>
+    // ) {
+    //   const { index, config } = action.payload;
+    //   if (state.panoramaList[index]) {
+    //     state.panoramaList[index].config = {
+    //       ...state.panoramaList[index].config,
+    //       ...config,
+    //     };
+    //   }
+    // },
     updatePanoConfig(
       state,
-      action: PayloadAction<{ index: number; config: Partial<PanoramaConfig> }>
+      action: PayloadAction<{ id: string; config: Partial<PanoramaConfig> }>
     ) {
-      const { index, config } = action.payload;
-      if (state.panoramaList[index]) {
-        state.panoramaList[index].config = {
-          ...state.panoramaList[index].config,
+      const { id, config } = action.payload;
+      const pano = state.panoramaList.find((p) => p.id === id);
+      if (pano) {
+        pano.config = {
+          ...pano.config,
           ...config,
         };
       }
     },
+    // deletePanorame(state, action: PayloadAction<number>) {
+    //   const deleted = state.panoramaList.splice(action.payload, 1);
+    //   if (state.currentSelectedPosition >= state.panoramaList.length) {
+    //     s;
+    //   }
+    // },
     clearPanorama(state) {
       (state.panoramaList = []),
         (state.currentSelectedPosition = 0),
+        (state.currentSelectId = null),
         (state.spaceId = null);
     },
   },
