@@ -1,12 +1,24 @@
 import { FaHome } from "react-icons/fa";
 import styles from "../../../styles/tasklistCT/task3.module.css";
 import { FaClock } from "react-icons/fa6";
+import { HotspotType } from "../../../redux/slices/HotspotSlice";
 
 interface TypeNavigationProps {
   isOpenTypeNavigation: boolean;
+  //test
+  assignable: boolean;
+  setAssignable: (value: boolean) => void;
+  currentHotspotType: HotspotType | null;
+  setCurrentHotspotType: (value: HotspotType) => void;
 }
 
-const TypeNavigation = ({ isOpenTypeNavigation }: TypeNavigationProps) => (
+const TypeNavigation = ({
+  isOpenTypeNavigation,
+  assignable,
+  setAssignable,
+  currentHotspotType,
+  setCurrentHotspotType,
+}: TypeNavigationProps) => (
   <div
     className={`${styles.type_navigation} ${
       isOpenTypeNavigation ? styles.open_type_navigation : ""
@@ -21,7 +33,14 @@ const TypeNavigation = ({ isOpenTypeNavigation }: TypeNavigationProps) => (
     </div>
     <div className={styles.contain_input}>
       <label className={styles.label}>Điểm di chuyển:</label>
-      <button>Chọn điểm di chuyển</button>
+      <button
+        onClick={() => {
+          setAssignable(true);
+          setCurrentHotspotType(1);
+        }}
+      >
+        Chọn điểm di chuyển
+      </button>
     </div>
     <div className={styles.contain_input}>
       <label className={styles.label}>Âm thanh di chuyển:</label>

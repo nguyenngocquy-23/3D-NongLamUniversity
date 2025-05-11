@@ -8,8 +8,8 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     data: dataReducer,
-    panoramas: panoramaReducer,
     hotspots: hotspotReducer,
+    panoramas: panoramaReducer,
   },
 });
 

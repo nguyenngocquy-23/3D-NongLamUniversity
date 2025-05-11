@@ -95,20 +95,6 @@ const hotspotSlice = createSlice({
         id: nanoid(),
       });
     },
-    // updateHotspot: (
-    //   state,
-    //   action: PayloadAction<{ id: string; updates: Partial<HotspotItem> }>
-    // ) => {
-    //   const index = state.hotspotList.findIndex(
-    //     (h) => h.id === action.payload.id
-    //   );
-    //   if (index !== -1) {
-    //     state.hotspotList[index] = {
-    //       ...state.hotspotList[index],
-    //       ...action.payload.updates,
-    //     };
-    //   }
-    // },
     deleteHotspot: (state, action: PayloadAction<string>) => {
       state.hotspotList = state.hotspotList.filter(
         (h) => h.id !== action.payload
@@ -116,6 +102,32 @@ const hotspotSlice = createSlice({
     },
     clearHotspot: (state) => {
       state.hotspotList = [];
+    },
+    updateModelHotspotModelUrl: (
+      state,
+      action: PayloadAction<{ id: string; modelUrl: string }>
+    ) => {
+      const index = state.hotspotList.findIndex(
+        (h) => h.id === action.payload.id && h.type === 4
+      );
+      if (index !== -1) {
+        (state.hotspotList[index] as HotspotModel).modelUrl =
+          action.payload.modelUrl;
+      }
+    },
+
+    // Nhận vào hotspot id và targetNodeId
+    updateNavigationHotspotTarget: (
+      state,
+      action: PayloadAction<{ id: string; targetNodeId: string }>
+    ) => {
+      const index = state.hotspotList.findIndex(
+        (h) => h.id === action.payload.id && h.type === 1
+      );
+      if (index !== -1) {
+        (state.hotspotList[index] as HotspotNavigation).targetNodeId =
+          action.payload.targetNodeId;
+      }
     },
   },
 });
@@ -127,5 +139,22 @@ export const {
   addModelHotspot,
   deleteHotspot,
   clearHotspot,
+  updateModelHotspotModelUrl,
+  updateNavigationHotspotTarget,
 } = hotspotSlice.actions;
 export default hotspotSlice.reducer;
+
+// updateHotspot: (
+//   state,
+//   action: PayloadAction<{ id: string; updates: Partial<HotspotItem> }>
+// ) => {
+//   const index = state.hotspotList.findIndex(
+//     (h) => h.id === action.payload.id
+//   );
+//   if (index !== -1) {
+//     state.hotspotList[index] = {
+//       ...state.hotspotList[index],
+//       ...action.payload.updates,
+//     };
+//   }
+// },

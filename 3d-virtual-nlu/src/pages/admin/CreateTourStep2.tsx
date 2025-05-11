@@ -3,10 +3,9 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from "../../styles/createTourStep2.module.css";
 import { FaAngleRight, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
-import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, ThreeEvent, useThree } from "@react-three/fiber";
 import { Line, OrbitControls, useTexture } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import { selectPanorama } from "../../redux/slices/PanoramaSlice";
@@ -21,6 +20,16 @@ import PointMedia from "../../components/admin/PointMedia";
 import { useRaycaster } from "../../hooks/useRaycaster";
 import TourScene from "../../components/visitor/TourScene";
 import CamControls from "../../components/visitor/CamControls";
+import {
+  addInformationHotspot,
+  addMediaHotspot,
+  addModelHotspot,
+  addNavigationHotspot,
+  HotspotModel,
+  HotspotNavigation,
+  HotspotType,
+} from "../../redux/slices/HotspotSlice";
+import GroundHotspot from "../../components/visitor/GroundHotspot";
 
 // //Tuỳ chỉnh thêm các điểm nóng.
 
@@ -190,56 +199,6 @@ export interface HotspotModelCreateRequest {
   description: string;
 }
 
-const RaycastOnModel = ({
-  addHotspotModel,
-  sphereRef,
-  assignable,
-  setAssignable,
-}: {
-  addHotspotModel: (model: HotspotModelCreateRequest) => void;
-  sphereRef: React.RefObject<THREE.Mesh | null>;
-  assignable: boolean;
-  setAssignable: (value: boolean) => void;
-}) => {
-  const { getIntersectionPoint } = useRaycaster();
-
-  useEffect(() => {
-    if (!assignable) return;
-
-    const handleClick = (event: MouseEvent) => {
-      const point = getIntersectionPoint(event, sphereRef.current);
-      if (point) {
-        console.log(
-          `3 giá trị lần lượt là: ${point.x} , ${point.y} , ${point.z}`
-        );
-        setAssignable(false);
-        addHotspotModel({
-          type: 1,
-          iconId: 1,
-          positionX: point.x,
-          positionY: point.y,
-          positionZ: point.z,
-          pitchX: 10,
-          yawY: 15,
-          rollZ: 5,
-          scale: 1,
-          modelUrl: "",
-          name: "Second model",
-          description: "Another test",
-        });
-      }
-    };
-
-    window.addEventListener("click", handleClick);
-    return () => {
-      setAssignable(false);
-      window.removeEventListener("click", handleClick);
-    };
-  }, [assignable]);
-
-  return null; // không render gì cả, chỉ xử lý raycast khi Task5 mở
-};
-
 const CreateTourStep2 = () => {
   /**
    * Xử lý toggle hiển thị menu - start
@@ -262,10 +221,6 @@ const CreateTourStep2 = () => {
 
   const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
-
-  const [hotspots, setHotspots] = useState<
-    { id: number; position: [number, number, number] }[]
-  >([]);
 
   // point used for upload media feature
   interface VideoMesh {
@@ -301,30 +256,9 @@ const CreateTourStep2 = () => {
     }
   };
 
-  // hostpost model
-  const [hotspotModels, setHotspotModels] = useState<
-    HotspotModelCreateRequest[]
-  >([]);
-
-  const addHotspotModel = (newModel: HotspotModelCreateRequest) => {
-    setHotspotModels((prev) => [...prev, newModel]);
-  };
-
-  // const [hotspotModels, setHotspotModels] = useState<HotspotModel[]>([]);
-
-  // const handleAddHotspot = (position: [number, number, number]) => {
-  //   setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
-  //   setHotspotModels((prev) => [...prev, { id: prev.length + 1, position }]);
-  // };
-
   const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
-
-  const originalZ = 0.0000001; // Bán kính quay
-
   const [assignable, setAssignable] = useState(false);
   const [chooseCornerMediaPoint, setChooseCornerMediaPoint] = useState(false);
-
-  const handledSwitchTexture = () => {};
 
   const handleMouseDown = () => {
     setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
@@ -345,6 +279,20 @@ const CreateTourStep2 = () => {
     [number, number, number] | null
   >(null); //test
 
+  /**
+   * TEST CHO VIỆC THÊM HOTSPOT TYPE.
+   * => Task3 trả về type.
+   */
+  const [currentHotspotType, setCurrentHotspotType] =
+    useState<HotspotType | null>(null);
+
+  const defaultIconIds: Record<HotspotType, number> = {
+    1: 1,
+    2: 2,
+    3: 1,
+    4: 1,
+  };
+
   const RADIUS = 100;
 
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
@@ -352,6 +300,18 @@ const CreateTourStep2 = () => {
   const dispatch = useDispatch();
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
+  );
+
+  const hotspotModels = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotModel => hotspot.type === 4
+    )
+  );
+
+  const hotspots = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
+    )
   );
 
   // Panorama hiện tại.
@@ -383,6 +343,80 @@ const CreateTourStep2 = () => {
     dispatch(selectPanorama(id));
   };
 
+  /**
+   *
+   * @param e : Sự kiện click chuột từ frontend
+   * @param point : Vector3d: x, y, z
+   */
+  const handleScenePointerDown = (
+    e: ThreeEvent<PointerEvent>,
+    point: THREE.Vector3
+  ) => {
+    if (!currentHotspotType || !assignable) return;
+
+    const basicProps = {
+      nodeId: currentPanorama?.id ?? "",
+      iconId: defaultIconIds[currentHotspotType],
+      positionX: point.x,
+      positionY: point.y,
+      positionZ: point.z,
+      scale: 1,
+      pitchX: 0,
+      yawY: 0,
+      rollZ: 0,
+    };
+
+    switch (currentHotspotType) {
+      case 1:
+        dispatch(
+          addNavigationHotspot({
+            ...basicProps,
+            type: 1,
+            targetNodeId: "", //set lại sau
+          })
+        );
+        break;
+      case 2:
+        dispatch(
+          addInformationHotspot({
+            ...basicProps,
+            type: 2,
+            title: "",
+            content: "",
+          })
+        );
+        break;
+
+      case 3:
+        dispatch(
+          addMediaHotspot({
+            ...basicProps,
+            type: 3,
+            mediaType: "", //image or video
+            mediaUrl: "",
+            caption: "",
+          })
+        );
+        break;
+      case 4:
+        dispatch(
+          addModelHotspot({
+            ...basicProps,
+            type: 4,
+            modelUrl: "",
+            name: "",
+            description: "",
+            autoRotate: 0, //0 = false, 1= true.
+            colorCode: "",
+          })
+        );
+        break;
+    }
+
+    setAssignable(false);
+    setCurrentHotspotType(null);
+  };
+
   const getTaskContentById = (id: number): React.ReactNode => {
     switch (id) {
       case 1:
@@ -402,7 +436,6 @@ const CreateTourStep2 = () => {
           <>
             <Task3
               hotspotModels={hotspotModels}
-              setHotspotModels={setHotspotModels}
               videoMeshes={videoMeshes} // danh sách các mesh đã hoàn tất
               currentPoints={currentPoints} // mesh đang chọn
               setCurrentPoints={setCurrentPoints} // thêm điểm
@@ -411,6 +444,8 @@ const CreateTourStep2 = () => {
               setAssignable={setAssignable}
               chooseCornerMediaPoint={chooseCornerMediaPoint}
               setChooseCornerMediaPoint={setChooseCornerMediaPoint}
+              currentHotspotType={currentHotspotType}
+              setCurrentHotspotType={setCurrentHotspotType}
             />
           </>
         );
@@ -461,10 +496,14 @@ const CreateTourStep2 = () => {
         >
           <UpdateCameraOnResize />
           <TourScene
+            nodeId={currentSelectId ?? ""}
             radius={RADIUS}
             sphereRef={sphereRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
+            onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
+            assignable={assignable}
+            setAssignable={setAssignable}
           />
 
           <CamControls
@@ -474,24 +513,23 @@ const CreateTourStep2 = () => {
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
           />
-
-          <RaycastOnModel
-            addHotspotModel={addHotspotModel}
-            sphereRef={sphereRef}
-            assignable={assignable}
-            setAssignable={setAssignable}
-          />
-
-          {/* {hotspots.map((hotspot) => (
+          {hotspots.map((hotspot) => (
             <GroundHotspot
               key={hotspot.id}
-              position={hotspot.position}
+              position={[
+                hotspot.positionX,
+                hotspot.positionY,
+                hotspot.positionZ,
+              ]}
+              idHotspot={hotspot.id}
               setHoveredHotspot={setHoveredHotspot}
+              nodeId={hotspot.nodeId}
+              type="floor"
             />
-          ))} */}
-          {hotspotModels.map((hotspot, index) => (
+          ))}
+          {hotspotModels.map((hotspot) => (
             <GroundHotspotModel
-              key={index}
+              key={hotspot.id}
               position={[
                 hotspot.positionX,
                 hotspot.positionY,
