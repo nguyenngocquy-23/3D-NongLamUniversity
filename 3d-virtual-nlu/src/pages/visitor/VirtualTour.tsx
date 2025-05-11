@@ -253,7 +253,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
         <TourScene
           radius={radius}
           sphereRef={sphereRef}
-          textureCurrent={textureUrl}
+          textureCurrent={textureUrl ?? '/khoa.jpg'}
         />
         <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
         {/* <CamControls targetPosition={targetPosition} sphereRef={sphereRef} /> */}

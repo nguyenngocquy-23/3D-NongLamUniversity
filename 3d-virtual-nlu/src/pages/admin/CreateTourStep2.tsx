@@ -559,9 +559,7 @@ const CreateTourStep2 = () => {
               setHoveredHotspot={setHoveredHotspot}
             />
           ))}
-          {/* <div>
-        <VirtualTour textureUrl={currentPanoramaUrl} />
-        </div> */}
+          
           <RaycastOnMedia
             isActive={chooseCornerMediaPoint}
             onAddPoint={handleAddPoint}

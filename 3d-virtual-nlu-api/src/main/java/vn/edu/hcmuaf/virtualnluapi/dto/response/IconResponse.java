@@ -14,6 +14,6 @@ import java.time.LocalDateTime;
 public class IconResponse {
     int id;
     String name, url;
-    LocalDateTime createdAt;
     boolean active;
+    LocalDateTime createdAt;
 }

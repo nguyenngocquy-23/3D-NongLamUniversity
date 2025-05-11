@@ -1,17 +1,18 @@
 package vn.edu.hcmuaf.virtualnluapi.controller.admin;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.IconService;
+
+import java.util.List;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Path("v1/admin/icon")
@@ -20,6 +21,27 @@ public class IconController {
     @Inject
     IconService iconService;
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<IconResponse>> getIcons() {
+        List<IconResponse> allIcons = iconService.getAllIcons();
+        return ApiResponse.<List<IconResponse>>builder()
+                .statusCode(1000)
+                .message("Lay danh sach icon thanh cong")
+                .data(allIcons)
+                .build();
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> createIcon(IconCreateRequest req) {
+        boolean result = iconService.createIcon(req);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Tao icon thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi tao icon").data(result).build();
+        }
+    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
