@@ -25,13 +25,13 @@ const TourScene: React.FC<TourSceneProps> = ({
   useEffect(() => {
     const geometry = new THREE.SphereGeometry(radius, 128, 128);
 
-   // const texture = new THREE.TextureLoader().load("/khoa.jpg");
-   const texture = new THREE.TextureLoader().load(textureCurrent);
+    // const texture = new THREE.TextureLoader().load("/khoa.jpg");
+    const texture = new THREE.TextureLoader().load(textureCurrent);
 
     texture.wrapS = THREE.RepeatWrapping;
     texture.repeat.x = -1;
 
-    const material = new THREE.MeshBasicMaterial({
+    const material = new THREE.MeshStandardMaterial({
       map: texture,
       side: THREE.BackSide,
     });
@@ -56,7 +56,7 @@ const TourScene: React.FC<TourSceneProps> = ({
      * Xử lý hậu kỳ ánh sáng cho scene.
      */
 
-    const ambientLight = new THREE.AmbientLight(0x404040, 1);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2); // màu trắng, cường độ sáng hơn
     scene.add(ambientLight);
 
     return () => {

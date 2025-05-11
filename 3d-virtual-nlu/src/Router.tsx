@@ -21,6 +21,7 @@ import ManageNode from "./pages/admin/ManagerTour.tsx";
 import UpdateNode from "./features/UpdateTour.tsx";
 import Model from "./components/admin/Model.tsx";
 import Waiting from "./components/Waiting.tsx";
+import ManagerIcon from "./pages/admin/ManagerIcon.tsx";
 
 function RouterConfig() {
   return (
@@ -37,6 +38,7 @@ function RouterConfig() {
         <Route path="users" element={<User />} />
         <Route path="fields" element={<Field />} />
         <Route path="spaces" element={<Space />} />
+        <Route path="icons" element={<ManagerIcon />} />
         <Route path="createTour" element={<CreateTour />} />
         <Route path="createTour/2" element={<CreateTourStep2 />} />
         <Route path="createTour/3" element={<CreateTourStep3 />} />

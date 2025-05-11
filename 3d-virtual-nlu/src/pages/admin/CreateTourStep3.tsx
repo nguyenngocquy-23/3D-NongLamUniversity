@@ -13,8 +13,6 @@ const CreateTourStep3: React.FC = () => {
   // Lấy danh sách fields từ Redux
   const fields = useSelector((state: RootState) => state.data.fields);
 
-  
-
   return (
     <div className={styles.container}>
       <ProcessBar activeStep={activeStep} />

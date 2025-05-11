@@ -6,6 +6,7 @@ import styles from "../../styles/uploadFile.module.css";
 import axios, { AxiosError } from "axios";
 import { setPanoramas } from "../../redux/slices/PanoramaSlice";
 import { useDispatch } from "react-redux";
+import { div } from "framer-motion/client";
 
 type UploadFileProps = {
   className?: string;
@@ -65,12 +66,14 @@ const UploadFile: React.FC<UploadFileProps> = ({
     setSelectFiles([]);
     setProgress(0);
     setUploadStatus("select");
+    if (onUploaded) onUploaded("", index ?? 0);
   };
 
   const removeFile = (index: number) => {
     const newFiles = [...selectedFile];
     newFiles.splice(index, 1);
     setSelectFiles(newFiles);
+    if (onUploaded) onUploaded("", index ?? 0);
   };
 
   const handleUpload = async (): Promise<void> => {
@@ -121,6 +124,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
           }));
         if (onUploaded) {
           const url = formattedData[0].url;
+          console.log("url: ", url);
           onUploaded(url, index ?? 0);
         } else {
           dispatch(setPanoramas(formattedData));
@@ -142,8 +146,25 @@ const UploadFile: React.FC<UploadFileProps> = ({
         ref={inputRef}
         type="file"
         onChange={handleFileChange}
-        accept={className == "upload_model" ? ".glb, .gltf" : ""}
-        multiple={className == "upload_model" ? false : true}
+        accept={
+          className == "upload_model"
+            ? ".glb, .gltf"
+            : className == "upload_video"
+            ? "video/*"
+            : className == "upload_image"
+            ? "image/*"
+            : className == "upload_icon"
+            ? ".svg"
+            : ""
+        }
+        multiple={
+          className == "upload_model" ||
+          className == "upload_video" ||
+          className == "upload_image" ||
+          className == "upload_icón"
+            ? false
+            : true
+        }
         style={{ display: "none" }}
       />
 
@@ -164,22 +185,34 @@ const UploadFile: React.FC<UploadFileProps> = ({
         <>
           <div className={styles.fileCardsWrapper}>
             {selectedFile.map((file, index) => (
-              <div className={styles.fileCards} key={index}>
-                <span>
-                  <FaRegFileImage />
-                </span>
+              <div key={index} className={styles.fileCardsWrapper}>
+                <div
+                  style={{
+                    backgroundImage: `url(${URL.createObjectURL(file)})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    width: "100px", // hoặc giá trị bạn cần
+                    height: "100px",
+                    margin:'auto'
+                  }}
+                />
+                <div className={styles.fileCards}>
+                  <span>
+                    <FaRegFileImage />
+                  </span>
 
-                <div className={styles.fileInfo}>
-                  <div className={styles.fileContent}>
-                    <h6>{file.name}</h6>
+                  <div className={styles.fileInfo}>
+                    <div className={styles.fileContent} title={file.name}>
+                      <h4>{file.name}</h4>
+                    </div>
+
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => removeFile(index)}
+                    >
+                      <MdDeleteForever />
+                    </button>
                   </div>
-
-                  <button
-                    className={styles.deleteBtn}
-                    onClick={() => removeFile(index)}
-                  >
-                    <MdDeleteForever />
-                  </button>
                 </div>
               </div>
             ))}

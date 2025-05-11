@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFields, fetchSpaces } from "../../redux/slices/DataSlice";
 import { AppDispatch, RootState } from "../../redux/Store";
+import UploadFile from "./UploadFile";
 
 interface CustomModalProps {
   onClose: () => void;
@@ -133,6 +134,8 @@ const CustomModal: React.FC<CustomModalProps> = ({
                   onChange={handleChangeInput}
                   rows={4}
                 />
+              ) : field.name === "iconUrl" ? (
+                <UploadFile className={"upload_icon"}/>
               ) : (
                 <input
                   className={styles.input}

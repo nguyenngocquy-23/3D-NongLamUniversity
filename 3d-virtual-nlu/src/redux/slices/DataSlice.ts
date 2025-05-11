@@ -9,6 +9,7 @@ interface DataState {
   nodes: any[];
   hotspotTypes: any[];
   masterNodes: any[];
+  icons: any[],
   status: "idle" | "loading" | "succeeded" | "failed";
 }
 
@@ -20,6 +21,7 @@ const initialState: DataState = {
   nodes: [],
   hotspotTypes: [],
   masterNodes: [],
+  icons: [],
   status: "idle",
 };
 
@@ -68,6 +70,11 @@ export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
 // Fetch space
 export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
   const response = await axios.get("http://localhost:8080/api/admin/space/all");
+  return response.data.data;
+});
+// Fetch icon
+export const fetchIcons = createAsyncThunk("data/fetchIcons", async () => {
+  const response = await axios.get("http://localhost:8080/api/v1/admin/icon");
   return response.data.data;
 });
 // Fetch hotspot type
@@ -139,6 +146,17 @@ const dataSlice = createSlice({
         state.spaces = action.payload;
       })
       .addCase(fetchSpaces.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchIcons.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchIcons.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.icons = action.payload;
+      })
+      .addCase(fetchIcons.rejected, (state) => {
         state.status = "failed";
       })
 

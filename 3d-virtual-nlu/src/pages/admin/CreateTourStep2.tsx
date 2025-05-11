@@ -16,15 +16,22 @@ import { useSequentialTasks } from "../../hooks/useSequentialTasks";
 import Task2 from "../../components/admin/taskCreateTourList/Task2BasicConfig";
 import Task1 from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
-import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
+import Task3, {
+  CornerPoint,
+  HotspotMediaCreateRequest,
+} from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import PointMedia from "../../components/admin/PointMedia";
 import { useRaycaster } from "../../hooks/useRaycaster";
 
 // //Tuỳ chỉnh thêm các điểm nóng.
 
-interface VideoMeshProps {
+export interface VideoMeshProps {
   cornerPoints: any[];
   currentVideoUrl: string;
+  videoMeshes: HotspotMediaCreateRequest[];
+  setVideoMeshes: React.Dispatch<
+    React.SetStateAction<HotspotMediaCreateRequest[]>
+  >;
   setCornerPoints: React.Dispatch<
     React.SetStateAction<[number, number, number][]>
   >;
@@ -34,10 +41,22 @@ interface VideoMeshProps {
 const VideoMeshComponent = ({
   cornerPoints,
   currentVideoUrl,
+  videoMeshes,
+  setVideoMeshes,
   setCornerPoints,
   setChooseCornerMediaPoint,
 }: VideoMeshProps) => {
   const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
+  //tính trung điểm của 4 góc
+  const getCenterOfPoints = (points: [number, number, number][]) => {
+    const center = [0, 0, 0];
+    for (let i = 0; i < 4; i++) {
+      center[0] += points[i][0];
+      center[1] += points[i][1];
+      center[2] += points[i][2];
+    }
+    return center.map((v) => v / 4) as [number, number, number];
+  };
 
   const createCustomGeometry = (points: [number, number, number][]) => {
     const geometry = new THREE.BufferGeometry();
@@ -69,16 +88,6 @@ const VideoMeshComponent = ({
     geometry.userData.center = center;
 
     return geometry;
-  };
-  //tính trung điểm của 4 góc
-  const getCenterOfPoints = (points: [number, number, number][]) => {
-    const center = [0, 0, 0];
-    for (let i = 0; i < 4; i++) {
-      center[0] += points[i][0];
-      center[1] += points[i][1];
-      center[2] += points[i][2];
-    }
-    return center.map((v) => v / 4) as [number, number, number];
   };
   const textureCreatedRef = useRef(false);
 
@@ -114,6 +123,25 @@ const VideoMeshComponent = ({
 
       video.addEventListener("canplaythrough", handleCanPlay);
       video.load();
+
+      const newMedia: HotspotMediaCreateRequest = {
+        type: 1,
+        iconId: 1,
+        positionX: center[0],
+        positionY: center[1],
+        positionZ: center[2],
+        pitchX: 10,
+        yawY: 15,
+        rollZ: 5,
+        scale: 1,
+        mediaType: "VIDEO",
+        mediaUrl: "",
+        caption: "Another test",
+        cornerPointList: JSON.stringify(cornerPoints),
+      };
+      // setVideoMeshes([...videoMeshes, newMedia]);
+      setVideoMeshes((prev) => [...prev, newMedia]);
+      console.log(videoMeshes);
 
       return () => {
         video.removeEventListener("canplaythrough", handleCanPlay);
@@ -173,7 +201,7 @@ const RaycastOnMedia = ({
   return null;
 };
 
-export interface HotspotModelCreateRequest {
+interface HotspotModelCreateRequest {
   type: number;
   iconId: number;
   positionX: number;
@@ -337,14 +365,10 @@ const CreateTourStep2 = () => {
     { id: number; position: [number, number, number] }[]
   >([]);
 
-  // point used for upload media feature
-  interface VideoMesh {
-    id: string; // id cho mỗi mesh
-    videoUrl: string; // url video
-    points: [number, number, number][]; // danh sách điểm của mesh
-  }
-
-  const [videoMeshes, setVideoMeshes] = useState<VideoMesh[]>([]);
+  const [cornerPointes, setCornerPointes] = useState<CornerPoint[]>([]);
+  const [videoMeshes, setVideoMeshes] = useState<HotspotMediaCreateRequest[]>(
+    []
+  );
 
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>("");
 
@@ -359,13 +383,13 @@ const CreateTourStep2 = () => {
     setCurrentPoints(newPoints);
 
     if (newPoints.length === 4) {
-      const newMesh: VideoMesh = {
+      const newPoint: CornerPoint = {
         id: Date.now().toString(), // Hoặc dùng uuid nếu muốn đẹp hơn
-        videoUrl: selectedVideoUrl, // Giả sử bạn có biến lưu url video đang chọn
         points: newPoints,
+        mediaUrl: selectedVideoUrl,
       };
 
-      setVideoMeshes((prev) => [...prev, newMesh]);
+      setCornerPointes((prev) => [...prev, newPoint]);
       setCurrentPoints([]); // reset để bắt đầu chọn 4 điểm mới
       setChooseCornerMediaPoint(false); // tắt chế độ chọn
     }
@@ -379,13 +403,6 @@ const CreateTourStep2 = () => {
   const addHotspotModel = (newModel: HotspotModelCreateRequest) => {
     setHotspotModels((prev) => [...prev, newModel]);
   };
-
-  // const [hotspotModels, setHotspotModels] = useState<HotspotModel[]>([]);
-
-  // const handleAddHotspot = (position: [number, number, number]) => {
-  //   setHotspots((prev) => [...prev, { id: prev.length + 1, position }]);
-  //   setHotspotModels((prev) => [...prev, { id: prev.length + 1, position }]);
-  // };
 
   const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
 
@@ -460,14 +477,16 @@ const CreateTourStep2 = () => {
               isOpen3={openTaskIndex === 3}
               hotspotModels={hotspotModels}
               setHotspotModels={setHotspotModels}
-              videoMeshes={videoMeshes} // danh sách các mesh đã hoàn tất
+              videoMeshes={videoMeshes} // danh sách các mesh đã hoàn tất gồm các thông số gửi về Server
+              setVideoMeshes={setVideoMeshes} // cập nhật danh sách mesh
               currentPoints={currentPoints} // mesh đang chọn
               setCurrentPoints={setCurrentPoints} // thêm điểm
-              setVideoMeshes={setVideoMeshes} // cập nhật danh sách mesh
               assignable={assignable}
               setAssignable={setAssignable}
               chooseCornerMediaPoint={chooseCornerMediaPoint}
               setChooseCornerMediaPoint={setChooseCornerMediaPoint}
+              cornerPointes={cornerPointes} // danh sách các điểm góc của mesh phương tiện
+              setCornerPointes={setCornerPointes}
             />
           </>
         );
@@ -514,6 +533,7 @@ const CreateTourStep2 = () => {
           }}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
+          style={{cursor: cursor}}
         >
           <Node
             url={currentPanoramaUrl ?? "/khoa.jpg"}
@@ -557,9 +577,10 @@ const CreateTourStep2 = () => {
                 hotspot.positionZ,
               ]}
               setHoveredHotspot={setHoveredHotspot}
+              modelUrl={hotspot.modelUrl}
             />
           ))}
-          
+
           <RaycastOnMedia
             isActive={chooseCornerMediaPoint}
             onAddPoint={handleAddPoint}
@@ -567,13 +588,15 @@ const CreateTourStep2 = () => {
             cornerPoints={currentPoints} // 🆕 truyền vào để kiểm soát số lượng
           />
 
-          {videoMeshes.map((mesh, index) => (
+          {cornerPointes.map((point, index) => (
             <VideoMeshComponent
-              key={mesh.id}
-              cornerPoints={mesh.points}
-              currentVideoUrl={mesh.videoUrl}
+              key={point.id}
+              cornerPoints={point.points}
+              currentVideoUrl={point.mediaUrl}
               setCornerPoints={() => {}} // không cần nếu mesh đã xong
               setChooseCornerMediaPoint={() => {}} // không cần nếu mesh đã xong
+              videoMeshes={videoMeshes}
+              setVideoMeshes={setVideoMeshes}
             />
           ))}
 
