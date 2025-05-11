@@ -5,6 +5,10 @@ import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @ApplicationScoped
 public class IconDao {
 
@@ -26,4 +30,25 @@ public class IconDao {
     }
 
 
+    public List<IconResponse> getAllIcons() {
+        String sqlQuery = "SELECT id, name,url, isActive, createdAt, isActive as active FROM icons";
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sqlQuery)
+                    .mapToBean(IconResponse.class)
+                    .list();
+        });
+    }
+
+    public boolean createIcon(IconCreateRequest req) {
+        String sqlQuery = "INSERT INTO icons(name, url, isActive, createdAt) VALUES (:name, :url, :isActive, :createdAt)";
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int rows = handle.createUpdate(sqlQuery)
+                    .bind("name", req.getName())
+                    .bind("url", req.getUrl())
+                    .bind("isActive", 1)
+                    .bind("createdAt", Timestamp.valueOf(LocalDateTime.now()))
+                    .execute();
+            return rows == 1;
+        });
+    }
 }

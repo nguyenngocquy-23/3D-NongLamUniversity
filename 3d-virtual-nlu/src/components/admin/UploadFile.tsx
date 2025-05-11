@@ -119,7 +119,6 @@ const UploadFile: React.FC<UploadFileProps> = ({
             originalFileName: item.originalFileName!,
             url: item.url!,
           }));
-
         if (onUploaded) {
           const url = formattedData[0].url;
           onUploaded(url, index ?? 0);
