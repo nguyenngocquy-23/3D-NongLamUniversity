@@ -5,8 +5,8 @@ import { FaAngleRight, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
-import { Canvas, ThreeEvent, useThree } from "@react-three/fiber";
-import { Line, OrbitControls, useTexture } from "@react-three/drei";
+import { Canvas, ThreeEvent } from "@react-three/fiber";
+import { Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 import RightMenuCreateTour from "../../components/admin/RightMenuCT";
@@ -208,7 +208,6 @@ const CreateTourStep2 = () => {
 
   const handleOpenMenu = () => {
     if (isMenuVisible) {
-      // setOpenTaskIndex(null);
     }
     setIsMenuVisible((preState) => !preState);
   };
@@ -491,6 +490,7 @@ const CreateTourStep2 = () => {
             far: 1000,
             position: cameraPosition,
           }}
+          style={{ cursor: cursor }}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
         >
@@ -513,31 +513,35 @@ const CreateTourStep2 = () => {
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
           />
-          {hotspots.map((hotspot) => (
-            <GroundHotspot
-              key={hotspot.id}
-              position={[
-                hotspot.positionX,
-                hotspot.positionY,
-                hotspot.positionZ,
-              ]}
-              idHotspot={hotspot.id}
-              setHoveredHotspot={setHoveredHotspot}
-              nodeId={hotspot.nodeId}
-              type="floor"
-            />
-          ))}
-          {hotspotModels.map((hotspot) => (
-            <GroundHotspotModel
-              key={hotspot.id}
-              position={[
-                hotspot.positionX,
-                hotspot.positionY,
-                hotspot.positionZ,
-              ]}
-              setHoveredHotspot={setHoveredHotspot}
-            />
-          ))}
+          {hotspots
+            .filter((hotspot) => hotspot.nodeId === currentSelectId)
+            .map((hotspot) => (
+              <GroundHotspot
+                key={hotspot.id}
+                position={[
+                  hotspot.positionX,
+                  hotspot.positionY,
+                  hotspot.positionZ,
+                ]}
+                idHotspot={hotspot.id}
+                setHoveredHotspot={setHoveredHotspot}
+                nodeId={hotspot.nodeId}
+                type="floor"
+              />
+            ))}
+          {hotspotModels
+            .filter((hotspot) => hotspot.nodeId === currentSelectId)
+            .map((hotspot) => (
+              <GroundHotspotModel
+                key={hotspot.id}
+                position={[
+                  hotspot.positionX,
+                  hotspot.positionY,
+                  hotspot.positionZ,
+                ]}
+                setHoveredHotspot={setHoveredHotspot}
+              />
+            ))}
           {/* <div>
         </div> */}
           <RaycastOnMedia

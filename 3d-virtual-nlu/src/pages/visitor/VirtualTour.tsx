@@ -260,13 +260,6 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           autoRotate={true}
           autoRotateSpeed={0.5}
         />
-        {/* <RaycasterHandler
-          radius={radius}
-          sphereRef={sphereRef}
-          onAddHotspot={(position, type) => handleAddHotspot(position, type)}
-          hoveredHotspot={hoveredHotspot} //test
-          switchTexture={handledSwitchTexture}
-        /> */}
         {/* {hotspots.map((hotspot) => (
           <GroundHotspot
             key={hotspot.id}

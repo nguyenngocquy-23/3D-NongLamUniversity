@@ -75,13 +75,15 @@ const Task3 = ({
       </div>
       <TypeNavigation
         isOpenTypeNavigation={openTypeIndex == 1}
-        assignable={assignable}
         setAssignable={setAssignable}
-        currentHotspotType={currentHotspotType}
         setCurrentHotspotType={setCurrentHotspotType}
       />
 
-      <TypeInfomation isOpenTypeInfomation={openTypeIndex == 2} />
+      <TypeInfomation
+        isOpenTypeInfomation={openTypeIndex == 2}
+        setAssignable={setAssignable}
+        setCurrentHotspotType={setCurrentHotspotType}
+      />
       <TypeMedia
         isOpenTypeMedia={openTypeIndex == 3}
         currentPoints={currentPoints}
@@ -384,11 +386,6 @@ TypeModelProps) => {
     state.hotspots.hotspotList.filter((h): h is HotspotModel => h.type === 4)
   );
 
-  // const handleUploadedFile = (url: string, index: number) => {
-  //   const updated = [...hotspotModels];
-  //   updated[index].modelUrl = url;
-  //   setHotspotModels(updated); // nếu bạn có hàm setHotspotModels
-  // };
   const handleUploadedFile = (url: string, index: number) => {
     const targetHotspot = hotspotModels[index];
     if (targetHotspot) {
@@ -399,10 +396,6 @@ TypeModelProps) => {
         })
       );
     }
-  };
-
-  const handleAssign = () => {
-    setAssignable(true);
   };
 
   const handleUpModel = async () => {

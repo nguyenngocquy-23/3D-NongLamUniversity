@@ -3,6 +3,7 @@ import styles from "../styles/createTour.module.css";
 import BoardUploader from "../components/admin/BoardCreateTour.tsx";
 import CreateTourStepper from "../components/admin/CreateTourStepper.tsx";
 import CreateTourStep2 from "../pages/admin/CreateTourStep2.tsx";
+import CreateTourStep3 from "../pages/admin/CreateTourStep3.tsx";
 
 const CreateNode: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -53,7 +54,7 @@ const CreateNode: React.FC = () => {
     },
     {
       name: "Xem trước và xuất bản",
-      Component: () => <div>Abc xyz</div>,
+      Component: () => <CreateTourStep3 />,
     },
     {
       name: "Chờ duyệt từ quản trị viên",

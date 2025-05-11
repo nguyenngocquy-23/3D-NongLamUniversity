@@ -5,18 +5,13 @@ import { HotspotType } from "../../../redux/slices/HotspotSlice";
 
 interface TypeNavigationProps {
   isOpenTypeNavigation: boolean;
-  //test
-  assignable: boolean;
   setAssignable: (value: boolean) => void;
-  currentHotspotType: HotspotType | null;
   setCurrentHotspotType: (value: HotspotType) => void;
 }
 
 const TypeNavigation = ({
   isOpenTypeNavigation,
-  assignable,
   setAssignable,
-  currentHotspotType,
   setCurrentHotspotType,
 }: TypeNavigationProps) => (
   <div
