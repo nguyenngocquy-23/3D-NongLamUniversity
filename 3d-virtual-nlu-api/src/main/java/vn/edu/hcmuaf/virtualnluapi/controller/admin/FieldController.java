@@ -27,7 +27,7 @@ public class FieldController {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<Boolean> createFied(FieldCreateRequest req) {
+    public ApiResponse<Boolean> createField(FieldCreateRequest req) {
         boolean result = fieldService.createField(req);
         if (result) {
             return ApiResponse.<Boolean>builder().statusCode(1000).message("Tao field thanh cong").data(result).build();

@@ -23,11 +23,14 @@ public class HotspotController {
     @Inject
     private HotspotService hotspotService;
 
+
+
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/add")
-    public ApiResponse<Boolean> insertMultipleHotspot(List<HotspotNavCreateRequest> reqs) {
+    @Path("/addNavigation")
+    public ApiResponse<Boolean> insertNavigation(List<HotspotNavCreateRequest> reqs) {
             boolean result = hotspotService.insertMutipleNavigation(reqs);
         if (result){
             return ApiResponse.<Boolean>builder().statusCode(201).message("Create successful.").data(result).build();

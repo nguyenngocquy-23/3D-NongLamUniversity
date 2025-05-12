@@ -21,8 +21,7 @@ public class NodeService {
     @Inject
     NodeDao nodeDao;
 
-    // sau khi insert list node, get nodeId, assign for list hotspotRequest
-    public boolean createMainNode(NodeCreateRequest req) {
+    public boolean createNode(NodeCreateRequest req) {
         return nodeDao.insertNode(req);
     }
 

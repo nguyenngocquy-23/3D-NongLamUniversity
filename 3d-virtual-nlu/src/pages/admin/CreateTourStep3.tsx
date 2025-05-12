@@ -42,25 +42,26 @@ const CreateTourStep3: React.FC = () => {
   const hotspots = useSelector((state: RootState) => state.hotspots);
   const userId = useSelector((state: RootState) => state.auth.user.id);
 
-  const handlePublish = async () => {
-    const { panoramaList, spaceId } = panoramas;
+  /**
+   * Thực hiện việc lưu xuống Database.
+   * @returns
+   */
 
-    try {
+  // const handlePublish = async () => {
+  //   const { panoramaList, spaceId } = panoramas;
 
-      if(spaceId === null) return;
-      for(const panorama of panoramaList)  {
-        const nodePayload = mapPanoramaToNodePayload(panorama, spaceId, userId);
+  //   try {
 
+  //     if(spaceId === null) return;
 
+  //     for(const panorama of panoramaList)  {
+  //       const nodePayload = mapPanoramaToNodePayload(panorama, spaceId, userId);
 
-      }
+  //     }
 
+  //   }
 
-
-
-    }
-
-  };
+  // };
 
   return (
     <div>

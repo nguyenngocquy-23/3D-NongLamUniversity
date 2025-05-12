@@ -548,7 +548,7 @@ const CreateTourStep2 = () => {
             isActive={chooseCornerMediaPoint}
             onAddPoint={handleAddPoint}
             sphereRef={sphereRef}
-            cornerPoints={currentPoints} // 🆕 truyền vào để kiểm soát số lượng
+            cornerPoints={currentPoints}
           />
 
           {videoMeshes.map((mesh, index) => (

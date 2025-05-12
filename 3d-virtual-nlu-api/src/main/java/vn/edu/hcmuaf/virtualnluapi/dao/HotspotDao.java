@@ -19,7 +19,7 @@ import java.util.List;
 public class HotspotDao {
 
     /**
-     * Thêm 1 hotspot vào DB.
+     * Thêm 1 hotspot vào DB. ---------THỬ NGHIỆM
      */
     public boolean insertHotspotNavigation(HotspotNavCreateRequest req) {
         String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale)";

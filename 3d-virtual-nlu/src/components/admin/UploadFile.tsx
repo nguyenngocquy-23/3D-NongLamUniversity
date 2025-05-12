@@ -95,7 +95,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
       });
 
       const resp = await axios.post<ApiResponse<CloudinaryUploadResp[]>>(
-        "http://localhost:8080/api/admin/node/uploadMulti",
+        "http://localhost:8080/api/v1/admin/node/uploadMulti",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
