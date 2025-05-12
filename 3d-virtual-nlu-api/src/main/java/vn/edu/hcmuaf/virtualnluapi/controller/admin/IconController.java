@@ -42,26 +42,26 @@ public class IconController {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi tao icon").data(result).build();
         }
     }
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response insertIcon (IconCreateRequest iconReq) {
-        IconResponse iconResp = iconService.insertIcon(iconReq);
-        if(iconResp != null) {
-            ApiResponse<IconResponse> resp = ApiResponse.<IconResponse>builder().
-                    statusCode(201)
-                    .message("Icon create success ! [insertIcon - IconController]")
-                    .data(iconResp).build();
-
-            return Response.status(Response.Status.CREATED).entity(resp).build();
-        }
-        else {
-            ApiResponse<Void> resp = ApiResponse.<Void>builder()
-                    .statusCode(400)
-                    .message("Icon create failed ! [insertIcon - IconController]")
-                    .data(null).build();
-        return Response.status(Response.Status.BAD_REQUEST).entity(resp).build();
-        }
-    }
+//
+//    @POST
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response insertIcon (IconCreateRequest iconReq) {
+//        IconResponse iconResp = iconService.insertIcon(iconReq);
+//        if(iconResp != null) {
+//            ApiResponse<IconResponse> resp = ApiResponse.<IconResponse>builder().
+//                    statusCode(201)
+//                    .message("Icon create success ! [insertIcon - IconController]")
+//                    .data(iconResp).build();
+//
+//            return Response.status(Response.Status.CREATED).entity(resp).build();
+//        }
+//        else {
+//            ApiResponse<Void> resp = ApiResponse.<Void>builder()
+//                    .statusCode(400)
+//                    .message("Icon create failed ! [insertIcon - IconController]")
+//                    .data(null).build();
+//        return Response.status(Response.Status.BAD_REQUEST).entity(resp).build();
+//        }
+//    }
 }

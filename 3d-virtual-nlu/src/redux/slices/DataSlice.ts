@@ -67,16 +67,19 @@ export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
   const response = await axios.get("http://localhost:8080/api/admin/field");
   return response.data.data;
 });
+
 // Fetch space
 export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
   const response = await axios.get("http://localhost:8080/api/admin/space/all");
   return response.data.data;
 });
+
 // Fetch icon
 export const fetchIcons = createAsyncThunk("data/fetchIcons", async () => {
   const response = await axios.get("http://localhost:8080/api/v1/admin/icon");
   return response.data.data;
 });
+
 // Fetch hotspot type
 export const fetchHotspotTypes = createAsyncThunk(
   "data/fetchHotspotTypes",

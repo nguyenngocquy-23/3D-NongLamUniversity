@@ -477,6 +477,7 @@ const TypeModel = ({
         isOpenTypeModel ? styles.open_type_model : ""
       }`}
     >
+      // thay bằng component quản lý biểu tượng
       <div>
         <label className={styles.label}>Biểu tượng:</label>
         <FaHome />
