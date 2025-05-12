@@ -79,53 +79,53 @@ const GroundHotspotModel = ({
   return (
     <>
       {/* <Suspense fallback={"loading.."}> */}
-        <group
-          ref={modelRef}
-          position={[position[0], position[1] + 10, position[2]]}
-          scale={2}
-          visible={isClicked}
-          onPointerOver={() => {
-            gl.domElement.style.cursor = "pointer";
-          }}
-          onPointerLeave={() => {
-            gl.domElement.style.cursor = "default";
-          }}
-          onClick={() => {
-            navigate("/admin/model");
-          }} // tách lớp gọi api lấy model
-        >
-          <ambientLight color={"#fff"} intensity={1} />
-          <pointLight position={[10, 10, 10]} intensity={1} />
-          <directionalLight position={[5, 5, 5]} intensity={1} />
-        </group>
-        <mesh
-          ref={hotspotRef}
-          position={position}
-          rotation={[0, 0, 0]}
-          onPointerOver={() => {
-            setIsHovered(true);
-            console.log("🖱 Hover vào hotspot!", position);
-            setHoveredHotspot(hotspotRef.current); //test
-            gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
-          }}
-          onPointerOut={() => {
-            setIsHovered(false);
-            console.log("Rời khỏi hotspot!");
-            setHoveredHotspot(null); //test
-            gl.domElement.style.cursor = "default"; // 👈 đổi cursor
-          }}
-          onClick={() => {
-            setClicked((preState) => !preState);
-          }}
-        >
-          <planeGeometry args={[5, 5]} />
-          <meshStandardMaterial
-            map={texture}
-            transparent
-            opacity={0.6}
-            depthTest={false}
-          />
-        </mesh>
+      <group
+        ref={modelRef}
+        position={[position[0], position[1] + 10, position[2]]}
+        scale={2}
+        visible={isClicked}
+        onPointerOver={() => {
+          gl.domElement.style.cursor = "pointer";
+        }}
+        onPointerLeave={() => {
+          gl.domElement.style.cursor = "default";
+        }}
+        onClick={() => {
+          navigate("/admin/model");
+        }} // tách lớp gọi api lấy model
+      >
+        <ambientLight color={"#fff"} intensity={1} />
+        <pointLight position={[10, 10, 10]} intensity={1} />
+        <directionalLight position={[5, 5, 5]} intensity={1} />
+      </group>
+      <mesh
+        ref={hotspotRef}
+        position={position}
+        rotation={[-Math.PI / 2, 0, 0]}
+        onPointerOver={() => {
+          setIsHovered(true);
+          console.log("🖱 Hover vào hotspot models!", position);
+          setHoveredHotspot(hotspotRef.current); //test
+          gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
+        }}
+        onPointerOut={() => {
+          setIsHovered(false);
+          console.log("Rời khỏi hotspot!");
+          setHoveredHotspot(null); //test
+          gl.domElement.style.cursor = "default"; // 👈 đổi cursor
+        }}
+        onClick={() => {
+          setClicked((preState) => !preState);
+        }}
+      >
+        <planeGeometry args={[5, 5]} />
+        <meshStandardMaterial
+          map={texture}
+          transparent
+          opacity={0.6}
+          depthTest={false}
+        />
+      </mesh>
       {/* </Suspense> */}
     </>
   );

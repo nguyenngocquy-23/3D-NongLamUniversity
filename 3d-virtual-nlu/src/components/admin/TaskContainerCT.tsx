@@ -24,13 +24,14 @@ const TaskContainerCT: React.FC<TaskContainerCTProps> = ({
   onSave,
 }) => {
   return (
-    <div className={styles.taskContainer}>
-      <h3>
-        {id} : {name}
-      </h3>
-      <div className={styles.taskContent}>{children}</div>
+    <div className={styles.task_container}>
+      <div className={styles.task_header}>
+        <h3>{name}</h3>
+        {id === 3 ? <span>Vị trí muốn để</span> : ""}
+      </div>
+      <div className={styles.task_content}>{children}</div>
 
-      <button className={styles.taskSave} onClick={onSave}>
+      <button className={styles.task_save} onClick={onSave}>
         <span>Lưu</span>
         <IoIosSave />
       </button>

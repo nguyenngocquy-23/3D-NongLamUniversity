@@ -1,5 +1,4 @@
-.taskContainer {
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.4));
+.task_container {
   width: 40vw;
   position: absolute;
   left: 20px;
@@ -8,13 +7,27 @@
   padding: 10px;
   transition: height 1s ease-in-out, opacity 1s ease-in-out;
   opacity: 1;
+  color: white;
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Màu nền trong suốt (tuỳ chỉnh opacity) */
+  backdrop-filter: blur(5px);
 }
 
-.taskContent {
+.task_container .task_header {
+  display: flex;
+  justify-content: space-between;
   padding: 10px;
 }
 
-.taskSave {
+.task_content {
+  padding: 10px;
+}
+
+.task_save {
   display: flex;
   justify-content: space-around;
   align-items: center;

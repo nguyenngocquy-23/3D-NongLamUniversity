@@ -5,18 +5,18 @@ import { updatePanoConfig } from "../../../redux/slices/PanoramaSlice";
 
 const Task1 = () => {
   const dispatch = useDispatch();
-  const { panoramaList, currentSelectedPosition } = useSelector(
+  const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
 
-  const currentPanorama = panoramaList[currentSelectedPosition];
+  const currentPanorama = panoramaList.find((p) => p.id === currentSelectId);
   if (!currentPanorama) return null;
 
   const { name = "", description = "" } = currentPanorama.config ?? {};
   const handleChange = (field: "name" | "description", value: string) => {
     dispatch(
       updatePanoConfig({
-        index: currentSelectedPosition,
+        id: currentPanorama.id,
         config: { [field]: value },
       })
     );

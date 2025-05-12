@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 // Tuỳ chỉnh thông số kỹ thuật.
 
-const RADIUS = 100;
 const originalZ = 0.0000001;
 
 type Task2Props = {
@@ -15,11 +14,11 @@ type Task2Props = {
 
 const Task2 = ({ cameraRef }: Task2Props) => {
   const dispatch = useDispatch();
-  const { panoramaList, currentSelectedPosition } = useSelector(
-    (state: RootState) => state.panoramas
-  );
+  const { panoramaList, currentSelectId, currentSelectedPosition } =
+    useSelector((state: RootState) => state.panoramas);
 
-  const currentPanorama = panoramaList[currentSelectedPosition];
+  const currentPanorama = panoramaList.find((p) => p.id === currentSelectId);
+  // const currentPanorama = panoramaList[currentSelectedPosition];
   if (!currentPanorama) return null;
 
   const {
@@ -72,7 +71,7 @@ const Task2 = ({ cameraRef }: Task2Props) => {
       );
       setAngle(newAngle);
     }
-  }, [currentSelectedPosition]);
+  }, [currentSelectId]);
 
   const cameraPosition = useMemo((): [number, number, number] => {
     const radians = (angle * Math.PI) / 180;
@@ -85,7 +84,7 @@ const Task2 = ({ cameraRef }: Task2Props) => {
   ) => {
     dispatch(
       updatePanoConfig({
-        index: currentSelectedPosition,
+        id: currentPanorama.id,
         config: { [field]: value },
       })
     );
@@ -94,16 +93,6 @@ const Task2 = ({ cameraRef }: Task2Props) => {
   const handleAngleChange = (value: number) => {
     setAngle(value); // Cập nhật góc - trigger useMemo + useEffect
   };
-
-  // useEffect(() => {
-  //   if (currentPanorama?.config) {
-  //     const { positionX = 0, positionZ = originalZ } = currentPanorama.config;
-  //     setAngle(getAngleFromXZ(positionX, positionZ));
-  //   }
-  // }, [currentPanorama]);
-  // useEffect(() => {
-  //   setAngle(getAngleFromXZ(positionX, positionZ));
-  // }, [positionX, positionZ]);
 
   useEffect(() => {
     if (cameraRef?.current) {
@@ -115,7 +104,7 @@ const Task2 = ({ cameraRef }: Task2Props) => {
     // Optional: update Redux (chỉ lưu lại)
     dispatch(
       updatePanoConfig({
-        index: currentSelectedPosition,
+        id: currentPanorama.id,
         config: {
           positionX: cameraPosition[0],
           positionY: cameraPosition[1],
