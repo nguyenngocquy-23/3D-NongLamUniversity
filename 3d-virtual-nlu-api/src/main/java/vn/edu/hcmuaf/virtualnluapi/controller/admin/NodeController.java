@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Path("/admin/node")
+@Path("v1/admin/node")
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @RequiredArgsConstructor(onConstructor_ = @Inject)
 public class NodeController {
@@ -33,9 +33,10 @@ public class NodeController {
     CloudinaryService cloudinaryService;
 
     @POST
+    @Path("/insert")
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> createNode(NodeCreateRequest req) {
-        boolean result = nodeService.createMainNode(req);
+        boolean result = nodeService.createNode(req);
         if (result) {
             return ApiResponse.<Boolean>builder().statusCode(1000).message("Tao node thanh cong").data(result).build();
         } else {
@@ -157,4 +158,7 @@ public class NodeController {
         }
         return "unknown";
     }
+
+
+
 }

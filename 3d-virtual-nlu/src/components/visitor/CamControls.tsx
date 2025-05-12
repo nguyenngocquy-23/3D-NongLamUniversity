@@ -16,12 +16,18 @@ import gsap from "gsap";
 type CamControlsProps = {
   targetPosition?: [number, number, number] | null; //test
   sphereRef: React.RefObject<THREE.Mesh | null>;
+  cameraRef?: React.RefObject<THREE.PerspectiveCamera | null>;
+  autoRotate: boolean;
+  autoRotateSpeed: number | null;
 };
 const zoomLevels = [75, 60, 45, 30];
 
 const CamControls: React.FC<CamControlsProps> = ({
   targetPosition,
   sphereRef,
+  cameraRef,
+  autoRotate,
+  autoRotateSpeed,
 }) => {
   const { gl } = useThree();
   const canvas = gl.domElement;
@@ -30,6 +36,12 @@ const CamControls: React.FC<CamControlsProps> = ({
   const { getIntersectionPoint } = useRaycaster();
   const [zoomIndex, setZoomIndex] = useState(0);
   const targetLookAt = useRef(new THREE.Vector3());
+
+  useEffect(() => {
+    if (cameraRef && camera instanceof THREE.PerspectiveCamera) {
+      cameraRef.current = camera;
+    }
+  }, [cameraRef, camera]);
 
   /**
    * Xử lý sự kiện chuột : Zoom bằng cách thay đổi FOV để tránh méo ảnh.
@@ -100,6 +112,8 @@ const CamControls: React.FC<CamControlsProps> = ({
       enablePan={false}
       enableDamping={true}
       dampingFactor={0.3}
+      autoRotate={autoRotate}
+      autoRotateSpeed={autoRotateSpeed === null ? 0 : autoRotateSpeed}
       rotateSpeed={-0.15}
     />
   );

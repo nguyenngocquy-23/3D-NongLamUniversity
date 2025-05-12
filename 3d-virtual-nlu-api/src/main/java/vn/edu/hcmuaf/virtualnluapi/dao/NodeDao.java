@@ -14,8 +14,21 @@ import java.util.List;
 public class NodeDao {
 
     public boolean insertNode(NodeCreateRequest req) {
+        String sql = "INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, lightIntensity, autoRotate, speedRotate, status) VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :lightIntensity, :autoRotate, :speedRotate, :status)";
         return ConnectionPool.getConnection().inTransaction(handle -> {
-            int i = handle.createUpdate("INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, lightIntensity, autoRotate, speedRotate, status, createdAt, updatedAt) VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :lightIntensity, :autoRotate, :speedRotate, :status, :createdAt, :updatedAt)").bind("spaceId", req.getSpaceId()).bind("userId", req.getUserId()).bind("url", req.getUrl()).bind("name", req.getName()).bind("description", req.getDescription()).bind("positionX", req.getPositionX()).bind("positionY", req.getPositionY()).bind("positionZ", req.getPositionZ()).bind("lightIntensity", req.getLightIntensity()).bind("autoRotate", req.getAutoRotate()).bind("speedRotate", req.getSpeedRotate()).bind("status", 1).bind("createdAt", LocalDateTime.now()).bind("updatedAt", LocalDateTime.now()).execute();
+            int i = handle.createUpdate(sql)
+                    .bind("spaceId", req.getSpaceId())
+                    .bind("userId", req.getUserId())
+                    .bind("url", req.getUrl())
+                    .bind("name", req.getName())
+                    .bind("description", req.getDescription())
+                    .bind("positionX", req.getPositionX())
+                    .bind("positionY", req.getPositionY())
+                    .bind("positionZ", req.getPositionZ())
+                    .bind("lightIntensity", req.getLightIntensity())
+                    .bind("autoRotate", req.getAutoRotate())
+                    .bind("speedRotate", req.getSpeedRotate())
+                    .bind("status", req.getStatus()).execute();
             return i > 0;
         });
     }

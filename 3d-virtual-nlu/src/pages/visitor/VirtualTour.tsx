@@ -73,8 +73,6 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
     console.log("sphereRef.current trong VirtualTour:", sphereRef.current);
   }, [sphereRef.current]);
 
-  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
-
   useEffect(() => {
     let resizeTimer: number;
 
@@ -133,6 +131,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   const [hotspots, setHotspots] = useState<
     { id: number; position: [number, number, number]; type: "floor" | "info" }[]
   >([]);
+    const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
 
   const handleAddHotspot = (
     position: [number, number, number],
@@ -407,16 +406,14 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           radius={radius}
           sphereRef={sphereRef}
           textureCurrent={textureUrl ?? "/khoa.jpg"}
+          lightIntensity={0.5}
         />
-        <CamControls targetPosition={targetPosition} sphereRef={sphereRef} />
-        {/* <CamControls targetPosition={targetPosition} sphereRef={sphereRef} /> */}
-        {/* <RaycasterHandler
-          radius={radius}
+        <CamControls
+          targetPosition={targetPosition}
           sphereRef={sphereRef}
-          onAddHotspot={(position, type) => handleAddHotspot(position, type)}
-          hoveredHotspot={hoveredHotspot} //test
-          switchTexture={handledSwitchTexture}
-        /> */}
+          autoRotate={true}
+          autoRotateSpeed={0.5}
+        />
         {/* {hotspots.map((hotspot) => (
           <GroundHotspot
             key={hotspot.id}

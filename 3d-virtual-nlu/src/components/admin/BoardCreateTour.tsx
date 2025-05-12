@@ -51,7 +51,8 @@ const BoardUploader: React.FC<BoardUploadProps> = ({ onSelectSpace }) => {
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     onSelectSpace(event.target.value);
-    dispatch(setSpaceId(event.target.value));
+
+    setSpaceId(event.target.value);
   };
 
   return (
