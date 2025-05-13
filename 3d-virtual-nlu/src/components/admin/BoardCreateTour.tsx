@@ -46,13 +46,11 @@ const BoardUploader: React.FC<BoardUploadProps> = ({ onSelectSpace }) => {
     }
   };
 
-  // Chon space
   const handleSelectSpace = async (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     onSelectSpace(event.target.value);
-
-    setSpaceId(event.target.value);
+    dispatch(setSpaceId(event.target.value));
   };
 
   return (

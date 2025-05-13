@@ -11,6 +11,8 @@ import { IoIosCloseCircle } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
+import GroundHotspot from "../../components/visitor/GroundHotspot.tsx";
+import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -56,7 +58,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   useEffect(() => {
     console.log("sphereRef.current trong VirtualTour:", sphereRef.current);
   }, [sphereRef.current]);
-
+  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null);
   useEffect(() => {
     let resizeTimer: number;
 
@@ -251,8 +253,8 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
         <TourScene
           radius={radius}
           sphereRef={sphereRef}
-          textureCurrent={textureUrl}
-          lightIntensity={0.5}
+          textureCurrent={textureUrl ? textureUrl : "/public/khoa.jpg"}
+          lightIntensity={2}
         />
         <CamControls
           targetPosition={targetPosition}
@@ -260,14 +262,14 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           autoRotate={true}
           autoRotateSpeed={0.5}
         />
-        {/* {hotspots.map((hotspot) => (
-          <GroundHotspot
+        {hotspots.map((hotspot) => (
+          <GroundHotspotModel
             key={hotspot.id}
             position={hotspot.position}
-            type={hotspot.type}
+            // type={hotspot.type}
             setHoveredHotspot={setHoveredHotspot}
           />
-        ))} */}
+        ))}
       </Canvas>
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>

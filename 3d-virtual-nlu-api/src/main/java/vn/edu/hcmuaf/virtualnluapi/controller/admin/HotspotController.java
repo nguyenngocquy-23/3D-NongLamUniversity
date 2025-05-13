@@ -24,49 +24,6 @@ public class HotspotController {
     private HotspotService hotspotService;
 
 
-
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/addNavigation")
-    public ApiResponse<Boolean> insertNavigation(List<HotspotNavCreateRequest> reqs) {
-            boolean result = hotspotService.insertMutipleNavigation(reqs);
-        if (result){
-            return ApiResponse.<Boolean>builder().statusCode(201).message("Create successful.").data(result).build();
-        } else{
-            return ApiResponse.<Boolean>builder().statusCode(400).message("Create failed! Please check.").data(result).build();
-        }
-    }
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/addModel")
-    public ApiResponse<Boolean> insertModel(List<HotspotModelCreateRequest> reqs) {
-            boolean result = hotspotService.insertModel(reqs);
-
-        if (result){
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Insert hotspot model successful.").data(result).build();
-        } else{
-            return ApiResponse.<Boolean>builder().statusCode(5000).message("Insert hotspot model failed! Please check.").data(result).build();
-        }
-    }
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/addMedia")
-    public ApiResponse<Boolean> insertMediaVideo(List<HotspotMediaCreateRequest> reqs) {
-            boolean result = hotspotService.insertMedia(reqs);
-
-        if (result){
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Insert hotspot media successful.").data(result).build();
-        } else{
-            return ApiResponse.<Boolean>builder().statusCode(5000).message("Insert hotspot media failed! Please check.").data(result).build();
-        }
-    }
-
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)

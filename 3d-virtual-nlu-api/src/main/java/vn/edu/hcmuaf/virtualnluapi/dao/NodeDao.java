@@ -5,18 +5,26 @@ import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
 public class NodeDao {
 
-    public boolean insertNode(NodeCreateRequest req) {
+    public List<NodeIdMapResponse> insertNode(List<NodeCreateRequest> reqs) {
         String sql = "INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, lightIntensity, autoRotate, speedRotate, status) VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :lightIntensity, :autoRotate, :speedRotate, :status)";
+
         return ConnectionPool.getConnection().inTransaction(handle -> {
-            int i = handle.createUpdate(sql)
+
+            List<NodeIdMapResponse> idMapResponses = new ArrayList<>();
+
+            for(NodeCreateRequest req: reqs) {
+
+            int realId = handle.createUpdate(sql)
                     .bind("spaceId", req.getSpaceId())
                     .bind("userId", req.getUserId())
                     .bind("url", req.getUrl())
@@ -28,8 +36,14 @@ public class NodeDao {
                     .bind("lightIntensity", req.getLightIntensity())
                     .bind("autoRotate", req.getAutoRotate())
                     .bind("speedRotate", req.getSpeedRotate())
-                    .bind("status", req.getStatus()).execute();
-            return i > 0;
+                    .bind("status", req.getStatus())
+                    .executeAndReturnGeneratedKeys("id")
+                    .mapTo(int.class)
+                    .one();
+
+                idMapResponses.add(new NodeIdMapResponse(req.getId(), realId));
+            }
+            return idMapResponses;
         });
     }
 
