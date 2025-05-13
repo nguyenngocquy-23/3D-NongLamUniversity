@@ -17,7 +17,7 @@ export function useSequentialTasks(
   const [openTaskIndex, setOpenTaskIndex] = useState<number | null>(null);
   const [completedTaskIds, setCompletedTaskIds] = useState<number[]>([]);
   const [unlockedTaskIds, setUnlockedTaskIds] = useState<number[]>([
-    initialUnlockedId,
+    1,2,3,4
   ]);
 
   const handleOpenTask = (id: number) => {

@@ -1,11 +1,17 @@
-.upload_model{
+.fileCardsWrapper {
+  text-align: center;
+}
+
+.upload_model,
+.upload_media {
   width: 200px !important;
   height: 40px !important;
   flex-direction: row !important;
   font-size: 16px !important;
 }
 
-.upload_model .uploadIcon {
+.upload_model .uploadIcon,
+.upload_media .uploadIcon {
   width: 40px;
   height: 40px;
   font-size: 25px;
@@ -42,9 +48,10 @@
 }
 
 .fileCards {
+  display: flex;
+  margin: auto;
   margin-top: 15px;
   width: 300px;
-  display: flex;
   align-items: center;
   background-color: #fff;
   color: #000000;
@@ -59,25 +66,27 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  font: 16px;
-}
-.fileContent {
-  flex: 1;
-  flex-grow: 1;
+  font-size: 16px;
+  min-width: 0;
+  /* ✨ Thêm dòng này để các con tuân thủ giới hạn chiều rộng */
 }
 
-.fileContent h6 {
+.fileContent {
   flex: 1;
-  font-size: 16px;
-  font-weight: 400;
+  min-width: 0;
+  /* ✨ Bắt buộc để text-overflow hoạt động trong flex */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .progressBg {
-  width: 100%;
+  width: 300px;
   height: 5px;
   background-color: beige;
   border-radius: 8px;
   margin-top: 8px;
+  margin: auto;
 }
 
 .progress {
@@ -98,7 +107,7 @@
 }
 
 .uploadBtn {
-  width: 330px;
+  width: 300px;
   font-weight: 500;
   border-radius: 5px;
   padding: 10px;

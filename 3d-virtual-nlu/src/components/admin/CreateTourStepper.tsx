@@ -65,7 +65,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
           </button>
         )}
       </div>
-
+        
       <div className={styles.stepContent}>
         <ActiveComponent />
       </div>

@@ -41,7 +41,6 @@ const CreateTourStep3: React.FC = () => {
       console.log("Lỗi khi xuất bản: ", error);
     }
   };
-
   return (
     <div>
       <button onClick={handlePublishTour}>Xuất bản</button>

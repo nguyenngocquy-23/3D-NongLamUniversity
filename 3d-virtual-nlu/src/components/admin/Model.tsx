@@ -6,12 +6,13 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import styles from "../../styles/model.module.css";
 import { FaAngleLeft, FaInbox, FaQuestion } from "react-icons/fa6";
 import { FrontSide } from "three";
+import { useLocation } from "react-router-dom";
 
 interface NodeProps {
-  url: string;
+  modelUrl: string;
 }
 
-const Node: React.FC<NodeProps> = ({ url }) => {
+const Node: React.FC<NodeProps> = ({ modelUrl }) => {
   const modelRef = useRef<THREE.Group>(null);
   const { gl } = useThree();
   const [rotate, setRotate] = useState(true);
@@ -22,7 +23,7 @@ const Node: React.FC<NodeProps> = ({ url }) => {
     const loader = new GLTFLoader();
     console.error("Load GLB:");
     loader.load(
-      "/gheda.glb",
+      modelUrl,
       (gltf) => {
         const scene = gltf.scene;
         if (modelRef.current) {
@@ -87,6 +88,9 @@ const Model: React.FC<ModelProps> = ({ onClose, title, fields, apiUrl }) => {
     }, 500);
   };
 
+  const location = useLocation();
+  const { modelUrl } = location.state || {};
+
   return (
     <div className={styles.container}>
       <div className={styles.option}>
@@ -112,7 +116,7 @@ const Model: React.FC<ModelProps> = ({ onClose, title, fields, apiUrl }) => {
           aspect: window.innerWidth / window.innerHeight,
         }}
       >
-        <Node url={"/khoa.jpg"} />
+        <Node modelUrl={modelUrl} />
         <OrbitControls
           rotateSpeed={0.5}
           autoRotate={true}

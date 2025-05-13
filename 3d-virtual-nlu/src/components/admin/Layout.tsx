@@ -15,7 +15,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
-import { fetchFields, fetchHotspotTypes, fetchNodes, fetchSpaces } from "../../redux/slices/DataSlice";
+import { fetchFields, fetchHotspotTypes, fetchIcons, fetchNodes, fetchSpaces } from "../../redux/slices/DataSlice";
 
 const Layout = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -30,6 +30,7 @@ const Layout = () => {
     dispatch(fetchSpaces());
     dispatch(fetchHotspotTypes());
     dispatch(fetchNodes());
+    dispatch(fetchIcons());
   }, [dispatch]);
 
   // useEffect(() => {
@@ -65,6 +66,15 @@ const Layout = () => {
             </li>
           </Link>
           <li className={styles.title}>Quản lý</li>
+          <Link to="/admin/icons">
+            <li
+              className={
+                location.pathname === "/admin/icons" ? styles.click : ""
+              }
+            >
+              Quản Lý Biểu tượng
+            </li>
+          </Link>
           <Link to="/admin/fields">
             <li
               className={

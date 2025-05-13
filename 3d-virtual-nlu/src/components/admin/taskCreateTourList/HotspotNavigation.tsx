@@ -20,13 +20,6 @@ const TypeNavigation = ({
     }`}
   >
     <div className={styles.contain_input}>
-      <label className={styles.label}>Biểu tượng:</label>
-      <input type="checkbox" />
-      <FaHome />
-      <input type="checkbox" />
-      <FaClock />
-    </div>
-    <div className={styles.contain_input}>
       <label className={styles.label}>Điểm di chuyển:</label>
       <button
         onClick={() => {

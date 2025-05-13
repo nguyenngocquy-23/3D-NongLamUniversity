@@ -4,6 +4,7 @@ import BoardUploader from "../components/admin/BoardCreateTour.tsx";
 import CreateTourStepper from "../components/admin/CreateTourStepper.tsx";
 import CreateTourStep2 from "../pages/admin/CreateTourStep2.tsx";
 import CreateTourStep3 from "../pages/admin/CreateTourStep3.tsx";
+import CreateTourStep4 from "../pages/admin/CreateTourStep4.tsx";
 
 const CreateNode: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -58,7 +59,7 @@ const CreateNode: React.FC = () => {
     },
     {
       name: "Chờ duyệt từ quản trị viên",
-      Component: () => <div> Okela </div>,
+      Component: () => <CreateTourStep4 />,
     },
   ];
 

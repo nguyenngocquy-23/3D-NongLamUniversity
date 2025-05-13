@@ -20,13 +20,6 @@ const TypeInfomation = ({
     }`}
   >
     <div>
-      <label className={styles.label}>Biểu tượng:</label>
-      <FaHome />
-      <input type="checkbox" />
-      <FaClock />
-      <input type="checkbox" />
-    </div>
-    <div>
       <label className={styles.label}>Vị trí chú thích:</label>
       <button
         onClick={() => {

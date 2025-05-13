@@ -23,8 +23,6 @@ interface TourSceneProps {
 
   //Test.
   nodeId?: string;
-  assignable?: boolean;
-  setAssignable?: (value: boolean) => void;
 }
 
 const TourScene: React.FC<TourSceneProps> = ({
@@ -33,18 +31,16 @@ const TourScene: React.FC<TourSceneProps> = ({
   textureCurrent,
   lightIntensity,
   onPointerDown,
-  assignable,
-  setAssignable,
+  nodeId,
 }) => {
   const texture = useLoader(THREE.TextureLoader, textureCurrent);
   const meshRef = useRef<THREE.Mesh>(null);
 
   // Gửi sự kiện click chuột kèm điểm raycaste (x,y,z) về CreateTourStep2.
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
-    if (!assignable || !sphereRef.current) return;
+    if (!sphereRef.current) return;
 
     onPointerDown?.(e, e.point);
-    setAssignable?.(false);
   };
 
   useEffect(() => {

@@ -7,11 +7,13 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 type GroundHotspotProps = {
   position: [number, number, number];
   setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test.
+  modelUrl: string;
 };
 
 const GroundHotspotModel = ({
   position,
   setHoveredHotspot,
+  modelUrl
 }: GroundHotspotProps) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
   const texture = useMemo(
@@ -38,7 +40,7 @@ const GroundHotspotModel = ({
     const loader = new GLTFLoader();
     console.error("Load GLB:");
     loader.load(
-      "/public/gheda.glb",
+      modelUrl,
       (gltf) => {
         const scene = gltf.scene;
         if (modelRef.current) {
@@ -50,7 +52,7 @@ const GroundHotspotModel = ({
         console.error("❌ Lỗi load GLB:", error);
       }
     );
-  }, []);
+  }, [modelUrl]);
 
   useEffect(() => {
     if (isHovered || isClicked) {
