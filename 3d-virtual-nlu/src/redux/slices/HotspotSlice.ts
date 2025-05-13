@@ -31,6 +31,7 @@ export interface HotspotMedia extends BaseHotspot {
   mediaType: string; //image or video
   mediaUrl: string;
   caption: string;
+  cornerPointListJson: string;
 }
 export interface HotspotModel extends BaseHotspot {
   type: 4;

@@ -1,5 +1,5 @@
 import TourScene from "../../components/visitor/TourScene";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import styles from "../../styles/virtualTour.module.css";
 import CamControls from "../../components/visitor/CamControls";
 import { useEffect, useRef, useState } from "react";
@@ -12,13 +12,11 @@ import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
 import {
-  CornerPoint,
   HotspotMediaCreateRequest,
   HotspotModelCreateRequest,
 } from "../../components/admin/taskCreateTourList/Task3AddHotspot.tsx";
 import axios from "axios";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
-import { VideoMeshProps } from "../admin/CreateTourStep2.tsx";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.

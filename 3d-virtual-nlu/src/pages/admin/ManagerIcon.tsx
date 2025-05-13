@@ -105,7 +105,7 @@ const ManagerIcon = () => {
 
   const field = [
     { label: "Tên Icon", name: "name", type: "text" },
-    { label: "Mã", name: "code", type: "text" },
+    // { label: "Mã", name: "code", type: "text" },
     { label: "File Icon", name: "iconUrl", type: "text" },
     // Thêm các trường khác nếu cần
   ];
