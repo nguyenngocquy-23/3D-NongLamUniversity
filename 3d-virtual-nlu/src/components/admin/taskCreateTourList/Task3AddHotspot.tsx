@@ -89,7 +89,6 @@ const Task3 = ({
       <TypeModel
         isOpenTypeModel={openTypeIndex == 4}
         hotspotModels={hotspotModels}
-        // setHotspotModels={setHotspotModels}
         assignable={assignable}
         setAssignable={setAssignable}
         setCurrentHotspotType={setCurrentHotspotType}

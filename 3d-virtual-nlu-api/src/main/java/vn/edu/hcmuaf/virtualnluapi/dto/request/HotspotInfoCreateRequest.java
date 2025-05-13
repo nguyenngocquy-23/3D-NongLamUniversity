@@ -8,13 +8,13 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults (level = AccessLevel.PRIVATE)
-public class HotspotMediaCreateRequest {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class HotspotInfoCreateRequest {
     String nodeId;
     byte type;
     int iconId;
     double positionX, positionY, positionZ;
     double pitchX, yawY, rollZ;
     float scale;
-    String mediaType, mediaUrl, caption, cornerPointListJson;
+    String title, content;
 }

@@ -20,8 +20,6 @@ const GroundHotspotModel = ({
     () => new THREE.TextureLoader().load("/vite.svg"),
     []
   );
-  // const texture = useTexture("/vite.svg");
-  // const texture = useLoader(THREE.TextureLoader, "/vite.svg");
 
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setClicked] = useState(false);

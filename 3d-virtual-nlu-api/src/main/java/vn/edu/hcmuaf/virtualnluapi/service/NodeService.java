@@ -9,6 +9,7 @@ import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.entity.Space;
 
@@ -21,8 +22,8 @@ public class NodeService {
     @Inject
     NodeDao nodeDao;
 
-    public boolean createNode(NodeCreateRequest req) {
-        return nodeDao.insertNode(req);
+    public List<NodeIdMapResponse> createNode(List<NodeCreateRequest> reqs) {
+        return nodeDao.insertNode(reqs);
     }
 
     public List<NodeFullResponse> getAllNodes() {

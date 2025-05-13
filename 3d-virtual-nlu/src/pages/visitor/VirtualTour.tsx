@@ -19,6 +19,7 @@ import {
 import axios from "axios";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
 import { VideoMeshProps } from "../admin/CreateTourStep2.tsx";
+import GroundHotspot from "../../components/visitor/GroundHotspot.tsx";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -72,7 +73,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   useEffect(() => {
     console.log("sphereRef.current trong VirtualTour:", sphereRef.current);
   }, [sphereRef.current]);
-
+  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null);
   useEffect(() => {
     let resizeTimer: number;
 
@@ -414,11 +415,11 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           autoRotate={true}
           autoRotateSpeed={0.5}
         />
-        {/* {hotspots.map((hotspot) => (
-          <GroundHotspot
+        {hotspots.map((hotspot) => (
+          <GroundHotspotModel
             key={hotspot.id}
             position={hotspot.position}
-            type={hotspot.type}
+            // type={hotspot.type}
             setHoveredHotspot={setHoveredHotspot}
           />
         ))} */}
