@@ -17,6 +17,7 @@ import {
 } from "../../components/admin/taskCreateTourList/Task3AddHotspot.tsx";
 import axios from "axios";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
+import { VideoMeshProps } from "../admin/CreateTourStep2.tsx";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -70,7 +71,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   useEffect(() => {
     console.log("sphereRef.current trong VirtualTour:", sphereRef.current);
   }, [sphereRef.current]);
-
+  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null);
   useEffect(() => {
     let resizeTimer: number;
 
@@ -126,17 +127,17 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
 
   const radius = 100;
 
-  const [hotspots, setHotspots] = useState<
-    { id: number; position: [number, number, number]; type: "floor" | "info" }[]
-  >([]);
-    const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
+  // const [hotspots, setHotspots] = useState<
+  //   { id: number; position: [number, number, number]; type: "floor" | "info" }[]
+  // >([]);
+  //   const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
 
-  const handleAddHotspot = (
-    position: [number, number, number],
-    type: "floor" | "info"
-  ) => {
-    setHotspots((prev) => [...prev, { id: prev.length + 1, position, type }]);
-  };
+  // const handleAddHotspot = (
+  //   position: [number, number, number],
+  //   type: "floor" | "info"
+  // ) => {
+  //   setHotspots((prev) => [...prev, { id: prev.length + 1, position, type }]);
+  // };
 
   const handledSwitchTexture = (newPosition: [number, number, number]) => {
     if (sphereRef.current) {
@@ -413,10 +414,10 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           autoRotateSpeed={0.5}
         />
         {/* {hotspots.map((hotspot) => (
-          <GroundHotspot
+          <GroundHotspotModel
             key={hotspot.id}
             position={hotspot.position}
-            type={hotspot.type}
+            // type={hotspot.type}
             setHoveredHotspot={setHoveredHotspot}
           />
         ))} */}

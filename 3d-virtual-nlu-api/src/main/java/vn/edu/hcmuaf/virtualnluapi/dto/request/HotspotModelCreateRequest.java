@@ -10,11 +10,13 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults (level = AccessLevel.PRIVATE)
 public class HotspotModelCreateRequest {
-    int nodeId;
+    String nodeId;
     byte type;
     int iconId;
     double positionX, positionY, positionZ;
     double pitchX, yawY, rollZ;
     float scale;
     String modelUrl, name, description;
+    byte autoRotate;
+    String colorCode;
 }
