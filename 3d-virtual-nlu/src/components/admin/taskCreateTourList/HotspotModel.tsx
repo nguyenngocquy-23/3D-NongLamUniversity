@@ -10,7 +10,7 @@ interface TypeModelProps {
   assignable: boolean;
   setAssignable: (value: boolean) => void;
   hotspotModels: HotspotModelCreateRequest[];
-  setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
+  // setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
   setCurrentHotspotType: (value: HotspotType) => void;
 }
 
@@ -35,40 +35,40 @@ const TypeModel = ({
   assignable,
   setAssignable,
   hotspotModels,
-  setHotspotModels,
+  // setHotspotModels,
   setCurrentHotspotType
 }: TypeModelProps) => {
-  const handleUploadedFile = (url: string, index: number) => {
-    const updated = [...hotspotModels];
-    updated[index].modelUrl = url;
-    setHotspotModels(updated); // nếu bạn có hàm setHotspotModels
-  };
+  // const handleUploadedFile = (url: string, index: number) => {
+  //   const updated = [...hotspotModels];
+  //   updated[index].modelUrl = url;
+  //   setHotspotModels(updated); // nếu bạn có hàm setHotspotModels
+  // };
 
-  const handleAssign = () => {
-    setAssignable(true);
-  };
+  // const handleAssign = () => {
+  //   setAssignable(true);
+  // };
 
-  const handleUpModel = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/api/v1/admin/hotspot/addModel",
-        hotspotModels,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  // const handleUpModel = async () => {
+  //   try {
+  //     const response = await axios.post(
+  //       "http://localhost:8080/api/v1/admin/hotspot/addModel",
+  //       hotspotModels,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      if (response.data.statusCode === 1000) {
-        console.log("✅ Upload model thành công!", response.data);
-      } else {
-        console.warn("❌ Upload thất bại:", response.data.message);
-      }
-    } catch (error) {
-      console.error("🚨 Lỗi khi gọi API:", error);
-    }
-  };
+  //     if (response.data.statusCode === 1000) {
+  //       console.log("✅ Upload model thành công!", response.data);
+  //     } else {
+  //       console.warn("❌ Upload thất bại:", response.data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error("🚨 Lỗi khi gọi API:", error);
+  //   }
+  // };
   
   return (
     <div
@@ -77,13 +77,7 @@ const TypeModel = ({
       }`}
     >
       // thay bằng component quản lý biểu tượng
-      <div>
-        <label className={styles.label}>Biểu tượng:</label>
-        <FaHome />
-        <input type="checkbox" />
-        <FaClock />
-        <input type="checkbox" />
-      </div>
+      
       <div>
         <label className={styles.label}>Vị trí mô hình:</label>
         <button
@@ -118,7 +112,7 @@ const TypeModel = ({
               <button
                 onClick={() => {
                   const updated = hotspotModels.filter((_, i) => i !== index);
-                  setHotspotModels(updated);
+                  // setHotspotModels(updated);
                 }}
                 style={{ color: "red", cursor: "pointer" }}
                 title="Xóa mô hình này"
@@ -136,13 +130,13 @@ const TypeModel = ({
               <UploadFile
                 className="upload_model"
                 index={index}
-                onUploaded={handleUploadedFile}
+                // onUploaded={handleUploadedFile}
               />
             </div>
           </div>
         ))}
       </div>
-      <button onClick={() => handleUpModel()}>Thiết lập</button>
+      {/* <button onClick={() => handleUpModel()}>Thiết lập</button> */}
     </div>
   );
 };

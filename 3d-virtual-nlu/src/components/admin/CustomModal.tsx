@@ -3,7 +3,7 @@ import styles from "../../styles/modelCreate.module.css";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFields, fetchSpaces } from "../../redux/slices/DataSlice";
+import { fetchFields, fetchIcons, fetchSpaces } from "../../redux/slices/DataSlice";
 import { AppDispatch, RootState } from "../../redux/Store";
 import UploadFile from "./UploadFile";
 
@@ -33,12 +33,16 @@ const CustomModal: React.FC<CustomModalProps> = ({
     }, 500);
   };
 
+  const handleUpFileIcon = (url: string) => {
+    setFormData((prev) => ({ ...prev, iconUrl: url }));
+  };
+
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
       // Nếu trường đang nhập là "name", thì update luôn "code"
-      if (name === "name") {
+      if (name === "name" && fields[0].name.includes("code")) {
         updated["code"] = removeVietnameseTones(value);
       }
       return updated;
@@ -65,12 +69,13 @@ const CustomModal: React.FC<CustomModalProps> = ({
 
   const handleCreate = async () => {
     try {
-      console.log('formData: ', formData)
+      console.log("formData: ", formData);
       const response = await axios.post(apiUrl, formData);
       if (response.data.statusCode === 1000 || response.status === 200) {
         handleFadeOut();
         dispatch(fetchFields());
         dispatch(fetchSpaces());
+        dispatch(fetchIcons());
       } else {
         Swal.fire({
           title: "Error",
@@ -135,7 +140,10 @@ const CustomModal: React.FC<CustomModalProps> = ({
                   rows={4}
                 />
               ) : field.name === "iconUrl" ? (
-                <UploadFile className={"upload_icon"}/>
+                <UploadFile
+                  className={"upload_icon"}
+                  onUploaded={handleUpFileIcon}
+                />
               ) : (
                 <input
                   className={styles.input}

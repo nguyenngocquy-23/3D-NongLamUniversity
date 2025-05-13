@@ -406,7 +406,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           radius={radius}
           sphereRef={sphereRef}
           textureCurrent={textureUrl ?? "/khoa.jpg"}
-          lightIntensity={0.5}
+          lightIntensity={0.5}  
         />
         <CamControls
           targetPosition={targetPosition}
