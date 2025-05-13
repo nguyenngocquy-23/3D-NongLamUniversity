@@ -22,9 +22,9 @@ interface TourSceneProps {
   onPointerDown?: (e: ThreeEvent<PointerEvent>, point: THREE.Vector3) => void;
 
   //Test.
-  nodeId: string;
-  assignable: boolean;
-  setAssignable: (value: boolean) => void;
+  nodeId?: string;
+  assignable?: boolean;
+  setAssignable?: (value: boolean) => void;
 }
 
 const TourScene: React.FC<TourSceneProps> = ({
@@ -33,7 +33,6 @@ const TourScene: React.FC<TourSceneProps> = ({
   textureCurrent,
   lightIntensity,
   onPointerDown,
-  nodeId,
   assignable,
   setAssignable,
 }) => {
@@ -45,7 +44,7 @@ const TourScene: React.FC<TourSceneProps> = ({
     if (!assignable || !sphereRef.current) return;
 
     onPointerDown?.(e, e.point);
-    setAssignable(false);
+    setAssignable?.(false);
   };
 
   useEffect(() => {
