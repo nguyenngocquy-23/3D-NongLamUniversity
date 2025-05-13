@@ -38,38 +38,6 @@ const TypeModel = ({
   // setHotspotModels,
   setCurrentHotspotType
 }: TypeModelProps) => {
-  // const handleUploadedFile = (url: string, index: number) => {
-  //   const updated = [...hotspotModels];
-  //   updated[index].modelUrl = url;
-  //   setHotspotModels(updated); // nếu bạn có hàm setHotspotModels
-  // };
-
-  // const handleAssign = () => {
-  //   setAssignable(true);
-  // };
-
-  // const handleUpModel = async () => {
-  //   try {
-  //     const response = await axios.post(
-  //       "http://localhost:8080/api/v1/admin/hotspot/addModel",
-  //       hotspotModels,
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-
-  //     if (response.data.statusCode === 1000) {
-  //       console.log("✅ Upload model thành công!", response.data);
-  //     } else {
-  //       console.warn("❌ Upload thất bại:", response.data.message);
-  //     }
-  //   } catch (error) {
-  //     console.error("🚨 Lỗi khi gọi API:", error);
-  //   }
-  // };
-  
   return (
     <div
       className={`${styles.type_model} ${

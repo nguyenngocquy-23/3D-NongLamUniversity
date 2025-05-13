@@ -66,7 +66,7 @@ const Task3 = ({
         </select>
       </div>
       {/* // setup icon */}
-      <ConfigIcon />
+      <ConfigIcon currenHotspotType={openTypeIndex} />
       <TypeNavigation
         isOpenTypeNavigation={openTypeIndex == 1}
         setAssignable={setAssignable}

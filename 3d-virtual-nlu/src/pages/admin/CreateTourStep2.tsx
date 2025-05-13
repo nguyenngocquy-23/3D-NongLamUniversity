@@ -100,9 +100,6 @@ const CreateTourStep2 = () => {
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
 
   const dispatch = useDispatch();
-  const { panoramaList, currentSelectId } = useSelector(
-    (state: RootState) => state.panoramas
-  );
 
   const hotspotModels = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
@@ -116,11 +113,15 @@ const CreateTourStep2 = () => {
     )
   );
 
-  const hotspotMedias = useSelector((state: RootState) => 
-  state.hotspots.hotspotList.filter(
-    (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-  ))
+  const hotspotMedias = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
+    )
+  );
 
+  const { panoramaList, currentSelectId } = useSelector(
+    (state: RootState) => state.panoramas
+  );
   // Panorama hiện tại.
   const currentPanorama = panoramaList.find(
     (pano) => pano.id === currentSelectId
@@ -399,13 +400,21 @@ const CreateTourStep2 = () => {
                 modelUrl={hotspot.modelUrl}
               />
             ))}
-          {hotspotMedias.map((hotspot, index) => (
-            <VideoMeshComponent
-              key={index}
-              cornerPoints={JSON.parse(hotspot.cornerPointListJson) as [number, number, number][]}
-              currentVideoUrl={hotspot.mediaUrl}
-            />
-          ))}
+          {hotspotMedias
+            .filter((hotspot) => hotspot.nodeId === currentSelectId)
+            .map((hotspot, index) => (
+              <VideoMeshComponent
+                key={index}
+                cornerPoints={
+                  JSON.parse(hotspot.cornerPointListJson) as [
+                    number,
+                    number,
+                    number
+                  ][]
+                }
+                currentVideoUrl={hotspot.mediaUrl}
+              />
+            ))}
 
           {currentPoints.map((point, index) => (
             <PointMedia key={`p-${index}`} position={point} />

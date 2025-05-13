@@ -116,7 +116,18 @@ const hotspotSlice = createSlice({
           action.payload.modelUrl;
       }
     },
-
+    updateIconId: (
+      state,
+      action: PayloadAction<{ hotspotId: string; iconId: number }>
+    ) => {
+      const index = state.hotspotList.findIndex(
+        (h) => h.id === action.payload.hotspotId
+      );
+      if (index !== -1) {
+        (state.hotspotList[index]).iconId =
+          action.payload.iconId;
+      }
+    },
     // Nhận vào hotspot id và targetNodeId
     updateNavigationHotspotTarget: (
       state,
@@ -141,6 +152,7 @@ export const {
   deleteHotspot,
   clearHotspot,
   updateModelHotspotModelUrl,
+  updateIconId,
   updateNavigationHotspotTarget,
 } = hotspotSlice.actions;
 export default hotspotSlice.reducer;

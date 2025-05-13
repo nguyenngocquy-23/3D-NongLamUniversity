@@ -58,20 +58,17 @@ const ManagerIcon = () => {
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value.toLowerCase();
     const newData = icons.filter((row) => {
-      return (
-        row.name.toLowerCase().includes(searchTerm),
-        row.code.toLowerCase().includes(searchTerm)
-      );
+      return row.name.toLowerCase().includes(searchTerm);
     });
     setSearchData(newData);
   };
 
   const columns = [
     {
-      name: "Mã biểu tượng",
+      name: "Mã",
       selector: (row: Icon) => row.id,
       sortable: true,
-      width: "150px",
+      width: "100px",
     },
     {
       name: "Tên biểu tượng",
@@ -81,9 +78,11 @@ const ManagerIcon = () => {
     },
     {
       name: "Ảnh",
-      selector: (row: Icon) => row.url,
+      selector: (row: Icon) => (
+        <span title={row.url}>{row.url}</span> // row.title là title bạn muốn hiển thị
+      ),
       sortable: true,
-      width: "200px",
+      width: "400px",
     },
     {
       name: "Trạng thái",
@@ -95,6 +94,7 @@ const ManagerIcon = () => {
         />
       ),
       sortable: true,
+      width: "150px",
     },
     {
       name: "Thời gian cập nhật",
@@ -190,7 +190,7 @@ const ManagerIcon = () => {
       ) : (
         ""
       )}
-      <input
+      {/* <input
         type="color"
         value={color}
         onChange={(e) => setColor(e.target.value)}
@@ -198,7 +198,7 @@ const ManagerIcon = () => {
       <div
         style={{ color: color, marginLeft: "500px" }}
         dangerouslySetInnerHTML={{ __html: coloredSvg }}
-      />
+      /> */}
       <Datatable columns={columns} searchData={searchData!} loading={loading} />
     </div>
   );
