@@ -1,6 +1,3 @@
-import axios from "axios";
-import { FaHome } from "react-icons/fa";
-import { FaClock } from "react-icons/fa6";
 import { HotspotType } from "../../../redux/slices/HotspotSlice";
 import UploadFile from "../UploadFile";
 import styles from "../../../styles/tasklistCT/task3.module.css";
@@ -10,7 +7,6 @@ interface TypeModelProps {
   assignable: boolean;
   setAssignable: (value: boolean) => void;
   hotspotModels: HotspotModelCreateRequest[];
-  // setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
   setCurrentHotspotType: (value: HotspotType) => void;
 }
 
@@ -32,44 +28,10 @@ export interface HotspotModelCreateRequest {
 // Component cho Task5
 const TypeModel = ({
   isOpenTypeModel,
-  assignable,
   setAssignable,
   hotspotModels,
-  // setHotspotModels,
-  setCurrentHotspotType
+  setCurrentHotspotType,
 }: TypeModelProps) => {
-  // const handleUploadedFile = (url: string, index: number) => {
-  //   const updated = [...hotspotModels];
-  //   updated[index].modelUrl = url;
-  //   setHotspotModels(updated); // nếu bạn có hàm setHotspotModels
-  // };
-
-  // const handleAssign = () => {
-  //   setAssignable(true);
-  // };
-
-  // const handleUpModel = async () => {
-  //   try {
-  //     const response = await axios.post(
-  //       "http://localhost:8080/api/v1/admin/hotspot/addModel",
-  //       hotspotModels,
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-
-  //     if (response.data.statusCode === 1000) {
-  //       console.log("✅ Upload model thành công!", response.data);
-  //     } else {
-  //       console.warn("❌ Upload thất bại:", response.data.message);
-  //     }
-  //   } catch (error) {
-  //     console.error("🚨 Lỗi khi gọi API:", error);
-  //   }
-  // };
-  
   return (
     <div
       className={`${styles.type_model} ${
@@ -77,7 +39,6 @@ const TypeModel = ({
       }`}
     >
       // thay bằng component quản lý biểu tượng
-      
       <div>
         <label className={styles.label}>Vị trí mô hình:</label>
         <button
@@ -90,7 +51,7 @@ const TypeModel = ({
         </button>
       </div>
       <div style={{ height: "75%", overflowY: "auto" }}>
-        {hotspotModels.map((hpm, index) => (
+        {/* {hotspotModels.map((hpm, index) => (
           <div key={index + 1}>
             <div
               style={{
@@ -117,7 +78,7 @@ const TypeModel = ({
                 style={{ color: "red", cursor: "pointer" }}
                 title="Xóa mô hình này"
               >
-                ❌
+                Xoá
               </button>
             </div>
             <p>
@@ -134,7 +95,7 @@ const TypeModel = ({
               />
             </div>
           </div>
-        ))}
+        ))} */}
       </div>
       {/* <button onClick={() => handleUpModel()}>Thiết lập</button> */}
     </div>

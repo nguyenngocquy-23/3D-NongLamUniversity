@@ -4,15 +4,23 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as THREE from "three";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { updateNavigationHotspotTarget } from "../../redux/slices/HotspotSlice";
+import {
+  HotspotNavigation,
+  updateNavigationHotspotTarget,
+} from "../../redux/slices/HotspotSlice";
 
 type HotspotType = "floor" | "info";
+
 type GroundHotspotProps = {
   position: [number, number, number];
   setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test.
   type?: HotspotType;
   nodeId: string;
   idHotspot: string;
+  onNavigate: (
+    targetNodeId: string,
+    cameraTargetPosition: [number, number, number]
+  ) => void;
 };
 
 const GroundHotspot: React.FC<GroundHotspotProps> = ({
@@ -21,6 +29,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   type,
   nodeId,
   idHotspot,
+  onNavigate,
 }) => {
   const camera = useThree();
   const hotspotRef = useRef<THREE.Mesh>(null);
@@ -62,6 +71,13 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   const panoramaList = useSelector(
     (state: RootState) => state.panoramas.panoramaList
   );
+
+  const hotspot = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.find(
+      (h): h is HotspotNavigation => h.id === idHotspot && h.type === 1
+    )
+  );
+
   const dispatch = useDispatch<AppDispatch>();
 
   return (
@@ -79,6 +95,16 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
           setIsHovered(false);
           console.log("Rời khỏi hotspot!");
           setHoveredHotspot(null); //test
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (hotspot && hotspot.targetNodeId) {
+            onNavigate(hotspot.targetNodeId, [
+              hotspot.positionX,
+              hotspot.positionY,
+              hotspot.positionZ,
+            ]);
+          }
         }}
         onContextMenu={() => {
           // Ngăn menu mặc định

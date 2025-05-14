@@ -10,21 +10,15 @@ import TypeMedia, {
   CornerPoint,
   HotspotMediaCreateRequest,
 } from "./HotspotMedia";
-import ConfigIcon from "../ConfigIcon";
 
 interface Task3Props {
   assignable: boolean;
   setAssignable: (value: boolean) => void;
   hotspotModels: HotspotModelCreateRequest[];
-  // setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
   chooseCornerMediaPoint: boolean;
   setChooseCornerMediaPoint: (value: boolean) => void;
   currentPoints: [number, number, number][]; // mesh đang chọn
   setCurrentPoints: (val: any) => void;
-  // videoMeshes: HotspotMediaCreateRequest[]; // danh sách mesh đã xong
-  // setVideoMeshes: (val: any) => void;
-  // cornerPointes: CornerPoint[]; // danh sách mesh đã xong
-  // setCornerPointes: (val: any) => void;
   currentHotspotType: HotspotType | null;
   setCurrentHotspotType: (value: HotspotType) => void;
 }
@@ -66,7 +60,7 @@ const Task3 = ({
         </select>
       </div>
       {/* // setup icon */}
-      <ConfigIcon />
+      {/* <ConfigIcon /> */}
       <TypeNavigation
         isOpenTypeNavigation={openTypeIndex == 1}
         setAssignable={setAssignable}

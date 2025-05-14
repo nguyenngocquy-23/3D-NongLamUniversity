@@ -17,9 +17,9 @@ import Task1 from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
 import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import PointMedia from "../../components/admin/PointMedia";
-import { useRaycaster } from "../../hooks/useRaycaster";
 import TourScene from "../../components/visitor/TourScene";
 import CamControls from "../../components/visitor/CamControls";
+import gsap from "gsap";
 import {
   addInformationHotspot,
   addMediaHotspot,
@@ -55,6 +55,8 @@ const CreateTourStep2 = () => {
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<any>(null); //OrbitControls
 
   const [currentPoints, setCurrentPoints] = useState<
     [number, number, number][]
@@ -104,22 +106,22 @@ const CreateTourStep2 = () => {
     (state: RootState) => state.panoramas
   );
 
+  const hotspotNavigations = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
+    )
+  );
   const hotspotModels = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
       (hotspot): hotspot is HotspotModel => hotspot.type === 4
     )
   );
 
-  const hotspots = useSelector((state: RootState) =>
+  const hotspotMedias = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
+      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
     )
   );
-
-  const hotspotMedias = useSelector((state: RootState) => 
-  state.hotspots.hotspotList.filter(
-    (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-  ))
 
   // Panorama hiện tại.
   const currentPanorama = panoramaList.find(
@@ -276,7 +278,9 @@ const CreateTourStep2 = () => {
       setCurrentHotspotType(null);
     }
   };
-
+  /**
+   *  Xử lý đổi nội dung content cho từng task (1,2,3) áp dụng trên TaskContainerCT từ RightMenuCT.
+   */
   const getTaskContentById = (id: number): React.ReactNode => {
     switch (id) {
       case 1:
@@ -336,7 +340,67 @@ const CreateTourStep2 = () => {
     reset,
   } = useSequentialTasks(tasks.length);
 
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const computeYawToHotspot = (target: [number, number, number]): number => {
+    const [x, , z] = target;
+    return Math.atan2(x, z);
+  };
+
+  /**
+   *
+   * @param targetNodeId
+   * @param hotspotTargetPosition
+   */
+  const handleHotspotNavigate = (
+    targetNodeId: string,
+    hotspotTargetPosition: [number, number, number]
+  ) => {
+    if (!cameraRef.current || !controlsRef.current) return;
+
+    const camera = cameraRef.current;
+    const originalFov = camera.fov;
+    // Zoom vào hotspot: thay đổi FOV để camera zoom vào
+    const zoomTarget = 30; // Có thể điều chỉnh FOV này tùy theo yêu cầu
+
+    const targetYaw = computeYawToHotspot(hotspotTargetPosition);
+    const targetPosition: [number, number, number] = [
+      hotspotTargetPosition[0],
+      0,
+      hotspotTargetPosition[2], // Lùi ra xa 1 chút.
+    ];
+
+    gsap.to(camera.rotation, {
+      y: targetYaw,
+      duration: 1.5,
+      ease: "power2.inOut",
+      onUpdate: () => {
+        controlsRef.current?.update();
+      },
+    });
+
+    gsap.to(camera, {
+      fov: zoomTarget,
+      duration: 1.5,
+      ease: "power2.inOut",
+      onUpdate: () => {
+        camera.updateProjectionMatrix();
+      },
+      onComplete: () => {
+        handleSelectNode(targetNodeId);
+
+        // Delay nhỏ để user thấy "zoom" đã xảy ra
+        gsap.delayedCall(0, () => {
+          gsap.to(camera, {
+            fov: originalFov,
+            duration: 1.2,
+            ease: "power2.out",
+            onUpdate: () => {
+              camera.updateProjectionMatrix();
+            },
+          });
+        });
+      },
+    });
+  };
 
   return (
     <>
@@ -366,10 +430,11 @@ const CreateTourStep2 = () => {
             targetPosition={targetPosition}
             sphereRef={sphereRef}
             cameraRef={cameraRef}
+            controlsRef={controlsRef}
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
           />
-          {hotspots
+          {hotspotNavigations
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
               <GroundHotspot
@@ -383,29 +448,26 @@ const CreateTourStep2 = () => {
                 setHoveredHotspot={setHoveredHotspot}
                 nodeId={hotspot.nodeId}
                 type="floor"
+                onNavigate={(targetNodeId, cameraTargetPosition) =>
+                  handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                }
               />
             ))}
-          {hotspotModels
+          {hotspotMedias
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot, index) => (
-              <GroundHotspotModel
-                key={index}
-                position={[
-                  hotspot.positionX,
-                  hotspot.positionY,
-                  hotspot.positionZ,
-                ]}
-                setHoveredHotspot={setHoveredHotspot}
-                modelUrl={hotspot.modelUrl}
+            .map((hotspot) => (
+              <VideoMeshComponent
+                key={hotspot.id}
+                cornerPoints={
+                  JSON.parse(hotspot.cornerPointListJson) as [
+                    number,
+                    number,
+                    number
+                  ][]
+                }
+                currentVideoUrl={hotspot.mediaUrl}
               />
             ))}
-          {hotspotMedias.map((hotspot, index) => (
-            <VideoMeshComponent
-              key={index}
-              cornerPoints={JSON.parse(hotspot.cornerPointListJson) as [number, number, number][]}
-              currentVideoUrl={hotspot.mediaUrl}
-            />
-          ))}
 
           {currentPoints.map((point, index) => (
             <PointMedia key={`p-${index}`} position={point} />
@@ -422,6 +484,20 @@ const CreateTourStep2 = () => {
                 );
               return null;
             })}
+          {hotspotModels
+            .filter((hotspot) => hotspot.nodeId === currentSelectId)
+            .map((hotspot) => (
+              <GroundHotspotModel
+                key={hotspot.id}
+                position={[
+                  hotspot.positionX,
+                  hotspot.positionY,
+                  hotspot.positionZ,
+                ]}
+                setHoveredHotspot={setHoveredHotspot}
+                modelUrl={hotspot.modelUrl}
+              />
+            ))}
         </Canvas>
 
         {/* Header chứa logo + close */}

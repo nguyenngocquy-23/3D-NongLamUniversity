@@ -1,7 +1,44 @@
-import { Sphere } from "@react-three/drei";
-import { ThreeEvent, useLoader, useThree } from "@react-three/fiber";
-import React, { useEffect, useRef } from "react";
+import { Sphere, shaderMaterial, useTexture } from "@react-three/drei";
+import {
+  ThreeEvent,
+  useLoader,
+  useThree,
+  extend,
+  useFrame,
+} from "@react-three/fiber";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+
+const CrossFadeMaterial = shaderMaterial(
+  {
+    texture1: null,
+    texture2: null,
+    mixRatio: 0,
+  },
+  // vertex shader
+  `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+  `,
+  // fragment shader - trộn texture 1 và texture 2 với tỉ lệ mixRatio
+  `
+  uniform sampler2D texture1;
+  uniform sampler2D texture2;
+  uniform float mixRatio;
+  varying vec2 vUv;
+  void main() {
+    vec4 tex1 = texture2D(texture1, vUv);
+    vec4 tex2 = texture2D(texture2, vUv);
+    gl_FragColor = mix(tex1, tex2, mixRatio);
+  }
+  `
+);
+
+CrossFadeMaterial.key = "CrossFadeMaterial";
+extend({ CrossFadeMaterial });
 
 /**
  *  Lớp này sử dụng cho việc :
@@ -20,8 +57,6 @@ interface TourSceneProps {
    * Output: Trả về giá trị raycast x,y,z.
    */
   onPointerDown?: (e: ThreeEvent<PointerEvent>, point: THREE.Vector3) => void;
-
-  //Test.
   nodeId?: string;
 }
 
@@ -33,15 +68,8 @@ const TourScene: React.FC<TourSceneProps> = ({
   onPointerDown,
   nodeId,
 }) => {
-  const texture = useLoader(THREE.TextureLoader, textureCurrent);
   const meshRef = useRef<THREE.Mesh>(null);
-
-  // Gửi sự kiện click chuột kèm điểm raycaste (x,y,z) về CreateTourStep2.
-  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
-    if (!sphereRef.current) return;
-
-    onPointerDown?.(e, e.point);
-  };
+  const materialRef = useRef<any>(null);
 
   useEffect(() => {
     if (sphereRef && meshRef.current) {
@@ -49,6 +77,36 @@ const TourScene: React.FC<TourSceneProps> = ({
       console.log("sphereRef đã được gán: ", sphereRef.current);
     }
   }, [sphereRef]);
+
+  const [prevTextureUrl, setPrevTextureUrl] = useState(textureCurrent);
+  const [fadeProgress, setFadeProgress] = useState(0);
+  const [tex1, tex2] = useTexture([prevTextureUrl, textureCurrent]);
+
+  const texture = useLoader(THREE.TextureLoader, textureCurrent);
+
+  useEffect(() => {
+    if (textureCurrent !== prevTextureUrl) {
+      setPrevTextureUrl(textureCurrent);
+      setFadeProgress(0);
+    }
+  }, [textureCurrent]);
+
+  useFrame((_, delta) => {
+    if (fadeProgress < 1) {
+      const newProgress = Math.min(fadeProgress + delta * 0.5, 1);
+      setFadeProgress(newProgress);
+      if (materialRef.current) {
+        materialRef.current.mixRatio = newProgress;
+      }
+    }
+  });
+
+  // Gửi sự kiện click chuột kèm điểm raycaste (x,y,z) về CreateTourStep2.
+  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
+    if (!sphereRef.current) return;
+
+    onPointerDown?.(e, e.point);
+  };
 
   return (
     <>
@@ -64,6 +122,13 @@ const TourScene: React.FC<TourSceneProps> = ({
           metalness={0.0}
           roughness={1.0}
         />
+        {/* <CrossFadeMaterial
+          ref={materialRef}
+          side={THREE.BackSide}
+          texture1={tex1}
+          texture2={tex2}
+          mixRatio={fadeProgress}
+        /> */}
       </Sphere>
       <ambientLight intensity={lightIntensity} />
       <directionalLight position={[5, 5, 5]} intensity={lightIntensity} />

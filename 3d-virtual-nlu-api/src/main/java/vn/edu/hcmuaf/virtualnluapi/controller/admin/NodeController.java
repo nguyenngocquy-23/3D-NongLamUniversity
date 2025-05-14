@@ -76,8 +76,6 @@ public class NodeController {
             }
 
         }
-
-
             if (result) {
                 return ApiResponse.<Boolean>builder().statusCode(1000).message("Tao node thanh cong").data(result).build();
             } else {

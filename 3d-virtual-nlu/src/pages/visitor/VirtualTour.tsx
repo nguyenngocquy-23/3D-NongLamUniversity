@@ -73,7 +73,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   useEffect(() => {
     console.log("sphereRef.current trong VirtualTour:", sphereRef.current);
   }, [sphereRef.current]);
-  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null);
+  // const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null);
   useEffect(() => {
     let resizeTimer: number;
 
@@ -129,17 +129,14 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
 
   const radius = 100;
 
-  const [hotspots, setHotspots] = useState<
-    { id: number; position: [number, number, number]; type: "floor" | "info" }[]
-  >([]);
-    const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
+  // const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
 
-  const handleAddHotspot = (
-    position: [number, number, number],
-    type: "floor" | "info"
-  ) => {
-    setHotspots((prev) => [...prev, { id: prev.length + 1, position, type }]);
-  };
+  // const handleAddHotspot = (
+  //   position: [number, number, number],
+  //   type: "floor" | "info"
+  // ) => {
+  //   setHotspots((prev) => [...prev, { id: prev.length + 1, position, type }]);
+  // };
 
   const handledSwitchTexture = (newPosition: [number, number, number]) => {
     if (sphereRef.current) {
@@ -407,7 +404,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           radius={radius}
           sphereRef={sphereRef}
           textureCurrent={textureUrl ?? "/khoa.jpg"}
-          lightIntensity={0.5}  
+          lightIntensity={0.5}
         />
         <CamControls
           targetPosition={targetPosition}
@@ -415,22 +412,23 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           autoRotate={true}
           autoRotateSpeed={0.5}
         />
-        {hotspots.map((hotspot) => (
+        {/* {hotspots.map((hotspot) => (
           <GroundHotspotModel
             key={hotspot.id}
             position={hotspot.position}
+            modelUrl={hotspot.}
             // type={hotspot.type}
             setHoveredHotspot={setHoveredHotspot}
           />
-        ))} */}
-        {hotspotModels.map((hotspot, index) => (
+        ))}  */}
+        {/* {hotspotModels.map((hotspot, index) => (
           <GroundHotspotModel
             key={index}
             position={[hotspot.positionX, hotspot.positionY, hotspot.positionZ]}
             setHoveredHotspot={setHoveredHotspot}
             modelUrl={hotspot.modelUrl}
           />
-        ))}
+        ))} */}
         {hotspotMedias.map((point, index) => (
           <VideoMeshComponent key={index} response={point} />
         ))}
@@ -464,31 +462,3 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
 };
 
 export default VirtualTour;
-
-{
-  /*       
-        <RaycasterHandler
-          sphereRef={sphereRef}
-          textureCurrent={textureUrl}
-        /> */
-}
-{
-  /* <RaycasterHandler
-          radius={radius}
-          sphereRef={sphereRef}
-          onAddHotspot={(position, type) => handleAddHotspot(position, type)}
-          hoveredHotspot={hoveredHotspot} //test
-          switchTexture={handledSwitchTexture}
-        /> */
-}
-{
-  /* {hotspots.map((hotspot) => (
-          <GroundHotspot
-            key={hotspot.id}
-            position={hotspot.position}
-            type={hotspot.type}
-            setHoveredHotspot={setHoveredHotspot}
-            />
-          ))} 
-        */
-}

@@ -6,26 +6,32 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 type GroundHotspotProps = {
   position: [number, number, number];
-  setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test.
-  modelUrl: string;
+  setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test để báo lúc nào hover.
+  modelUrl: string; // modelUrl mặc định khi tạo sẽ không có.
 };
 
 const GroundHotspotModel = ({
   position,
   setHoveredHotspot,
-  modelUrl
+  modelUrl,
 }: GroundHotspotProps) => {
-  const hotspotRef = useRef<THREE.Mesh>(null);
+  const hotspotRef = useRef<THREE.Mesh>(null); // gọi lại mesh trong return
+  const modelRef = useRef<THREE.Group>(null); //gọi lại group trong return.
+  /**
+   * Đang set tạm
+   */
+  const targetOpacity = useRef(0.6);
+  const targetScale = useRef(5);
+
+  // Kiểm tra trạng thái chuột với model.
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setClicked] = useState(false);
+
   const texture = useMemo(
     () => new THREE.TextureLoader().load("/vite.svg"),
     []
   );
 
-  const [isHovered, setIsHovered] = useState(false);
-  const [isClicked, setClicked] = useState(false);
-  const targetOpacity = useRef(0.6);
-  const targetScale = useRef(5);
-  const modelRef = useRef<THREE.Group>(null);
   const { gl } = useThree();
   const navigate = useNavigate();
 
@@ -126,7 +132,6 @@ const GroundHotspotModel = ({
           depthTest={false}
         />
       </mesh>
-      {/* </Suspense> */}
     </>
   );
 };
