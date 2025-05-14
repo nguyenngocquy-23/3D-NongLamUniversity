@@ -357,47 +357,24 @@ const CreateTourStep2 = () => {
     if (!cameraRef.current || !controlsRef.current) return;
 
     const camera = cameraRef.current;
+    const control = controlsRef.current;
     const originalFov = camera.fov;
     // Zoom vào hotspot: thay đổi FOV để camera zoom vào
     const zoomTarget = 30; // Có thể điều chỉnh FOV này tùy theo yêu cầu
 
-    const targetYaw = computeYawToHotspot(hotspotTargetPosition);
-    const targetPosition: [number, number, number] = [
-      hotspotTargetPosition[0],
-      0,
-      hotspotTargetPosition[2], // Lùi ra xa 1 chút.
-    ];
+    const [x, y, z] = hotspotTargetPosition;
+    const direction = new THREE.Vector3(x, 0, z).normalize();
+    const lookAtTarget = new THREE.Vector3(x, 0, z);
+
+    const targetYaw = Math.atan2(x, z);
+    handleSelectNode(targetNodeId);
 
     gsap.to(camera.rotation, {
       y: targetYaw,
-      duration: 1.5,
+      duration: 0.5,
       ease: "power2.inOut",
       onUpdate: () => {
         controlsRef.current?.update();
-      },
-    });
-
-    gsap.to(camera, {
-      fov: zoomTarget,
-      duration: 1.5,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        camera.updateProjectionMatrix();
-      },
-      onComplete: () => {
-        handleSelectNode(targetNodeId);
-
-        // Delay nhỏ để user thấy "zoom" đã xảy ra
-        gsap.delayedCall(0, () => {
-          gsap.to(camera, {
-            fov: originalFov,
-            duration: 1.2,
-            ease: "power2.out",
-            onUpdate: () => {
-              camera.updateProjectionMatrix();
-            },
-          });
-        });
       },
     });
   };

@@ -1,44 +1,7 @@
 import { Sphere, shaderMaterial, useTexture } from "@react-three/drei";
-import {
-  ThreeEvent,
-  useLoader,
-  useThree,
-  extend,
-  useFrame,
-} from "@react-three/fiber";
-import React, { useEffect, useRef, useState } from "react";
+import { ThreeEvent, useFrame, extend } from "@react-three/fiber";
+import React, { JSX, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-
-const CrossFadeMaterial = shaderMaterial(
-  {
-    texture1: null,
-    texture2: null,
-    mixRatio: 0,
-  },
-  // vertex shader
-  `
-  varying vec2 vUv;
-  void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-  `,
-  // fragment shader - trộn texture 1 và texture 2 với tỉ lệ mixRatio
-  `
-  uniform sampler2D texture1;
-  uniform sampler2D texture2;
-  uniform float mixRatio;
-  varying vec2 vUv;
-  void main() {
-    vec4 tex1 = texture2D(texture1, vUv);
-    vec4 tex2 = texture2D(texture2, vUv);
-    gl_FragColor = mix(tex1, tex2, mixRatio);
-  }
-  `
-);
-
-CrossFadeMaterial.key = "CrossFadeMaterial";
-extend({ CrossFadeMaterial });
 
 /**
  *  Lớp này sử dụng cho việc :
@@ -46,6 +9,48 @@ extend({ CrossFadeMaterial });
  * + Tập trung cho việc hiển thị.
  *
  */
+const CrossFadeMaterial = shaderMaterial(
+  {
+    //Uniform: Chứa 2 ảnh. Progres: 0 tức là toàn bộ là Texture1, 1: tức là toàn bộ là texture2.
+    uTexture1: null as THREE.Texture | null,
+    uTexture2: null as THREE.Texture | null,
+    uProgress: 0,
+  },
+  //Vertex Shader .gsgl
+  `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+     `,
+  //Fragment Shader .gsgl
+  `
+    uniform sampler2D uTexture1;
+    uniform sampler2D uTexture2;
+    uniform float uProgress;
+    varying vec2 vUv;
+
+    void main() {
+      vec4 tex1 = texture2D(uTexture1, vUv);
+      vec4 tex2 = texture2D(uTexture2, vUv);
+      gl_FragColor = mix(tex1, tex2, uProgress);
+    
+    }
+    
+    `
+);
+extend({ CrossFadeMaterial });
+
+declare module "@react-three/fiber" {
+  interface ThreeElements {
+    crossFadeMaterial: JSX.IntrinsicElements["shaderMaterial"] & {
+      uTexture1?: THREE.Texture | null;
+      uTexture2?: THREE.Texture | null;
+      uProgress?: number;
+    };
+  }
+}
 
 interface TourSceneProps {
   radius: number;
@@ -66,10 +71,30 @@ const TourScene: React.FC<TourSceneProps> = ({
   textureCurrent,
   lightIntensity,
   onPointerDown,
-  nodeId,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<any>(null);
+
+  // const [prevTextureUrl, setPrevTextureUrl] = useState(textureCurrent);
+
+  const [textures, setTextures] = useState<
+    [THREE.Texture | null, THREE.Texture | null] | null
+  >(null);
+  console.log(`Texture 0 + ${textures && textures[0] ? textures : "không có"}`);
+  console.log(`Texture 1 + ${textures && textures[1] ? textures : "không có"}`);
+
+  const progressRef = useRef(0);
+  const [progress, setProgress] = useState(0);
+
+  // const textureUrls = useMemo(
+  //   () => [prevTextureUrl, textureCurrent],
+  //   [prevTextureUrl, textureCurrent]
+  // );
+  // const [tex1, tex2] = useTexture(textureUrls);
+
+  // const [tex1, tex2] = useTexture([prevTextureUrl, textureCurrent]);
+  // console.log("Tex1[TourScene]: " + prevTextureUrl);
+  // console.log("Tex2[TourScene]: " + textureCurrent);
 
   useEffect(() => {
     if (sphereRef && meshRef.current) {
@@ -78,33 +103,57 @@ const TourScene: React.FC<TourSceneProps> = ({
     }
   }, [sphereRef]);
 
-  const [prevTextureUrl, setPrevTextureUrl] = useState(textureCurrent);
-  const [fadeProgress, setFadeProgress] = useState(0);
-  const [tex1, tex2] = useTexture([prevTextureUrl, textureCurrent]);
-
-  const texture = useLoader(THREE.TextureLoader, textureCurrent);
+  // useEffect(() => {
+  //   if (textureCurrent !== prevTextureUrl) {
+  //     setPrevTextureUrl(textureCurrent);
+  //     setProgress(0);
+  //     console.log("Texture current: " + textureCurrent);
+  //   }
+  // }, [textureCurrent]);
 
   useEffect(() => {
-    if (textureCurrent !== prevTextureUrl) {
-      setPrevTextureUrl(textureCurrent);
-      setFadeProgress(0);
-    }
+    const load = async () => {
+      const loader = new THREE.TextureLoader();
+      const texNew = await loader.loadAsync(textureCurrent);
+
+      if (!textures) {
+        setTextures([texNew, null]);
+      } else {
+        const [prevTex] = textures;
+        setTextures([prevTex, texNew]);
+        setProgress(0);
+        progressRef.current = 0;
+      }
+    };
+    load();
   }, [textureCurrent]);
 
   useFrame((_, delta) => {
-    if (fadeProgress < 1) {
-      const newProgress = Math.min(fadeProgress + delta * 0.5, 1);
-      setFadeProgress(newProgress);
+    if (!textures || !textures[1]) return;
+
+    if (progressRef.current < 1) {
+      progressRef.current = Math.min(progressRef.current + delta, 1);
+      setProgress(progressRef.current);
+    }
+
+    if (progressRef.current >= 1 && textures[1]) {
+      setTextures([textures[1], null]);
+
       if (materialRef.current) {
-        materialRef.current.mixRatio = newProgress;
+        materialRef.current.uTexture1 = textures[1];
+        materialRef.current.uTexture2 = null; // hoặc dùng emptyTexture
+        materialRef.current.uProgress = 0;
       }
+
+      setProgress(0);
+      progressRef.current = 0;
     }
   });
 
   // Gửi sự kiện click chuột kèm điểm raycaste (x,y,z) về CreateTourStep2.
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     if (!sphereRef.current) return;
-
+    console.log("[handlePointerDown - TourScene] Click chuột trong Scene!");
     onPointerDown?.(e, e.point);
   };
 
@@ -116,19 +165,19 @@ const TourScene: React.FC<TourSceneProps> = ({
         scale={[-1, 1, 1]}
         onPointerDown={handlePointerDown}
       >
-        <meshStandardMaterial
+        {/* <meshStandardMaterial
           map={texture}
           side={THREE.BackSide}
           metalness={0.0}
           roughness={1.0}
-        />
-        {/* <CrossFadeMaterial
-          ref={materialRef}
-          side={THREE.BackSide}
-          texture1={tex1}
-          texture2={tex2}
-          mixRatio={fadeProgress}
         /> */}
+        <crossFadeMaterial
+          ref={materialRef}
+          uTexture1={textures?.[0] || null}
+          uTexture2={textures?.[1] || null}
+          uProgress={progress}
+          side={THREE.BackSide}
+        />
       </Sphere>
       <ambientLight intensity={lightIntensity} />
       <directionalLight position={[5, 5, 5]} intensity={lightIntensity} />
