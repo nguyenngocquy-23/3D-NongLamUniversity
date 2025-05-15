@@ -13,12 +13,12 @@ const ConfigIcon = ({
   propHotspot,
   isUpdate,
   onPropsChange,
-  currenHotspotType,
+  currentHotspotType,
 }: {
   propHotspot?: BaseHotspot;
   isUpdate?: boolean;
   onPropsChange: (value: BaseHotspot) => void;
-  currenHotspotType: number | null;
+  currentHotspotType: number | null;
 }) => {
   const [openListIcon, setOpenListIcon] = useState(false);
 
@@ -40,7 +40,7 @@ const ConfigIcon = ({
   const iconUrl =
     iconId != 0
       ? icons.find((i) => i.id == iconId).url
-      : icons.find((i) => i.id == hotspotTypes[(currenHotspotType ?? 1) - 1].defaultIconId).url;
+      : icons.find((i) => i.id == hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId).url;
 
   const [scale, setScale] = useState(propHotspot?.scale ?? 1);
   const [isFloor, setIsFloor] = useState(false);
@@ -59,11 +59,11 @@ const ConfigIcon = ({
       iconId:
         iconId !== 0 && propHotspot !== null
           ? iconId
-          : hotspotTypes[(currenHotspotType ?? 1) - 1].defaultIconId,
+          : hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId,
       positionX: 0,
       positionY: 0,
       positionZ: 0,
-      type: currenHotspotType ?? 1,
+      type: currentHotspotType ?? 1,
       scale,
       pitchX,
       yawY,
@@ -94,7 +94,7 @@ const ConfigIcon = ({
       );
     }
   }, [
-    currenHotspotType,
+    currentHotspotType,
     currentPanorama,
     scale,
     pitchX,

@@ -68,7 +68,7 @@ const Task3 = ({
       {/* // setup icon */}
       <ConfigIcon
         onPropsChange={onPropsChange}
-        currenHotspotType={openTypeIndex}
+        currentHotspotType={openTypeIndex}
       />
       {[1, 2, 4].includes(openTypeIndex) ? (
         <>
