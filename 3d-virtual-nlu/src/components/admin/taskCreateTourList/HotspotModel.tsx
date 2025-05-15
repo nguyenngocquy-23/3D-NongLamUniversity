@@ -90,16 +90,6 @@ const TypeModel = ({
             </div>
           </div>
         ))} */}
-        <button
-          // onClick={() => {
-          //   const updated = hotspotModels.filter((_, i) => i !== index);
-          //   // setHotspotModels(updated);
-          // }}
-          style={{ color: "red", cursor: "pointer" }}
-          title="Xóa mô hình này"
-        >
-          ❌
-        </button>
         <p>
           {/* <span style={{ color: "pink" }}> {hpm.positionX} </span>
               <span style={{ color: "yellow" }}> {hpm.positionY} </span>

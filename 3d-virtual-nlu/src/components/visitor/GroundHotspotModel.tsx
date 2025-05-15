@@ -191,7 +191,7 @@ const GroundHotspotModel = ({
       </mesh>
       {isOpenHotspotOption ? (
         <OptionHotspot
-          hotspotId={hotspotModel.nodeId}
+          hotspotId={hotspotModel.id}
           setCurrentHotspotId={setCurrentHotspotId}
           onClose={() => {
             setIsOpenHotspotOption(false);

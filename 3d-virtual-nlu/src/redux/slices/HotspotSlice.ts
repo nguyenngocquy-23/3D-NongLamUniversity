@@ -145,7 +145,21 @@ const hotspotSlice = createSlice({
           action.payload.targetNodeId;
       }
     },
-  },
+    // Nhận vào các thông số basicprop khi update config hotspot
+    updateConfigHotspot: (
+      state,
+      action: PayloadAction<{ hotspotId: string; propHotspot: BaseHotspot }>
+      ) => {
+        const index = state.hotspotList.findIndex(h => h.id === action.payload.hotspotId);
+
+      if (index !== -1) {
+        state.hotspotList[index] = {
+          ...state.hotspotList[index],
+          ...action.payload.propHotspot,
+        };  
+      }
+    }
+  }
 });
 
 export const {
@@ -158,6 +172,7 @@ export const {
   updateModelHotspotModelUrl,
   updateIconId,
   updateNavigationHotspotTarget,
+  updateConfigHotspot
 } = hotspotSlice.actions;
 export default hotspotSlice.reducer;
 

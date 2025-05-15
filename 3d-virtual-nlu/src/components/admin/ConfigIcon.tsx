@@ -1,17 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ListIcon from "./ListIcon";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
-import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import HotspotPreview from "./taskCreateTourList/HotspotPreview";
-import { BaseHotspot } from "../../redux/slices/HotspotSlice";
+import {
+  BaseHotspot,
+  updateConfigHotspot,
+} from "../../redux/slices/HotspotSlice";
 
 const ConfigIcon = ({
+  propHotspot,
   isUpdate,
   onPropsChange,
   currenHotspotType,
 }: {
+  propHotspot?: BaseHotspot;
   isUpdate?: boolean;
   onPropsChange: (value: BaseHotspot) => void;
   currenHotspotType: number | null;
@@ -45,14 +49,17 @@ const ConfigIcon = ({
   const [rollZ, setRollZ] = useState(0);
   const [color, setColor] = useState("#333333");
   const [backgroundColor, setBackgroundColor] = useState("#333333");
-  const [allowBackgroundColor, setAllowBackgroundColor] = useState(true);
+  const [allowBackgroundColor, setAllowBackgroundColor] = useState(false);
   const [opacity, setOpacity] = useState(1);
 
   const handleInitialHotspotProps = (): BaseHotspot => {
     return {
-      id: "temp", // bạn có thể generate ID hoặc nhận từ cha
+      id: "temp",
       nodeId: currentPanorama?.id ?? "",
-      iconId: iconId !== 0 ? iconId : defaultIconIds[(currenHotspotType ?? 1) - 1].defaultIconId,
+      iconId:
+        iconId !== 0
+          ? iconId
+          : defaultIconIds[(currenHotspotType ?? 1) - 1].defaultIconId,
       positionX: 0,
       positionY: 0,
       positionZ: 0,
@@ -70,11 +77,22 @@ const ConfigIcon = ({
 
   const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     const props = handleInitialHotspotProps();
-    console.log('props::', props)
-    setBasicProps(props);
-    onPropsChange(props); // gọi hàm truyền lên component cha
+    if (propHotspot == null) {
+      console.log("props::", props);
+      setBasicProps(props);
+      onPropsChange(props); // gọi hàm truyền lên component cha
+    } else {
+      // dispatch(
+      //   updateConfigHotspot({
+      //     hotspotId: propHotspot.id,
+      //     propHotspot: props,
+      //   })
+      // );
+    }
   }, [
     currenHotspotType,
     currentPanorama,

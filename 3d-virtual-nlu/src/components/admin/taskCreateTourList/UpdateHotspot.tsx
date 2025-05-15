@@ -8,26 +8,41 @@ import { BaseHotspot, HotspotType } from "../../../redux/slices/HotspotSlice";
 import TypeInfomation from "./HotspotInformation";
 import TypeModel, { HotspotModelCreateRequest } from "./HotspotModel";
 import ConfigIcon from "../ConfigIcon";
+import { FaAngleLeft, FaRightLeft } from "react-icons/fa6";
 
 interface UpdateHotspotProps {
   hotspotId: string | null;
+  setHotspotId: (value: string | null) => void;
   onPropsChange: (value: BaseHotspot) => void;
 }
 
 // Component cho Task3
-const UpdateHotspot = ({ hotspotId, onPropsChange }: UpdateHotspotProps) => {
+const UpdateHotspot = ({
+  hotspotId,
+  setHotspotId,
+  onPropsChange,
+}: UpdateHotspotProps) => {
   const [openTypeIndex, setOpenTypeIndex] = useState<number>(1); // State để lưu index của type đang mở
-  const hotspotType = useSelector(
-    (state: RootState) => state.data.hotspotTypes
-  );
-  console.log("mount update hotspot.........");
+  const propHotspot = useSelector(
+    (state: RootState) => state.hotspots.hotspotList
+  ).find((h) => h.id == hotspotId);
+  console.log("hotspotId,,,", hotspotId);
+  console.log("propHotspot,,,", propHotspot);
   const [isUpdate, setIsUpdate] = useState(true);
 
   return (
     <div className={styleCTs.task_container}>
       <div className={styleCTs.task_content}>
+        <div className={styles.select_header}>
+          <FaAngleLeft
+            onClick={() => {
+              setHotspotId(null);
+            }}
+          />
+        </div>
         <div className={styles.task3}>
           <ConfigIcon
+            propHotspot={propHotspot}
             isUpdate={isUpdate}
             onPropsChange={onPropsChange}
             currenHotspotType={openTypeIndex}

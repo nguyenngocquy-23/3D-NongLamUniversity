@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../../styles/createTourStep2.module.css";
-import { FaAngleRight, FaPlus } from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight, FaPlus, FaRightLeft } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -419,6 +419,8 @@ const CreateTourStep2 = () => {
         </Canvas>
         {/* Header chứa logo + close */}
         <div className={styles.header_tour}>
+          <FaAngleLeft />
+          {/* box chưa các panorama vừa upload */}
           <div className={styles.thumbnailsBox}>
             {panoramaList.map((item) => (
               <div key={item.id} className={styles.node}>
@@ -478,6 +480,7 @@ const CreateTourStep2 = () => {
         {currentHotspotId != null && (
           <UpdateHotspot
             hotspotId={currentHotspotId}
+            setHotspotId={setCurrentHotspotId}
             onPropsChange={handleOnPropsChange}
           />
         )}
