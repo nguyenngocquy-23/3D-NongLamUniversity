@@ -1,7 +1,12 @@
 import * as THREE from "three";
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../../styles/createTourStep2.module.css";
-import { FaAngleLeft, FaAngleRight, FaPlus, FaRightLeft } from "react-icons/fa6";
+import {
+  FaAngleLeft,
+  FaAngleRight,
+  FaPlus,
+  FaRightLeft,
+} from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -17,9 +22,9 @@ import Task1 from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
 import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import PointMedia from "../../components/admin/PointMedia";
-import { useRaycaster } from "../../hooks/useRaycaster";
 import TourScene from "../../components/visitor/TourScene";
 import CamControls from "../../components/visitor/CamControls";
+import gsap from "gsap";
 import {
   addInformationHotspot,
   addMediaHotspot,
@@ -57,6 +62,8 @@ const CreateTourStep2 = () => {
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<any>(null); //OrbitControls
 
   const [currentPoints, setCurrentPoints] = useState<
     [number, number, number][]
@@ -102,15 +109,14 @@ const CreateTourStep2 = () => {
 
   const dispatch = useDispatch();
 
+  const hotspotNavigations = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
+    )
+  );
   const hotspotModels = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
       (hotspot): hotspot is HotspotModel => hotspot.type === 4
-    )
-  );
-
-  const hotspots = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
     )
   );
 
@@ -265,7 +271,9 @@ const CreateTourStep2 = () => {
       setCurrentHotspotType(1);
     }
   };
-
+  /**
+   *  Xử lý đổi nội dung content cho từng task (1,2,3) áp dụng trên TaskContainerCT từ RightMenuCT.
+   */
   const getTaskContentById = (id: number): React.ReactNode => {
     switch (id) {
       case 1:
@@ -326,7 +334,62 @@ const CreateTourStep2 = () => {
     reset,
   } = useSequentialTasks(tasks.length);
 
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const computeYawToHotspot = (target: [number, number, number]): number => {
+    const [x, , z] = target;
+    return Math.atan2(x, z);
+  };
+
+  /**
+   *
+   * @param targetNodeId
+   * @param hotspotTargetPosition
+   */
+  const handleHotspotNavigate = (
+    targetNodeId: string,
+    hotspotTargetPosition: [number, number, number]
+  ) => {
+    if (!cameraRef.current || !controlsRef.current) return;
+
+    const camera = cameraRef.current;
+    console.log("Text step2" + camera);
+    const control = controlsRef.current;
+    const originalFov = camera.fov;
+    const zoomTarget = 45; // Có thể điều chỉnh FOV này tùy theo yêu cầu
+
+    const [x, y, z] = hotspotTargetPosition;
+
+    // === Bước 1: Tạo điểm cần nhìn đến (hotspot)
+    const targetLookAt = new THREE.Vector3(x, 0, z);
+
+    // === Bước 2: Animation tạm thời "quay" camera bằng cách move lookAt
+    const tempTarget = targetLookAt.clone();
+
+    gsap.to(camera.rotation, {
+      duration: 0.2,
+      ease: "power2.inOut",
+      onUpdate: () => {
+        camera.lookAt(tempTarget);
+        control.update();
+      },
+      onComplete: () => {
+        gsap.to(camera, {
+          fov: zoomTarget,
+          duration: 1.0,
+          ease: "power2.inOut",
+          onUpdate: () => {
+            handleSelectNode(targetNodeId);
+            camera.updateProjectionMatrix();
+          },
+          onComplete: () => {
+            camera.fov = originalFov;
+            camera.lookAt(0, 0, 0); // về
+            camera.updateProjectionMatrix();
+            control.update();
+          },
+        });
+      },
+    });
+  };
 
   return (
     <>
@@ -356,10 +419,11 @@ const CreateTourStep2 = () => {
             targetPosition={targetPosition}
             sphereRef={sphereRef}
             cameraRef={cameraRef}
+            controlsRef={controlsRef}
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
           />
-          {hotspots
+          {hotspotNavigations
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
               <GroundHotspot
@@ -369,10 +433,14 @@ const CreateTourStep2 = () => {
                   hotspot.positionY,
                   hotspot.positionZ,
                 ]}
-                idHotspot={hotspot.id}
+                // idHotspot={hotspot.id}
                 setHoveredHotspot={setHoveredHotspot}
                 nodeId={hotspot.nodeId}
                 type="floor"
+                onNavigate={(targetNodeId, cameraTargetPosition) =>
+                  handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                }
+                hotspotNavigation={hotspot}
               />
             ))}
           {hotspotModels
@@ -385,6 +453,7 @@ const CreateTourStep2 = () => {
                 hotspotModel={hotspot}
               />
             ))}
+
           {hotspotMedias
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot, index) => (

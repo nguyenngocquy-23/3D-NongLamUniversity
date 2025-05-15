@@ -17,6 +17,7 @@ type CamControlsProps = {
   targetPosition?: [number, number, number] | null; //test
   sphereRef: React.RefObject<THREE.Mesh | null>;
   cameraRef?: React.RefObject<THREE.PerspectiveCamera | null>;
+  controlsRef: React.RefObject<any>;
   autoRotate: boolean;
   autoRotateSpeed: number | null;
 };
@@ -26,12 +27,13 @@ const CamControls: React.FC<CamControlsProps> = ({
   targetPosition,
   sphereRef,
   cameraRef,
+  controlsRef,
   autoRotate,
   autoRotateSpeed,
 }) => {
   const { gl } = useThree();
   const canvas = gl.domElement;
-  const controlsRef = useRef<any>(null); //OrbitControls
+  // const controlsRef = useRef<any>(null); //OrbitControls
   const { camera } = useThree();
   const { getIntersectionPoint } = useRaycaster();
   const [zoomIndex, setZoomIndex] = useState(0);

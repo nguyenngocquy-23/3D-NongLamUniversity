@@ -22,23 +22,19 @@ export interface BaseHotspot {
 }
 
 export interface HotspotNavigation extends BaseHotspot {
-  // type: 1;
   targetNodeId: string;
 }
 export interface HotspotInformation extends BaseHotspot {
-  // type: 2;
   title: string;
   content: string;
 }
 export interface HotspotMedia extends BaseHotspot {
-  // type: 3;
   mediaType: string; //image or video
   mediaUrl: string;
   caption: string;
-  cornerPointListJson: string;
+  cornerPointListJson: string; // JSON string representing corner points
 }
 export interface HotspotModel extends BaseHotspot {
-  // type: 4;
   modelUrl: string;
   name: string;
   description: string;
@@ -128,8 +124,7 @@ const hotspotSlice = createSlice({
         (h) => h.id === action.payload.hotspotId
       );
       if (index !== -1) {
-        (state.hotspotList[index]).iconId =
-          action.payload.iconId;
+        state.hotspotList[index].iconId = action.payload.iconId;
       }
     },
     // Nhận vào hotspot id và targetNodeId
@@ -149,18 +144,21 @@ const hotspotSlice = createSlice({
     updateConfigHotspot: (
       state,
       action: PayloadAction<{ hotspotId: string; propHotspot: BaseHotspot }>
-      ) => {
-        const index = state.hotspotList.findIndex(h => h.id === action.payload.hotspotId);
+    ) => {
+      const index = state.hotspotList.findIndex(
+        (h) => h.id === action.payload.hotspotId
+      );
 
       if (index !== -1) {
-        const { id,positionX,positionY,positionZ, ...propsWithoutId } = action.payload.propHotspot as any;
+        const { id, positionX, positionY, positionZ, ...propsWithoutId } =
+          action.payload.propHotspot as any;
         state.hotspotList[index] = {
           ...state.hotspotList[index],
           ...propsWithoutId,
         };
       }
-    }
-  }
+    },
+  },
 });
 
 export const {
@@ -173,7 +171,7 @@ export const {
   updateModelHotspotModelUrl,
   updateIconId,
   updateNavigationHotspotTarget,
-  updateConfigHotspot
+  updateConfigHotspot,
 } = hotspotSlice.actions;
 export default hotspotSlice.reducer;
 

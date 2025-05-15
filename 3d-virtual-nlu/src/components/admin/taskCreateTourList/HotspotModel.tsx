@@ -1,6 +1,3 @@
-import axios from "axios";
-import { FaHome } from "react-icons/fa";
-import { FaClock } from "react-icons/fa6";
 import { HotspotType } from "../../../redux/slices/HotspotSlice";
 import UploadFile from "../UploadFile";
 import styles from "../../../styles/tasklistCT/task3.module.css";
@@ -32,7 +29,6 @@ export interface HotspotModelCreateRequest {
 // Component cho Task5
 const TypeModel = ({
   isOpenTypeModel,
-  assignable,
   setAssignable,
   hotspotModels,
   // setHotspotModels,
@@ -72,7 +68,7 @@ const TypeModel = ({
                 style={{ color: "red", cursor: "pointer" }}
                 title="Xóa mô hình này"
               >
-                ❌
+                Xoá
               </button>
             </div>
             <p>

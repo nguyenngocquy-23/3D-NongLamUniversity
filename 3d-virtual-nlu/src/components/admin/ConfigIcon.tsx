@@ -20,6 +20,8 @@ const ConfigIcon = ({
   onPropsChange: (value: BaseHotspot) => void;
   currentHotspotType: number | null;
 }) => {
+  console.log("CONFIG ICON: currentHotspotType: " + currentHotspotType);
+
   const [openListIcon, setOpenListIcon] = useState(false);
 
   const { panoramaList, currentSelectId } = useSelector(
@@ -48,8 +50,12 @@ const ConfigIcon = ({
   const [yawY, setYawY] = useState(propHotspot?.yawY ?? 0);
   const [rollZ, setRollZ] = useState(propHotspot?.rollZ ?? 0);
   const [color, setColor] = useState(propHotspot?.color ?? "#333333");
-  const [backgroundColor, setBackgroundColor] = useState(propHotspot?.backgroundColor ?? "#333333");
-  const [allowBackgroundColor, setAllowBackgroundColor] = useState(propHotspot?.allowBackgroundColor ?? false);
+  const [backgroundColor, setBackgroundColor] = useState(
+    propHotspot?.backgroundColor ?? "#333333"
+  );
+  const [allowBackgroundColor, setAllowBackgroundColor] = useState(
+    propHotspot?.allowBackgroundColor ?? false
+  );
   const [opacity, setOpacity] = useState(propHotspot?.opacity ?? 1);
 
   const handleInitialHotspotProps = (): BaseHotspot => {

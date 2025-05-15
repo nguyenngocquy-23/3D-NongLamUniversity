@@ -74,7 +74,7 @@ const HotspotPreview = ({
         console.error("Error loading or processing SVG:", err);
       }
     };
-
+    console.log("[HotspotPreview: " + iconUrl);
     loadAndModifySVG();
   }, [iconUrl, color]);
 
@@ -82,23 +82,24 @@ const HotspotPreview = ({
 
   return (
     <group ref={groupRef} position={[0, 0, 0]} scale={scale}>
-      {/* Background Mesh */}
       {allowBackgroundColor ? (
         <mesh position={[0, 0, -0.01]}>
-          {/* <planeGeometry args={[5, 5]} /> */}
           <circleGeometry args={[5, 100]} />
-          <meshBasicMaterial color={new THREE.Color(backgroundColor)} side={DoubleSide} opacity={opacity} />
+          <meshBasicMaterial
+            color={new THREE.Color(backgroundColor)}
+            side={DoubleSide}
+            opacity={opacity}
+          />
         </mesh>
       ) : (
         ""
       )}
 
-      {/* Texture Mesh */}
       <mesh position={[0, 0, 0]}>
         <planeGeometry args={[5, 5]} />
         <meshBasicMaterial
-          map={texture} // Assuming texture is set already
-          color={new THREE.Color(color)} // Color of SVG
+          map={texture}
+          color={new THREE.Color(color)}
           transparent
           side={DoubleSide}
           opacity={opacity}

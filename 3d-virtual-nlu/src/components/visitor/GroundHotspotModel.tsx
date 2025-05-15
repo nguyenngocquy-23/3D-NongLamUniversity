@@ -1,4 +1,3 @@
-import { useGLTF, useTexture } from "@react-three/drei";
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,16 +20,20 @@ const GroundHotspotModel = ({
   hotspotModel,
 }: GroundHotspotProps) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
-  const icons = useSelector((state: RootState) => state.data.icons);
-  const iconUrl = icons.find((i) => i.id == hotspotModel.iconId).url;
-
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
-  const [isHovered, setIsHovered] = useState(false);
-  const [isClicked, setClicked] = useState(false);
+  const icons = useSelector((state: RootState) => state.data.icons);
+  const iconUrl = icons.find((i) => i.id == hotspotModel.iconId).url;
+  const modelRef = useRef<THREE.Group>(null); //gọi lại group trong return.
+  /**
+   * Đang set tạm
+   */
   const targetOpacity = useRef(0.6);
   const targetScale = useRef(5);
-  const modelRef = useRef<THREE.Group>(null);
+
+  // Kiểm tra trạng thái chuột với model.
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setClicked] = useState(false);
   const { gl } = useThree();
   const navigate = useNavigate();
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
