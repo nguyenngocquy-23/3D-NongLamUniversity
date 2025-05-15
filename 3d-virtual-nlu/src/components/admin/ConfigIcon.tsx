@@ -32,40 +32,43 @@ const ConfigIcon = ({
     (pano) => pano.id === currentSelectId
   );
 
-  const defaultIconIds = useSelector(
+  const hotspotTypes = useSelector(
     (state: RootState) => state.data.hotspotTypes
   );
 
   const icons = useSelector((state: RootState) => state.data.icons);
 
-  /**
-   * Lấy Icon URL : Có trên redux.
-   */
-  const [iconId, setIconId] = useState(0);
-
+  const [iconId, setIconId] = useState(propHotspot?.iconId ?? 0);
   const iconUrl =
-    iconId !== 0
-      ? icons.find((i) => i.id === iconId)?.url || ""
-      : icons[currentHotspotType ?? 1]?.url || "";
+    iconId != 0
+      ? icons.find((i) => i.id == iconId).url
+      : icons.find(
+          (i) =>
+            i.id == hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId
+        ).url;
 
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(propHotspot?.scale ?? 1);
   const [isFloor, setIsFloor] = useState(false);
-  const [pitchX, setPitchX] = useState(0);
-  const [yawY, setYawY] = useState(0);
-  const [rollZ, setRollZ] = useState(0);
-  const [color, setColor] = useState("#333333");
-  const [backgroundColor, setBackgroundColor] = useState("#333333");
-  const [allowBackgroundColor, setAllowBackgroundColor] = useState(false);
-  const [opacity, setOpacity] = useState(1);
+  const [pitchX, setPitchX] = useState(propHotspot?.pitchX ?? 0);
+  const [yawY, setYawY] = useState(propHotspot?.yawY ?? 0);
+  const [rollZ, setRollZ] = useState(propHotspot?.rollZ ?? 0);
+  const [color, setColor] = useState(propHotspot?.color ?? "#333333");
+  const [backgroundColor, setBackgroundColor] = useState(
+    propHotspot?.backgroundColor ?? "#333333"
+  );
+  const [allowBackgroundColor, setAllowBackgroundColor] = useState(
+    propHotspot?.allowBackgroundColor ?? false
+  );
+  const [opacity, setOpacity] = useState(propHotspot?.opacity ?? 1);
 
   const handleInitialHotspotProps = (): BaseHotspot => {
     return {
       id: "temp",
       nodeId: currentPanorama?.id ?? "",
       iconId:
-        iconId !== 0
+        iconId !== 0 && propHotspot !== null
           ? iconId
-          : defaultIconIds[(currentHotspotType ?? 1) - 1].defaultIconId,
+          : hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId,
       positionX: 0,
       positionY: 0,
       positionZ: 0,
@@ -86,18 +89,18 @@ const ConfigIcon = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const props = handleInitialHotspotProps();
     if (propHotspot == null) {
-      console.log("props::", props);
+      const props = handleInitialHotspotProps();
       setBasicProps(props);
       onPropsChange(props); // gọi hàm truyền lên component cha
     } else {
-      // dispatch(
-      //   updateConfigHotspot({
-      //     hotspotId: propHotspot.id,
-      //     propHotspot: props,
-      //   })
-      // );
+      const props = handleInitialHotspotProps();
+      dispatch(
+        updateConfigHotspot({
+          hotspotId: propHotspot.id,
+          propHotspot: props,
+        })
+      );
     }
   }, [
     currentHotspotType,
@@ -232,6 +235,7 @@ const ConfigIcon = ({
                 id="rotateX"
                 min={-180}
                 max={180}
+                step={1}
                 value={rollZ}
                 onChange={(e) => setRollZ(Number(e.target.value))}
               />

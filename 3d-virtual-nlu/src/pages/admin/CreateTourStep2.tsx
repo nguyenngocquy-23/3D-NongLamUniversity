@@ -445,9 +445,9 @@ const CreateTourStep2 = () => {
             ))}
           {hotspotModels
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot, index) => (
+            .map((hotspot) => (
               <GroundHotspotModel
-                key={index}
+                key={hotspot.id}
                 setCurrentHotspotId={setCurrentHotspotId}
                 setHoveredHotspot={setHoveredHotspot}
                 hotspotModel={hotspot}
