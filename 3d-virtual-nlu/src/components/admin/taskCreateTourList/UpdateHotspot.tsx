@@ -43,7 +43,7 @@ const UpdateHotspot = ({
             propHotspot={propHotspot}
             isUpdate={isUpdate}
             onPropsChange={onPropsChange}
-            currenHotspotType={currentType ?? null}
+            currentHotspotType={currentType ?? null}
           />
           {/* <TypeNavigation
         isOpenTypeNavigation={openTypeIndex == 1}

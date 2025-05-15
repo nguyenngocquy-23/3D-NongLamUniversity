@@ -9,7 +9,6 @@
 
 import React from "react";
 import styles from "../../styles/taskcontainerct.module.css";
-import { IoIosSave } from "react-icons/io";
 
 interface TaskContainerCTProps {
   id: number | null;
@@ -30,11 +29,6 @@ const TaskContainerCT: React.FC<TaskContainerCTProps> = ({
         {id === 3 ? <span>Vị trí muốn để</span> : ""}
       </div>
       <div className={styles.task_content}>{children}</div>
-
-      {/* <button className={styles.task_save} onClick={onSave}>
-        <span>Lưu</span>
-        <IoIosSave />
-      </button> */}
     </div>
   );
 };

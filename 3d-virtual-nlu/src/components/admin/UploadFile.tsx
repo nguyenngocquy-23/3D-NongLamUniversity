@@ -6,12 +6,18 @@ import styles from "../../styles/uploadFile.module.css";
 import axios, { AxiosError } from "axios";
 import { setPanoramas } from "../../redux/slices/PanoramaSlice";
 import { useDispatch } from "react-redux";
-import { div } from "framer-motion/client";
 
+/**
+ * typeUpload: kiểu upload:
+ * 1. Upload ảnh 360 độ.
+ * 2. Upload video.
+ * 3. Upload mô hình 360 độ
+ */
 type UploadFileProps = {
   className?: string;
-  index?: number;
+  hotspotId?: string;
   onUploaded?: (urls: string, index: number) => void;
+  index?: number;
 };
 
 interface CloudinaryUploadResp {
@@ -27,6 +33,8 @@ interface ApiResponse<T> {
 
 const UploadFile: React.FC<UploadFileProps> = ({
   className,
+  hotspotId,
+  // typeUpload,
   index,
   onUploaded,
 }) => {
@@ -66,14 +74,14 @@ const UploadFile: React.FC<UploadFileProps> = ({
     setSelectFiles([]);
     setProgress(0);
     setUploadStatus("select");
-    if (onUploaded) onUploaded("", index ?? 0);
+    // if (onUploaded) onUploaded("", index ?? 0);
   };
 
   const removeFile = (index: number) => {
     const newFiles = [...selectedFile];
     newFiles.splice(index, 1);
     setSelectFiles(newFiles);
-    if (onUploaded) onUploaded("", index ?? 0);
+    // if (onUploaded) onUploaded("", index ?? 0);
   };
 
   const handleUpload = async (): Promise<void> => {
@@ -169,6 +177,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
           },
         }
       );
+
       if (resp.data.statusCode === 200) {
         setUploadStatus("done");
         const data = resp.data.data;
@@ -179,6 +188,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
             originalFileName: item.originalFileName!,
             url: item.url!,
           }));
+
         if (onUploaded) {
           const url = formattedData[0].url;
           console.log("url: ", url);
@@ -186,6 +196,23 @@ const UploadFile: React.FC<UploadFileProps> = ({
         } else {
           dispatch(setPanoramas(formattedData));
         }
+        // switch (typeUpload) {
+        //   case 1: {
+        //     dispatch(setPanoramas(formattedData));
+        //     break;
+        //   }
+        //   case 3: {
+        //     dispatch(
+        //       updateModelHotspotModelUrl({
+        //         id: "10",
+        //         modelUrl: formattedData[0].url,
+        //       })
+        //     );
+        //     break;
+        //   }
+        //   default:
+        //     console.warn("Không xác định loại upload.");
+        // }
       } else {
         console.log("upload error: ", resp.data.message);
         setUploadStatus("select");

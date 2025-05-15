@@ -9,7 +9,7 @@ interface DataState {
   nodes: any[];
   hotspotTypes: any[];
   masterNodes: any[];
-  icons: any[],
+  icons: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
 }
 
@@ -44,14 +44,13 @@ export const fetchUsers = createAsyncThunk(
 );
 
 // Fetch nodes
-export const fetchNodes = createAsyncThunk(
-  "data/fetchNodes",
-  async () => {
-    const response = await axios.post("http://localhost:8080/api/v1/admin/node/all");
-    console.log('nodes........',response.data.data)
-    return response.data.data;
-  }
-);
+export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
+  const response = await axios.post(
+    "http://localhost:8080/api/v1/admin/node/all"
+  );
+  console.log("nodes........", response.data.data);
+  return response.data.data;
+});
 
 // Fetch master nodes
 export const fetchMasterNodes = createAsyncThunk(

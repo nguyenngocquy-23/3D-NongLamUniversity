@@ -16,7 +16,6 @@ interface Task3Props {
   assignable: boolean;
   setAssignable: (value: boolean) => void;
   hotspotModels: HotspotModelCreateRequest[];
-  // setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
   chooseCornerMediaPoint: boolean;
   setChooseCornerMediaPoint: (value: boolean) => void;
   currentPoints: [number, number, number][]; // mesh đang chọn
@@ -61,14 +60,15 @@ const Task3 = ({
           onChange={(e) => handleChooseType(Number(e.target.value))}
         >
           {hotspotType.map((type) => (
-            <option value={type.id}>{type.name}</option>
+            <option key={type.id} value={type.id}>
+              {type.name}
+            </option>
           ))}
         </select>
       </div>
-      {/* // setup icon */}
       <ConfigIcon
         onPropsChange={onPropsChange}
-        currenHotspotType={openTypeIndex}
+        currentHotspotType={openTypeIndex}
       />
       {[1, 2, 4].includes(openTypeIndex) ? (
         <>
