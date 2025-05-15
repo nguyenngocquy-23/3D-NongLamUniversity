@@ -47,7 +47,7 @@ export const fetchUsers = createAsyncThunk(
 export const fetchNodes = createAsyncThunk(
   "data/fetchNodes",
   async () => {
-    const response = await axios.post("http://localhost:8080/api/admin/node/all");
+    const response = await axios.post("http://localhost:8080/api/v1/admin/node/all");
     console.log('nodes........',response.data.data)
     return response.data.data;
   }

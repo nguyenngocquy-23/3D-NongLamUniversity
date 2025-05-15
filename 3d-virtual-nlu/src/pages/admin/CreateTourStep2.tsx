@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../../styles/createTourStep2.module.css";
-import { FaAngleRight, FaPlus } from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight, FaPlus, FaRightLeft } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -25,6 +25,7 @@ import {
   addMediaHotspot,
   addModelHotspot,
   addNavigationHotspot,
+  BaseHotspot,
   HotspotMedia,
   HotspotModel,
   HotspotNavigation,
@@ -32,6 +33,7 @@ import {
 } from "../../redux/slices/HotspotSlice";
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
+import UpdateHotspot from "../../components/admin/taskCreateTourList/UpdateHotspot";
 
 const CreateTourStep2 = () => {
   /**
@@ -85,8 +87,7 @@ const CreateTourStep2 = () => {
    * TEST CHO VIỆC THÊM HOTSPOT TYPE.
    * => Task3 trả về type.
    */
-  const [currentHotspotType, setCurrentHotspotType] =
-    useState<HotspotType | null>(null);
+  const [currentHotspotType, setCurrentHotspotType] = useState(1);
 
   const defaultIconIds: Record<HotspotType, number> = {
     1: 1,
@@ -100,9 +101,6 @@ const CreateTourStep2 = () => {
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
 
   const dispatch = useDispatch();
-  const { panoramaList, currentSelectId } = useSelector(
-    (state: RootState) => state.panoramas
-  );
 
   const hotspotModels = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
@@ -116,11 +114,15 @@ const CreateTourStep2 = () => {
     )
   );
 
-  const hotspotMedias = useSelector((state: RootState) => 
-  state.hotspots.hotspotList.filter(
-    (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-  ))
+  const hotspotMedias = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
+    )
+  );
 
+  const { panoramaList, currentSelectId } = useSelector(
+    (state: RootState) => state.panoramas
+  );
   // Panorama hiện tại.
   const currentPanorama = panoramaList.find(
     (pano) => pano.id === currentSelectId
@@ -150,6 +152,19 @@ const CreateTourStep2 = () => {
     dispatch(selectPanorama(id));
   };
 
+  const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
+
+  const handleOnPropsChange = (updatedProps: BaseHotspot) => {
+    setBasicProps(updatedProps);
+  };
+
+  /**
+   * dùng để nhận giá trị trả về từ OptionHotspot.tsx để update cho đúng hotspot
+   */
+  const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
+  useEffect(() => {
+    console.log("currentHotspotId đã cập nhật:", currentHotspotId);
+  }, [currentHotspotId]);
   /**
    *
    * @param e : Sự kiện click chuột từ frontend
@@ -168,75 +183,51 @@ const CreateTourStep2 = () => {
       number,
       number
     ][];
-    if (currentHotspotType == 3) {
+
+    // Với hotspot loại 3: thu thập 4 điểm và dispatch khi đủ
+    if (currentHotspotType === 3) {
       setCurrentPoints(newPoints);
-      console.log("newPoints.length", newPoints.length);
-      console.log("newPoints", newPoints);
-    }
 
-    let basicProps: {
-      nodeId: string;
-      iconId: number;
-      positionX: number;
-      positionY: number;
-      positionZ: number;
-      scale: number;
-      pitchX: number;
-      yawY: number;
-      rollZ: number;
-    } | null = null;
+      if (newPoints.length === 4) {
+        const updatedProps: BaseHotspot = {
+          ...(basicProps as Required<BaseHotspot>),
+          positionX: point.x,
+          positionY: point.y,
+          positionZ: point.z,
+        };
 
-    if ([1, 2, 4].includes(currentHotspotType)) {
-      basicProps = {
-        nodeId: currentPanorama?.id ?? "",
-        iconId: defaultIconIds[currentHotspotType],
-        positionX: point.x,
-        positionY: point.y,
-        positionZ: point.z,
-        scale: 1,
-        pitchX: 0,
-        yawY: 0,
-        rollZ: 0,
-      };
-    }
+        dispatch(
+          addMediaHotspot({
+            ...updatedProps,
+            type: 3,
+            mediaType: "",
+            mediaUrl: "",
+            caption: "",
+            cornerPointListJson: JSON.stringify(newPoints),
+          })
+        );
 
-    // Chỉ xử lý hotspot loại 3 nếu đã có đủ 4 điểm
-    if (currentHotspotType === 3 && newPoints.length === 4) {
-      basicProps = {
-        nodeId: currentPanorama?.id ?? "",
-        iconId: defaultIconIds[currentHotspotType],
-        positionX: point.x,
-        positionY: point.y,
-        positionZ: point.z,
-        scale: 1,
-        pitchX: 0,
-        yawY: 0,
-        rollZ: 0,
-      };
+        setAssignable(false);
+        setCurrentHotspotType(1);
+        setCurrentPoints([]);
+      }
 
-      dispatch(
-        addMediaHotspot({
-          ...basicProps,
-          type: 3,
-          mediaType: "",
-          mediaUrl: "",
-          caption: "",
-          cornerPointListJson: JSON.stringify(newPoints),
-        })
-      );
-
-      setAssignable(false);
-      setCurrentHotspotType(null);
-      setCurrentPoints([]); // reset sau khi xử lý xong 4 điểm
       return;
     }
 
+    // Với hotspot loại 1, 2, 4
+    const updatedProps: BaseHotspot = {
+      ...(basicProps as Required<BaseHotspot>),
+      positionX: point.x,
+      positionY: point.y,
+      positionZ: point.z,
+    };
+
     switch (currentHotspotType) {
       case 1:
-        if (!basicProps) return;
         dispatch(
           addNavigationHotspot({
-            ...basicProps,
+            ...updatedProps,
             type: 1,
             targetNodeId: "",
           })
@@ -244,10 +235,9 @@ const CreateTourStep2 = () => {
         break;
 
       case 2:
-        if (!basicProps) return;
         dispatch(
           addInformationHotspot({
-            ...basicProps,
+            ...updatedProps,
             type: 2,
             title: "",
             content: "",
@@ -256,10 +246,9 @@ const CreateTourStep2 = () => {
         break;
 
       case 4:
-        if (!basicProps) return;
         dispatch(
           addModelHotspot({
-            ...basicProps,
+            ...updatedProps,
             type: 4,
             modelUrl: "",
             name: "",
@@ -273,7 +262,7 @@ const CreateTourStep2 = () => {
 
     if ([1, 2, 4].includes(currentHotspotType)) {
       setAssignable(false);
-      setCurrentHotspotType(null);
+      setCurrentHotspotType(1);
     }
   };
 
@@ -304,6 +293,7 @@ const CreateTourStep2 = () => {
               setChooseCornerMediaPoint={setChooseCornerMediaPoint}
               currentHotspotType={currentHotspotType}
               setCurrentHotspotType={setCurrentHotspotType}
+              onPropsChange={handleOnPropsChange}
             />
           </>
         );
@@ -390,22 +380,26 @@ const CreateTourStep2 = () => {
             .map((hotspot, index) => (
               <GroundHotspotModel
                 key={index}
-                position={[
-                  hotspot.positionX,
-                  hotspot.positionY,
-                  hotspot.positionZ,
-                ]}
+                setCurrentHotspotId={setCurrentHotspotId}
                 setHoveredHotspot={setHoveredHotspot}
-                modelUrl={hotspot.modelUrl}
+                hotspotModel={hotspot}
               />
             ))}
-          {hotspotMedias.map((hotspot, index) => (
-            <VideoMeshComponent
-              key={index}
-              cornerPoints={JSON.parse(hotspot.cornerPointListJson) as [number, number, number][]}
-              currentVideoUrl={hotspot.mediaUrl}
-            />
-          ))}
+          {hotspotMedias
+            .filter((hotspot) => hotspot.nodeId === currentSelectId)
+            .map((hotspot, index) => (
+              <VideoMeshComponent
+                key={index}
+                cornerPoints={
+                  JSON.parse(hotspot.cornerPointListJson) as [
+                    number,
+                    number,
+                    number
+                  ][]
+                }
+                currentVideoUrl={hotspot.mediaUrl}
+              />
+            ))}
 
           {currentPoints.map((point, index) => (
             <PointMedia key={`p-${index}`} position={point} />
@@ -423,9 +417,10 @@ const CreateTourStep2 = () => {
               return null;
             })}
         </Canvas>
-
         {/* Header chứa logo + close */}
         <div className={styles.header_tour}>
+          <FaAngleLeft />
+          {/* box chưa các panorama vừa upload */}
           <div className={styles.thumbnailsBox}>
             {panoramaList.map((item) => (
               <div key={item.id} className={styles.node}>
@@ -453,9 +448,7 @@ const CreateTourStep2 = () => {
             <IoMdMenu className={styles.show_menu} onClick={handleOpenMenu} />
           </div>
         </div>
-
         {/* Hiển thị menu bên phải.*/}
-
         {isMenuVisible && (
           <div className={`${styles.rightMenu} ${styles.show}`}>
             <div className={styles.rightTitle}>
@@ -475,7 +468,7 @@ const CreateTourStep2 = () => {
             />
           </div>
         )}
-        {openTaskIndex !== null && (
+        {openTaskIndex !== null && currentHotspotId === null && (
           <TaskContainerCT
             id={openTaskIndex}
             name={tasks.find((t) => t.id === openTaskIndex)?.title || ""}
@@ -483,6 +476,13 @@ const CreateTourStep2 = () => {
           >
             {getTaskContentById(openTaskIndex)}
           </TaskContainerCT>
+        )}
+        {currentHotspotId != null && (
+          <UpdateHotspot
+            hotspotId={currentHotspotId}
+            setHotspotId={setCurrentHotspotId}
+            onPropsChange={handleOnPropsChange}
+          />
         )}
       </div>
     </>

@@ -1,0 +1,70 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 450px;
+  height: 300px;
+  background-color: brown;
+  text-align: center;
+  border-radius: 10px;
+  padding: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.icons_container {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.icon_container {
+  width: 80px;
+  height: 80px;
+  padding: 1px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid black;
+  transition: box-shadow 0.3s ease;
+}
+
+.icon_container:hover {
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+}
+
+.icon_image {
+  width: 30px;
+  height: 30px;
+  background-position: center;
+  background-size: contain;
+  margin-bottom: 5px; 
+}
+
+.icon_name {
+  font-size: 12px;
+  color: black;
+}
+
+.close_button:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.close_button {
+  color: white;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  margin: 5px 10px;
+  right: 0;
+}

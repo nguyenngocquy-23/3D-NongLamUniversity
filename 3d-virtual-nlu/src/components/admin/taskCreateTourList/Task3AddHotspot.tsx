@@ -3,7 +3,7 @@ import styles from "../../../styles/tasklistCT/task3.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/Store";
 import TypeNavigation from "./HotspotNavigation";
-import { HotspotType } from "../../../redux/slices/HotspotSlice";
+import { BaseHotspot, HotspotType } from "../../../redux/slices/HotspotSlice";
 import TypeInfomation from "./HotspotInformation";
 import TypeModel, { HotspotModelCreateRequest } from "./HotspotModel";
 import TypeMedia, {
@@ -25,8 +25,9 @@ interface Task3Props {
   // setVideoMeshes: (val: any) => void;
   // cornerPointes: CornerPoint[]; // danh sách mesh đã xong
   // setCornerPointes: (val: any) => void;
-  currentHotspotType: HotspotType | null;
-  setCurrentHotspotType: (value: HotspotType) => void;
+  currentHotspotType: number;
+  setCurrentHotspotType: (value: number) => void;
+  onPropsChange: (value: BaseHotspot) => void;
 }
 
 // Component cho Task3
@@ -41,16 +42,15 @@ const Task3 = ({
   setCurrentPoints,
   // setVideoMeshes,
   setCurrentHotspotType,
+  onPropsChange,
 }: Task3Props) => {
-  const [openTypeIndex, setOpenTypeIndex] = useState<number | null>(1); // State để lưu index của type đang mở
+  const [openTypeIndex, setOpenTypeIndex] = useState<number>(1); // State để lưu index của type đang mở
   const hotspotType = useSelector(
     (state: RootState) => state.data.hotspotTypes
   );
 
   const handleChooseType = (typeIndex: number) => {
-    setOpenTypeIndex((prevIndex) =>
-      prevIndex === typeIndex ? null : typeIndex
-    );
+    setOpenTypeIndex(typeIndex);
   };
 
   return (
@@ -66,8 +66,26 @@ const Task3 = ({
         </select>
       </div>
       {/* // setup icon */}
-      <ConfigIcon />
-      <TypeNavigation
+      <ConfigIcon
+        onPropsChange={onPropsChange}
+        currenHotspotType={openTypeIndex}
+      />
+      {[1, 2, 4].includes(openTypeIndex) ? (
+        <>
+          <label className={styles.label}>Chọn vị trí điểm:</label>
+          <button
+            onClick={() => {
+              setAssignable(true);
+              setCurrentHotspotType(openTypeIndex);
+            }}
+          >
+            Chọn vị trí
+          </button>
+        </>
+      ) : (
+        ""
+      )}
+      {/* <TypeNavigation
         isOpenTypeNavigation={openTypeIndex == 1}
         setAssignable={setAssignable}
         setCurrentHotspotType={setCurrentHotspotType}
@@ -92,7 +110,7 @@ const Task3 = ({
         assignable={assignable}
         setAssignable={setAssignable}
         setCurrentHotspotType={setCurrentHotspotType}
-      />
+      /> */}
     </div>
   );
 };
