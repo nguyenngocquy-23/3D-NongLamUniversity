@@ -15,13 +15,14 @@ const CrossFadeMaterial = shaderMaterial(
     uTexture1: null as THREE.Texture | null,
     uTexture2: null as THREE.Texture | null,
     uProgress: 0,
+    uAmbientLight: new THREE.Color(0xffffff),
   },
   //Vertex Shader .gsgl
   `
     varying vec2 vUv;
     void main() {
       vUv = uv;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);;
     }
      `,
   //Fragment Shader .gsgl
@@ -29,12 +30,18 @@ const CrossFadeMaterial = shaderMaterial(
     uniform sampler2D uTexture1;
     uniform sampler2D uTexture2;
     uniform float uProgress;
+    uniform vec3 uAmbientLight;
+
     varying vec2 vUv;
 
     void main() {
       vec4 tex1 = texture2D(uTexture1, vUv);
       vec4 tex2 = texture2D(uTexture2, vUv);
-      gl_FragColor = mix(tex1, tex2, uProgress);
+      vec4 baseColor = mix(tex1, tex2, uProgress);
+
+      vec3 light = uAmbientLight;
+      vec3 finalColor= baseColor.rgb * light;
+      gl_FragColor = vec4(finalColor, baseColor.a);
     
     }
     
@@ -48,6 +55,7 @@ declare module "@react-three/fiber" {
       uTexture1?: THREE.Texture | null;
       uTexture2?: THREE.Texture | null;
       uProgress?: number;
+      uAmbientLight?: THREE.Color;
     };
   }
 }
@@ -165,22 +173,16 @@ const TourScene: React.FC<TourSceneProps> = ({
         scale={[-1, 1, 1]}
         onPointerDown={handlePointerDown}
       >
-        {/* <meshStandardMaterial
-          map={texture}
-          side={THREE.BackSide}
-          metalness={0.0}
-          roughness={1.0}
-        /> */}
         <crossFadeMaterial
           ref={materialRef}
           uTexture1={textures?.[0] || null}
           uTexture2={textures?.[1] || null}
           uProgress={progress}
           side={THREE.BackSide}
+          uAmbientLight={new THREE.Color().setScalar(lightIntensity)} // ánh sáng môi trường
         />
       </Sphere>
-      <ambientLight intensity={lightIntensity} />
-      <directionalLight position={[5, 5, 5]} intensity={lightIntensity} />
+      {/* <directionalLight position={[5, 5, 5]} intensity={lightIntensity} /> */}
       <primitive object={new THREE.AxesHelper(5)} />
     </>
   );

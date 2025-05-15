@@ -357,24 +357,45 @@ const CreateTourStep2 = () => {
     if (!cameraRef.current || !controlsRef.current) return;
 
     const camera = cameraRef.current;
+    console.log("Text step2" + camera);
     const control = controlsRef.current;
     const originalFov = camera.fov;
-    // Zoom vào hotspot: thay đổi FOV để camera zoom vào
-    const zoomTarget = 30; // Có thể điều chỉnh FOV này tùy theo yêu cầu
+    const zoomTarget = 45; // Có thể điều chỉnh FOV này tùy theo yêu cầu
 
     const [x, y, z] = hotspotTargetPosition;
-    const direction = new THREE.Vector3(x, 0, z).normalize();
-    const lookAtTarget = new THREE.Vector3(x, 0, z);
 
-    const targetYaw = Math.atan2(x, z);
-    handleSelectNode(targetNodeId);
+    // const direction = new THREE.Vector3(x, 0, z).normalize(); // Hướng nhìn
+    // const targetYaw = Math.atan2(direction.x, direction.z);
+
+    // === Bước 1: Tạo điểm cần nhìn đến (hotspot)
+    const targetLookAt = new THREE.Vector3(x, 0, z);
+
+    // === Bước 2: Animation tạm thời "quay" camera bằng cách move lookAt
+    const tempTarget = targetLookAt.clone();
 
     gsap.to(camera.rotation, {
-      y: targetYaw,
-      duration: 0.5,
+      duration: 0.2,
       ease: "power2.inOut",
       onUpdate: () => {
-        controlsRef.current?.update();
+        camera.lookAt(tempTarget);
+        control.update();
+      },
+      onComplete: () => {
+        gsap.to(camera, {
+          fov: zoomTarget,
+          duration: 1.0,
+          ease: "power2.inOut",
+          onUpdate: () => {
+            handleSelectNode(targetNodeId);
+            camera.updateProjectionMatrix();
+          },
+          onComplete: () => {
+            camera.fov = originalFov;
+            camera.lookAt(0, 0, 0); // về
+            camera.updateProjectionMatrix();
+            control.update();
+          },
+        });
       },
     });
   };
