@@ -18,7 +18,7 @@ public class IconDao {
         return  ConnectionPool.getConnection().inTransaction( handle -> {
                 int generatedId = handle.createUpdate(sqlQueryInsert)
                         .bind("name", iconReq.getName())
-                        .bind("url", iconReq.getUrl())
+                        .bind("url", iconReq.getIconUrl())
                         .executeAndReturnGeneratedKeys("id")
                         .mapTo(int.class)
                         .findOne()
@@ -44,7 +44,7 @@ public class IconDao {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("name", req.getName())
-                    .bind("url", req.getUrl())
+                    .bind("url", req.getIconUrl())
                     .bind("isActive", 1)
                     .bind("createdAt", Timestamp.valueOf(LocalDateTime.now()))
                     .execute();

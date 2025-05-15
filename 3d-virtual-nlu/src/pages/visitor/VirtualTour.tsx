@@ -1,5 +1,5 @@
 import TourScene from "../../components/visitor/TourScene";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import styles from "../../styles/virtualTour.module.css";
 import CamControls from "../../components/visitor/CamControls";
 import { useEffect, useRef, useState } from "react";
@@ -12,14 +12,12 @@ import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
 import {
-  CornerPoint,
   HotspotMediaCreateRequest,
   HotspotModelCreateRequest,
 } from "../../components/admin/taskCreateTourList/Task3AddHotspot.tsx";
 import axios from "axios";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
 import { VideoMeshProps } from "../admin/CreateTourStep2.tsx";
-import GroundHotspot from "../../components/visitor/GroundHotspot.tsx";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -128,16 +126,6 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   }, []);
 
   const radius = 100;
-
-  // const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
-
-  // const handleAddHotspot = (
-  //   position: [number, number, number],
-  //   type: "floor" | "info"
-  // ) => {
-  //   setHotspots((prev) => [...prev, { id: prev.length + 1, position, type }]);
-  // };
-
   const handledSwitchTexture = (newPosition: [number, number, number]) => {
     if (sphereRef.current) {
       const material = sphereRef.current.material as THREE.MeshBasicMaterial;

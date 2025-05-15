@@ -18,4 +18,5 @@ public class NodeFullResponse {
     double positionX,positionY,positionZ, lightIntensity, speedRotate;
     byte status, autoRotate;
     LocalDateTime updatedAt;
+
 }
