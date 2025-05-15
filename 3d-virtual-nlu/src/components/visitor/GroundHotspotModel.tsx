@@ -125,7 +125,7 @@ const GroundHotspotModel = ({
     };
 
     loadAndModifySVG();
-  }, [iconUrl]); // thêm color khi update
+  }, [iconUrl, hotspotModel]); // thêm color khi update
 
   return (
     <>

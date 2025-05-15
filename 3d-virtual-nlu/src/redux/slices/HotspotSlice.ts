@@ -153,10 +153,11 @@ const hotspotSlice = createSlice({
         const index = state.hotspotList.findIndex(h => h.id === action.payload.hotspotId);
 
       if (index !== -1) {
+        const { id,positionX,positionY,positionZ, ...propsWithoutId } = action.payload.propHotspot as any;
         state.hotspotList[index] = {
           ...state.hotspotList[index],
-          ...action.payload.propHotspot,
-        };  
+          ...propsWithoutId,
+        };
       }
     }
   }

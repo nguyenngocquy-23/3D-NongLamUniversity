@@ -22,12 +22,10 @@ const UpdateHotspot = ({
   setHotspotId,
   onPropsChange,
 }: UpdateHotspotProps) => {
-  const [openTypeIndex, setOpenTypeIndex] = useState<number>(1); // State để lưu index của type đang mở
   const propHotspot = useSelector(
     (state: RootState) => state.hotspots.hotspotList
   ).find((h) => h.id == hotspotId);
-  console.log("hotspotId,,,", hotspotId);
-  console.log("propHotspot,,,", propHotspot);
+  const currentType = propHotspot?.type; // State để lưu index của type đang mở
   const [isUpdate, setIsUpdate] = useState(true);
 
   return (
@@ -45,7 +43,7 @@ const UpdateHotspot = ({
             propHotspot={propHotspot}
             isUpdate={isUpdate}
             onPropsChange={onPropsChange}
-            currenHotspotType={openTypeIndex}
+            currenHotspotType={currentType ?? null}
           />
           {/* <TypeNavigation
         isOpenTypeNavigation={openTypeIndex == 1}
