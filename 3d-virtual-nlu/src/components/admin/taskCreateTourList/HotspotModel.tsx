@@ -6,12 +6,12 @@ import UploadFile from "../UploadFile";
 import styles from "../../../styles/tasklistCT/task3.module.css";
 
 interface TypeModelProps {
-  isOpenTypeModel: boolean;
-  assignable: boolean;
-  setAssignable: (value: boolean) => void;
-  hotspotModels: HotspotModelCreateRequest[];
+  isOpenTypeModel?: boolean;
+  assignable?: boolean;
+  setAssignable?: (value: boolean) => void;
+  hotspotModels?: HotspotModelCreateRequest[];
   // setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
-  setCurrentHotspotType: (value: HotspotType) => void;
+  setCurrentHotspotType?: (value: HotspotType) => void;
 }
 
 export interface HotspotModelCreateRequest {
@@ -36,7 +36,7 @@ const TypeModel = ({
   setAssignable,
   hotspotModels,
   // setHotspotModels,
-  setCurrentHotspotType
+  setCurrentHotspotType,
 }: TypeModelProps) => {
   return (
     <div
@@ -44,21 +44,8 @@ const TypeModel = ({
         isOpenTypeModel ? styles.open_type_model : ""
       }`}
     >
-      // thay bằng component quản lý biểu tượng
-      
-      <div>
-        <label className={styles.label}>Vị trí mô hình:</label>
-        <button
-          onClick={() => {
-            setAssignable(true);
-            setCurrentHotspotType(4);
-          }}
-        >
-          Chọn vị trí
-        </button>
-      </div>
       <div style={{ height: "75%", overflowY: "auto" }}>
-        {hotspotModels.map((hpm, index) => (
+        {/* {hotspotModels.map((hpm, index) => (
           <div key={index + 1}>
             <div
               style={{
@@ -102,7 +89,30 @@ const TypeModel = ({
               />
             </div>
           </div>
-        ))}
+        ))} */}
+        <button
+          // onClick={() => {
+          //   const updated = hotspotModels.filter((_, i) => i !== index);
+          //   // setHotspotModels(updated);
+          // }}
+          style={{ color: "red", cursor: "pointer" }}
+          title="Xóa mô hình này"
+        >
+          ❌
+        </button>
+        <p>
+          {/* <span style={{ color: "pink" }}> {hpm.positionX} </span>
+              <span style={{ color: "yellow" }}> {hpm.positionY} </span>
+              <span style={{ color: "lightblue" }}> {hpm.positionZ} </span> */}
+        </p>
+        <div style={{ display: "flex" }}>
+          <label className={styles.label}>Tệp mô hình:</label>
+          <UploadFile
+            className="upload_model"
+            // index={index}
+            // onUploaded={handleUploadedFile}
+          />
+        </div>
       </div>
       {/* <button onClick={() => handleUpModel()}>Thiết lập</button> */}
     </div>

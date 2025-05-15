@@ -25,27 +25,16 @@
 .type_model,
 .type_media {
   width: 40vw;
-  height: 0;
+  height: auto;
   border-radius: 10px;
-  opacity: 0;
+  opacity: 1;
   padding: 0 10px;
   overflow: hidden; /* Ngăn nội dung tràn ra */
   pointer-events: none; /* Vô hiệu tương tác */
   transition: height 1s ease-in-out, opacity 1s ease-in-out;
-}
-.open_type_navigation,
-.open_type_infomation,
-.open_type_model,
-.open_type_media {
-  opacity: 1;
   pointer-events: auto;
 }
-.open_type_navigation,
-.open_type_infomation,
-.open_type_model,
-.open_type_media {
-  height: 95%;
-}
+
 .contain_input {
   display: flex;
   margin-top: 10px;

@@ -4,116 +4,16 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
-
-const HotspotPreview = ({
-  iconUrl,
-  color,
-  backgroundColor,
-  pitchX,
-  yawY,
-  rollZ,
-  isFloor,
-  allowBackground,
-}: {
-  iconUrl: string;
-  color: string;
-  backgroundColor: string;
-  pitchX: number;
-  yawY: number;
-  rollZ: number;
-  isFloor: boolean;
-  allowBackground: boolean;
-}) => {
-  const groupRef = useRef<any>(null);
-  const [texture, setTexture] = useState<THREE.Texture | null>(null);
-
-  useEffect(() => {
-    if (groupRef.current) {
-      // Góc xoay mặc định cho mỗi loại
-      const baseRotation = isFloor
-        ? [Math.PI / 2, 0, 0] // Nền: mặt nằm ngang, xoay xuống dưới
-        : [0, 0, 0]; // Tường: mặt đứng đối diện camera
-
-      // Cộng thêm các góc điều chỉnh từ người dùng
-      groupRef.current.rotation.set(
-        baseRotation[0] + pitchX * (Math.PI / 180),
-        baseRotation[1] + yawY * (Math.PI / 180),
-        baseRotation[2] + rollZ * (Math.PI / 180)
-      );
-    }
-  }, [pitchX, yawY, rollZ, isFloor]);
-  useEffect(() => {
-    const loadAndModifySVG = async () => {
-      try {
-        const res = await fetch(
-          iconUrl
-        );
-        let svgText = await res.text();
-
-        // Thay fill nếu không có hoặc cập nhật fill hiện tại
-        const hasFill =
-          svgText.includes('fill="') || svgText.includes("fill='");
-
-        if (!hasFill) {
-          svgText = svgText.replace("<svg", `<svg fill="${color}"`);
-        } else {
-          svgText = svgText.replace(
-            /fill="[^"]*"|fill='[^']*'/g,
-            `fill="${color}"`
-          );
-        }
-
-        // Tạo Blob từ SVG text
-        const svgBlob = new Blob([svgText], { type: "image/svg+xml" });
-        const url = URL.createObjectURL(svgBlob);
-
-        const img = new Image();
-        img.onload = () => {
-          const tex = new THREE.Texture(img);
-          tex.needsUpdate = true;
-          setTexture(tex);
-          URL.revokeObjectURL(url); // Giải phóng bộ nhớ
-        };
-        img.src = url;
-      } catch (err) {
-        console.error("Error loading or processing SVG:", err);
-      }
-    };
-
-    loadAndModifySVG();
-  }, [iconUrl, color]);
-
-  if (!texture) return null;
-
-  return (
-    <group ref={groupRef} position={[0, 0, 0]}>
-      {/* Background Mesh */}
-      {allowBackground ? (
-        <mesh position={[0, 0, -0.01]}>
-          {/* <planeGeometry args={[5, 5]} /> */}
-          <circleGeometry args={[5, 100]} />
-          <meshBasicMaterial color={new THREE.Color(backgroundColor)} />
-        </mesh>
-      ) : (
-        ""
-      )}
-
-      {/* Texture Mesh */}
-      <mesh position={[0, 0, 0]}>
-        <planeGeometry args={[5, 5]} />
-        <meshBasicMaterial
-          map={texture} // Assuming texture is set already
-          color={new THREE.Color(color)} // Color of SVG
-          transparent
-        />
-      </mesh>
-    </group>
-  );
-};
+import HotspotPreview from "./taskCreateTourList/HotspotPreview";
+import { BaseHotspot } from "../../redux/slices/HotspotSlice";
 
 const ConfigIcon = ({
+  isUpdate,
+  onPropsChange,
   currenHotspotType,
 }: {
+  isUpdate?: boolean;
+  onPropsChange: (value: BaseHotspot) => void;
   currenHotspotType: number | null;
 }) => {
   const [openListIcon, setOpenListIcon] = useState(false);
@@ -130,12 +30,13 @@ const ConfigIcon = ({
     (state: RootState) => state.data.hotspotTypes
   );
 
-  const icons = useSelector(
-    (state: RootState) => state.data.icons
-  );
+  const icons = useSelector((state: RootState) => state.data.icons);
 
   const [iconId, setIconId] = useState(0);
-  const iconUrl = iconId ? icons.find((i)=> i.id == iconId).url : icons[currenHotspotType??1].url ;
+  const iconUrl =
+    iconId != 0
+      ? icons.find((i) => i.id == iconId).url
+      : icons[currenHotspotType ?? 1].url;
 
   const [scale, setScale] = useState(1);
   const [isFloor, setIsFloor] = useState(false);
@@ -144,41 +45,48 @@ const ConfigIcon = ({
   const [rollZ, setRollZ] = useState(0);
   const [color, setColor] = useState("#333333");
   const [backgroundColor, setBackgroundColor] = useState("#333333");
-  const [allowBackground, setAllowBackground] = useState(true);
+  const [allowBackgroundColor, setAllowBackgroundColor] = useState(true);
+  const [opacity, setOpacity] = useState(1);
 
-  const handleInitialHotspotProps = (): {
-    nodeId: string;
-    iconId: number;
-    positionX: number;
-    positionY: number;
-    positionZ: number;
-    scale: number;
-    pitchX: number;
-    yawY: number;
-    rollZ: number;
-  } | null => {
+  const handleInitialHotspotProps = (): BaseHotspot => {
     return {
+      id: "temp", // bạn có thể generate ID hoặc nhận từ cha
       nodeId: currentPanorama?.id ?? "",
-      iconId: iconId != 0 ? iconId : defaultIconIds[currenHotspotType ?? 1],
+      iconId: iconId !== 0 ? iconId : defaultIconIds[(currenHotspotType ?? 1) - 1].defaultIconId,
       positionX: 0,
       positionY: 0,
       positionZ: 0,
-      scale: scale,
-      pitchX: pitchX,
-      yawY: yawY,
-      rollZ: rollZ,
+      type: currenHotspotType ?? 1,
+      scale,
+      pitchX,
+      yawY,
+      rollZ,
+      color,
+      backgroundColor,
+      allowBackgroundColor,
+      opacity,
     };
   };
 
-  const [basicProps, setBasicProps] = useState<ReturnType<
-    typeof handleInitialHotspotProps
-  > | null>(null);
+  const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
 
   useEffect(() => {
     const props = handleInitialHotspotProps();
+    console.log('props::', props)
     setBasicProps(props);
-  }, [currenHotspotType, currentPanorama, scale, pitchX, yawY, rollZ]);
-
+    onPropsChange(props); // gọi hàm truyền lên component cha
+  }, [
+    currenHotspotType,
+    currentPanorama,
+    scale,
+    pitchX,
+    yawY,
+    rollZ,
+    color,
+    backgroundColor,
+    setAllowBackgroundColor,
+    iconId,
+  ]);
   return (
     <div style={{ display: "flex" }}>
       <label>Biểu tượng:</label>
@@ -210,36 +118,60 @@ const ConfigIcon = ({
                 id=""
                 value={backgroundColor}
                 onChange={(e) => setBackgroundColor(e.target.value)}
-                disabled={!allowBackground ? true : false}
+                disabled={!allowBackgroundColor ? true : false}
               />
               <button
                 onClick={() => {
-                  setAllowBackground((preState) => !preState);
+                  setAllowBackgroundColor((preState) => !preState);
                 }}
               >
-                {allowBackground ? "Tắt" : "Bật"}
+                {allowBackgroundColor ? "Tắt" : "Bật"}
               </button>
             </div>
           </div>
-          <div
-            style={{
-              width: "100px",
-              height: "100px",
-              backgroundColor: "white",
-            }}
-          >
-            <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
-              <HotspotPreview
-                iconUrl={iconUrl}
-                color={color}
-                backgroundColor={backgroundColor}
-                pitchX={pitchX}
-                yawY={yawY}
-                rollZ={rollZ}
-                isFloor={isFloor}
-                allowBackground={allowBackground}
+          {!isUpdate ? (
+            <div
+              style={{
+                width: "100px",
+                height: "100px",
+                backgroundColor: "white",
+              }}
+            >
+              <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
+                <HotspotPreview
+                  iconUrl={iconUrl}
+                  color={color}
+                  backgroundColor={backgroundColor}
+                  scale={scale}
+                  pitchX={pitchX}
+                  yawY={yawY}
+                  rollZ={rollZ}
+                  isFloor={isFloor}
+                  allowBackgroundColor={allowBackgroundColor}
+                  opacity={opacity}
+                />
+              </Canvas>
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
+        <div style={{ display: "flex" }}>
+          <label>Độ mờ:</label>
+          <div>
+            <div>
+              <input
+                type="range"
+                name="scale"
+                id="scale"
+                min={0.3}
+                max={1}
+                step={0.05}
+                value={opacity}
+                onChange={(e) => setOpacity(Number(e.target.value))}
               />
-            </Canvas>
+              <span>{Math.round(((opacity - 0.3) / 0.7) * 100)}%</span>
+            </div>
           </div>
         </div>
         <div style={{ display: "flex" }}>
@@ -283,23 +215,51 @@ const ConfigIcon = ({
             </div>
             <div>
               <input
-                type="checkbox"
+                type="radio"
                 id="floor"
                 value="floor"
                 checked={isFloor}
-                onChange={() => setIsFloor(true)} // set lại giá trị của rotate x,y,z 
+                onChange={() => {
+                  setIsFloor(true);
+                  setPitchX(-90); // hoặc -90 độ
+                  setYawY(0);
+                  setRollZ(0);
+                }} // set lại giá trị của rotate x,y,z
               />
               <label htmlFor="floor">Nền</label>
             </div>
             <div>
               <input
-                type="checkbox"
+                type="radio"
                 id="wall"
                 value="wall"
                 checked={!isFloor}
-                onChange={() => setIsFloor(false)}
+                onChange={() => {
+                  setIsFloor(false);
+                  setPitchX(0);
+                  setYawY(0);
+                  setRollZ(0);
+                }}
               />
               <label htmlFor="wall">Tường</label>
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex" }}>
+          <label>Độ to:</label>
+          <div>
+            <div>
+              <input
+                type="range"
+                name="scale"
+                id="scale"
+                min={0.5}
+                max={2}
+                step={0.1}
+                value={scale}
+                onChange={(e) => setScale(Number(e.target.value))}
+              />
+              <span>{Math.round(((scale - 0.5) / 1.5) * 100)}%</span>
             </div>
           </div>
         </div>
@@ -310,7 +270,11 @@ const ConfigIcon = ({
           </div>
         </div>
       </div>
-      {openListIcon ? <ListIcon setIconId={setIconId} setOpen={setOpenListIcon} /> : ""}
+      {openListIcon ? (
+        <ListIcon setIconId={setIconId} setOpen={setOpenListIcon} />
+      ) : (
+        ""
+      )}
     </div>
   );
 };

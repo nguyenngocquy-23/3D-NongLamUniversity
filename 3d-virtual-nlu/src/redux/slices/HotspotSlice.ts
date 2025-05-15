@@ -10,31 +10,35 @@ export interface BaseHotspot {
   positionX: number;
   positionY: number;
   positionZ: number;
-  type: HotspotType;
+  type: number;
   scale: number;
   pitchX: number;
   yawY: number;
   rollZ: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: boolean;
+  opacity: number;
 }
 
 export interface HotspotNavigation extends BaseHotspot {
-  type: 1;
+  // type: 1;
   targetNodeId: string;
 }
 export interface HotspotInformation extends BaseHotspot {
-  type: 2;
+  // type: 2;
   title: string;
   content: string;
 }
 export interface HotspotMedia extends BaseHotspot {
-  type: 3;
+  // type: 3;
   mediaType: string; //image or video
   mediaUrl: string;
   caption: string;
   cornerPointListJson: string;
 }
 export interface HotspotModel extends BaseHotspot {
-  type: 4;
+  // type: 4;
   modelUrl: string;
   name: string;
   description: string;

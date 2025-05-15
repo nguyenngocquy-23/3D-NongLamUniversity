@@ -4,22 +4,27 @@ import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import OptionHotspot from "../admin/taskCreateTourList/OptionHotspot";
+import { BaseHotspot, HotspotModel } from "../../redux/slices/HotspotSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/Store";
+import { DoubleSide } from "three";
 type GroundHotspotProps = {
-  position: [number, number, number];
-  setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test.
-  modelUrl: string;
+  setCurrentHotspotId: (val: string | null) => void;
+  setHoveredHotspot: (hotspot: THREE.Mesh | null) => void;
+  hotspotModel: HotspotModel;
 };
 
 const GroundHotspotModel = ({
-  position,
+  setCurrentHotspotId,
   setHoveredHotspot,
-  modelUrl
+  hotspotModel,
 }: GroundHotspotProps) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
-  const texture = useMemo(
-    () => new THREE.TextureLoader().load("/vite.svg"),
-    []
-  );
+  const icons = useSelector((state: RootState) => state.data.icons);
+  const iconUrl = icons.find((i) => i.id == hotspotModel.iconId).url;
+
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setClicked] = useState(false);
@@ -28,6 +33,8 @@ const GroundHotspotModel = ({
   const modelRef = useRef<THREE.Group>(null);
   const { gl } = useThree();
   const navigate = useNavigate();
+  const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
+  const [modelUrl, setModelUrl] = useState("");
 
   // Xoay model liên tục mỗi frame
   useFrame(() => {
@@ -37,10 +44,12 @@ const GroundHotspotModel = ({
   });
 
   useEffect(() => {
+    if (!modelUrl) return;
+
     const loader = new GLTFLoader();
     console.error("Load GLB:");
     loader.load(
-      modelUrl,
+      modelUrl ?? "",
       (gltf) => {
         const scene = gltf.scene;
         if (modelRef.current) {
@@ -76,12 +85,58 @@ const GroundHotspotModel = ({
     }
   });
 
+  useEffect(() => {
+    const loadAndModifySVG = async () => {
+      try {
+        const res = await fetch(iconUrl);
+        let svgText = await res.text();
+
+        // Thay fill nếu không có hoặc cập nhật fill hiện tại
+        const hasFill =
+          svgText.includes('fill="') || svgText.includes("fill='");
+
+        if (!hasFill) {
+          svgText = svgText.replace(
+            "<svg",
+            `<svg fill="${hotspotModel.color}"`
+          );
+        } else {
+          svgText = svgText.replace(
+            /fill="[^"]*"|fill='[^']*'/g,
+            `fill="${hotspotModel.color}"`
+          );
+        }
+
+        // Tạo Blob từ SVG text
+        const svgBlob = new Blob([svgText], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(svgBlob);
+
+        const img = new Image();
+        img.onload = () => {
+          const tex = new THREE.Texture(img);
+          tex.needsUpdate = true;
+          setTexture(tex);
+          URL.revokeObjectURL(url); // Giải phóng bộ nhớ
+        };
+        img.src = url;
+      } catch (err) {
+        console.error("Error loading or processing SVG:", err);
+      }
+    };
+
+    loadAndModifySVG();
+  }, [iconUrl]); // thêm color khi update
+
   return (
     <>
       {/* <Suspense fallback={"loading.."}> */}
       <group
         ref={modelRef}
-        position={[position[0], position[1] + 10, position[2]]}
+        position={[
+          hotspotModel.positionX,
+          hotspotModel.positionY + 10,
+          hotspotModel.positionZ,
+        ]}
         scale={2}
         visible={isClicked}
         onPointerOver={() => {
@@ -100,33 +155,56 @@ const GroundHotspotModel = ({
       </group>
       <mesh
         ref={hotspotRef}
-        position={position}
-        rotation={[-Math.PI / 2, 0, 0]}
+        position={[
+          hotspotModel.positionX,
+          hotspotModel.positionY,
+          hotspotModel.positionZ,
+        ]}
+        rotation={[hotspotModel.pitchX, hotspotModel.yawY, hotspotModel.rollZ]}
         onPointerOver={() => {
           setIsHovered(true);
-          console.log("🖱 Hover vào hotspot models!", position);
           setHoveredHotspot(hotspotRef.current); //test
           gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
         }}
         onPointerOut={() => {
           setIsHovered(false);
-          console.log("Rời khỏi hotspot!");
           setHoveredHotspot(null); //test
           gl.domElement.style.cursor = "default"; // 👈 đổi cursor
         }}
         onClick={() => {
           setClicked((preState) => !preState);
         }}
+        onContextMenu={(e) => {
+          e.nativeEvent.preventDefault(); // 👈 bắt buộc
+          setIsOpenHotspotOption(true);
+        }}
       >
         <planeGeometry args={[5, 5]} />
-        <meshStandardMaterial
+        <meshBasicMaterial
           map={texture}
           transparent
           opacity={0.6}
           depthTest={false}
+          color={new THREE.Color(hotspotModel.color)}
+          side={DoubleSide}
         />
       </mesh>
-      {/* </Suspense> */}
+      {isOpenHotspotOption ? (
+        <OptionHotspot
+          hotspotId={hotspotModel.nodeId}
+          setCurrentHotspotId={setCurrentHotspotId}
+          onClose={() => {
+            setIsOpenHotspotOption(false);
+          }}
+          position={[
+            hotspotModel.positionX,
+            hotspotModel.positionY,
+            hotspotModel.positionZ,
+          ]}
+        />
+      ) : (
+        ""
+      )}
     </>
   );
 };
