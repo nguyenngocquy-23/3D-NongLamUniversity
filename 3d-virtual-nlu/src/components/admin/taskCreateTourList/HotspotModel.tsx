@@ -27,13 +27,7 @@ export interface HotspotModelCreateRequest {
 }
 
 // Component cho Task5
-const TypeModel = ({
-  isOpenTypeModel,
-  setAssignable,
-  hotspotModels,
-  // setHotspotModels,
-  setCurrentHotspotType,
-}: TypeModelProps) => {
+const TypeModel = ({ isOpenTypeModel }: TypeModelProps) => {
   return (
     <div
       className={`${styles.type_model} ${

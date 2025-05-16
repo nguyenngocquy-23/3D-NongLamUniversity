@@ -428,18 +428,12 @@ const CreateTourStep2 = () => {
             .map((hotspot) => (
               <GroundHotspot
                 key={hotspot.id}
-                position={[
-                  hotspot.positionX,
-                  hotspot.positionY,
-                  hotspot.positionZ,
-                ]}
-                // idHotspot={hotspot.id}
                 setHoveredHotspot={setHoveredHotspot}
-                nodeId={hotspot.nodeId}
                 type="floor"
                 onNavigate={(targetNodeId, cameraTargetPosition) =>
                   handleHotspotNavigate(targetNodeId, cameraTargetPosition)
                 }
+                setCurrentHotspotId={setCurrentHotspotId}
                 hotspotNavigation={hotspot}
               />
             ))}

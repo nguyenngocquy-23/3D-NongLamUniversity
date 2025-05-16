@@ -25,6 +25,7 @@ const UpdateHotspot = ({
   const propHotspot = useSelector(
     (state: RootState) => state.hotspots.hotspotList
   ).find((h) => h.id == hotspotId);
+
   const currentType = propHotspot?.type; // State để lưu index của type đang mở
   const [isUpdate, setIsUpdate] = useState(true);
 
@@ -45,6 +46,7 @@ const UpdateHotspot = ({
             onPropsChange={onPropsChange}
             currentHotspotType={currentType ?? null}
           />
+
           {/* <TypeNavigation
         isOpenTypeNavigation={openTypeIndex == 1}
         setAssignable={setAssignable}
@@ -64,7 +66,26 @@ const UpdateHotspot = ({
         setAssignable={setAssignable}
         setCurrentHotspotType={setCurrentHotspotType}
       /> */}
-          <TypeModel />
+          {/* 
+        Dựa vào hotspot type mà hiển thị loại.
+      
+      
+      */}
+          {(() => {
+            switch (currentType) {
+              case 1:
+                return <TypeNavigation hotspotId={hotspotId} />;
+              case 2:
+              // return <TypeInfomation />;
+              case 3:
+                // return <TypeMedia />; // Uncomment and import TypeMedia if needed
+                return null;
+              case 4:
+                return <TypeModel />;
+              default:
+                return null;
+            }
+          })()}
         </div>
       </div>
     </div>

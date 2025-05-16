@@ -1,25 +1,27 @@
 import { Html } from "@react-three/drei";
 import { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styles from "../../../styles/optionHotspot.module.css";
+import { RootState } from "../../../redux/Store";
+import {
+  BaseHotspot,
+  HotspotNavigation,
+} from "../../../redux/slices/HotspotSlice";
 
-interface PanoramaSelectProps {
-  hotspotId: string;
-  setCurrentHotspotId: (val: string | null) => void;
-  position: [number, number, number];
-  idHotspot?: string;
-  onClose?: () => void;
-  onEdit?: () => void; // optional: gọi nếu muốn mở modal sửa chẳng hạn
-}
+// interface PanoramaSelectProps {
+//   hotspotId: string;
+//   setCurrentHotspotId: (val: string | null) => void;
+//   position: [number, number, number];
+//   onClose?: () => void;
+//   onEdit?: () => void; // optional: gọi nếu muốn mở modal sửa chẳng hạn
+// }
 
 const OptionHotspot = ({
   hotspotId,
   setCurrentHotspotId,
   position,
-  //   idHotspot,
   onClose,
-}: //   onEdit,
-{
+}: {
   hotspotId: string;
   setCurrentHotspotId: (val: string | null) => void;
   position: [number, number, number];
@@ -49,10 +51,14 @@ const OptionHotspot = ({
   //   };
 
   const handleEdit = () => {
-    console.log('hotspotId...', hotspotId)
+    console.log("hotspotId...", hotspotId);
     setCurrentHotspotId(hotspotId);
     onClose();
   };
+
+  const hotspot = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.find((h) => h.id === hotspotId)
+  );
 
   return (
     <Html
@@ -62,15 +68,15 @@ const OptionHotspot = ({
       occlude={false}
     >
       <div ref={menuRef} className={styles.container}>
-        <div className={styles.update_option} onClick={() => {handleEdit()}}>
+        <div
+          className={styles.update_option}
+          onClick={() => {
+            handleEdit();
+          }}
+        >
           ✏️ Cập nhật
         </div>
-        <div
-          className={styles.remove_option}
-          //   onClick={handleDelete}
-        >
-          🗑️ Xóa
-        </div>
+        <div className={styles.remove_option}>🗑️ Xóa</div>
       </div>
     </Html>
   );

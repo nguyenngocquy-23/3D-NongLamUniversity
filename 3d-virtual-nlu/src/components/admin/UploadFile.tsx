@@ -84,6 +84,63 @@ const UploadFile: React.FC<UploadFileProps> = ({
     // if (onUploaded) onUploaded("", index ?? 0);
   };
 
+  // const promises = selectedFile.map((file) => {
+  //   return new Promise<void>((resolve, reject) => {
+  //     if (file.type === "image/svg+xml") {
+  //       // Đọc file SVG
+  //       const reader = new FileReader();
+  //       reader.onload = () => {
+  //         const svgContent = reader.result;
+
+  //         // Kiểm tra null trước khi sử dụng svgContent
+  //         if (typeof svgContent === "string") {
+  //           const parser = new DOMParser();
+  //           const svgDoc = parser.parseFromString(
+  //             svgContent,
+  //             "image/svg+xml"
+  //           );
+
+  //           // Thêm fill="currentColor" vào các phần tử path, circle, rect
+  //           svgDoc.querySelectorAll("path").forEach((path) => {
+  //             if (!path.getAttribute("fill")) {
+  //               path.setAttribute("fill", "currentColor");
+  //             }
+  //           });
+
+  //           svgDoc.querySelectorAll("circle").forEach((circle) => {
+  //             if (!circle.getAttribute("fill")) {
+  //               circle.setAttribute("fill", "currentColor");
+  //             }
+  //           });
+
+  //           // Lấy nội dung SVG đã chỉnh sửa
+  //           const updatedSvg = svgDoc.documentElement.outerHTML;
+
+  //           // Chuyển nội dung SVG đã chỉnh sửa thành Blob
+  //           const blob = new Blob([updatedSvg], { type: "image/svg+xml" });
+
+  //           // Thêm tệp Blob đã chỉnh sửa vào FormData
+  //           formData.append("file", blob, file.name);
+  //           resolve(); // Đánh dấu hoàn thành
+  //         } else {
+  //           console.error("Nội dung SVG không phải là chuỗi hợp lệ.");
+  //           reject("Nội dung SVG không hợp lệ");
+  //         }
+  //       };
+  //       reader.onerror = () => {
+  //         reject("Lỗi đọc file");
+  //       };
+  //       reader.readAsText(file);
+  //     } else {
+  //       // Nếu không phải là SVG, thêm trực tiếp vào FormData
+  //       formData.append("file", file);
+  //       resolve(); // Đánh dấu hoàn thành cho file không phải SVG
+  //     }
+  //   });
+  // });
+
+  // await Promise.all(promises);
+  // const MAX_SIZE_MB =
   const handleUpload = async (): Promise<void> => {
     //if upload done, clear và return.
     if (uploadStatus === "done") {
@@ -95,68 +152,12 @@ const UploadFile: React.FC<UploadFileProps> = ({
       alert("Vui lòng chọn ít nhất 1 files.");
       return;
     }
-
     try {
       // Post file to Server.
       setUploadStatus("uploading");
 
       const formData = new FormData();
-      // const promises = selectedFile.map((file) => {
-      //   return new Promise<void>((resolve, reject) => {
-      //     if (file.type === "image/svg+xml") {
-      //       // Đọc file SVG
-      //       const reader = new FileReader();
-      //       reader.onload = () => {
-      //         const svgContent = reader.result;
 
-      //         // Kiểm tra null trước khi sử dụng svgContent
-      //         if (typeof svgContent === "string") {
-      //           const parser = new DOMParser();
-      //           const svgDoc = parser.parseFromString(
-      //             svgContent,
-      //             "image/svg+xml"
-      //           );
-
-      //           // Thêm fill="currentColor" vào các phần tử path, circle, rect
-      //           svgDoc.querySelectorAll("path").forEach((path) => {
-      //             if (!path.getAttribute("fill")) {
-      //               path.setAttribute("fill", "currentColor");
-      //             }
-      //           });
-
-      //           svgDoc.querySelectorAll("circle").forEach((circle) => {
-      //             if (!circle.getAttribute("fill")) {
-      //               circle.setAttribute("fill", "currentColor");
-      //             }
-      //           });
-
-      //           // Lấy nội dung SVG đã chỉnh sửa
-      //           const updatedSvg = svgDoc.documentElement.outerHTML;
-
-      //           // Chuyển nội dung SVG đã chỉnh sửa thành Blob
-      //           const blob = new Blob([updatedSvg], { type: "image/svg+xml" });
-
-      //           // Thêm tệp Blob đã chỉnh sửa vào FormData
-      //           formData.append("file", blob, file.name);
-      //           resolve(); // Đánh dấu hoàn thành
-      //         } else {
-      //           console.error("Nội dung SVG không phải là chuỗi hợp lệ.");
-      //           reject("Nội dung SVG không hợp lệ");
-      //         }
-      //       };
-      //       reader.onerror = () => {
-      //         reject("Lỗi đọc file");
-      //       };
-      //       reader.readAsText(file);
-      //     } else {
-      //       // Nếu không phải là SVG, thêm trực tiếp vào FormData
-      //       formData.append("file", file);
-      //       resolve(); // Đánh dấu hoàn thành cho file không phải SVG
-      //     }
-      //   });
-      // });
-
-      // await Promise.all(promises);
       selectedFile.map((file) => {
         formData.append("file", file);
       });
@@ -191,28 +192,10 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
         if (onUploaded) {
           const url = formattedData[0].url;
-          console.log("url: ", url);
           onUploaded(url, index ?? 0);
         } else {
           dispatch(setPanoramas(formattedData));
         }
-        // switch (typeUpload) {
-        //   case 1: {
-        //     dispatch(setPanoramas(formattedData));
-        //     break;
-        //   }
-        //   case 3: {
-        //     dispatch(
-        //       updateModelHotspotModelUrl({
-        //         id: "10",
-        //         modelUrl: formattedData[0].url,
-        //       })
-        //     );
-        //     break;
-        //   }
-        //   default:
-        //     console.warn("Không xác định loại upload.");
-        // }
       } else {
         console.log("upload error: ", resp.data.message);
         setUploadStatus("select");
@@ -309,10 +292,10 @@ const UploadFile: React.FC<UploadFileProps> = ({
             </div>
 
             {/* Button: Thực hiện việc gửi file lên Cloudinary */}
-            <button className={styles.uploadBtn} onClick={handleUpload}>
-              {uploadStatus === "done" ? "Xoá tất cả" : "Tải lên"}
-            </button>
           </div>
+          <button className={styles.uploadBtn} onClick={handleUpload}>
+            {uploadStatus === "done" ? "Xoá tất cả" : "Tải lên"}
+          </button>
         </>
       )}
     </div>
