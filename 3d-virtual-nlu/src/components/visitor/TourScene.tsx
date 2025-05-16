@@ -88,8 +88,8 @@ const TourScene: React.FC<TourSceneProps> = ({
   const [textures, setTextures] = useState<
     [THREE.Texture | null, THREE.Texture | null] | null
   >(null);
-  console.log(`Texture 0 + ${textures && textures[0] ? textures : "không có"}`);
-  console.log(`Texture 1 + ${textures && textures[1] ? textures : "không có"}`);
+  // console.log(`Texture 0 + ${textures && textures[0] ? textures : "không có"}`);
+  // console.log(`Texture 1 + ${textures && textures[1] ? textures : "không có"}`);
 
   const progressRef = useRef(0);
   const [progress, setProgress] = useState(0);
@@ -107,7 +107,7 @@ const TourScene: React.FC<TourSceneProps> = ({
   useEffect(() => {
     if (sphereRef && meshRef.current) {
       sphereRef.current = meshRef.current;
-      console.log("sphereRef đã được gán: ", sphereRef.current);
+      // console.log("sphereRef đã được gán: ", sphereRef.current);
     }
   }, [sphereRef]);
 

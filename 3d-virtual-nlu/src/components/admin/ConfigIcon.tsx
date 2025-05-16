@@ -20,8 +20,6 @@ const ConfigIcon = ({
   onPropsChange: (value: BaseHotspot) => void;
   currentHotspotType: number | null;
 }) => {
-  console.log("CONFIG ICON: currentHotspotType: " + currentHotspotType);
-
   const [openListIcon, setOpenListIcon] = useState(false);
 
   const { panoramaList, currentSelectId } = useSelector(

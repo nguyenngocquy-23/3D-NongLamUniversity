@@ -31,6 +31,7 @@ import {
   addModelHotspot,
   addNavigationHotspot,
   BaseHotspot,
+  HotspotInformation,
   HotspotMedia,
   HotspotModel,
   HotspotNavigation,
@@ -39,6 +40,7 @@ import {
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
 import UpdateHotspot from "../../components/admin/taskCreateTourList/UpdateHotspot";
+import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
 
 const CreateTourStep2 = () => {
   /**
@@ -114,6 +116,11 @@ const CreateTourStep2 = () => {
       (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
     )
   );
+  const hotspotInfos = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
+    )
+  );
   const hotspotModels = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
       (hotspot): hotspot is HotspotModel => hotspot.type === 4
@@ -183,6 +190,7 @@ const CreateTourStep2 = () => {
     if (!currentHotspotType || !assignable) {
       return;
     }
+    console.log('currentHotspotType...', currentHotspotType)
 
     const newPoints = [...currentPoints, [point.x, point.y, point.z]] as [
       number,
@@ -443,6 +451,16 @@ const CreateTourStep2 = () => {
                 hotspotNavigation={hotspot}
               />
             ))}
+          {hotspotInfos
+            .filter((hotspot) => hotspot.nodeId === currentSelectId)
+            .map((hotspot) => (
+              <GroundHotspotInfo
+                key={hotspot.id}
+                setCurrentHotspotId={setCurrentHotspotId}
+                setHoveredHotspot={setHoveredHotspot}
+                hotspotInfo={hotspot}
+              />
+            ))}
           {hotspotModels
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
@@ -459,14 +477,8 @@ const CreateTourStep2 = () => {
             .map((hotspot, index) => (
               <VideoMeshComponent
                 key={index}
-                cornerPoints={
-                  JSON.parse(hotspot.cornerPointListJson) as [
-                    number,
-                    number,
-                    number
-                  ][]
-                }
-                currentVideoUrl={hotspot.mediaUrl}
+                hotspotMedia={hotspot}
+                setCurrentHotspotId={setCurrentHotspotId}
               />
             ))}
 
@@ -488,7 +500,7 @@ const CreateTourStep2 = () => {
         </Canvas>
         {/* Header chứa logo + close */}
         <div className={styles.header_tour}>
-          <FaAngleLeft />
+          <FaAngleLeft className={styles.back_btn} />
           {/* box chưa các panorama vừa upload */}
           <div className={styles.thumbnailsBox}>
             {panoramaList.map((item) => (
@@ -505,7 +517,7 @@ const CreateTourStep2 = () => {
                     className={styles.thumbnailImg}
                   />
                 </div>
-                <span>{item.config.name}</span>
+                <span className={styles.name_node}>{item.config.name}</span>
               </div>
             ))}
 
