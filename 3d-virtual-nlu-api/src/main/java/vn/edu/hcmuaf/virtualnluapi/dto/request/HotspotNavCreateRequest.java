@@ -16,5 +16,8 @@ public class HotspotNavCreateRequest {
     double positionX, positionY, positionZ;
     double pitchX, yawY, rollZ;
     float scale;
+    String color, backgroundColor;
+    byte allowBackgroundColor;
+    float opacity;
     String targetNodeId;
 }
