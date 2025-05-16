@@ -1,134 +1,116 @@
 import { useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { FaClock } from "react-icons/fa6";
-import { HotspotType } from "../../../redux/slices/HotspotSlice";
+import {
+  HotspotType,
+  updateHotspotMedia,
+} from "../../../redux/slices/HotspotSlice";
 import styles from "../../../styles/tasklistCT/task3.module.css";
-
-export interface CornerPoint {
-  id: string; // id cho mỗi mesh
-  points: [number, number, number][]; // danh sách điểm của mesh
-  mediaUrl: string; // url tệp
-}
+import UploadFile from "../UploadFile";
+import { useDispatch } from "react-redux";
 
 interface TypeMediaProps {
-  isOpenTypeMedia: boolean;
-  chooseCornerMediaPoint: boolean;
-  setChooseCornerMediaPoint: (value: boolean) => void;
-  setAssignable: (value: boolean) => void;
-  currentPoints: [number, number, number][]; // mesh đang chọn
-  setCurrentPoints: (val: any) => void;
-  setCurrentHotspotType: (value: HotspotType) => void;
-}
-
-export interface HotspotMediaCreateRequest {
-  type: number;
-  iconId: number;
-  positionX: number;
-  positionY: number;
-  positionZ: number;
-  pitchX: number;
-  yawY: number;
-  rollZ: number;
-  scale: number;
-  mediaType: string;
-  mediaUrl: string;
-  caption: string;
-  cornerPointList: string;
-}
-
-export interface CornerPoint {
-  id: string; // id cho mỗi mesh
-  points: [number, number, number][]; // danh sách điểm của mesh
-  mediaUrl: string; // url tệp
+  isOpenTypeMedia?: boolean;
+  // chooseCornerMediaPoint: boolean;
+  // setChooseCornerMediaPoint: (value: boolean) => void;
+  // setAssignable: (value: boolean) => void;
+  // currentPoints: [number, number, number][]; // mesh đang chọn
+  // setCurrentPoints: (val: any) => void;
+  // setCurrentHotspotType: (value: HotspotType) => void;
+  hotspotMedia: any;
 }
 
 // Component cho Type media
 const TypeMedia = ({
+  hotspotMedia,
   isOpenTypeMedia,
-  setAssignable,
-  setCurrentPoints,
-  setChooseCornerMediaPoint,
-  setCurrentHotspotType,
-}: TypeMediaProps) => {
+}: // setAssignable,
+// setCurrentPoints,
+// setChooseCornerMediaPoint,
+// setCurrentHotspotType,
+TypeMediaProps) => {
+  const [mediaUrl, setMediaUrl] = useState("");
+  const [caption, setCaption] = useState("");
   const [videoMode, setVideoMode] = useState(false);
-  const [typeFrame, setTypeFrame] = useState(0);
+  const [mediaType, setMediaType] = useState("PICTURE");
+  const dispatch = useDispatch();
 
+  const handleUploadedFile = (url: string) => {
+    setMediaUrl(url);
+  };
+
+  const handleUpdateMedia = () => {
+    dispatch(
+      updateHotspotMedia({
+        hotspotId: hotspotMedia.id,
+        mediaUrl,
+        mediaType,
+        caption,
+        // positionX: hotspotModel.positionX,
+        // positionY: hotspotModel.positionY,
+        // positionZ: hotspotModel.positionZ,
+      })
+    );
+  };
   return (
     <div
       className={`${styles.type_media} ${
         isOpenTypeMedia ? styles.open_type_media : ""
       }`}
     >
-      <div className="mode">
-        <button
-          className={`${styles.mode_button} ${videoMode ? "" : styles.choosed}`}
-          onClick={() => setVideoMode(false)}
-        >
-          Ảnh
-        </button>
-        <button
-          className={`${styles.mode_button} ${videoMode ? styles.choosed : ""}`}
-          onClick={() => setVideoMode(true)}
-        >
-          Video
-        </button>
-      </div>
-      {!videoMode ? (
-        <>
+      <>
+        <div style={{ display: "inline-flex" }}>
+          <label className={styles.label}>Điều chỉnh góc:</label>
           <div>
-            <label className={styles.label}>Biểu tượng:</label>
-            <FaHome />
-            <input type="checkbox" />
-            <FaClock />
-            <input type="checkbox" />
+            <button>Ảnh</button>
           </div>
+        </div>
+        <div style={{ display: "inline-flex" }}>
+          <label className={styles.label}>Thể loại:</label>
           <div>
-            <label className={styles.label}>Vị trí chú thích:</label>
-            <button>Chọn vị trí</button>
-          </div>
-        </>
-      ) : (
-        <>
-          <div style={{ display: "inline-flex" }}>
-            <label className={styles.label}>Khung video:</label>
-            <div className={`${styles.frame} ${styles.plane_frame}`}>
-              <input
-                type="checkbox"
-                value={"plane"}
-                onChange={() => {
-                  setTypeFrame(0);
-                }}
-                checked={typeFrame === 0}
-              />{" "}
-              chu nhat
-            </div>
-            <div className={`${styles.frame} ${styles.circle_frame}`}>
-              <input
-                type="checkbox"
-                value={"circle"}
-                onChange={() => {
-                  setTypeFrame(1);
-                }}
-                checked={typeFrame === 1}
-              />{" "}
-              tron
-            </div>
-          </div>
-          <div>
-            <label className={styles.label}>Vị trí:</label>
             <button
               onClick={() => {
-                setAssignable(true);
-                setCurrentPoints([]);
-                setChooseCornerMediaPoint(true);
-                setCurrentHotspotType(3);
+                setMediaType("PICTURE");
               }}
+              className={`${styles.chooseMediaType} ${
+                mediaType == "PICTURE" ? styles.choosed : ""
+              }`}
             >
-              Chọn điểm
+              Ảnh
             </button>
           </div>
-        </>
-      )}
+          <div>
+            <button
+              onClick={() => {
+                setMediaType("VIDEO");
+              }}
+              className={`${styles.chooseMediaType} ${
+                mediaType == "VIDEO" ? styles.choosed : ""
+              }`}
+            >
+              Video
+            </button>
+          </div>
+        </div>
+        <div style={{ display: "inline-flex" }}>
+          <label className={styles.label}>Tải lên:</label>
+          <UploadFile
+            className={mediaType == "PICTURE" ? "upload_image" : "upload_video"}
+            hotspotId={hotspotMedia?.id}
+            onUploaded={handleUploadedFile}
+          />
+        </div>
+        <div style={{ display: "inline-flex" }}>
+          <label className={styles.label}>Tiêu đề:</label>
+          <textarea
+            name=""
+            id=""
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+          />
+        </div>
+      <button onClick={() => handleUpdateMedia()}>Cập nhật</button>
+      </>
     </div>
   );
 };
