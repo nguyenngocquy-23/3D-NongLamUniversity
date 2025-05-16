@@ -8,11 +8,10 @@ import axios from "axios";
 import UploadFile from "./UploadFile.tsx";
 
 interface BoardUploadProps {
-  onSelectSpace: (spaceId: string) => void;
   onSelectFiles: (files: File[]) => void;
 }
 
-const BoardUploader: React.FC<BoardUploadProps> = ({ onSelectSpace }) => {
+const BoardUploader: React.FC<BoardUploadProps> = () => {
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
     []
   );
@@ -49,7 +48,6 @@ const BoardUploader: React.FC<BoardUploadProps> = ({ onSelectSpace }) => {
   const handleSelectSpace = async (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    onSelectSpace(event.target.value);
     dispatch(setSpaceId(event.target.value));
   };
 

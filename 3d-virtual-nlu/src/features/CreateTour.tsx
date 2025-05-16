@@ -44,7 +44,6 @@ const CreateNode: React.FC = () => {
       name: "Khởi tạo",
       Component: () => (
         <BoardUploader
-          onSelectSpace={handleSelectSpace}
           onSelectFiles={handleSelectFiles}
         />
       ),
