@@ -1,4 +1,4 @@
-import React, { useState, useRef, ChangeEvent } from "react";
+import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { FaRegFileImage } from "react-icons/fa6";
 import { MdDeleteForever } from "react-icons/md";
@@ -44,9 +44,23 @@ const UploadFile: React.FC<UploadFileProps> = ({
   //Biến state để theo dõi thông tin của 1 file
   const [selectedFile, setSelectFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState<number>(0);
+  const [fileURLs, setFileURLs] = useState<string[]>([]); // Lưu URL tạo ra
   const [uploadStatus, setUploadStatus] = useState<
     "select" | "uploading" | "done"
   >("select"); //select | uploading | done
+
+  // Tạo URL object một lần khi selectedFile thay đổi
+  useEffect(() => {
+    // Giải phóng URL cũ
+    fileURLs.forEach((url) => URL.revokeObjectURL(url));
+
+    const newURLs = selectedFile.map((file) => URL.createObjectURL(file));
+    setFileURLs(newURLs);
+
+    return () => {
+      newURLs.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [selectedFile]);
 
   // Xử lý sự kiện thêm file (nhiều file 1 lần.)
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -201,7 +215,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
                 {className != "upload_model" && className != "upload_video" ? (
                   <div
                     style={{
-                      backgroundImage: `url(${URL.createObjectURL(file)})`,
+                      backgroundImage: `url(${fileURLs[index]})`,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                       width: "100px", // hoặc giá trị bạn cần

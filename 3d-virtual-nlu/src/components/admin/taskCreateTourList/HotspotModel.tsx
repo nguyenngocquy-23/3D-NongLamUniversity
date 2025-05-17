@@ -5,7 +5,7 @@ import {
 import UploadFile from "../UploadFile";
 import styles from "../../../styles/tasklistCT/task3.module.css";
 import { useDispatch } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface TypeModelProps {
   isOpenTypeModel?: boolean;
@@ -28,6 +28,12 @@ const TypeModel = ({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setModelUrl(hotspotModel.modelUrl);
+    setName(hotspotModel.name);
+    setDescription(hotspotModel.description);
+  }, [hotspotModel])
 
   const handleUpdateModel = () => {
     dispatch(

@@ -120,33 +120,31 @@ const VideoMeshComponent = ({
     } else {
       const image = new Image();
       image.crossOrigin = "anonymous";
-      image.style.display = "none";
-      image.style.pointerEvents = "none";
 
       let isCancelled = false;
 
-      image.onload = () => {
+      const onLoad = () => {
         if (textureCreatedRef.current || isCancelled) return;
-
+        if (image.naturalWidth === 0 || image.naturalHeight === 0) {
+          console.warn("Image failed to load");
+          return;
+        }
         const tex = new THREE.Texture(image);
-        // tex.minFilter = THREE.NearestFilter;
-        // tex.magFilter = THREE.NearestFilter;
-        // tex.generateMipmaps = false;
         tex.colorSpace = "srgb";
-
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
         tex.needsUpdate = true;
+
         setTexture(tex);
         textureCreatedRef.current = true;
       };
-      // image.addEventListener("load", handleImageLoad);
-      document.body.appendChild(image);
+
+      image.addEventListener("load", onLoad);
       image.src = hotspotMedia.mediaUrl;
 
       return () => {
         isCancelled = true;
-        image.onload = null;
-        // image.removeEventListener("load", handleImageLoad);
-        image.remove();
+        image.removeEventListener("load", onLoad);
         texture?.dispose();
         setTexture(null);
         textureCreatedRef.current = false;

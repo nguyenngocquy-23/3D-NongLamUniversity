@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { FaClock } from "react-icons/fa6";
 import {
@@ -29,11 +29,17 @@ const TypeMedia = ({
 // setChooseCornerMediaPoint,
 // setCurrentHotspotType,
 TypeMediaProps) => {
+  console.log(":: ::: :: :", hotspotMedia);
   const [mediaUrl, setMediaUrl] = useState("");
   const [caption, setCaption] = useState("");
-  const [videoMode, setVideoMode] = useState(false);
   const [mediaType, setMediaType] = useState("PICTURE");
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setMediaUrl(hotspotMedia.mediaUrl || "");
+    setCaption(hotspotMedia.caption || "");
+    setMediaType(hotspotMedia.mediaType || "PICTURE");
+  }, [hotspotMedia]);
 
   const handleUploadedFile = (url: string) => {
     setMediaUrl(url);
@@ -109,7 +115,7 @@ TypeMediaProps) => {
             onChange={(e) => setCaption(e.target.value)}
           />
         </div>
-      <button onClick={() => handleUpdateMedia()}>Cập nhật</button>
+        <button onClick={() => handleUpdateMedia()}>Cập nhật</button>
       </>
     </div>
   );

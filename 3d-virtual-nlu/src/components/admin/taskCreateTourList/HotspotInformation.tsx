@@ -8,7 +8,7 @@ import {
 } from "../../../redux/slices/HotspotSlice";
 import { useDispatch } from "react-redux";
 import { title } from "framer-motion/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 interface TypeInfomationProps {
   isOpenTypeInfomation?: boolean;
   setAssignable?: (value: boolean) => void;
@@ -26,6 +26,11 @@ const TypeInfomation = ({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setTitle(hotspotInfo.title);
+    setContent(hotspotInfo.content);
+  }, [hotspotInfo])
 
   const handleUpdateInfo = () => {
     dispatch(
