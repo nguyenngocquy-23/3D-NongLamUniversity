@@ -63,7 +63,6 @@ public class NodeController {
                 System.err.println("Lỗi khi insert hotspot cho node: " + req.getId() + ": " + e.getMessage());
                 result = false;
             }
-
         }
 
         if (result) {
