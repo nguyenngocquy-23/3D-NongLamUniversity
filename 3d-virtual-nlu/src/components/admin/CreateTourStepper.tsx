@@ -55,7 +55,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
           confirmButtonText: "OK",
         });
         return;
-      }else if(panoramaList.length == 0){
+      } else if (panoramaList.length == 0) {
         Swal.fire({
           icon: "warning",
           title: "Chưa có ảnh 360",
@@ -72,16 +72,26 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
     <>
       <div className={styles.stepper}>
         {stepsConfig.map((step, index) => {
+          const isActive = currentStep > index + 1 || isComplete;
           return (
-            <div key={step.name} className={styles.step}>
-              <div className={styles.stepNumber}>
-                {currentStep > index + 1 || isComplete ? (
-                  <span>&#10003;</span>
-                ) : (
-                  index + 1
-                )}
+            <div key={step.name} className={styles.stepWrapper}>
+              <div className={styles.step}>
+                <div
+                  className={`${styles.stepNumber} ${
+                    isActive ? styles.stepActive : ""
+                  }`}
+                >
+                  {isActive ? <span>&#10003;</span> : index + 1}
+                </div>
+                <div className={styles.stepName}>{step.name}</div>
               </div>
-              <div className={styles.stepName}>{step.name}</div>
+              {index !== stepsConfig.length - 1 && (
+                <div
+                  className={`${styles.stepLine} ${
+                    isActive ? styles.stepActive : ""
+                  }`}
+                ></div>
+              )}
             </div>
           );
         })}
