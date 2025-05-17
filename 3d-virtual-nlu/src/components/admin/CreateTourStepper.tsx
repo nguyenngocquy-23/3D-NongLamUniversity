@@ -47,7 +47,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
      * validate cho step1
      */
     if (currentStep === 1) {
-      if (spaceId == null) {
+      if (spaceId == "0") {
         Swal.fire({
           icon: "warning",
           title: "Chưa chọn không gian",

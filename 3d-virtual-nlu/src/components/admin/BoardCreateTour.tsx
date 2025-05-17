@@ -36,6 +36,7 @@ const BoardUploader = () => {
       );
       const listSpace = response.data.data;
       setListSpace(listSpace);
+      dispatch(setSpaceId("0"));
     } catch {
       console.log("call api choose field error");
     }
@@ -74,7 +75,7 @@ const BoardUploader = () => {
             id="space"
             onChange={handleSelectSpace}
           >
-            <option value="">-- Chọn không gian --</option>
+            <option value="0">-- Chọn không gian --</option>
             {listSpace.map((space) => (
               <option key={space.id} value={space.id}>
                 {space.name}
