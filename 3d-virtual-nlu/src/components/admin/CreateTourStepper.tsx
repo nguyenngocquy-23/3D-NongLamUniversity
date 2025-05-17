@@ -1,5 +1,9 @@
 import React, { useRef, useState } from "react";
 import styles from "../../styles/createTourStepper.module.css";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/Store";
+import { nextStep } from "../../redux/slices/StepSlice";
+import Swal from "sweetalert2";
 
 /**
  * Quy đổi: currentStep (1) = stepsConfig[0]
@@ -17,25 +21,51 @@ interface CreateTourStepperProps {
 const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
   stepsConfig,
 }) => {
-  const [currentStep, setCurrentStep] = useState(1); // 1 -> 2 -> 3 -> 4, Complete.
+  //const [currentStep, setCurrentStep] = useState(1); // 1 -> 2 -> 3 -> 4, Complete.
+  const currentStep = useSelector((state: RootState) => state.step.currentStep);
   const [isComplete, setIsComplete] = useState(false);
-  const [margins, setMargins] = useState({
-    marginLeft: 0,
-    marginRight: 0,
-  });
-  const stepRef = useRef([]);
+
+  const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
+  const panoramaList = useSelector(
+    (state: RootState) => state.panoramas.panoramaList
+  );
+
+  const dispatch = useDispatch();
 
   const ActiveComponent = stepsConfig[currentStep - 1]?.Component;
 
   const handleNextStep = () => {
-    setCurrentStep((prevStep) => {
-      if (prevStep === stepsConfig.length) {
-        setIsComplete(true); // Trường hợp xuất bản => Insert vô database.
-        return prevStep;
-      } else {
-        return prevStep + 1;
+    // setCurrentStep((prevStep) => {
+    //   if (prevStep === stepsConfig.length) {
+    //     setIsComplete(true); // Trường hợp xuất bản => Insert vô database.
+    //     return prevStep;
+    //   } else {
+    //     return prevStep + 1;
+    //   }
+    // });
+    /**
+     * validate cho step1
+     */
+    if (currentStep === 1) {
+      if (spaceId == null) {
+        Swal.fire({
+          icon: "warning",
+          title: "Chưa chọn không gian",
+          text: "Vui lòng chọn không gian trước khi tiếp tục",
+          confirmButtonText: "OK",
+        });
+        return;
+      }else if(panoramaList.length == 0){
+        Swal.fire({
+          icon: "warning",
+          title: "Chưa có ảnh 360",
+          text: "Vui lòng tải lên ảnh 360 để tiếp tục",
+          confirmButtonText: "OK",
+        });
+        return;
       }
-    });
+    }
+    dispatch(nextStep());
   };
 
   return (
@@ -65,7 +95,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
           </button>
         )}
       </div>
-        
+
       <div className={styles.stepContent}>
         <ActiveComponent />
       </div>

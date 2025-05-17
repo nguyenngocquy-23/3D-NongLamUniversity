@@ -7,11 +7,7 @@ import { fetchFields } from "../../redux/slices/DataSlice.ts";
 import axios from "axios";
 import UploadFile from "./UploadFile.tsx";
 
-interface BoardUploadProps {
-  onSelectFiles: (files: File[]) => void;
-}
-
-const BoardUploader: React.FC<BoardUploadProps> = () => {
+const BoardUploader = () => {
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
     []
   );
