@@ -198,7 +198,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
           <div className={styles.fileCardsWrapper}>
             {selectedFile.map((file, index) => (
               <div key={index} className={styles.fileCardsWrapper}>
-                {className != "upload_model" ? (
+                {className != "upload_model" && className != "upload_video" ? (
                   <div
                     style={{
                       backgroundImage: `url(${URL.createObjectURL(file)})`,

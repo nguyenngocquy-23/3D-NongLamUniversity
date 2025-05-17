@@ -11,16 +11,14 @@ const VideoMeshComponent = ({
   hotspotMedia,
   setCurrentHotspotId,
 }: VideoMeshProps) => {
-  console.log("VideoMeshComponent initialized");
-
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
-  const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
+  // const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
+  const [texture, setTexture] = useState<
+    THREE.VideoTexture | THREE.Texture | null
+  >(null);
   const [mesh, setMesh] = useState<THREE.Mesh | null>(null);
 
-  console.log("cornerPointes initialized", hotspotMedia.cornerPointListJson);
-
   const getCenterOfPoints = (points: [number, number, number][]) => {
-    console.log("getCenterOfPoints called");
     const center = [0, 0, 0];
     for (let i = 0; i < 4; i++) {
       center[0] += points[i][0];
@@ -70,10 +68,11 @@ const VideoMeshComponent = ({
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    console.log("useEffect called");
-    console.log("again........", hotspotMedia.mediaUrl);
-    console.log("length........", cornerPointes.length);
-    if (cornerPointes.length === 4 && hotspotMedia.mediaUrl) {
+    if (
+      cornerPointes.length === 4 &&
+      hotspotMedia.mediaUrl &&
+      hotspotMedia.mediaType == "VIDEO"
+    ) {
       const video = document.createElement("video");
       video.src = hotspotMedia.mediaUrl;
       video.crossOrigin = "anonymous";
@@ -86,13 +85,12 @@ const VideoMeshComponent = ({
       document.body.appendChild(video);
 
       const handleCanPlay = () => {
-        console.log("handleCanPlay called");
         if (textureCreatedRef.current) return;
 
         const tex = new THREE.VideoTexture(video);
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
-        tex.format = THREE.RGBFormat;
+        tex.colorSpace = "srgb";
         tex.image.width = video.videoWidth;
         tex.image.height = video.videoHeight;
         tex.needsUpdate = true;
@@ -111,11 +109,44 @@ const VideoMeshComponent = ({
       video.load();
 
       return () => {
-        console.log("useEffect cleanup");
         video.removeEventListener("canplaythrough", handleCanPlay);
         video.pause();
         video.src = "";
         video.remove();
+        texture?.dispose();
+        setTexture(null);
+        textureCreatedRef.current = false;
+      };
+    } else {
+      const image = new Image();
+      image.crossOrigin = "anonymous";
+      image.style.display = "none";
+      image.style.pointerEvents = "none";
+
+      let isCancelled = false;
+
+      image.onload = () => {
+        if (textureCreatedRef.current || isCancelled) return;
+
+        const tex = new THREE.Texture(image);
+        // tex.minFilter = THREE.NearestFilter;
+        // tex.magFilter = THREE.NearestFilter;
+        // tex.generateMipmaps = false;
+        tex.colorSpace = "srgb";
+
+        tex.needsUpdate = true;
+        setTexture(tex);
+        textureCreatedRef.current = true;
+      };
+      // image.addEventListener("load", handleImageLoad);
+      document.body.appendChild(image);
+      image.src = hotspotMedia.mediaUrl;
+
+      return () => {
+        isCancelled = true;
+        image.onload = null;
+        // image.removeEventListener("load", handleImageLoad);
+        image.remove();
         texture?.dispose();
         setTexture(null);
         textureCreatedRef.current = false;
@@ -126,7 +157,6 @@ const VideoMeshComponent = ({
   if (cornerPointes.length > 4) return null;
 
   useEffect(() => {
-    console.log("useEffect called");
     if (cornerPointes.length !== 4) return;
 
     const geometry = createCustomGeometry(cornerPointes);
@@ -135,18 +165,18 @@ const VideoMeshComponent = ({
     const center = getCenterOfPoints(cornerPointes);
 
     const material = new THREE.MeshBasicMaterial({
-      map: texture,
+      map: texture || null, // ban đầu có thể là null
+      color: texture ? 0xffffff : 0x888888, // Nếu chưa có texture, dùng màu xám
       side: THREE.DoubleSide,
     });
+
     const newMesh = new THREE.Mesh(geometry, material);
     newMesh.position.set(...center);
     setMesh(newMesh);
-  }, [cornerPointes, texture, hotspotMedia]);
+  }, [cornerPointes, texture, hotspotMedia]); // chỉ chạy 1 lần khi tạo, không phụ thuộc texture
 
   useEffect(() => {
-    console.log("useEffect called");
     return () => {
-      console.log("useEffect cleanup");
       mesh?.geometry.dispose();
       if (Array.isArray(mesh?.material)) {
         mesh.material.forEach((m) => m.dispose());
@@ -160,21 +190,23 @@ const VideoMeshComponent = ({
     <>
       {mesh && (
         <primitive
-          key={hotspotMedia.id}
+          key={hotspotMedia.id + (texture?.uuid || "")}
           object={mesh}
           castShadow
           receiveShadow
           visible={true}
           // onPointerDown={() => setIsPaused((prev) => !prev)}
           onPointerDown={(e: any) => {
-            if (e.button === 2) {
-              e.stopPropagation();
-              e.nativeEvent.preventDefault();
-              console.log("Right click...");
-              setIsOpenHotspotOption(true);
-            }else{
-              setIsPaused((prev) => !prev)
+            if (e.button !== 2) {
+              setIsPaused((prev) => !prev);
             }
+          }}
+          onContextMenu={(e: any) => {
+            e.stopPropagation();
+            if (e.nativeEvent?.preventDefault) {
+              e.nativeEvent.preventDefault(); // ✅ dùng đúng kiểu
+            }
+            setIsOpenHotspotOption(true);
           }}
         />
       )}
