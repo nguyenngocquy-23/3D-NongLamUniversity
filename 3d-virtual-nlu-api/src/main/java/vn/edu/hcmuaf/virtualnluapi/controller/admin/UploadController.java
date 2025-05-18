@@ -32,99 +32,99 @@ public class UploadController {
     @Inject
     CloudinaryService cloudinaryService;
 
-    @POST
-    @Path("/upload")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response uploadNodes(MultipartFormDataInput input) {
+        @POST
+        @Path("/upload")
+        @Consumes(MediaType.MULTIPART_FORM_DATA)
+        @Produces(MediaType.APPLICATION_JSON)
+        public Response uploadNodes(MultipartFormDataInput input) {
 
-        try {
-            // Lấy các phần từ multipart với key là "files"
-            Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
-            List<InputPart> fileParts = uploadForm.get("file");
+            try {
+                // Lấy các phần từ multipart với key là "files"
+                Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+                List<InputPart> fileParts = uploadForm.get("file");
 
-            if (fileParts == null || fileParts.isEmpty()) {
-                return Response.status(Response.Status.BAD_REQUEST)
+                if (fileParts == null || fileParts.isEmpty()) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity(ApiResponse.<Void>builder()
+                                    .statusCode(400)
+                                    .message("Không có file nào được gửi lên.")
+                                    .data(null)
+                                    .build())
+                            .build();
+                }
+                InputPart filePart = fileParts.get(0);
+                String fileName = getFileName(filePart.getHeaders());
+                String safeName = normalizeFilename(fileName);
+
+                InputStream fileInputStream = filePart.getBody(InputStream.class, null);
+
+                String imgUrl = cloudinaryService.uploadPanorama(fileInputStream, safeName, CloudinaryProperties.uploadPanoFolder);
+                CloudinaryUploadResponse resp = CloudinaryUploadResponse.builder()
+                        .originalFileName(fileName)
+                        .url(imgUrl).build();
+                return Response.ok(ApiResponse.<CloudinaryUploadResponse>builder()
+                        .statusCode(200)
+                        .message("Upload thành công.")
+                        .data(resp)
+                        .build()).build();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                         .entity(ApiResponse.<Void>builder()
-                                .statusCode(400)
-                                .message("Không có file nào được gửi lên.")
+                                .statusCode(500)
+                                .message("Lỗi hệ thống: " + e.getMessage())
                                 .data(null)
                                 .build())
                         .build();
             }
-            InputPart filePart = fileParts.get(0);
-            String fileName = getFileName(filePart.getHeaders());
-            String safeName = normalizeFilename(fileName);
-
-            InputStream fileInputStream = filePart.getBody(InputStream.class, null);
-
-            String imgUrl = cloudinaryService.uploadPanorama(fileInputStream, safeName, CloudinaryProperties.uploadPanoFolder);
-            CloudinaryUploadResponse resp = CloudinaryUploadResponse.builder()
-                    .originalFileName(fileName)
-                    .url(imgUrl).build();
-            return Response.ok(ApiResponse.<CloudinaryUploadResponse>builder()
-                    .statusCode(200)
-                    .message("Upload thành công.")
-                    .data(resp)
-                    .build()).build();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(ApiResponse.<Void>builder()
-                            .statusCode(500)
-                            .message("Lỗi hệ thống: " + e.getMessage())
-                            .data(null)
-                            .build())
-                    .build();
         }
-    }
 
 
-    @POST
-    @Path("/uploadMulti")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response uploadMultipeNode(MultipartFormDataInput input) {
-        try {
-            Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
-            List<InputPart> fileParts = uploadForm.get("file");
+        @POST
+        @Path("/uploadMulti")
+        @Consumes(MediaType.MULTIPART_FORM_DATA)
+        @Produces(MediaType.APPLICATION_JSON)
+        public Response uploadMultipeNode(MultipartFormDataInput input) {
+            try {
+                Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+                List<InputPart> fileParts = uploadForm.get("file");
 
-            if(fileParts == null || fileParts.isEmpty()) {
-                return Response.status(Response.Status.BAD_REQUEST)
+                if(fileParts == null || fileParts.isEmpty()) {
+                    return Response.status(Response.Status.BAD_REQUEST)
+                            .entity(ApiResponse.<Void>builder()
+                                    .statusCode(400)
+                                    .message("Không thấy dữ liệu ảnh gửi lên")
+                                    .data(null)
+                                    .build()).build();
+                }
+                List<CloudinaryUploadResponse> responses = new ArrayList<>();
+                for(InputPart filepart : fileParts) {
+                    String fileName = getFileName(filepart.getHeaders());
+                    String safeName = normalizeFilename(fileName);
+
+                    InputStream fileInputStream = filepart.getBody(InputStream.class, null);
+
+                    String imgUrl = cloudinaryService.uploadPanorama(fileInputStream, safeName, CloudinaryProperties.uploadPanoFolder);
+                    CloudinaryUploadResponse resp = CloudinaryUploadResponse.builder().originalFileName(fileName).url(imgUrl).build();
+                    responses.add(resp);
+                }
+
+                return Response.ok(ApiResponse.<List<CloudinaryUploadResponse>>builder()
+                        .statusCode(200)
+                        .message("Upload thành công")
+                        .data(responses)
+                        .build()).build();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                         .entity(ApiResponse.<Void>builder()
-                                .statusCode(400)
-                                .message("Không thấy dữ liệu ảnh gửi lên")
+                                .statusCode(500)
+                                .message("Hệ thống lỗi: " + e.getMessage())
                                 .data(null)
                                 .build()).build();
             }
-            List<CloudinaryUploadResponse> responses = new ArrayList<>();
-            for(InputPart filepart : fileParts) {
-                String fileName = getFileName(filepart.getHeaders());
-                String safeName = normalizeFilename(fileName);
-
-                InputStream fileInputStream = filepart.getBody(InputStream.class, null);
-
-                String imgUrl = cloudinaryService.uploadPanorama(fileInputStream, safeName, CloudinaryProperties.uploadPanoFolder);
-                CloudinaryUploadResponse resp = CloudinaryUploadResponse.builder().originalFileName(fileName).url(imgUrl).build();
-                responses.add(resp);
-            }
-
-            return Response.ok(ApiResponse.<List<CloudinaryUploadResponse>>builder()
-                    .statusCode(200)
-                    .message("Upload thành công")
-                    .data(responses)
-                    .build()).build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(ApiResponse.<Void>builder()
-                            .statusCode(500)
-                            .message("Hệ thống lỗi: " + e.getMessage())
-                            .data(null)
-                            .build()).build();
         }
-    }
 
     // Phương thức để lấy tên file từ header
     private String getFileName(MultivaluedMap<String, String> headers) {

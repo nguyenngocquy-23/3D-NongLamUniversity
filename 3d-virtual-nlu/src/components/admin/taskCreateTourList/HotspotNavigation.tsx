@@ -18,8 +18,6 @@ interface TypeNavigationProps {
 const TypeNavigation = ({
   hotspotId,
   isOpenTypeNavigation,
-  setAssignable,
-  setCurrentHotspotType,
 }: TypeNavigationProps) => {
   /**
    * Lấy ra danh sách panorama

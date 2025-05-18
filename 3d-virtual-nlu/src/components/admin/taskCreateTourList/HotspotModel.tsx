@@ -7,7 +7,6 @@ interface TypeModelProps {
   assignable?: boolean;
   setAssignable?: (value: boolean) => void;
   hotspotModels?: HotspotModelCreateRequest[];
-  // setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
   setCurrentHotspotType?: (value: HotspotType) => void;
 }
 

@@ -108,18 +108,6 @@ const panoramaSlice = createSlice({
         item.config.status = item.id === masterId ? 2 : 1;
       });
     },
-    // updatePanoConfig(
-    //   state,
-    //   action: PayloadAction<{ index: number; config: Partial<PanoramaConfig> }>
-    // ) {
-    //   const { index, config } = action.payload;
-    //   if (state.panoramaList[index]) {
-    //     state.panoramaList[index].config = {
-    //       ...state.panoramaList[index].config,
-    //       ...config,
-    //     };
-    //   }
-    // },
     updatePanoConfig(
       state,
       action: PayloadAction<{ id: string; config: Partial<PanoramaConfig> }>

@@ -31,10 +31,16 @@ interface ApiResponse<T> {
   data: T;
 }
 
+/**
+ * Free Plan Cloudinary:
+ * 10 MB cho ảnh.
+ * 100 MB cho video.
+ */
+const MAX_SIZE_MB = 10;
+const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+
 const UploadFile: React.FC<UploadFileProps> = ({
   className,
-  hotspotId,
-  // typeUpload,
   index,
   onUploaded,
 }) => {
@@ -48,7 +54,9 @@ const UploadFile: React.FC<UploadFileProps> = ({
     "select" | "uploading" | "done"
   >("select"); //select | uploading | done
 
-  // Xử lý sự kiện thêm file (nhiều file 1 lần.)
+  /**
+   * Danh sách ảnh (nhiều ảnh) tối đa là 5.
+   */
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
@@ -56,7 +64,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
     const combinedFiles = [...selectedFile, ...newFiles];
 
     if (combinedFiles.length > 5) {
-      alert("upload tối đa 5 ảnh.");
+      alert("Tối đa 5 ảnh!.");
       return;
     }
 
@@ -84,65 +92,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
     // if (onUploaded) onUploaded("", index ?? 0);
   };
 
-  // const promises = selectedFile.map((file) => {
-  //   return new Promise<void>((resolve, reject) => {
-  //     if (file.type === "image/svg+xml") {
-  //       // Đọc file SVG
-  //       const reader = new FileReader();
-  //       reader.onload = () => {
-  //         const svgContent = reader.result;
-
-  //         // Kiểm tra null trước khi sử dụng svgContent
-  //         if (typeof svgContent === "string") {
-  //           const parser = new DOMParser();
-  //           const svgDoc = parser.parseFromString(
-  //             svgContent,
-  //             "image/svg+xml"
-  //           );
-
-  //           // Thêm fill="currentColor" vào các phần tử path, circle, rect
-  //           svgDoc.querySelectorAll("path").forEach((path) => {
-  //             if (!path.getAttribute("fill")) {
-  //               path.setAttribute("fill", "currentColor");
-  //             }
-  //           });
-
-  //           svgDoc.querySelectorAll("circle").forEach((circle) => {
-  //             if (!circle.getAttribute("fill")) {
-  //               circle.setAttribute("fill", "currentColor");
-  //             }
-  //           });
-
-  //           // Lấy nội dung SVG đã chỉnh sửa
-  //           const updatedSvg = svgDoc.documentElement.outerHTML;
-
-  //           // Chuyển nội dung SVG đã chỉnh sửa thành Blob
-  //           const blob = new Blob([updatedSvg], { type: "image/svg+xml" });
-
-  //           // Thêm tệp Blob đã chỉnh sửa vào FormData
-  //           formData.append("file", blob, file.name);
-  //           resolve(); // Đánh dấu hoàn thành
-  //         } else {
-  //           console.error("Nội dung SVG không phải là chuỗi hợp lệ.");
-  //           reject("Nội dung SVG không hợp lệ");
-  //         }
-  //       };
-  //       reader.onerror = () => {
-  //         reject("Lỗi đọc file");
-  //       };
-  //       reader.readAsText(file);
-  //     } else {
-  //       // Nếu không phải là SVG, thêm trực tiếp vào FormData
-  //       formData.append("file", file);
-  //       resolve(); // Đánh dấu hoàn thành cho file không phải SVG
-  //     }
-  //   });
-  // });
-
-  // await Promise.all(promises);
-  // const MAX_SIZE_MB =
   const handleUpload = async (): Promise<void> => {
-    //if upload done, clear và return.
     if (uploadStatus === "done") {
       clearFileInput();
       return;
@@ -152,57 +102,72 @@ const UploadFile: React.FC<UploadFileProps> = ({
       alert("Vui lòng chọn ít nhất 1 files.");
       return;
     }
+
+    setUploadStatus("uploading");
+
+    //Tính tổng size của các file
+    const totalSize = selectedFile.reduce((acc, file) => (acc += file.size), 0);
+
     try {
-      // Post file to Server.
-      setUploadStatus("uploading");
+      //Case 1: Upload multi node trong trường hợp list ảnh bé hơn 10MB.
+      if (totalSize <= MAX_SIZE_BYTES) {
+        const formData = new FormData();
+        selectedFile.map((file) => {
+          formData.append("file", file);
+        });
+        const resp = await axios.post<ApiResponse<CloudinaryUploadResp[]>>(
+          "http://localhost:8080/api/v1/admin/cloud/uploadMulti",
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            //Cập nhật tiến trình upload.
+            // onUploadProgress: (progressEvent) => {
+            //   if (progressEvent.total) {
+            //     const percentCompleted = Math.round(
+            //       (progressEvent.loaded * 100) / progressEvent.total
+            //     );
+            //     setProgress(percentCompleted);
+            //   }
+            // },
+          }
+        );
 
-      const formData = new FormData();
+        if (resp.data.statusCode === 200) {
+          setUploadStatus("done");
+          const data = resp.data.data;
 
-      selectedFile.map((file) => {
-        formData.append("file", file);
-      });
-      console.log("formData::", formData);
+          /**
+           * formattedData:
+           * {
+           * originalFileName: ...
+           * url : ...
+           * }
+           */
+          const formattedData = data
+            .filter((item) => item.originalFileName && item.url) // nếu không đủ => bỏ.
+            .map((item) => ({
+              originalFileName: item.originalFileName!,
+              url: item.url!,
+            }));
 
-      const resp = await axios.post<ApiResponse<CloudinaryUploadResp[]>>(
-        "http://localhost:8080/api/v1/admin/cloud/uploadMulti",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-          onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-              const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
-              );
-              setProgress(percentCompleted);
-            }
-          },
-        }
-      );
-
-      if (resp.data.statusCode === 200) {
-        setUploadStatus("done");
-        const data = resp.data.data;
-
-        const formattedData = data
-          .filter((item) => item.originalFileName && item.url) // nếu không đủ => bỏ.
-          .map((item) => ({
-            originalFileName: item.originalFileName!,
-            url: item.url!,
-          }));
-
-        if (onUploaded) {
-          const url = formattedData[0].url;
-          onUploaded(url, index ?? 0);
+          if (onUploaded) {
+            const url = formattedData[0].url;
+            onUploaded(url, index ?? 0);
+          } else {
+            dispatch(setPanoramas(formattedData));
+          }
         } else {
-          dispatch(setPanoramas(formattedData));
+          console.log("upload error: ", resp.data.message);
+          setUploadStatus("select");
         }
-      } else {
-        console.log("upload error: ", resp.data.message);
-        setUploadStatus("select");
       }
+      // Case 2: Số lượng file ảnh lớn hơn 10 MB.
     } catch (error: unknown) {
       const err = error as AxiosError<ApiResponse<null>>;
-      console.error("Upload error", err.response?.data?.message || err.message);
+      console.error(
+        "[UploadFile: ]",
+        err.response?.data?.message || err.message
+      );
       setUploadStatus("select");
     }
   };

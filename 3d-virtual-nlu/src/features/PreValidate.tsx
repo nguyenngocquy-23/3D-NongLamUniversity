@@ -4,7 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 export const validateAndNavigate = (
   fields: { value: any; name: string }[],
   navigatePath: string,
-  errorMessage: string,
+  errorMessage: string
 ) => {
   const navigate = useNavigate();
   // Kiểm tra nếu có giá trị bị null, undefined, hoặc rỗng
