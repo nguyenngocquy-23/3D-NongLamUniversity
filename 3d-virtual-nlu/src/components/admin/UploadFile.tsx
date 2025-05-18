@@ -83,14 +83,12 @@ const UploadFile: React.FC<UploadFileProps> = ({
     setSelectFiles([]);
     setProgress(0);
     setUploadStatus("select");
-    // if (onUploaded) onUploaded("", index ?? 0);
   };
 
   const removeFile = (index: number) => {
     const newFiles = [...selectedFile];
     newFiles.splice(index, 1);
     setSelectFiles(newFiles);
-    // if (onUploaded) onUploaded("", index ?? 0);
   };
 
   const handleUpload = async (): Promise<void> => {
@@ -111,7 +109,9 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
     try {
       //Case 1: Upload multi node trong trường hợp list ảnh bé hơn 10MB.
+
       if (totalSize <= MAX_SIZE_BYTES) {
+        alert("Thông báo: Upload theo kiểu 1");
         const formData = new FormData();
         selectedFile.map((file) => {
           formData.append("file", file);
@@ -137,13 +137,6 @@ const UploadFile: React.FC<UploadFileProps> = ({
           setUploadStatus("done");
           const data = resp.data.data;
 
-          /**
-           * formattedData:
-           * {
-           * originalFileName: ...
-           * url : ...
-           * }
-           */
           const formattedData = data
             .filter((item) => item.originalFileName && item.url) // nếu không đủ => bỏ.
             .map((item) => ({
@@ -155,14 +148,48 @@ const UploadFile: React.FC<UploadFileProps> = ({
             const url = formattedData[0].url;
             onUploaded(url, index ?? 0);
           } else {
+            console.log("Không sử dụng onUploaded.");
             dispatch(setPanoramas(formattedData));
           }
         } else {
           console.log("upload error: ", resp.data.message);
           setUploadStatus("select");
         }
+      } else {
+        // Case 2: Số lượng file ảnh lớn hơn 10 MB.
+        alert("Thông báo: Upload theo kiểu 2");
+        const formattedData: { originalFileName: string; url: string }[] = [];
+
+        for (const file of selectedFile) {
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const resp = await axios.post<ApiResponse<CloudinaryUploadResp>>(
+            "http://localhost:8080/api/v1/admin/cloud/upload",
+            formData,
+            { headers: { "Content-Type": "multipart/form-data" } }
+          );
+
+          if (resp.data.statusCode === 200) {
+            const item = resp.data.data!;
+            if (item.originalFileName && item.url) {
+              formattedData.push({
+                originalFileName: item.originalFileName,
+                url: item.url,
+              });
+            }
+          } else {
+            console.log("Upload filed case 2 error: ", resp.data.message);
+          }
+        }
+
+        setUploadStatus("done");
+        if (onUploaded) {
+          onUploaded(formattedData[0].url, index ?? 0);
+        } else {
+          dispatch(setPanoramas(formattedData));
+        }
       }
-      // Case 2: Số lượng file ảnh lớn hơn 10 MB.
     } catch (error: unknown) {
       const err = error as AxiosError<ApiResponse<null>>;
       console.error(

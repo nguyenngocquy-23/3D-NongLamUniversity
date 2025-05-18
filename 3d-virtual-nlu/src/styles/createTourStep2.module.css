@@ -17,12 +17,10 @@
 }
 
 .previewTour {
-  width: 100%;
-  height: 100%;
   position: relative;
-  /* width: 100vw;
+  width: 100vw;
   height: 100vh;
-  position: fixed; */
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 999;
@@ -167,10 +165,7 @@
   height: 100%;
   transition: right 0.5s ease;
   color: white;
-  background-color: rgba(255,
-      255,
-      255,
-      0.1);
+  background-color: rgba(255, 255, 255, 0.1);
   /* Màu nền trong suốt (tuỳ chỉnh opacity) */
   backdrop-filter: blur(5px);
 }
@@ -193,7 +188,7 @@
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.2);
   margin-left: 10px;
-  animation: fadeInMenu .5s ease;
+  animation: fadeInMenu 0.5s ease;
 }
 /* 
 @keyframes fadeInMenu {

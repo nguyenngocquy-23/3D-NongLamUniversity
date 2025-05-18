@@ -1,13 +1,9 @@
-import { FaHome } from "react-icons/fa";
 import styles from "../../../styles/tasklistCT/task3.module.css";
-import { FaClock } from "react-icons/fa6";
 import {
   HotspotType,
   updateHotspotInfomation,
-  updateHotspotModel,
 } from "../../../redux/slices/HotspotSlice";
 import { useDispatch } from "react-redux";
-import { title } from "framer-motion/client";
 import { useEffect, useState } from "react";
 interface TypeInfomationProps {
   isOpenTypeInfomation?: boolean;
@@ -19,8 +15,6 @@ interface TypeInfomationProps {
 // Component cho Type infomation
 const TypeInfomation = ({
   isOpenTypeInfomation,
-  setAssignable,
-  setCurrentHotspotType,
   hotspotInfo,
 }: TypeInfomationProps) => {
   const [title, setTitle] = useState("");
@@ -30,7 +24,7 @@ const TypeInfomation = ({
   useEffect(() => {
     setTitle(hotspotInfo.title);
     setContent(hotspotInfo.content);
-  }, [hotspotInfo])
+  }, [hotspotInfo]);
 
   const handleUpdateInfo = () => {
     dispatch(
@@ -38,9 +32,6 @@ const TypeInfomation = ({
         hotspotId: hotspotInfo.id,
         title,
         content,
-        // positionX: hotspotModel.positionX,
-        // positionY: hotspotModel.positionY,
-        // positionZ: hotspotModel.positionZ,
       })
     );
   };

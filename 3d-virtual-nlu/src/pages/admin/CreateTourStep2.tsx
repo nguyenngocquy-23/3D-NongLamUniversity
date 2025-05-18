@@ -1,12 +1,7 @@
 import * as THREE from "three";
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../../styles/createTourStep2.module.css";
-import {
-  FaAngleLeft,
-  FaAngleRight,
-  FaPlus,
-  FaRightLeft,
-} from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -190,7 +185,7 @@ const CreateTourStep2 = () => {
     if (!currentHotspotType || !assignable) {
       return;
     }
-    console.log('currentHotspotType...', currentHotspotType)
+    console.log("currentHotspotType...", currentHotspotType);
 
     const newPoints = [...currentPoints, [point.x, point.y, point.z]] as [
       number,
@@ -300,7 +295,6 @@ const CreateTourStep2 = () => {
         return (
           <>
             <Task3
-              hotspotModels={hotspotModels}
               currentPoints={currentPoints} // mesh đang chọn
               setCurrentPoints={setCurrentPoints} // thêm điểm
               assignable={assignable}

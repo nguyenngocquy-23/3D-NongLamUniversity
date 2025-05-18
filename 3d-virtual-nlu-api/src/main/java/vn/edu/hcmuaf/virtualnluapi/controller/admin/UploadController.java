@@ -37,11 +37,17 @@ public class UploadController {
         @Consumes(MediaType.MULTIPART_FORM_DATA)
         @Produces(MediaType.APPLICATION_JSON)
         public Response uploadNodes(MultipartFormDataInput input) {
+            long tStart = System.nanoTime();
+
+
+
 
             try {
                 // Lấy các phần từ multipart với key là "files"
+                Long tParseStart = System.nanoTime();
                 Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
                 List<InputPart> fileParts = uploadForm.get("file");
+                Long tParseEnd= System.nanoTime();
 
                 if (fileParts == null || fileParts.isEmpty()) {
                     return Response.status(Response.Status.BAD_REQUEST)
@@ -52,16 +58,31 @@ public class UploadController {
                                     .build())
                             .build();
                 }
+                long tReadStart = System.nanoTime();
                 InputPart filePart = fileParts.get(0);
                 String fileName = getFileName(filePart.getHeaders());
                 String safeName = normalizeFilename(fileName);
 
                 InputStream fileInputStream = filePart.getBody(InputStream.class, null);
+                long tReadEnd = System.nanoTime();
 
+                long tUploadStart = System.nanoTime();
                 String imgUrl = cloudinaryService.uploadPanorama(fileInputStream, safeName, CloudinaryProperties.uploadPanoFolder);
+                long tUploadEnd = System.nanoTime();
+
+                long tEnd = System.nanoTime();
+
+                System.out.println("Tổng thời gian : " + (tEnd - tStart)/1_000_000 + "ms");
+                System.out.println("Tổng thời gian phân tích multipart: " + (tParseEnd - tParseStart)/1_000_000 + "ms");
+                System.out.println("Tổng thời gian đọc ảnh & chuẩn hoá tên : " + (tReadEnd - tReadEnd)/1_000_000 + "ms");
+                System.out.println("Tổng thời gian gọi Cloudinary upload : " + (tUploadEnd - tUploadStart)/1_000_000 + "ms");
+
+
+
                 CloudinaryUploadResponse resp = CloudinaryUploadResponse.builder()
                         .originalFileName(fileName)
                         .url(imgUrl).build();
+
                 return Response.ok(ApiResponse.<CloudinaryUploadResponse>builder()
                         .statusCode(200)
                         .message("Upload thành công.")
@@ -86,9 +107,14 @@ public class UploadController {
         @Consumes(MediaType.MULTIPART_FORM_DATA)
         @Produces(MediaType.APPLICATION_JSON)
         public Response uploadMultipeNode(MultipartFormDataInput input) {
+            long tStart = System.nanoTime();
+
             try {
+                Long tParseStart = System.nanoTime();
                 Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
                 List<InputPart> fileParts = uploadForm.get("file");
+
+                Long tParseEnd= System.nanoTime();
 
                 if(fileParts == null || fileParts.isEmpty()) {
                     return Response.status(Response.Status.BAD_REQUEST)
@@ -98,17 +124,28 @@ public class UploadController {
                                     .data(null)
                                     .build()).build();
                 }
+
+
                 List<CloudinaryUploadResponse> responses = new ArrayList<>();
                 for(InputPart filepart : fileParts) {
                     String fileName = getFileName(filepart.getHeaders());
                     String safeName = normalizeFilename(fileName);
 
                     InputStream fileInputStream = filepart.getBody(InputStream.class, null);
-
+                    long tUploadStart = System.nanoTime();
                     String imgUrl = cloudinaryService.uploadPanorama(fileInputStream, safeName, CloudinaryProperties.uploadPanoFolder);
+                    long tUploadEnd = System.nanoTime();
+
+                    System.out.println("Tổng thời gian gọi Cloudinary upload : " + (tUploadEnd - tUploadStart)/1_000_000 + "ms");
+
                     CloudinaryUploadResponse resp = CloudinaryUploadResponse.builder().originalFileName(fileName).url(imgUrl).build();
                     responses.add(resp);
                 }
+                long tEnd = System.nanoTime();
+                System.out.println("Tổng thời gian : " + (tEnd - tStart)/1_000_000 + "ms");
+                System.out.println("Tổng thời gian phân tích multipart: " + (tParseEnd - tParseStart)/1_000_000 + "ms");
+
+
 
                 return Response.ok(ApiResponse.<List<CloudinaryUploadResponse>>builder()
                         .statusCode(200)

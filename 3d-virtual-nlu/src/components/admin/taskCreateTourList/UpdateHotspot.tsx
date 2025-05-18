@@ -4,11 +4,10 @@ import styleCTs from "../../../styles/taskcontainerct.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/Store";
 import TypeNavigation from "./HotspotNavigation";
-import { BaseHotspot, HotspotType } from "../../../redux/slices/HotspotSlice";
+import { BaseHotspot } from "../../../redux/slices/HotspotSlice";
 import TypeInfomation from "./HotspotInformation";
 import ConfigIcon from "../ConfigIcon";
-import { FaAngleLeft, FaRightLeft } from "react-icons/fa6";
-import ConfigMedia from "../ConfigMedia";
+import { FaAngleLeft } from "react-icons/fa6";
 import TypeMedia from "./HotspotMedia";
 import TypeModel from "./HotspotModel";
 
@@ -53,11 +52,7 @@ const UpdateHotspot = ({
               {(() => {
                 switch (currentType) {
                   case 1:
-                  // <TypeNavigation
-                  //   isOpenTypeNavigation={openTypeIndex == 1}
-                  //   setAssignable={setAssignable}
-                  //   setCurrentHotspotType={setCurrentHotspotType}
-                  // />;
+                    return <TypeNavigation hotspotId={hotspotId} />;
                   case 2:
                     return <TypeInfomation hotspotInfo={propHotspot} />;
                   case 4:
@@ -69,11 +64,6 @@ const UpdateHotspot = ({
             </>
           ) : (
             <>
-              {/* <ConfigMedia
-                setAssignable={() => {false}}
-                onPropsChange={onPropsChange}
-                setCurrentHotspotType={() => currentType ?? null}
-              /> */}
               <TypeMedia hotspotMedia={propHotspot} />
             </>
           )}

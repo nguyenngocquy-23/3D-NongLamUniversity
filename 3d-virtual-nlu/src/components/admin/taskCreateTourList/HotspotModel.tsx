@@ -41,9 +41,6 @@ const TypeModel = ({
         modelUrl,
         name,
         description,
-        // positionX: hotspotModel.positionX,
-        // positionY: hotspotModel.positionY,
-        // positionZ: hotspotModel.positionZ,
       })
     );
   };
