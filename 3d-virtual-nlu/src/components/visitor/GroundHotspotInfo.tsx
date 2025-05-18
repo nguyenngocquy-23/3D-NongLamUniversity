@@ -1,4 +1,4 @@
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useRef, useState } from "react";
 import styles from "../../styles/cardModel.module.css";
 import * as THREE from "three";
@@ -9,7 +9,7 @@ import { RootState } from "../../redux/Store";
 import { DoubleSide } from "three";
 import { Html } from "@react-three/drei";
 type GroundHotspotProps = {
-  setCurrentHotspotId: (val: string | null) => void;
+  setCurrentHotspotId?: (val: string | null) => void;
   setHoveredHotspot: (hotspot: THREE.Mesh | null) => void;
   hotspotInfo: HotspotInformation;
 };
@@ -25,6 +25,8 @@ const GroundHotspotInfo = ({
   const icons = useSelector((state: RootState) => state.data.icons);
   const iconUrl = icons.find((i) => i.id == hotspotInfo.iconId).url;
   const modelRef = useRef<THREE.Group>(null); //gọi lại group trong return.
+
+  const currentStep = useSelector((state: RootState) => state.step.currentStep);
   /**
    * Đang set tạm
    */
@@ -40,12 +42,24 @@ const GroundHotspotInfo = ({
   useEffect(() => {
     if (isHovered || isClicked) {
       targetOpacity.current = 1;
-      targetScale.current = 3;
+      targetScale.current = 2;
     } else {
       targetOpacity.current = 0.6;
-      targetScale.current = 2;
+      targetScale.current = 1.5;
     }
   }, [isHovered]);
+
+  useFrame(() => {
+    if (hotspotRef.current) {
+      const material = hotspotRef.current
+        .material as THREE.MeshStandardMaterial;
+      material.opacity += (targetOpacity.current - material.opacity) * 0.1;
+      hotspotRef.current.scale.lerp(
+        new THREE.Vector3(targetScale.current, targetScale.current, 1),
+        0.1
+      );
+    }
+  });
 
   useEffect(() => {
     const loadAndModifySVG = async () => {
@@ -144,10 +158,10 @@ const GroundHotspotInfo = ({
           side={DoubleSide}
         />
       </mesh>
-      {isOpenHotspotOption ? (
+      {isOpenHotspotOption && currentStep != 3 ? (
         <OptionHotspot
           hotspotId={hotspotInfo.id}
-          setCurrentHotspotId={setCurrentHotspotId}
+          setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
           onClose={() => {
             setIsOpenHotspotOption(false);
           }}

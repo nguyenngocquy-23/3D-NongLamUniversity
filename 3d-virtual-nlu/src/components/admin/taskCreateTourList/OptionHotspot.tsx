@@ -34,6 +34,7 @@ const OptionHotspot = ({
 
   const handleDelete = () => {
     if (confirm("Bạn có chắc muốn xóa hotspot này không?")) {
+      setCurrentHotspotId(null);
       dispatch(removeHotspot({hotspotId}));
       onClose();
     }
