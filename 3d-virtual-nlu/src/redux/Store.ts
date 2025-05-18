@@ -3,6 +3,7 @@ import authReducer from "./slices/AuthSlice.ts";
 import dataReducer from "./slices/DataSlice.ts";
 import panoramaReducer from "./slices/PanoramaSlice.ts";
 import hotspotReducer from "./slices/HotspotSlice.ts";
+import stepReducer from "./slices/StepSlice.ts";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     data: dataReducer,
     hotspots: hotspotReducer,
     panoramas: panoramaReducer,
+    step: stepReducer,
   },
 });
 

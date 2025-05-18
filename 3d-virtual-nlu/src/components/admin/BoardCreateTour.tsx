@@ -7,12 +7,7 @@ import { fetchFields } from "../../redux/slices/DataSlice.ts";
 import axios from "axios";
 import UploadFile from "./UploadFile.tsx";
 
-interface BoardUploadProps {
-  onSelectSpace: (spaceId: string) => void;
-  onSelectFiles: (files: File[]) => void;
-}
-
-const BoardUploader: React.FC<BoardUploadProps> = ({ onSelectSpace }) => {
+const BoardUploader = () => {
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
     []
   );
@@ -41,6 +36,7 @@ const BoardUploader: React.FC<BoardUploadProps> = ({ onSelectSpace }) => {
       );
       const listSpace = response.data.data;
       setListSpace(listSpace);
+      dispatch(setSpaceId("0"));
     } catch {
       console.log("call api choose field error");
     }
@@ -49,7 +45,6 @@ const BoardUploader: React.FC<BoardUploadProps> = ({ onSelectSpace }) => {
   const handleSelectSpace = async (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    onSelectSpace(event.target.value);
     dispatch(setSpaceId(event.target.value));
   };
 
@@ -80,7 +75,7 @@ const BoardUploader: React.FC<BoardUploadProps> = ({ onSelectSpace }) => {
             id="space"
             onChange={handleSelectSpace}
           >
-            <option value="">-- Chọn không gian --</option>
+            <option value="0">-- Chọn không gian --</option>
             {listSpace.map((space) => (
               <option key={space.id} value={space.id}>
                 {space.name}
