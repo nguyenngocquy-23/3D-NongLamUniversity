@@ -17,11 +17,10 @@ export function useSequentialTasks(
   const [openTaskIndex, setOpenTaskIndex] = useState<number | null>(null);
   const [completedTaskIds, setCompletedTaskIds] = useState<number[]>([]);
   const [unlockedTaskIds, setUnlockedTaskIds] = useState<number[]>([
-    1,2,3,4
+    1, 2, 3, 4,
   ]);
 
   const handleOpenTask = (id: number) => {
-    if (!unlockedTaskIds.includes(id)) return;
     setOpenTaskIndex((prev) => (prev === id ? null : id));
   };
 

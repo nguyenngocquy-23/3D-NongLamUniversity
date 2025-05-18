@@ -1,11 +1,12 @@
 import React, { useState, useRef, ChangeEvent } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
-import { FaRegFileImage } from "react-icons/fa6";
 import { MdDeleteForever } from "react-icons/md";
 import styles from "../../styles/uploadFile.module.css";
 import axios, { AxiosError } from "axios";
 import { setPanoramas } from "../../redux/slices/PanoramaSlice";
 import { useDispatch } from "react-redux";
+import { FaFile } from "react-icons/fa6";
+import Swal from "sweetalert2";
 
 /**
  * typeUpload: kiểu upload:
@@ -47,22 +48,67 @@ const UploadFile: React.FC<UploadFileProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
 
+  const [fileStatuses, setFileStatuses] = useState<
+    ("uploading" | "success" | "error")[]
+  >([]);
+
   //Biến state để theo dõi thông tin của 1 file
   const [selectedFile, setSelectFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState<number>(0);
   const [uploadStatus, setUploadStatus] = useState<
     "select" | "uploading" | "done"
   >("select"); //select | uploading | done
+  /**
+   * Kiểm tra ratio của ảnh (Đúng tỷ lệ 2:1)
+   */
+  const isValidAspectRatio = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+
+        img.onload = () => {
+          const ratio = img.width / img.height;
+          resolve(Math.abs(ratio - 2) < 0.01);
+        };
+      };
+
+      reader.readAsDataURL(file);
+    });
+  };
 
   /**
    * Danh sách ảnh (nhiều ảnh) tối đa là 5.
    */
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
     const newFiles = Array.from(e.target.files);
-    const combinedFiles = [...selectedFile, ...newFiles];
+    const validFiles: File[] = [];
+
+    for (let i = 0; i < newFiles.length; i++) {
+      const file = newFiles[i];
+      const isValid = await isValidAspectRatio(file);
+
+      if (isValid) {
+        validFiles.push(file);
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Vui lòng tải lên ảnh 360 đúng định dạng để tiếp tục",
+          text: `Ảnh thứ ${i + 1} (${
+            file.name
+          }) không có tỉ lệ 2:1 và sẽ bị loại.`,
+          confirmButtonText: "OK",
+        });
+        return;
+      }
+    }
+
+    const combinedFiles = [...selectedFile, ...validFiles];
 
     if (combinedFiles.length > 5) {
       alert("Tối đa 5 ảnh!.");
@@ -70,6 +116,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
     }
 
     setSelectFiles(combinedFiles);
+    setFileStatuses(new Array(combinedFiles.length).fill("uploading"));
   };
 
   const onChooseFile = () => {
@@ -160,7 +207,8 @@ const UploadFile: React.FC<UploadFileProps> = ({
         alert("Thông báo: Upload theo kiểu 2");
         const formattedData: { originalFileName: string; url: string }[] = [];
 
-        for (const file of selectedFile) {
+        for (let i = 0; i < selectedFile.length; i++) {
+          const file = selectedFile[i];
           const formData = new FormData();
           formData.append("file", file);
 
@@ -176,6 +224,12 @@ const UploadFile: React.FC<UploadFileProps> = ({
               formattedData.push({
                 originalFileName: item.originalFileName,
                 url: item.url,
+              });
+              // Cập nhật trạng thái file i thành success
+              setFileStatuses((prev) => {
+                const copy = [...prev];
+                copy[i] = "success";
+                return copy;
               });
             }
           } else {
@@ -200,6 +254,14 @@ const UploadFile: React.FC<UploadFileProps> = ({
     }
   };
 
+  function formatFileSize(bytes: number) {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  }
+
   return (
     <div className={`${styles.uploadWrapper}`}>
       <input
@@ -221,75 +283,91 @@ const UploadFile: React.FC<UploadFileProps> = ({
           className == "upload_model" ||
           className == "upload_video" ||
           className == "upload_image" ||
-          className == "upload_icón"
+          className == "upload_icon"
             ? false
             : true
         }
         style={{ display: "none" }}
       />
 
-      {selectedFile.length === 0 && (
+      {selectedFile.length < 5 && (
         <button
           className={`${className ? styles[className] : ""} ${styles.fileBtn}`}
           onClick={onChooseFile}
         >
           <span className={styles.uploadIcon}>
-            <FaCloudUploadAlt />
+            <FaFile />
           </span>
           <span>Chọn tệp</span>
+          {className === "upload_image" && (
+            <span className={styles.upload_tip}>
+              Chỉ nhận tối đa 5 ảnh 360 độ có tỷ lệ 2:1{" "}
+            </span>
+          )}
         </button>
       )}
-
       {/* Thông tin file và tiến trình khi tải lên */}
       {selectedFile.length > 0 && (
-        <>
+        <div className={styles.file_preview_container}>
           <div className={styles.fileCardsWrapper}>
             {selectedFile.map((file, index) => (
-              <div key={index} className={styles.fileCardsWrapper}>
-                <div
-                  style={{
-                    backgroundImage: `url(${URL.createObjectURL(file)})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    width: "100px", // hoặc giá trị bạn cần
-                    height: "100px",
-                    margin: "auto",
-                  }}
-                />
-                <div className={styles.fileCards}>
-                  <span>
-                    <FaRegFileImage />
-                  </span>
+              <div
+                key={index}
+                className={styles.file}
+                style={{
+                  border:
+                    fileStatuses[index] === "success"
+                      ? "3px solid green"
+                      : fileStatuses[index] === "error"
+                      ? "3px solid red"
+                      : "1px solid #ccc",
+                }}
+              >
+                <div className={styles.file_cards}>
+                  <div
+                    className={styles.file_preview}
+                    style={{
+                      backgroundImage: `url(${URL.createObjectURL(file)})`,
+                    }}
+                  />
 
-                  <div className={styles.fileInfo}>
-                    <div className={styles.fileContent} title={file.name}>
-                      <h4>{file.name}</h4>
+                  <div className={styles.file_info}>
+                    <div className={styles.file_content} title={file.name}>
+                      <h5>{file.name}</h5>
                     </div>
-
-                    <button
-                      className={styles.deleteBtn}
-                      onClick={() => removeFile(index)}
-                    >
-                      <MdDeleteForever />
-                    </button>
+                    <div className={styles.file_footer}>
+                      <span className={styles.file_size}>
+                        {formatFileSize(file.size)}{" "}
+                      </span>
+                      <span
+                        className={styles.delete_file_btn}
+                        onClick={() => removeFile(index)}
+                      >
+                        <MdDeleteForever />
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
 
-            <div className={styles.progressBg}>
+            {/* <div className={styles.progressBg}>
               <div
                 className={styles.progress}
                 style={{ width: `${progress}%` }}
               ></div>
-            </div>
-
-            {/* Button: Thực hiện việc gửi file lên Cloudinary */}
+            </div> */}
           </div>
-          <button className={styles.uploadBtn} onClick={handleUpload}>
-            {uploadStatus === "done" ? "Xoá tất cả" : "Tải lên"}
-          </button>
-        </>
+          {/* Button: Thực hiện việc gửi file lên Cloudinary */}
+          <span className={styles.upload_btn} onClick={handleUpload}>
+            {uploadStatus === "done" ? (
+              <span>Xoá tất cả</span>
+            ) : (
+              <span>Tải lên ({selectedFile.length}/5)</span>
+            )}
+            <FaCloudUploadAlt />
+          </span>
+        </div>
       )}
     </div>
   );
