@@ -1,21 +1,15 @@
-.task_container {
+/* .task_container {
   width: 40vw;
   position: absolute;
   left: 20px;
   bottom: 20px;
   border-radius: 10px;
   padding: 10px;
-  transition: height 1s ease-in-out, opacity 1s ease-in-out;
-  opacity: 1;
   color: white;
-  background-color: rgba(
-    255,
-    255,
-    255,
-    0.1
-  ); /* Màu nền trong suốt (tuỳ chỉnh opacity) */
+  background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
-}
+  transition: all 0.4s ease-in-out;
+} */
 
 .task_container .task_header {
   display: flex;
@@ -25,6 +19,7 @@
 
 .task_content {
   padding: 10px;
+  animation: fadeOn 1s ease;
 }
 
 .task_save {
