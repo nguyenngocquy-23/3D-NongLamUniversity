@@ -10,7 +10,12 @@ const PageNotFound = () => {
       <p className={styles.description}>
         Có vẻ như bạn đã nhập sai địa chỉ hoặc trang này không còn tồn tại.
       </p>
-      <button onClick={()=>{navigate(-1)}} className={styles.homeButton}>
+      <button
+        onClick={() => {
+          navigate("/login");
+        }}
+        className={styles.homeButton}
+      >
         Quay lại
       </button>
     </div>
