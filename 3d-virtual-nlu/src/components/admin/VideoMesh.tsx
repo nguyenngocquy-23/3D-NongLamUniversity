@@ -1,17 +1,23 @@
 import { useState, useRef, useEffect } from "react";
-import * as THREE from 'three';
+import * as THREE from "three";
+import OptionHotspot from "./taskCreateTourList/OptionHotspot";
+import { HotspotMedia } from "../../redux/slices/HotspotSlice";
 
 interface VideoMeshProps {
-  cornerPoints: any[];
-  currentVideoUrl: string;
+  hotspotMedia: HotspotMedia;
+  setCurrentHotspotId: (val: string | null) => void;
 }
-
 const VideoMeshComponent = ({
-  cornerPoints,
-  currentVideoUrl,
+  hotspotMedia,
+  setCurrentHotspotId,
 }: VideoMeshProps) => {
-  const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
-  //tính trung điểm của 4 góc
+  const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
+  // const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
+  const [texture, setTexture] = useState<
+    THREE.VideoTexture | THREE.Texture | null
+  >(null);
+  const [mesh, setMesh] = useState<THREE.Mesh | null>(null);
+
   const getCenterOfPoints = (points: [number, number, number][]) => {
     const center = [0, 0, 0];
     for (let i = 0; i < 4; i++) {
@@ -23,6 +29,7 @@ const VideoMeshComponent = ({
   };
 
   const createCustomGeometry = (points: [number, number, number][]) => {
+    console.log("createCustomGeometry called");
     const geometry = new THREE.BufferGeometry();
     const center = getCenterOfPoints(points);
 
@@ -48,23 +55,33 @@ const VideoMeshComponent = ({
     geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
     geometry.setIndex(new THREE.BufferAttribute(indices, 1));
 
-    // gắn center lại để dùng bên ngoài nếu cần
     geometry.userData.center = center;
 
+    console.log("createCustomGeometry finished");
     return geometry;
   };
+
   const textureCreatedRef = useRef(false);
+  const [cornerPointes, setCornerPointes] = useState(
+    JSON.parse(hotspotMedia.cornerPointListJson) as [number, number, number][]
+  );
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    if (cornerPoints.length === 4 && currentVideoUrl) {
+    if (
+      cornerPointes.length === 4 &&
+      hotspotMedia.mediaUrl &&
+      hotspotMedia.mediaType == "VIDEO"
+    ) {
       const video = document.createElement("video");
-      video.src = currentVideoUrl;
+      video.src = hotspotMedia.mediaUrl;
       video.crossOrigin = "anonymous";
       video.muted = false;
       video.playsInline = true;
       video.loop = true;
       video.autoplay = true;
       video.style.display = "none";
+      video.style.pointerEvents = "none";
       document.body.appendChild(video);
 
       const handleCanPlay = () => {
@@ -73,7 +90,7 @@ const VideoMeshComponent = ({
         const tex = new THREE.VideoTexture(video);
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
-        tex.format = THREE.RGBFormat;
+        tex.colorSpace = "srgb";
         tex.image.width = video.videoWidth;
         tex.image.height = video.videoHeight;
         tex.needsUpdate = true;
@@ -81,7 +98,11 @@ const VideoMeshComponent = ({
         setTexture(tex);
         textureCreatedRef.current = true;
 
-        video.play().catch((err) => console.warn("Video play error:", err));
+        if (!isPaused) {
+          video.play().catch((err) => console.warn("Video play error:", err));
+        } else {
+          video.pause();
+        }
       };
 
       video.addEventListener("canplaythrough", handleCanPlay);
@@ -94,22 +115,117 @@ const VideoMeshComponent = ({
         video.remove();
         texture?.dispose();
         setTexture(null);
-        textureCreatedRef.current = false; // reset lại cho lần sau
+        textureCreatedRef.current = false;
+      };
+    } else {
+      const image = new Image();
+      image.crossOrigin = "anonymous";
+
+      let isCancelled = false;
+
+      const onLoad = () => {
+        if (textureCreatedRef.current || isCancelled) return;
+        if (image.naturalWidth === 0 || image.naturalHeight === 0) {
+          console.warn("Image failed to load");
+          return;
+        }
+        const tex = new THREE.Texture(image);
+        tex.colorSpace = "srgb";
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        tex.needsUpdate = true;
+
+        setTexture(tex);
+        textureCreatedRef.current = true;
+      };
+
+      image.addEventListener("load", onLoad);
+      image.src = hotspotMedia.mediaUrl;
+
+      return () => {
+        isCancelled = true;
+        image.removeEventListener("load", onLoad);
+        texture?.dispose();
+        setTexture(null);
+        textureCreatedRef.current = false;
       };
     }
-  }, [currentVideoUrl, cornerPoints]);
+  }, [hotspotMedia, cornerPointes, isPaused]);
 
-  if (cornerPoints.length > 4) return null;
+  if (cornerPointes.length > 4) return null;
 
-  const geometry = createCustomGeometry(cornerPoints);
-  const center = geometry.userData.center;
+  useEffect(() => {
+    if (cornerPointes.length !== 4) return;
 
-  const mesh = new THREE.Mesh(
-    geometry,
-    new THREE.MeshStandardMaterial({ map: texture, side: THREE.DoubleSide })
+    const geometry = createCustomGeometry(cornerPointes);
+    geometry.computeBoundingBox();
+    geometry.computeBoundingSphere();
+    const center = getCenterOfPoints(cornerPointes);
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture || null, // ban đầu có thể là null
+      color: texture ? 0xffffff : 0x888888, // Nếu chưa có texture, dùng màu xám
+      side: THREE.DoubleSide,
+    });
+
+    const newMesh = new THREE.Mesh(geometry, material);
+    newMesh.position.set(...center);
+    setMesh(newMesh);
+  }, [cornerPointes, texture, hotspotMedia]); // chỉ chạy 1 lần khi tạo, không phụ thuộc texture
+
+  useEffect(() => {
+    return () => {
+      mesh?.geometry.dispose();
+      if (Array.isArray(mesh?.material)) {
+        mesh.material.forEach((m) => m.dispose());
+      } else {
+        mesh?.material.dispose();
+      }
+    };
+  }, [mesh]);
+
+  return (
+    <>
+      {mesh && (
+        <primitive
+          key={hotspotMedia.id + (texture?.uuid || "")}
+          object={mesh}
+          castShadow
+          receiveShadow
+          visible={true}
+          // onPointerDown={() => setIsPaused((prev) => !prev)}
+          onPointerDown={(e: any) => {
+            if (e.button !== 2) {
+              setIsPaused((prev) => !prev);
+            }
+          }}
+          onContextMenu={(e: any) => {
+            e.stopPropagation();
+            if (e.nativeEvent?.preventDefault) {
+              e.nativeEvent.preventDefault(); // ✅ dùng đúng kiểu
+            }
+            setIsOpenHotspotOption(true);
+          }}
+        />
+      )}
+      {isOpenHotspotOption ? (
+        <OptionHotspot
+          hotspotId={hotspotMedia.id}
+          setCurrentHotspotId={setCurrentHotspotId}
+          onClose={() => {
+            setIsOpenHotspotOption(false);
+          }}
+          position={[
+            hotspotMedia.positionX,
+            hotspotMedia.positionY,
+            hotspotMedia.positionZ,
+          ]}
+        />
+      ) : (
+        ""
+      )}
+    </>
   );
-
-  return <primitive object={mesh} position={center} />;
 };
 
 export default VideoMeshComponent;

@@ -2,19 +2,8 @@ import { Html } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../../styles/optionHotspot.module.css";
+import { removeHotspot } from "../../../redux/slices/HotspotSlice";
 import { RootState } from "../../../redux/Store";
-import {
-  BaseHotspot,
-  HotspotNavigation,
-} from "../../../redux/slices/HotspotSlice";
-
-// interface PanoramaSelectProps {
-//   hotspotId: string;
-//   setCurrentHotspotId: (val: string | null) => void;
-//   position: [number, number, number];
-//   onClose?: () => void;
-//   onEdit?: () => void; // optional: gọi nếu muốn mở modal sửa chẳng hạn
-// }
 
 const OptionHotspot = ({
   hotspotId,
@@ -43,15 +32,14 @@ const OptionHotspot = ({
     };
   }, [onClose]);
 
-  //   const handleDelete = () => {
-  //     if (confirm("Bạn có chắc muốn xóa hotspot này không?")) {
-  //       dispatch(deleteHotspot(idHotspot));
-  //       onClose(); // đóng menu
-  //     }
-  //   };
+  const handleDelete = () => {
+    if (confirm("Bạn có chắc muốn xóa hotspot này không?")) {
+      dispatch(removeHotspot({ hotspotId }));
+      onClose();
+    }
+  };
 
   const handleEdit = () => {
-    console.log("hotspotId...", hotspotId);
     setCurrentHotspotId(hotspotId);
     onClose();
   };
@@ -63,7 +51,7 @@ const OptionHotspot = ({
   return (
     <Html
       position={position}
-      distanceFactor={50}
+      distanceFactor={100}
       transform={false}
       occlude={false}
     >
@@ -76,7 +64,10 @@ const OptionHotspot = ({
         >
           ✏️ Cập nhật
         </div>
-        <div className={styles.remove_option}>🗑️ Xóa</div>
+
+        <div className={styles.remove_option} onClick={handleDelete}>
+          🗑️ Xóa
+        </div>
       </div>
     </Html>
   );

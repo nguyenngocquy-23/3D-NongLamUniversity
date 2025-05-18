@@ -11,6 +11,7 @@ import TypeMedia, {
   HotspotMediaCreateRequest,
 } from "./HotspotMedia";
 import ConfigIcon from "../ConfigIcon";
+import ConfigMedia from "../ConfigMedia";
 
 interface Task3Props {
   assignable: boolean;
@@ -66,12 +67,12 @@ const Task3 = ({
           ))}
         </select>
       </div>
-      <ConfigIcon
-        onPropsChange={onPropsChange}
-        currentHotspotType={openTypeIndex}
-      />
       {[1, 2, 4].includes(openTypeIndex) ? (
         <>
+          <ConfigIcon
+            onPropsChange={onPropsChange}
+            currentHotspotType={openTypeIndex}
+          />
           <label className={styles.label}>Chọn vị trí điểm:</label>
           <button
             onClick={() => {
@@ -83,7 +84,17 @@ const Task3 = ({
           </button>
         </>
       ) : (
-        ""
+        /**
+         * Xem xét có thể gộp chung với TypeMedia.tsx
+         * tách để dễ phan biệt và giảm xử lý
+         */
+        <ConfigMedia
+          setAssignable={setAssignable}
+          setCurrentPoints={setCurrentPoints}
+          onPropsChange={onPropsChange}
+          currentHotspotType={openTypeIndex}
+          setCurrentHotspotType={setCurrentHotspotType}
+        />
       )}
       {/* <TypeNavigation
         isOpenTypeNavigation={openTypeIndex == 1}

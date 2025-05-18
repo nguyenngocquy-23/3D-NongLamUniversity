@@ -57,6 +57,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
   /**
    * Danh sách ảnh (nhiều ảnh) tối đa là 5.
    */
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 

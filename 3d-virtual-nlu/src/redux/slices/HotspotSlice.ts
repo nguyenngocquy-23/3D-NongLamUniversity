@@ -164,6 +164,82 @@ const hotspotSlice = createSlice({
         };
       }
     },
+
+    updateHotspotInfomation: (
+      state,
+      action: PayloadAction<{
+        hotspotId: string;
+        title: string;
+        content: string;
+      }>
+    ) => {
+      const index = state.hotspotList.findIndex(
+        (h) => h.id === action.payload.hotspotId
+      );
+      if (index !== -1) {
+        const hotspot = state.hotspotList[index];
+        if (hotspot.type === 2) {
+          (hotspot as HotspotInformation).title = action.payload.title;
+          (hotspot as HotspotInformation).content = action.payload.content;
+        }
+      }
+    },
+
+    updateHotspotModel: (
+      state,
+      action: PayloadAction<{
+        hotspotId: string;
+        modelUrl: string;
+        name: string;
+        description: string;
+      }>
+    ) => {
+      const index = state.hotspotList.findIndex(
+        (h) => h.id === action.payload.hotspotId
+      );
+      if (index !== -1) {
+        const hotspot = state.hotspotList[index];
+        if (hotspot.type === 4) {
+          (hotspot as HotspotModel).modelUrl = action.payload.modelUrl;
+          (hotspot as HotspotModel).name = action.payload.name;
+          (hotspot as HotspotModel).description = action.payload.description;
+        }
+      }
+    },
+
+    updateHotspotMedia: (
+      state,
+      action: PayloadAction<{
+        hotspotId: string;
+        mediaUrl: string;
+        mediaType: string;
+        caption: string;
+      }>
+    ) => {
+      const index = state.hotspotList.findIndex(
+        (h) => h.id === action.payload.hotspotId
+      );
+      if (index !== -1) {
+        const hotspot = state.hotspotList[index];
+        if (hotspot.type === 3) {
+          (hotspot as HotspotMedia).mediaUrl = action.payload.mediaUrl;
+          (hotspot as HotspotMedia).mediaType = action.payload.mediaType;
+          (hotspot as HotspotMedia).caption = action.payload.caption;
+        }
+      }
+    },
+
+    removeHotspot: (state, action: PayloadAction<{ hotspotId: string }>) => {
+      console.log("hotspotId..", action.payload.hotspotId);
+      const index = state.hotspotList.findIndex(
+        (h) => h.id === action.payload.hotspotId
+      );
+      if (index !== -1) {
+        state.hotspotList = state.hotspotList.filter(
+          (h) => h.id !== action.payload.hotspotId
+        );
+      }
+    },
   },
 });
 
@@ -178,6 +254,10 @@ export const {
   updateIconId,
   updateNavigationHotspotTarget,
   updateConfigHotspot,
+  updateHotspotInfomation,
+  updateHotspotModel,
+  updateHotspotMedia,
+  removeHotspot,
 } = hotspotSlice.actions;
 export default hotspotSlice.reducer;
 

@@ -1,0 +1,41 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  width: 400px;
+  max-height: 250px;
+  color: black;
+  transform: scaleX(-1)
+}
+
+.leftPane {
+  width: 150px;
+  height: 150px;
+}
+
+.rightPane {
+  margin-left: 16px;
+  flex: 1;
+}
+
+.title {
+    color: black;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.description {
+    color: black;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+.centerPane{
+  margin: auto;
+  text-align: center;
+  max-height: 200px;
+  overflow-y: auto;
+}

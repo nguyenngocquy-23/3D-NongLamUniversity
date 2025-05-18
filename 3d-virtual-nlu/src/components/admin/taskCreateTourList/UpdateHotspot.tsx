@@ -6,9 +6,11 @@ import { RootState } from "../../../redux/Store";
 import TypeNavigation from "./HotspotNavigation";
 import { BaseHotspot, HotspotType } from "../../../redux/slices/HotspotSlice";
 import TypeInfomation from "./HotspotInformation";
-import TypeModel, { HotspotModelCreateRequest } from "./HotspotModel";
 import ConfigIcon from "../ConfigIcon";
 import { FaAngleLeft, FaRightLeft } from "react-icons/fa6";
+import ConfigMedia from "../ConfigMedia";
+import TypeMedia from "./HotspotMedia";
+import TypeModel from "./HotspotModel";
 
 interface UpdateHotspotProps {
   hotspotId: string | null;
@@ -40,52 +42,41 @@ const UpdateHotspot = ({
           />
         </div>
         <div className={styles.task3}>
-          <ConfigIcon
-            propHotspot={propHotspot}
-            isUpdate={isUpdate}
-            onPropsChange={onPropsChange}
-            currentHotspotType={currentType ?? null}
-          />
-
-          {/* <TypeNavigation
-        isOpenTypeNavigation={openTypeIndex == 1}
-        setAssignable={setAssignable}
-        setCurrentHotspotType={setCurrentHotspotType}
-      />
-      <TypeInfomation
-        isOpenTypeInfomation={openTypeIndex == 2}
-        setAssignable={setAssignable}
-        setCurrentHotspotType={setCurrentHotspotType}
-      />
-      <TypeMedia
-        isOpenTypeMedia={openTypeIndex == 3}
-        currentPoints={currentPoints}
-        setCurrentPoints={setCurrentPoints}
-        chooseCornerMediaPoint={chooseCornerMediaPoint}
-        setChooseCornerMediaPoint={setChooseCornerMediaPoint}
-        setAssignable={setAssignable}
-        setCurrentHotspotType={setCurrentHotspotType}
-      /> */}
-          {/* 
-        Dựa vào hotspot type mà hiển thị loại.
-      
-      
-      */}
-          {(() => {
-            switch (currentType) {
-              case 1:
-                return <TypeNavigation hotspotId={hotspotId} />;
-              case 2:
-              // return <TypeInfomation />;
-              case 3:
-                // return <TypeMedia />; // Uncomment and import TypeMedia if needed
-                return null;
-              case 4:
-                return <TypeModel />;
-              default:
-                return null;
-            }
-          })()}
+          {currentType != 3 ? (
+            <>
+              <ConfigIcon
+                propHotspot={propHotspot}
+                isUpdate={isUpdate}
+                onPropsChange={onPropsChange}
+                currentHotspotType={currentType ?? null}
+              />
+              {(() => {
+                switch (currentType) {
+                  case 1:
+                  // <TypeNavigation
+                  //   isOpenTypeNavigation={openTypeIndex == 1}
+                  //   setAssignable={setAssignable}
+                  //   setCurrentHotspotType={setCurrentHotspotType}
+                  // />;
+                  case 2:
+                    return <TypeInfomation hotspotInfo={propHotspot} />;
+                  case 4:
+                    return <TypeModel hotspotModel={propHotspot} />;
+                  default:
+                    return null;
+                }
+              })()}
+            </>
+          ) : (
+            <>
+              {/* <ConfigMedia
+                setAssignable={() => {false}}
+                onPropsChange={onPropsChange}
+                setCurrentHotspotType={() => currentType ?? null}
+              /> */}
+              <TypeMedia hotspotMedia={propHotspot} />
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -22,9 +22,10 @@ public class HotspotService {
         return hotspotDao.insertHotspotNavigation(reqs, nodeId);
     }
 
-    //    public boolean insertInfomation(List<HotspotInfoCreateRequest> reqs) {
-//        return hotspotDao.insert(reqs);
-//    }
+    public boolean insertInfomation(List<HotspotInfoCreateRequest> reqs, String nodeId) {
+        return hotspotDao.insertHotspotInformation(reqs, nodeId);
+    }
+
     public boolean insertMedia(List<HotspotMediaCreateRequest> reqs, String nodeId) {
         return hotspotDao.insertHotspotMedia(reqs, nodeId);
     }
