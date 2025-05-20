@@ -11,13 +11,7 @@ import { IoIosCloseCircle } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
-import {
-  HotspotMediaCreateRequest,
-  HotspotModelCreateRequest,
-} from "../../components/admin/taskCreateTourList/Task3AddHotspot.tsx";
 import axios from "axios";
-import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
-import { VideoMeshProps } from "../admin/CreateTourStep2.tsx";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -52,14 +46,6 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
     0, 0, 0,
   ]);
 
-  const [hotspotModels, setHotspotModels] = useState<
-    HotspotModelCreateRequest[]
-  >([]);
-
-  const [hotspotMedias, setHotspotMedias] = useState<
-    HotspotMediaCreateRequest[]
-  >([]);
-
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
   >(null); //test
@@ -89,41 +75,11 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Hàm gọi API
-  const fetchHotspotModels = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/api/v1/admin/hotspot/getHotspotModel",
-        {
-          nodeId: 1, // Thay bằng nodeId bạn cần
-        }
-      );
-      setHotspotModels(response.data.data); // Giả sử API trả về { data: [...] }
-    } catch (error) {
-      console.error("Lỗi khi lấy hotspot:", error);
-    }
-  };
-
-  const fetchHotspotMedias = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/api/v1/admin/hotspot/getHotspotMedia",
-        {
-          nodeId: 1, // Thay bằng nodeId bạn cần
-        }
-      );
-      console.log("response media::", response.data.data);
-      setHotspotMedias(response.data.data);
-    } catch (error) {
-      console.error("Lỗi khi lấy hotspot:", error);
-    }
-  };
-
   // Gọi API khi component mount
-  useEffect(() => {
-    fetchHotspotModels();
-    fetchHotspotMedias();
-  }, []);
+  // useEffect(() => {
+  //   fetchHotspotModels();
+  //   fetchHotspotMedias();
+  // }, []);
 
   const radius = 100;
   const handledSwitchTexture = (newPosition: [number, number, number]) => {
@@ -272,106 +228,106 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
     readText();
   }, [isAnimation, isMuted]);
 
-  const VideoMeshComponent = ({
-    response,
-  }: {
-    response: HotspotMediaCreateRequest;
-  }) => {
-    const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
+  // const VideoMeshComponent = ({
+  //   response,
+  // }: {
+  //   response: HotspotMediaCreateRequest;
+  // }) => {
+  //   const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
 
-    const createCustomGeometry = (points: [number, number, number][]) => {
-      console.log("points...", points);
-      const geometry = new THREE.BufferGeometry();
-      const center = [
-        response.positionX,
-        response.positionY,
-        response.positionZ,
-      ];
-      // const center = getCenterOfPoints(points);
+  //   const createCustomGeometry = (points: [number, number, number][]) => {
+  //     console.log("points...", points);
+  //     const geometry = new THREE.BufferGeometry();
+  //     const center = [
+  //       response.positionX,
+  //       response.positionY,
+  //       response.positionZ,
+  //     ];
+  //     // const center = getCenterOfPoints(points);
 
-      const vertices = new Float32Array([
-        points[0][0] - center[0],
-        points[0][1] - center[1],
-        points[0][2] - center[2],
-        points[1][0] - center[0],
-        points[1][1] - center[1],
-        points[1][2] - center[2],
-        points[2][0] - center[0],
-        points[2][1] - center[1],
-        points[2][2] - center[2],
-        points[3][0] - center[0],
-        points[3][1] - center[1],
-        points[3][2] - center[2],
-      ]);
+  //     const vertices = new Float32Array([
+  //       points[0][0] - center[0],
+  //       points[0][1] - center[1],
+  //       points[0][2] - center[2],
+  //       points[1][0] - center[0],
+  //       points[1][1] - center[1],
+  //       points[1][2] - center[2],
+  //       points[2][0] - center[0],
+  //       points[2][1] - center[1],
+  //       points[2][2] - center[2],
+  //       points[3][0] - center[0],
+  //       points[3][1] - center[1],
+  //       points[3][2] - center[2],
+  //     ]);
 
-      const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
-      const uvs = new Float32Array([0, 1, 1, 1, 1, 0, 0, 0]);
+  //     const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
+  //     const uvs = new Float32Array([0, 1, 1, 1, 1, 0, 0, 0]);
 
-      geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
-      geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
-      geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+  //     geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+  //     geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
+  //     geometry.setIndex(new THREE.BufferAttribute(indices, 1));
 
-      // gắn center lại để dùng bên ngoài nếu cần
-      geometry.userData.center = center;
+  //     // gắn center lại để dùng bên ngoài nếu cần
+  //     geometry.userData.center = center;
 
-      return geometry;
-    };
-    const textureCreatedRef = useRef(false);
+  //     return geometry;
+  //   };
+  //   const textureCreatedRef = useRef(false);
 
-    useEffect(() => {
-      const video = document.createElement("video");
-      video.src = response.mediaUrl;
-      video.crossOrigin = "anonymous";
-      video.muted = true; // nên bật muted để autoplay không bị block
-      video.playsInline = true;
-      video.loop = true;
-      video.autoplay = true;
-      video.style.display = "none";
-      document.body.appendChild(video);
+  //   useEffect(() => {
+  //     const video = document.createElement("video");
+  //     video.src = response.mediaUrl;
+  //     video.crossOrigin = "anonymous";
+  //     video.muted = true; // nên bật muted để autoplay không bị block
+  //     video.playsInline = true;
+  //     video.loop = true;
+  //     video.autoplay = true;
+  //     video.style.display = "none";
+  //     document.body.appendChild(video);
 
-      const handleCanPlay = () => {
-        if (textureCreatedRef.current) return;
+  //     const handleCanPlay = () => {
+  //       if (textureCreatedRef.current) return;
 
-        const tex = new THREE.VideoTexture(video);
-        tex.minFilter = THREE.LinearFilter;
-        tex.magFilter = THREE.LinearFilter;
-        tex.format = THREE.RGBFormat;
-        tex.needsUpdate = true;
+  //       const tex = new THREE.VideoTexture(video);
+  //       tex.minFilter = THREE.LinearFilter;
+  //       tex.magFilter = THREE.LinearFilter;
+  //       tex.format = THREE.RGBFormat;
+  //       tex.needsUpdate = true;
 
-        setTexture(tex);
-        textureCreatedRef.current = true;
-        video.play();
-      };
+  //       setTexture(tex);
+  //       textureCreatedRef.current = true;
+  //       video.play();
+  //     };
 
-      video.addEventListener("canplaythrough", handleCanPlay);
-      video.load();
+  //     video.addEventListener("canplaythrough", handleCanPlay);
+  //     video.load();
 
-      return () => {
-        video.removeEventListener("canplaythrough", handleCanPlay);
-        video.pause();
-        video.src = "";
-        video.remove();
-        texture?.dispose();
-        setTexture(null);
-        textureCreatedRef.current = false;
-      };
-    }, []);
+  //     return () => {
+  //       video.removeEventListener("canplaythrough", handleCanPlay);
+  //       video.pause();
+  //       video.src = "";
+  //       video.remove();
+  //       texture?.dispose();
+  //       setTexture(null);
+  //       textureCreatedRef.current = false;
+  //     };
+  //   }, []);
 
-    const cornerPoints = JSON.parse(response.cornerPointList) as [
-      number,
-      number,
-      number
-    ][];
-    const geometry = createCustomGeometry(cornerPoints);
-    const center = geometry.userData.center;
+  //   const cornerPoints = JSON.parse(response.cornerPointList) as [
+  //     number,
+  //     number,
+  //     number
+  //   ][];
+  //   const geometry = createCustomGeometry(cornerPoints);
+  //   const center = geometry.userData.center;
 
-    const mesh = new THREE.Mesh(
-      geometry,
-      new THREE.MeshStandardMaterial({ map: texture, side: THREE.DoubleSide })
-    );
+  //   const mesh = new THREE.Mesh(
+  //     geometry,
+  //     new THREE.MeshStandardMaterial({ map: texture, side: THREE.DoubleSide })
+  //   );
 
-    return <primitive object={mesh} position={center} />;
-  };
+  //   return <primitive object={mesh} position={center} />;
+  // };
 
   return (
     <div className={styles.tourContainer}>
@@ -417,9 +373,9 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
             modelUrl={hotspot.modelUrl}
           />
         ))} */}
-        {hotspotMedias.map((point, index) => (
+        {/* {hotspotMedias.map((point, index) => (
           <VideoMeshComponent key={index} response={point} />
-        ))}
+        ))} */}
       </Canvas>
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>

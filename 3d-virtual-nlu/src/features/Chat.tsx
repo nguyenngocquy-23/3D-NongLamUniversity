@@ -22,6 +22,9 @@ const Chat = () => {
   const [isFillInput, setIsFillInput] = useState(false);
   const [isSelectOption, setIsSelectOption] = useState(0);
 
+  // cờ để kiểm tra có load tin nhắn cũ không, nếu không thì sẽ nhận tin nhắn mới khi nhắn và scroll dưới cùng
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
   useEffect(() => {
     if (!user) return;
 
@@ -54,23 +57,51 @@ const Chat = () => {
       ws.close();
     };
   }, []);
-  // }, [roomId, userId]);
 
-  const loadMessages = async (newPage: number) => {
-    const response = await axios.get(
-      `http://localhost:8080/api/chat/messages?roomId=1&page=${newPage}&limit=5`
-    );
-    const data = response.data;
-    console.log("data", data);
-    setMessages((prev) => [...data.reverse(), ...prev]); // Thêm vào đầu danh sách
-    setPage(newPage);
-  };
+  const scrollPositionRef = useRef<number>(0);
 
   const handleScroll = () => {
-    if (messagesRef.current?.scrollTop === 0) {
+    const container = messagesRef.current;
+    console.log("scroll nè");
+    if (container && container.scrollTop === 0) {
+      console.log("top nè");
+      scrollPositionRef.current = container.scrollHeight;
       loadMessages(page + 1);
     }
   };
+
+  const loadMessages = async (newPage: number) => {
+    const container = messagesRef.current;
+    if (!container) return;
+
+    const prevScrollHeight = container.scrollHeight;
+    setIsLoadingMore(true); // -> Đánh dấu là đang load thêm ở trên
+    const response = await axios.get(
+      `http://localhost:8080/api/chat/messages?roomId=1&page=${newPage}&limit=6`
+    );
+    const data = response.data;
+
+    setMessages((prev) => {
+      return [...data.reverse(), ...prev]; // prepend
+    });
+    setPage(newPage);
+
+    // Đợi render xong rồi giữ nguyên scroll
+    setTimeout(() => {
+      if (messagesRef.current) {
+        const newScrollHeight = messagesRef.current.scrollHeight;
+        const delta = newScrollHeight - prevScrollHeight;
+        messagesRef.current.scrollTop += delta; // giữ nguyên vị trí tin nhắn cũ
+      }
+      setIsLoadingMore(false); // Đặt sau scroll để tránh scrollBottom từ useEffect
+    }, 20);
+  };
+
+  // const handleScroll = () => {
+  //   if (messagesRef.current?.scrollTop === 0) {
+  //     loadMessages(page + 1);
+  //   }
+  // };
 
   const sendMessage = () => {
     console.log("socket", socket);
@@ -99,19 +130,18 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    if (messagesRef.current) {
-      // Scroll xuống dưới cùng
+    if (!messagesRef.current) return;
+
+    // Nếu không phải đang load thêm (tức là tin nhắn mới gửi hoặc nhận)
+    if (!isLoadingMore) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
-  }, [messages]);
+    // Nếu đang load tin nhắn cũ, ta đã xử lý scroll riêng rồi trong loadMessages()
+  }, [messages.length, isSelectOption]);
 
   return (
     <div className={styles.chat}>
-      <div
-        className={`${styles.chatBox} ${isOpenBox ? styles.openBox : ""}`}
-        onScroll={handleScroll}
-        ref={messagesRef}
-      >
+      <div className={`${styles.chatBox} ${isOpenBox ? styles.openBox : ""}`}>
         <div className={styles.decor1}></div>
         <div className={styles.decor2}></div>
         <div className={styles.option}>
@@ -136,11 +166,18 @@ const Chat = () => {
         </div>
         {isSelectOption == 0 ? (
           <>
-            <div className={styles.chatContent}>
+            <div
+              className={styles.chatContent}
+              onScroll={handleScroll}
+              ref={messagesRef}
+            >
               {messages.map((msg, index) => {
                 const isMine = msg.username === user?.username;
                 return (
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div
+                    key={index}
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
                     {!isMine && (
                       <div className={styles.otherAccount}>
                         <div className={styles.avatar}>
@@ -149,7 +186,6 @@ const Chat = () => {
                       </div>
                     )}
                     <div
-                      key={index}
                       className={`${styles.message} ${
                         isMine ? styles.myMessage : styles.otherMessage
                       }`}

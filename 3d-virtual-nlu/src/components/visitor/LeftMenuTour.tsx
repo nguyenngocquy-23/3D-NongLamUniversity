@@ -39,7 +39,7 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
           <FaSearch className={styles.searchBtn} />
         </div>
       </div>
-      <ul>
+      <ul className={styles.master_container}>
         {filteredNodes.map((node) => (
           <li
             key={node.id}
