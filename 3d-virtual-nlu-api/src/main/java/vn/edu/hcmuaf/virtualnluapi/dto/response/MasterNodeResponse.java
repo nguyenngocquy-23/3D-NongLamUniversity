@@ -13,5 +13,5 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class MasterNodeResponse {
     int id;
-    String spaceName, url;
+    String name, url;
 }
