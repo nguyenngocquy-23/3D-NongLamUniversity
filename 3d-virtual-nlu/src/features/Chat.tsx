@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
 import { FaMessage, FaXmark } from "react-icons/fa6";
 
-const Chat = () => {
+const Chat = ({ nodeId }: { nodeId: number }) => {
   // const { roomId, userId } = useParams(); // Lấy roomId & userId từ URL
   const user = useSelector((state: RootState) => state.auth.user);
   const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -77,7 +77,7 @@ const Chat = () => {
     const prevScrollHeight = container.scrollHeight;
     setIsLoadingMore(true); // -> Đánh dấu là đang load thêm ở trên
     const response = await axios.get(
-      `http://localhost:8080/api/chat/messages?roomId=1&page=${newPage}&limit=6`
+      `http://localhost:8080/api/chat/messages?nodeId=${nodeId}&page=${newPage}&limit=6`
     );
     const data = response.data;
 

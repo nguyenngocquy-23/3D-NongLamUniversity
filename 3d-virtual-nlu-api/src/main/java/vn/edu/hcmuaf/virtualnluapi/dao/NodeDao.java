@@ -66,4 +66,13 @@ public class NodeDao {
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(MasterNodeResponse.class).list());
     }
+
+    public MasterNodeResponse getDefaultNode() {
+        String sql = """
+                SELECT n.id, n.name, n.url
+                FROM nodes n
+                WHERE n.status = 1
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(MasterNodeResponse.class).one());
+    }
 }

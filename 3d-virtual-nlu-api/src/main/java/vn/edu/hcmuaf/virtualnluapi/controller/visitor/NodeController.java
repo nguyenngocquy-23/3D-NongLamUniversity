@@ -27,4 +27,12 @@ public class NodeController {
         List<MasterNodeResponse> result = nodeService.getAllMasterNodes();
         return ApiResponse.<List<MasterNodeResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
+
+    @POST
+    @Path("/default")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<MasterNodeResponse> getDefaultNode() {
+        MasterNodeResponse result = nodeService.getDefaultNode();
+        return ApiResponse.<MasterNodeResponse>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
+    }
 }

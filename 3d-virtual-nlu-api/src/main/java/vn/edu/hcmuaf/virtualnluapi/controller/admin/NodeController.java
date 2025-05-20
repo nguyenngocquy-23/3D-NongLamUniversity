@@ -80,11 +80,6 @@ public class NodeController {
         List<NodeFullResponse> result = nodeService.getAllNodes();
 
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
-
-
-
-
-
     }
 
     /**
