@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.NodeService;
 
 import java.util.List;
@@ -31,8 +32,8 @@ public class NodeController {
     @POST
     @Path("/default")
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<MasterNodeResponse> getDefaultNode() {
-        MasterNodeResponse result = nodeService.getDefaultNode();
-        return ApiResponse.<MasterNodeResponse>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
+    public ApiResponse<NodeFullResponse> getDefaultNode() {
+        NodeFullResponse result = nodeService.getDefaultNode();
+        return ApiResponse.<NodeFullResponse>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 }

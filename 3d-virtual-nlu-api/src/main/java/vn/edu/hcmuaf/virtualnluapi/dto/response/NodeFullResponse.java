@@ -19,14 +19,14 @@ import java.util.List;
 @NoArgsConstructor
 public class NodeFullResponse {
     int id;
-    int spaceId, userId;
+    int spaceId, fieldId, userId;
     String url, name, description;
     double positionX, positionY, positionZ;
     byte status, autoRotate;
     double speedRotate, lightIntensity;
     LocalDateTime updatedAt;
 //    List<HotspotMediaResponse> navHotspots;
-    List<HotspotInfoCreateRequest> infoHotspots;
+//    List<HotspotInfoCreateRequest> infoHotspots;
     List<HotspotMediaResponse>  mediaHotspots;
     List<HotspotModelResponse> modelHotspots;
 }
