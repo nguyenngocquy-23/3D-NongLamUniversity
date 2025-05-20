@@ -26,7 +26,7 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const filteredNodes = listMasterNode.filter((node) =>
-    node.spaceName.toLowerCase().includes(searchTerm.toLowerCase())
+    node.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -48,7 +48,7 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
               backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${node.url})`,
             }}
           >
-            <span className={styles.nodeName}>{node.spaceName}</span>
+            <span className={styles.nodeName}>{node.name}</span>
           </li>
         ))}
       </ul>

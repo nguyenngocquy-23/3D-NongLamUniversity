@@ -60,9 +60,8 @@ public class NodeDao {
 
     public List<MasterNodeResponse> getAllMasterNodes() {
         String sql = """
-                SELECT n.id, s.name as spaceName, n.url
+                SELECT n.id, n.name, n.url
                 FROM nodes n
-                JOIN spaces s ON n.spaceId = s.id
                 WHERE n.status = 2
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(MasterNodeResponse.class).list());
