@@ -2,22 +2,30 @@
   transition: height 1s ease-in-out, opacity 1s ease-in-out;
 }
 
-.select_header {
-  display: flex;
-  position: relative;
-  /* 
-  width: fit-content;
-  cursor: pointer;
-  transition: 300ms;
-  color: white;
-  overflow: hidden; */
-}
-
-.select_header .select_type {
+.select_type {
   position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 20px;
+  top: 5%;
+
+  appearance: none;
+  /* ẩn mũi tên mặc định */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+
+  width: 150px;
+  padding: 5px 20px;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 15px;
+  outline: none;
+
+  background-image: url("/down.svg");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
 }
 
 .type_navigation,
@@ -29,8 +37,10 @@
   border-radius: 10px;
   opacity: 1;
   padding: 0 10px;
-  overflow: hidden; /* Ngăn nội dung tràn ra */
-  pointer-events: none; /* Vô hiệu tương tác */
+  overflow: hidden;
+  /* Ngăn nội dung tràn ra */
+  pointer-events: none;
+  /* Vô hiệu tương tác */
   transition: height 1s ease-in-out, opacity 1s ease-in-out;
   pointer-events: auto;
 }
@@ -78,6 +88,7 @@
   background-color: rgba(0, 0, 0, 0.5);
   position: relative;
 }
+
 .open_type_media {
   height: 300px;
 }
@@ -85,4 +96,8 @@
 .link {
   text-decoration: none;
   color: #fff;
+}
+
+.chooseMediaType {
+  width: 100%;
 }

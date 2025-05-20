@@ -51,7 +51,14 @@ const ListIcon = ({
         </div>
         <div className={styles.icons_container}>
           {searchData.map((icon, index) => (
-            <div key={index} className={styles.icon_container} onClick={()=> {setIconId(icon.id)}}>
+            <div
+              key={index}
+              className={styles.icon_container}
+              onClick={() => {
+                setIconId(icon.id);
+                setOpen(false);
+              }}
+            >
               <div
                 className={styles.icon_image}
                 style={{ backgroundImage: `url(${icon.url})` }}

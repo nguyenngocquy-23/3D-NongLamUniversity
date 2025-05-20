@@ -1,39 +1,58 @@
-import { HotspotType } from "../../../redux/slices/HotspotSlice";
+import {
+  HotspotType,
+  updateHotspotModel,
+} from "../../../redux/slices/HotspotSlice";
 import UploadFile from "../UploadFile";
 import styles from "../../../styles/tasklistCT/task3.module.css";
+import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
 
 interface TypeModelProps {
   isOpenTypeModel?: boolean;
   assignable?: boolean;
   setAssignable?: (value: boolean) => void;
-  hotspotModels?: HotspotModelCreateRequest[];
+  hotspotModel: any;
   // setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
   setCurrentHotspotType?: (value: HotspotType) => void;
-}
-
-export interface HotspotModelCreateRequest {
-  type: number;
-  iconId: number;
-  positionX: number;
-  positionY: number;
-  positionZ: number;
-  pitchX: number;
-  yawY: number;
-  rollZ: number;
-  scale: number;
-  modelUrl: string;
-  name: string;
-  description: string;
 }
 
 // Component cho Task5
 const TypeModel = ({
   isOpenTypeModel,
   setAssignable,
-  hotspotModels,
+  hotspotModel,
   // setHotspotModels,
   setCurrentHotspotType,
 }: TypeModelProps) => {
+  const [modelUrl, setModelUrl] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    setModelUrl(hotspotModel.modelUrl);
+    setName(hotspotModel.name);
+    setDescription(hotspotModel.description);
+  }, [hotspotModel])
+
+  const handleUpdateModel = () => {
+    dispatch(
+      updateHotspotModel({
+        hotspotId: hotspotModel.id,
+        modelUrl,
+        name,
+        description,
+        // positionX: hotspotModel.positionX,
+        // positionY: hotspotModel.positionY,
+        // positionZ: hotspotModel.positionZ,
+      })
+    );
+  };
+
+  const handleUploadedFile = (url: string) => {
+    setModelUrl(url);
+  };
+
   return (
     <div
       className={`${styles.type_model} ${
@@ -41,66 +60,47 @@ const TypeModel = ({
       }`}
     >
       <div style={{ height: "75%", overflowY: "auto" }}>
-        {/* {hotspotModels.map((hpm, index) => (
-          <div key={index + 1}>
-            <div
-              style={{
-                display: "flex",
-              }}
-            >
-              <div
-                style={{
-                  backgroundColor: "white",
-                  color: "black",
-                  borderRadius: "50%",
-                  width: "30px",
-                  height: "30px",
-                  textAlign: "center",
-                }}
-              >
-                {index + 1}
-              </div>
-              <button
-                onClick={() => {
-                  const updated = hotspotModels.filter((_, i) => i !== index);
-                  // setHotspotModels(updated);
-                }}
-                style={{ color: "red", cursor: "pointer" }}
-                title="Xóa mô hình này"
-              >
-                Xoá
-              </button>
-            </div>
-            <p>
-              <span style={{ color: "pink" }}> {hpm.positionX} </span>
-              <span style={{ color: "yellow" }}> {hpm.positionY} </span>
-              <span style={{ color: "lightblue" }}> {hpm.positionZ} </span>
-            </p>
-            <div style={{ display: "flex" }}>
-              <label className={styles.label}>Tệp mô hình:</label>
-              <UploadFile
-                className="upload_model"
-                index={index}
-                // onUploaded={handleUploadedFile}
-              />
-            </div>
-          </div>
-        ))} */}
         <p>
-          {/* <span style={{ color: "pink" }}> {hpm.positionX} </span>
-              <span style={{ color: "yellow" }}> {hpm.positionY} </span>
-              <span style={{ color: "lightblue" }}> {hpm.positionZ} </span> */}
+          <span style={{ color: "pink" }}> {hotspotModel?.positionX} </span>
+          <span style={{ color: "yellow" }}> {hotspotModel?.positionY} </span>
+          <span style={{ color: "lightblue" }}>
+            {" "}
+            {hotspotModel?.positionZ}{" "}
+          </span>
         </p>
         <div style={{ display: "flex" }}>
           <label className={styles.label}>Tệp mô hình:</label>
           <UploadFile
             className="upload_model"
-            // index={index}
-            // onUploaded={handleUploadedFile}
+            hotspotId={hotspotModel?.id}
+            onUploaded={handleUploadedFile}
+          />
+        </div>
+        <div style={{ display: "flex" }}>
+          <label className={styles.label}>Tên mô hình:</label>
+          <input
+            type="text"
+            name=""
+            id=""
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+          />
+        </div>
+        <div style={{ display: "flex" }}>
+          <label className={styles.label}>Mô tả:</label>
+          <textarea
+            name=""
+            id=""
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value);
+            }}
           />
         </div>
       </div>
-      {/* <button onClick={() => handleUpModel()}>Thiết lập</button> */}
+      <button onClick={() => handleUpdateModel()}>Cập nhật</button>
     </div>
   );
 };

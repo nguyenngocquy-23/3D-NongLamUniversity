@@ -36,7 +36,7 @@ public class HotspotDao {
      *
      */
     public boolean insertHotspotNavigation(List<HotspotNavCreateRequest> req, String nodeId) {
-        String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale)";
+        String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity)";
         String sqlInsertNavigation = "INSERT INTO hotspot_navigations(hotspotId, targetNodeId) " + "VALUES(:hotspotId, :targetNodeId)";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
@@ -54,7 +54,11 @@ public class HotspotDao {
                         .bind("pitchX", navReq.getPitchX())
                         .bind("yawY", navReq.getYawY())
                         .bind("rollZ", navReq.getRollZ())
-                        .bind("scale", navReq.getScale()).add();
+                        .bind("scale", navReq.getScale())
+                        .bind("color", navReq.getColor())
+                        .bind("backgroundColor", navReq.getBackgroundColor())
+                        .bind("allowBackgroundColor", navReq.getAllowBackgroundColor())
+                        .bind("opacity", navReq.getOpacity()).add();
             }
 
             List<Integer> generateIds = hotspotBatch.executePreparedBatch().mapTo(Integer.class).list();
@@ -65,8 +69,8 @@ public class HotspotDao {
             PreparedBatch navigationBatch = handle.prepareBatch(sqlInsertNavigation);
             for (int i = 0; i < generateIds.size(); i++) {
                 navigationBatch
-                        .bind("hotspotId",generateIds.get(i))
-                        .bind("targetNodeId", Integer.valueOf( req.get(i).getTargetNodeId()))
+                        .bind("hotspotId", generateIds.get(i))
+                        .bind("targetNodeId", Integer.valueOf(req.get(i).getTargetNodeId()))
                         .add();
             }
             navigationBatch.execute();
@@ -76,15 +80,18 @@ public class HotspotDao {
 
 
     public boolean insertHotspotInformation(List<HotspotInfoCreateRequest> req, String nodeId) {
-        String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale)";
-        String sqlInsertNavigation = "INSERT INTO hotspot_infors(hotspotId, title, content) " + "VALUES(:hotspotId, :title, :content)";
+        String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity)";
+        String sqlInsertNavigation = "INSERT INTO hotspot_infos(hotspotId, title, content) " + "VALUES(:hotspotId, :title, :content)";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
 
             PreparedBatch hotspotBatch = handle.prepareBatch(sqlInsertHotspot);
 
             for (HotspotInfoCreateRequest navReq : req) {
-                hotspotBatch.bind("nodeId", Integer.valueOf(nodeId)).bind("type", navReq.getType()).bind("iconId", navReq.getIconId()).bind("posX", navReq.getPositionX()).bind("posY", navReq.getPositionY()).bind("posZ", navReq.getPositionZ()).bind("pitchX", navReq.getPitchX()).bind("yawY", navReq.getYawY()).bind("rollZ", navReq.getRollZ()).bind("scale", navReq.getScale()).add();
+                hotspotBatch.bind("nodeId", Integer.valueOf(nodeId)).bind("type", navReq.getType()).bind("iconId", navReq.getIconId()).bind("posX", navReq.getPositionX()).bind("posY", navReq.getPositionY()).bind("posZ", navReq.getPositionZ()).bind("pitchX", navReq.getPitchX()).bind("yawY", navReq.getYawY()).bind("rollZ", navReq.getRollZ()).bind("scale", navReq.getScale()).bind("color", navReq.getColor())
+                        .bind("backgroundColor", navReq.getBackgroundColor())
+                        .bind("allowBackgroundColor", navReq.getAllowBackgroundColor())
+                        .bind("opacity", navReq.getOpacity()).add();
             }
 
             List<Integer> generateIds = hotspotBatch.executePreparedBatch().mapTo(Integer.class).list();
@@ -107,7 +114,7 @@ public class HotspotDao {
      * thêm danh sách hotspot model.
      */
     public boolean insertHotspotModel(List<HotspotModelCreateRequest> req, String nodeId) {
-        String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, createdAt, updatedAt) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :createdAt, :updatedAt)";
+        String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity, createdAt, updatedAt) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity, :createdAt, :updatedAt)";
         String sqlInsertNavigation = "INSERT INTO hotspot_models(hotspotId, modelUrl, name, description) " + "VALUES(:hotspotId, :modelUrl, :name, :description)";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
@@ -115,7 +122,13 @@ public class HotspotDao {
             PreparedBatch hotspotBatch = handle.prepareBatch(sqlInsertHotspot);
 
             for (HotspotModelCreateRequest navReq : req) {
-                hotspotBatch.bind("nodeId", Integer.valueOf(nodeId)).bind("type", navReq.getType()).bind("iconId", navReq.getIconId()).bind("posX", navReq.getPositionX()).bind("posY", navReq.getPositionY()).bind("posZ", navReq.getPositionZ()).bind("pitchX", navReq.getPitchX()).bind("yawY", navReq.getYawY()).bind("rollZ", navReq.getRollZ()).bind("scale", navReq.getScale()).bind("createdAt", Timestamp.valueOf(LocalDateTime.now())).bind("updatedAt", Timestamp.valueOf(LocalDateTime.now())).add();
+                hotspotBatch.bind("nodeId", Integer.valueOf(nodeId)).bind("type", navReq.getType()).bind("iconId", navReq.getIconId()).bind("posX", navReq.getPositionX()).bind("posY", navReq.getPositionY()).bind("posZ", navReq.getPositionZ()).bind("pitchX", navReq.getPitchX()).bind("yawY", navReq.getYawY()).bind("rollZ", navReq.getRollZ()).bind("scale", navReq.getScale()).bind("color", navReq.getColor())
+                        .bind("backgroundColor", navReq.getBackgroundColor())
+                        .bind("allowBackgroundColor", navReq.getAllowBackgroundColor())
+                        .bind("opacity", navReq.getOpacity())
+                        .bind("createdAt", Timestamp.valueOf(LocalDateTime.now()))
+                        .bind("updatedAt", Timestamp.valueOf(LocalDateTime.now()))
+                        .add();
             }
 
             List<Integer> generateIds = hotspotBatch.executePreparedBatch().mapTo(Integer.class).list();
@@ -140,7 +153,7 @@ public class HotspotDao {
     }
 
     public boolean insertHotspotMedia(List<HotspotMediaCreateRequest> reqs, String nodeId) {
-        String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, createdAt, updatedAt) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :createdAt, :updatedAt)";
+        String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity, createdAt, updatedAt) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity, :createdAt, :updatedAt)";
         String sqlInsertNavigation = "INSERT INTO hotspot_medias(hotspotId, mediaType, mediaUrl, caption, cornerPointList) " + "VALUES(:hotspotId, :mediaType, :mediaUrl, :caption, :cornerPointList)";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
@@ -158,6 +171,10 @@ public class HotspotDao {
                         .bind("yawY", navReq.getYawY())
                         .bind("rollZ", navReq.getRollZ())
                         .bind("scale", navReq.getScale())
+                        .bind("color", navReq.getColor())
+                        .bind("backgroundColor", navReq.getBackgroundColor())
+                        .bind("allowBackgroundColor", navReq.getAllowBackgroundColor())
+                        .bind("opacity", navReq.getOpacity())
                         .bind("createdAt", Timestamp.valueOf(LocalDateTime.now()))
                         .bind("updatedAt", Timestamp.valueOf(LocalDateTime.now()))
                         .add();

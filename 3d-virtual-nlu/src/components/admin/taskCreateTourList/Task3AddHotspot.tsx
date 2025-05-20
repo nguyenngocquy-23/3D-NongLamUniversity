@@ -2,28 +2,18 @@ import { useState } from "react";
 import styles from "../../../styles/tasklistCT/task3.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/Store";
-import TypeNavigation from "./HotspotNavigation";
-import { BaseHotspot, HotspotType } from "../../../redux/slices/HotspotSlice";
-import TypeInfomation from "./HotspotInformation";
-import TypeModel, { HotspotModelCreateRequest } from "./HotspotModel";
-import TypeMedia, {
-  CornerPoint,
-  HotspotMediaCreateRequest,
-} from "./HotspotMedia";
+import { BaseHotspot } from "../../../redux/slices/HotspotSlice";
 import ConfigIcon from "../ConfigIcon";
+import ConfigMedia from "../ConfigMedia";
 
 interface Task3Props {
   assignable: boolean;
   setAssignable: (value: boolean) => void;
-  hotspotModels: HotspotModelCreateRequest[];
   chooseCornerMediaPoint: boolean;
   setChooseCornerMediaPoint: (value: boolean) => void;
   currentPoints: [number, number, number][]; // mesh đang chọn
   setCurrentPoints: (val: any) => void;
-  // videoMeshes: HotspotMediaCreateRequest[]; // danh sách mesh đã xong
   // setVideoMeshes: (val: any) => void;
-  // cornerPointes: CornerPoint[]; // danh sách mesh đã xong
-  // setCornerPointes: (val: any) => void;
   currentHotspotType: number;
   setCurrentHotspotType: (value: number) => void;
   onPropsChange: (value: BaseHotspot) => void;
@@ -31,14 +21,7 @@ interface Task3Props {
 
 // Component cho Task3
 const Task3 = ({
-  assignable,
   setAssignable,
-  hotspotModels,
-  // setHotspotModels,
-  chooseCornerMediaPoint,
-  setChooseCornerMediaPoint,
-  currentPoints,
-  setCurrentPoints,
   // setVideoMeshes,
   setCurrentHotspotType,
   onPropsChange,
@@ -54,24 +37,22 @@ const Task3 = ({
 
   return (
     <div className={styles.task3}>
-      <div className={styles.select_header}>
-        <select
-          className={styles.select_type}
-          onChange={(e) => handleChooseType(Number(e.target.value))}
-        >
-          {hotspotType.map((type) => (
-            <option key={type.id} value={type.id}>
-              {type.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <ConfigIcon
-        onPropsChange={onPropsChange}
-        currentHotspotType={openTypeIndex}
-      />
+      <select
+        className={styles.select_type}
+        onChange={(e) => handleChooseType(Number(e.target.value))}
+      >
+        {hotspotType.map((type) => (
+          <option key={type.id} value={type.id}>
+            {type.name}
+          </option>
+        ))}
+      </select>
       {[1, 2, 4].includes(openTypeIndex) ? (
         <>
+          <ConfigIcon
+            onPropsChange={onPropsChange}
+            currentHotspotType={openTypeIndex}
+          />
           <label className={styles.label}>Chọn vị trí điểm:</label>
           <button
             onClick={() => {
@@ -83,34 +64,17 @@ const Task3 = ({
           </button>
         </>
       ) : (
-        ""
+        /**
+         * Xem xét có thể gộp chung với TypeMedia.tsx
+         * tách để dễ phan biệt và giảm xử lý
+         */
+        <ConfigMedia
+          setAssignable={setAssignable}
+          onPropsChange={onPropsChange}
+          currentHotspotType={openTypeIndex}
+          setCurrentHotspotType={setCurrentHotspotType}
+        />
       )}
-      {/* <TypeNavigation
-        isOpenTypeNavigation={openTypeIndex == 1}
-        setAssignable={setAssignable}
-        setCurrentHotspotType={setCurrentHotspotType}
-      />
-      <TypeInfomation
-        isOpenTypeInfomation={openTypeIndex == 2}
-        setAssignable={setAssignable}
-        setCurrentHotspotType={setCurrentHotspotType}
-      />
-      <TypeMedia
-        isOpenTypeMedia={openTypeIndex == 3}
-        currentPoints={currentPoints}
-        setCurrentPoints={setCurrentPoints}
-        chooseCornerMediaPoint={chooseCornerMediaPoint}
-        setChooseCornerMediaPoint={setChooseCornerMediaPoint}
-        setAssignable={setAssignable}
-        setCurrentHotspotType={setCurrentHotspotType}
-      />
-      <TypeModel
-        isOpenTypeModel={openTypeIndex == 4}
-        hotspotModels={hotspotModels}
-        assignable={assignable}
-        setAssignable={setAssignable}
-        setCurrentHotspotType={setCurrentHotspotType}
-      /> */}
     </div>
   );
 };

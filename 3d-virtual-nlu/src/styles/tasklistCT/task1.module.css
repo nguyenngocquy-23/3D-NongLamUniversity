@@ -1,0 +1,24 @@
+.contain_input {
+    display: flex;
+    margin-top: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.label {
+    display: inline-block;
+    width: 150px;
+    margin-right: 20px;
+}
+
+.name_input, .descript_input {
+    padding: 5px;
+}
+.name_input {
+    width: 70%;
+}
+
+.descript_input {
+    width: 70%;
+    height: 100px;
+}
