@@ -1,9 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "../../styles/createTourStepper.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { nextStep } from "../../redux/slices/StepSlice";
 import Swal from "sweetalert2";
+import Waiting from "../Waiting";
 
 /**
  * Quy đổi: currentStep (1) = stepsConfig[0]
@@ -32,22 +33,21 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
 
   const dispatch = useDispatch();
 
+  const [isLoading, setIsLoading] = useState(false);
   const ActiveComponent = stepsConfig[currentStep - 1]?.Component;
 
+  useEffect(() => {
+    setIsLoading(true);
+    const timeout = setTimeout(() => {
+      setIsLoading(false); // ẩn trang chờ
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, [currentStep]);
+
   const handleNextStep = () => {
-    // setCurrentStep((prevStep) => {
-    //   if (prevStep === stepsConfig.length) {
-    //     setIsComplete(true); // Trường hợp xuất bản => Insert vô database.
-    //     return prevStep;
-    //   } else {
-    //     return prevStep + 1;
-    //   }
-    // });
-    /**
-     * validate cho step1
-     */
     if (currentStep === 1) {
-      if (spaceId == "0") {
+      if (spaceId === "0" || spaceId == null) {
         Swal.fire({
           icon: "warning",
           title: "Chưa chọn không gian",
@@ -55,7 +55,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
           confirmButtonText: "OK",
         });
         return;
-      } else if (panoramaList.length == 0) {
+      } else if (panoramaList.length === 0) {
         Swal.fire({
           icon: "warning",
           title: "Chưa có ảnh 360",
@@ -65,7 +65,8 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
         return;
       }
     }
-    dispatch(nextStep());
+    setIsLoading(true); // bật loading
+    dispatch(nextStep()); // cập nhật bước (redux)
   };
 
   return (
@@ -108,6 +109,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
 
       <div className={styles.stepContent}>
         <ActiveComponent />
+        {isLoading ? <Waiting /> : ""}
       </div>
     </>
   );

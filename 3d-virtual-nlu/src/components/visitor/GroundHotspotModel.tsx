@@ -11,7 +11,7 @@ import { RootState } from "../../redux/Store";
 import { DoubleSide } from "three";
 import { Html } from "@react-three/drei";
 type GroundHotspotProps = {
-  setCurrentHotspotId: (val: string | null) => void;
+  setCurrentHotspotId?: (val: string | null) => void;
   setHoveredHotspot: (hotspot: THREE.Mesh | null) => void;
   hotspotModel: HotspotModel;
 };
@@ -41,6 +41,7 @@ const GroundHotspotModel = ({
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
   const [modelUrl, setModelUrl] = useState(hotspotModel.modelUrl ?? "");
 
+  const currentStep = useSelector((state: RootState) => state.step.currentStep);
   // Xoay model liên tục mỗi frame
   // useFrame(() => {
   //   if (modelRef.current) {
@@ -69,10 +70,10 @@ const GroundHotspotModel = ({
   useEffect(() => {
     if (isHovered || isClicked) {
       targetOpacity.current = 1;
-      targetScale.current = 3;
+      targetScale.current = 2;
     } else {
       targetOpacity.current = 0.6;
-      targetScale.current = 2;
+      targetScale.current = 1.5;
     }
   }, [isHovered]);
 
@@ -201,10 +202,10 @@ const GroundHotspotModel = ({
           side={DoubleSide}
         />
       </mesh>
-      {isOpenHotspotOption ? (
+      {isOpenHotspotOption && currentStep != 3 ? (
         <OptionHotspot
           hotspotId={hotspotModel.id}
-          setCurrentHotspotId={setCurrentHotspotId}
+          setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
           onClose={() => {
             setIsOpenHotspotOption(false);
           }}

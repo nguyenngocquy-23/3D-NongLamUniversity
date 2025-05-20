@@ -187,7 +187,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
           className == "upload_model" ||
           className == "upload_video" ||
           className == "upload_image" ||
-          className == "upload_icón"
+          className == "upload_icon"
             ? false
             : true
         }

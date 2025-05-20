@@ -2,10 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import * as THREE from "three";
 import OptionHotspot from "./taskCreateTourList/OptionHotspot";
 import { HotspotMedia } from "../../redux/slices/HotspotSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/Store";
 
 interface VideoMeshProps {
   hotspotMedia: HotspotMedia;
-  setCurrentHotspotId: (val: string | null) => void;
+  setCurrentHotspotId?: (val: string | null) => void;
 }
 const VideoMeshComponent = ({
   hotspotMedia,
@@ -66,6 +68,7 @@ const VideoMeshComponent = ({
     JSON.parse(hotspotMedia.cornerPointListJson) as [number, number, number][]
   );
   const [isPaused, setIsPaused] = useState(false);
+  const currentStep = useSelector((state: RootState) => state.step.currentStep);
 
   useEffect(() => {
     if (
@@ -208,10 +211,10 @@ const VideoMeshComponent = ({
           }}
         />
       )}
-      {isOpenHotspotOption ? (
+      {isOpenHotspotOption && currentStep != 3  ? (
         <OptionHotspot
           hotspotId={hotspotMedia.id}
-          setCurrentHotspotId={setCurrentHotspotId}
+          setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
           onClose={() => {
             setIsOpenHotspotOption(false);
           }}

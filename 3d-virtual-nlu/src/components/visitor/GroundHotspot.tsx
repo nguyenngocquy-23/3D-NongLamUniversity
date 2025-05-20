@@ -17,7 +17,7 @@ type GroundHotspotProps = {
   type?: HotspotType;
   nodeId: string;
   // idHotspot: string;
-  onNavigate: (
+  onNavigate?: (
     targetNodeId: string,
     cameraTargetPosition: [number, number, number]
   ) => void;
