@@ -11,7 +11,8 @@ import { IoIosCloseCircle } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
-import axios from "axios";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/Store.ts";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -26,6 +27,8 @@ type VirtualTourProps = {
 };
 
 const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
+  const defaultNode = useSelector((state: RootState) => state.data.defaultNode);
+
   const [isAnimation, setIsAnimation] = useState(true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
@@ -74,12 +77,6 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  // Gọi API khi component mount
-  // useEffect(() => {
-  //   fetchHotspotModels();
-  //   fetchHotspotMedias();
-  // }, []);
 
   const radius = 100;
   const handledSwitchTexture = (newPosition: [number, number, number]) => {
@@ -347,7 +344,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
         <TourScene
           radius={radius}
           sphereRef={sphereRef}
-          textureCurrent={textureUrl ?? "/khoa.jpg"}
+          textureCurrent={defaultNode.url ?? "/khoa.jpg"}
           lightIntensity={0.5}
         />
         <CamControls
@@ -385,7 +382,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
       {/* Menu bên trái */}
       <LeftMenuTour isMenuVisible={isMenuVisible} />
       {/* Hộp feedback */}
-      <Chat />
+      <Chat nodeId={defaultNode.id} />
       {/* Footer chứa các tính năng */}
       <FooterTour
         isAnimation={isAnimation}
