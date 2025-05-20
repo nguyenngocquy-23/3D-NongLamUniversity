@@ -79,7 +79,6 @@
     transition: all .3s ease-out;
     box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.4);
     transform: translate(10px, 50px);
-    pointer-events: auto;
 } 
 
 .chatBox.openBox {
@@ -96,6 +95,7 @@
     top: 18%;
     font-size: 16px;
     color: #1e84e4;
+    pointer-events: auto;
 }
 
 .message {

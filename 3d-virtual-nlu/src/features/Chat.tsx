@@ -166,16 +166,14 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
         </div>
         {isSelectOption == 0 ? (
           <>
-            <div
-              className={styles.chatContent}
-              onScroll={handleScroll}
-              ref={messagesRef}
-            >
+            <div className={styles.chatContent}>
               {messages.map((msg, index) => {
                 const isMine = msg.username === user?.username;
                 return (
                   <div
                     key={index}
+                    onScroll={handleScroll}
+                    ref={messagesRef}
                     style={{ display: "flex", alignItems: "center" }}
                   >
                     {!isMine && (
