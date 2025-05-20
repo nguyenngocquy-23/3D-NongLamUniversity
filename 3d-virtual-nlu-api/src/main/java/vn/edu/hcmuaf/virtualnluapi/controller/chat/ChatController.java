@@ -18,12 +18,12 @@ public class ChatController {
     @GET
     @Path("/messages")
     public Response getMessages(
-            @QueryParam("roomId") int roomId,
+            @QueryParam("nodeId") int nodeId,
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("limit") @DefaultValue("5") int limit) {
 
         int offset = page * limit;
-        List<MessageResponse> messages = messageService.getMessages(roomId, limit, offset);
+        List<MessageResponse> messages = messageService.getMessages(nodeId, limit, offset);
         return Response.ok(messages).build();
     }
 }

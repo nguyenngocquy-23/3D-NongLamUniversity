@@ -28,12 +28,12 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
   useEffect(() => {
     if (!user) return;
 
-    const wsUrl = `ws://localhost:8080/chat/1/${user?.id}`;
+    const wsUrl = `ws://localhost:8080/chat/${nodeId}/${user?.id}`;
     console.log("wsUrl", wsUrl);
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log(`Connected to room 1 as user ${user?.id}`);
+      console.log(`Connected to node ${nodeId} as user ${user?.id}`);
       loadMessages(0);
     };
 
@@ -44,7 +44,7 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
     };
 
     ws.onclose = () => {
-      console.log(`User ${user?.id} disconnected from room 1`);
+      console.log(`User ${user?.id} disconnected from node ${nodeId}`);
     };
 
     ws.onerror = (error) => {

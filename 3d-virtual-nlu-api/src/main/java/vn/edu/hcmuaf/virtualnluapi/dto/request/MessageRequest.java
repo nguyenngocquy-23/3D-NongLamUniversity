@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @ApplicationScoped
 public class MessageRequest {
-    private int userId, roomId;
+    private int userId, nodeId;
     private String content;
 }

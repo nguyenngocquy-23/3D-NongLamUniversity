@@ -13,7 +13,7 @@ public class MessageDao {
 
     public void insertMessage(MessageRequest messageDTO) {
         ConnectionPool.getConnection().withHandle(handle -> {
-            handle.createUpdate("INSERT INTO messages (userId, roomId, content, createdAt) VALUES (:userId, :roomId, :content, :createdAt)").bind("userId", messageDTO.getUserId()).bind("roomId", messageDTO.getRoomId()).bind("content", messageDTO.getContent()).bind("createdAt", new Timestamp(System.currentTimeMillis())).execute();
+            handle.createUpdate("INSERT INTO messages (userId, nodeId, content, createdAt) VALUES (:userId, :nodeId, :content, :createdAt)").bind("userId", messageDTO.getUserId()).bind("nodeId", messageDTO.getNodeId()).bind("content", messageDTO.getContent()).bind("createdAt", new Timestamp(System.currentTimeMillis())).execute();
             return null;
         });
     }
@@ -33,15 +33,15 @@ public class MessageDao {
         // get message from database
     }
 
-    public void getAllMessage(int roomId) {
+    public void getAllMessage(int nodeId) {
         ConnectionPool.getConnection();
         // get all message from database
     }
 
-    public List<MessageResponse> findMessages(int roomId, int limit, int offset) {
-        String sql = "SELECT * FROM messages WHERE roomId = ? ORDER BY createdAt DESC LIMIT ? OFFSET ?";
+    public List<MessageResponse> findMessages(int nodeId, int limit, int offset) {
+        String sql = "SELECT * FROM messages WHERE nodeId = ? ORDER BY createdAt DESC LIMIT ? OFFSET ?";
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
-                .bind(0, roomId)
+                .bind(0, nodeId)
                 .bind(1, limit)
                 .bind(2, offset)
                 .mapToBean(MessageResponse.class).list());
