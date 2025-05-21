@@ -146,6 +146,7 @@ const dataSlice = createSlice({
       .addCase(fetchDefaultNodes.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.defaultNode = action.payload;
+        localStorage.setItem("defaultNode",JSON.stringify(action.payload));
       })
       .addCase(fetchDefaultNodes.rejected, (state) => {
         state.status = "failed";

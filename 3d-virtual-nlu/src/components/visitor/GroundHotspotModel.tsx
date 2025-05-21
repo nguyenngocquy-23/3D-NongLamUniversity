@@ -12,7 +12,7 @@ import { DoubleSide } from "three";
 import { Html } from "@react-three/drei";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
-  setHoveredHotspot: (hotspot: THREE.Mesh | null) => void;
+  setHoveredHotspot?: (hotspot: THREE.Mesh | null) => void;
   hotspotModel: HotspotModel;
 };
 
@@ -176,12 +176,12 @@ const GroundHotspotModel = ({
         rotation={[hotspotModel.pitchX, hotspotModel.yawY, hotspotModel.rollZ]}
         onPointerOver={() => {
           setIsHovered(true);
-          setHoveredHotspot(hotspotRef.current); //test
+          // setHoveredHotspot(hotspotRef.current); //test
           gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
         }}
         onPointerOut={() => {
           setIsHovered(false);
-          setHoveredHotspot(null); //test
+          // setHoveredHotspot(null); //test
           gl.domElement.style.cursor = "default"; // 👈 đổi cursor
         }}
         onClick={() => {

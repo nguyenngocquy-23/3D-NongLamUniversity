@@ -10,32 +10,40 @@ interface LeftMenuProps {
 }
 
 const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
-  {
-    {
-      /* Menu bên trái */
-    }
-  }
-  const dispatch = useDispatch<AppDispatch>();
+  const [loading, setLoading] = useState(true);
   const listMasterNode = useSelector(
     (state: RootState) => state.data.masterNodes
   );
-  console.log("listMasterNode", listMasterNode);
-  useEffect(() => {
-    dispatch(fetchMasterNodes());
-  }, [dispatch]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const filteredNodes = listMasterNode.filter((node) =>
     node.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  useEffect(() => {
+    if (listMasterNode.length > 0) {
+      setLoading(false);
+    }
+  }, [listMasterNode.length]);
+
+  // Trong render:
+  if (loading) {
+    return <div>Đang tải dữ liệu...</div>;
+  }
+  console.log("listMasterNode.. ", listMasterNode);
+  console.log("mount left menu");
+
   return (
     <div className={`${styles.left_menu} ${isMenuVisible ? styles.show : ""}`}>
       <div className={styles.header}>
         <h2>NLU Tour</h2>
         <div className={styles.searchBox}>
-          <input type="text" className={styles.inputSeach} placeholder="Tên không gian.." 
-            onChange={(e) => setSearchTerm(e.target.value)}/>
+          <input
+            type="text"
+            className={styles.inputSeach}
+            placeholder="Tên không gian.."
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <FaSearch className={styles.searchBtn} />
         </div>
       </div>

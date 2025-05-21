@@ -13,7 +13,7 @@ interface FooterTourProps {
   isAnimation: boolean;
   isMuted: boolean;
   isFullscreen: boolean;
-  toggleInfomation: () => void;
+  toggleInformation: () => void;
   toggleMute: () => void;
   toggleFullscreen: () => void;
 }
@@ -22,7 +22,7 @@ const FooterTour = ({
   isAnimation,
   isMuted,
   isFullscreen,
-  toggleInfomation,
+  toggleInformation,
   toggleMute,
   toggleFullscreen,
 }: FooterTourProps) => {
@@ -41,13 +41,13 @@ const FooterTour = ({
           className={styles.playBtn}
           style={{ display: isAnimation ? "none" : "block" }}
         />
-        <FaLanguage className={styles.info_btn} onClick={toggleInfomation} />
+        <FaLanguage className={styles.info_btn} onClick={toggleInformation} />
         {isMuted ? (
           <IoMdVolumeOff className={styles.info_btn} onClick={toggleMute} />
         ) : (
           <IoMdVolumeHigh className={styles.info_btn} onClick={toggleMute} />
         )}
-        <FaInfoCircle className={styles.info_btn} onClick={toggleInfomation} />
+        <FaInfoCircle className={styles.info_btn} onClick={toggleInformation} />
         {isFullscreen ? (
           <MdFullscreenExit
             className={styles.fullscreen_btn}

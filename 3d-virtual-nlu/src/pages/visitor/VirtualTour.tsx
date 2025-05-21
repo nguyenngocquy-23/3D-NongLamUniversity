@@ -11,8 +11,15 @@ import { IoIosCloseCircle } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/Store.ts";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/Store.ts";
+import {
+  fetchDefaultNodes,
+  fetchMasterNodes,
+} from "../../redux/slices/DataSlice.ts";
+import Waiting from "../../components/Waiting.tsx";
+import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
+import { HotspotModel } from "../../redux/slices/HotspotSlice.ts";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -27,7 +34,20 @@ type VirtualTourProps = {
 };
 
 const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
-  const defaultNode = useSelector((state: RootState) => state.data.defaultNode);
+  //
+  const dispatch = useDispatch<AppDispatch>();
+  useEffect(() => {
+    dispatch(fetchMasterNodes());
+    // dispatch(fetchDefaultNodes());
+  }, [dispatch]);
+
+  const stored = localStorage.getItem("defaultNode");
+  const defaultNode = stored ? JSON.parse(stored) : null;
+  const hotspotModels = (defaultNode?.modelHotspots as HotspotModel[]) || [];
+
+  // const defaultNode = sessionStorage.getItem("defaultNode");
+  // let defaultNode = null;
+  // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
 
   const [isAnimation, setIsAnimation] = useState(true);
 
@@ -41,7 +61,36 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
 
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
     null
-  ); // Giữ lại đối tượng utterance
+  ); // Giữ lại đối tượng
+
+  /**
+   * Giải pháp tạm thời cho việc reload mới scroll duoc
+   * Tự động reload trang khi render và ẩn sau lớp Waiting
+   */
+  // useEffect(() => {
+  //   const alreadyReloaded = sessionStorage.getItem("reloaded");
+
+  //   if (!alreadyReloaded) {
+  //     console.log("🔄 Reloading page...");
+  //     sessionStorage.setItem("reloaded", "true");
+  //     window.location.reload();
+  //   }
+  // }, []);
+
+  /**
+   * Lớp chờ để ẩn các tiến trình render
+   * Tạo cảm giác loading cho người dùng
+   */
+  const [isWaiting, setIsWaiting] = useState(false);
+
+  useEffect(() => {
+    setIsWaiting(true);
+    const timeout = setTimeout(() => {
+      setIsWaiting(false); // ẩn trang chờ
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   const navigate = useNavigate();
   const sphereRef = useRef<THREE.Mesh | null>(null);
@@ -139,22 +188,20 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
       setIsFullscreen(false);
     }
   };
+  const [isOpenInfo, setIsOpenInfo] = useState(true);
 
-  let isOpenInfo = true;
-  const toggleInfomation = () => {
+  const toggleInformation = () => {
     const divInfo = document.querySelector<HTMLElement>(`.${styles.infoBox}`);
-    if (!divInfo) {
-      return;
-    }
+    if (!divInfo) return;
+
     if (isOpenInfo) {
-      divInfo.style.display = "block";
-      divInfo.style.bottom = "50px";
-      isOpenInfo = false;
-    } else {
       divInfo.style.display = "none";
       divInfo.style.bottom = "-100px";
-      isOpenInfo = true;
+    } else {
+      divInfo.style.display = "block";
+      divInfo.style.bottom = "50px";
     }
+    setIsOpenInfo(!isOpenInfo);
   };
   // Hàm bật/tắt âm thanh
   const toggleMute = () => {
@@ -326,6 +373,12 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   //   return <primitive object={mesh} position={center} />;
   // };
 
+  useEffect(() => {
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 50);
+  }, []);
+
   return (
     <div className={styles.tourContainer}>
       <Canvas
@@ -345,6 +398,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           radius={radius}
           sphereRef={sphereRef}
           textureCurrent={defaultNode.url ?? "/khoa.jpg"}
+          // textureCurrent={defaultNode.url ?? "/khoa.jpg"}
           lightIntensity={0.5}
         />
         <CamControls
@@ -362,14 +416,15 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
             setHoveredHotspot={setHoveredHotspot}
           />
         ))}  */}
-        {/* {hotspotModels.map((hotspot, index) => (
+        {hotspotModels.map((hotspot, index) => (
           <GroundHotspotModel
             key={index}
-            position={[hotspot.positionX, hotspot.positionY, hotspot.positionZ]}
-            setHoveredHotspot={setHoveredHotspot}
-            modelUrl={hotspot.modelUrl}
+            // position={[hotspot.positionX, hotspot.positionY, hotspot.positionZ]}
+            // setHoveredHotspot={setHoveredHotspot}
+            // modelUrl={hotspot.modelUrl}
+            hotspotModel={hotspot}
           />
-        ))} */}
+        ))}
         {/* {hotspotMedias.map((point, index) => (
           <VideoMeshComponent key={index} response={point} />
         ))} */}
@@ -383,21 +438,24 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
       <LeftMenuTour isMenuVisible={isMenuVisible} />
       {/* Hộp feedback */}
       <Chat nodeId={defaultNode.id} />
+      {/* <Chat nodeId={defaultNode.id} /> */}
       {/* Footer chứa các tính năng */}
       <FooterTour
         isAnimation={isAnimation}
         isMuted={isMuted}
         isFullscreen={isFullscreen}
-        toggleInfomation={toggleInfomation}
+        toggleInformation={toggleInformation}
         toggleFullscreen={toggleFullscreen}
         toggleMute={toggleMute}
       />
       {/* Hộp thông tin */}
-      <div className={styles.infoBox} onClick={toggleInfomation}>
+      <div className={styles.infoBox} onClick={toggleInformation}>
         Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
         Lâm Thành phố Hồ Chí Minh
       </div>{" "}
       {/* <StatsPanel className={styles.statsPanel} /> */}
+      {/* Màn hình laoding */}
+      {isWaiting ? <Waiting /> : ""}
     </div>
   );
 };

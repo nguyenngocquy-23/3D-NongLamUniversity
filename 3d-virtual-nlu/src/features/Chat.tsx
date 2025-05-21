@@ -97,12 +97,6 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
     }, 20);
   };
 
-  // const handleScroll = () => {
-  //   if (messagesRef.current?.scrollTop === 0) {
-  //     loadMessages(page + 1);
-  //   }
-  // };
-
   const sendMessage = () => {
     console.log("socket", socket);
     if (inputMessage.trim() !== "") {
@@ -166,14 +160,16 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
         </div>
         {isSelectOption == 0 ? (
           <>
-            <div className={styles.chatContent}>
+            <div
+              className={styles.chatContent}
+              onScroll={handleScroll}
+              ref={messagesRef}
+            >
               {messages.map((msg, index) => {
                 const isMine = msg.username === user?.username;
                 return (
                   <div
                     key={index}
-                    onScroll={handleScroll}
-                    ref={messagesRef}
                     style={{ display: "flex", alignItems: "center" }}
                   >
                     {!isMine && (

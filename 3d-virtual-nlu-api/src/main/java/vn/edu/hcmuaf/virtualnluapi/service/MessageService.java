@@ -18,8 +18,8 @@ public class MessageService {
     public void sendMessage(MessageRequest messageRequest) {
         messageDAO.insertMessage(messageRequest);
     }
-    public List<MessageResponse> getMessages(int roomId, int limit, int offset) {
-        List<MessageResponse> result = messageDAO.findMessages(roomId, limit, offset);
+    public List<MessageResponse> getMessages(int nodeId, int limit, int offset) {
+        List<MessageResponse> result = messageDAO.findMessages(nodeId, limit, offset);
         for (MessageResponse message : result) {
             User user = userDAO.findById(message.getUserId());
             message.setUsername(user.getUsername());

@@ -53,6 +53,7 @@
 .left_menu .master_container {
     list-style-type: none;
     height: 85vh;
+    padding: 0;
     overflow-y: scroll;
     pointer-events: auto;
 }
