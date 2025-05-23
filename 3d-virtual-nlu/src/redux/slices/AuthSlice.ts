@@ -1,14 +1,18 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../Store";
 
-// Định nghĩa kiểu dữ liệu người dùng
+// Kiểu dữ liệu người dùng
 interface User {
   id: string;
   name: string;
   email: string;
   token: string;
 }
-// Định nghĩa interface cho trạng thái đăng nhập
+
+// Trạng thái xác thực
 interface AuthState {
   user: any;
   token: string | null;
@@ -19,31 +23,28 @@ interface AuthState {
 // Trạng thái ban đầu
 const initialState: AuthState = {
   user: JSON.parse(sessionStorage.getItem("user") || "null"),
-  token: sessionStorage.getItem("token") || "null",
+  token: sessionStorage.getItem("token") || null,
   isLoading: false,
   error: null,
 };
 
-// Thunk API đăng nhập
+// Thunk đăng nhập
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (
     { username, password }: { username: string; password: string },
-    { rejectWithValue }
+    thunkAPI
   ) => {
     try {
-      // Gọi API đăng nhập
       const response = await axios.post("http://localhost:8080/api/login", {
         username,
         password,
       });
+
       if (response.data.statusCode !== 1000) {
-        throw new Error(
-          response.data.message || "Invalid username or password"
-        );
+        throw new Error(response.data.message || "Invalid username or password");
       }
 
-      // Gọi API lấy thông tin user
       const userResponse = await axios.post(
         "http://localhost:8080/api/user",
         { username, password },
@@ -55,17 +56,18 @@ export const loginUser = createAsyncThunk(
         }
       );
 
+      // Gọi scheduleTokenRefresh với dispatch từ thunkAPI
+      scheduleTokenRefresh(response.data.data.token, thunkAPI.dispatch as AppDispatch);
+
       return {
         user: userResponse.data,
         token: response.data.data.token,
       };
     } catch (error: any) {
       if (error.code === "ERR_NETWORK") {
-        return rejectWithValue(
-          "Không thể kết nối đến server. Vui lòng thử lại sau."
-        );
+        return thunkAPI.rejectWithValue("Không thể kết nối đến server. Vui lòng thử lại sau.");
       }
-      return rejectWithValue(
+      return thunkAPI.rejectWithValue(
         error.response?.data?.message ||
           "Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại."
       );
@@ -73,20 +75,49 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// Slice Redux
+
+// Thunk đăng xuất
+export const logoutUser = createAsyncThunk(
+  "auth/logoutUser",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = sessionStorage.getItem("token");
+      await axios.post("http://localhost:8080/api/authenticate/logout", { token });
+
+      // Xoá sessionStorage
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("token");
+      return;
+    } catch (error: any) {
+      return rejectWithValue("Không thể kết nối đến server. Vui lòng thử lại sau.");
+    }
+  }
+);
+
+// Thunk làm mới token
+export const refreshToken = createAsyncThunk(
+  "auth/refreshToken",
+  async ( token: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.post("http://localhost:8080/api/authenticate/refresh", {
+        token,
+      });
+      sessionStorage.setItem("token", response.data.data.token);
+      return response.data.data.token;
+    } catch (error: any) {
+      return rejectWithValue("Không thể kết nối đến server. Vui lòng thử lại sau.");
+    }
+  }
+);
+
+// Slice
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {
-    logoutUser: (state) => {
-      state.user = null;
-      state.token = null;
-      sessionStorage.removeItem("user");
-      sessionStorage.removeItem("token");
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
+      // LOGIN
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -101,9 +132,31 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+
+      // LOGOUT
+      .addCase(logoutUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.token = null;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // REFRESH TOKEN
+      .addCase(refreshToken.fulfilled, (state, action) => {
+        state.token = action.payload;
+      })
+      .addCase(refreshToken.rejected, (state, action) => {
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { logoutUser } = authSlice.actions;
 export default authSlice.reducer;

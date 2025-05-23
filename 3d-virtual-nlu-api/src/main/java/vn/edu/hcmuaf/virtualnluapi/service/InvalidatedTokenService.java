@@ -22,4 +22,8 @@ public class InvalidatedTokenService {
     public boolean existsById(String token) {
         return invalidatedTokenDAO.existsById(token);
     }
+
+    public boolean removeAll() {
+        return invalidatedTokenDAO.removeAll();
+    }
 }
