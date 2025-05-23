@@ -37,48 +37,32 @@ public class UploadController {
         @Consumes(MediaType.MULTIPART_FORM_DATA)
         @Produces(MediaType.APPLICATION_JSON)
         public Response uploadNodes(MultipartFormDataInput input) {
-            long tStart = System.nanoTime();
-
-
-
-
             try {
-                // Lấy các phần từ multipart với key là "files"
-                Long tParseStart = System.nanoTime();
                 Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
                 List<InputPart> fileParts = uploadForm.get("file");
-                Long tParseEnd= System.nanoTime();
 
                 if (fileParts == null || fileParts.isEmpty()) {
                     return Response.status(Response.Status.BAD_REQUEST)
                             .entity(ApiResponse.<Void>builder()
                                     .statusCode(400)
-                                    .message("Không có file nào được gửi lên.")
+                                    .message("Không tìm thấy tệp nào được gửi lên.")
                                     .data(null)
                                     .build())
                             .build();
                 }
-                long tReadStart = System.nanoTime();
                 InputPart filePart = fileParts.get(0);
                 String fileName = getFileName(filePart.getHeaders());
                 String safeName = normalizeFilename(fileName);
 
+                //Kiểm tra kích thuoc file đc gửi lên không quá 10MB (Free Plan của Cloudinary).
+                long maxFileSize = 10 * 1024 * 1024;
+                long actualFileSize = getFileSize(filePart);
+//                if(actualFileSize > maxFileSize) {
+//                    throw new FileToo
+//                }
+
                 InputStream fileInputStream = filePart.getBody(InputStream.class, null);
-                long tReadEnd = System.nanoTime();
-
-                long tUploadStart = System.nanoTime();
                 String imgUrl = cloudinaryService.uploadPanorama(fileInputStream, safeName, CloudinaryProperties.uploadPanoFolder);
-                long tUploadEnd = System.nanoTime();
-
-                long tEnd = System.nanoTime();
-
-                System.out.println("Tổng thời gian : " + (tEnd - tStart)/1_000_000 + "ms");
-                System.out.println("Tổng thời gian phân tích multipart: " + (tParseEnd - tParseStart)/1_000_000 + "ms");
-                System.out.println("Tổng thời gian đọc ảnh & chuẩn hoá tên : " + (tReadEnd - tReadEnd)/1_000_000 + "ms");
-                System.out.println("Tổng thời gian gọi Cloudinary upload : " + (tUploadEnd - tUploadStart)/1_000_000 + "ms");
-
-
-
                 CloudinaryUploadResponse resp = CloudinaryUploadResponse.builder()
                         .originalFileName(fileName)
                         .url(imgUrl).build();
@@ -107,14 +91,11 @@ public class UploadController {
         @Consumes(MediaType.MULTIPART_FORM_DATA)
         @Produces(MediaType.APPLICATION_JSON)
         public Response uploadMultipeNode(MultipartFormDataInput input) {
-            long tStart = System.nanoTime();
 
             try {
-                Long tParseStart = System.nanoTime();
                 Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
                 List<InputPart> fileParts = uploadForm.get("file");
 
-                Long tParseEnd= System.nanoTime();
 
                 if(fileParts == null || fileParts.isEmpty()) {
                     return Response.status(Response.Status.BAD_REQUEST)
@@ -132,18 +113,12 @@ public class UploadController {
                     String safeName = normalizeFilename(fileName);
 
                     InputStream fileInputStream = filepart.getBody(InputStream.class, null);
-                    long tUploadStart = System.nanoTime();
                     String imgUrl = cloudinaryService.uploadPanorama(fileInputStream, safeName, CloudinaryProperties.uploadPanoFolder);
-                    long tUploadEnd = System.nanoTime();
 
-                    System.out.println("Tổng thời gian gọi Cloudinary upload : " + (tUploadEnd - tUploadStart)/1_000_000 + "ms");
 
                     CloudinaryUploadResponse resp = CloudinaryUploadResponse.builder().originalFileName(fileName).url(imgUrl).build();
                     responses.add(resp);
                 }
-                long tEnd = System.nanoTime();
-                System.out.println("Tổng thời gian : " + (tEnd - tStart)/1_000_000 + "ms");
-                System.out.println("Tổng thời gian phân tích multipart: " + (tParseEnd - tParseStart)/1_000_000 + "ms");
 
 
 
@@ -188,5 +163,31 @@ public class UploadController {
         }
 
         return baseName + "." + extension;
+    }
+
+    private boolean isValidFormat(String fileName) {
+            String[] allowedExt = {".jpg", ".jpeg", ".webp", ".avif", ".png"};
+            String lowerFileName = fileName.toLowerCase();
+            for(String ext : allowedExt) {
+                if(lowerFileName.endsWith(ext)) {
+                    return true;
+                }
+            }
+            return false;
+    }
+
+    private long getFileSize(InputPart filePart) {
+        try {
+            //Lấy content-length header.
+            String lengthStr = filePart.getHeaders().getFirst("Content-Length");
+            if(lengthStr != null) {
+                return Long.parseLong(lengthStr);
+            }
+            else return 0;
+
+        } catch (Exception e) {
+            return 0;
+        }
+
     }
 }
