@@ -19,6 +19,7 @@ interface CreateTourStepperProps {
   stepsConfig: StepConfig[]; // Mảng các bước tạo Tour hoàn chỉnh.
 }
 
+// nằm trong create tour component
 const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
   stepsConfig,
 }) => {
@@ -37,6 +38,8 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
   const ActiveComponent = stepsConfig[currentStep - 1]?.Component;
 
   useEffect(() => {
+    if(currentStep == stepsConfig.length) setIsComplete(true);
+    if(currentStep != 1)
     setIsLoading(true);
     const timeout = setTimeout(() => {
       setIsLoading(false); // ẩn trang chờ
@@ -102,7 +105,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
 
         {!isComplete && (
           <button className={styles.btnNext} onClick={handleNextStep}>
-            {currentStep === stepsConfig.length ? "Xuất bản" : "Tiếp tục"}
+            Tiếp tục
           </button>
         )}
       </div>

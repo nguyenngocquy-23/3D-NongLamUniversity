@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import styles from "../../../styles/optionHotspot.module.css";
 import { removeHotspot } from "../../../redux/slices/HotspotSlice";
+import Swal from "sweetalert2";
 
 const OptionHotspot = ({
   hotspotId,
@@ -33,11 +34,30 @@ const OptionHotspot = ({
   }, [onClose]);
 
   const handleDelete = () => {
-    if (confirm("Bạn có chắc muốn xóa hotspot này không?")) {
-      setCurrentHotspotId(null);
-      dispatch(removeHotspot({hotspotId}));
-      onClose();
-    }
+    Swal.fire({
+      title: "Xác nhận xóa",
+      text: "Bạn có chắc muốn xóa hotspot này không?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setCurrentHotspotId(null);
+        dispatch(removeHotspot({ hotspotId }));
+        onClose();
+
+        Swal.fire({
+          icon: "success",
+          title: "Đã xóa!",
+          text: "Hotspot đã được xóa thành công.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
+    });
   };
 
   const handleEdit = () => {

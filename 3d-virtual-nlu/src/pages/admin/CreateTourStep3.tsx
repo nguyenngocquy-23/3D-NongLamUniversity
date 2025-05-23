@@ -28,7 +28,7 @@ import { IoMdMenu } from "react-icons/io";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import Swal from "sweetalert2";
 import { clearPanorama } from "../../redux/slices/PanoramaSlice";
-import { prevStep } from "../../redux/slices/StepSlice";
+import { nextStep, prevStep } from "../../redux/slices/StepSlice";
 
 const CreateTourStep3: React.FC = () => {
   const panoramas = useSelector((state: RootState) => state.panoramas);
@@ -148,9 +148,21 @@ const CreateTourStep3: React.FC = () => {
         payload
       );
       if (response.data?.statusCode === 1000) {
-        alert("Xuất bản thành công");
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Xuất bản thành công",
+        }).then(() => {
+          dispatch(nextStep());
+        });
       } else {
-        alert("Xuất bản thất bại:" + response.data?.message);
+        Swal.fire({
+          icon: "error",
+          title: "Thất bại",
+          text:
+            "Xuất bản thất bại: " +
+            (response.data?.message || "Không rõ lý do"),
+        });
       }
     } catch (error) {
       console.log("Lỗi khi xuất bản: ", error);
@@ -257,7 +269,12 @@ const CreateTourStep3: React.FC = () => {
           </div>
           <span className={styles.number_step}>{currentStep}</span>
         </div>
-        <button className={styles.publish_tour_button} onClick={handlePublishTour}>Xuất bản</button>
+        <button
+          className={styles.publish_tour_button}
+          onClick={handlePublishTour}
+        >
+          Xuất bản
+        </button>
       </div>
     </>
   );
