@@ -168,7 +168,26 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
   const handleUpload = async (): Promise<void> => {
     if (uploadStatus === "done") {
-      clearFileInput();
+      Swal.fire({
+        title: "Bạn có chắc chắn?",
+        text: "Thao tác này sẽ loại bỏ toàn bộ tiến trình trước đây của bạn!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#655cc9",
+        cancelButtonColor: "#d33",
+        cancelButtonText: "Trở lại",
+        confirmButtonText: "Xác nhận !",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          clearFileInput();
+          Swal.fire({
+            title: "Đã xoá!",
+            text: "Các tệp hình ảnh đã được xoá.",
+            icon: "success",
+          });
+        }
+      });
+
       return;
     }
 
@@ -393,11 +412,12 @@ const UploadFile: React.FC<UploadFileProps> = ({
                 <FaCloudUploadAlt />
               </span>
 
-              {uploadStatus === "done" && (
-                <span className={styles.next_btn} onClick={nextStep2}>
-                  Tiếp tục
-                </span>
-              )}
+              {fileStatuses.length > 0 &&
+                fileStatuses.every((f) => f.status === "success") && (
+                  <span className={styles.next_btn} onClick={nextStep2}>
+                    Tiếp tục
+                  </span>
+                )}
             </div>
           </div>
         </div>
