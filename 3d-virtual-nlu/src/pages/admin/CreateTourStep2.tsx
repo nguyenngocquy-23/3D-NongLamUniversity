@@ -43,6 +43,7 @@ import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
 import { prevStep } from "../../redux/slices/StepSlice";
 import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
+import Minimap from "../../components/Minimap";
 
 export const RADIUS = 100;
 
@@ -451,6 +452,8 @@ const CreateTourStep2 = () => {
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
           />
+          <Minimap />
+
           {hotspotNavigations
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
