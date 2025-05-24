@@ -186,6 +186,63 @@ const UploadFile: React.FC<UploadFileProps> = ({
     setFileStatuses(updatedStatuses);
   };
 
+  // const promises = selectedFile.map((file) => {
+  //   return new Promise<void>((resolve, reject) => {
+  //     if (file.type === "image/svg+xml") {
+  //       // Đọc file SVG
+  //       const reader = new FileReader();
+  //       reader.onload = () => {
+  //         const svgContent = reader.result;
+
+  //         // Kiểm tra null trước khi sử dụng svgContent
+  //         if (typeof svgContent === "string") {
+  //           const parser = new DOMParser();
+  //           const svgDoc = parser.parseFromString(
+  //             svgContent,
+  //             "image/svg+xml"
+  //           );
+
+  //           // Thêm fill="currentColor" vào các phần tử path, circle, rect
+  //           svgDoc.querySelectorAll("path").forEach((path) => {
+  //             if (!path.getAttribute("fill")) {
+  //               path.setAttribute("fill", "currentColor");
+  //             }
+  //           });
+
+  //           svgDoc.querySelectorAll("circle").forEach((circle) => {
+  //             if (!circle.getAttribute("fill")) {
+  //               circle.setAttribute("fill", "currentColor");
+  //             }
+  //           });
+
+  //           // Lấy nội dung SVG đã chỉnh sửa
+  //           const updatedSvg = svgDoc.documentElement.outerHTML;
+
+  //           // Chuyển nội dung SVG đã chỉnh sửa thành Blob
+  //           const blob = new Blob([updatedSvg], { type: "image/svg+xml" });
+
+  //           // Thêm tệp Blob đã chỉnh sửa vào FormData
+  //           formData.append("file", blob, file.name);
+  //           resolve(); // Đánh dấu hoàn thành
+  //         } else {
+  //           console.error("Nội dung SVG không phải là chuỗi hợp lệ.");
+  //           reject("Nội dung SVG không hợp lệ");
+  //         }
+  //       };
+  //       reader.onerror = () => {
+  //         reject("Lỗi đọc file");
+  //       };
+  //       reader.readAsText(file);
+  //     } else {
+  //       // Nếu không phải là SVG, thêm trực tiếp vào FormData
+  //       formData.append("file", file);
+  //       resolve(); // Đánh dấu hoàn thành cho file không phải SVG
+  //     }
+  //   });
+  // });
+
+  // await Promise.all(promises);
+  // const MAX_SIZE_MB =
   const handleUpload = async (): Promise<void> => {
     if (uploadStatus === "done") {
       Swal.fire({
@@ -215,7 +272,6 @@ const UploadFile: React.FC<UploadFileProps> = ({
       alert("Vui lòng chọn ít nhất 1 files.");
       return;
     }
-
     setUploadStatus("uploading");
 
     const formattedData: { originalFileName: string; url: string }[] = [];
@@ -427,7 +483,6 @@ const UploadFile: React.FC<UploadFileProps> = ({
                 {error && <span className={styles.file_error}>{error}</span>}
               </div>
             ))}
-
             {className === "upload_panos" && (
               <div className={styles.container_btn}>
                 <span className={styles.upload_btn} onClick={handleUpload}>
