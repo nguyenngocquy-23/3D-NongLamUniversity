@@ -51,7 +51,7 @@ public class NodeController {
                     hotspotService.insertNavigation(req.getNavHotspots(), req.getId());
                 }
                 if (req.getInfoHotspots() != null && !req.getInfoHotspots().isEmpty()) {
-                    hotspotService.insertInfomation(req.getInfoHotspots(), req.getId());
+                    hotspotService.insertInformation(req.getInfoHotspots(), req.getId());
                 }
                 if (req.getMediaHotspots() != null && !req.getMediaHotspots().isEmpty()) {
                     hotspotService.insertMedia(req.getMediaHotspots(), req.getId());

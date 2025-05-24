@@ -64,7 +64,7 @@ public class HotspotDao {
 
     public boolean insertHotspotInformation(List<HotspotInfoCreateRequest> req, String nodeId) {
         String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity)";
-        String sqlInsertNavigation = "INSERT INTO hotspot_infos(hotspotId, title, content) " + "VALUES(:hotspotId, :title, :content)";
+        String sqlInsertNavigation = "INSERT INTO hotspot_informations(hotspotId, title, content) " + "VALUES(:hotspotId, :title, :content)";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
 

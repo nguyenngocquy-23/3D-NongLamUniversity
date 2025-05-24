@@ -1,19 +1,16 @@
 import { Html } from "@react-three/drei";
 import { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import styles from "../../../styles/optionHotspot.module.css";
-import { RootState } from "../../../redux/Store";
-
 import { removeHotspot } from "../../../redux/slices/HotspotSlice";
-import { RootState } from "../../../redux/Store";
-import Swal from "sweetalert2";
 
 const OptionHotspot = ({
   hotspotId,
   setCurrentHotspotId,
   position,
   onClose,
-}: {
+}: //   onEdit,
+{
   hotspotId: string;
   setCurrentHotspotId: (val: string | null) => void;
   position: [number, number, number];
@@ -36,40 +33,17 @@ const OptionHotspot = ({
   }, [onClose]);
 
   const handleDelete = () => {
-    Swal.fire({
-      title: "Xác nhận xóa",
-      text: "Bạn có chắc muốn xóa hotspot này không?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Xóa",
-      cancelButtonText: "Hủy",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setCurrentHotspotId(null);
-        dispatch(removeHotspot({ hotspotId }));
-        onClose();
-
-        Swal.fire({
-          icon: "success",
-          title: "Đã xóa!",
-          text: "Hotspot đã được xóa thành công.",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-      }
-    });
+    if (confirm("Bạn có chắc muốn xóa hotspot này không?")) {
+      setCurrentHotspotId(null);
+      dispatch(removeHotspot({hotspotId}));
+      onClose();
+    }
   };
 
   const handleEdit = () => {
     setCurrentHotspotId(hotspotId);
     onClose();
   };
-
-  const hotspot = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.find((h) => h.id === hotspotId)
-  );
 
   return (
     <Html
@@ -87,7 +61,6 @@ const OptionHotspot = ({
         >
           ✏️ Cập nhật
         </div>
-
         <div className={styles.remove_option} onClick={handleDelete}>
           🗑️ Xóa
         </div>
