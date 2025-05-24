@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from "../../styles/createTour.module.css";
+import styles from "../../styles/boardCreateTour.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setSpaceId } from "../../redux/slices/PanoramaSlice.ts";
 import { AppDispatch, RootState } from "../../redux/Store.ts";
@@ -49,7 +49,7 @@ const BoardUploader = () => {
   };
 
   return (
-    <section className={styles.upPanosSection}>
+    <div className={styles.upPanosSection}>
       <div className={styles.leftForm}>
         <div className={styles.item}>
           <label className={styles.label}>Lĩnh vực:</label>
@@ -87,10 +87,10 @@ const BoardUploader = () => {
           Custom Form Upload file.
       */}
         <div className={styles.panosCard}>
-          <UploadFile className={styles.uploadForm} />
+          <UploadFile className={"upload_panos"} />
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

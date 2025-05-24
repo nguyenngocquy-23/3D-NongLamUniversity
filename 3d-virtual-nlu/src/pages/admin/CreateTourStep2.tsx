@@ -1,12 +1,7 @@
 import * as THREE from "three";
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../../styles/createTourStep2.module.css";
-import {
-  FaAngleLeft,
-  FaAngleRight,
-  FaPlus,
-  FaRightLeft,
-} from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -493,9 +488,9 @@ const CreateTourStep2 = () => {
 
           {hotspotMedias
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot, index) => (
+            .map((hotspot) => (
               <VideoMeshComponent
-                key={index}
+                key={hotspot.id}
                 hotspotMedia={hotspot}
                 setCurrentHotspotId={setCurrentHotspotId}
               />

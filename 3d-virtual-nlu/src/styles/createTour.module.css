@@ -53,40 +53,6 @@
   margin-top: 20px;
 }
 
-.upPanosSection {
-  position: relative;
-  background-color: lightgray;
-  padding: 10px;
-  border-radius: 10px;
-  width: 100%;
-  height: 70%;
-  display: flex;
-  justify-content: space-around;
-  transition: all 0.3s ease-in-out;
-}
-
-.item {
-  margin-bottom: 10px;
-}
-
-.uploadForm .fileBtn {
-  font-size: 18px;
-  background-color: rgb(24, 23, 22);
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
-.label {
-  display: inline-block;
-  width: 100px;
-  margin-right: 20px;
-  color: #333;
-  font-weight: 600;
-}
-
 .fullPreview {
   position: fixed;
   top: 0;

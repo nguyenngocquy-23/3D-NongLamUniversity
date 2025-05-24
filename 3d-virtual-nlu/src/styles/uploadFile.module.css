@@ -1,8 +1,3 @@
-.fileCardsWrapper {
-  text-align: center;
-  display: flex;
-}
-
 .upload_model,
 .upload_media {
   width: 200px !important;
@@ -16,6 +11,11 @@
   width: 40px;
   height: 40px;
   font-size: 25px;
+}
+
+.upload_tip {
+  font-size: 13px;
+  font-style: italic;
 }
 
 .fileBtn {
@@ -48,11 +48,22 @@
   font-size: 30px;
 }
 
-.fileCards {
+.file_preview_container {
+  position: relative;
+}
+.fileCardsWrapper {
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.file_cards {
+  width: 300px;
   display: flex;
   margin: auto;
   margin-top: 15px;
-  width: 300px;
   align-items: center;
   background-color: #fff;
   color: #000000;
@@ -60,11 +71,63 @@
   border: 1px solid #e0e0e0;
   border-radius: 5px;
   padding: 8px 15px;
+  position: relative;
 }
 
-.fileInfo {
-  flex: 1;
+.loaderWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.6);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.loader {
+  width: 30px;
+  height: 30px;
+  border: 6px solid;
+  border-color: rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25)
+    rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.5);
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: animloader 1s linear infinite;
+}
+
+@keyframes animloader {
+  0% {
+    border-color: rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25)
+      rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.75);
+  }
+  33% {
+    border-color: rgba(0, 128, 0, 0.75) rgba(0, 128, 0, 0.15)
+      rgba(0, 128, 0, 0.25) rgba(0, 128, 0, 0.35);
+  }
+  66% {
+    border-color: rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.75)
+      rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25);
+  }
+  100% {
+    border-color: rgba(0, 128, 0, 0.25) rgba(0, 128, 0, 0.35)
+      rgba(0, 128, 0, 0.75) rgba(0, 128, 0, 0.15);
+  }
+}
+.file_preview {
+  background-size: cover;
+  background-position: center;
+  width: 60px;
+  height: 60px;
+  margin: auto;
+  border-radius: 5%;
+}
+
+.file_info {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 15px;
   font-size: 16px;
@@ -72,13 +135,38 @@
   /* ✨ Thêm dòng này để các con tuân thủ giới hạn chiều rộng */
 }
 
-.fileContent {
-  flex: 1;
+.file_content {
+  /* flex: 1; */
   min-width: 0;
   /* ✨ Bắt buộc để text-overflow hoạt động trong flex */
+}
+
+.file_content h5 {
+  max-width: 200px;
+  text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.file_footer {
+  /* flex: 1; */
+  display: flex;
+  justify-content: space-between;
+  min-width: 200px;
+}
+
+.file_size {
+  font-style: italic;
+  font-size: 13px;
+}
+
+.file_error {
+  display: block;
+  font-style: italic;
+  font-size: 13px;
+  color: #fc0303;
+  max-width: 300px;
+  text-align: justify;
 }
 
 .progressBg {
@@ -98,22 +186,36 @@
   transition: width 0.5s ease;
 }
 
-.deleteBtn {
+.process_label {
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 30px;
-  color: #5d4dcc;
+  color: #fc0303;
   font-size: 16px;
 }
+.success_label {
+  color: #008000;
+}
+.waiting_label {
+  color: #e0e0e0;
+}
 
-.uploadBtn {
-  width: 300px;
-  font-weight: 500;
-  border-radius: 5px;
-  padding: 10px;
-  cursor: pointer;
-  margin-top: 15px;
+.container_btn {
+  position: absolute;
   color: #fff;
+  right: 0;
+  bottom: 0;
+  margin-bottom: 10px;
+}
+
+.container_btn span {
+  margin-right: 10px;
+  padding: 10px;
   background-color: #5d4dcc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.next_btn {
+  background-color: #008000 !important;
 }

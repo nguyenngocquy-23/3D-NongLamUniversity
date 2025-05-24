@@ -12,7 +12,6 @@ interface TypeModelProps {
   assignable?: boolean;
   setAssignable?: (value: boolean) => void;
   hotspotModel: any;
-  // setHotspotModels: (value: HotspotModelCreateRequest[]) => void;
   setCurrentHotspotType?: (value: HotspotType) => void;
 }
 
@@ -42,9 +41,6 @@ const TypeModel = ({
         modelUrl,
         name,
         description,
-        // positionX: hotspotModel.positionX,
-        // positionY: hotspotModel.positionY,
-        // positionZ: hotspotModel.positionZ,
       })
     );
   };

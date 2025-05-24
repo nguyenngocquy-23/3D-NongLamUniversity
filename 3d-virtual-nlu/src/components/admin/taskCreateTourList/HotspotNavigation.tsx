@@ -18,8 +18,6 @@ interface TypeNavigationProps {
 const TypeNavigation = ({
   hotspotId,
   isOpenTypeNavigation,
-  setAssignable,
-  setCurrentHotspotType,
 }: TypeNavigationProps) => {
   /**
    * Lấy ra danh sách panorama
@@ -46,15 +44,6 @@ const TypeNavigation = ({
     >
       <div className={styles.contain_input}>
         <label className={styles.label}>Điểm di chuyển:</label>
-        {/* <button
-      // onClick={() => {
-      //   setAssignable(true);
-      //   setCurrentHotspotType(1);
-      // }}
-      >
-        Chọn điểm di chuyển
-      </button> */}
-
         <select
           onChange={(e) => {
             const selectedId = e.target.value;

@@ -5,6 +5,7 @@ import styles from "../../../styles/optionHotspot.module.css";
 import { RootState } from "../../../redux/Store";
 
 import { removeHotspot } from "../../../redux/slices/HotspotSlice";
+import { RootState } from "../../../redux/Store";
 import Swal from "sweetalert2";
 
 const OptionHotspot = ({
@@ -86,6 +87,7 @@ const OptionHotspot = ({
         >
           ✏️ Cập nhật
         </div>
+
         <div className={styles.remove_option} onClick={handleDelete}>
           🗑️ Xóa
         </div>

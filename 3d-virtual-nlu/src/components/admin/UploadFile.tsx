@@ -1,22 +1,24 @@
 import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
-import { FaRegFileImage } from "react-icons/fa6";
-import { MdDeleteForever } from "react-icons/md";
+import { MdDeleteForever, MdFileDownloadDone } from "react-icons/md";
 import styles from "../../styles/uploadFile.module.css";
 import axios, { AxiosError } from "axios";
-import { setPanoramas } from "../../redux/slices/PanoramaSlice";
+import { clearPanorama, setPanoramas } from "../../redux/slices/PanoramaSlice";
 import { useDispatch } from "react-redux";
+import { FaFile } from "react-icons/fa6";
+import Swal from "sweetalert2";
+import { RiLoader2Fill } from "react-icons/ri";
+import { nextStep } from "../../redux/slices/StepSlice";
 
 /**
- * typeUpload: kiểu upload:
- * 1. Upload ảnh 360 độ.
- * 2. Upload video.
- * 3. Upload mô hình 360 độ
+ * UploadFile sẽ nhận vào các kiểu props:
+ * className để xác định loại dùng UploadFile:
+ * upload_panos/upload_image/upload_video/upload_model
  */
 type UploadFileProps = {
   className?: string;
   hotspotId?: string;
-  onUploaded?: (urls: string) => void;
+  onUploaded?: (urls: string, index: number) => void;
   index?: number;
 };
 
@@ -31,50 +33,135 @@ interface ApiResponse<T> {
   data: T;
 }
 
+type FileUploadStatus = {
+  file: File;
+  status: "idle" | "uploading" | "success" | "error" | "waiting";
+  error?: string;
+  uploadedUrl?: string;
+};
+
 const UploadFile: React.FC<UploadFileProps> = ({
   className,
-  hotspotId,
-  // typeUpload,
   index,
   onUploaded,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
 
-  //Biến state để theo dõi thông tin của 1 file
-  const [selectedFile, setSelectFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState<number>(0);
-  const [fileURLs, setFileURLs] = useState<string[]>([]); // Lưu URL tạo ra
   const [uploadStatus, setUploadStatus] = useState<
     "select" | "uploading" | "done"
   >("select"); //select | uploading | done
 
-  // Tạo URL object một lần khi selectedFile thay đổi
+  /**
+   * Sử dụng để cập nhật trạng thái cho từng file khi được tải lên Cloudinary.
+   * "idle" : Khi mới được gửi lên.
+   * "uploading": Ngay khi click "Tải lên"
+   * "success" : So sánh file name với originalFileName gửi về từ api & url.
+   * "error" : lỗi trả về từ server.
+   */
+  const [fileStatuses, setFileStatuses] = useState<FileUploadStatus[]>([]);
+  const maxFiles = className === "upload_panos" ? 5 : 1; //Ngoài upload panos, các trường hợp còn lại chỉ cần 1 file.
+
   useEffect(() => {
-    // Giải phóng URL cũ
-    fileURLs.forEach((url) => URL.revokeObjectURL(url));
+    if (
+      maxFiles === 1 &&
+      uploadStatus === "select" &&
+      fileStatuses.length > 0
+    ) {
+      handleUpload();
+    }
+  }, [fileStatuses]);
 
-    const newURLs = selectedFile.map((file) => URL.createObjectURL(file));
-    setFileURLs(newURLs);
+  /**
+   * Kiểm tra ratio của ảnh (Đúng tỷ lệ 2:1)
+   */
+  const isValidAspectRatio = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
 
-    return () => {
-      newURLs.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [selectedFile]);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
 
-  // Xử lý sự kiện thêm file (nhiều file 1 lần.)
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        img.onload = () => {
+          const ratio = img.width / img.height;
+          resolve(Math.abs(ratio - 2) < 0.01);
+        };
+      };
+
+      reader.readAsDataURL(file);
+    });
+  };
+
+  /**
+   * Danh sách ảnh (nhiều ảnh) tối đa là 5.
+   */
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
     const newFiles = Array.from(e.target.files);
-    const combinedFiles = [...selectedFile, ...newFiles];
+    const validFiles: FileUploadStatus[] = [];
+
+    for (let i = 0; i < newFiles.length; i++) {
+      const file = newFiles[i];
+      if (className === "upload_panos") {
+        const isValid = await isValidAspectRatio(file);
+
+        if (!isValid) {
+          Swal.fire({
+            icon: "warning",
+            title: "Vui lòng tải lên ảnh 360 đúng định dạng để tiếp tục",
+            text: `Ảnh thứ ${i + 1} (${
+              file.name
+            }) không có tỉ lệ 2:1 và sẽ bị loại.`,
+            confirmButtonText: "Đồng ý",
+          });
+
+          return;
+        }
+      }
+
+      /**
+       * Xử lý vấn đề về trùng file.
+       */
+
+      const isDuplicate = fileStatuses.some(
+        (existing) =>
+          existing.file.name === file.name && existing.file.size === file.size
+      );
+
+      if (isDuplicate) {
+        Swal.fire({
+          icon: "warning",
+          title: "Trùng tệp ảnh đã tồn tại.",
+          text: `Tệp ảnh ${file.name} đã tồn tại, chúng tôi sẽ bỏ qua.`,
+          confirmButtonText: "Đồng ý",
+        });
+        continue; // không thêm file này
+      }
+
+      validFiles.push({
+        file,
+        status: "idle",
+      });
+    }
+
+    const combinedFiles = [...fileStatuses, ...validFiles];
 
     if (combinedFiles.length > 5) {
-      alert("upload tối đa 5 ảnh.");
+      Swal.fire({
+        icon: "warning",
+        title: "Vượt số lượng ảnh cho phép.",
+        text: `Vui lòng chọn tối đa 5 ảnh 360 độ`,
+        confirmButtonText: "Đồng ý",
+      });
       return;
     }
 
-    setSelectFiles(combinedFiles);
+    setFileStatuses(combinedFiles);
+    setUploadStatus("select");
   };
 
   const onChooseFile = () => {
@@ -85,17 +172,18 @@ const UploadFile: React.FC<UploadFileProps> = ({
     if (inputRef.current) {
       inputRef.current.value = "";
     }
-    setSelectFiles([]);
+    setFileStatuses([]);
     setProgress(0);
     setUploadStatus("select");
-    // if (onUploaded) onUploaded("", index ?? 0);
+
+    dispatch(clearPanorama());
   };
 
-  const removeFile = (index: number) => {
-    const newFiles = [...selectedFile];
-    newFiles.splice(index, 1);
-    setSelectFiles(newFiles);
-    // if (onUploaded) onUploaded("", index ?? 0);
+  const removeFile = (file: File) => {
+    const updatedStatuses = fileStatuses.filter(
+      (f) => !(f.file.name === file.name && f.file.size === file.size)
+    );
+    setFileStatuses(updatedStatuses);
   };
 
   // const promises = selectedFile.map((file) => {
@@ -156,70 +244,146 @@ const UploadFile: React.FC<UploadFileProps> = ({
   // await Promise.all(promises);
   // const MAX_SIZE_MB =
   const handleUpload = async (): Promise<void> => {
-    //if upload done, clear và return.
     if (uploadStatus === "done") {
-      clearFileInput();
+      Swal.fire({
+        title: "Bạn có chắc chắn?",
+        text: "Thao tác này sẽ loại bỏ toàn bộ tiến trình trước đây của bạn!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#655cc9",
+        cancelButtonColor: "#d33",
+        cancelButtonText: "Trở lại",
+        confirmButtonText: "Xác nhận !",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          clearFileInput();
+          Swal.fire({
+            title: "Đã xoá!",
+            text: "Các tệp hình ảnh đã được xoá.",
+            icon: "success",
+          });
+        }
+      });
+
       return;
     }
 
-    if (selectedFile.length === 0) {
+    if (fileStatuses.length === 0) {
       alert("Vui lòng chọn ít nhất 1 files.");
       return;
     }
-    try {
-      // Post file to Server.
-      setUploadStatus("uploading");
+    setUploadStatus("uploading");
 
-      const formData = new FormData();
-      // await Promise.all(promises);
-      selectedFile.map((file) => {
-        formData.append("file", file);
-      });
-      console.log("formData::", formData);
+    const formattedData: { originalFileName: string; url: string }[] = [];
 
-      const resp = await axios.post<ApiResponse<CloudinaryUploadResp[]>>(
-        "http://localhost:8080/api/v1/admin/cloud/uploadMulti",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-          onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-              const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
-              );
-              setProgress(percentCompleted);
-            }
-          },
-        }
+    for (const fileStatus of fileStatuses) {
+      const file = fileStatus.file;
+
+      // Skip file đã thành công
+      if (fileStatus.status === "success") continue;
+
+      // Đánh dấu file hiện tại đang upload
+      setFileStatuses((prev) =>
+        prev.map((item) =>
+          item.file.name === file.name
+            ? { ...item, status: "uploading", error: undefined }
+            : item
+        )
       );
 
-      if (resp.data.statusCode === 200) {
-        setUploadStatus("done");
-        const data = resp.data.data;
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
 
-        const formattedData = data
-          .filter((item) => item.originalFileName && item.url) // nếu không đủ => bỏ.
-          .map((item) => ({
-            originalFileName: item.originalFileName!,
-            url: item.url!,
-          }));
+        const resp = await axios.post<ApiResponse<CloudinaryUploadResp>>(
+          "http://localhost:8080/api/v1/admin/cloud/upload",
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
 
-        if (onUploaded && hotspotId) {
-          const url = formattedData[0].url;
-          console.log("url: ", url, " hotspotId :", hotspotId);
-          onUploaded(url);
+        if (resp.data.statusCode === 200) {
+          const item = resp.data.data!;
+          if (item.originalFileName && item.url) {
+            formattedData.push({
+              originalFileName: item.originalFileName,
+              url: item.url,
+            });
+
+            // Đánh dấu thành công
+            setFileStatuses((prev) =>
+              prev.map((f) =>
+                f.file.name === item.originalFileName
+                  ? {
+                      ...f,
+                      status: "success",
+                      uploadedUrl: item.url,
+                      error: undefined,
+                    }
+                  : f
+              )
+            );
+          }
         } else {
-          dispatch(setPanoramas(formattedData));
+          // Đánh dấu lỗi nếu server trả về lỗi
+          setFileStatuses((prev) =>
+            prev.map((f) =>
+              f.file.name === file.name
+                ? { ...f, status: "error", error: resp.data.message }
+                : f
+            )
+          );
         }
-      } else {
-        console.log("upload error: ", resp.data.message);
-        setUploadStatus("select");
+      } catch (error: unknown) {
+        const err = error as AxiosError<ApiResponse<null>>;
+        const message = err.response?.data?.message || err.message;
+
+        // Đánh dấu lỗi nếu request bị lỗi
+        setFileStatuses((prev) =>
+          prev.map((f) =>
+            f.file.name === file.name
+              ? { ...f, status: "error", error: message }
+              : f
+          )
+        );
+
+        console.error("[UploadFile Error:]", message);
       }
-    } catch (error: unknown) {
-      const err = error as AxiosError<ApiResponse<null>>;
-      console.error("Upload error", err.response?.data?.message || err.message);
-      setUploadStatus("select");
     }
+
+    // Sau khi xử lý xong tất cả
+    const successFiles = formattedData.length;
+    if (successFiles > 0) {
+      setUploadStatus("done");
+      if (onUploaded) {
+        onUploaded(formattedData[0].url, index ?? 0);
+      }
+    } else {
+      setUploadStatus("select"); // Không có file nào thành công
+    }
+  };
+  function formatFileSize(bytes: number) {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  }
+
+  /**
+   * Chuyển sang step mới:
+   * 1. Đưa các panorama success vào redux.
+   * 2. set nextStep để chuyển bước mới.
+   */
+  const nextStep2 = () => {
+    const allSuccessful = fileStatuses
+      .filter((f) => f.status === "success" && f.uploadedUrl)
+      .map((f) => ({
+        originalFileName: f.file.name,
+        url: f.uploadedUrl!,
+      }));
+
+    dispatch(setPanoramas(allSuccessful));
+    dispatch(nextStep());
   };
 
   return (
@@ -235,6 +399,8 @@ const UploadFile: React.FC<UploadFileProps> = ({
             ? "video/*"
             : className == "upload_image"
             ? "image/*"
+            : className == "upload_panos"
+            ? ".jpg , .jpeg, .avif, .webp, .png"
             : className == "upload_icon"
             ? ".svg"
             : ""
@@ -250,75 +416,97 @@ const UploadFile: React.FC<UploadFileProps> = ({
         style={{ display: "none" }}
       />
 
-      {selectedFile.length === 0 && (
+      {fileStatuses.length < maxFiles && (
         <button
           className={`${className ? styles[className] : ""} ${styles.fileBtn}`}
           onClick={onChooseFile}
         >
           <span className={styles.uploadIcon}>
-            <FaCloudUploadAlt />
+            <FaFile />
           </span>
           <span>Chọn tệp</span>
+          {className === "upload_panos" && (
+            <span className={styles.upload_tip}>
+              Chỉ nhận tối đa 5 ảnh 360 độ có tỷ lệ 2:1{" "}
+            </span>
+          )}
         </button>
       )}
 
-      {/* Thông tin file và tiến trình khi tải lên */}
-      {selectedFile.length > 0 && (
-        <>
+      {fileStatuses.length > 0 && (
+        <div className={styles.file_preview_container}>
           <div className={styles.fileCardsWrapper}>
-            {selectedFile.map((file, index) => (
-              <div key={index} className={styles.fileCardsWrapper}>
-                {className != "upload_model" && className != "upload_video" ? (
+            {fileStatuses.map(({ file, status, error }, index) => (
+              <div key={index} className={styles.file}>
+                <div
+                  className={styles.file_cards}
+                  style={{
+                    border: status === "error" ? "1px solid red" : "",
+                  }}
+                >
+                  {status === "uploading" && (
+                    <div className={styles.loaderWrapper}>
+                      <div className={styles.loader}></div>
+                    </div>
+                  )}
+
                   <div
+                    className={styles.file_preview}
                     style={{
-                      backgroundImage: `url(${fileURLs[index]})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      width: "100px", // hoặc giá trị bạn cần
-                      height: "100px",
-                      margin: "auto",
+                      backgroundImage: `url(${URL.createObjectURL(file)})`,
                     }}
                   />
-                ) : (
-                  ""
-                )}
-                <div className={styles.fileCards}>
-                  <span>
-                    <FaRegFileImage />
-                  </span>
 
-                  <div className={styles.fileInfo}>
-                    <div className={styles.fileContent} title={file.name}>
-                      <h4>{file.name}</h4>
+                  <div className={styles.file_info}>
+                    <div className={styles.file_content} title={file.name}>
+                      <h5>{file.name}</h5>
                     </div>
+                    <div className={styles.file_footer}>
+                      <span className={styles.file_size}>
+                        {formatFileSize(file.size)}{" "}
+                      </span>
 
-                    <button
-                      className={styles.deleteBtn}
-                      onClick={() => removeFile(index)}
-                    >
-                      <MdDeleteForever />
-                    </button>
+                      <span className={styles.process_label}>
+                        {status === "success" ? (
+                          <MdFileDownloadDone
+                            className={styles.success_label}
+                          />
+                        ) : uploadStatus === "uploading" ? (
+                          <RiLoader2Fill className={styles.waiting_label} />
+                        ) : (
+                          <MdDeleteForever onClick={() => removeFile(file)} />
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
+                {error && <span className={styles.file_error}>{error}</span>}
               </div>
             ))}
+            {className === "upload_panos" && (
+              <div className={styles.container_btn}>
+                <span className={styles.upload_btn} onClick={handleUpload}>
+                  {uploadStatus === "done" ? (
+                    <span>Tạo lại</span>
+                  ) : (
+                    <span>Tải lên ({fileStatuses.length}/5)</span>
+                  )}
+                  <FaCloudUploadAlt />
+                </span>
 
-            <div className={styles.progressBg}>
-              <div
-                className={styles.progress}
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-
-            {/* Button: Thực hiện việc gửi file lên Cloudinary */}
+                {fileStatuses.length > 0 &&
+                  fileStatuses.every((f) => f.status === "success") && (
+                    <span className={styles.next_btn} onClick={nextStep2}>
+                      Tiếp tục
+                    </span>
+                  )}
+              </div>
+            )}
           </div>
-          <button className={styles.uploadBtn} onClick={handleUpload}>
-            {uploadStatus === "done" ? "Xoá tất cả" : "Tải lên"}
-          </button>
-        </>
+        </div>
       )}
     </div>
   );
 };
 
-export default UploadFile;
+export default React.memo(UploadFile);

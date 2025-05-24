@@ -4,12 +4,11 @@ import styleCTs from "../../../styles/updateHotspot.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/Store";
 import TypeNavigation from "./HotspotNavigation";
-import { BaseHotspot, HotspotType } from "../../../redux/slices/HotspotSlice";
+import { BaseHotspot } from "../../../redux/slices/HotspotSlice";
 import TypeInfomation from "./HotspotInformation";
 import TypeModel from "./HotspotModel";
 import ConfigIcon from "../ConfigIcon";
-import { FaAngleLeft, FaRightLeft } from "react-icons/fa6";
-import ConfigMedia from "../ConfigMedia";
+import { FaAngleLeft } from "react-icons/fa6";
 import TypeMedia from "./HotspotMedia";
 
 interface UpdateHotspotProps {
@@ -69,11 +68,6 @@ const UpdateHotspot = ({
             </>
           ) : (
             <>
-              {/* <ConfigMedia
-                setAssignable={() => {false}}
-                onPropsChange={onPropsChange}
-                setCurrentHotspotType={() => currentType ?? null}
-              /> */}
               <TypeMedia hotspotMedia={propHotspot} />
             </>
           )}

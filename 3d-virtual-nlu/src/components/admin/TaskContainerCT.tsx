@@ -9,6 +9,9 @@
 
 import React from "react";
 import styles from "../../styles/taskcontainerct.module.css";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/Store";
+import { setMasterPanorama } from "../../redux/slices/PanoramaSlice";
 
 interface TaskContainerCTProps {
   id: number | null;
@@ -20,12 +23,36 @@ const TaskContainerCT: React.FC<TaskContainerCTProps> = ({
   name,
   children,
 }) => {
+  const { panoramaList } = useSelector((state: RootState) => ({
+    panoramaList: state.panoramas.panoramaList,
+  }));
+  const dispatch = useDispatch<AppDispatch>();
   return (
     <div className={styles.task_container}>
       <div className={styles.task_header}>
         <h3>{name}</h3>
       </div>
-      <div className={`${styles.task_content}`}>{children}</div>
+      <div className={styles.task_content}>{children}</div>
+      <div className={styles.tast_choose}>
+        <div className={styles.contain_input}>
+          <label className={styles.label}>Ảnh trung tâm:</label>
+          <select
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              if (selectedId) {
+                dispatch(setMasterPanorama(selectedId));
+              }
+            }}
+          >
+            <option value="">Chọn panorama</option>
+            {panoramaList.map((pano) => (
+              <option key={pano.id} value={pano.id}>
+                {pano.config.name || "null"}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
     </div>
   );
 };

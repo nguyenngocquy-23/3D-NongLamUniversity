@@ -2,7 +2,8 @@ import { useState } from "react";
 import styles from "../../../styles/tasklistCT/task3.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/Store";
-import { BaseHotspot } from "../../../redux/slices/HotspotSlice";
+import TypeNavigation from "./HotspotNavigation";
+import { BaseHotspot, HotspotType } from "../../../redux/slices/HotspotSlice";
 import ConfigIcon from "../ConfigIcon";
 import ConfigMedia from "../ConfigMedia";
 
@@ -11,9 +12,8 @@ interface Task3Props {
   setAssignable: (value: boolean) => void;
   chooseCornerMediaPoint: boolean;
   setChooseCornerMediaPoint: (value: boolean) => void;
-  currentPoints: [number, number, number][]; // mesh đang chọn
+  currentPoints: [number, number, number][];
   setCurrentPoints: (val: any) => void;
-  // setVideoMeshes: (val: any) => void;
   currentHotspotType: number;
   setCurrentHotspotType: (value: number) => void;
   onPropsChange: (value: BaseHotspot) => void;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { FaClock } from "react-icons/fa6";
 import {
@@ -41,9 +41,9 @@ TypeMediaProps) => {
     setMediaType(hotspotMedia.mediaType || "PICTURE");
   }, [hotspotMedia]);
 
-  const handleUploadedFile = (url: string) => {
+  const handleUploadedFile = useCallback((url: string) => {
     setMediaUrl(url);
-  };
+  }, []);
 
   const handleUpdateMedia = () => {
     dispatch(
@@ -58,6 +58,7 @@ TypeMediaProps) => {
       })
     );
   };
+
   return (
     <div
       className={`${styles.type_media} ${

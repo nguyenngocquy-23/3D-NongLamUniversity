@@ -47,7 +47,10 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
                 cursor: isUnlocked ? "pointer" : "not-allowed",
                 borderBottom: isActive ? "2px solid #7FFF00" : "",
               }}
-              onClick={() => {isUnlocked && onTaskClick(task.id); setPreOpenTask(task.id)}}
+              onClick={() => {
+                onTaskClick(task.id);
+                setPreOpenTask(task.id);
+              }}
             >
               <span className={styles.taskName}>{task.title}</span>
               {!isUnlocked && <FaLock className={styles.taskIcon} />}

@@ -18,10 +18,6 @@ public class HotspotService {
     @Inject
     private HotspotDao hotspotDao;
 
-//    public boolean insertOnlyNavigation(HotspotNavCreateRequest req) {
-//        return hotspotDao.insertHotspotNavigation(req);
-//    }
-
     public boolean insertNavigation(List<HotspotNavCreateRequest> reqs, String nodeId) {
         return hotspotDao.insertHotspotNavigation(reqs, nodeId);
     }
