@@ -16,7 +16,6 @@ type GroundHotspotProps = {
 
 const GroundHotspotInfo = ({
   setCurrentHotspotId,
-  setHoveredHotspot,
   hotspotInfo,
 }: GroundHotspotProps) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
@@ -24,7 +23,6 @@ const GroundHotspotInfo = ({
 
   const icons = useSelector((state: RootState) => state.data.icons);
   const iconUrl = icons.find((i) => i.id == hotspotInfo.iconId).url;
-  const modelRef = useRef<THREE.Group>(null); //gọi lại group trong return.
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
   /**
@@ -122,17 +120,23 @@ const GroundHotspotInfo = ({
             hotspotInfo.positionZ,
           ]}
         >
-        <Html 
-          distanceFactor={40}
-          transform
-        >
-          <div className={styles.container}>
-            <div className={styles.centerPane}>
-              <div className={styles.title}>{hotspotInfo.title}</div>
-              <div className={styles.description}>{hotspotInfo.content}</div>
+          <Html distanceFactor={40} transform>
+            <div className={styles.container}>
+              <div className={styles.centerPane}>
+                {hotspotInfo.title.trim() == "" &&
+                hotspotInfo.content.trim() == "" ? (
+                  <div className={styles.description}>Trống</div>
+                ) : (
+                  <>
+                    <div className={styles.title}>{hotspotInfo.title}</div>
+                    <div className={styles.description}>
+                      {hotspotInfo.content}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        </Html>
+          </Html>
         </group>
       ) : (
         ""
@@ -151,13 +155,11 @@ const GroundHotspotInfo = ({
         ]}
         onPointerOver={() => {
           setIsHovered(true);
-          setHoveredHotspot(hotspotRef.current); //test
           gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
         }}
         onPointerOut={() => {
           setIsHovered(false);
-          setHoveredHotspot(null); //test
-          gl.domElement.style.cursor = "default"; // 👈 đổi cursor
+          gl.domElement.style.cursor = "default";
         }}
         onClick={() => {
           setClicked((preState) => !preState);

@@ -30,6 +30,11 @@ const UpdateHotspot = ({
   const currentType = propHotspot?.type; // State để lưu index của type đang mở
   const [isUpdate, setIsUpdate] = useState(true);
 
+  if (!propHotspot) {
+    return null;
+  }
+  console.log('propHotspot:::', propHotspot)
+
   return (
     <div
       className={`${styleCTs.task_container} ${

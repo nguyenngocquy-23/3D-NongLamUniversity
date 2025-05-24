@@ -2,10 +2,9 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  background: rgba(255, 255, 255, 0.95);
+  background: transparent;
   border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   width: 400px;
   max-height: 250px;
   color: black;
@@ -13,29 +12,44 @@
 }
 
 .leftPane {
-  width: 150px;
-  height: 150px;
+  flex: 1;
+  width: 50%;
 }
 
 .rightPane {
-  margin-left: 16px;
+  background: #fff;
   flex: 1;
+  width: 50%;
+  height: 200px;
+  padding: 15px;
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .title {
-    color: black;
+  color: black;
   font-size: 1.2rem;
   font-weight: bold;
 }
 
 .description {
-    color: black;
+  color: black;
   font-size: 0.95rem;
   margin-top: 0.5rem;
+  height: 60%;
+  overflow-y: auto;
+  pointer-events: auto;
 }
-.centerPane{
+
+.centerPane {
   margin: auto;
   text-align: center;
   max-height: 200px;
   overflow-y: auto;
+}
+
+.button_detail {
+  margin-left: 25%;
+  margin-top: 10px;
+  font-size: 12px;
 }

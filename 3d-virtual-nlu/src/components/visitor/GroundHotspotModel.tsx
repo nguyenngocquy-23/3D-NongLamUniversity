@@ -1,11 +1,11 @@
-import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
-import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { Suspense, useEffect, useRef, useState } from "react";
 import styles from "../../styles/cardModel.module.css";
 import { useNavigate } from "react-router-dom";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import OptionHotspot from "../admin/taskCreateTourList/OptionHotspot";
-import { BaseHotspot, HotspotModel } from "../../redux/slices/HotspotSlice";
+import { HotspotModel } from "../../redux/slices/HotspotSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { DoubleSide } from "three";
@@ -18,7 +18,6 @@ type GroundHotspotProps = {
 
 const GroundHotspotModel = ({
   setCurrentHotspotId,
-  setHoveredHotspot,
   hotspotModel,
 }: GroundHotspotProps) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
@@ -26,7 +25,6 @@ const GroundHotspotModel = ({
 
   const icons = useSelector((state: RootState) => state.data.icons);
   const iconUrl = icons.find((i) => i.id == hotspotModel.iconId).url;
-  const modelRef = useRef<THREE.Group>(null); //gọi lại group trong return.
   /**
    * Đang set tạm
    */
@@ -39,33 +37,34 @@ const GroundHotspotModel = ({
   const { gl } = useThree();
   const navigate = useNavigate();
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
-  const [modelUrl, setModelUrl] = useState(hotspotModel.modelUrl ?? "");
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
   // Xoay model liên tục mỗi frame
-  // useFrame(() => {
-  //   if (modelRef.current) {
-  //     modelRef.current.rotation.y += 0.01; // Tốc độ xoay
-  //   }
-  // });
+  useFrame(() => {
+    if (loadedModel) {
+      loadedModel.rotation.y += 0.01;
+    }
+  });
+
   const [loadedModel, setLoadedModel] = useState<THREE.Group | null>(null);
 
   useEffect(() => {
-    if (!modelUrl) return;
+    if (!hotspotModel.modelUrl) return;
     const loader = new GLTFLoader();
     loader.load(
       hotspotModel.modelUrl,
       (gltf) => {
-        const scene = gltf.scene;
-        scene.scale.set(1.5, 1.5, 1.5);
+        const scene = gltf.scene.clone();
+        scene.scale.set(2,2,2);
         setLoadedModel(scene);
+        console.log("✅ GLTF loaded:", gltf);
       },
       undefined,
       (error) => {
         console.error("❌ Lỗi load GLB:", error);
       }
     );
-  }, [modelUrl, hotspotModel]);
+  }, [hotspotModel]);
 
   useEffect(() => {
     if (isHovered || isClicked) {
@@ -76,21 +75,6 @@ const GroundHotspotModel = ({
       targetScale.current = 1.5;
     }
   }, [isHovered]);
-
-  /**
-   * Sử dụng cho mục đích xoay mô hình 3d.
-   */
-  useFrame(() => {
-    if (hotspotRef.current) {
-      const material = hotspotRef.current
-        .material as THREE.MeshStandardMaterial;
-      material.opacity += (targetOpacity.current - material.opacity) * 0.1;
-      hotspotRef.current.scale.lerp(
-        new THREE.Vector3(targetScale.current, targetScale.current, 1),
-        0.1
-      );
-    }
-  });
 
   useEffect(() => {
     const loadAndModifySVG = async () => {
@@ -156,20 +140,23 @@ const GroundHotspotModel = ({
             hotspotModel.positionZ,
           ]}
         >
+          <Suspense fallback={null}>
+            {loadedModel && (
+              <primitive position={[10, 0, 0]} object={loadedModel}>
+                <ambientLight intensity={1} />
+                <directionalLight position={[10, 10, 10]} intensity={1} />
+              </primitive>
+            )}
+          </Suspense>
           <Html distanceFactor={40} transform>
             <div className={styles.container}>
-              <div className={styles.leftPane}>
-                <Suspense fallback={null}>
-                  {loadedModel && <primitive object={loadedModel} />}
-                </Suspense>
-              </div>
-
+              <div className={styles.leftPane} />
               <div className={styles.rightPane}>
                 <div className={styles.title}>{hotspotModel.name}</div>
                 <div className={styles.description}>
                   {hotspotModel.description}
                 </div>
-                <button onClick={() => navigate("/admin/model")}>
+                <button className={styles.button_detail} onClick={() => navigate("/admin/model")}>
                   Xem chi tiết
                 </button>
               </div>
@@ -193,12 +180,10 @@ const GroundHotspotModel = ({
         ]}
         onPointerOver={() => {
           setIsHovered(true);
-          // setHoveredHotspot(hotspotRef.current); //test
           gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
         }}
         onPointerOut={() => {
           setIsHovered(false);
-          // setHoveredHotspot(null); //test
           gl.domElement.style.cursor = "default"; // 👈 đổi cursor
         }}
         onClick={() => {
