@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { FaFile } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import { RiLoader2Fill } from "react-icons/ri";
+import { nextStep } from "../../redux/slices/StepSlice";
 
 /**
  * typeUpload: kiểu upload:
@@ -48,7 +49,6 @@ const UploadFile: React.FC<UploadFileProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
 
-  //Biến state để theo dõi thông tin của 1 file
   const [progress, setProgress] = useState<number>(0);
   const [uploadStatus, setUploadStatus] = useState<
     "select" | "uploading" | "done"
@@ -56,6 +56,10 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
   /**
    * Sử dụng để cập nhật trạng thái cho từng file khi được tải lên Cloudinary.
+   * "idle" : Khi mới được gửi lên.
+   * "uploading": Ngay khi click "Tải lên"
+   * "success" : So sánh file name với originalFileName gửi về từ api & url.
+   * "error" : lỗi trả về từ server.
    */
   const [fileStatuses, setFileStatuses] = useState<FileUploadStatus[]>([]);
 
@@ -293,6 +297,11 @@ const UploadFile: React.FC<UploadFileProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   }
 
+  /**
+   * Chuyển sang step mới:
+   * 1. Đưa các panorama success vào redux.
+   * 2. set nextStep để chuyển bước mới.
+   */
   const nextStep2 = () => {
     const allSuccessful = fileStatuses
       .filter((f) => f.status === "success" && f.uploadedUrl)
@@ -302,6 +311,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
       }));
 
     dispatch(setPanoramas(allSuccessful));
+    dispatch(nextStep());
   };
 
   return (
