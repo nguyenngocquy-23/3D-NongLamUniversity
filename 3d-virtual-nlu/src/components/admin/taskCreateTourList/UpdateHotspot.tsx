@@ -1,15 +1,15 @@
 import { useState } from "react";
 import styles from "../../../styles/tasklistCT/task3.module.css";
-import styleCTs from "../../../styles/taskcontainerct.module.css";
+import styleCTs from "../../../styles/updateHotspot.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/Store";
 import TypeNavigation from "./HotspotNavigation";
 import { BaseHotspot } from "../../../redux/slices/HotspotSlice";
 import TypeInfomation from "./HotspotInformation";
+import TypeModel from "./HotspotModel";
 import ConfigIcon from "../ConfigIcon";
 import { FaAngleLeft } from "react-icons/fa6";
 import TypeMedia from "./HotspotMedia";
-import TypeModel from "./HotspotModel";
 
 interface UpdateHotspotProps {
   hotspotId: string | null;
@@ -31,7 +31,11 @@ const UpdateHotspot = ({
   const [isUpdate, setIsUpdate] = useState(true);
 
   return (
-    <div className={styleCTs.task_container}>
+    <div
+      className={`${styleCTs.task_container} ${
+        hotspotId != null ? styleCTs.show : ""
+      }`}
+    >
       <div className={styleCTs.task_content}>
         <div className={styles.select_header}>
           <FaAngleLeft

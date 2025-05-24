@@ -24,4 +24,11 @@ public class InvalidatedTokenDao {
                     .one() > 0;
         });
     }
+
+    public boolean removeAll() {
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            return handle.createUpdate("DELETE FROM invalidated_tokens")
+                    .execute() > 0;
+        });
+    }
 }

@@ -37,18 +37,16 @@ const Task3 = ({
 
   return (
     <div className={styles.task3}>
-      <div className={styles.select_header}>
-        <select
-          className={styles.select_type}
-          onChange={(e) => handleChooseType(Number(e.target.value))}
-        >
-          {hotspotType.map((type) => (
-            <option key={type.id} value={type.id}>
-              {type.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <select
+        className={styles.select_type}
+        onChange={(e) => handleChooseType(Number(e.target.value))}
+      >
+        {hotspotType.map((type) => (
+          <option key={type.id} value={type.id}>
+            {type.name}
+          </option>
+        ))}
+      </select>
       {[1, 2, 4].includes(openTypeIndex) ? (
         <>
           <ConfigIcon

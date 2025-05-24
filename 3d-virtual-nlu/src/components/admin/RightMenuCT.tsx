@@ -19,6 +19,7 @@ interface RightMenuProps {
   unlockedTaskIds: number[];
   completedTaskIds: number[];
   onTaskClick: (id: number) => void;
+  setPreOpenTask: (id: number) => void;
 }
 
 const RightMenuCreateTour: React.FC<RightMenuProps> = ({
@@ -27,6 +28,7 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
   unlockedTaskIds,
   completedTaskIds,
   onTaskClick,
+  setPreOpenTask,
 }) => {
   const dispatch = useDispatch();
   return (
@@ -45,7 +47,10 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
                 cursor: isUnlocked ? "pointer" : "not-allowed",
                 borderBottom: isActive ? "2px solid #7FFF00" : "",
               }}
-              onClick={() => onTaskClick(task.id)}
+              onClick={() => {
+                onTaskClick(task.id);
+                setPreOpenTask(task.id);
+              }}
             >
               <span className={styles.taskName}>{task.title}</span>
               {!isUnlocked && <FaLock className={styles.taskIcon} />}

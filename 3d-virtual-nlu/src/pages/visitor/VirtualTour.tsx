@@ -11,13 +11,15 @@ import { IoIosCloseCircle } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/Store.ts";
 import {
-  HotspotMediaCreateRequest,
-  HotspotModelCreateRequest,
-} from "../../components/admin/taskCreateTourList/Task3AddHotspot.tsx";
-import axios from "axios";
+  fetchDefaultNodes,
+  fetchMasterNodes,
+} from "../../redux/slices/DataSlice.ts";
+import Waiting from "../../components/Waiting.tsx";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
-import { VideoMeshProps } from "../admin/CreateTourStep2.tsx";
+import { HotspotModel } from "../../redux/slices/HotspotSlice.ts";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -32,6 +34,21 @@ type VirtualTourProps = {
 };
 
 const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
+  //
+  const dispatch = useDispatch<AppDispatch>();
+  useEffect(() => {
+    dispatch(fetchMasterNodes());
+    // dispatch(fetchDefaultNodes());
+  }, [dispatch]);
+
+  const stored = localStorage.getItem("defaultNode");
+  const defaultNode = stored ? JSON.parse(stored) : null;
+  const hotspotModels = (defaultNode?.modelHotspots as HotspotModel[]) || [];
+
+  // const defaultNode = sessionStorage.getItem("defaultNode");
+  // let defaultNode = null;
+  // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
+
   const [isAnimation, setIsAnimation] = useState(true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
@@ -44,21 +61,42 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
 
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
     null
-  ); // Giữ lại đối tượng utterance
+  ); // Giữ lại đối tượng
+
+  /**
+   * Giải pháp tạm thời cho việc reload mới scroll duoc
+   * Tự động reload trang khi render và ẩn sau lớp Waiting
+   */
+  // useEffect(() => {
+  //   const alreadyReloaded = sessionStorage.getItem("reloaded");
+
+  //   if (!alreadyReloaded) {
+  //     console.log("🔄 Reloading page...");
+  //     sessionStorage.setItem("reloaded", "true");
+  //     window.location.reload();
+  //   }
+  // }, []);
+
+  /**
+   * Lớp chờ để ẩn các tiến trình render
+   * Tạo cảm giác loading cho người dùng
+   */
+  const [isWaiting, setIsWaiting] = useState(false);
+
+  useEffect(() => {
+    setIsWaiting(true);
+    const timeout = setTimeout(() => {
+      setIsWaiting(false); // ẩn trang chờ
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   const navigate = useNavigate();
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const [sphereCenter, setSphereCenter] = useState<[number, number, number]>([
     0, 0, 0,
   ]);
-
-  const [hotspotModels, setHotspotModels] = useState<
-    HotspotModelCreateRequest[]
-  >([]);
-
-  const [hotspotMedias, setHotspotMedias] = useState<
-    HotspotMediaCreateRequest[]
-  >([]);
 
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
@@ -87,42 +125,6 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Hàm gọi API
-  const fetchHotspotModels = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/api/v1/admin/hotspot/getHotspotModel",
-        {
-          nodeId: 1, // Thay bằng nodeId bạn cần
-        }
-      );
-      setHotspotModels(response.data.data); // Giả sử API trả về { data: [...] }
-    } catch (error) {
-      console.error("Lỗi khi lấy hotspot:", error);
-    }
-  };
-
-  const fetchHotspotMedias = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/api/v1/admin/hotspot/getHotspotMedia",
-        {
-          nodeId: 1, // Thay bằng nodeId bạn cần
-        }
-      );
-      console.log("response media::", response.data.data);
-      setHotspotMedias(response.data.data);
-    } catch (error) {
-      console.error("Lỗi khi lấy hotspot:", error);
-    }
-  };
-
-  // Gọi API khi component mount
-  useEffect(() => {
-    fetchHotspotModels();
-    fetchHotspotMedias();
   }, []);
 
   const radius = 100;
@@ -186,22 +188,20 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
       setIsFullscreen(false);
     }
   };
+  const [isOpenInfo, setIsOpenInfo] = useState(true);
 
-  let isOpenInfo = true;
-  const toggleInfomation = () => {
+  const toggleInformation = () => {
     const divInfo = document.querySelector<HTMLElement>(`.${styles.infoBox}`);
-    if (!divInfo) {
-      return;
-    }
+    if (!divInfo) return;
+
     if (isOpenInfo) {
-      divInfo.style.display = "block";
-      divInfo.style.bottom = "50px";
-      isOpenInfo = false;
-    } else {
       divInfo.style.display = "none";
       divInfo.style.bottom = "-100px";
-      isOpenInfo = true;
+    } else {
+      divInfo.style.display = "block";
+      divInfo.style.bottom = "50px";
     }
+    setIsOpenInfo(!isOpenInfo);
   };
   // Hàm bật/tắt âm thanh
   const toggleMute = () => {
@@ -272,106 +272,112 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
     readText();
   }, [isAnimation, isMuted]);
 
-  const VideoMeshComponent = ({
-    response,
-  }: {
-    response: HotspotMediaCreateRequest;
-  }) => {
-    const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
+  // const VideoMeshComponent = ({
+  //   response,
+  // }: {
+  //   response: HotspotMediaCreateRequest;
+  // }) => {
+  //   const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
 
-    const createCustomGeometry = (points: [number, number, number][]) => {
-      console.log("points...", points);
-      const geometry = new THREE.BufferGeometry();
-      const center = [
-        response.positionX,
-        response.positionY,
-        response.positionZ,
-      ];
-      // const center = getCenterOfPoints(points);
+  //   const createCustomGeometry = (points: [number, number, number][]) => {
+  //     console.log("points...", points);
+  //     const geometry = new THREE.BufferGeometry();
+  //     const center = [
+  //       response.positionX,
+  //       response.positionY,
+  //       response.positionZ,
+  //     ];
+  //     // const center = getCenterOfPoints(points);
 
-      const vertices = new Float32Array([
-        points[0][0] - center[0],
-        points[0][1] - center[1],
-        points[0][2] - center[2],
-        points[1][0] - center[0],
-        points[1][1] - center[1],
-        points[1][2] - center[2],
-        points[2][0] - center[0],
-        points[2][1] - center[1],
-        points[2][2] - center[2],
-        points[3][0] - center[0],
-        points[3][1] - center[1],
-        points[3][2] - center[2],
-      ]);
+  //     const vertices = new Float32Array([
+  //       points[0][0] - center[0],
+  //       points[0][1] - center[1],
+  //       points[0][2] - center[2],
+  //       points[1][0] - center[0],
+  //       points[1][1] - center[1],
+  //       points[1][2] - center[2],
+  //       points[2][0] - center[0],
+  //       points[2][1] - center[1],
+  //       points[2][2] - center[2],
+  //       points[3][0] - center[0],
+  //       points[3][1] - center[1],
+  //       points[3][2] - center[2],
+  //     ]);
 
-      const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
-      const uvs = new Float32Array([0, 1, 1, 1, 1, 0, 0, 0]);
+  //     const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
+  //     const uvs = new Float32Array([0, 1, 1, 1, 1, 0, 0, 0]);
 
-      geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
-      geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
-      geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+  //     geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+  //     geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
+  //     geometry.setIndex(new THREE.BufferAttribute(indices, 1));
 
-      // gắn center lại để dùng bên ngoài nếu cần
-      geometry.userData.center = center;
+  //     // gắn center lại để dùng bên ngoài nếu cần
+  //     geometry.userData.center = center;
 
-      return geometry;
-    };
-    const textureCreatedRef = useRef(false);
+  //     return geometry;
+  //   };
+  //   const textureCreatedRef = useRef(false);
 
-    useEffect(() => {
-      const video = document.createElement("video");
-      video.src = response.mediaUrl;
-      video.crossOrigin = "anonymous";
-      video.muted = true; // nên bật muted để autoplay không bị block
-      video.playsInline = true;
-      video.loop = true;
-      video.autoplay = true;
-      video.style.display = "none";
-      document.body.appendChild(video);
+  //   useEffect(() => {
+  //     const video = document.createElement("video");
+  //     video.src = response.mediaUrl;
+  //     video.crossOrigin = "anonymous";
+  //     video.muted = true; // nên bật muted để autoplay không bị block
+  //     video.playsInline = true;
+  //     video.loop = true;
+  //     video.autoplay = true;
+  //     video.style.display = "none";
+  //     document.body.appendChild(video);
 
-      const handleCanPlay = () => {
-        if (textureCreatedRef.current) return;
+  //     const handleCanPlay = () => {
+  //       if (textureCreatedRef.current) return;
 
-        const tex = new THREE.VideoTexture(video);
-        tex.minFilter = THREE.LinearFilter;
-        tex.magFilter = THREE.LinearFilter;
-        tex.format = THREE.RGBFormat;
-        tex.needsUpdate = true;
+  //       const tex = new THREE.VideoTexture(video);
+  //       tex.minFilter = THREE.LinearFilter;
+  //       tex.magFilter = THREE.LinearFilter;
+  //       tex.format = THREE.RGBFormat;
+  //       tex.needsUpdate = true;
 
-        setTexture(tex);
-        textureCreatedRef.current = true;
-        video.play();
-      };
+  //       setTexture(tex);
+  //       textureCreatedRef.current = true;
+  //       video.play();
+  //     };
 
-      video.addEventListener("canplaythrough", handleCanPlay);
-      video.load();
+  //     video.addEventListener("canplaythrough", handleCanPlay);
+  //     video.load();
 
-      return () => {
-        video.removeEventListener("canplaythrough", handleCanPlay);
-        video.pause();
-        video.src = "";
-        video.remove();
-        texture?.dispose();
-        setTexture(null);
-        textureCreatedRef.current = false;
-      };
-    }, []);
+  //     return () => {
+  //       video.removeEventListener("canplaythrough", handleCanPlay);
+  //       video.pause();
+  //       video.src = "";
+  //       video.remove();
+  //       texture?.dispose();
+  //       setTexture(null);
+  //       textureCreatedRef.current = false;
+  //     };
+  //   }, []);
 
-    const cornerPoints = JSON.parse(response.cornerPointList) as [
-      number,
-      number,
-      number
-    ][];
-    const geometry = createCustomGeometry(cornerPoints);
-    const center = geometry.userData.center;
+  //   const cornerPoints = JSON.parse(response.cornerPointList) as [
+  //     number,
+  //     number,
+  //     number
+  //   ][];
+  //   const geometry = createCustomGeometry(cornerPoints);
+  //   const center = geometry.userData.center;
 
-    const mesh = new THREE.Mesh(
-      geometry,
-      new THREE.MeshStandardMaterial({ map: texture, side: THREE.DoubleSide })
-    );
+  //   const mesh = new THREE.Mesh(
+  //     geometry,
+  //     new THREE.MeshStandardMaterial({ map: texture, side: THREE.DoubleSide })
+  //   );
 
-    return <primitive object={mesh} position={center} />;
-  };
+  //   return <primitive object={mesh} position={center} />;
+  // };
+
+  useEffect(() => {
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 50);
+  }, []);
 
   return (
     <div className={styles.tourContainer}>
@@ -391,7 +397,8 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
         <TourScene
           radius={radius}
           sphereRef={sphereRef}
-          textureCurrent={textureUrl ?? "/khoa.jpg"}
+          textureCurrent={defaultNode.url ?? "/khoa.jpg"}
+          // textureCurrent={defaultNode.url ?? "/khoa.jpg"}
           lightIntensity={0.5}
         />
         <CamControls
@@ -409,17 +416,18 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
             setHoveredHotspot={setHoveredHotspot}
           />
         ))}  */}
-        {/* {hotspotModels.map((hotspot, index) => (
+        {hotspotModels.map((hotspot, index) => (
           <GroundHotspotModel
             key={index}
-            position={[hotspot.positionX, hotspot.positionY, hotspot.positionZ]}
-            setHoveredHotspot={setHoveredHotspot}
-            modelUrl={hotspot.modelUrl}
+            // position={[hotspot.positionX, hotspot.positionY, hotspot.positionZ]}
+            // setHoveredHotspot={setHoveredHotspot}
+            // modelUrl={hotspot.modelUrl}
+            hotspotModel={hotspot}
           />
-        ))} */}
-        {hotspotMedias.map((point, index) => (
-          <VideoMeshComponent key={index} response={point} />
         ))}
+        {/* {hotspotMedias.map((point, index) => (
+          <VideoMeshComponent key={index} response={point} />
+        ))} */}
       </Canvas>
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>
@@ -429,22 +437,25 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
       {/* Menu bên trái */}
       <LeftMenuTour isMenuVisible={isMenuVisible} />
       {/* Hộp feedback */}
-      <Chat />
+      <Chat nodeId={defaultNode.id} />
+      {/* <Chat nodeId={defaultNode.id} /> */}
       {/* Footer chứa các tính năng */}
       <FooterTour
         isAnimation={isAnimation}
         isMuted={isMuted}
         isFullscreen={isFullscreen}
-        toggleInfomation={toggleInfomation}
+        toggleInformation={toggleInformation}
         toggleFullscreen={toggleFullscreen}
         toggleMute={toggleMute}
       />
       {/* Hộp thông tin */}
-      <div className={styles.infoBox} onClick={toggleInfomation}>
+      <div className={styles.infoBox} onClick={toggleInformation}>
         Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
         Lâm Thành phố Hồ Chí Minh
       </div>{" "}
       {/* <StatsPanel className={styles.statsPanel} /> */}
+      {/* Màn hình laoding */}
+      {isWaiting ? <Waiting /> : ""}
     </div>
   );
 };

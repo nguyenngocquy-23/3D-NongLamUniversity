@@ -21,14 +21,16 @@ const Header: React.FC = () => {
 
   return (
     <header className={style.header}>
-      <img
-        src="https://upload.wikimedia.org/wikipedia/vi/thumb/e/e1/Logo_HCMUAF.svg/900px-Logo_HCMUAF.svg.png?20230506055905"
-        alt="University Logo"
-        className="logo"
-      />
+      <div className={style.logo_container}>
+        <img
+          src="https://upload.wikimedia.org/wikipedia/vi/thumb/e/e1/Logo_HCMUAF.svg/900px-Logo_HCMUAF.svg.png?20230506055905"
+          alt="University Logo"
+          className={style.logo}
+        />
+        <span className={style.name}>TRƯỜNG ĐẠI HỌC NÔNG LÂM TP.HCM</span>
+      </div>
 
       <nav className={style.nav}>
-
         <ScrollLink
           to="campusMap"
           className={style.navLink}
@@ -76,11 +78,9 @@ const Header: React.FC = () => {
             )}
           </div>
         ) : (
-
           <Link to="/login" className={style.navLink}>
             Đăng nhập
           </Link>
-
         )}
       </nav>
     </header>

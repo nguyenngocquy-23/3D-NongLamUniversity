@@ -3,7 +3,7 @@ import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as THREE from "three";
-import { AppDispatch, RootState } from "../../redux/Store";
+import { RootState } from "../../redux/Store";
 import { HotspotNavigation } from "../../redux/slices/HotspotSlice";
 import OptionHotspot from "../admin/taskCreateTourList/OptionHotspot";
 
@@ -12,6 +12,8 @@ type HotspotType = "floor" | "info";
 type GroundHotspotProps = {
   setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test.
   type?: HotspotType;
+  // nodeId: string;
+  // idHotspot: string;
   onNavigate: (
     targetNodeId: string,
     cameraTargetPosition: [number, number, number]

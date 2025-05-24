@@ -5,9 +5,15 @@
   justify-content: center;
   height: 100vh;
   overflow: hidden;
-  background-color: #5cb338;
+  background-color: white;
+  /* background-color: #5cb338; */
 }
 
+.vtBackground .title{
+  margin: auto;
+  text-align: center;
+  color: green;
+}
 .vtBackground {
   position: fixed;
   top: -10vh;

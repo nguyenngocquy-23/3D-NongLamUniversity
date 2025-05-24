@@ -27,9 +27,10 @@ public class UserController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public User userInfo(@HeaderParam("Authorization") String token, UserLoginRequest userLoginDTO) {
+        // check token có trong table invlaidToken không
         boolean authenticated = authenticationService.authenticate(token);
         User user = userService.getUserByUserName(userLoginDTO.getUsername());
-        if(!authenticated){
+        if (!authenticated) {
             return null;
         }
         return user;
@@ -41,7 +42,7 @@ public class UserController {
     public ApiResponse<List<User>> getAllUsers(@HeaderParam("Authorization") String token) {
         boolean authenticated = authenticationService.authenticate(token);
         List<User> users = userService.getAllUser();
-        if(!authenticated){
+        if (!authenticated) {
             return ApiResponse.<List<User>>builder().statusCode(5000).message("loi xac thuc").data(null).build();
         }
         return ApiResponse.<List<User>>builder().statusCode(1000).message("lay danh sach thanh cong").data(users).build();

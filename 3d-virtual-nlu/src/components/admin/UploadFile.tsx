@@ -1,4 +1,4 @@
-import React, { useState, useRef, ChangeEvent } from "react";
+import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { MdDeleteForever, MdFileDownloadDone } from "react-icons/md";
 import styles from "../../styles/uploadFile.module.css";
@@ -11,10 +11,9 @@ import { RiLoader2Fill } from "react-icons/ri";
 import { nextStep } from "../../redux/slices/StepSlice";
 
 /**
- * typeUpload: kiểu upload:
- * 1. Upload ảnh 360 độ.
- * 2. Upload video.
- * 3. Upload mô hình 360 độ
+ * UploadFile sẽ nhận vào các kiểu props:
+ * className để xác định loại dùng UploadFile:
+ * upload_panos/upload_image/upload_video/upload_model
  */
 type UploadFileProps = {
   className?: string;
@@ -62,6 +61,17 @@ const UploadFile: React.FC<UploadFileProps> = ({
    * "error" : lỗi trả về từ server.
    */
   const [fileStatuses, setFileStatuses] = useState<FileUploadStatus[]>([]);
+  const maxFiles = className === "upload_panos" ? 5 : 1; //Ngoài upload panos, các trường hợp còn lại chỉ cần 1 file.
+
+  useEffect(() => {
+    if (
+      maxFiles === 1 &&
+      uploadStatus === "select" &&
+      fileStatuses.length > 0
+    ) {
+      handleUpload();
+    }
+  }, [fileStatuses]);
 
   /**
    * Kiểm tra ratio của ảnh (Đúng tỷ lệ 2:1)
@@ -96,20 +106,26 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
     for (let i = 0; i < newFiles.length; i++) {
       const file = newFiles[i];
-      const isValid = await isValidAspectRatio(file);
+      if (className === "upload_panos") {
+        const isValid = await isValidAspectRatio(file);
 
-      if (!isValid) {
-        Swal.fire({
-          icon: "warning",
-          title: "Vui lòng tải lên ảnh 360 đúng định dạng để tiếp tục",
-          text: `Ảnh thứ ${i + 1} (${
-            file.name
-          }) không có tỉ lệ 2:1 và sẽ bị loại.`,
-          confirmButtonText: "Đồng ý",
-        });
+        if (!isValid) {
+          Swal.fire({
+            icon: "warning",
+            title: "Vui lòng tải lên ảnh 360 đúng định dạng để tiếp tục",
+            text: `Ảnh thứ ${i + 1} (${
+              file.name
+            }) không có tỉ lệ 2:1 và sẽ bị loại.`,
+            confirmButtonText: "Đồng ý",
+          });
 
-        return;
+          return;
+        }
       }
+
+      /**
+       * Xử lý vấn đề về trùng file.
+       */
 
       const isDuplicate = fileStatuses.some(
         (existing) =>
@@ -344,7 +360,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
         style={{ display: "none" }}
       />
 
-      {fileStatuses.length < 5 && (
+      {fileStatuses.length < maxFiles && (
         <button
           className={`${className ? styles[className] : ""} ${styles.fileBtn}`}
           onClick={onChooseFile}
@@ -353,7 +369,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
             <FaFile />
           </span>
           <span>Chọn tệp</span>
-          {className === "upload_image" && (
+          {className === "upload_panos" && (
             <span className={styles.upload_tip}>
               Chỉ nhận tối đa 5 ảnh 360 độ có tỷ lệ 2:1{" "}
             </span>
@@ -412,23 +428,25 @@ const UploadFile: React.FC<UploadFileProps> = ({
               </div>
             ))}
 
-            <div className={styles.container_btn}>
-              <span className={styles.upload_btn} onClick={handleUpload}>
-                {uploadStatus === "done" ? (
-                  <span>Tạo lại</span>
-                ) : (
-                  <span>Tải lên ({fileStatuses.length}/5)</span>
-                )}
-                <FaCloudUploadAlt />
-              </span>
+            {className === "upload_panos" && (
+              <div className={styles.container_btn}>
+                <span className={styles.upload_btn} onClick={handleUpload}>
+                  {uploadStatus === "done" ? (
+                    <span>Tạo lại</span>
+                  ) : (
+                    <span>Tải lên ({fileStatuses.length}/5)</span>
+                  )}
+                  <FaCloudUploadAlt />
+                </span>
 
-              {fileStatuses.length > 0 &&
-                fileStatuses.every((f) => f.status === "success") && (
-                  <span className={styles.next_btn} onClick={nextStep2}>
-                    Tiếp tục
-                  </span>
-                )}
-            </div>
+                {fileStatuses.length > 0 &&
+                  fileStatuses.every((f) => f.status === "success") && (
+                    <span className={styles.next_btn} onClick={nextStep2}>
+                      Tiếp tục
+                    </span>
+                  )}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -436,4 +454,4 @@ const UploadFile: React.FC<UploadFileProps> = ({
   );
 };
 
-export default UploadFile;
+export default React.memo(UploadFile);
