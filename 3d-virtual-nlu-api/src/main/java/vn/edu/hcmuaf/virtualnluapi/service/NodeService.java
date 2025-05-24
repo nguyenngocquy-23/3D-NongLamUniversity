@@ -33,4 +33,8 @@ public class NodeService {
     public List<MasterNodeResponse> getAllMasterNodes() {
         return nodeDao.getAllMasterNodes();
     }
+
+    public NodeFullResponse getDefaultNode() {
+        return nodeDao.getDefaultNode();
+    }
 }

@@ -66,6 +66,9 @@ const ManageNode: React.FC = () => {
   const location = useLocation();
   const [isToggle, setIsToggle] = useState(false);
 
+  const fields = useSelector((state: RootState) => state.data.fields);
+  const spaces = useSelector((state: RootState) => state.data.spaces);
+
   const toggleFeature = () => {
     setIsToggle((preState) => !preState);
   };
@@ -80,9 +83,10 @@ const ManageNode: React.FC = () => {
   //search
   const [searchTerm, setSearchTerm] = useState("");
   const filteredNodes = nodes.filter((node) =>
-    node.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    node.spaceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    node.fieldName.toLowerCase().includes(searchTerm.toLowerCase())
+    node.name.toLowerCase().includes(searchTerm.toLowerCase())
+  //  ||
+  //   node.spaceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //   node.fieldName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -122,8 +126,8 @@ const ManageNode: React.FC = () => {
               userId={node.userId}
               status={node.status}
               name={node.name}
-              fieldName={node.fieldName}
-              spaceName={node.spaceName}
+              fieldName={fields.find((f) => f.id == node.fieldId).name}
+              spaceName={spaces.find((s) => s.id == node.spaceId).name}
               description={node.description}
               updatedAt={node.updatedAt}
               url={node.url}

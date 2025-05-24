@@ -5,6 +5,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.LogoutRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.RefreshTokenRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserLoginRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
@@ -27,10 +28,20 @@ public class VerifyController {
     UserService userService;
 
     @POST
+    @Path("/refresh")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<LoginResponse> userInfo(RefreshTokenRequest req) throws ParseException {
+    public ApiResponse<LoginResponse> refreshToken(RefreshTokenRequest req) throws ParseException {
         LoginResponse result = authenticationService.refreshToken(req.getToken());
         return ApiResponse.<LoginResponse>builder().statusCode(1000).message("refresh thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path(("/logout"))
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Void> logout(LogoutRequest request) throws ParseException {
+        authenticationService.logout(request.getToken());
+        return ApiResponse.<Void>builder().statusCode(1000).message("logout success").build();
     }
 }

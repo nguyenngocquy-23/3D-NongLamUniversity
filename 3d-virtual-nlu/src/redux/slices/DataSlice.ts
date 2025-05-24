@@ -9,6 +9,7 @@ interface DataState {
   nodes: any[];
   hotspotTypes: any[];
   masterNodes: any[];
+  defaultNode: any;
   icons: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
 }
@@ -21,6 +22,7 @@ const initialState: DataState = {
   nodes: [],
   hotspotTypes: [],
   masterNodes: [],
+  defaultNode: null,
   icons: [],
   status: "idle",
 };
@@ -57,6 +59,15 @@ export const fetchMasterNodes = createAsyncThunk(
   "data/fetchMasterNodes",
   async () => {
     const response = await axios.post("http://localhost:8080/api/node/master");
+    return response.data.data;
+  }
+);
+
+// Fetch default nodes
+export const fetchDefaultNodes = createAsyncThunk(
+  "data/fetchDefaultNodes",
+  async () => {
+    const response = await axios.post("http://localhost:8080/api/node/default");
     return response.data.data;
   }
 );
@@ -126,6 +137,18 @@ const dataSlice = createSlice({
         state.masterNodes = action.payload;
       })
       .addCase(fetchMasterNodes.rejected, (state) => {
+        state.status = "failed";
+      })
+      
+      .addCase(fetchDefaultNodes.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchDefaultNodes.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.defaultNode = action.payload;
+        localStorage.setItem("defaultNode",JSON.stringify(action.payload));
+      })
+      .addCase(fetchDefaultNodes.rejected, (state) => {
         state.status = "failed";
       })
 

@@ -15,5 +15,8 @@ public class HotspotModelResponse {
     double positionX, positionY, positionZ;
     double pitchX, yawY, rollZ;
     float scale;
+    String color, backgroundColor;
+    byte allowBackgroundColor;
+    float opacity;
     String modelUrl, name, description;
 }
