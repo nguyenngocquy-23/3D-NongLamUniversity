@@ -29,7 +29,6 @@ const TypeMedia = ({
 // setChooseCornerMediaPoint,
 // setCurrentHotspotType,
 TypeMediaProps) => {
-  console.log(":: ::: :: :", hotspotMedia);
   const [mediaUrl, setMediaUrl] = useState("");
   const [caption, setCaption] = useState("");
   const [mediaType, setMediaType] = useState("PICTURE");
