@@ -77,6 +77,9 @@ const GroundHotspotModel = ({
     }
   }, [isHovered]);
 
+  /**
+   * Sử dụng cho mục đích xoay mô hình 3d.
+   */
   useFrame(() => {
     if (hotspotRef.current) {
       const material = hotspotRef.current

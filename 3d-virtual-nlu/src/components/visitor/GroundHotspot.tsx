@@ -4,34 +4,31 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as THREE from "three";
 import { AppDispatch, RootState } from "../../redux/Store";
-import {
-  HotspotNavigation,
-  updateNavigationHotspotTarget,
-} from "../../redux/slices/HotspotSlice";
+import { HotspotNavigation } from "../../redux/slices/HotspotSlice";
+import OptionHotspot from "../admin/taskCreateTourList/OptionHotspot";
 
 type HotspotType = "floor" | "info";
 
 type GroundHotspotProps = {
-  position: [number, number, number];
   setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test.
   type?: HotspotType;
   nodeId: string;
   // idHotspot: string;
-  onNavigate?: (
+  onNavigate: (
     targetNodeId: string,
     cameraTargetPosition: [number, number, number]
   ) => void;
   hotspotNavigation: HotspotNavigation;
+  setCurrentHotspotId: (val: string | null) => void;
 };
 
 const GroundHotspot: React.FC<GroundHotspotProps> = ({
-  position,
   setHoveredHotspot,
   type,
-  nodeId,
   // idHotspot,
   onNavigate,
   hotspotNavigation,
+  setCurrentHotspotId,
 }) => {
   const camera = useThree();
   const hotspotRef = useRef<THREE.Mesh>(null);
@@ -41,8 +38,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
 
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
-  const modelRef = useRef<THREE.Group>(null); //gọi lại group trong return.
-
   const [isHovered, setIsHovered] = useState(false);
   const targetOpacity = useRef(0.6);
   const targetScale = useRef(5);
@@ -50,7 +45,8 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   /**
    * Đang thử nghiệm
    */
-  const [isClicked, setIsClicked] = useState(false);
+  // const [isClicked, setIsClicked] = useState(false);
+  const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
 
   useEffect(() => {
     if (isHovered) {
@@ -88,8 +84,9 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     )
   );
 
-  const dispatch = useDispatch<AppDispatch>();
-
+  /**
+   * Tập trung cho việc xử lý chỉnh sửa icon cho hotspsot.
+   */
   useEffect(() => {
     const loadAndModifySVG = async () => {
       try {
@@ -130,17 +127,25 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     };
 
     loadAndModifySVG();
-  }, [iconUrl]);
+  }, [iconUrl, hotspotNavigation]);
 
   return (
     <>
       <mesh
         ref={hotspotRef}
-        position={position}
+        position={[
+          hotspotNavigation.positionX,
+          hotspotNavigation.positionY,
+          hotspotNavigation.positionZ,
+        ]}
         rotation={[-Math.PI / 2, 0, 0]}
         onPointerOver={() => {
           setIsHovered(true);
-          console.log("🖱 Hover vào hotspot!", position);
+          console.log("🖱 Hover vào hotspot!", [
+            hotspotNavigation.positionX,
+            hotspotNavigation.positionY,
+            hotspotNavigation.positionZ,
+          ]);
           setHoveredHotspot(hotspotRef.current); //test
         }}
         onPointerOut={() => {
@@ -161,24 +166,37 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         onContextMenu={() => {
           // Ngăn menu mặc định
           if (isHovered) {
-            setIsClicked((prev) => !prev);
-            console.log(
-              "🖱 Click chuột phải vào hotspot khi đang hover!",
-              nodeId
-            );
+            setIsOpenHotspotOption((prev) => !prev);
           }
         }}
       >
         <planeGeometry args={[5, 5]} />
-        <meshStandardMaterial
+        <meshBasicMaterial
           map={texture}
           transparent
           opacity={0.6}
           depthTest={false}
+          color={new THREE.Color(hotspotNavigation.color)}
+          side={THREE.DoubleSide}
         />
       </mesh>
 
-      {isClicked && (
+      {isOpenHotspotOption && (
+        <OptionHotspot
+          hotspotId={hotspotNavigation.id}
+          setCurrentHotspotId={setCurrentHotspotId}
+          onClose={() => {
+            setIsOpenHotspotOption(false);
+          }}
+          position={[
+            hotspotNavigation.positionX,
+            hotspotNavigation.positionY,
+            hotspotNavigation.positionZ,
+          ]}
+        />
+      )}
+
+      {/* {isClicked && (
         <Html position={position} center distanceFactor={50}>
           <select
             onChange={(e) => {
@@ -203,7 +221,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             ))}
           </select>
         </Html>
-      )}
+      )} */}
     </>
   );
 };

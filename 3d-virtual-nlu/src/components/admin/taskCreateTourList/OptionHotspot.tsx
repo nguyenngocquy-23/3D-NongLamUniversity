@@ -1,7 +1,9 @@
 import { Html } from "@react-three/drei";
 import { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styles from "../../../styles/optionHotspot.module.css";
+import { RootState } from "../../../redux/Store";
+
 import { removeHotspot } from "../../../redux/slices/HotspotSlice";
 import Swal from "sweetalert2";
 
@@ -10,8 +12,7 @@ const OptionHotspot = ({
   setCurrentHotspotId,
   position,
   onClose,
-}: //   onEdit,
-{
+}: {
   hotspotId: string;
   setCurrentHotspotId: (val: string | null) => void;
   position: [number, number, number];
@@ -64,6 +65,10 @@ const OptionHotspot = ({
     setCurrentHotspotId(hotspotId);
     onClose();
   };
+
+  const hotspot = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.find((h) => h.id === hotspotId)
+  );
 
   return (
     <Html

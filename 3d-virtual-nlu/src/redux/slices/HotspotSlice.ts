@@ -150,8 +150,14 @@ const hotspotSlice = createSlice({
       );
 
       if (index !== -1) {
-        const { id, nodeId, positionX, positionY, positionZ, ...propsWithoutId } =
-          action.payload.propHotspot as any;
+        const {
+          id,
+          nodeId,
+          positionX,
+          positionY,
+          positionZ,
+          ...propsWithoutId
+        } = action.payload.propHotspot as any;
         state.hotspotList[index] = {
           ...state.hotspotList[index],
           ...propsWithoutId,
@@ -161,7 +167,11 @@ const hotspotSlice = createSlice({
 
     updateHotspotInfomation: (
       state,
-      action: PayloadAction<{hotspotId: string, title:string, content:string}>
+      action: PayloadAction<{
+        hotspotId: string;
+        title: string;
+        content: string;
+      }>
     ) => {
       const index = state.hotspotList.findIndex(
         (h) => h.id === action.payload.hotspotId
@@ -177,7 +187,12 @@ const hotspotSlice = createSlice({
 
     updateHotspotModel: (
       state,
-      action: PayloadAction<{hotspotId: string, modelUrl:string, name:string, description:string}>
+      action: PayloadAction<{
+        hotspotId: string;
+        modelUrl: string;
+        name: string;
+        description: string;
+      }>
     ) => {
       const index = state.hotspotList.findIndex(
         (h) => h.id === action.payload.hotspotId
@@ -194,7 +209,12 @@ const hotspotSlice = createSlice({
 
     updateHotspotMedia: (
       state,
-      action: PayloadAction<{hotspotId: string, mediaUrl:string, mediaType:string, caption:string}>
+      action: PayloadAction<{
+        hotspotId: string;
+        mediaUrl: string;
+        mediaType: string;
+        caption: string;
+      }>
     ) => {
       const index = state.hotspotList.findIndex(
         (h) => h.id === action.payload.hotspotId
@@ -209,11 +229,8 @@ const hotspotSlice = createSlice({
       }
     },
 
-    removeHotspot: (
-      state,
-      action: PayloadAction<{hotspotId: string}>
-    ) => {
-      console.log('hotspotId..', action.payload.hotspotId)
+    removeHotspot: (state, action: PayloadAction<{ hotspotId: string }>) => {
+      console.log("hotspotId..", action.payload.hotspotId);
       const index = state.hotspotList.findIndex(
         (h) => h.id === action.payload.hotspotId
       );
@@ -243,18 +260,3 @@ export const {
   removeHotspot,
 } = hotspotSlice.actions;
 export default hotspotSlice.reducer;
-
-// updateHotspot: (
-//   state,
-//   action: PayloadAction<{ id: string; updates: Partial<HotspotItem> }>
-// ) => {
-//   const index = state.hotspotList.findIndex(
-//     (h) => h.id === action.payload.id
-//   );
-//   if (index !== -1) {
-//     state.hotspotList[index] = {
-//       ...state.hotspotList[index],
-//       ...action.payload.updates,
-//     };
-//   }
-// },

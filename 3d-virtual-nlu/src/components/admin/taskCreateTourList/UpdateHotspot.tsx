@@ -27,11 +27,16 @@ const UpdateHotspot = ({
   const propHotspot = useSelector(
     (state: RootState) => state.hotspots.hotspotList
   ).find((h) => h.id == hotspotId);
+
   const currentType = propHotspot?.type; // State để lưu index của type đang mở
   const [isUpdate, setIsUpdate] = useState(true);
 
   return (
-    <div className={`${styleCTs.task_container} ${hotspotId != null ? styleCTs.show : "" }`}>
+    <div
+      className={`${styleCTs.task_container} ${
+        hotspotId != null ? styleCTs.show : ""
+      }`}
+    >
       <div className={styleCTs.task_content}>
         <div className={styles.select_header}>
           <FaAngleLeft
@@ -52,17 +57,9 @@ const UpdateHotspot = ({
               {(() => {
                 switch (currentType) {
                   case 1:
-                  // <TypeNavigation
-                  //   isOpenTypeNavigation={openTypeIndex == 1}
-                  //   setAssignable={setAssignable}
-                  //   setCurrentHotspotType={setCurrentHotspotType}
-                  // />;
+                    return <TypeNavigation hotspotId={hotspotId} />;
                   case 2:
-                    return (
-                      <TypeInfomation
-                        hotspotInfo={propHotspot} 
-                      />
-                    );
+                    return <TypeInfomation hotspotInfo={propHotspot} />;
                   case 4:
                     return <TypeModel hotspotModel={propHotspot} />;
                   default:

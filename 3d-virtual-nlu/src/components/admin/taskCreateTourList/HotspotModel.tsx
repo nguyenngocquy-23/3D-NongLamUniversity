@@ -33,7 +33,7 @@ const TypeModel = ({
     setModelUrl(hotspotModel.modelUrl);
     setName(hotspotModel.name);
     setDescription(hotspotModel.description);
-  }, [hotspotModel])
+  }, [hotspotModel]);
 
   const handleUpdateModel = () => {
     dispatch(
