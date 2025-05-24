@@ -3,18 +3,9 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../../styles/optionHotspot.module.css";
 import { RootState } from "../../../redux/Store";
-import {
-  BaseHotspot,
-  HotspotNavigation,
-} from "../../../redux/slices/HotspotSlice";
 
-// interface PanoramaSelectProps {
-//   hotspotId: string;
-//   setCurrentHotspotId: (val: string | null) => void;
-//   position: [number, number, number];
-//   onClose?: () => void;
-//   onEdit?: () => void; // optional: gọi nếu muốn mở modal sửa chẳng hạn
-// }
+import { removeHotspot } from "../../../redux/slices/HotspotSlice";
+import Swal from "sweetalert2";
 
 const OptionHotspot = ({
   hotspotId,
@@ -43,15 +34,34 @@ const OptionHotspot = ({
     };
   }, [onClose]);
 
-  //   const handleDelete = () => {
-  //     if (confirm("Bạn có chắc muốn xóa hotspot này không?")) {
-  //       dispatch(deleteHotspot(idHotspot));
-  //       onClose(); // đóng menu
-  //     }
-  //   };
+  const handleDelete = () => {
+    Swal.fire({
+      title: "Xác nhận xóa",
+      text: "Bạn có chắc muốn xóa hotspot này không?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setCurrentHotspotId(null);
+        dispatch(removeHotspot({ hotspotId }));
+        onClose();
+
+        Swal.fire({
+          icon: "success",
+          title: "Đã xóa!",
+          text: "Hotspot đã được xóa thành công.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      }
+    });
+  };
 
   const handleEdit = () => {
-    console.log("hotspotId...", hotspotId);
     setCurrentHotspotId(hotspotId);
     onClose();
   };
@@ -63,7 +73,7 @@ const OptionHotspot = ({
   return (
     <Html
       position={position}
-      distanceFactor={50}
+      distanceFactor={100}
       transform={false}
       occlude={false}
     >
@@ -76,7 +86,9 @@ const OptionHotspot = ({
         >
           ✏️ Cập nhật
         </div>
-        <div className={styles.remove_option}>🗑️ Xóa</div>
+        <div className={styles.remove_option} onClick={handleDelete}>
+          🗑️ Xóa
+        </div>
       </div>
     </Html>
   );

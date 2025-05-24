@@ -15,7 +15,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
-import { fetchFields, fetchHotspotTypes, fetchIcons, fetchNodes, fetchSpaces } from "../../redux/slices/DataSlice";
+import {
+  fetchFields,
+  fetchHotspotTypes,
+  fetchIcons,
+  fetchNodes,
+  fetchSpaces,
+} from "../../redux/slices/DataSlice";
+import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 
 const Layout = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -24,7 +31,6 @@ const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-
   useEffect(() => {
     dispatch(fetchFields());
     dispatch(fetchSpaces());
@@ -32,6 +38,13 @@ const Layout = () => {
     dispatch(fetchNodes());
     dispatch(fetchIcons());
   }, [dispatch]);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      scheduleTokenRefresh(token, dispatch);
+    }
+  }, []);
 
   // useEffect(() => {
   //   console.log("currentUser", currentUser);

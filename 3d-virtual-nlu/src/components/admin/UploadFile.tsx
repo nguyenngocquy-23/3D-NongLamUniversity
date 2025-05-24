@@ -1,4 +1,4 @@
-import React, { useState, useRef, ChangeEvent } from "react";
+import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { FaRegFileImage } from "react-icons/fa6";
 import { MdDeleteForever } from "react-icons/md";
@@ -16,7 +16,7 @@ import { useDispatch } from "react-redux";
 type UploadFileProps = {
   className?: string;
   hotspotId?: string;
-  onUploaded?: (urls: string, index: number) => void;
+  onUploaded?: (urls: string) => void;
   index?: number;
 };
 
@@ -44,9 +44,23 @@ const UploadFile: React.FC<UploadFileProps> = ({
   //Biến state để theo dõi thông tin của 1 file
   const [selectedFile, setSelectFiles] = useState<File[]>([]);
   const [progress, setProgress] = useState<number>(0);
+  const [fileURLs, setFileURLs] = useState<string[]>([]); // Lưu URL tạo ra
   const [uploadStatus, setUploadStatus] = useState<
     "select" | "uploading" | "done"
   >("select"); //select | uploading | done
+
+  // Tạo URL object một lần khi selectedFile thay đổi
+  useEffect(() => {
+    // Giải phóng URL cũ
+    fileURLs.forEach((url) => URL.revokeObjectURL(url));
+
+    const newURLs = selectedFile.map((file) => URL.createObjectURL(file));
+    setFileURLs(newURLs);
+
+    return () => {
+      newURLs.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [selectedFile]);
 
   // Xử lý sự kiện thêm file (nhiều file 1 lần.)
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -157,7 +171,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
       setUploadStatus("uploading");
 
       const formData = new FormData();
-
+      // await Promise.all(promises);
       selectedFile.map((file) => {
         formData.append("file", file);
       });
@@ -190,9 +204,10 @@ const UploadFile: React.FC<UploadFileProps> = ({
             url: item.url!,
           }));
 
-        if (onUploaded) {
+        if (onUploaded && hotspotId) {
           const url = formattedData[0].url;
-          onUploaded(url, index ?? 0);
+          console.log("url: ", url, " hotspotId :", hotspotId);
+          onUploaded(url);
         } else {
           dispatch(setPanoramas(formattedData));
         }
@@ -228,7 +243,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
           className == "upload_model" ||
           className == "upload_video" ||
           className == "upload_image" ||
-          className == "upload_icón"
+          className == "upload_icon"
             ? false
             : true
         }
@@ -253,16 +268,20 @@ const UploadFile: React.FC<UploadFileProps> = ({
           <div className={styles.fileCardsWrapper}>
             {selectedFile.map((file, index) => (
               <div key={index} className={styles.fileCardsWrapper}>
-                <div
-                  style={{
-                    backgroundImage: `url(${URL.createObjectURL(file)})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    width: "100px", // hoặc giá trị bạn cần
-                    height: "100px",
-                    margin: "auto",
-                  }}
-                />
+                {className != "upload_model" && className != "upload_video" ? (
+                  <div
+                    style={{
+                      backgroundImage: `url(${fileURLs[index]})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      width: "100px", // hoặc giá trị bạn cần
+                      height: "100px",
+                      margin: "auto",
+                    }}
+                  />
+                ) : (
+                  ""
+                )}
                 <div className={styles.fileCards}>
                   <span>
                     <FaRegFileImage />

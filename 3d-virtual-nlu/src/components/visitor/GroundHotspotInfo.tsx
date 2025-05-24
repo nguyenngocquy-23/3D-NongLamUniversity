@@ -1,32 +1,32 @@
-import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
-import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import { Suspense, useEffect, useRef, useState } from "react";
 import styles from "../../styles/cardModel.module.css";
-import { useNavigate } from "react-router-dom";
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import OptionHotspot from "../admin/taskCreateTourList/OptionHotspot";
-import { BaseHotspot, HotspotModel } from "../../redux/slices/HotspotSlice";
+import { HotspotInformation } from "../../redux/slices/HotspotSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { DoubleSide } from "three";
 import { Html } from "@react-three/drei";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
-  setHoveredHotspot?: (hotspot: THREE.Mesh | null) => void;
-  hotspotModel: HotspotModel;
+  setHoveredHotspot: (hotspot: THREE.Mesh | null) => void;
+  hotspotInfo: HotspotInformation;
 };
 
-const GroundHotspotModel = ({
+const GroundHotspotInfo = ({
   setCurrentHotspotId,
   setHoveredHotspot,
-  hotspotModel,
+  hotspotInfo,
 }: GroundHotspotProps) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   const icons = useSelector((state: RootState) => state.data.icons);
-  const iconUrl = icons.find((i) => i.id == hotspotModel.iconId).url;
+  const iconUrl = icons.find((i) => i.id == hotspotInfo.iconId).url;
   const modelRef = useRef<THREE.Group>(null); //gọi lại group trong return.
+
+  const currentStep = useSelector((state: RootState) => state.step.currentStep);
   /**
    * Đang set tạm
    */
@@ -37,35 +37,7 @@ const GroundHotspotModel = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setClicked] = useState(false);
   const { gl } = useThree();
-  const navigate = useNavigate();
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
-  const [modelUrl, setModelUrl] = useState(hotspotModel.modelUrl ?? "");
-
-  const currentStep = useSelector((state: RootState) => state.step.currentStep);
-  // Xoay model liên tục mỗi frame
-  // useFrame(() => {
-  //   if (modelRef.current) {
-  //     modelRef.current.rotation.y += 0.01; // Tốc độ xoay
-  //   }
-  // });
-  const [loadedModel, setLoadedModel] = useState<THREE.Group | null>(null);
-
-  useEffect(() => {
-    if (!modelUrl) return;
-    const loader = new GLTFLoader();
-    loader.load(
-      hotspotModel.modelUrl,
-      (gltf) => {
-        const scene = gltf.scene;
-        scene.scale.set(1.5, 1.5, 1.5);
-        setLoadedModel(scene);
-      },
-      undefined,
-      (error) => {
-        console.error("❌ Lỗi load GLB:", error);
-      }
-    );
-  }, [modelUrl, hotspotModel]);
 
   useEffect(() => {
     if (isHovered || isClicked) {
@@ -77,9 +49,6 @@ const GroundHotspotModel = ({
     }
   }, [isHovered]);
 
-  /**
-   * Sử dụng cho mục đích xoay mô hình 3d.
-   */
   useFrame(() => {
     if (hotspotRef.current) {
       const material = hotspotRef.current
@@ -103,14 +72,11 @@ const GroundHotspotModel = ({
           svgText.includes('fill="') || svgText.includes("fill='");
 
         if (!hasFill) {
-          svgText = svgText.replace(
-            "<svg",
-            `<svg fill="${hotspotModel.color}"`
-          );
+          svgText = svgText.replace("<svg", `<svg fill="${hotspotInfo.color}"`);
         } else {
           svgText = svgText.replace(
             /fill="[^"]*"|fill='[^']*'/g,
-            `fill="${hotspotModel.color}"`
+            `fill="${hotspotInfo.color}"`
           );
         }
 
@@ -132,37 +98,24 @@ const GroundHotspotModel = ({
     };
 
     loadAndModifySVG();
-  }, [iconUrl, hotspotModel]); // thêm color khi update
+  }, [iconUrl, hotspotInfo]); // thêm color khi update
 
   return (
     <>
       {isClicked ? (
         <Html
           position={[
-            hotspotModel.positionX,
-            hotspotModel.positionY + 16,
-            hotspotModel.positionZ,
+            hotspotInfo.positionX,
+            hotspotInfo.positionY + 16,
+            hotspotInfo.positionZ,
           ]}
           distanceFactor={40}
           transform
         >
           <div className={styles.container}>
-            {/* Mô hình trong canvas phụ (dùng portal) */}
-            <div className={styles.leftPane}>
-              <Suspense fallback={null}>
-                {loadedModel && <primitive object={loadedModel} />}
-              </Suspense>
-            </div>
-
-            {/* Nội dung bên phải */}
-            <div className={styles.rightPane}>
-              <div className={styles.title}>{hotspotModel.name}</div>
-              <div className={styles.description}>
-                {hotspotModel.description}
-              </div>
-              <button onClick={() => navigate("/admin/model")}>
-                Xem chi tiết
-              </button>
+            <div className={styles.centerPane}>
+              <div className={styles.title}>{hotspotInfo.title}</div>
+              <div className={styles.description}>{hotspotInfo.content}</div>
             </div>
           </div>
         </Html>
@@ -172,19 +125,19 @@ const GroundHotspotModel = ({
       <mesh
         ref={hotspotRef}
         position={[
-          hotspotModel.positionX,
-          hotspotModel.positionY,
-          hotspotModel.positionZ,
+          hotspotInfo.positionX,
+          hotspotInfo.positionY,
+          hotspotInfo.positionZ,
         ]}
-        rotation={[hotspotModel.pitchX, hotspotModel.yawY, hotspotModel.rollZ]}
+        rotation={[hotspotInfo.pitchX, hotspotInfo.yawY, hotspotInfo.rollZ]}
         onPointerOver={() => {
           setIsHovered(true);
-          // setHoveredHotspot(hotspotRef.current); //test
+          setHoveredHotspot(hotspotRef.current); //test
           gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
         }}
         onPointerOut={() => {
           setIsHovered(false);
-          // setHoveredHotspot(null); //test
+          setHoveredHotspot(null); //test
           gl.domElement.style.cursor = "default"; // 👈 đổi cursor
         }}
         onClick={() => {
@@ -201,21 +154,21 @@ const GroundHotspotModel = ({
           transparent
           opacity={0.6}
           depthTest={false}
-          color={new THREE.Color(hotspotModel.color)}
+          color={new THREE.Color(hotspotInfo.color)}
           side={DoubleSide}
         />
       </mesh>
       {isOpenHotspotOption && currentStep != 3 ? (
         <OptionHotspot
-          hotspotId={hotspotModel.id}
+          hotspotId={hotspotInfo.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
           onClose={() => {
             setIsOpenHotspotOption(false);
           }}
           position={[
-            hotspotModel.positionX,
-            hotspotModel.positionY,
-            hotspotModel.positionZ,
+            hotspotInfo.positionX,
+            hotspotInfo.positionY,
+            hotspotInfo.positionZ,
           ]}
         />
       ) : (
@@ -225,4 +178,4 @@ const GroundHotspotModel = ({
   );
 };
 
-export default GroundHotspotModel;
+export default GroundHotspotInfo;

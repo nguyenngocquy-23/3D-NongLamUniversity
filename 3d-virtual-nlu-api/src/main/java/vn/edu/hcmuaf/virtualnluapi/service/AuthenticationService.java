@@ -92,6 +92,13 @@ public class AuthenticationService {
 
     public LoginResponse refreshToken(String token) throws ParseException {
         var signToken = verifyToken(token, true);
+        String jit = signToken.getJWTClaimsSet().getJWTID();
+        Timestamp expiryTime = new Timestamp(signToken.getJWTClaimsSet().getExpirationTime().getTime());
+
+        invalidatedTokenService.save(InvalidatedToken.builder()
+                .id(jit)
+                .expiredAt(expiryTime)
+                .build());
         var username = signToken.getJWTClaimsSet().getSubject();
         var user = userDao.findByUsername(username);
         if (user == null) {

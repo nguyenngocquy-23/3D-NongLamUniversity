@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/chat/{roomId}/{userId}")
+@ServerEndpoint("/chat/{nodeId}/{userId}")
 public class MyWebSocketServer {
     private MessageService messageService = new MessageService();
     @Inject
@@ -23,10 +23,10 @@ public class MyWebSocketServer {
     private static final Map<String, Session> sessions = new ConcurrentHashMap<>();
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("roomId") String roomId, @PathParam("userId") String userId) {
-        String sessionKey = roomId + "_" + userId;
+    public void onOpen(Session session, @PathParam("nodeId") String nodeId, @PathParam("userId") String userId) {
+        String sessionKey = nodeId + "_" + userId;
         sessions.put(sessionKey, session);
-        System.out.println("User " + userId + " connected to room " + roomId);
+        System.out.println("User " + userId + " connected to node " + nodeId);
 
         // Gửi ping sau 10 giây để giữ kết nối
         new Thread(() -> {
@@ -43,29 +43,29 @@ public class MyWebSocketServer {
     }
 
     @OnMessage
-    public void onMessage(String message, Session session, @PathParam("roomId") String roomId, @PathParam("userId") String userId) {
+    public void onMessage(String message, Session session, @PathParam("nodeId") String nodeId, @PathParam("userId") String userId) {
         // Xử lý tin nhắn từ người dùng
-        System.out.println("Received message from user " + userId + " in room " + roomId + ": " + message);
+        System.out.println("Received message from user " + userId + " in node " + nodeId + ": " + message);
 
         try{
             // Lưu tin nhắn vào cơ sở dữ liệu
-            saveMessageToDatabase(roomId, userId, message);
+            saveMessageToDatabase(nodeId, userId, message);
 
             // Gửi tin nhắn đến tất cả người dùng trong phòng
-            broadcastMessage(roomId, userId, message);
+            broadcastMessage(nodeId, userId, message);
         }catch (Exception e){
             throw new RuntimeException(e.getMessage());
         }
     }
 
     @OnClose
-    public void onClose(Session session, @PathParam("roomId") String roomId, @PathParam("userId") String userId) throws IOException {
-        String sessionKey = roomId + "_" + userId;
+    public void onClose(Session session, @PathParam("nodeId") String nodeId, @PathParam("userId") String userId) throws IOException {
+        String sessionKey = nodeId + "_" + userId;
         if (session.isOpen()) {
             session.close();
         }
         sessions.remove(sessionKey);
-        System.out.println("User " + userId + " disconnected from room " + roomId);
+        System.out.println("User " + userId + " disconnected from node " + nodeId);
     }
 
 
@@ -75,9 +75,9 @@ public class MyWebSocketServer {
         System.err.println("WebSocket error: " + throwable.getMessage());
     }
 
-    private void saveMessageToDatabase(String roomId, String userId, String content) {
+    private void saveMessageToDatabase(String nodeId, String userId, String content) {
         MessageRequest messageDTO = MessageRequest.builder()
-                .roomId(Integer.parseInt(roomId))
+                .nodeId(Integer.parseInt(nodeId))
                 .userId(Integer.parseInt(userId))
                 .content(content)
                 .build();
@@ -86,11 +86,11 @@ public class MyWebSocketServer {
         messageService.sendMessage(messageDTO);
     }
 
-    private void broadcastMessage(String roomId, String userId, String message) {
+    private void broadcastMessage(String nodeId, String userId, String message) {
         User user = userDAO.findById(Integer.parseInt(userId));
         String formattedMessage = user.getUsername() + ": " + message;
         sessions.forEach((key, session) -> {
-            if (key.startsWith(roomId + "_")) {  // Kiểm tra user có trong room không
+            if (key.startsWith(nodeId + "_")) {
                 try {
                     if (session.isOpen()) {
                         session.getBasicRemote().sendText(formattedMessage);

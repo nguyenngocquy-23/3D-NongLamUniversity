@@ -12,6 +12,8 @@ type HotspotType = "floor" | "info";
 type GroundHotspotProps = {
   setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test.
   type?: HotspotType;
+  nodeId: string;
+  // idHotspot: string;
   onNavigate: (
     targetNodeId: string,
     cameraTargetPosition: [number, number, number]

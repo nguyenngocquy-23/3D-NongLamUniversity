@@ -16,6 +16,9 @@ public class HotspotModelCreateRequest {
     double positionX, positionY, positionZ;
     double pitchX, yawY, rollZ;
     float scale;
+    String color, backgroundColor;
+    byte allowBackgroundColor;
+    float opacity;
     String modelUrl, name, description;
     byte autoRotate;
     String colorCode;

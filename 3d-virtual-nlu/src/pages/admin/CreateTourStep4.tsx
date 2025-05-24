@@ -10,7 +10,6 @@ const CreateTourStep4: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <ProcessBar activeStep={4} />
       <b style={{color:'black'}}>Tour đã được duyệt, kiểm tra tại trang chủ</b>
     </div>
   );

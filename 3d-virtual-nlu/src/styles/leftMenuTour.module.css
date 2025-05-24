@@ -4,12 +4,11 @@
     left: -300px;
     /* Ẩn menu bên trái */
     width: 300px;
-    height: 100%;
+    height: 100vh;
     background-color: #333;
     color: white;
     transition: left 0.5s ease;
     z-index: 3;
-    overflow-y: scroll;
 }
 
 .left_menu.show {
@@ -17,10 +16,46 @@
     /* Hiển thị menu khi con chuột vào */
 }
 
-.left_menu ul {
-    list-style-type: none;
+
+.left_menu .header {
+    height: 15vh;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+.left_menu .searchBox {
     margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header .inputSeach {
+    padding: 5px;
+    font-size: 15px;
+    width: 80%;
+    outline: none;
+}
+
+.header .searchBtn {
+    font-size: 20px;
+    margin-left: 10px;
+    transition: transform 0.3s ease;
+}
+
+.header .searchBtn:hover {
+    cursor: pointer;
+    opacity: 0.7;
+    transform: scale(1.2);
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.left_menu .master_container {
+    list-style-type: none;
+    height: 85vh;
     padding: 0;
+    overflow-y: scroll;
+    pointer-events: auto;
 }
 
 .left_menu .node:hover {
@@ -33,7 +68,7 @@
 }
 
 .left_menu .node:hover::before {
-    background-color: rgba(0,0,0, 0);
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .left_menu .node .nodeName {
@@ -61,36 +96,4 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s ease;
-}
-
-.header{
-    padding: 10px 20px;
-    text-align: center;
-}
-
-.searchBox{
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.inputSeach {
-    padding: 5px;
-    font-size: 15px;
-    width: 80%;
-    outline: none;
-}
-
-.searchBtn {
-    font-size: 20px;
-    margin-left: 10px;
-    transition: transform 0.3s ease;
-}
-
-.searchBtn:hover {
-    cursor: pointer;
-    opacity: 0.7;
-    transform: scale(1.2);
-    color: rgba(0, 0, 0, 0.5);
 }

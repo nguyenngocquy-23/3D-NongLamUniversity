@@ -51,7 +51,7 @@ public class NodeController {
                     hotspotService.insertNavigation(req.getNavHotspots(), req.getId());
                 }
                 if (req.getInfoHotspots() != null && !req.getInfoHotspots().isEmpty()) {
-                    hotspotService.insertNavigation(req.getNavHotspots(), req.getId());
+                    hotspotService.insertInfomation(req.getInfoHotspots(), req.getId());
                 }
                 if (req.getMediaHotspots() != null && !req.getMediaHotspots().isEmpty()) {
                     hotspotService.insertMedia(req.getMediaHotspots(), req.getId());
@@ -63,7 +63,6 @@ public class NodeController {
                 System.err.println("Lỗi khi insert hotspot cho node: " + req.getId() + ": " + e.getMessage());
                 result = false;
             }
-
         }
 
         if (result) {
@@ -80,11 +79,6 @@ public class NodeController {
         List<NodeFullResponse> result = nodeService.getAllNodes();
 
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
-
-
-
-
-
     }
 
     /**

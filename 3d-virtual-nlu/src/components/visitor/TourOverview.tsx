@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import styles from "../../styles/tourOverview.module.css";
 
-
 import { FaArrowsToEye, FaPause, FaPlay } from "react-icons/fa6";
 const TourOverview = () => {
   const navigate = useNavigate();
@@ -21,24 +20,6 @@ const TourOverview = () => {
   // Variables ------ End
 
   const handleVirtualTour = () => {
-    // const vt = document.querySelector<HTMLCanvasElement>("#tour");
-    // const tour = document.querySelector<HTMLElement>(
-    //   `.${styles.containCanvas}`
-    // );
-
-    // if (!vt) {
-    //   return;
-    // } else if (!tour) {
-    //   return;
-    // } else {
-    //   const parent = vt.parentElement;
-    //   if (parent) {
-    //     console.log("oke");
-    //     navigate("/tourVirtual");
-    //   } else {
-    //     return;
-    //   }
-    // }
     navigate("/virtualTour");
   };
 
@@ -171,8 +152,12 @@ const TourOverview = () => {
     // Cleanup function để giải phóng tài nguyên
     return () => {
       rendererIntroTour.dispose();
-      controls.dispose(); // Hủy OrbitControls
-      scene.clear(); // Hủy các đối tượng trong scene
+      controls.dispose();
+      scene.clear();
+      const canvas = document.querySelector("#intro-tour");
+      if (canvas) {
+        canvas.remove();
+      }
     };
   }, []);
 
@@ -185,7 +170,7 @@ const TourOverview = () => {
     >
       <div className={styles.vtBackground}>
         <motion.div style={{ y }} className={styles.vtBackgroundImage}>
-          <h2>Tham quan ảo</h2>
+          <h2 className={styles.title}>Tham quan ảo</h2>
           <div className={styles.containCanvas}>
             <FaPause
               className={styles.pause}

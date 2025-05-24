@@ -100,7 +100,6 @@ input::placeholder {
   transform: perspective(1000px) scale(1.1);
   background: #23c045;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  font-weight: 800;
 }
 
 .link {
@@ -114,8 +113,6 @@ input::placeholder {
 .link:hover {
   color: white;
   opacity: 0.8 !important;
-  font-size: 20px;
-  box-shadow: -1px -1px 20px rgba(0, 0, 0, 0.4);
 }
 
 .eye {

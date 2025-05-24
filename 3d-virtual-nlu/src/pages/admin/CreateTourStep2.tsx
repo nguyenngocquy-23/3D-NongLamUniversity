@@ -13,7 +13,10 @@ import { RootState } from "../../redux/Store";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
-import { selectPanorama } from "../../redux/slices/PanoramaSlice";
+import {
+  clearPanorama,
+  selectPanorama,
+} from "../../redux/slices/PanoramaSlice";
 import RightMenuCreateTour from "../../components/admin/RightMenuCT";
 import TaskContainerCT from "../../components/admin/TaskContainerCT";
 import { useSequentialTasks } from "../../hooks/useSequentialTasks";
@@ -31,6 +34,8 @@ import {
   addModelHotspot,
   addNavigationHotspot,
   BaseHotspot,
+  clearHotspot,
+  HotspotInformation,
   HotspotMedia,
   HotspotModel,
   HotspotNavigation,
@@ -39,6 +44,12 @@ import {
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
 import UpdateHotspot from "../../components/admin/taskCreateTourList/UpdateHotspot";
+import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
+import { prevStep } from "../../redux/slices/StepSlice";
+import Swal from "sweetalert2";
+import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
+
+export const RADIUS = 100;
 
 const CreateTourStep2 = () => {
   /**
@@ -47,8 +58,6 @@ const CreateTourStep2 = () => {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   const handleOpenMenu = () => {
-    if (isMenuVisible) {
-    }
     setIsMenuVisible((preState) => !preState);
   };
 
@@ -103,8 +112,6 @@ const CreateTourStep2 = () => {
     4: 1,
   };
 
-  const RADIUS = 100;
-
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
 
   const dispatch = useDispatch();
@@ -112,6 +119,11 @@ const CreateTourStep2 = () => {
   const hotspotNavigations = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
       (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
+    )
+  );
+  const hotspotInfos = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
     )
   );
   const hotspotModels = useSelector((state: RootState) =>
@@ -183,6 +195,7 @@ const CreateTourStep2 = () => {
     if (!currentHotspotType || !assignable) {
       return;
     }
+    console.log("currentHotspotType...", currentHotspotType);
 
     const newPoints = [...currentPoints, [point.x, point.y, point.z]] as [
       number,
@@ -292,7 +305,6 @@ const CreateTourStep2 = () => {
         return (
           <>
             <Task3
-              hotspotModels={hotspotModels}
               currentPoints={currentPoints} // mesh đang chọn
               setCurrentPoints={setCurrentPoints} // thêm điểm
               assignable={assignable}
@@ -333,6 +345,10 @@ const CreateTourStep2 = () => {
     handleSaveTask,
     reset,
   } = useSequentialTasks(tasks.length);
+
+  const [preTaskIndex, setPreTaskIndex] = useState<number | null>(null);
+
+  const currentStep = useSelector((state: RootState) => state.step.currentStep);
 
   const computeYawToHotspot = (target: [number, number, number]): number => {
     const [x, , z] = target;
@@ -391,6 +407,23 @@ const CreateTourStep2 = () => {
     });
   };
 
+  const handleBackStep2 = () => {
+    Swal.fire({
+      icon: "question",
+      title: "Bạn có chắc chắn muốn quay lại bước trước?",
+      text: "Các thay đổi chưa được lưu lại.",
+      showCancelButton: true,
+      confirmButtonText: "Quay lại",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(clearPanorama());
+        dispatch(clearHotspot());
+        dispatch(prevStep());
+      }
+    });
+  };
+
   return (
     <>
       <div className={styles.previewTour}>
@@ -437,6 +470,16 @@ const CreateTourStep2 = () => {
                 hotspotNavigation={hotspot}
               />
             ))}
+          {hotspotInfos
+            .filter((hotspot) => hotspot.nodeId === currentSelectId)
+            .map((hotspot) => (
+              <GroundHotspotInfo
+                key={hotspot.id}
+                setCurrentHotspotId={setCurrentHotspotId}
+                setHoveredHotspot={setHoveredHotspot}
+                hotspotInfo={hotspot}
+              />
+            ))}
           {hotspotModels
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
@@ -453,14 +496,8 @@ const CreateTourStep2 = () => {
             .map((hotspot, index) => (
               <VideoMeshComponent
                 key={index}
-                cornerPoints={
-                  JSON.parse(hotspot.cornerPointListJson) as [
-                    number,
-                    number,
-                    number
-                  ][]
-                }
-                currentVideoUrl={hotspot.mediaUrl}
+                hotspotMedia={hotspot}
+                setCurrentHotspotId={setCurrentHotspotId}
               />
             ))}
 
@@ -482,7 +519,16 @@ const CreateTourStep2 = () => {
         </Canvas>
         {/* Header chứa logo + close */}
         <div className={styles.header_tour}>
-          <FaAngleLeft />
+          <div className={styles.header_tour_left}>
+            <FaAngleLeft
+              className={styles.back_btn}
+              onClick={() => {
+                handleBackStep2();
+              }}
+            />
+            <span>{CREATE_TOUR_STEPS[currentStep - 1].name}</span>
+          </div>
+          <span className={styles.number_step}>{currentStep}</span>
           {/* box chưa các panorama vừa upload */}
           <div className={styles.thumbnailsBox}>
             {panoramaList.map((item) => (
@@ -499,7 +545,7 @@ const CreateTourStep2 = () => {
                     className={styles.thumbnailImg}
                   />
                 </div>
-                <span>{item.config.name}</span>
+                <span className={styles.name_node}>{item.config.name}</span>
               </div>
             ))}
 
@@ -508,45 +554,56 @@ const CreateTourStep2 = () => {
             </div>
           </div>
           <div className={styles.toggleRightMenu}>
-            <IoMdMenu className={styles.show_menu} onClick={handleOpenMenu} />
+            <IoMdMenu
+              className={styles.show_menu}
+              onClick={() => handleOpenMenu()}
+            />
           </div>
         </div>
         {/* Hiển thị menu bên phải.*/}
-        {isMenuVisible && (
-          <div className={`${styles.rightMenu} ${styles.show}`}>
-            <div className={styles.rightTitle}>
-              <FaAngleRight
-                className={styles.showMenu}
-                onClick={handleOpenMenu}
-              />
-              <h2>Cấu hình</h2>
-            </div>
-
-            <RightMenuCreateTour
-              tasks={tasks}
-              openTaskIndex={openTaskIndex}
-              completedTaskIds={completedTaskIds}
-              unlockedTaskIds={unlockedTaskIds}
-              onTaskClick={handleOpenTask}
+        <div
+          className={`${styles.rightMenu} ${isMenuVisible ? styles.show : ""}`}
+        >
+          <div className={styles.rightTitle}>
+            <FaAngleRight
+              className={styles.close_menu_btn}
+              onClick={handleOpenMenu}
             />
+            <h2>Cấu hình</h2>
           </div>
-        )}
-        {openTaskIndex !== null && currentHotspotId === null && (
-          <TaskContainerCT
-            id={openTaskIndex}
-            name={tasks.find((t) => t.id === openTaskIndex)?.title || ""}
-            onSave={() => handleSaveTask(openTaskIndex)}
-          >
-            {getTaskContentById(openTaskIndex)}
-          </TaskContainerCT>
-        )}
-        {currentHotspotId != null && (
-          <UpdateHotspot
-            hotspotId={currentHotspotId}
-            setHotspotId={setCurrentHotspotId}
-            onPropsChange={handleOnPropsChange}
+
+          <RightMenuCreateTour
+            tasks={tasks}
+            openTaskIndex={openTaskIndex}
+            completedTaskIds={completedTaskIds}
+            unlockedTaskIds={unlockedTaskIds}
+            onTaskClick={handleOpenTask}
+            setPreOpenTask={setPreTaskIndex}
           />
-        )}
+        </div>
+        {/* tasks */}
+        <div
+          className={`${styles.task_container} ${
+            isMenuVisible && openTaskIndex !== null && currentHotspotId === null
+              ? styles.show
+              : ""
+          }`}
+          style={{ bottom: `${preTaskIndex == 3 ? "-600px" : "-400px"}` }}
+        >
+          <TaskContainerCT
+            id={preTaskIndex}
+            name={tasks.find((t) => t.id === preTaskIndex)?.title || ""}
+          >
+            {preTaskIndex
+              ? getTaskContentById(openTaskIndex ?? preTaskIndex)
+              : ""}
+          </TaskContainerCT>
+        </div>
+        <UpdateHotspot
+          hotspotId={currentHotspotId}
+          setHotspotId={setCurrentHotspotId}
+          onPropsChange={handleOnPropsChange}
+        />
       </div>
     </>
   );

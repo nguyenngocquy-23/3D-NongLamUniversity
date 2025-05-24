@@ -13,22 +13,19 @@ import styles from "../../styles/taskcontainerct.module.css";
 interface TaskContainerCTProps {
   id: number | null;
   name: string | null;
-  onSave: () => void;
   children: React.ReactNode;
 }
 const TaskContainerCT: React.FC<TaskContainerCTProps> = ({
   id,
   name,
   children,
-  onSave,
 }) => {
   return (
     <div className={styles.task_container}>
       <div className={styles.task_header}>
         <h3>{name}</h3>
-        {id === 3 ? <span>Vị trí muốn để</span> : ""}
       </div>
-      <div className={styles.task_content}>{children}</div>
+      <div className={`${styles.task_content}`}>{children}</div>
     </div>
   );
 };
