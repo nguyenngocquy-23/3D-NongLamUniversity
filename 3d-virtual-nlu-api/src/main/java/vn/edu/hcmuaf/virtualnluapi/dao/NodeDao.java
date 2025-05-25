@@ -84,7 +84,11 @@ public class NodeDao {
         }
         List<HotspotMediaResponse> mediaHotspots = hotspotDao.getMediaByNodeId(nodeFullResponse.getId());
         List<HotspotModelResponse> modelHotspots = hotspotDao.getModelByNodeId(nodeFullResponse.getId());
+        List<HotspotNavigationResponse> navigationHotspots = hotspotDao.getNavigationByNodeId(nodeFullResponse.getId());
+        List<HotspotInformationResponse> informationHotspots = hotspotDao.getInformationByNodeId(nodeFullResponse.getId());
 
+        nodeFullResponse.setNavHotspots(navigationHotspots);
+        nodeFullResponse.setInfoHotspots(informationHotspots);
         nodeFullResponse.setMediaHotspots(mediaHotspots);
         nodeFullResponse.setModelHotspots(modelHotspots);
         return nodeFullResponse;

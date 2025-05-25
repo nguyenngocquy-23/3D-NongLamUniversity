@@ -5,8 +5,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotInformationResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotMediaResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotModelResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotNavigationResponse;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -158,6 +160,26 @@ public class HotspotDao {
                 "AS m ON h.id = m.hotspotId WHERE h.nodeId = :nodeId";
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotMediaResponse.class).list();
+        });
+    }
+
+    public List<HotspotNavigationResponse> getNavigationByNodeId(int nodeId) {
+        String sql = "SELECT h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
+                "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" +
+                ", n.targetNodeId " +
+                "FROM hotspots AS h JOIN hotspot_navigations AS n ON h.id = n.hotspotId WHERE h.nodeId = :nodeId";
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotNavigationResponse.class).list();
+        });
+    }
+
+    public List<HotspotInformationResponse> getInformationByNodeId(int nodeId) {
+        String sql = "SELECT h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
+                "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" +
+                ", i.title, i.content " +
+                "FROM hotspots AS h JOIN hotspot_informations AS i ON h.id = i.hotspotId WHERE h.nodeId = :nodeId";
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotInformationResponse.class).list();
         });
     }
 }

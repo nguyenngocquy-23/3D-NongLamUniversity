@@ -154,7 +154,7 @@ export class TourNodeRequestMapper {
           mediaType: h.mediaType,
           mediaUrl: h.mediaUrl,
           caption: h.caption,
-          cornerPointListJson: "test-nè",
+          cornerPointListJson: h.cornerPointListJson,
         }));
 
       const modelHotspots: HotspotModelCreateRequest[] = hotspotsForNode

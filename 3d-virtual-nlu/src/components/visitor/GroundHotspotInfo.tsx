@@ -10,7 +10,6 @@ import { DoubleSide } from "three";
 import { Html } from "@react-three/drei";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
-  setHoveredHotspot: (hotspot: THREE.Mesh | null) => void;
   hotspotInfo: HotspotInformation;
 };
 

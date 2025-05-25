@@ -16,7 +16,7 @@ const VideoMeshComponent = ({
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
   const [texture, setTexture] = useState<THREE.VideoTexture | THREE.Texture | null>(null);
   const [cornerPointes, setCornerPointes] = useState(
-    JSON.parse(hotspotMedia.cornerPointListJson) as [number, number, number][]
+    JSON.parse(hotspotMedia.cornerPointList) as [number, number, number][]
   );
   const [isPaused, setIsPaused] = useState(false);
   const currentStep = useSelector((state: RootState) => state.step.currentStep);

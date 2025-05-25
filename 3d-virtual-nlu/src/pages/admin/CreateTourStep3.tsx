@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/Store";
+import { AppDispatch, RootState } from "../../redux/Store";
 import { useNavigate } from "react-router-dom";
 import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
 import axios from "axios";
@@ -29,6 +29,7 @@ import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import Swal from "sweetalert2";
 import { clearPanorama } from "../../redux/slices/PanoramaSlice";
 import { nextStep, prevStep } from "../../redux/slices/StepSlice";
+import { fetchMasterNodes } from "../../redux/slices/DataSlice";
 
 const CreateTourStep3: React.FC = () => {
   const panoramas = useSelector((state: RootState) => state.panoramas);
@@ -88,7 +89,7 @@ const CreateTourStep3: React.FC = () => {
     positionZ,
   ];
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const hotspotNavigations = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
@@ -154,6 +155,7 @@ const CreateTourStep3: React.FC = () => {
           text: "Xuất bản thành công",
         }).then(() => {
           dispatch(nextStep());
+          dispatch(fetchMasterNodes());
         });
       } else {
         Swal.fire({

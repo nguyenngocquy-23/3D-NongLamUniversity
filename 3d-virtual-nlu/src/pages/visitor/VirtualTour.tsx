@@ -19,7 +19,9 @@ import {
 } from "../../redux/slices/DataSlice.ts";
 import Waiting from "../../components/Waiting.tsx";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
-import { HotspotModel } from "../../redux/slices/HotspotSlice.ts";
+import { HotspotInformation, HotspotMedia, HotspotModel, HotspotNavigation } from "../../redux/slices/HotspotSlice.ts";
+import VideoMeshComponent from "../../components/admin/VideoMesh.tsx";
+import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo.tsx";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -44,6 +46,14 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   const stored = localStorage.getItem("defaultNode");
   const defaultNode = stored ? JSON.parse(stored) : null;
   const hotspotModels = (defaultNode?.modelHotspots as HotspotModel[]) || [];
+  const hotspotMedias = (defaultNode?.mediaHotspots as HotspotMedia[]) || [];
+  const hotspotNavigations = (defaultNode?.navHotspots as HotspotNavigation[]) || [];
+  const hotspotInformations = (defaultNode?.infoHotspots as HotspotInformation[]) || [];
+  console.log('hotspotInformations..',hotspotInformations)
+
+  if (!hotspotModels || !hotspotMedias || !hotspotNavigations || !hotspotInformations) {
+    return null;
+  }
 
   // const defaultNode = sessionStorage.getItem("defaultNode");
   // let defaultNode = null;
@@ -275,7 +285,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   // const VideoMeshComponent = ({
   //   response,
   // }: {
-  //   response: HotspotMediaCreateRequest;
+  //   response: HotspotMedia;
   // }) => {
   //   const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
 
@@ -416,18 +426,21 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
             setHoveredHotspot={setHoveredHotspot}
           />
         ))}  */}
+        {hotspotInformations.map((hotspot, index) => (
+          <GroundHotspotInfo
+            key={index}
+            hotspotInfo={hotspot}
+          />
+        ))}
         {hotspotModels.map((hotspot, index) => (
           <GroundHotspotModel
             key={index}
-            // position={[hotspot.positionX, hotspot.positionY, hotspot.positionZ]}
-            // setHoveredHotspot={setHoveredHotspot}
-            // modelUrl={hotspot.modelUrl}
             hotspotModel={hotspot}
           />
         ))}
-        {/* {hotspotMedias.map((point, index) => (
-          <VideoMeshComponent key={index} response={point} />
-        ))} */}
+        {hotspotMedias.map((hotspot, index) => (
+          <VideoMeshComponent key={index} hotspotMedia={hotspot} />
+        ))}
       </Canvas>
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>
