@@ -133,7 +133,23 @@ public class HotspotDao {
             PreparedBatch hotspotBatch = handle.prepareBatch(sqlInsertHotspot);
 
             for (HotspotMediaCreateRequest navReq : reqs) {
-                hotspotBatch.bind("nodeId", Integer.valueOf(nodeId)).bind("type", navReq.getType()).bind("iconId", navReq.getIconId()).bind("posX", navReq.getPositionX()).bind("posY", navReq.getPositionY()).bind("posZ", navReq.getPositionZ()).bind("pitchX", navReq.getPitchX()).bind("yawY", navReq.getYawY()).bind("rollZ", navReq.getRollZ()).bind("scale", navReq.getScale()).bind("color", navReq.getColor()).bind("backgroundColor", navReq.getBackgroundColor()).bind("allowBackgroundColor", navReq.getAllowBackgroundColor()).bind("opacity", navReq.getOpacity()).bind("createdAt", Timestamp.valueOf(LocalDateTime.now())).bind("updatedAt", Timestamp.valueOf(LocalDateTime.now())).add();
+                hotspotBatch
+                        .bind("nodeId", Integer.valueOf(nodeId))
+                        .bind("type", navReq.getType())
+                        .bind("iconId", navReq.getIconId())
+                        .bind("posX", navReq.getPositionX())
+                        .bind("posY", navReq.getPositionY())
+                        .bind("posZ", navReq.getPositionZ())
+                        .bind("pitchX", navReq.getPitchX())
+                        .bind("yawY", navReq.getYawY())
+                        .bind("rollZ", navReq.getRollZ())
+                        .bind("scale", navReq.getScale())
+                        .bind("color", navReq.getColor())
+                        .bind("backgroundColor", navReq.getBackgroundColor())
+                        .bind("allowBackgroundColor", navReq.getAllowBackgroundColor())
+                        .bind("opacity", navReq.getOpacity())
+                        .bind("createdAt", Timestamp.valueOf(LocalDateTime.now()))
+                        .bind("updatedAt", Timestamp.valueOf(LocalDateTime.now())).add();
             }
 
             List<Integer> generateIds = hotspotBatch.executePreparedBatch().mapTo(Integer.class).list();
@@ -143,7 +159,11 @@ public class HotspotDao {
 
             PreparedBatch navigationBatch = handle.prepareBatch(sqlInsertNavigation);
             for (int i = 0; i < generateIds.size(); i++) {
-                navigationBatch.bind("hotspotId", generateIds.get(i)).bind("mediaType", reqs.get(i).getMediaType()).bind("mediaUrl", reqs.get(i).getMediaUrl()).bind("caption", reqs.get(i).getCaption()).bind("cornerPointList", reqs.get(i).getCornerPointListJson()).add();
+                navigationBatch.bind("hotspotId", generateIds.get(i))
+                        .bind("mediaType", reqs.get(i).getMediaType())
+                        .bind("mediaUrl", reqs.get(i).getMediaUrl())
+                        .bind("caption", reqs.get(i).getCaption())
+                        .bind("cornerPointList", reqs.get(i).getCornerPointListJson()).add();
             }
             navigationBatch.execute();
             return true;

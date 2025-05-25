@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction, nanoid } from "@reduxjs/toolkit";
+import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 
 export interface PanoramaConfig {
   /**
@@ -62,7 +63,7 @@ const panoramaSlice = createSlice({
           description: "",
           positionX: 0,
           positionY: 0,
-          positionZ: 0,
+          positionZ: DEFAULT_ORIGINAL_Z,
           autoRotate: 0,
           speedRotate: 0,
           lightIntensity: 1,
@@ -85,7 +86,7 @@ const panoramaSlice = createSlice({
             description: "",
             positionX: 0,
             positionY: 0,
-            positionZ: 0,
+            positionZ: DEFAULT_ORIGINAL_Z,
             autoRotate: 0,
             speedRotate: 0,
             lightIntensity: 1,

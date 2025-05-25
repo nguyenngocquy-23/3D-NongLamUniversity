@@ -40,7 +40,10 @@ const ConfigIcon = ({
   const iconUrl =
     iconId != 0
       ? icons.find((i) => i.id == iconId).url
-      : icons.find((i) => i.id == hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId).url;
+      : icons.find(
+          (i) =>
+            i.id == hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId
+        ).url;
 
   const [scale, setScale] = useState(propHotspot?.scale ?? 1);
   const [isFloor, setIsFloor] = useState(false);
@@ -86,7 +89,7 @@ const ConfigIcon = ({
   useEffect(() => {
     if (propHotspot == null) {
       const props = handleInitialHotspotProps();
-      setBasicProps(props);
+      // setBasicProps(props);
       onPropsChange(props); // gọi hàm truyền lên component cha
     } else {
       const props = handleInitialHotspotProps();

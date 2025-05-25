@@ -4,9 +4,8 @@ import { RootState } from "../../../redux/Store";
 import { updatePanoConfig } from "../../../redux/slices/PanoramaSlice";
 import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
+import { DEFAULT_ORIGINAL_Z } from "../../../utils/Constants";
 // Tuỳ chỉnh thông số kỹ thuật.
-
-const originalZ = 0.0000001;
 
 type Task2Props = {
   cameraRef?: React.RefObject<THREE.PerspectiveCamera | null>;
@@ -26,7 +25,7 @@ const Task2 = ({ cameraRef }: Task2Props) => {
     speedRotate = 1,
     lightIntensity = 2,
     positionX = 0,
-    positionZ = originalZ,
+    positionZ = DEFAULT_ORIGINAL_Z,
   } = currentPanorama.config ?? {};
 
   /**
@@ -66,8 +65,8 @@ const Task2 = ({ cameraRef }: Task2Props) => {
   useEffect(() => {
     if (currentPanorama?.config) {
       const newAngle = getAngleFromXZ(
-        positionZ / originalZ,
-        positionX / originalZ
+        positionZ / DEFAULT_ORIGINAL_Z,
+        positionX / DEFAULT_ORIGINAL_Z
       );
       setAngle(newAngle);
     }
@@ -75,7 +74,11 @@ const Task2 = ({ cameraRef }: Task2Props) => {
 
   const cameraPosition = useMemo((): [number, number, number] => {
     const radians = (angle * Math.PI) / 180;
-    return [originalZ * Math.cos(radians), 0, originalZ * Math.sin(radians)];
+    return [
+      DEFAULT_ORIGINAL_Z * Math.cos(radians),
+      0,
+      DEFAULT_ORIGINAL_Z * Math.sin(radians),
+    ];
   }, [angle]);
 
   const handleChangeNumber = (
@@ -96,6 +99,7 @@ const Task2 = ({ cameraRef }: Task2Props) => {
 
   useEffect(() => {
     if (cameraRef?.current) {
+      console.log("[Basic-Config]: cameraRef current đã có chưa?");
       cameraRef.current.position.set(...cameraPosition);
       cameraRef.current.lookAt(0, 0, 0);
       cameraRef.current.updateProjectionMatrix();

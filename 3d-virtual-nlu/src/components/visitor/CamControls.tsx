@@ -108,6 +108,20 @@ const CamControls: React.FC<CamControlsProps> = ({
     currentCameraPosition.current.copy(camera.position); // lưu vị trí camera hiện tại
   }, [targetPosition, camera]);
 
+  useFrame(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+
+    // Góc xoay quanh trục Y (đơn vị radian)
+    const azimuthal = controls.getAzimuthalAngle();
+
+    // Chuyển sang độ và chuẩn hóa về 0–360°
+    const angleDeg = (THREE.MathUtils.radToDeg(azimuthal) + 360) % 360;
+
+    // ⬅ In ra góc (chính là hướng camera đang nhìn trong mặt phẳng XZ)
+    console.log("Camera hướng:", angleDeg.toFixed(2), "°");
+  });
+
   return (
     <OrbitControls
       ref={controlsRef}

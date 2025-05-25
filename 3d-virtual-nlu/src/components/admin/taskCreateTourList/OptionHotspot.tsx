@@ -65,10 +65,6 @@ const OptionHotspot = ({
     onClose();
   };
 
-  const hotspot = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.find((h) => h.id === hotspotId)
-  );
-
   return (
     <Html
       position={position}
