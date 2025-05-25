@@ -1,4 +1,4 @@
-import { useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useRef, useState } from "react";
 import styles from "../../styles/cardModel.module.css";
 import { useNavigate } from "react-router-dom";
@@ -9,11 +9,18 @@ import { HotspotModel } from "../../redux/slices/HotspotSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { DoubleSide } from "three";
-import { Html } from "@react-three/drei";
+import { Html, OrbitControls, useGLTF } from "@react-three/drei";
+import Model from "../admin/Model";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
   setHoveredHotspot?: (hotspot: THREE.Mesh | null) => void;
   hotspotModel: HotspotModel;
+};
+
+const Node = ({ modelUrl }: { modelUrl: string }) => {
+  const { scene } = useGLTF(modelUrl); // tải scene từ modelUrl
+
+  return <primitive object={scene} />;
 };
 
 const GroundHotspotModel = ({
@@ -55,7 +62,7 @@ const GroundHotspotModel = ({
       hotspotModel.modelUrl,
       (gltf) => {
         const scene = gltf.scene.clone();
-        scene.scale.set(2,2,2);
+        scene.scale.set(2, 2, 2);
         setLoadedModel(scene);
         console.log("✅ GLTF loaded:", gltf);
       },
@@ -142,7 +149,7 @@ const GroundHotspotModel = ({
         >
           <Suspense fallback={null}>
             {loadedModel && (
-              <primitive position={[10, 0, 0]} object={loadedModel}>
+              <primitive position={[9, 0, -20]} object={loadedModel}>
                 <ambientLight intensity={1} />
                 <directionalLight position={[10, 10, 10]} intensity={1} />
               </primitive>
@@ -156,7 +163,10 @@ const GroundHotspotModel = ({
                 <div className={styles.description}>
                   {hotspotModel.description}
                 </div>
-                <button className={styles.button_detail} onClick={() => navigate("/admin/model")}>
+                <button
+                  className={styles.button_detail}
+                  onClick={() => navigate("/admin/model", { state: { modelUrl: hotspotModel.modelUrl } })}
+                >
                   Xem chi tiết
                 </button>
               </div>

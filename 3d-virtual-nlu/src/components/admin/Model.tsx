@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, useTexture } from "@react-three/drei";
+import { Canvas, useThree } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import styles from "../../styles/model.module.css";
 import { FaAngleLeft, FaInbox, FaQuestion } from "react-icons/fa6";
-import { FrontSide } from "three";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface NodeProps {
   modelUrl: string;
@@ -71,30 +70,15 @@ const Node: React.FC<NodeProps> = ({ modelUrl }) => {
   );
 };
 
-interface ModelProps {
-  onClose: () => void;
-  title: string;
-  fields: { label: string; name: string; type: string }[]; // Danh sách các trường
-  apiUrl: string; // URL để gọi API
-}
-
-const Model: React.FC<ModelProps> = ({ onClose, title, fields, apiUrl }) => {
-  const [fadeOut, setFadeOut] = useState(false);
-
-  const handleFadeOut = () => {
-    setFadeOut(true);
-    setTimeout(() => {
-      onClose();
-    }, 500);
-  };
-
+const Model = () => {
   const location = useLocation();
   const { modelUrl } = location.state || {};
+  const navigate = useNavigate();
 
   return (
     <div className={styles.container}>
       <div className={styles.option}>
-        <button className={styles.option_button}>
+        <button className={styles.option_button} onClick={() => navigate(-1)}>
           <FaAngleLeft className={styles.icon} />{" "}
           <span className={styles.name_option}>Quay lại</span>
         </button>

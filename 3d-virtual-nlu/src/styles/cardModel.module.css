@@ -8,7 +8,8 @@
   width: 400px;
   max-height: 250px;
   color: black;
-  transform: scaleX(-1)
+  transform: scaleX(-1);
+  border: 1px solid #fff;
 }
 
 .leftPane {
@@ -44,8 +45,11 @@
 .centerPane {
   margin: auto;
   text-align: center;
-  max-height: 200px;
-  overflow-y: auto;
+  height: 180px;
+  /* overflow-y: auto; */
+  background-color: #fff;
+  width: 100%;
+  border-radius: 12px;
 }
 
 .button_detail {
