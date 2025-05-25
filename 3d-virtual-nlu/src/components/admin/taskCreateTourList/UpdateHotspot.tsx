@@ -30,10 +30,13 @@ const UpdateHotspot = ({
   const currentType = propHotspot?.type; // State để lưu index của type đang mở
   const [isUpdate, setIsUpdate] = useState(true);
 
+  /**
+   * Vấn đề phải đợi select đủ dữ liệu mới render
+   * Tránh truyền null/ underfine khi chưa có dữ liệu
+   */
   if (!propHotspot) {
     return null;
   }
-  console.log('propHotspot:::', propHotspot)
 
   return (
     <div

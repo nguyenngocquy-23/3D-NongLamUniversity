@@ -5,6 +5,8 @@ import { RootState } from "../../redux/Store";
 import { nextStep } from "../../redux/slices/StepSlice";
 import Swal from "sweetalert2";
 import Waiting from "../Waiting";
+import { clearHotspot, removeHotspot } from "../../redux/slices/HotspotSlice";
+import { clearPanorama } from "../../redux/slices/PanoramaSlice";
 
 /**
  * Quy đổi: currentStep (1) = stepsConfig[0]
@@ -38,9 +40,15 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
   const ActiveComponent = stepsConfig[currentStep - 1]?.Component;
 
   useEffect(() => {
-    if(currentStep == stepsConfig.length) setIsComplete(true);
-    if(currentStep != 1)
-    setIsLoading(true);
+    if (currentStep == stepsConfig.length) {
+      setIsComplete(true);
+    } 
+    if(currentStep == 1) {
+      dispatch(clearHotspot())
+      dispatch(clearPanorama())
+      setIsComplete(false);
+    }
+    if (currentStep != 1) setIsLoading(true);
     const timeout = setTimeout(() => {
       setIsLoading(false); // ẩn trang chờ
     }, 3000);
