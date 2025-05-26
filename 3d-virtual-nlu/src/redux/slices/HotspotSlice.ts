@@ -260,18 +260,3 @@ export const {
   removeHotspot,
 } = hotspotSlice.actions;
 export default hotspotSlice.reducer;
-
-// updateHotspot: (
-//   state,
-//   action: PayloadAction<{ id: string; updates: Partial<HotspotItem> }>
-// ) => {
-//   const index = state.hotspotList.findIndex(
-//     (h) => h.id === action.payload.id
-//   );
-//   if (index !== -1) {
-//     state.hotspotList[index] = {
-//       ...state.hotspotList[index],
-//       ...action.payload.updates,
-//     };
-//   }
-// },

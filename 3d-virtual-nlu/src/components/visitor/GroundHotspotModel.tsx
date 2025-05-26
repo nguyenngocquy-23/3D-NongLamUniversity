@@ -134,38 +134,48 @@ const GroundHotspotModel = ({
     loadAndModifySVG();
   }, [iconUrl, hotspotModel]); // thêm color khi update
 
+  const htmlGroupRef = useRef<THREE.Group>(null);
+  const { camera } = useThree();
+
+  useFrame(() => {
+    if (htmlGroupRef.current) {
+      const obj = htmlGroupRef.current;
+      obj.lookAt(camera.position);
+      obj.rotateY(Math.PI);
+    }
+  });
+
   return (
     <>
       {isClicked ? (
-        <Html
+        <group
+          ref={htmlGroupRef}
           position={[
             hotspotModel.positionX,
-            hotspotModel.positionY + 16,
+            hotspotModel.positionY + 15,
             hotspotModel.positionZ,
           ]}
-          distanceFactor={40}
-          transform
         >
-          <div className={styles.container}>
-            {/* Mô hình trong canvas phụ (dùng portal) */}
-            <div className={styles.leftPane}>
-              <Suspense fallback={null}>
-                {loadedModel && <primitive object={loadedModel} />}
-              </Suspense>
-            </div>
-
-            {/* Nội dung bên phải */}
-            <div className={styles.rightPane}>
-              <div className={styles.title}>{hotspotModel.name}</div>
-              <div className={styles.description}>
-                {hotspotModel.description}
+          <Html distanceFactor={40} transform>
+            <div className={styles.container}>
+              <div className={styles.leftPane}>
+                <Suspense fallback={null}>
+                  {loadedModel && <primitive object={loadedModel} />}
+                </Suspense>
               </div>
-              <button onClick={() => navigate("/admin/model")}>
-                Xem chi tiết
-              </button>
+
+              <div className={styles.rightPane}>
+                <div className={styles.title}>{hotspotModel.name}</div>
+                <div className={styles.description}>
+                  {hotspotModel.description}
+                </div>
+                <button onClick={() => navigate("/admin/model")}>
+                  Xem chi tiết
+                </button>
+              </div>
             </div>
-          </div>
-        </Html>
+          </Html>
+        </group>
       ) : (
         ""
       )}
@@ -176,7 +186,11 @@ const GroundHotspotModel = ({
           hotspotModel.positionY,
           hotspotModel.positionZ,
         ]}
-        rotation={[hotspotModel.pitchX, hotspotModel.yawY, hotspotModel.rollZ]}
+        rotation={[
+          THREE.MathUtils.degToRad(hotspotModel.pitchX),
+          THREE.MathUtils.degToRad(hotspotModel.yawY),
+          THREE.MathUtils.degToRad(hotspotModel.rollZ),
+        ]}
         onPointerOver={() => {
           setIsHovered(true);
           // setHoveredHotspot(hotspotRef.current); //test

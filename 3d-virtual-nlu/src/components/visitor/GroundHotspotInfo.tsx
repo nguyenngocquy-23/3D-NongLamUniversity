@@ -100,15 +100,29 @@ const GroundHotspotInfo = ({
     loadAndModifySVG();
   }, [iconUrl, hotspotInfo]); // thêm color khi update
 
+  const htmlGroupRef = useRef<THREE.Group>(null);
+  const { camera } = useThree();
+
+  useFrame(() => {
+    if (htmlGroupRef.current) {
+      const obj = htmlGroupRef.current;
+      obj.lookAt(camera.position);
+      obj.rotateY(Math.PI);
+    }
+  });
+
   return (
     <>
       {isClicked ? (
-        <Html
+        <group
+          ref={htmlGroupRef}
           position={[
             hotspotInfo.positionX,
-            hotspotInfo.positionY + 16,
+            hotspotInfo.positionY + 15,
             hotspotInfo.positionZ,
           ]}
+        >
+        <Html 
           distanceFactor={40}
           transform
         >
@@ -119,6 +133,7 @@ const GroundHotspotInfo = ({
             </div>
           </div>
         </Html>
+        </group>
       ) : (
         ""
       )}
@@ -129,7 +144,11 @@ const GroundHotspotInfo = ({
           hotspotInfo.positionY,
           hotspotInfo.positionZ,
         ]}
-        rotation={[hotspotInfo.pitchX, hotspotInfo.yawY, hotspotInfo.rollZ]}
+        rotation={[
+          THREE.MathUtils.degToRad(hotspotInfo.pitchX),
+          THREE.MathUtils.degToRad(hotspotInfo.yawY),
+          THREE.MathUtils.degToRad(hotspotInfo.rollZ),
+        ]}
         onPointerOver={() => {
           setIsHovered(true);
           setHoveredHotspot(hotspotRef.current); //test
