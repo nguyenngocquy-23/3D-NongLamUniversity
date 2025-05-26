@@ -295,15 +295,10 @@ const CreateTourStep2 = () => {
         return (
           <>
             <Task3
-              currentPoints={currentPoints} // mesh đang chọn
-              setCurrentPoints={setCurrentPoints} // thêm điểm
-              assignable={assignable}
               setAssignable={setAssignable}
-              chooseCornerMediaPoint={chooseCornerMediaPoint}
-              setChooseCornerMediaPoint={setChooseCornerMediaPoint}
-              currentHotspotType={currentHotspotType}
               setCurrentHotspotType={setCurrentHotspotType}
               onPropsChange={handleOnPropsChange}
+              currentPanorama={currentPanorama}
             />
           </>
         );

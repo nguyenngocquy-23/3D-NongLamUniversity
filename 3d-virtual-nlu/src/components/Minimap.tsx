@@ -6,9 +6,16 @@ import { PanoramaItem, selectPanorama } from "../redux/slices/PanoramaSlice";
 import { RiEdit2Line } from "react-icons/ri";
 import { MdZoomOutMap } from "react-icons/md";
 import { getAngleFromXZ, getArcAnglesThree } from "../utils/MathUtils";
-import { DEFAULT_ANGLE_RADAR, DEFAULT_ANGLE_THREE } from "../utils/Constants";
+import {
+  DEFAULT_ANGLE_RADAR,
+  DEFAULT_ANGLE_THREE,
+  RADIUS_MINIMAP_TOUR,
+  RADIUS_SPHERE,
+} from "../utils/Constants";
 import { GiQueenCrown } from "react-icons/gi";
 import { HotspotNavigation } from "../redux/slices/HotspotSlice";
+import { div } from "framer-motion/client";
+import { TiTick } from "react-icons/ti";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
@@ -27,14 +34,17 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
       (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
     )
   );
-  /**
-   * Lấy ra danh sách các hotspot đã có chủ.
-   */
-  const nodeInMaps = hotspotNavigations.filter(
-    (hotspot) => hotspot.targetNodeId && hotspot.targetNodeId.trim() !== ""
-  );
-
   const masterPanorama = panoramaList.find((h) => h.config.status === 2);
+  /**
+   * Là danh sách các hostpot navigation từ Master Node.
+   * - Đã có targetNodeId!
+   */
+  const hotspotFromMaster = hotspotNavigations.filter(
+    (hotspot) =>
+      hotspot.targetNodeId &&
+      hotspot.targetNodeId.trim() !== "" &&
+      hotspot.nodeId === masterPanorama?.id
+  );
 
   const { startSvg, endSvg } = getArcAnglesThree(
     DEFAULT_ANGLE_THREE,
@@ -94,15 +104,86 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
     return panoramaTarget?.url;
   };
 
-  const scalePosition = (x: number, z: number, originR = 100, targetR = 48) => {
+  /**
+   *
+   * @param x : Toạ độ điểm x (hotspot positionX)
+   * @param z : Toạ độ điểm x (hotspot positionX)
+   * @param originR  : bán kính của hình cầu
+   * @param targetR : bán kính của hình tròn radar
+   * @returns  toạ độ x', y' tương ứng trong bán kính targetR
+   */
+  const scalePosition = (
+    x: number,
+    z: number,
+    originR = RADIUS_SPHERE,
+    targetR = RADIUS_MINIMAP_TOUR
+  ) => {
     const scale = targetR / originR;
     return {
       x: 50 + x * scale, // dịch về tâm minimap (50, 50)
       y: 50 + z * scale,
     };
   };
+
+  const getRadarPosition = (): { ctx: number; ctz: number } => {
+    if (currentPanorama.config.status === 2) {
+      return { ctx: 50, ctz: 50 };
+    }
+
+    /**
+     * Lấy ra hotspot navigation có target (Điểm đến) là panorama đang hiển thị
+     */
+    const nodeItem = hotspotFromMaster.find(
+      (item) => item.targetNodeId === currentPanorama.id
+    );
+
+    if (nodeItem?.positionX != null && nodeItem?.positionZ != null) {
+      const { x, y } = scalePosition(nodeItem.positionX, nodeItem.positionZ);
+      return { ctx: x, ctz: y };
+    }
+    return { ctx: 50, ctz: 50 };
+  };
+
+  const { ctx, ctz } = getRadarPosition();
+
+  /**
+   * Kiểm tra số lượng node của mỗi loại đã đủ chưa.
+   * @param isMaster : Có phải là node master không
+   * @param quantity : số lượng panorama đang có
+   * @returns
+   */
+
+  const limitNavigation = (
+    isMaster: boolean,
+    quantity = panoramaList.length
+  ) => {
+    if (isMaster) return quantity - 1;
+    return 1;
+  };
+
+  /**
+   *
+   * @param nodeId : nodeId là id của mỗi panorama truyền vào.
+   * @returns danh sách cách hotspotNavigation của mỗi node:
+   * 1. targetNodeId của nó phải có giá trị.
+   * 2. hotspot của node đó hoặc hotspot trỏ đến node đó. (2 chiều)
+   */
+  const hotspotNavigationFromNode = (nodeId: string) => {
+    return hotspotNavigations.filter(
+      (h) =>
+        h.targetNodeId &&
+        h.targetNodeId.trim() !== "" &&
+        (h.nodeId === nodeId || h.targetNodeId === nodeId)
+    );
+  };
+
+  const checkFullhotspotNavigation = (nodeId: string, nodeStatus: number) => {
+    const limit = 2 * limitNavigation(nodeStatus === 2);
+    return hotspotNavigationFromNode(nodeId).length === limit;
+  };
+
   return (
-    <Html transform={false} occlude={false} className={styles.html_inner}>
+    <Html position={[0, 0, 0]} transform={false} occlude={false}>
       <div className={styles.minimap_container}>
         <div className={styles.minimap_header}>
           <MdZoomOutMap />
@@ -120,13 +201,20 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                   alt={item.config.name}
                   className={styles.thumbnail_node}
                 />
+                {checkFullhotspotNavigation(item.id, item.config.status) && (
+                  <div className={styles.node_success}>
+                    <TiTick className={styles.node_tick} />
+                  </div>
+                )}
+
                 {item.config.status === 2 && (
                   <div className={styles.master_node_icon_container}>
                     <GiQueenCrown className={styles.master_node_icon} />
                   </div>
                 )}
+
+                <span className={styles.node_name}>{item.config.name}</span>
               </div>
-              {/* <span className={styles.name_node}>{item.config.name}</span> */}
             </div>
           ))}
         </div>
@@ -136,7 +224,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
             alt="panorama_master"
             className={styles.master_node}
           />
-          {nodeInMaps.map((item) => {
+          {hotspotFromMaster.map((item) => {
             const { x, y } = scalePosition(item.positionX, item.positionZ);
             return (
               <img
@@ -145,30 +233,24 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                 alt="node"
                 className={styles.slave_node}
                 style={{
-                  position: "absolute",
                   left: `${x}%`,
                   top: `${y}%`,
                   transform: "translate(-50%, -50%)",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  clipPath: "50% at center",
-                  width: "30px",
-                  height: "30px",
                 }}
               />
             );
           })}
 
           <div className={styles.rotation_node}>
-            <svg
-              width="100%"
-              height="100%"
-              viewBox="0 0 100 100"
-              style={{ position: "absolute", top: 0, left: 0 }}
-            >
-              {" "}
+            <svg width="100%" height="100%" viewBox="0 0 100 100">
               <path
-                d={generateArcPath(50, 50, 48, startSvg, endSvg)}
+                d={generateArcPath(
+                  ctx,
+                  ctz,
+                  RADIUS_MINIMAP_TOUR,
+                  startSvg,
+                  endSvg
+                )}
                 fill="rgba(255, 255, 255, 0.23)"
               />
             </svg>
