@@ -22,7 +22,7 @@
   left: 100px;
 }
 
-.stepActive{
+.stepActive {
   background-color: rgb(17, 228, 63) !important;
   border: none !important;
 }
@@ -65,6 +65,7 @@
 }
 
 .stepContent {
+  height: 80%;
   border-radius: 10px;
   background-color: aquamarine;
 }

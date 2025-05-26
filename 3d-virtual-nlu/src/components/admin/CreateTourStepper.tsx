@@ -56,30 +56,6 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
     return () => clearTimeout(timeout);
   }, [currentStep]);
 
-  const handleNextStep = () => {
-    if (currentStep === 1) {
-      if (spaceId === "0" || spaceId == null) {
-        Swal.fire({
-          icon: "warning",
-          title: "Chưa chọn không gian",
-          text: "Vui lòng chọn không gian trước khi tiếp tục",
-          confirmButtonText: "OK",
-        });
-        return;
-      } else if (panoramaList.length === 0) {
-        Swal.fire({
-          icon: "warning",
-          title: "Chưa có ảnh 360",
-          text: "Vui lòng tải lên ảnh 360 để tiếp tục",
-          confirmButtonText: "OK",
-        });
-        return;
-      }
-    }
-    setIsLoading(true); // bật loading
-    dispatch(nextStep()); // cập nhật bước (redux)
-  };
-
   return (
     <>
       <div className={styles.stepper}>
@@ -110,12 +86,6 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
         <div className={styles.progressBar}>
           <div className={styles.progress}></div>
         </div>
-
-        {!isComplete && (
-          <button className={styles.btnNext} onClick={handleNextStep}>
-            Tiếp tục
-          </button>
-        )}
       </div>
 
       <div className={styles.stepContent}>

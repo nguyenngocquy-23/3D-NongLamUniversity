@@ -18,6 +18,10 @@
   font-style: italic;
 }
 
+.uploadWrapper {
+  position: relative;
+}
+
 .fileBtn {
   width: 300px;
   height: 150px;
@@ -49,21 +53,29 @@
 }
 
 .file_preview_container {
-  position: relative;
+  position: absolute;
+  top: -80px;
+  right: 5%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
 }
+
 .fileCardsWrapper {
   text-align: center;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
 .file_cards {
   width: 300px;
   display: flex;
   margin: auto;
-  margin-top: 15px;
   align-items: center;
   background-color: #fff;
   color: #000000;
@@ -86,12 +98,12 @@
   justify-content: center;
   z-index: 2;
 }
+
 .loader {
   width: 30px;
   height: 30px;
   border: 6px solid;
-  border-color: rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25)
-    rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.5);
+  border-color: rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25) rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.5);
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
@@ -100,22 +112,22 @@
 
 @keyframes animloader {
   0% {
-    border-color: rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25)
-      rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.75);
+    border-color: rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25) rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.75);
   }
+
   33% {
-    border-color: rgba(0, 128, 0, 0.75) rgba(0, 128, 0, 0.15)
-      rgba(0, 128, 0, 0.25) rgba(0, 128, 0, 0.35);
+    border-color: rgba(0, 128, 0, 0.75) rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25) rgba(0, 128, 0, 0.35);
   }
+
   66% {
-    border-color: rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.75)
-      rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25);
+    border-color: rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.75) rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25);
   }
+
   100% {
-    border-color: rgba(0, 128, 0, 0.25) rgba(0, 128, 0, 0.35)
-      rgba(0, 128, 0, 0.75) rgba(0, 128, 0, 0.15);
+    border-color: rgba(0, 128, 0, 0.25) rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.75) rgba(0, 128, 0, 0.15);
   }
 }
+
 .file_preview {
   background-size: cover;
   background-position: center;
@@ -194,19 +206,19 @@
   color: #fc0303;
   font-size: 16px;
 }
+
 .success_label {
   color: #008000;
 }
+
 .waiting_label {
   color: #e0e0e0;
 }
 
 .container_btn {
-  position: absolute;
   color: #fff;
-  right: 0;
-  bottom: 0;
-  margin-bottom: 10px;
+  margin: auto;
+  margin-top: 20px;
 }
 
 .container_btn span {
@@ -216,6 +228,7 @@
   border-radius: 5px;
   cursor: pointer;
 }
+
 .next_btn {
   background-color: #008000 !important;
 }
