@@ -20,6 +20,9 @@ type CamControlsProps = {
   controlsRef: React.RefObject<any>;
   autoRotate: boolean;
   autoRotateSpeed: number | null;
+
+  //Test cho callback
+  onAngleChange?: (angle: number) => void;
 };
 const zoomLevels = [75, 60, 45, 30];
 
@@ -30,6 +33,7 @@ const CamControls: React.FC<CamControlsProps> = ({
   controlsRef,
   autoRotate,
   autoRotateSpeed,
+  onAngleChange,
 }) => {
   const { gl } = useThree();
   const canvas = gl.domElement;
@@ -119,7 +123,7 @@ const CamControls: React.FC<CamControlsProps> = ({
     const angleDeg = (THREE.MathUtils.radToDeg(azimuthal) + 360) % 360;
 
     // ⬅ In ra góc (chính là hướng camera đang nhìn trong mặt phẳng XZ)
-    console.log("Camera hướng:", angleDeg.toFixed(2), "°");
+    onAngleChange?.(angleDeg);
   });
 
   return (

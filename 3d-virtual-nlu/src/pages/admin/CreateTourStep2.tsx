@@ -409,6 +409,8 @@ const CreateTourStep2 = () => {
     });
   };
 
+  const [cameraAngle, setCameraAngle] = useState(0);
+
   return (
     <>
       <div className={styles.previewTour}>
@@ -435,7 +437,12 @@ const CreateTourStep2 = () => {
             onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
           />
-          {currentPanorama && <MiniMap currentPanorama={currentPanorama} />}
+          {currentPanorama && (
+            <MiniMap
+              currentPanorama={currentPanorama}
+              angleCurrent={cameraAngle}
+            />
+          )}
           <CamControls
             targetPosition={targetPosition}
             sphereRef={sphereRef}
@@ -443,6 +450,7 @@ const CreateTourStep2 = () => {
             controlsRef={controlsRef}
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
+            onAngleChange={setCameraAngle}
           />
 
           {hotspotNavigations
