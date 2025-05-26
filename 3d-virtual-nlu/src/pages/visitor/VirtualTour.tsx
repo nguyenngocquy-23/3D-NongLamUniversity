@@ -2,7 +2,7 @@ import TourScene from "../../components/visitor/TourScene";
 import { Canvas } from "@react-three/fiber";
 import styles from "../../styles/virtualTour.module.css";
 import CamControls from "../../components/visitor/CamControls";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
 import Chat from "../../features/Chat.tsx";
@@ -11,13 +11,9 @@ import { IoIosCloseCircle } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../redux/Store.ts";
-import {
-  fetchDefaultNodes,
-  fetchIcons,
-  fetchMasterNodes,
-} from "../../redux/slices/DataSlice.ts";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/Store.ts";
+import { fetchIcons, fetchMasterNodes } from "../../redux/slices/DataSlice.ts";
 import Waiting from "../../components/Waiting.tsx";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
 import {
@@ -28,6 +24,7 @@ import {
 } from "../../redux/slices/HotspotSlice.ts";
 import VideoMeshComponent from "../../components/admin/VideoMesh.tsx";
 import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo.tsx";
+import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -46,14 +43,24 @@ const VirtualTour = () => {
   }, [dispatch]);
 
   const stored = localStorage.getItem("defaultNode");
-  const defaultNode = stored ? JSON.parse(stored) : null;
-  const hotspotModels = (defaultNode?.modelHotspots as HotspotModel[]) || [];
-  const hotspotMedias = (defaultNode?.mediaHotspots as HotspotMedia[]) || [];
-  const hotspotNavigations =
-    (defaultNode?.navHotspots as HotspotNavigation[]) || [];
-  const hotspotInformations =
-    (defaultNode?.infoHotspots as HotspotInformation[]) || [];
-  console.log("hotspotInformations..", hotspotInformations);
+  const defaultNode = useMemo(() => {
+    return stored ? JSON.parse(stored) : null;
+  }, [stored]);
+  const hotspotModels = useMemo(() => {
+    return (defaultNode?.modelHotspots as HotspotModel[]) || [];
+  }, [defaultNode]);
+
+  const hotspotMedias = useMemo(() => {
+    return (defaultNode?.mediaHotspots as HotspotMedia[]) || [];
+  }, [defaultNode]);
+
+  const hotspotNavigations = useMemo(() => {
+    return (defaultNode?.navHotspots as HotspotNavigation[]) || [];
+  }, [defaultNode]);
+
+  const hotspotInformations = useMemo(() => {
+    return (defaultNode?.infoHotspots as HotspotInformation[]) || [];
+  }, [defaultNode]);
 
   if (
     !hotspotModels ||
@@ -273,6 +280,14 @@ const VirtualTour = () => {
     }
   };
 
+  const handleMouseDown = () => {
+    setCursor((prev) => (prev !== "grabbing" ? "grabbing" : prev));
+  };
+
+  const handleMouseUp = () => {
+    setCursor((prev) => (prev !== "grab" ? "grab" : prev));
+  };
+
   const handleMouseEnterMenu = (event: any) => {
     const mouse = event.clientX;
 
@@ -282,8 +297,13 @@ const VirtualTour = () => {
     }
   };
 
-  const handleCloseMenu = () => {
-    setIsMenuVisible(false);
+  const handleCloseMenu = (event: any) => {
+    const mouse = event.clientX;
+
+    const threshold = 200; // width cua menu
+    if (mouse > threshold) {
+      setIsMenuVisible(false);
+    }
   };
 
   // Gọi hàm để đọc văn bản khi thay đổi trạng thái âm thanh
@@ -298,52 +318,25 @@ const VirtualTour = () => {
   }, []);
 
   return (
-    <div className={styles.tourContainer}>
-      <Canvas
-        camera={{
-          fov: 75,
-          aspect: windowSize.width / windowSize.height,
-          near: 0.1,
-          far: 1000,
-          position: [0, 0, 0.0000001], // Đặt vị trí mặc định của camera
-        }}
-        className={styles.tourCanvas}
-        onMouseMove={handleMouseEnterMenu}
-        onMouseDown={handleCloseMenu}
-      >
-        <UpdateCameraOnResize />
-        <TourScene
-          radius={radius}
-          sphereRef={sphereRef}
-          textureCurrent={defaultNode.url ?? "/khoa.jpg"}
-          // textureCurrent={defaultNode.url ?? "/khoa.jpg"}
-          lightIntensity={defaultNode.lightIntensity}
-        />
-        <CamControls
-          targetPosition={targetPosition}
-          sphereRef={sphereRef}
-          autoRotate={isRotation}
-          autoRotateSpeed={defaultNode.speedRotate}
-        />
-        {/* {hotspots.map((hotspot) => (
-          <GroundHotspotModel
-            key={hotspot.id}
-            position={hotspot.position}
-            modelUrl={hotspot.}
-            // type={hotspot.type}
-            setHoveredHotspot={setHoveredHotspot}
-          />
-        ))}  */}
-        {hotspotInformations.map((hotspot, index) => (
-          <GroundHotspotInfo key={index} hotspotInfo={hotspot} />
-        ))}
-        {hotspotModels.map((hotspot, index) => (
-          <GroundHotspotModel key={index} hotspotModel={hotspot} />
-        ))}
-        {hotspotMedias.map((hotspot, index) => (
-          <VideoMeshComponent key={index} hotspotMedia={hotspot} />
-        ))}
-      </Canvas>
+    <div
+      className={styles.tourContainer}
+      onPointerMove={handleMouseEnterMenu}
+      onPointerDown={handleCloseMenu}
+    >
+      <TourCanvas
+        windowSize={windowSize}
+        cursor={cursor}
+        sphereRef={sphereRef}
+        radius={radius}
+        defaultNode={defaultNode}
+        targetPosition={targetPosition ?? null}
+        hotspotInformations={hotspotInformations}
+        hotspotModels={hotspotModels}
+        hotspotMedias={hotspotMedias}
+        isRotation={isRotation}
+        // handleMouseEnterMenu={handleMouseEnterMenu}
+        // handleCloseMenu={handleCloseMenu}
+      />
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>
         <h2>NLU360</h2>
