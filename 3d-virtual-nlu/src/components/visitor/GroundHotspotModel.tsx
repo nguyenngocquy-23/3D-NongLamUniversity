@@ -32,11 +32,6 @@ const GroundHotspotModel = ({
 
   const icons = useSelector((state: RootState) => state.data.icons);
   const iconUrl = icons.find((i) => i.id == hotspotModel.iconId).url;
-  /**
-   * Đang set tạm
-   */
-  const targetOpacity = useRef(0.6);
-  const targetScale = useRef(5);
 
   // Kiểm tra trạng thái chuột với model.
   const [isHovered, setIsHovered] = useState(false);
@@ -44,6 +39,9 @@ const GroundHotspotModel = ({
   const { gl } = useThree();
   const navigate = useNavigate();
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
+
+  const targetOpacity = useRef(hotspotModel.opacity);
+  const targetScale = useRef(hotspotModel.scale);
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
   // Xoay model liên tục mỗi frame
@@ -75,13 +73,27 @@ const GroundHotspotModel = ({
 
   useEffect(() => {
     if (isHovered || isClicked) {
-      targetOpacity.current = 1;
-      targetScale.current = 2;
+      targetOpacity.current = hotspotModel.opacity + 0.5;
+      targetScale.current = hotspotModel.scale + 0.5;
+      console.log('opacity 1:..', targetOpacity.current)
     } else {
-      targetOpacity.current = 0.6;
-      targetScale.current = 1.5;
+      targetOpacity.current = hotspotModel.opacity;
+      targetScale.current = hotspotModel.scale;
+      console.log('opacity 2:..', targetOpacity.current)
     }
-  }, [isHovered]);
+  }, [isHovered, hotspotModel]);
+
+  useFrame(() => {
+    if (hotspotRef.current) {
+      const material = hotspotRef.current
+        .material as THREE.MeshBasicMaterial;
+      material.opacity += (targetOpacity.current - material.opacity) * 0.1;
+      hotspotRef.current.scale.lerp(
+        new THREE.Vector3(targetScale.current, targetScale.current, 1),
+        0.1
+      );
+    }
+  });
 
   useEffect(() => {
     const loadAndModifySVG = async () => {
@@ -165,7 +177,11 @@ const GroundHotspotModel = ({
                 </div>
                 <button
                   className={styles.button_detail}
-                  onClick={() => navigate("/admin/model", { state: { modelUrl: hotspotModel.modelUrl } })}
+                  onClick={() =>
+                    navigate("/admin/model", {
+                      state: { modelUrl: hotspotModel.modelUrl },
+                    })
+                  }
                 >
                   Xem chi tiết
                 </button>
@@ -208,7 +224,8 @@ const GroundHotspotModel = ({
         <meshBasicMaterial
           map={texture}
           transparent
-          opacity={0.6}
+          // opacity={targetOpacity.current}
+          opacity={hotspotModel.opacity}
           depthTest={false}
           color={new THREE.Color(hotspotModel.color)}
           side={DoubleSide}

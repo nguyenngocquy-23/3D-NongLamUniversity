@@ -24,11 +24,9 @@ const GroundHotspotInfo = ({
   const iconUrl = icons.find((i) => i.id == hotspotInfo.iconId).url;
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
-  /**
-   * Đang set tạm
-   */
-  const targetOpacity = useRef(0.6);
-  const targetScale = useRef(5);
+
+  const targetOpacity = useRef(hotspotInfo.opacity);
+  const targetScale = useRef(hotspotInfo.scale);
 
   // Kiểm tra trạng thái chuột với model.
   const [isHovered, setIsHovered] = useState(false);
@@ -38,18 +36,19 @@ const GroundHotspotInfo = ({
 
   useEffect(() => {
     if (isHovered || isClicked) {
-      targetOpacity.current = 1;
-      targetScale.current = 2;
+      targetOpacity.current = hotspotInfo.opacity + 0.5;
+      targetScale.current = hotspotInfo.scale + 0.5;
+      console.log("opacity 1:..", targetOpacity.current);
     } else {
-      targetOpacity.current = 0.6;
-      targetScale.current = 1.5;
+      targetOpacity.current = hotspotInfo.opacity;
+      targetScale.current = hotspotInfo.scale;
+      console.log("opacity 2:..", targetOpacity.current);
     }
-  }, [isHovered]);
+  }, [isHovered, hotspotInfo]);
 
   useFrame(() => {
     if (hotspotRef.current) {
-      const material = hotspotRef.current
-        .material as THREE.MeshStandardMaterial;
+      const material = hotspotRef.current.material as THREE.MeshBasicMaterial;
       material.opacity += (targetOpacity.current - material.opacity) * 0.1;
       hotspotRef.current.scale.lerp(
         new THREE.Vector3(targetScale.current, targetScale.current, 1),
@@ -172,7 +171,7 @@ const GroundHotspotInfo = ({
         <meshBasicMaterial
           map={texture}
           transparent
-          opacity={0.6}
+          opacity={hotspotInfo.opacity}
           depthTest={false}
           color={new THREE.Color(hotspotInfo.color)}
           side={DoubleSide}

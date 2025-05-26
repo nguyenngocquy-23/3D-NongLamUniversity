@@ -27,9 +27,7 @@ const UpdateHotspot = ({
     (state: RootState) => state.hotspots.hotspotList
   ).find((h) => h.id == hotspotId);
 
-  const currentType = propHotspot?.type; // State để lưu index của type đang mở
   const [isUpdate, setIsUpdate] = useState(true);
-
   /**
    * Vấn đề phải đợi select đủ dữ liệu mới render
    * Tránh truyền null/ underfine khi chưa có dữ liệu
@@ -37,6 +35,7 @@ const UpdateHotspot = ({
   if (!propHotspot) {
     return null;
   }
+  const currentType = propHotspot?.type; // State để lưu index của type đang mở
 
   return (
     <div
