@@ -73,6 +73,9 @@
 
 .left_menu .node .nodeName {
     margin-left: 30px;
+    word-wrap: break-word;
+    display: inline-block;
+    max-width: 80%;
 }
 
 .left_menu .node {
@@ -84,6 +87,7 @@
     width: 100%;
     font-weight: 700;
     position: relative;
+    overflow: hidden;
 }
 
 .left_menu .node::before {

@@ -7,25 +7,16 @@ import { RootState } from "../../redux/Store";
 import { HotspotNavigation } from "../../redux/slices/HotspotSlice";
 import OptionHotspot from "../admin/taskCreateTourList/OptionHotspot";
 
-type HotspotType = "floor" | "info";
-
 type GroundHotspotProps = {
-  setHoveredHotspot: (hotspot: THREE.Mesh | null) => void; //test.
-  type?: HotspotType;
-  // nodeId: string;
-  // idHotspot: string;
   onNavigate: (
     targetNodeId: string,
     cameraTargetPosition: [number, number, number]
   ) => void;
   hotspotNavigation: HotspotNavigation;
-  setCurrentHotspotId: (val: string | null) => void;
+  setCurrentHotspotId?: (val: string | null) => void;
 };
 
 const GroundHotspot: React.FC<GroundHotspotProps> = ({
-  setHoveredHotspot,
-  type,
-  // idHotspot,
   onNavigate,
   hotspotNavigation,
   setCurrentHotspotId,
@@ -67,9 +58,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         new THREE.Vector3(targetScale.current, targetScale.current, 1),
         0.1
       );
-    }
-    if (type == "info" && hotspotRef.current) {
-      hotspotRef.current.lookAt(camera.camera.position);
     }
   });
 
@@ -146,12 +134,10 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             hotspotNavigation.positionY,
             hotspotNavigation.positionZ,
           ]);
-          setHoveredHotspot(hotspotRef.current); //test
         }}
         onPointerOut={() => {
           setIsHovered(false);
           console.log("Rời khỏi hotspot!");
-          setHoveredHotspot(null); //test
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -184,7 +170,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       {isOpenHotspotOption && (
         <OptionHotspot
           hotspotId={hotspotNavigation.id}
-          setCurrentHotspotId={setCurrentHotspotId}
+          setCurrentHotspotId={setCurrentHotspotId ?? (()=>{})}
           onClose={() => {
             setIsOpenHotspotOption(false);
           }}

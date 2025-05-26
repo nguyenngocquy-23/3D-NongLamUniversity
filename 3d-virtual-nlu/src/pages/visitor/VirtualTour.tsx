@@ -15,11 +15,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store.ts";
 import {
   fetchDefaultNodes,
+  fetchIcons,
   fetchMasterNodes,
 } from "../../redux/slices/DataSlice.ts";
 import Waiting from "../../components/Waiting.tsx";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
-import { HotspotInformation, HotspotMedia, HotspotModel, HotspotNavigation } from "../../redux/slices/HotspotSlice.ts";
+import {
+  HotspotInformation,
+  HotspotMedia,
+  HotspotModel,
+  HotspotNavigation,
+} from "../../redux/slices/HotspotSlice.ts";
 import VideoMeshComponent from "../../components/admin/VideoMesh.tsx";
 import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo.tsx";
 
@@ -31,15 +37,11 @@ import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo.tsx";
  * 1. Hiển thị khi thêm tour mới.
  * 2. Hiển thị màn hình cho phép người dùng di chuyển tại giao diện.
  */
-type VirtualTourProps = {
-  textureUrl: string;
-};
-
-const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
-  //
+const VirtualTour = () => {
   const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
     dispatch(fetchMasterNodes());
+    dispatch(fetchIcons());
     // dispatch(fetchDefaultNodes());
   }, [dispatch]);
 
@@ -47,11 +49,18 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   const defaultNode = stored ? JSON.parse(stored) : null;
   const hotspotModels = (defaultNode?.modelHotspots as HotspotModel[]) || [];
   const hotspotMedias = (defaultNode?.mediaHotspots as HotspotMedia[]) || [];
-  const hotspotNavigations = (defaultNode?.navHotspots as HotspotNavigation[]) || [];
-  const hotspotInformations = (defaultNode?.infoHotspots as HotspotInformation[]) || [];
-  console.log('hotspotInformations..',hotspotInformations)
+  const hotspotNavigations =
+    (defaultNode?.navHotspots as HotspotNavigation[]) || [];
+  const hotspotInformations =
+    (defaultNode?.infoHotspots as HotspotInformation[]) || [];
+  console.log("hotspotInformations..", hotspotInformations);
 
-  if (!hotspotModels || !hotspotMedias || !hotspotNavigations || !hotspotInformations) {
+  if (
+    !hotspotModels ||
+    !hotspotMedias ||
+    !hotspotNavigations ||
+    !hotspotInformations
+  ) {
     return null;
   }
 
@@ -59,7 +68,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   // let defaultNode = null;
   // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
 
-  const [isAnimation, setIsAnimation] = useState(true);
+  const [isRotation, setIsRotation] = useState(defaultNode.autoRotate || true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
 
@@ -280,108 +289,7 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
   // Gọi hàm để đọc văn bản khi thay đổi trạng thái âm thanh
   useEffect(() => {
     readText();
-  }, [isAnimation, isMuted]);
-
-  // const VideoMeshComponent = ({
-  //   response,
-  // }: {
-  //   response: HotspotMedia;
-  // }) => {
-  //   const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
-
-  //   const createCustomGeometry = (points: [number, number, number][]) => {
-  //     console.log("points...", points);
-  //     const geometry = new THREE.BufferGeometry();
-  //     const center = [
-  //       response.positionX,
-  //       response.positionY,
-  //       response.positionZ,
-  //     ];
-  //     // const center = getCenterOfPoints(points);
-
-  //     const vertices = new Float32Array([
-  //       points[0][0] - center[0],
-  //       points[0][1] - center[1],
-  //       points[0][2] - center[2],
-  //       points[1][0] - center[0],
-  //       points[1][1] - center[1],
-  //       points[1][2] - center[2],
-  //       points[2][0] - center[0],
-  //       points[2][1] - center[1],
-  //       points[2][2] - center[2],
-  //       points[3][0] - center[0],
-  //       points[3][1] - center[1],
-  //       points[3][2] - center[2],
-  //     ]);
-
-  //     const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
-  //     const uvs = new Float32Array([0, 1, 1, 1, 1, 0, 0, 0]);
-
-  //     geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
-  //     geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
-  //     geometry.setIndex(new THREE.BufferAttribute(indices, 1));
-
-  //     // gắn center lại để dùng bên ngoài nếu cần
-  //     geometry.userData.center = center;
-
-  //     return geometry;
-  //   };
-  //   const textureCreatedRef = useRef(false);
-
-  //   useEffect(() => {
-  //     const video = document.createElement("video");
-  //     video.src = response.mediaUrl;
-  //     video.crossOrigin = "anonymous";
-  //     video.muted = true; // nên bật muted để autoplay không bị block
-  //     video.playsInline = true;
-  //     video.loop = true;
-  //     video.autoplay = true;
-  //     video.style.display = "none";
-  //     document.body.appendChild(video);
-
-  //     const handleCanPlay = () => {
-  //       if (textureCreatedRef.current) return;
-
-  //       const tex = new THREE.VideoTexture(video);
-  //       tex.minFilter = THREE.LinearFilter;
-  //       tex.magFilter = THREE.LinearFilter;
-  //       tex.format = THREE.RGBFormat;
-  //       tex.needsUpdate = true;
-
-  //       setTexture(tex);
-  //       textureCreatedRef.current = true;
-  //       video.play();
-  //     };
-
-  //     video.addEventListener("canplaythrough", handleCanPlay);
-  //     video.load();
-
-  //     return () => {
-  //       video.removeEventListener("canplaythrough", handleCanPlay);
-  //       video.pause();
-  //       video.src = "";
-  //       video.remove();
-  //       texture?.dispose();
-  //       setTexture(null);
-  //       textureCreatedRef.current = false;
-  //     };
-  //   }, []);
-
-  //   const cornerPoints = JSON.parse(response.cornerPointList) as [
-  //     number,
-  //     number,
-  //     number
-  //   ][];
-  //   const geometry = createCustomGeometry(cornerPoints);
-  //   const center = geometry.userData.center;
-
-  //   const mesh = new THREE.Mesh(
-  //     geometry,
-  //     new THREE.MeshStandardMaterial({ map: texture, side: THREE.DoubleSide })
-  //   );
-
-  //   return <primitive object={mesh} position={center} />;
-  // };
+  }, [isMuted]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -409,13 +317,13 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           sphereRef={sphereRef}
           textureCurrent={defaultNode.url ?? "/khoa.jpg"}
           // textureCurrent={defaultNode.url ?? "/khoa.jpg"}
-          lightIntensity={0.5}
+          lightIntensity={defaultNode.lightIntensity}
         />
         <CamControls
           targetPosition={targetPosition}
           sphereRef={sphereRef}
-          autoRotate={true}
-          autoRotateSpeed={0.5}
+          autoRotate={isRotation}
+          autoRotateSpeed={defaultNode.speedRotate}
         />
         {/* {hotspots.map((hotspot) => (
           <GroundHotspotModel
@@ -427,16 +335,10 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
           />
         ))}  */}
         {hotspotInformations.map((hotspot, index) => (
-          <GroundHotspotInfo
-            key={index}
-            hotspotInfo={hotspot}
-          />
+          <GroundHotspotInfo key={index} hotspotInfo={hotspot} />
         ))}
         {hotspotModels.map((hotspot, index) => (
-          <GroundHotspotModel
-            key={index}
-            hotspotModel={hotspot}
-          />
+          <GroundHotspotModel key={index} hotspotModel={hotspot} />
         ))}
         {hotspotMedias.map((hotspot, index) => (
           <VideoMeshComponent key={index} hotspotMedia={hotspot} />
@@ -454,7 +356,8 @@ const VirtualTour = ({ textureUrl }: VirtualTourProps) => {
       {/* <Chat nodeId={defaultNode.id} /> */}
       {/* Footer chứa các tính năng */}
       <FooterTour
-        isAnimation={isAnimation}
+        isRotation={isRotation}
+        setIsRotation={setIsRotation}
         isMuted={isMuted}
         isFullscreen={isFullscreen}
         toggleInformation={toggleInformation}

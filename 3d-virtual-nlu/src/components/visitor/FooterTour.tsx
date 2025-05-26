@@ -10,7 +10,8 @@ import { FaInfoCircle } from "react-icons/fa";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 
 interface FooterTourProps {
-  isAnimation: boolean;
+  isRotation: boolean;
+  setIsRotation: (value:boolean) => void;
   isMuted: boolean;
   isFullscreen: boolean;
   toggleInformation: () => void;
@@ -19,7 +20,8 @@ interface FooterTourProps {
 }
 
 const FooterTour = ({
-  isAnimation,
+  isRotation,
+  setIsRotation,
   isMuted,
   isFullscreen,
   toggleInformation,
@@ -35,11 +37,13 @@ const FooterTour = ({
       <div className="contain_extension" style={{ display: "flex" }}>
         <FaPause
           className={styles.pauseBtn}
-          style={{ display: isAnimation ? "block" : "none" }}
+          style={{ display: isRotation ? "block" : "none" }}
+          onClick={() => {setIsRotation(false)}}
         />
         <FaPlay
           className={styles.playBtn}
-          style={{ display: isAnimation ? "none" : "block" }}
+          style={{ display: isRotation ? "none" : "block" }}
+          onClick={() => {setIsRotation(true)}}
         />
         <FaLanguage className={styles.info_btn} onClick={toggleInformation} />
         {isMuted ? (

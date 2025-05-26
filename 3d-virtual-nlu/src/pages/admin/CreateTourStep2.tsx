@@ -59,10 +59,6 @@ const CreateTourStep2 = () => {
   /**
    * Xử lý toggle hiển thị menu - end
    */
-
-  const user = useSelector((state: RootState) => state.auth.user);
-
-  const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
@@ -73,7 +69,6 @@ const CreateTourStep2 = () => {
     [number, number, number][]
   >([]);
 
-  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
   const [assignable, setAssignable] = useState(false);
   const [chooseCornerMediaPoint, setChooseCornerMediaPoint] = useState(false);
 
@@ -84,8 +79,6 @@ const CreateTourStep2 = () => {
   const handleMouseUp = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
-
-  // Phần mình đang sửa. ------------------------START.
 
   /**
    * Khởi tạo sphereRef: sphere ban đầu của hình cầu.
@@ -100,15 +93,7 @@ const CreateTourStep2 = () => {
    */
   const [currentHotspotType, setCurrentHotspotType] = useState(1);
 
-  const defaultIconIds: Record<HotspotType, number> = {
-    1: 1,
-    2: 2,
-    3: 1,
-    4: 1,
-  };
-
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
-
   const dispatch = useDispatch();
 
   const hotspotNavigations = useSelector((state: RootState) =>
@@ -163,6 +148,7 @@ const CreateTourStep2 = () => {
 
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
+    setCurrentHotspotId(null);
   };
 
   const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
@@ -217,7 +203,7 @@ const CreateTourStep2 = () => {
             mediaType: "",
             mediaUrl: "",
             caption: "",
-            cornerPointListJson: JSON.stringify(newPoints),
+            cornerPointList: JSON.stringify(newPoints),
           })
         );
 
@@ -456,8 +442,6 @@ const CreateTourStep2 = () => {
             .map((hotspot) => (
               <GroundHotspot
                 key={hotspot.id}
-                setHoveredHotspot={setHoveredHotspot}
-                type="floor"
                 onNavigate={(targetNodeId, cameraTargetPosition) =>
                   handleHotspotNavigate(targetNodeId, cameraTargetPosition)
                 }
@@ -471,7 +455,6 @@ const CreateTourStep2 = () => {
               <GroundHotspotInfo
                 key={hotspot.id}
                 setCurrentHotspotId={setCurrentHotspotId}
-                setHoveredHotspot={setHoveredHotspot}
                 hotspotInfo={hotspot}
               />
             ))}
@@ -481,7 +464,6 @@ const CreateTourStep2 = () => {
               <GroundHotspotModel
                 key={hotspot.id}
                 setCurrentHotspotId={setCurrentHotspotId}
-                setHoveredHotspot={setHoveredHotspot}
                 hotspotModel={hotspot}
               />
             ))}
