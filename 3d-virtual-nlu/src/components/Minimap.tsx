@@ -2,9 +2,14 @@ import { Html } from "@react-three/drei";
 import styles from "../styles/minimap.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
-import { PanoramaItem, selectPanorama } from "../redux/slices/PanoramaSlice";
+import {
+  PanoramaItem,
+  renameMasterAndUpdateSlaves,
+  selectPanorama,
+  setMasterPanorama,
+} from "../redux/slices/PanoramaSlice";
 import { RiEdit2Line } from "react-icons/ri";
-import { MdZoomOutMap } from "react-icons/md";
+import { MdZoomInMap, MdZoomOutMap } from "react-icons/md";
 import { getAngleFromXZ, getArcAnglesThree } from "../utils/MathUtils";
 import {
   DEFAULT_ANGLE_RADAR,
@@ -13,10 +18,16 @@ import {
   RADIUS_SPHERE,
 } from "../utils/Constants";
 import { GiQueenCrown } from "react-icons/gi";
-import { HotspotNavigation } from "../redux/slices/HotspotSlice";
 import { TiTick } from "react-icons/ti";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import TrackingNode from "./admin/minimap/TrackingNode";
+import {
+  getFilteredHotspotNavigationById,
+  getFilteredHotspotNavigationOfMaster,
+  getFilteredHotspotNavigations,
+} from "../redux/slices/Selectors";
+import { clearHotspotNavigation } from "../redux/slices/HotspotSlice";
+import { FaSave } from "react-icons/fa";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
@@ -30,23 +41,15 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
   const dispatch = useDispatch();
 
   const { panoramaList } = useSelector((state: RootState) => state.panoramas);
-  const hotspotNavigations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
-    )
-  );
+
+  const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
+
   const masterPanorama = panoramaList.find((h) => h.config.status === 2);
   /**
    * Là danh sách các hostpot navigation từ Master Node.
    * - Đã có targetNodeId!
    */
-  const hotspotFromMaster = hotspotNavigations.filter(
-    (hotspot) =>
-      hotspot.targetNodeId &&
-      hotspot.targetNodeId.trim() !== "" &&
-      hotspot.nodeId === masterPanorama?.id
-  );
-
+  const hotspotFromMaster = useSelector(getFilteredHotspotNavigationOfMaster);
   const { startSvg, endSvg } = getArcAnglesThree(
     DEFAULT_ANGLE_THREE,
     DEFAULT_ANGLE_RADAR,
@@ -170,12 +173,8 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
    * 2. hotspot của node đó hoặc hotspot trỏ đến node đó. (2 chiều)
    */
   const hotspotNavigationFromNode = (nodeId: string) => {
-    return hotspotNavigations.filter(
-      (h) =>
-        h.targetNodeId &&
-        h.targetNodeId.trim() !== "" &&
-        (h.nodeId === nodeId || h.targetNodeId === nodeId)
-    );
+    const selector = getFilteredHotspotNavigationById(nodeId);
+    return selector;
   };
 
   const checkFullhotspotNavigation = (nodeId: string, nodeStatus: number) => {
@@ -183,34 +182,55 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
     return hotspotNavigationFromNode(nodeId).length === limit;
   };
 
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const handleZoomMap = () => {
+    setIsExpanded((prev) => !prev);
+  };
 
+  const handleEditInput = () => {
+    if (!isEditing) setIsEditing(true);
+  };
+  const handleRename = () => {
+    if (!masterPanorama) return;
+
+    const trimmedName = masterNameInput.trim();
+    if (!trimmedName) return; // tránh tên trống
+
+    dispatch(
+      renameMasterAndUpdateSlaves({
+        id: masterPanorama.id,
+        newName: trimmedName,
+      })
+    );
+    setIsEditing(false);
+  };
+  const [masterNameInput, setMasterNameInput] = useState(
+    masterPanorama?.config.name || ""
+  );
+  useEffect(() => {
+    setMasterNameInput(masterPanorama?.config.name || "");
+  }, [masterPanorama]);
   return (
     <Html
       transform={false}
       occlude={false}
       fullscreen
       style={{
-        pointerEvents: "none",
+        pointerEvents: isExpanded ? "auto" : "none",
       }}
     >
       <div
         className={
           isExpanded ? styles.minimap_container_zoom : styles.minimap_container
         }
-        style={
-          isExpanded
-            ? {
-                pointerEvents: "auto",
-              }
-            : {
-                pointerEvents: "auto",
-              }
-        }
+        style={{
+          pointerEvents: "auto",
+        }}
       >
         {!isExpanded && (
           <div className={styles.minimap_header}>
-            <MdZoomOutMap />
+            <MdZoomOutMap onClick={handleZoomMap} />
             <RiEdit2Line />
             {panoramaList.map((item) => (
               <div key={item.id} className={styles.node}>
@@ -244,61 +264,139 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
           </div>
         )}
 
-        <div className={styles.minimap_content}>
-          <img
-            src={masterPanorama?.url}
-            alt="panorama_master"
-            className={styles.master_node}
-          />
-          {hotspotFromMaster.map((item) => {
-            const { x, y } = scalePosition(item.positionX, item.positionZ);
-            return (
-              <img
-                key={item.id}
-                src={panoramaTargetUrl(item.targetNodeId)}
-                alt="node"
-                className={styles.slave_node}
-                style={{
-                  left: `${x}%`,
-                  top: `${y}%`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              />
-            );
-          })}
-
-          <div className={styles.rotation_node}>
-            <svg width="100%" height="100%" viewBox="0 0 100 100">
-              <path
-                d={generateArcPath(
-                  ctx,
-                  ctz,
-                  RADIUS_MINIMAP_TOUR,
-                  startSvg,
-                  endSvg
-                )}
-                fill="rgba(255, 255, 255, 0.23)"
-              />
-            </svg>
-          </div>
-        </div>
-        {isExpanded && (
-          <div className={styles.tour_settings}>
+        <div className={styles.minimap_preview_zoom}>
+          {isExpanded && (
             <div
               className={`${styles.tour_general_information} ${styles.tour_general}`}
             >
-              <span>Lĩnh vực: </span>
-              <span>Không gian: </span>
-              <span>Số lượng ảnh: </span>
-              <span>Trung tâm tour: </span>
-            </div>
+              <div className={styles.tour_information_item}>
+                <span>Lĩnh vực: </span>
+              </div>
+              <div className={styles.tour_information_item}>
+                <span>Không gian: {"1"}</span>
+              </div>
+              <div className={styles.tour_information_item}>
+                <span>Số lượng ảnh: {panoramaList.length}</span>
+              </div>
+              <div className={styles.tour_information_item}>
+                <span>Trung tâm tour:</span>
+                <select
+                  className={styles.custom_select}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    if (selectedId) {
+                      dispatch(setMasterPanorama(selectedId));
+                      dispatch(clearHotspotNavigation());
+                    }
+                  }}
 
-            <TrackingNode />
-            <div className={`${styles.tour_edit} ${styles.tour_general}`}>
-              <span>Lĩnh vực: </span>
-              <span>Không gian: </span>
+                  // onChange={handleSelectSpace}
+                >
+                  <option value="0">-- Chọn ảnh --</option>
+                  {panoramaList.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.config.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={`${styles.tour_information_item} `}>
+                <span>Tên tour : </span>
+                <div className={styles.input_container}>
+                  <input
+                    type="text"
+                    id="input"
+                    required
+                    readOnly={!isEditing}
+                    value={masterNameInput}
+                    onChange={(e) => setMasterNameInput(e.target.value)}
+                  />
+                  {!isEditing ? (
+                    <RiEdit2Line
+                      className={styles.input_edit}
+                      onClick={handleEditInput}
+                    />
+                  ) : (
+                    <FaSave
+                      className={styles.input_edit}
+                      onClick={handleRename}
+                    />
+                  )}
+
+                  <div className={styles.underline}></div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div
+            className={
+              isExpanded ? styles.minimap_content_zoom : styles.minimap_content
+            }
+          >
+            <img
+              src={masterPanorama?.url}
+              alt="panorama_master"
+              className={
+                isExpanded ? styles.master_node_zoom : styles.master_node
+              }
+            />
+            {hotspotFromMaster.map((item) => {
+              const { x, y } = scalePosition(item.positionX, item.positionZ);
+              return (
+                <img
+                  key={item.id}
+                  src={panoramaTargetUrl(item.targetNodeId)}
+                  alt="node"
+                  className={
+                    isExpanded ? styles.slave_node_zoom : styles.slave_node
+                  }
+                  style={{
+                    left: `${x}%`,
+                    top: `${y}%`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                />
+              );
+            })}
+
+            <div className={styles.rotation_node}>
+              <svg width="100%" height="100%" viewBox="0 0 100 100">
+                <path
+                  d={generateArcPath(
+                    ctx,
+                    ctz,
+                    RADIUS_MINIMAP_TOUR,
+                    startSvg,
+                    endSvg
+                  )}
+                  fill="rgba(255, 255, 255, 0.23)"
+                />
+              </svg>
             </div>
           </div>
+        </div>
+        {isExpanded && (
+          <>
+            <div className={styles.tour_settings}>
+              <div className={styles.tour_tracking}>
+                <TrackingNode
+                  panoramaList={panoramaList}
+                  hotspotNavigations={hotspotNavigations}
+                />
+              </div>
+              <div className={`${styles.tour_edit} ${styles.tour_general}`}>
+                <span>Lĩnh vực: </span>
+                <span>Không gian: </span>
+              </div>
+            </div>
+
+            <span>
+              <MdZoomInMap
+                className={styles.zoomOutMap}
+                onClick={handleZoomMap}
+              />
+            </span>
+          </>
         )}
       </div>
     </Html>

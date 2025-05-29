@@ -7,9 +7,13 @@ import {
 } from "../../../redux/slices/HotspotSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/Store";
+import {
+  getFilteredHotspotNavigationById,
+  getListTargetNodeFromUpdateHotspotNavigation,
+} from "../../../redux/slices/Selectors";
 
 interface TypeNavigationProps {
-  hotspotId: string | null;
+  hotspotId: string;
   isOpenTypeNavigation?: boolean;
   setAssignable?: (value: boolean) => void;
   setCurrentHotspotType?: (value: HotspotType) => void;
@@ -22,17 +26,24 @@ const TypeNavigation = ({
   /**
    * Lấy ra danh sách panorama
    */
-  const { hotspotList, panoramaList } = useSelector((state: RootState) => ({
-    hotspotList: state.hotspots.hotspotList,
-    panoramaList: state.panoramas.panoramaList,
-  }));
+  const hotspotList = useSelector((state: RootState) => state.hotspots);
 
-  const currentHotspot = hotspotList.find((h) => h.id === hotspotId);
+  const { panoramaList } = useSelector((state: RootState) => state.panoramas);
+
+  const currentHotspot = hotspotList.hotspotList.find(
+    (h) => h.id === hotspotId
+  );
+  /**
+   * Truyền vào Id hotspot => Tìm được hotspot hiện tại.
+   * Từ hotspot hiện tại thì mình tìm được Node chứa hotspot đấy, kiểm tra xem nó có trạng thái là master hay slave.
+   * => Lấy được danh sách các targetNode chưa được thêm (chọn targetNode cho hotspot)
+   */
   const hotspotNode = panoramaList.find((p) => p.id === currentHotspot?.nodeId);
+
   const targetStatus = hotspotNode?.config.status === 1 ? 2 : 1;
 
-  const filteredPanoramas = panoramaList.filter(
-    (p) => p.config.status === targetStatus
+  const filteredPanoramas = useSelector(
+    getListTargetNodeFromUpdateHotspotNavigation(hotspotId)
   );
 
   const dispatch = useDispatch<AppDispatch>();
@@ -59,7 +70,7 @@ const TypeNavigation = ({
           }}
         >
           <option value="">Chọn panorama</option>
-          {filteredPanoramas.map((pano) => (
+          {filteredPanoramas?.map((pano) => (
             <option key={pano.id} value={pano.id}>
               {pano.config.name || "null"}
             </option>

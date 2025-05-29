@@ -1,4 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
 .minimap_container_zoom {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
   width: 60%;
   height: 80%;
   background-color: rgba(255, 255, 255, 0.1);
@@ -11,6 +15,7 @@
   display: flex;
   justify-content: start;
   gap: 10px;
+  padding: 20px;
 }
 
 .minimap_container {
@@ -29,17 +34,6 @@
   justify-content: end;
   align-items: center;
 }
-
-/* .name_node {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 14px;
-  text-align: center;
-} */
 
 .node_view {
   cursor: pointer;
@@ -120,6 +114,24 @@
 .node_selected {
   border: 3px solid #f2ff00;
 }
+.minimap_preview_zoom {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.minimap_content_zoom {
+  width: 350px;
+  height: 350px;
+  border-radius: 5%;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+
+  background-image: url("/public/minimap.jpg");
+
+  background-size: cover;
+  position: relative;
+}
 
 .minimap_content {
   width: 250px;
@@ -135,6 +147,18 @@
   background-size: cover;
   position: relative;
 }
+
+.master_node_zoom {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  clip-path: circle(50% at center);
+  z-index: 10;
+}
 .master_node {
   position: absolute;
   top: 50%;
@@ -145,6 +169,15 @@
   object-fit: cover;
   clip-path: circle(50% at center);
   z-index: 10;
+}
+.slave_node_zoom {
+  position: absolute;
+
+  border-radius: 50%;
+  object-fit: cover;
+  clip-path: 50% at center;
+  width: 45px;
+  height: 45px;
 }
 
 .slave_node {
@@ -162,10 +195,37 @@
   height: 100%;
   border-radius: 50%;
 } */
+
+.tour_information_item {
+  display: flex;
+  gap: 10px;
+}
+.custom_select {
+  appearance: none;
+  /* ẩn mũi tên mặc định */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  flex: 1;
+  padding: 5px 20px;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.443);
+  font-size: 15px;
+  outline: none;
+
+  background-image: url("/vite.svg");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
 .tour_settings {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 
 .tour_general {
@@ -173,10 +233,74 @@
   background-color: rgba(255, 255, 255, 0.199);
   backdrop-filter: blur(8px);
   border-radius: 12px;
-  margin: 10px;
-  padding: 12px;
+  padding: 10px;
   border: 2px solid #ffffff4b;
   display: flex;
   flex-direction: column;
   color: #fff;
+  flex: 1;
+}
+
+.input_container {
+  flex: 1;
+  position: relative;
+}
+
+.input_container input[type="text"] {
+  font-size: 15px;
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  padding: 5px 0;
+  background-color: transparent;
+  outline: none;
+  color: #fff;
+}
+
+.input_container .underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background-color: #fff;
+  transform: scaleX(0);
+  transition: all 0.3s ease;
+}
+
+.input_container input[type="text"]:focus ~ .underline,
+.input_container input[type="text"]:valid ~ .underline {
+  transform: scaleX(1);
+}
+.input_container .input_edit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(50%);
+  color: #bd1919;
+}
+.input_container .input_edit:hover {
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 10px;
+  background-color: #fff;
+  transition: ease 0.2s all;
+}
+.tour_tracking {
+  min-height: 250px;
+  background-color: rgba(255, 255, 255, 0.199);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 12px;
+  border: 2px solid #ffffff4b;
+}
+.zoomOutMap {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(-50%, -50%);
+}
+
+.tour_edit {
+  flex: 1;
 }

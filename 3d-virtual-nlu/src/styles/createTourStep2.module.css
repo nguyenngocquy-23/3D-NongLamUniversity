@@ -38,7 +38,6 @@
   justify-content: center;
   align-items: center;
   margin-top: 5px;
-  z-index: 26777271;
 }
 
 .show_menu:hover,
@@ -198,7 +197,6 @@ back_btn:hover {
   backdrop-filter: blur(5px);
   /* ẩn menu bằng transform */
   transition: right 1s ease;
-  z-index: 26777271;
 }
 
 .rightMenu .rightTitle {
@@ -221,6 +219,7 @@ back_btn:hover {
   background-color: rgba(255, 255, 255, 0.2);
   margin-left: 10px;
   animation: fadeInMenu 0.5s ease;
+  z-index: 26777271;
 }
 
 @keyframes fadeInMenu {
@@ -245,7 +244,6 @@ back_btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
   transition: bottom 1s ease-in-out;
-  z-index: 26777271;
 }
 
 .task_container.show {

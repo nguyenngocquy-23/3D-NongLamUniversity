@@ -90,8 +90,6 @@ const BoardUploader = () => {
         <div className={styles.panosCard}>
           <UploadFile className={"upload_panos"} />
         </div>
-
-        <TrackingNode />
       </div>
     </div>
   );

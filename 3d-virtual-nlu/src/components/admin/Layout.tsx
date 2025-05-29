@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { FaHome, FaSearch, FaUserCog } from "react-icons/fa";
 import { Link, Outlet } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -45,7 +45,16 @@ const Layout = () => {
     navigate("/login");
   };
 
-  const [isOptionFullScreen, setIsOptionFullScreen] = useState(false);
+  const currentStep = useSelector((state: RootState) => state.step.currentStep);
+  const [isOptionFullScreen, setIsOptionFullScreen] = useState(true);
+
+  useEffect(() => {
+    if (currentStep === 2 || currentStep === 3) {
+      setIsOptionFullScreen(false);
+    } else {
+      setIsOptionFullScreen(true);
+    }
+  }, [currentStep]);
   return (
     <div className={styles.container}>
       {/* Sidebar */}

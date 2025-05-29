@@ -9,6 +9,7 @@ import {
 import ConfigIcon from "../ConfigIcon";
 import ConfigMedia from "../ConfigMedia";
 import { PanoramaItem } from "../../../redux/slices/PanoramaSlice";
+import { getFilteredHotspotNavigationById } from "../../../redux/slices/Selectors";
 
 interface Task3Props {
   setAssignable: (value: boolean) => void;
@@ -37,12 +38,10 @@ const Task3 = ({
   /**
    * Lấy ra danh sách hotspot navigation hiện tại của currentPanorama.
    */
-  const hotspotNavigations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation =>
-        hotspot.type === 1 && hotspot.nodeId === currentPanorama?.id
-    )
+  const hotspotNavigationFromNode = useSelector(
+    getFilteredHotspotNavigationById(currentPanorama?.id || "")
   );
+  console.log("hotspot: ", hotspotNavigationFromNode.length);
   /**
    * Tour sẽ có n (=n<6) panorama (max).
    * => Master Panorama có thể có n-1 hotspot navigation đến node con.
@@ -58,6 +57,7 @@ const Task3 = ({
     if (isMaster) return quantity - 1;
     return 1;
   };
+  console.log("limit: ", limitNavigation());
 
   return (
     <div className={styles.task3}>
@@ -78,7 +78,7 @@ const Task3 = ({
             currentHotspotType={openTypeIndex}
           />
           <label className={styles.label}>Chọn vị trí điểm:</label>
-          {hotspotNavigations.length < limitNavigation() ? (
+          {hotspotNavigationFromNode.length < limitNavigation() * 2 ? (
             <button
               onClick={() => {
                 setAssignable(true);
