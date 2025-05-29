@@ -1,3 +1,18 @@
+.minimap_container_zoom {
+  width: 60%;
+  height: 80%;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: start;
+  gap: 10px;
+}
+
 .minimap_container {
   max-width: 300px;
   max-height: 300px;
@@ -147,3 +162,21 @@
   height: 100%;
   border-radius: 50%;
 } */
+.tour_settings {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tour_general {
+  min-height: 100px;
+  background-color: rgba(255, 255, 255, 0.199);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  margin: 10px;
+  padding: 12px;
+  border: 2px solid #ffffff4b;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}

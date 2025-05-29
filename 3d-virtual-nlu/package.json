@@ -17,6 +17,7 @@
     "@react-three/fiber": "^9.1.2",
     "@reduxjs/toolkit": "^2.6.1",
     "@studio-freight/lenis": "^1.0.42",
+    "@xyflow/react": "^12.6.4",
     "axios": "^1.8.3",
     "framer-motion": "^12.4.7",
     "gsap": "^3.12.7",

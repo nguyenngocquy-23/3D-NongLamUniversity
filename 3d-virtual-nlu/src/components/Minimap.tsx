@@ -15,6 +15,8 @@ import {
 import { GiQueenCrown } from "react-icons/gi";
 import { HotspotNavigation } from "../redux/slices/HotspotSlice";
 import { TiTick } from "react-icons/ti";
+import { useState } from "react";
+import TrackingNode from "./admin/minimap/TrackingNode";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
@@ -181,6 +183,8 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
     return hotspotNavigationFromNode(nodeId).length === limit;
   };
 
+  const [isExpanded, setIsExpanded] = useState(true);
+
   return (
     <Html
       transform={false}
@@ -191,44 +195,55 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
       }}
     >
       <div
-        className={styles.minimap_container}
-        style={{
-          pointerEvents: "auto",
-        }}
+        className={
+          isExpanded ? styles.minimap_container_zoom : styles.minimap_container
+        }
+        style={
+          isExpanded
+            ? {
+                pointerEvents: "auto",
+              }
+            : {
+                pointerEvents: "auto",
+              }
+        }
       >
-        <div className={styles.minimap_header}>
-          <MdZoomOutMap />
-          <RiEdit2Line />
-          {panoramaList.map((item) => (
-            <div key={item.id} className={styles.node}>
-              <div
-                className={` ${styles.node_view}  ${
-                  item.id === currentPanorama?.id ? styles.node_selected : ""
-                }`}
-                onClick={() => handleSelectNode(item.id)}
-              >
-                <img
-                  src={item.url}
-                  alt={item.config.name}
-                  className={styles.thumbnail_node}
-                />
-                {checkFullhotspotNavigation(item.id, item.config.status) && (
-                  <div className={styles.node_success}>
-                    <TiTick className={styles.node_tick} />
-                  </div>
-                )}
+        {!isExpanded && (
+          <div className={styles.minimap_header}>
+            <MdZoomOutMap />
+            <RiEdit2Line />
+            {panoramaList.map((item) => (
+              <div key={item.id} className={styles.node}>
+                <div
+                  className={` ${styles.node_view}  ${
+                    item.id === currentPanorama?.id ? styles.node_selected : ""
+                  }`}
+                  onClick={() => handleSelectNode(item.id)}
+                >
+                  <img
+                    src={item.url}
+                    alt={item.config.name}
+                    className={styles.thumbnail_node}
+                  />
+                  {checkFullhotspotNavigation(item.id, item.config.status) && (
+                    <div className={styles.node_success}>
+                      <TiTick className={styles.node_tick} />
+                    </div>
+                  )}
 
-                {item.config.status === 2 && (
-                  <div className={styles.master_node_icon_container}>
-                    <GiQueenCrown className={styles.master_node_icon} />
-                  </div>
-                )}
+                  {item.config.status === 2 && (
+                    <div className={styles.master_node_icon_container}>
+                      <GiQueenCrown className={styles.master_node_icon} />
+                    </div>
+                  )}
 
-                <span className={styles.node_name}>{item.config.name}</span>
+                  <span className={styles.node_name}>{item.config.name}</span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+
         <div className={styles.minimap_content}>
           <img
             src={masterPanorama?.url}
@@ -267,6 +282,24 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
             </svg>
           </div>
         </div>
+        {isExpanded && (
+          <div className={styles.tour_settings}>
+            <div
+              className={`${styles.tour_general_information} ${styles.tour_general}`}
+            >
+              <span>Lĩnh vực: </span>
+              <span>Không gian: </span>
+              <span>Số lượng ảnh: </span>
+              <span>Trung tâm tour: </span>
+            </div>
+
+            <TrackingNode />
+            <div className={`${styles.tour_edit} ${styles.tour_general}`}>
+              <span>Lĩnh vực: </span>
+              <span>Không gian: </span>
+            </div>
+          </div>
+        )}
       </div>
     </Html>
   );
