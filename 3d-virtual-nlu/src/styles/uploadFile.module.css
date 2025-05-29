@@ -18,10 +18,6 @@
   font-style: italic;
 }
 
-.uploadWrapper {
-  position: relative;
-}
-
 .fileBtn {
   width: 300px;
   height: 150px;
@@ -52,9 +48,16 @@
   font-size: 30px;
 }
 
+
+.uploadWrapper {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
 .file_preview_container {
   position: absolute;
-  top: -80px;
+  /* top: -80px; */
   right: 5%;
   display: flex;
   flex-direction: column;

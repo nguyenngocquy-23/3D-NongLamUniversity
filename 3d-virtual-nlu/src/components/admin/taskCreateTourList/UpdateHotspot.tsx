@@ -15,6 +15,7 @@ interface UpdateHotspotProps {
   hotspotId: string | null;
   setHotspotId: (value: string | null) => void;
   onPropsChange: (value: BaseHotspot) => void;
+  setChangeCorner: (value: boolean) => void;
 }
 
 // Component cho Task3
@@ -22,6 +23,7 @@ const UpdateHotspot = ({
   hotspotId,
   setHotspotId,
   onPropsChange,
+  setChangeCorner,
 }: UpdateHotspotProps) => {
   const propHotspot = useSelector(
     (state: RootState) => state.hotspots.hotspotList
@@ -75,7 +77,7 @@ const UpdateHotspot = ({
             </>
           ) : (
             <>
-              <TypeMedia hotspotMedia={propHotspot} />
+              <TypeMedia setChangeCorner={setChangeCorner} hotspotMedia={propHotspot} />
             </>
           )}
         </div>

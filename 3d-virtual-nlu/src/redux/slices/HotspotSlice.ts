@@ -228,6 +228,24 @@ const hotspotSlice = createSlice({
         }
       }
     },
+    updateCornerHotspotMedia: (
+      state,
+      action: PayloadAction<{
+        hotspotId: string;
+        cornerPointList: [number, number, number][]; // mảng mới
+      }>
+    ) => {
+      const { hotspotId, cornerPointList } = action.payload;
+
+      const index = state.hotspotList.findIndex(h => h.id === hotspotId);
+      if (index !== -1) {
+        const hotspot = state.hotspotList[index];
+        if (hotspot.type === 3) {
+          // Cập nhật cornerPointList dưới dạng JSON string mới
+          (hotspot as HotspotMedia).cornerPointList = JSON.stringify(cornerPointList);
+        }
+      }
+    },
 
     removeHotspot: (state, action: PayloadAction<{ hotspotId: string }>) => {
       console.log("hotspotId..", action.payload.hotspotId);
@@ -257,6 +275,7 @@ export const {
   updateHotspotInfomation,
   updateHotspotModel,
   updateHotspotMedia,
+  updateCornerHotspotMedia,
   removeHotspot,
 } = hotspotSlice.actions;
 export default hotspotSlice.reducer;

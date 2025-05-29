@@ -52,6 +52,9 @@ const Header: React.FC = () => {
         <a href="#" className={style.navLink}>
           Chương trình đào tạo
         </a>
+        <a href="/createTour" className={style.navLink}>
+          Thêm không gian
+        </a>
 
         {user ? (
           <div className={style.dropdown}>

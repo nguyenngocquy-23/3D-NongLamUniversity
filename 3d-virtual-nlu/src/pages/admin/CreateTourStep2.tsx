@@ -34,7 +34,6 @@ import {
   HotspotMedia,
   HotspotModel,
   HotspotNavigation,
-  HotspotType,
 } from "../../redux/slices/HotspotSlice";
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
@@ -152,6 +151,14 @@ const CreateTourStep2 = () => {
   };
 
   const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
+  const [changeCornerMedia, setChangeCornerMedia] = useState(false);
+
+  useEffect(() => {
+    if (controlsRef.current) {
+      console.log("edit corner");
+      controlsRef.current.enabled = false; // tắt khi changeCornerMedia=true
+    }
+  }, [changeCornerMedia]);
 
   const handleOnPropsChange = (updatedProps: BaseHotspot) => {
     setBasicProps(updatedProps);
@@ -318,23 +325,12 @@ const CreateTourStep2 = () => {
     },
   ];
 
-  const {
-    openTaskIndex,
-    completedTaskIds,
-    unlockedTaskIds,
-    handleOpenTask,
-    handleSaveTask,
-    reset,
-  } = useSequentialTasks(tasks.length);
+  const { openTaskIndex, completedTaskIds, unlockedTaskIds, handleOpenTask } =
+    useSequentialTasks(tasks.length);
 
   const [preTaskIndex, setPreTaskIndex] = useState<number | null>(null);
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
-
-  const computeYawToHotspot = (target: [number, number, number]): number => {
-    const [x, , z] = target;
-    return Math.atan2(x, z);
-  };
 
   /**
    *
@@ -419,6 +415,9 @@ const CreateTourStep2 = () => {
           style={{ cursor: cursor }}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
+          onContextMenu={(e) => {
+            e.preventDefault();
+          }}
         >
           <UpdateCameraOnResize />
           <TourScene
@@ -477,10 +476,32 @@ const CreateTourStep2 = () => {
                 setCurrentHotspotId={setCurrentHotspotId}
               />
             ))}
-
-          {currentPoints.map((point, index) => (
+          {/* {hotspotMedias
+            .filter((hotspot) => hotspot.nodeId === currentSelectId)
+            .map((hotspot) => {
+              const cornerPointList = JSON.parse(hotspot.cornerPointList) as [
+                number,
+                number,
+                number
+              ][];
+              return (
+                <>
+                  {cornerPointList.map((point, index) => {
+                    return (
+                    <PointMedia
+                      key={`${hotspot.id}-${index}`}
+                      hotspotId={hotspot.id}
+                      index={index}
+                      cornerPointList={cornerPointList}
+                      onDragEnd={() => setChangeCornerMedia(false)}
+                    />);
+                  })}
+                </>
+              );
+            })} */}
+          {/* {currentPoints.map((point, index) => (
             <PointMedia key={`p-${index}`} position={point} />
-          ))}
+          ))} */}
           {currentPoints.length > 1 &&
             currentPoints.map((point, i) => {
               if (i < currentPoints.length - 1)
@@ -580,6 +601,7 @@ const CreateTourStep2 = () => {
           hotspotId={currentHotspotId}
           setHotspotId={setCurrentHotspotId}
           onPropsChange={handleOnPropsChange}
+          setChangeCorner={setChangeCornerMedia}
         />
       </div>
     </>

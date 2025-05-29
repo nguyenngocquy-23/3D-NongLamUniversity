@@ -11,12 +11,7 @@ import { useDispatch } from "react-redux";
 
 interface TypeMediaProps {
   isOpenTypeMedia?: boolean;
-  // chooseCornerMediaPoint: boolean;
-  // setChooseCornerMediaPoint: (value: boolean) => void;
-  // setAssignable: (value: boolean) => void;
-  // currentPoints: [number, number, number][]; // mesh đang chọn
-  // setCurrentPoints: (val: any) => void;
-  // setCurrentHotspotType: (value: HotspotType) => void;
+  setChangeCorner: (value: boolean) => void;
   hotspotMedia: any;
 }
 
@@ -24,11 +19,8 @@ interface TypeMediaProps {
 const TypeMedia = ({
   hotspotMedia,
   isOpenTypeMedia,
-}: // setAssignable,
-// setCurrentPoints,
-// setChooseCornerMediaPoint,
-// setCurrentHotspotType,
-TypeMediaProps) => {
+  setChangeCorner,
+}: TypeMediaProps) => {
   const [mediaUrl, setMediaUrl] = useState("");
   const [caption, setCaption] = useState("");
   const [mediaType, setMediaType] = useState("PICTURE");
@@ -68,7 +60,13 @@ TypeMediaProps) => {
         <div style={{ display: "inline-flex" }}>
           <label className={styles.label}>Điều chỉnh góc:</label>
           <div>
-            <button>Ảnh</button>
+            <button
+              onClick={() => {
+                setChangeCorner(true);
+              }}
+            >
+              Điều chỉnh góc
+            </button>
           </div>
         </div>
         <div style={{ display: "inline-flex" }}>
@@ -98,13 +96,17 @@ TypeMediaProps) => {
             </button>
           </div>
         </div>
-        <div style={{ display: "inline-flex" }}>
+        <div style={{ display: "flex" }}>
           <label className={styles.label}>Tải lên:</label>
-          <UploadFile
-            className={mediaType == "PICTURE" ? "upload_image" : "upload_video"}
-            hotspotId={hotspotMedia?.id}
-            onUploaded={handleUploadedFile}
-          />
+          <div style={{position:'relative', display:'flex', flex:'1 1', minHeight: '80px'}}>
+            <UploadFile
+              className={
+                mediaType == "PICTURE" ? "upload_image" : "upload_video"
+              }
+              hotspotId={hotspotMedia?.id}
+              onUploaded={handleUploadedFile}
+            />
+          </div>
         </div>
         <div style={{ display: "inline-flex" }}>
           <label className={styles.label}>Tiêu đề:</label>

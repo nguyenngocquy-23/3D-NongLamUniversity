@@ -20,7 +20,6 @@ import Space from "./pages/admin/ManagerSpace.tsx";
 import ManageNode from "./pages/admin/ManagerTour.tsx";
 import UpdateNode from "./features/UpdateTour.tsx";
 import Model from "./components/admin/Model.tsx";
-import Waiting from "./components/Waiting.tsx";
 import ManagerIcon from "./pages/admin/ManagerIcon.tsx";
 
 function RouterConfig() {
@@ -31,6 +30,7 @@ function RouterConfig() {
       <Route path="/register" element={<Register />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/virtualTour" element={<VirtualTour />} />
+      <Route path="/createTour" element={<CreateTourStep2 />} />
       {/* admin */}
       <Route path="/admin/" element={<Layout />}>
         <Route index element={<Dashboard />} />
