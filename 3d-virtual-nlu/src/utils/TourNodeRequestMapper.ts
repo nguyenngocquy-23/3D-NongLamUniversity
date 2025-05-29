@@ -73,7 +73,7 @@ export interface HotspotMediaCreateRequest {
   mediaType: string;
   mediaUrl: string;
   caption: string;
-  cornerPointListJson: string;
+  cornerPointList: string;
 }
 export interface HotspotModelCreateRequest {
   nodeId: string;
@@ -117,6 +117,10 @@ export class TourNodeRequestMapper {
           pitchX: h.pitchX,
           yawY: h.yawY,
           rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor,
+          opacity: h.opacity,
           scale: h.scale,
           targetNodeId: h.targetNodeId, //
         }));
@@ -133,6 +137,10 @@ export class TourNodeRequestMapper {
           pitchX: h.pitchX,
           yawY: h.yawY,
           rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor,
+          opacity: h.opacity,
           scale: h.scale,
           title: h.title,
           content: h.content,
@@ -150,11 +158,15 @@ export class TourNodeRequestMapper {
           pitchX: h.pitchX,
           yawY: h.yawY,
           rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor,
+          opacity: h.opacity,
           scale: h.scale,
           mediaType: h.mediaType,
           mediaUrl: h.mediaUrl,
           caption: h.caption,
-          cornerPointListJson: h.cornerPointListJson,
+          cornerPointList: h.cornerPointList,
         }));
 
       const modelHotspots: HotspotModelCreateRequest[] = hotspotsForNode
@@ -169,6 +181,10 @@ export class TourNodeRequestMapper {
           pitchX: h.pitchX,
           yawY: h.yawY,
           rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor,
+          opacity: h.opacity,
           scale: h.scale,
           modelUrl: h.modelUrl,
           name: h.name,

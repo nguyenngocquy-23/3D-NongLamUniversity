@@ -283,10 +283,6 @@ const CreateTourStep3: React.FC = () => {
             .map((hotspot) => (
               <VideoMeshComponent key={hotspot.id} hotspotMedia={hotspot} />
             ))}
-
-          {currentPoints.map((point, index) => (
-            <PointMedia key={`p-${index}`} position={point} />
-          ))}
           {currentPoints.length > 1 &&
             currentPoints.map((point, i) => {
               if (i < currentPoints.length - 1)

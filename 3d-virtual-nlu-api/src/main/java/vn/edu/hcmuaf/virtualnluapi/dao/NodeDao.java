@@ -55,6 +55,8 @@ public class NodeDao {
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
+                 ORDER BY n.updatedAt DESC
+                 LIMIT 10 OFFSET 0
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
     }

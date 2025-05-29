@@ -330,6 +330,7 @@ const VirtualTour = () => {
         radius={radius}
         defaultNode={defaultNode}
         targetPosition={targetPosition ?? null}
+        hotspotNavigations={hotspotNavigations}
         hotspotInformations={hotspotInformations}
         hotspotModels={hotspotModels}
         hotspotMedias={hotspotMedias}
