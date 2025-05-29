@@ -3,7 +3,6 @@ import Login from "./pages/auths/Login.tsx";
 import Register from "./pages/auths/Register.tsx";
 import ForgotPassword from "./pages/auths/ForgotPassword.tsx";
 import Home from "./pages/visitor/Home.tsx";
-import TourVirtual from "./pages/visitor/TourVirtual.tsx";
 import Dashboard from "./pages/admin/Dashboard.tsx";
 
 import User from "./pages/admin/User.tsx";
@@ -21,7 +20,7 @@ import ManageNode from "./pages/admin/ManagerTour.tsx";
 import UpdateNode from "./features/UpdateTour.tsx";
 import Model from "./components/admin/Model.tsx";
 import ManagerIcon from "./pages/admin/ManagerIcon.tsx";
-import CreateNode from "./features/CreateTour.tsx";
+import VisitorCreateTour from "./pages/visitor/CreateTour.tsx";
 
 function RouterConfig() {
   return (
@@ -31,7 +30,7 @@ function RouterConfig() {
       <Route path="/register" element={<Register />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/virtualTour" element={<VirtualTour />} />
-      <Route path="/createTour" element={<CreateNode />} />
+      <Route path="/createTour" element={<VisitorCreateTour />} />
       {/* admin */}
       <Route path="/admin/" element={<Layout />}>
         <Route index element={<Dashboard />} />
