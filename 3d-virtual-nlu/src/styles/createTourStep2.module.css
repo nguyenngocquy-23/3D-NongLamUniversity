@@ -280,17 +280,33 @@ back_btn:hover {
 
 .task_container {
   width: 40vw;
-  position: absolute;
+  position: fixed;
   padding: 10px;
   left: 20px;
+  bottom: -600px;
   border-radius: 10px;
   color: white;
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
   transition: bottom 1s ease-in-out;
+  z-index: 10;
 }
 
-.task_container.show {
+.update_hotspot_container{
+  width: 40vw;
+  position: fixed;
+  bottom: -1000px;
+  left: 20px;
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: all 1s ease;
+}
+
+.task_container.show,
+.update_hotspot_container.show {
   bottom: 20px !important;
 }
 

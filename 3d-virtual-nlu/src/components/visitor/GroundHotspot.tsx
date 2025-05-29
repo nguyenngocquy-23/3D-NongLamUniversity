@@ -23,6 +23,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
 }) => {
   const camera = useThree();
   const hotspotRef = useRef<THREE.Mesh>(null);
+  const currentStep = useSelector((state: RootState) => state.step.currentStep);
 
   const { icons, hotspotTypes } = useSelector((state: RootState) => state.data);
   const iconUrl = icons.find((i) => i.id == hotspotNavigation.iconId).url;
@@ -167,7 +168,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         />
       </mesh>
 
-      {isOpenHotspotOption && (
+      {isOpenHotspotOption && currentStep != 1 ? (
         <OptionHotspot
           hotspotId={hotspotNavigation.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (()=>{})}
@@ -180,7 +181,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             hotspotNavigation.positionZ,
           ]}
         />
-      )}
+      ):""}
 
       {/* {isClicked && (
         <Html position={position} center distanceFactor={50}>

@@ -5,6 +5,9 @@ import CreateTourStepper from "../components/admin/CreateTourStepper.tsx";
 import CreateTourStep2 from "../pages/admin/CreateTourStep2.tsx";
 import CreateTourStep3 from "../pages/admin/CreateTourStep3.tsx";
 import CreateTourStep4 from "../pages/admin/CreateTourStep4.tsx";
+import { useDispatch } from "react-redux";
+import { fetchHotspotTypes, fetchIcons } from "../redux/slices/DataSlice.ts";
+import { AppDispatch } from "../redux/Store.ts";
 
 /**
  * Sử dụng Stepper cho việc tạo tour.
@@ -42,6 +45,11 @@ export const CREATE_TOUR_STEPS = [
 ];
 
 const CreateNode: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>()
+  useEffect(()=>{
+    dispatch(fetchIcons())
+    dispatch(fetchHotspotTypes())
+  },[dispatch])
   return <CreateTourStepper stepsConfig={CREATE_TOUR_STEPS} />;
 };
 

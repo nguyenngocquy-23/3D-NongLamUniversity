@@ -19,5 +19,5 @@ public class HotspotMediaCreateRequest {
     String color, backgroundColor;
     byte allowBackgroundColor;
     float opacity;
-    String mediaType, mediaUrl, caption, cornerPointListJson;
+    String mediaType, mediaUrl, caption, cornerPointList;
 }

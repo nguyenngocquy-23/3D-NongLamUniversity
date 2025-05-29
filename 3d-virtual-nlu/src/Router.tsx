@@ -21,6 +21,7 @@ import ManageNode from "./pages/admin/ManagerTour.tsx";
 import UpdateNode from "./features/UpdateTour.tsx";
 import Model from "./components/admin/Model.tsx";
 import ManagerIcon from "./pages/admin/ManagerIcon.tsx";
+import CreateNode from "./features/CreateTour.tsx";
 
 function RouterConfig() {
   return (
@@ -30,7 +31,7 @@ function RouterConfig() {
       <Route path="/register" element={<Register />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/virtualTour" element={<VirtualTour />} />
-      <Route path="/createTour" element={<CreateTourStep2 />} />
+      <Route path="/createTour" element={<CreateNode />} />
       {/* admin */}
       <Route path="/admin/" element={<Layout />}>
         <Route index element={<Dashboard />} />

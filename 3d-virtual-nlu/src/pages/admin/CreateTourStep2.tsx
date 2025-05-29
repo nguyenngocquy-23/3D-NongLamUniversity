@@ -586,7 +586,6 @@ const CreateTourStep2 = () => {
               ? styles.show
               : ""
           }`}
-          style={{ bottom: `${preTaskIndex == 3 ? "-600px" : "-400px"}` }}
         >
           <TaskContainerCT
             id={preTaskIndex}
@@ -597,12 +596,20 @@ const CreateTourStep2 = () => {
               : ""}
           </TaskContainerCT>
         </div>
-        <UpdateHotspot
-          hotspotId={currentHotspotId}
-          setHotspotId={setCurrentHotspotId}
-          onPropsChange={handleOnPropsChange}
-          setChangeCorner={setChangeCornerMedia}
-        />
+        <div
+          className={`${styles.update_hotspot_container} ${
+            currentHotspotId != null
+              ? styles.show
+              : ""
+          }`}
+        >
+          <UpdateHotspot
+            hotspotId={currentHotspotId}
+            setHotspotId={setCurrentHotspotId}
+            onPropsChange={handleOnPropsChange}
+            setChangeCorner={setChangeCornerMedia}
+          />
+        </div>
       </div>
     </>
   );

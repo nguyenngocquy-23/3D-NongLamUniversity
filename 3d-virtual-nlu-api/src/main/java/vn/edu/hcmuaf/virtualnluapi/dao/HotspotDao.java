@@ -145,7 +145,7 @@ public class HotspotDao {
 
             PreparedBatch navigationBatch = handle.prepareBatch(sqlInsertNavigation);
             for (int i = 0; i < generateIds.size(); i++) {
-                navigationBatch.bind("hotspotId", generateIds.get(i)).bind("mediaType", reqs.get(i).getMediaType()).bind("mediaUrl", reqs.get(i).getMediaUrl()).bind("caption", reqs.get(i).getCaption()).bind("cornerPointList", reqs.get(i).getCornerPointListJson()).add();
+                navigationBatch.bind("hotspotId", generateIds.get(i)).bind("mediaType", reqs.get(i).getMediaType()).bind("mediaUrl", reqs.get(i).getMediaUrl()).bind("caption", reqs.get(i).getCaption()).bind("cornerPointList", reqs.get(i).getCornerPointList()).add();
             }
             navigationBatch.execute();
             return true;

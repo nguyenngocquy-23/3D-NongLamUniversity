@@ -183,7 +183,7 @@ const VideoMeshComponent = ({
           setIsOpenHotspotOption(true);
         }}
       />
-      {isOpenHotspotOption && currentStep !== 3 && (
+      {isOpenHotspotOption && currentStep !== 3  && currentStep != 1 && (
         <OptionHotspot
           hotspotId={hotspotMedia.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
