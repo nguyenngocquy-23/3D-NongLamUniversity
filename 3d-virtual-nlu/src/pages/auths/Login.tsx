@@ -8,9 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { loginUser } from "../../redux/slices/AuthSlice";
 import { FaRegUser, FaUser } from "react-icons/fa6";
-import { FaUserAlt } from "react-icons/fa";
 import { CiLock } from "react-icons/ci";
-import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 
 const Login: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username và password
@@ -46,12 +44,11 @@ const Login: React.FC = () => {
       } else if (response.user.roleId == 2) {
         navigate("/admin"); // Điều hướng về trang admin sau khi đăng nhập thành công
       }
-    } catch (err:any) {
-        console.error(err);
-        setIsError(true);
+    } catch (err: any) {
+      console.error(err);
+      setIsError(true);
     }
   };
-  
 
   const handleShowContent = () => {
     setShowContent((preState) => !preState);
@@ -63,7 +60,7 @@ const Login: React.FC = () => {
         <h2 className={styles.h2}>Login</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
-            <FaRegUser className={styles.icon}/>
+            <FaRegUser className={styles.icon} />
             <input
               type="text"
               id="username"
@@ -77,7 +74,7 @@ const Login: React.FC = () => {
             />
           </div>
           <div className={styles.inputGroup}>
-            <CiLock className={styles.icon}/>
+            <CiLock className={styles.icon} />
             <input
               type={showContent ? "text" : "password"}
               id="password"

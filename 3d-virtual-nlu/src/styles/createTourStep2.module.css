@@ -18,15 +18,12 @@
 
 .previewTour {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 999;
-
+  width: 100%;
+  height: 100%;
+  z-index: 10;
   animation: fadeIn 1.5s ease-in-out;
   overflow: hidden;
+  border-radius: 10px;
   /* border-radius: 10px; */
   /* margin-bottom: 20px; */
 }
@@ -41,6 +38,7 @@
   justify-content: center;
   align-items: center;
   margin-top: 5px;
+  z-index: 26777271;
 }
 
 .show_menu:hover,
@@ -190,7 +188,7 @@ back_btn:hover {
 }
 
 .rightMenu {
-  position: fixed;
+  position: absolute;
   top: 0;
   right: -300px;
   width: 300px;
@@ -200,6 +198,7 @@ back_btn:hover {
   backdrop-filter: blur(5px);
   /* ẩn menu bằng transform */
   transition: right 1s ease;
+  z-index: 26777271;
 }
 
 .rightMenu .rightTitle {
@@ -246,6 +245,7 @@ back_btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
   transition: bottom 1s ease-in-out;
+  z-index: 26777271;
 }
 
 .task_container.show {

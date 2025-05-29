@@ -14,7 +14,6 @@ import {
 } from "../utils/Constants";
 import { GiQueenCrown } from "react-icons/gi";
 import { HotspotNavigation } from "../redux/slices/HotspotSlice";
-import { div } from "framer-motion/client";
 import { TiTick } from "react-icons/ti";
 
 type MiniMapProps = {
@@ -183,8 +182,20 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
   };
 
   return (
-    <Html position={[0, 0, 0]} transform={false} occlude={false}>
-      <div className={styles.minimap_container}>
+    <Html
+      transform={false}
+      occlude={false}
+      fullscreen
+      style={{
+        pointerEvents: "none",
+      }}
+    >
+      <div
+        className={styles.minimap_container}
+        style={{
+          pointerEvents: "auto",
+        }}
+      >
         <div className={styles.minimap_header}>
           <MdZoomOutMap />
           <RiEdit2Line />

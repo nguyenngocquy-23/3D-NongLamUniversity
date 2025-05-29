@@ -2,8 +2,9 @@
   max-width: 300px;
   max-height: 300px;
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: 0;
+  right: 0;
+  margin: 12px;
 }
 
 .minimap_header {

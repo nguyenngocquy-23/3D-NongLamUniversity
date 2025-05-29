@@ -25,7 +25,7 @@ import CreateTourStep4 from "../pages/admin/CreateTourStep4.tsx";
 export const CREATE_TOUR_STEPS = [
   {
     name: "Khởi tạo",
-    Component: () => <BoardUploader  />,
+    Component: () => <BoardUploader />,
   },
   {
     name: "Tuỳ chỉnh không gian",

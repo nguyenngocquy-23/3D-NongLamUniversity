@@ -432,12 +432,14 @@ const CreateTourStep2 = () => {
             onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
           />
+
           {currentPanorama && (
             <MiniMap
               currentPanorama={currentPanorama}
               angleCurrent={cameraAngle}
             />
           )}
+
           <CamControls
             targetPosition={targetPosition}
             sphereRef={sphereRef}
