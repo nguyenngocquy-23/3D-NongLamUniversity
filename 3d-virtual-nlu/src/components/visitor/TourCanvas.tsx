@@ -15,9 +15,9 @@ import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 const TourCanvas = React.memo(
   ({
     windowSize,
-    cursor,
     sphereRef,
     radius,
+    cursor,
     defaultNode,
     isRotation,
     targetPosition,
@@ -110,6 +110,7 @@ const TourCanvas = React.memo(
           lightIntensity={defaultNode.lightIntensity}
         />
         <CamControls
+          controlsRef={controlsRef}
           targetPosition={targetPosition}
           sphereRef={sphereRef}
           autoRotate={isRotation}

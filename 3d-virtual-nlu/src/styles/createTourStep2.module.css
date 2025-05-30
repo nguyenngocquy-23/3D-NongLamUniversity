@@ -197,6 +197,7 @@ back_btn:hover {
   backdrop-filter: blur(5px);
   /* ẩn menu bằng transform */
   transition: right 1s ease;
+  z-index: 26677998;
 }
 
 .rightMenu .rightTitle {
@@ -248,7 +249,7 @@ back_btn:hover {
   z-index: 10;
 }
 
-.update_hotspot_container{
+.update_hotspot_container {
   width: 40vw;
   position: fixed;
   bottom: -1000px;

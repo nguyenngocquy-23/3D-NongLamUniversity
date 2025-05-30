@@ -127,7 +127,11 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
           hotspotNavigation.positionY,
           hotspotNavigation.positionZ,
         ]}
-        rotation={[-Math.PI / 2, 0, 0]}
+        rotation={[
+          THREE.MathUtils.degToRad(hotspotNavigation.pitchX),
+          THREE.MathUtils.degToRad(hotspotNavigation.yawY),
+          THREE.MathUtils.degToRad(hotspotNavigation.rollZ),
+        ]}
         onPointerOver={() => {
           setIsHovered(true);
           console.log("🖱 Hover vào hotspot!", [
@@ -171,7 +175,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       {isOpenHotspotOption && currentStep != 1 ? (
         <OptionHotspot
           hotspotId={hotspotNavigation.id}
-          setCurrentHotspotId={setCurrentHotspotId ?? (()=>{})}
+          setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
           onClose={() => {
             setIsOpenHotspotOption(false);
           }}
@@ -181,7 +185,9 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             hotspotNavigation.positionZ,
           ]}
         />
-      ):""}
+      ) : (
+        ""
+      )}
 
       {/* {isClicked && (
         <Html position={position} center distanceFactor={50}>
