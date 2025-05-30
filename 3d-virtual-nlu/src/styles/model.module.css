@@ -2,12 +2,9 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: radial-gradient(rgba(255, 255, 255, 1), rgba(0, 0, 0, 1));
-    /* background-color: #979797; */
+    width: 100%;
+    height: 100%;
     z-index: 10000;
-    /* animation: fadeIn 1s ease-in forwards; */
 }
 
 @keyframes fadeIn {
@@ -55,13 +52,24 @@
 }
 
 .canvas{
+    /* background: radial-gradient(rgba(255, 255, 255, 1), rgba(0, 0, 0, 1)); */
+    background: #242B33;
     position: absolute !important;
-    animation: bounceOnFall 1.5s ease-out;
+    top: 0;
+    left: 20%;
+    width: 80% !important;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+    /* animation: bounceOnFall 1.5s ease-out; */
 }
 
 .option {
-    display: grid;
-    grid-column: 1;
+    position: relative;
+    width: 20%;
+    height: 100% ;
+    background-color: #1A1E21;
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
 }
 
 .icon {
@@ -81,7 +89,7 @@
 
 .option_button {
     width: 50px;
-    height: auto;
+    height: 50px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: clip;
@@ -91,4 +99,38 @@
     border-bottom-right-radius: 10px;
     transition: all .5s ease;
     outline: none !important;
+    background-color: transparent;
+}
+
+.model_info{
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    width: 400px;
+    height: 400px;
+    z-index: 2;
+}
+
+.name{
+    font-size: 50px;
+    font-weight: 800;
+}
+.avatar{
+    width: 150px;
+    height: 150px;
+    transform: translateX(-75px);
+    border-radius: 50%;
+    border: 2px solid #fff;
+    position: absolute;
+    bottom: 15%;
+    left: 100%;
+    z-index: 2;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: contain !important;
+}
+
+.username{
+    position: absolute;
+    bottom: -40px;
 }

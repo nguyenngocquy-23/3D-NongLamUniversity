@@ -75,18 +75,17 @@ const GroundHotspotModel = ({
     if (isHovered || isClicked) {
       targetOpacity.current = hotspotModel.opacity + 0.5;
       targetScale.current = hotspotModel.scale + 0.5;
-      console.log('opacity 1:..', targetOpacity.current)
+      console.log("opacity 1:..", targetOpacity.current);
     } else {
       targetOpacity.current = hotspotModel.opacity;
       targetScale.current = hotspotModel.scale;
-      console.log('opacity 2:..', targetOpacity.current)
+      console.log("opacity 2:..", targetOpacity.current);
     }
   }, [isHovered, hotspotModel]);
 
   useFrame(() => {
     if (hotspotRef.current) {
-      const material = hotspotRef.current
-        .material as THREE.MeshBasicMaterial;
+      const material = hotspotRef.current.material as THREE.MeshBasicMaterial;
       material.opacity += (targetOpacity.current - material.opacity) * 0.1;
       hotspotRef.current.scale.lerp(
         new THREE.Vector3(targetScale.current, targetScale.current, 1),
@@ -179,7 +178,11 @@ const GroundHotspotModel = ({
                   className={styles.button_detail}
                   onClick={() =>
                     navigate("/admin/model", {
-                      state: { modelUrl: hotspotModel.modelUrl },
+                      state: {
+                        title: hotspotModel.name,
+                        description: hotspotModel.description,
+                        modelUrl: hotspotModel.modelUrl,
+                      },
                     })
                   }
                 >

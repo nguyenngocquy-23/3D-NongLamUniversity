@@ -30,8 +30,8 @@ const Layout = () => {
     console.log("currentUser:", currentUser);
     if (
       currentUser == undefined ||
-      currentUser == null
-      // (currentUser && currentUser.roleId !== 2)
+      currentUser == null ||
+      (currentUser && currentUser.roleId !== 2)
     ) {
       console.log("navigate");
       navigate("/unauthorized");

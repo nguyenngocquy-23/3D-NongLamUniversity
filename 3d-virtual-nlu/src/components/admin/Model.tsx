@@ -6,6 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import styles from "../../styles/model.module.css";
 import { FaAngleLeft, FaInbox, FaQuestion } from "react-icons/fa6";
 import { useLocation, useNavigate } from "react-router-dom";
+import { div, p } from "framer-motion/client";
 
 interface NodeProps {
   modelUrl: string;
@@ -22,7 +23,7 @@ const Node: React.FC<NodeProps> = ({ modelUrl }) => {
     const loader = new GLTFLoader();
     console.error("Load GLB:");
     loader.load(
-      modelUrl,
+      modelUrl ?? "/thienly.glb",
       (gltf) => {
         const scene = gltf.scene;
         if (modelRef.current) {
@@ -72,7 +73,7 @@ const Node: React.FC<NodeProps> = ({ modelUrl }) => {
 
 const Model = () => {
   const location = useLocation();
-  const { modelUrl } = location.state || {};
+  const { title, description, modelUrl } = location.state || {};
   const navigate = useNavigate();
 
   return (
@@ -82,14 +83,19 @@ const Model = () => {
           <FaAngleLeft className={styles.icon} />{" "}
           <span className={styles.name_option}>Quay lại</span>
         </button>
-        <button className={styles.option_button}>
-          <FaInbox className={styles.icon} />{" "}
-          <span className={styles.name_option}>Tính năng</span>
-        </button>
-        <button className={styles.option_button}>
-          <FaQuestion className={styles.icon} />{" "}
-          <span className={styles.name_option}>Thông tin</span>
-        </button>
+        <div className={styles.model_info}>
+          <p>Mô hình 3D</p>
+          <span className={styles.name}>{!title ? "Mô hình 3D" : title}</span>
+          <p className={styles.description}>
+            {!description ? "Mô tả mô hình 3D" : description}
+          </p>
+        </div>
+        <div
+          className={styles.avatar}
+          style={{ background: "url('/avatar.jpg')" }}
+        >
+          <b className={styles.username}>Người tạo: {} </b>
+        </div>
       </div>
       <Canvas
         shadows
@@ -97,7 +103,7 @@ const Model = () => {
         camera={{
           fov: 75,
           position: [0, 4, 6],
-          aspect: window.innerWidth / window.innerHeight,
+          aspect: (window.innerWidth / window.innerHeight) * 0.8,
         }}
       >
         <Node modelUrl={modelUrl} />
