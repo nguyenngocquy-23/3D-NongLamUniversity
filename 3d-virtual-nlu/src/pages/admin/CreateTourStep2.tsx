@@ -42,6 +42,8 @@ import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
 import { prevStep } from "../../redux/slices/StepSlice";
 import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
+import MiniMap from "../../components/Minimap";
+import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 
 export const RADIUS = 100;
 
@@ -133,7 +135,7 @@ const CreateTourStep2 = () => {
   const {
     positionX = 0,
     positionY = 0,
-    positionZ = 0,
+    positionZ = DEFAULT_ORIGINAL_Z,
     lightIntensity = 1,
     autoRotate = 0,
     speedRotate = 0,
@@ -293,15 +295,10 @@ const CreateTourStep2 = () => {
         return (
           <>
             <Task3
-              currentPoints={currentPoints} // mesh đang chọn
-              setCurrentPoints={setCurrentPoints} // thêm điểm
-              assignable={assignable}
               setAssignable={setAssignable}
-              chooseCornerMediaPoint={chooseCornerMediaPoint}
-              setChooseCornerMediaPoint={setChooseCornerMediaPoint}
-              currentHotspotType={currentHotspotType}
               setCurrentHotspotType={setCurrentHotspotType}
               onPropsChange={handleOnPropsChange}
+              currentPanorama={currentPanorama}
             />
           </>
         );
@@ -401,6 +398,8 @@ const CreateTourStep2 = () => {
     });
   };
 
+  const [cameraAngle, setCameraAngle] = useState(0);
+
   return (
     <>
       <div className={styles.previewTour}>
@@ -419,6 +418,8 @@ const CreateTourStep2 = () => {
             e.preventDefault();
           }}
         >
+          {/* <Axes /> */}
+          <axesHelper args={[10]} position={[0, -90, 0]} />
           <UpdateCameraOnResize />
           <TourScene
             nodeId={currentSelectId ?? ""}
@@ -428,6 +429,14 @@ const CreateTourStep2 = () => {
             onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
           />
+
+          {currentPanorama && (
+            <MiniMap
+              currentPanorama={currentPanorama}
+              angleCurrent={cameraAngle}
+            />
+          )}
+
           <CamControls
             targetPosition={targetPosition}
             sphereRef={sphereRef}
@@ -435,7 +444,9 @@ const CreateTourStep2 = () => {
             controlsRef={controlsRef}
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
+            onAngleChange={setCameraAngle}
           />
+
           {hotspotNavigations
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
@@ -515,6 +526,7 @@ const CreateTourStep2 = () => {
               return null;
             })}
         </Canvas>
+
         {/* Header chứa logo + close */}
         <div className={styles.header_tour}>
           <div className={styles.header_tour_left}>
@@ -527,30 +539,6 @@ const CreateTourStep2 = () => {
             <span>{CREATE_TOUR_STEPS[currentStep - 1].name}</span>
           </div>
           <span className={styles.number_step}>{currentStep}</span>
-          {/* box chưa các panorama vừa upload */}
-          <div className={styles.thumbnailsBox}>
-            {panoramaList.map((item) => (
-              <div key={item.id} className={styles.node}>
-                <div
-                  className={` ${styles.nodeView}  ${
-                    item.id === currentSelectId ? styles.nodeSelected : ""
-                  }`}
-                  onClick={() => handleSelectNode(item.id)}
-                >
-                  <img
-                    src={item.url}
-                    alt={item.config.name}
-                    className={styles.thumbnailImg}
-                  />
-                </div>
-                <span className={styles.name_node}>{item.config.name}</span>
-              </div>
-            ))}
-
-            <div className={styles.add_node_button}>
-              <FaPlus />
-            </div>
-          </div>
           <div className={styles.toggleRightMenu}>
             <IoMdMenu
               className={styles.show_menu}

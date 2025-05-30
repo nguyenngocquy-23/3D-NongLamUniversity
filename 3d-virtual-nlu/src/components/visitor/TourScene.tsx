@@ -1,4 +1,4 @@
-import { Sphere, shaderMaterial, useTexture } from "@react-three/drei";
+import { Sphere, Stats, shaderMaterial, useTexture } from "@react-three/drei";
 import { ThreeEvent, useFrame, extend } from "@react-three/fiber";
 import React, { JSX, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -181,8 +181,8 @@ const TourScene: React.FC<TourSceneProps> = ({
           uAmbientLight={new THREE.Color().setScalar(lightIntensity)} // ánh sáng môi trường
         />
       </Sphere>
+      <Stats />
       {/* <directionalLight position={[5, 5, 5]} intensity={lightIntensity} /> */}
-      <primitive object={new THREE.AxesHelper(5)} />
     </>
   );
 };

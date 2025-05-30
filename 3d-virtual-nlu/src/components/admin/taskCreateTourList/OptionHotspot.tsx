@@ -71,6 +71,9 @@ const OptionHotspot = ({
       distanceFactor={100}
       transform={false}
       occlude={false}
+      style={{
+        zIndex: 36777271,
+      }}
     >
       <div ref={menuRef} className={styles.container}>
         <div

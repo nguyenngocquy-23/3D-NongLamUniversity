@@ -28,7 +28,7 @@ import { AppDispatch } from "../redux/Store.ts";
 export const CREATE_TOUR_STEPS = [
   {
     name: "Khởi tạo",
-    Component: () => <BoardUploader  />,
+    Component: () => <BoardUploader />,
   },
   {
     name: "Tuỳ chỉnh không gian",

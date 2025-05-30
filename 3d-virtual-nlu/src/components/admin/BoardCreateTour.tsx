@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from "../../redux/Store.ts";
 import { fetchFields } from "../../redux/slices/DataSlice.ts";
 import axios from "axios";
 import UploadFile from "./UploadFile.tsx";
+import TrackingNode from "./minimap/TrackingNode.tsx";
 
 const BoardUploader = () => {
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(

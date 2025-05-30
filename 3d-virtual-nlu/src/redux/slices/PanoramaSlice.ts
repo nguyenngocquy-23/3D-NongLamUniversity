@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction, nanoid } from "@reduxjs/toolkit";
+import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 
 export interface PanoramaConfig {
   /**
@@ -62,7 +63,7 @@ const panoramaSlice = createSlice({
           description: "",
           positionX: 0,
           positionY: 0,
-          positionZ: 0,
+          positionZ: DEFAULT_ORIGINAL_Z,
           autoRotate: 0,
           speedRotate: 0,
           lightIntensity: 1,
@@ -85,7 +86,7 @@ const panoramaSlice = createSlice({
             description: "",
             positionX: 0,
             positionY: 0,
-            positionZ: 0,
+            positionZ: DEFAULT_ORIGINAL_Z,
             autoRotate: 0,
             speedRotate: 0,
             lightIntensity: 1,
@@ -121,6 +122,27 @@ const panoramaSlice = createSlice({
         };
       }
     },
+    renameMasterAndUpdateSlaves(
+      state,
+      action: PayloadAction<{ id: string; newName: string }>
+    ) {
+      const { id, newName } = action.payload;
+
+      // Tìm master panorama
+      const master = state.panoramaList.find((p) => p.id === id);
+      if (!master) return;
+
+      // Cập nhật tên mới cho master
+      master.config.name = newName;
+
+      // Đổi tên tất cả panorama còn lại (status = 1)
+      let count = 1;
+      for (const pano of state.panoramaList) {
+        if (pano.id !== id && pano.config.status === 1) {
+          pano.config.name = `${newName}_${count++}`;
+        }
+      }
+    },
     // deletePanorame(state, action: PayloadAction<number>) {
     //   const deleted = state.panoramaList.splice(action.payload, 1);
     //   if (state.currentSelectedPosition >= state.panoramaList.length) {
@@ -143,6 +165,7 @@ export const {
   selectPanorama,
   setMasterPanorama,
   updatePanoConfig,
+  renameMasterAndUpdateSlaves,
   clearPanorama,
 } = panoramaSlice.actions;
 export default panoramaSlice.reducer;
