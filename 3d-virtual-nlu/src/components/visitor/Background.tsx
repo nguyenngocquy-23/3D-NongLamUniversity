@@ -4,7 +4,7 @@ import * as THREE from "three";
 
 import { useEffect, useRef } from "react";
 
-import "../../styles/background.css";
+import styles from "../../styles/background.module.css";
 
 const images = [
   { src: "/src/assets/picture/background.png", className: "parallax bg-img" },
@@ -76,7 +76,8 @@ const Background: React.FC = () => {
       const styleSheet = document.styleSheets[0];
 
       // Thêm CSS animation vào stylesheet
-      styleSheet.insertRule(`
+      styleSheet.insertRule(
+        `
         @keyframes ${animationName} {
           0% {
             transform: translateX(0);
@@ -97,7 +98,6 @@ const Background: React.FC = () => {
       (
         element as HTMLElement
       ).style.animation = `${animationName} ${randomDuration}s infinite ease-in-out`;
-
     });
   };
 

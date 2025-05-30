@@ -30,14 +30,15 @@ main {
   width: 892px;
   top: calc(50% + 69px);
   left: calc(50% + 230px);
-  z-index: 3;animation: forMountain10 5s infinite ease;
+  z-index: 3;
+  animation: forMountain10 5s infinite ease;
 }
 
-@keyframe forMountain10{
+@keyframe forMountain10 {
   0% {
     transform: scale(1);
   }
-  100%{
+  100% {
     transform: scale(1.1);
   }
 }
@@ -147,9 +148,9 @@ main {
   }
 
   60% {
-    transform: translate(35px,-40px); /* Di chuyển sang phải và lên trên */
+    transform: translate(35px, -40px); /* Di chuyển sang phải và lên trên */
   }
-  
+
   80% {
     transform: translateY(40px); /* Di chuyển sang phải và lên trên */
   }
@@ -158,7 +159,6 @@ main {
     transform: translate(0, 0); /* Trở lại vị trí ban đầu */
   }
 }
-
 
 .mountain-6 {
   position: absolute;

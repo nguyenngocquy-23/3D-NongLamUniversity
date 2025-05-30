@@ -2,7 +2,6 @@ import { Html } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../../styles/optionHotspot.module.css";
-import { RootState } from "../../../redux/Store";
 
 import { removeHotspot } from "../../../redux/slices/HotspotSlice";
 import { RootState } from "../../../redux/Store";
@@ -67,16 +66,15 @@ const OptionHotspot = ({
     onClose();
   };
 
-  const hotspot = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.find((h) => h.id === hotspotId)
-  );
-
   return (
     <Html
       position={position}
       distanceFactor={100}
       transform={false}
       occlude={false}
+      style={{
+        zIndex: 36777271,
+      }}
     >
       <div ref={menuRef} className={styles.container}>
         <div
