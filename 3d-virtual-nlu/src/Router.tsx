@@ -21,6 +21,7 @@ import UpdateNode from "./features/UpdateTour.tsx";
 import Model from "./components/admin/Model.tsx";
 import ManagerIcon from "./pages/admin/ManagerIcon.tsx";
 import VisitorCreateTour from "./pages/visitor/CreateTour.tsx";
+import Verify from "./pages/auths/Verify.tsx";
 
 function RouterConfig() {
   return (
@@ -28,6 +29,7 @@ function RouterConfig() {
       <Route index element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/verify" element={<Verify />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/virtualTour" element={<VirtualTour />} />
       <Route path="/createTour" element={<VisitorCreateTour />} />

@@ -69,11 +69,13 @@ public class UserDao {
         }
     }
 
-    public boolean updatePassword(User user) {
+    public boolean updatePassword(int userId, String newPassword) {
         try {
             int result = ConnectionPool.getConnection().inTransaction(handle ->
                     handle.createUpdate("UPDATE users SET password = :password WHERE id = :id")
-                            .bindBean(user).execute());
+                            .bind("id", userId)
+                            .bind("password", newPassword)
+                            .execute());
             return result > 0;
         } catch (Exception e) {
             e.printStackTrace();

@@ -5,6 +5,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.ForgotPasswordRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserLoginRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
@@ -46,5 +47,18 @@ public class UserController {
             return ApiResponse.<List<User>>builder().statusCode(5000).message("loi xac thuc").data(null).build();
         }
         return ApiResponse.<List<User>>builder().statusCode(1000).message("lay danh sach thanh cong").data(users).build();
+    }
+
+    @POST
+    @Path(("/forgotPassword"))
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> forgotPassword(ForgotPasswordRequest request) {
+        boolean result = userService.forgotPassword(request);
+        return ApiResponse.<Boolean>builder()
+                .statusCode(result ? 1000 : 5000)
+                .message(result ? "Password reset email sent successfully" : "Failed to send password reset email")
+                .data(result)
+                .build();
     }
 }

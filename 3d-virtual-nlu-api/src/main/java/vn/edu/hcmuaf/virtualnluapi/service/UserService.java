@@ -5,9 +5,12 @@ import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import vn.edu.hcmuaf.virtualnluapi.dao.EmailVerificationDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.RoleDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.ForgotPasswordRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserRegisterRequest;
+import vn.edu.hcmuaf.virtualnluapi.entity.EmailVerification;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
 import vn.edu.hcmuaf.virtualnluapi.utils.EncryptUtil;
 
@@ -23,6 +26,10 @@ public class UserService {
     UserDao userDao;
     @Inject
     RoleDao roleDao;
+    @Inject
+    EmailVerificationService emailVerificationService;
+    @Inject
+    MailService mailService;
 
     public boolean isUsernameExists(String username) {
         return userDao.findByUsername(username) != null;
@@ -42,5 +49,23 @@ public class UserService {
 
     public User findById(int userId) {
         return userDao.findById(userId);
+    }
+
+    public boolean forgotPassword(ForgotPasswordRequest request) {
+        boolean flag = false;
+        User user = userDao.getUserByEmail(request.getEmail());
+        if (user != null) {
+            String newPassword = emailVerificationService.randomPassword(6);
+            try{
+                mailService.sendMailResetPassword(user, newPassword);
+                user.setPassword(EncryptUtil.hashPassword(newPassword));
+                userDao.updatePassword(user.getId(), user.getPassword());
+                flag = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return flag;
     }
 }
