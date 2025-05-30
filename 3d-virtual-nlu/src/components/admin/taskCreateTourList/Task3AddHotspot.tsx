@@ -41,7 +41,6 @@ const Task3 = ({
   const hotspotNavigationFromNode = useSelector(
     getFilteredHotspotNavigationById(currentPanorama?.id || "")
   );
-  console.log("hotspot: ", hotspotNavigationFromNode.length);
   /**
    * Tour sẽ có n (=n<6) panorama (max).
    * => Master Panorama có thể có n-1 hotspot navigation đến node con.
@@ -57,7 +56,6 @@ const Task3 = ({
     if (isMaster) return quantity - 1;
     return 1;
   };
-  console.log("limit: ", limitNavigation());
 
   return (
     <div className={styles.task3}>
@@ -78,7 +76,9 @@ const Task3 = ({
             currentHotspotType={openTypeIndex}
           />
           <label className={styles.label}>Chọn vị trí điểm:</label>
-          {hotspotNavigationFromNode.length < limitNavigation() * 2 ? (
+          {hotspotNavigationFromNode.length >= limitNavigation() * 2 && openTypeIndex == 1 ? (
+            <span>Bạn đã đạt giới hạn.</span>
+          ) : (
             <button
               onClick={() => {
                 setAssignable(true);
@@ -87,8 +87,6 @@ const Task3 = ({
             >
               Chọn vị trí
             </button>
-          ) : (
-            <span>Bạn đã đạt giới hạn.</span>
           )}
         </>
       ) : (
