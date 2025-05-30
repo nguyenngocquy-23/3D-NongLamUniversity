@@ -1,0 +1,16 @@
+.node_container {
+  /* display: flex;
+  flex-direction: column;
+  justify-content: center; */
+}
+
+.node_container .node_img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #060606;
+  object-fit: cover;
+}
+.node_container .node_name {
+  flex: 1;
+}

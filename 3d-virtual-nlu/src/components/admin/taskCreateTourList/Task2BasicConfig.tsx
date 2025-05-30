@@ -4,9 +4,9 @@ import { RootState } from "../../../redux/Store";
 import { updatePanoConfig } from "../../../redux/slices/PanoramaSlice";
 import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
+import { DEFAULT_ORIGINAL_Z } from "../../../utils/Constants";
+import { getAngleFromXZ } from "../../../utils/MathUtils";
 // Tuỳ chỉnh thông số kỹ thuật.
-
-const originalZ = 0.0000001;
 
 type Task2Props = {
   cameraRef?: React.RefObject<THREE.PerspectiveCamera | null>;
@@ -26,48 +26,16 @@ const Task2 = ({ cameraRef }: Task2Props) => {
     speedRotate = 1,
     lightIntensity = 2,
     positionX = 0,
-    positionZ = originalZ,
+    positionZ = DEFAULT_ORIGINAL_Z,
   } = currentPanorama.config ?? {};
-
-  /**
-   * Mặc định, trong Redux mỗi ảnh sẽ có position của camera riêng.
-   * => Để hiển thị đúng của mỗi ảnh lên thanh điều chỉnh hướng mặc định thì:
-   * + Ta cần chuyển vị trí toạ độ x,z về thành góc bao nhiêu độ.
-   *          |
-   *          |
-   *       (-180/ 180)
-   *          |
-   * --(-90)-------(90)-------> (x)
-   *          |
-   *          * (0) (vị trí camera mặc định hướng về tâm, được coi là 0 độ)
-   *          |
-   *          |
-   *          v  (z)
-   * + Góc angle mặc định là 0 độ.
-   * +++ originalZ: vị trí ban đầu của z, camera sẽ xoay quanh tâm vòng tròn có bán kính là originalZ.
-   * +++ positionX = bán kính * cos(góc Angle)
-   * +++ positionZ = bán kính * sin(góc Angle)
-   * =>> Ta cần truy ngược lại angle từ positionX,Z.
-   * cos(góc Angle) = posX/bán kính (X)
-   * sin(góc Angle) = posZ/bán kính (Z)
-   * sin(góc Angle) / cos(góc Angle) = tan (góc Angle) = Z/X
-   *                               <==> góc Angle = atan2(Z,X)
-   * Note : atan2 sử dụng để xác định góc phần tư của Z,X. trong khi atan có thể bị nhầm trường hợp nếu z âm x dương hoặc z dương x âm.
-   */
-  const getAngleFromXZ = (z: number, x: number): number => {
-    const radians = Math.atan2(z, x);
-    let degrees = (radians * 180) / Math.PI;
-    if (degrees < 0) degrees += 360; // giá trị radian có thể âm.
-    return degrees;
-  };
 
   const [angle, setAngle] = useState<number>(0);
 
   useEffect(() => {
     if (currentPanorama?.config) {
       const newAngle = getAngleFromXZ(
-        positionZ / originalZ,
-        positionX / originalZ
+        positionX / DEFAULT_ORIGINAL_Z,
+        positionZ / DEFAULT_ORIGINAL_Z
       );
       setAngle(newAngle);
     }
@@ -75,7 +43,11 @@ const Task2 = ({ cameraRef }: Task2Props) => {
 
   const cameraPosition = useMemo((): [number, number, number] => {
     const radians = (angle * Math.PI) / 180;
-    return [originalZ * Math.cos(radians), 0, originalZ * Math.sin(radians)];
+    return [
+      DEFAULT_ORIGINAL_Z * Math.sin(radians),
+      0,
+      DEFAULT_ORIGINAL_Z * Math.cos(radians),
+    ];
   }, [angle]);
 
   const handleChangeNumber = (
@@ -96,6 +68,7 @@ const Task2 = ({ cameraRef }: Task2Props) => {
 
   useEffect(() => {
     if (cameraRef?.current) {
+      console.log("[Basic-Config]: cameraRef current đã có chưa?");
       cameraRef.current.position.set(...cameraPosition);
       cameraRef.current.lookAt(0, 0, 0);
       cameraRef.current.updateProjectionMatrix();

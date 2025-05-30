@@ -48,6 +48,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
       dispatch(clearPanorama())
       setIsComplete(false);
     }
+
     if (currentStep != 1) setIsLoading(true);
     const timeout = setTimeout(() => {
       setIsLoading(false); // ẩn trang chờ
@@ -56,38 +57,51 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
     return () => clearTimeout(timeout);
   }, [currentStep]);
 
+ 
+
+  const [isOptionFullScreen, setIsOptionFullScreen] = useState(false);
+
   return (
     <>
-      <div className={styles.stepper}>
-        {stepsConfig.map((step, index) => {
-          const isActive = currentStep > index + 1 || isComplete;
-          return (
-            <div key={step.name} className={styles.stepWrapper}>
-              <div className={styles.step}>
-                <div
-                  className={`${styles.stepNumber} ${
-                    isActive ? styles.stepActive : ""
-                  }`}
-                >
-                  {isActive ? <span>&#10003;</span> : index + 1}
+      {isOptionFullScreen && (
+        <>
+          <div className={styles.stepper}>
+            {stepsConfig.map((step, index) => {
+              const isActive = currentStep > index + 1 || isComplete;
+              return (
+                <div key={step.name} className={styles.stepWrapper}>
+                  <div className={styles.step}>
+                    <div
+                      className={`${styles.stepNumber} ${
+                        isActive ? styles.stepActive : ""
+                      }`}
+                    >
+                      {isActive ? <span>&#10003;</span> : index + 1}
+                    </div>
+                    <div className={styles.stepName}>{step.name}</div>
+                  </div>
+                  {index !== stepsConfig.length - 1 && (
+                    <div
+                      className={`${styles.stepLine} ${
+                        isActive ? styles.stepActive : ""
+                      }`}
+                    ></div>
+                  )}
                 </div>
-                <div className={styles.stepName}>{step.name}</div>
-              </div>
-              {index !== stepsConfig.length - 1 && (
-                <div
-                  className={`${styles.stepLine} ${
-                    isActive ? styles.stepActive : ""
-                  }`}
-                ></div>
-              )}
+              );
+            })}
+            <div className={styles.progressBar}>
+              <div className={styles.progress}></div>
             </div>
-          );
-        })}
-        <div className={styles.progressBar}>
-          <div className={styles.progress}></div>
-        </div>
-      </div>
 
+            {!isComplete && (
+              <button className={styles.btnNext} onClick={handleNextStep}>
+                Tiếp tục
+              </button>
+            )}
+          </div>
+        </>
+      )}
       <div className={styles.stepContent}>
         <ActiveComponent />
         {isLoading ? <Waiting /> : ""}

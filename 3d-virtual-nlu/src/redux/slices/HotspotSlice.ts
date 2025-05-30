@@ -101,8 +101,12 @@ const hotspotSlice = createSlice({
         (h) => h.id !== action.payload
       );
     },
+
     clearHotspot: (state) => {
       state.hotspotList = [];
+    },
+    clearHotspotNavigation: (state) => {
+      state.hotspotList = state.hotspotList.filter((h) => h.type !== 1);
     },
     updateModelHotspotModelUrl: (
       state,
@@ -268,6 +272,7 @@ export const {
   addModelHotspot,
   deleteHotspot,
   clearHotspot,
+  clearHotspotNavigation,
   updateModelHotspotModelUrl,
   updateIconId,
   updateNavigationHotspotTarget,

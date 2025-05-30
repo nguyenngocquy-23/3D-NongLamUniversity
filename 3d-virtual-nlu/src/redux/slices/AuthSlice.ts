@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../Store";
 
 // Kiểu dữ liệu người dùng
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -42,7 +42,9 @@ export const loginUser = createAsyncThunk(
       });
 
       if (response.data.statusCode !== 1000) {
-        throw new Error(response.data.message || "Invalid username or password");
+        throw new Error(
+          response.data.message || "Invalid username or password"
+        );
       }
 
       const userResponse = await axios.post(
@@ -57,7 +59,10 @@ export const loginUser = createAsyncThunk(
       );
 
       // Gọi scheduleTokenRefresh với dispatch từ thunkAPI
-      scheduleTokenRefresh(response.data.data.token, thunkAPI.dispatch as AppDispatch);
+      scheduleTokenRefresh(
+        response.data.data.token,
+        thunkAPI.dispatch as AppDispatch
+      );
 
       return {
         user: userResponse.data,
@@ -65,7 +70,9 @@ export const loginUser = createAsyncThunk(
       };
     } catch (error: any) {
       if (error.code === "ERR_NETWORK") {
-        return thunkAPI.rejectWithValue("Không thể kết nối đến server. Vui lòng thử lại sau.");
+        return thunkAPI.rejectWithValue(
+          "Không thể kết nối đến server. Vui lòng thử lại sau."
+        );
       }
       return thunkAPI.rejectWithValue(
         error.response?.data?.message ||
@@ -74,7 +81,6 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
-
 
 // Thunk đăng xuất
 export const logoutUser = createAsyncThunk(
@@ -86,10 +92,13 @@ export const logoutUser = createAsyncThunk(
       sessionStorage.removeItem("token");
       await axios.post("http://localhost:8080/api/authenticate/logout", { token });
 
+
       // Xoá sessionStorage
       return;
     } catch (error: any) {
-      return rejectWithValue("Không thể kết nối đến server. Vui lòng thử lại sau.");
+      return rejectWithValue(
+        "Không thể kết nối đến server. Vui lòng thử lại sau."
+      );
     }
   }
 );
@@ -97,15 +106,20 @@ export const logoutUser = createAsyncThunk(
 // Thunk làm mới token
 export const refreshToken = createAsyncThunk(
   "auth/refreshToken",
-  async ( token: string, { rejectWithValue }) => {
+  async (token: string, { rejectWithValue }) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/authenticate/refresh", {
-        token,
-      });
+      const response = await axios.post(
+        "http://localhost:8080/api/authenticate/refresh",
+        {
+          token,
+        }
+      );
       sessionStorage.setItem("token", response.data.data.token);
       return response.data.data.token;
     } catch (error: any) {
-      return rejectWithValue("Không thể kết nối đến server. Vui lòng thử lại sau.");
+      return rejectWithValue(
+        "Không thể kết nối đến server. Vui lòng thử lại sau."
+      );
     }
   }
 );

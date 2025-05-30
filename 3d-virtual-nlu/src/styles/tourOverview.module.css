@@ -9,7 +9,7 @@
   /* background-color: #5cb338; */
 }
 
-.vtBackground .title{
+.vtBackground .title {
   margin: auto;
   text-align: center;
   color: green;
@@ -89,10 +89,10 @@
   overflow: hidden;
 }
 
-canvas {
+/* canvas {
   width: 100% !important;
   height: 100% !important;
-}
+} */
 
 .pause:hover,
 .play:hover,
