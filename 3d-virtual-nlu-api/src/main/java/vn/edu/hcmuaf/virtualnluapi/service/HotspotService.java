@@ -22,7 +22,7 @@ public class HotspotService {
         return hotspotDao.insertHotspotNavigation(reqs, nodeId);
     }
 
-    public boolean insertInfomation(List<HotspotInfoCreateRequest> reqs, String nodeId) {
+    public boolean insertInformation(List<HotspotInfoCreateRequest> reqs, String nodeId) {
         return hotspotDao.insertHotspotInformation(reqs, nodeId);
     }
 

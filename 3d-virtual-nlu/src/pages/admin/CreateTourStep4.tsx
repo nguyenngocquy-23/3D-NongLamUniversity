@@ -4,13 +4,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../redux/Store.tsx";
 import ProcessBar from "../../components/admin/ProcessBar.tsx";
+import { resetStep } from "../../redux/slices/StepSlice.ts";
 
 const CreateTourStep4: React.FC = () => {
-  const [activeStep, setActiveStep] = useState(3);
+  const dispatch = useDispatch();
 
   return (
     <div className={styles.container}>
-      <b style={{color:'black'}}>Tour đã được duyệt, kiểm tra tại trang chủ</b>
+      <b style={{color:'black'}}>Tour đã được duyệt, kiểm tra tại trang chủ</b><br />
+      <button onClick={() => {dispatch(resetStep())}}>Tạo tour mới</button>
     </div>
   );
 };

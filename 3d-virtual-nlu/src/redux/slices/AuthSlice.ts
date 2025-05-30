@@ -88,13 +88,12 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = sessionStorage.getItem("token");
-      await axios.post("http://localhost:8080/api/authenticate/logout", {
-        token,
-      });
-
-      // Xoá sessionStorage
       sessionStorage.removeItem("user");
       sessionStorage.removeItem("token");
+      await axios.post("http://localhost:8080/api/authenticate/logout", { token });
+
+
+      // Xoá sessionStorage
       return;
     } catch (error: any) {
       return rejectWithValue(

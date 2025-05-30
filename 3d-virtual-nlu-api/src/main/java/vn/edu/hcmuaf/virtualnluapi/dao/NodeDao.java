@@ -55,6 +55,8 @@ public class NodeDao {
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
+                 ORDER BY n.updatedAt DESC
+                 LIMIT 10 OFFSET 0
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
     }
@@ -84,7 +86,11 @@ public class NodeDao {
         }
         List<HotspotMediaResponse> mediaHotspots = hotspotDao.getMediaByNodeId(nodeFullResponse.getId());
         List<HotspotModelResponse> modelHotspots = hotspotDao.getModelByNodeId(nodeFullResponse.getId());
+        List<HotspotNavigationResponse> navigationHotspots = hotspotDao.getNavigationByNodeId(nodeFullResponse.getId());
+        List<HotspotInformationResponse> informationHotspots = hotspotDao.getInformationByNodeId(nodeFullResponse.getId());
 
+        nodeFullResponse.setNavHotspots(navigationHotspots);
+        nodeFullResponse.setInfoHotspots(informationHotspots);
         nodeFullResponse.setMediaHotspots(mediaHotspots);
         nodeFullResponse.setModelHotspots(modelHotspots);
         return nodeFullResponse;

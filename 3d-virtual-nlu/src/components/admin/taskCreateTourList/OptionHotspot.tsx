@@ -2,9 +2,8 @@ import { Html } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../../styles/optionHotspot.module.css";
-
-import { removeHotspot } from "../../../redux/slices/HotspotSlice";
 import { RootState } from "../../../redux/Store";
+import { removeHotspot } from "../../../redux/slices/HotspotSlice";
 import Swal from "sweetalert2";
 
 const OptionHotspot = ({

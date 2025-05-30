@@ -1,6 +1,6 @@
 .task_container {
   width: 40vw;
-  position: absolute;
+  position: fixed;
   bottom: -1000px;
   left: 20px;
   border-radius: 10px;

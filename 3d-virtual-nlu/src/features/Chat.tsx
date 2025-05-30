@@ -62,9 +62,7 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
 
   const handleScroll = () => {
     const container = messagesRef.current;
-    console.log("scroll nè");
     if (container && container.scrollTop === 0) {
-      console.log("top nè");
       scrollPositionRef.current = container.scrollHeight;
       loadMessages(page + 1);
     }

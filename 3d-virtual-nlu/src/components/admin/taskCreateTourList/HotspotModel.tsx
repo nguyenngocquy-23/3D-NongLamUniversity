@@ -64,7 +64,7 @@ const TypeModel = ({
             {hotspotModel?.positionZ}{" "}
           </span>
         </p>
-        <div style={{ display: "flex" }}>
+        <div style={{ position: "relative", display: "flex", flex: "1", minHeight: '80px' }}>
           <label className={styles.label}>Tệp mô hình:</label>
           <UploadFile
             className="upload_model"

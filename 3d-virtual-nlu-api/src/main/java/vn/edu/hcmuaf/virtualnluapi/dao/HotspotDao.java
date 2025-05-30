@@ -5,8 +5,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotInformationResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotMediaResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotModelResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotNavigationResponse;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -64,7 +66,7 @@ public class HotspotDao {
 
     public boolean insertHotspotInformation(List<HotspotInfoCreateRequest> req, String nodeId) {
         String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity)";
-        String sqlInsertNavigation = "INSERT INTO hotspot_infos(hotspotId, title, content) " + "VALUES(:hotspotId, :title, :content)";
+        String sqlInsertNavigation = "INSERT INTO hotspot_informations(hotspotId, title, content) " + "VALUES(:hotspotId, :title, :content)";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
 
@@ -159,11 +161,7 @@ public class HotspotDao {
 
             PreparedBatch navigationBatch = handle.prepareBatch(sqlInsertNavigation);
             for (int i = 0; i < generateIds.size(); i++) {
-                navigationBatch.bind("hotspotId", generateIds.get(i))
-                        .bind("mediaType", reqs.get(i).getMediaType())
-                        .bind("mediaUrl", reqs.get(i).getMediaUrl())
-                        .bind("caption", reqs.get(i).getCaption())
-                        .bind("cornerPointList", reqs.get(i).getCornerPointListJson()).add();
+                navigationBatch.bind("hotspotId", generateIds.get(i)).bind("mediaType", reqs.get(i).getMediaType()).bind("mediaUrl", reqs.get(i).getMediaUrl()).bind("caption", reqs.get(i).getCaption()).bind("cornerPointList", reqs.get(i).getCornerPointList()).add();
             }
             navigationBatch.execute();
             return true;
@@ -178,6 +176,26 @@ public class HotspotDao {
                 "AS m ON h.id = m.hotspotId WHERE h.nodeId = :nodeId";
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotMediaResponse.class).list();
+        });
+    }
+
+    public List<HotspotNavigationResponse> getNavigationByNodeId(int nodeId) {
+        String sql = "SELECT h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
+                "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" +
+                ", n.targetNodeId " +
+                "FROM hotspots AS h JOIN hotspot_navigations AS n ON h.id = n.hotspotId WHERE h.nodeId = :nodeId";
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotNavigationResponse.class).list();
+        });
+    }
+
+    public List<HotspotInformationResponse> getInformationByNodeId(int nodeId) {
+        String sql = "SELECT h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
+                "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" +
+                ", i.title, i.content " +
+                "FROM hotspots AS h JOIN hotspot_informations AS i ON h.id = i.hotspotId WHERE h.nodeId = :nodeId";
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotInformationResponse.class).list();
         });
     }
 }

@@ -25,8 +25,8 @@ public class NodeFullResponse {
     byte status, autoRotate;
     double speedRotate, lightIntensity;
     LocalDateTime updatedAt;
-//    List<HotspotMediaResponse> navHotspots;
-//    List<HotspotInfoCreateRequest> infoHotspots;
+    List<HotspotNavigationResponse> navHotspots;
+    List<HotspotInformationResponse> infoHotspots;
     List<HotspotMediaResponse>  mediaHotspots;
     List<HotspotModelResponse> modelHotspots;
 }

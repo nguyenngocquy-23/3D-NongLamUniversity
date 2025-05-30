@@ -197,12 +197,6 @@ const ConfigMedia = ({
             </div>
           </div>
         </div>
-        <div style={{ display: "flex" }}>
-          <label>Tiêu đề:</label>
-          <div>
-            <textarea name="" id=""></textarea>
-          </div>
-        </div>
 
         {typeFrame == 0 ? (
           <button

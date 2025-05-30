@@ -161,7 +161,6 @@ const TourScene: React.FC<TourSceneProps> = ({
   // Gửi sự kiện click chuột kèm điểm raycaste (x,y,z) về CreateTourStep2.
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     if (!sphereRef.current) return;
-    console.log("[handlePointerDown - TourScene] Click chuột trong Scene!");
     onPointerDown?.(e, e.point);
   };
 

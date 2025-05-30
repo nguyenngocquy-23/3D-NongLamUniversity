@@ -4,11 +4,12 @@ import { MdDeleteForever, MdFileDownloadDone } from "react-icons/md";
 import styles from "../../styles/uploadFile.module.css";
 import axios, { AxiosError } from "axios";
 import { clearPanorama, setPanoramas } from "../../redux/slices/PanoramaSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { FaFile } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import { RiLoader2Fill } from "react-icons/ri";
 import { nextStep } from "../../redux/slices/StepSlice";
+import { RootState } from "../../redux/Store";
 
 /**
  * UploadFile sẽ nhận vào các kiểu props:
@@ -63,6 +64,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
   const [fileStatuses, setFileStatuses] = useState<FileUploadStatus[]>([]);
   const maxFiles = className === "upload_panos" ? 5 : 1; //Ngoài upload panos, các trường hợp còn lại chỉ cần 1 file.
 
+  const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
   useEffect(() => {
     if (
       maxFiles === 1 &&
@@ -382,6 +384,16 @@ const UploadFile: React.FC<UploadFileProps> = ({
         url: f.uploadedUrl!,
       }));
 
+    if (spaceId === "0" || spaceId == null) {
+      Swal.fire({
+        icon: "warning",
+        title: "Chưa chọn không gian",
+        text: "Vui lòng chọn không gian trước khi tiếp tục",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
     dispatch(setPanoramas(allSuccessful));
     dispatch(nextStep());
   };
@@ -483,26 +495,26 @@ const UploadFile: React.FC<UploadFileProps> = ({
                 {error && <span className={styles.file_error}>{error}</span>}
               </div>
             ))}
-            {className === "upload_panos" && (
-              <div className={styles.container_btn}>
-                <span className={styles.upload_btn} onClick={handleUpload}>
-                  {uploadStatus === "done" ? (
-                    <span>Tạo lại</span>
-                  ) : (
-                    <span>Tải lên ({fileStatuses.length}/5)</span>
-                  )}
-                  <FaCloudUploadAlt />
-                </span>
-
-                {fileStatuses.length > 0 &&
-                  fileStatuses.every((f) => f.status === "success") && (
-                    <span className={styles.next_btn} onClick={nextStep2}>
-                      Tiếp tục
-                    </span>
-                  )}
-              </div>
-            )}
           </div>
+          {className === "upload_panos" && (
+            <div className={styles.container_btn}>
+              <span className={styles.upload_btn} onClick={handleUpload}>
+                {uploadStatus === "done" ? (
+                  <span>Tạo lại</span>
+                ) : (
+                  <span>Tải lên ({fileStatuses.length}/5)</span>
+                )}
+                <FaCloudUploadAlt />
+              </span>
+
+              {fileStatuses.length > 0 &&
+                fileStatuses.every((f) => f.status === "success") && (
+                  <span className={styles.next_btn} onClick={nextStep2}>
+                    Tiếp tục
+                  </span>
+                )}
+            </div>
+          )}
         </div>
       )}
     </div>

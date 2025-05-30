@@ -10,13 +10,11 @@ import { DoubleSide } from "three";
 import { Html } from "@react-three/drei";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
-  setHoveredHotspot: (hotspot: THREE.Mesh | null) => void;
   hotspotInfo: HotspotInformation;
 };
 
 const GroundHotspotInfo = ({
   setCurrentHotspotId,
-  setHoveredHotspot,
   hotspotInfo,
 }: GroundHotspotProps) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
@@ -24,14 +22,11 @@ const GroundHotspotInfo = ({
 
   const icons = useSelector((state: RootState) => state.data.icons);
   const iconUrl = icons.find((i) => i.id == hotspotInfo.iconId).url;
-  const modelRef = useRef<THREE.Group>(null); //gọi lại group trong return.
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
-  /**
-   * Đang set tạm
-   */
-  const targetOpacity = useRef(0.6);
-  const targetScale = useRef(5);
+
+  const targetOpacity = useRef(hotspotInfo.opacity);
+  const targetScale = useRef(hotspotInfo.scale);
 
   // Kiểm tra trạng thái chuột với model.
   const [isHovered, setIsHovered] = useState(false);
@@ -41,18 +36,19 @@ const GroundHotspotInfo = ({
 
   useEffect(() => {
     if (isHovered || isClicked) {
-      targetOpacity.current = 1;
-      targetScale.current = 2;
+      targetOpacity.current = hotspotInfo.opacity + 0.5;
+      targetScale.current = hotspotInfo.scale + 0.5;
+      console.log("opacity 1:..", targetOpacity.current);
     } else {
-      targetOpacity.current = 0.6;
-      targetScale.current = 1.5;
+      targetOpacity.current = hotspotInfo.opacity;
+      targetScale.current = hotspotInfo.scale;
+      console.log("opacity 2:..", targetOpacity.current);
     }
-  }, [isHovered]);
+  }, [isHovered, hotspotInfo]);
 
   useFrame(() => {
     if (hotspotRef.current) {
-      const material = hotspotRef.current
-        .material as THREE.MeshStandardMaterial;
+      const material = hotspotRef.current.material as THREE.MeshBasicMaterial;
       material.opacity += (targetOpacity.current - material.opacity) * 0.1;
       hotspotRef.current.scale.lerp(
         new THREE.Vector3(targetScale.current, targetScale.current, 1),
@@ -122,17 +118,23 @@ const GroundHotspotInfo = ({
             hotspotInfo.positionZ,
           ]}
         >
-        <Html 
-          distanceFactor={40}
-          transform
-        >
-          <div className={styles.container}>
-            <div className={styles.centerPane}>
-              <div className={styles.title}>{hotspotInfo.title}</div>
-              <div className={styles.description}>{hotspotInfo.content}</div>
+          <Html distanceFactor={40} transform>
+            <div className={styles.container}>
+              <div className={styles.centerPane}>
+                {hotspotInfo.title.trim() == "" &&
+                hotspotInfo.content.trim() == "" ? (
+                  <div className={styles.description}>Trống</div>
+                ) : (
+                  <>
+                    <div className={styles.title}>{hotspotInfo.title}</div>
+                    <div className={styles.description}>
+                      {hotspotInfo.content}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        </Html>
+          </Html>
         </group>
       ) : (
         ""
@@ -151,13 +153,11 @@ const GroundHotspotInfo = ({
         ]}
         onPointerOver={() => {
           setIsHovered(true);
-          setHoveredHotspot(hotspotRef.current); //test
           gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
         }}
         onPointerOut={() => {
           setIsHovered(false);
-          setHoveredHotspot(null); //test
-          gl.domElement.style.cursor = "default"; // 👈 đổi cursor
+          gl.domElement.style.cursor = "default";
         }}
         onClick={() => {
           setClicked((preState) => !preState);
@@ -171,13 +171,13 @@ const GroundHotspotInfo = ({
         <meshBasicMaterial
           map={texture}
           transparent
-          opacity={0.6}
+          opacity={hotspotInfo.opacity}
           depthTest={false}
           color={new THREE.Color(hotspotInfo.color)}
           side={DoubleSide}
         />
       </mesh>
-      {isOpenHotspotOption && currentStep != 3 ? (
+      {isOpenHotspotOption && currentStep != 3 && currentStep != 1? (
         <OptionHotspot
           hotspotId={hotspotInfo.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}

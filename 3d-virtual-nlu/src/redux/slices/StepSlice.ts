@@ -32,7 +32,7 @@ const stepSlice = createSlice({
       state.isComplete = true;
     },
     resetStep: (state) => {
-      state.currentStep = 0;
+      state.currentStep = 1;
       state.isComplete = false;
     },
   },

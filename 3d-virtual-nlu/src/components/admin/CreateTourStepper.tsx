@@ -5,6 +5,8 @@ import { RootState } from "../../redux/Store";
 import { nextStep } from "../../redux/slices/StepSlice";
 import Swal from "sweetalert2";
 import Waiting from "../Waiting";
+import { clearHotspot, removeHotspot } from "../../redux/slices/HotspotSlice";
+import { clearPanorama } from "../../redux/slices/PanoramaSlice";
 
 /**
  * Quy đổi: currentStep (1) = stepsConfig[0]
@@ -38,7 +40,15 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
   const ActiveComponent = stepsConfig[currentStep - 1]?.Component;
 
   useEffect(() => {
-    if (currentStep == stepsConfig.length) setIsComplete(true);
+    if (currentStep == stepsConfig.length) {
+      setIsComplete(true);
+    } 
+    if(currentStep == 1) {
+      dispatch(clearHotspot())
+      dispatch(clearPanorama())
+      setIsComplete(false);
+    }
+
     if (currentStep != 1) setIsLoading(true);
     const timeout = setTimeout(() => {
       setIsLoading(false); // ẩn trang chờ
@@ -47,29 +57,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
     return () => clearTimeout(timeout);
   }, [currentStep]);
 
-  const handleNextStep = () => {
-    if (currentStep === 1) {
-      if (spaceId === "0" || spaceId == null) {
-        Swal.fire({
-          icon: "warning",
-          title: "Chưa chọn không gian",
-          text: "Vui lòng chọn không gian trước khi tiếp tục",
-          confirmButtonText: "OK",
-        });
-        return;
-      } else if (panoramaList.length === 0) {
-        Swal.fire({
-          icon: "warning",
-          title: "Chưa có ảnh 360",
-          text: "Vui lòng tải lên ảnh 360 để tiếp tục",
-          confirmButtonText: "OK",
-        });
-        return;
-      }
-    }
-    setIsLoading(true); // bật loading
-    dispatch(nextStep()); // cập nhật bước (redux)
-  };
+ 
 
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(false);
 

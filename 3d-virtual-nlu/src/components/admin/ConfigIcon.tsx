@@ -104,6 +104,7 @@ const ConfigIcon = ({
     currentHotspotType,
     currentPanorama,
     scale,
+    opacity,
     pitchX,
     yawY,
     rollZ,
@@ -112,6 +113,25 @@ const ConfigIcon = ({
     setAllowBackgroundColor,
     iconId,
   ]);
+
+  /**
+   * useEffect để khi propHotspot có thay đổi thì các state sẽ duoc set lại
+   * Nếu không useEffect thì khi ở trong component khác thay đổi propHotspot
+   * Nghĩa là update lại component này thì các state vẫn giữ nguyên
+   */
+  useEffect(() => {
+  if (propHotspot) {
+    setIconId(propHotspot.iconId ?? 0);
+    setScale(propHotspot.scale ?? 1);
+    setPitchX(propHotspot.pitchX ?? 0);
+    setYawY(propHotspot.yawY ?? 0);
+    setRollZ(propHotspot.rollZ ?? 0);
+    setColor(propHotspot.color ?? "#333333");
+    setBackgroundColor(propHotspot.backgroundColor ?? "#333333");
+    setAllowBackgroundColor(propHotspot.allowBackgroundColor ?? false);
+    setOpacity(propHotspot.opacity ?? 1);
+  }
+}, [propHotspot])
   return (
     <div style={{ display: "flex" }}>
       <label>Biểu tượng:</label>
@@ -187,7 +207,7 @@ const ConfigIcon = ({
             <div>
               <input
                 type="range"
-                name="scale"
+                name="opacity"
                 id="scale"
                 min={0.3}
                 max={1}
@@ -287,12 +307,6 @@ const ConfigIcon = ({
               />
               <span>{Math.round(((scale - 0.5) / 1.5) * 100)}%</span>
             </div>
-          </div>
-        </div>
-        <div style={{ display: "flex" }}>
-          <label>Tiêu đề:</label>
-          <div>
-            <textarea name="" id=""></textarea>
           </div>
         </div>
       </div>

@@ -29,10 +29,10 @@ public class UserController {
     public User userInfo(@HeaderParam("Authorization") String token, UserLoginRequest userLoginDTO) {
         // check token có trong table invlaidToken không
         boolean authenticated = authenticationService.authenticate(token);
-        User user = userService.getUserByUserName(userLoginDTO.getUsername());
         if (!authenticated) {
             return null;
         }
+        User user = userService.getUserByUserName(userLoginDTO.getUsername());
         return user;
     }
 

@@ -16,8 +16,9 @@ export function scheduleTokenRefresh(token: string, dispatch: AppDispatch) {
   /**
    * refresh token trước khi hết hạn 1 '
   */
-  const duration = 60000;
-  const delay = expiresAt - now - duration;
+ const duration = 5*60000;
+ const delay = expiresAt - now - duration;
+ console.log('delay:', delay);
 
   if (refreshTimer){
     console.log('refreshTimer..', refreshTimer)

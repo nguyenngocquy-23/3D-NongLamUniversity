@@ -1,4 +1,4 @@
-package vn.edu.hcmuaf.virtualnluapi.dto.request;
+package vn.edu.hcmuaf.virtualnluapi.dto.response;
 
 
 import lombok.*;
@@ -9,8 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults (level = AccessLevel.PRIVATE)
-public class HotspotMediaCreateRequest {
-    String nodeId;
+public class HotspotNavigationResponse {
     byte type;
     int iconId;
     double positionX, positionY, positionZ;
@@ -19,5 +18,5 @@ public class HotspotMediaCreateRequest {
     String color, backgroundColor;
     byte allowBackgroundColor;
     float opacity;
-    String mediaType, mediaUrl, caption, cornerPointList;
+    int targetNodeId;
 }

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/Store";
+import { AppDispatch, RootState } from "../../redux/Store";
 import { useNavigate } from "react-router-dom";
 import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
 import axios from "axios";
@@ -19,16 +19,16 @@ import {
   HotspotInformation,
   HotspotModel,
   HotspotMedia,
-  clearHotspot,
 } from "../../redux/slices/HotspotSlice";
 import * as THREE from "three";
 import { RADIUS } from "./CreateTourStep2";
-import { FaAngleLeft, FaPlus } from "react-icons/fa6";
-import { IoMdMenu } from "react-icons/io";
+import { FaAngleLeft } from "react-icons/fa6";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import Swal from "sweetalert2";
-import { clearPanorama } from "../../redux/slices/PanoramaSlice";
+import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 import { nextStep, prevStep } from "../../redux/slices/StepSlice";
+import { fetchMasterNodes } from "../../redux/slices/DataSlice";
+import gsap from "gsap";
 
 const CreateTourStep3: React.FC = () => {
   const panoramas = useSelector((state: RootState) => state.panoramas);
@@ -88,7 +88,7 @@ const CreateTourStep3: React.FC = () => {
     positionZ,
   ];
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const hotspotNavigations = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
@@ -111,6 +111,59 @@ const CreateTourStep3: React.FC = () => {
       (hotspot): hotspot is HotspotMedia => hotspot.type === 3
     )
   );
+
+  if(!hotspotNavigations && !hotspotInfos && !hotspotModels && !hotspotMedias) return;
+
+  const handleSelectNode = (id: string) => {
+    dispatch(selectPanorama(id));
+  };
+
+  const handleHotspotNavigate = (
+    targetNodeId: string,
+    hotspotTargetPosition: [number, number, number]
+  ) => {
+    if (!cameraRef.current || !controlsRef.current) return;
+
+    const camera = cameraRef.current;
+    console.log("Text step2" + camera);
+    const control = controlsRef.current;
+    const originalFov = camera.fov;
+    const zoomTarget = 45; // Có thể điều chỉnh FOV này tùy theo yêu cầu
+
+    const [x, y, z] = hotspotTargetPosition;
+
+    // === Bước 1: Tạo điểm cần nhìn đến (hotspot)
+    const targetLookAt = new THREE.Vector3(x, 0, z);
+
+    // === Bước 2: Animation tạm thời "quay" camera bằng cách move lookAt
+    const tempTarget = targetLookAt.clone();
+
+    gsap.to(camera.rotation, {
+      duration: 0.2,
+      ease: "power2.inOut",
+      onUpdate: () => {
+        camera.lookAt(tempTarget);
+        control.update();
+      },
+      onComplete: () => {
+        gsap.to(camera, {
+          fov: zoomTarget,
+          duration: 1.0,
+          ease: "power2.inOut",
+          onUpdate: () => {
+            handleSelectNode(targetNodeId);
+            camera.updateProjectionMatrix();
+          },
+          onComplete: () => {
+            camera.fov = originalFov;
+            camera.lookAt(0, 0, 0); // về
+            camera.updateProjectionMatrix();
+            control.update();
+          },
+        });
+      },
+    });
+  };
 
   const handleBackStep3 = () => {
     Swal.fire({
@@ -154,6 +207,7 @@ const CreateTourStep3: React.FC = () => {
           text: "Xuất bản thành công",
         }).then(() => {
           dispatch(nextStep());
+          dispatch(fetchMasterNodes());
         });
       } else {
         Swal.fire({
@@ -203,26 +257,16 @@ const CreateTourStep3: React.FC = () => {
             .map((hotspot) => (
               <GroundHotspot
                 key={hotspot.id}
-                position={[
-                  hotspot.positionX,
-                  hotspot.positionY,
-                  hotspot.positionZ,
-                ]}
-                // idHotspot={hotspot.id}
-                setHoveredHotspot={setHoveredHotspot}
-                nodeId={hotspot.nodeId}
-                type="floor"
+                onNavigate={(targetNodeId, cameraTargetPosition) =>
+                  handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                }
                 hotspotNavigation={hotspot}
               />
             ))}
           {hotspotInfos
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
-              <GroundHotspotInfo
-                key={hotspot.id}
-                setHoveredHotspot={setHoveredHotspot}
-                hotspotInfo={hotspot}
-              />
+              <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} />
             ))}
           {hotspotModels
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
@@ -236,13 +280,9 @@ const CreateTourStep3: React.FC = () => {
 
           {hotspotMedias
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot, index) => (
-              <VideoMeshComponent key={index} hotspotMedia={hotspot} />
+            .map((hotspot) => (
+              <VideoMeshComponent key={hotspot.id} hotspotMedia={hotspot} />
             ))}
-
-          {currentPoints.map((point, index) => (
-            <PointMedia key={`p-${index}`} position={point} />
-          ))}
           {currentPoints.length > 1 &&
             currentPoints.map((point, i) => {
               if (i < currentPoints.length - 1)

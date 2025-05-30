@@ -34,7 +34,6 @@ import {
   HotspotMedia,
   HotspotModel,
   HotspotNavigation,
-  HotspotType,
 } from "../../redux/slices/HotspotSlice";
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
@@ -61,10 +60,6 @@ const CreateTourStep2 = () => {
   /**
    * Xử lý toggle hiển thị menu - end
    */
-
-  const user = useSelector((state: RootState) => state.auth.user);
-
-  const spaceId = useSelector((state: RootState) => state.panoramas.spaceId);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
@@ -75,7 +70,6 @@ const CreateTourStep2 = () => {
     [number, number, number][]
   >([]);
 
-  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
   const [assignable, setAssignable] = useState(false);
   const [chooseCornerMediaPoint, setChooseCornerMediaPoint] = useState(false);
 
@@ -86,8 +80,6 @@ const CreateTourStep2 = () => {
   const handleMouseUp = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
-
-  // Phần mình đang sửa. ------------------------START.
 
   /**
    * Khởi tạo sphereRef: sphere ban đầu của hình cầu.
@@ -103,7 +95,6 @@ const CreateTourStep2 = () => {
   const [currentHotspotType, setCurrentHotspotType] = useState(1);
 
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
-
   const dispatch = useDispatch();
 
   const hotspotNavigations = useSelector((state: RootState) =>
@@ -158,9 +149,18 @@ const CreateTourStep2 = () => {
 
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
+    setCurrentHotspotId(null);
   };
 
   const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
+  const [changeCornerMedia, setChangeCornerMedia] = useState(false);
+
+  useEffect(() => {
+    if (controlsRef.current) {
+      console.log("edit corner");
+      controlsRef.current.enabled = false; // tắt khi changeCornerMedia=true
+    }
+  }, [changeCornerMedia]);
 
   const handleOnPropsChange = (updatedProps: BaseHotspot) => {
     setBasicProps(updatedProps);
@@ -212,7 +212,7 @@ const CreateTourStep2 = () => {
             mediaType: "",
             mediaUrl: "",
             caption: "",
-            cornerPointListJson: JSON.stringify(newPoints),
+            cornerPointList: JSON.stringify(newPoints),
           })
         );
 
@@ -322,14 +322,8 @@ const CreateTourStep2 = () => {
     },
   ];
 
-  const {
-    openTaskIndex,
-    completedTaskIds,
-    unlockedTaskIds,
-    handleOpenTask,
-    handleSaveTask,
-    reset,
-  } = useSequentialTasks(tasks.length);
+  const { openTaskIndex, completedTaskIds, unlockedTaskIds, handleOpenTask } =
+    useSequentialTasks(tasks.length);
 
   const [preTaskIndex, setPreTaskIndex] = useState<number | null>(null);
 
@@ -420,6 +414,9 @@ const CreateTourStep2 = () => {
           style={{ cursor: cursor }}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
+          onContextMenu={(e) => {
+            e.preventDefault();
+          }}
         >
           {/* <Axes /> */}
           <axesHelper args={[10]} position={[0, -90, 0]} />
@@ -455,8 +452,6 @@ const CreateTourStep2 = () => {
             .map((hotspot) => (
               <GroundHotspot
                 key={hotspot.id}
-                setHoveredHotspot={setHoveredHotspot}
-                type="floor"
                 onNavigate={(targetNodeId, cameraTargetPosition) =>
                   handleHotspotNavigate(targetNodeId, cameraTargetPosition)
                 }
@@ -470,7 +465,6 @@ const CreateTourStep2 = () => {
               <GroundHotspotInfo
                 key={hotspot.id}
                 setCurrentHotspotId={setCurrentHotspotId}
-                setHoveredHotspot={setHoveredHotspot}
                 hotspotInfo={hotspot}
               />
             ))}
@@ -480,7 +474,6 @@ const CreateTourStep2 = () => {
               <GroundHotspotModel
                 key={hotspot.id}
                 setCurrentHotspotId={setCurrentHotspotId}
-                setHoveredHotspot={setHoveredHotspot}
                 hotspotModel={hotspot}
               />
             ))}
@@ -494,10 +487,32 @@ const CreateTourStep2 = () => {
                 setCurrentHotspotId={setCurrentHotspotId}
               />
             ))}
-
-          {currentPoints.map((point, index) => (
+          {/* {hotspotMedias
+            .filter((hotspot) => hotspot.nodeId === currentSelectId)
+            .map((hotspot) => {
+              const cornerPointList = JSON.parse(hotspot.cornerPointList) as [
+                number,
+                number,
+                number
+              ][];
+              return (
+                <>
+                  {cornerPointList.map((point, index) => {
+                    return (
+                    <PointMedia
+                      key={`${hotspot.id}-${index}`}
+                      hotspotId={hotspot.id}
+                      index={index}
+                      cornerPointList={cornerPointList}
+                      onDragEnd={() => setChangeCornerMedia(false)}
+                    />);
+                  })}
+                </>
+              );
+            })} */}
+          {/* {currentPoints.map((point, index) => (
             <PointMedia key={`p-${index}`} position={point} />
-          ))}
+          ))} */}
           {currentPoints.length > 1 &&
             currentPoints.map((point, i) => {
               if (i < currentPoints.length - 1)
@@ -559,7 +574,6 @@ const CreateTourStep2 = () => {
               ? styles.show
               : ""
           }`}
-          style={{ bottom: `${preTaskIndex == 3 ? "-600px" : "-400px"}` }}
         >
           <TaskContainerCT
             id={preTaskIndex}
@@ -570,11 +584,20 @@ const CreateTourStep2 = () => {
               : ""}
           </TaskContainerCT>
         </div>
-        <UpdateHotspot
-          hotspotId={currentHotspotId}
-          setHotspotId={setCurrentHotspotId}
-          onPropsChange={handleOnPropsChange}
-        />
+        <div
+          className={`${styles.update_hotspot_container} ${
+            currentHotspotId != null
+              ? styles.show
+              : ""
+          }`}
+        >
+          <UpdateHotspot
+            hotspotId={currentHotspotId}
+            setHotspotId={setCurrentHotspotId}
+            onPropsChange={handleOnPropsChange}
+            setChangeCorner={setChangeCornerMedia}
+          />
+        </div>
       </div>
     </>
   );
