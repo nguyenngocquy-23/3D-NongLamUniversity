@@ -7,10 +7,8 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { loginUser } from "../../redux/slices/AuthSlice";
-import { FaRegUser, FaUser } from "react-icons/fa6";
-import { FaUserAlt } from "react-icons/fa";
+import { FaRegUser } from "react-icons/fa6";
 import { CiLock } from "react-icons/ci";
-import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 
 const Login: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username và password

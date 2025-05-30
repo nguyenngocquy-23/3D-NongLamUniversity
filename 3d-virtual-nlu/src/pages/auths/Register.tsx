@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 import styles from "../../styles/login.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { FaRegUser } from "react-icons/fa6";
+import { CiLock } from "react-icons/ci";
+import { MdOutlineVerified } from "react-icons/md";
 
 const Register: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username, password và confirmPassword
@@ -48,7 +51,7 @@ const Register: React.FC = () => {
         <h2>Register</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
-            <label htmlFor="username">Username (Email)</label>
+            <FaRegUser className={styles.icon}/>
             <input
               type="text"
               id="username"
@@ -60,7 +63,7 @@ const Register: React.FC = () => {
             />
           </div>
           <div className={styles.inputGroup}>
-            <label htmlFor="password">Password</label>
+            <CiLock className={styles.icon}/>
             <input
               type={showContent ? "text" : "password"}
               id="password"
@@ -78,7 +81,7 @@ const Register: React.FC = () => {
             ></FontAwesomeIcon>
           </div>
           <div className={styles.inputGroup}>
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <MdOutlineVerified className={styles.icon}/>
             <input
               type={showContent ? "text" : "password"}
               id="confirmPassword"

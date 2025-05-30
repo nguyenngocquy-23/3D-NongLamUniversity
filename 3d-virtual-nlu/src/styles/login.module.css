@@ -64,11 +64,14 @@
 .icon {
   font-weight: 800;
   margin-left: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .inputField {
-  width: 90%;
-  padding: 1rem;
+  width: 100%;
+  padding: 1rem 3rem;
   font-size: 1rem;
   border: none;
   background: transparent;
@@ -128,6 +131,8 @@ input::placeholder {
   color: rgb(255, 18, 18);
   font-style: italic;
   font-weight: 700;
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .passLengthError {

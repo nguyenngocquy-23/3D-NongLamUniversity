@@ -8,6 +8,7 @@ import {
   faEyeDropper,
   faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
+import { FaRegUser } from "react-icons/fa6";
 
 const ForgotPassword: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username và password
@@ -31,7 +32,7 @@ const ForgotPassword: React.FC = () => {
         <h2>Enter your email</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
-            <label htmlFor="username">Username</label>
+            <FaRegUser className={styles.icon}/>
             <input
               type="text"
               id="username"
