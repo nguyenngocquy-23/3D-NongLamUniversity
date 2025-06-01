@@ -21,10 +21,10 @@ const Header: React.FC = () => {
     navigate("/login");
   };
 
-  const handleCreateTour = (e: React.MouseEvent) => {
+  const handleManage = (e: React.MouseEvent) => {
     e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
     if (currentUser) {
-      navigate("/createTour");
+      navigate("/manage");
     } else {
       Swal.fire({
         icon: "warning",
@@ -75,7 +75,7 @@ const Header: React.FC = () => {
           Chương trình đào tạo
         </a>
         <span
-          onClick={handleCreateTour}
+          onClick={handleManage}
           className={style.navLink}
           style={{ cursor: "pointer" }}
         >

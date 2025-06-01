@@ -20,8 +20,10 @@ import ManageNode from "./pages/admin/ManagerTour.tsx";
 import UpdateNode from "./features/UpdateTour.tsx";
 import Model from "./components/admin/Model.tsx";
 import ManagerIcon from "./pages/admin/ManagerIcon.tsx";
-import VisitorCreateTour from "./pages/visitor/CreateTour.tsx";
 import Verify from "./pages/auths/Verify.tsx";
+import VisitorDashBoard from "./pages/visitor/VisitorDashBoard.tsx";
+import VisitorManage from "./pages/visitor/Manage.tsx";
+import VisitorCreateTour from "./pages/visitor/CreateTour.tsx";
 
 function RouterConfig() {
   return (
@@ -32,7 +34,10 @@ function RouterConfig() {
       <Route path="/verify" element={<Verify />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/virtualTour" element={<VirtualTour />} />
-      <Route path="/createTour" element={<VisitorCreateTour />} />
+      <Route path="/manage/" element={<VisitorManage />}>
+        <Route index element={<VisitorDashBoard />} />
+        <Route path="createTour" element={<VisitorCreateTour />} />
+      </Route>
       {/* admin */}
       <Route path="/admin/" element={<Layout />}>
         <Route index element={<Dashboard />} />
@@ -50,7 +55,7 @@ function RouterConfig() {
         <Route path="model" element={<Model />} />
       </Route>
       {/* Nếu URL không đúng, điều hướng đến trang lỗi */}
-      <Route path="*" element={<PageNotFound/>}/>
+      <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 }

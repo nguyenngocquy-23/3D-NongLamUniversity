@@ -1,0 +1,111 @@
+.container {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    z-index: 10;
+    padding: 0 20px;
+    padding-bottom: 20px;
+    /* Hiệu ứng mượt khi ẩn/hiện */
+    height: 20px;
+    transition: height 0.4s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom-left-radius: 40px ;
+    border-bottom-right-radius: 40px ;
+}
+
+.info {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.info img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.admin_info h5 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.toggle:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+.toggle {
+    position: absolute;
+    left: 50%;
+    bottom: -20px;
+    transform: translateX(-50%);
+    font-size: 20px;
+    cursor: pointer;
+    color: #444;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    transition: all .3s ease;
+}
+
+.container ul li:hover{
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+
+}
+.container ul li{
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 20px;
+    padding: 10px;
+    transition: all .5s ease;
+}
+.container ul {
+    list-style: none;
+    margin: 0;
+    display: flex;
+    width: 60%;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.title {
+    padding: 10px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.backBtn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    color: black;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all .3s ease;
+}
+.backBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+.backBtn:focus{
+    outline: none;
+    border: none;
+}
