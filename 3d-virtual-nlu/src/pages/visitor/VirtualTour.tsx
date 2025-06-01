@@ -25,6 +25,9 @@ import {
 import VideoMeshComponent from "../../components/admin/VideoMesh.tsx";
 import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo.tsx";
 import TourCanvas from "../../components/visitor/TourCanvas.tsx";
+import { RADIUS_SPHERE } from "../../utils/Constants.ts";
+import CommentBox from "../../components/visitor/CommentBox.tsx";
+import Swal from "sweetalert2";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -41,6 +44,9 @@ const VirtualTour = () => {
     dispatch(fetchIcons());
     // dispatch(fetchDefaultNodes());
   }, [dispatch]);
+
+  const userJson = sessionStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : null;
 
   const stored = localStorage.getItem("defaultNode");
   const defaultNode = useMemo(() => {
@@ -84,6 +90,8 @@ const VirtualTour = () => {
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
 
   const [isMuted, setIsMuted] = useState(false); // Trạng thái âm thanh
+
+  const [isComment, setIsComment] = useState(false); // Trạng thái âm thanh
 
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
     null
@@ -153,7 +161,6 @@ const VirtualTour = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const radius = 100;
   const handledSwitchTexture = (newPosition: [number, number, number]) => {
     if (sphereRef.current) {
       const material = sphereRef.current.material as THREE.MeshBasicMaterial;
@@ -327,7 +334,7 @@ const VirtualTour = () => {
         windowSize={windowSize}
         cursor={cursor}
         sphereRef={sphereRef}
-        radius={radius}
+        radius={RADIUS_SPHERE}
         defaultNode={defaultNode}
         targetPosition={targetPosition ?? null}
         hotspotNavigations={hotspotNavigations}
@@ -357,12 +364,23 @@ const VirtualTour = () => {
         toggleInformation={toggleInformation}
         toggleFullscreen={toggleFullscreen}
         toggleMute={toggleMute}
+        setIsComment={setIsComment}
       />
       {/* Hộp thông tin */}
       <div className={styles.infoBox} onClick={toggleInformation}>
         Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
         Lâm Thành phố Hồ Chí Minh
-      </div>{" "}
+      </div>
+      {/* Hộp Bình luận */}
+      {isComment && user ? (
+        <CommentBox
+          userId={user.id}
+          nodeId={defaultNode.id}
+          setIsComment={setIsComment}
+        />
+      ) : (
+        ""
+      )}
       {/* <StatsPanel className={styles.statsPanel} /> */}
       {/* Màn hình laoding */}
       {isWaiting ? <Waiting /> : ""}
