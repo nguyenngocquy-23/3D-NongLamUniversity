@@ -61,10 +61,15 @@
     transition: all .3s ease;
 }
 
+.container .show{
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    cursor: default;
+}
+
 .container ul li:hover{
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
-
 }
 .container ul li{
     font-weight: bold;
@@ -72,6 +77,9 @@
     border-radius: 20px;
     padding: 10px;
     transition: all .5s ease;
+}
+.container ul a{
+    text-decoration: none;
 }
 .container ul {
     list-style: none;

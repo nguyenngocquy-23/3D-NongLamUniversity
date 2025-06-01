@@ -24,6 +24,8 @@ import Verify from "./pages/auths/Verify.tsx";
 import VisitorDashBoard from "./pages/visitor/VisitorDashBoard.tsx";
 import VisitorManage from "./pages/visitor/Manage.tsx";
 import VisitorCreateTour from "./pages/visitor/CreateTour.tsx";
+import VisitorProfile from "./pages/visitor/Profile.tsx";
+import VisitorTours from "./pages/visitor/Tours.tsx";
 
 function RouterConfig() {
   return (
@@ -37,6 +39,8 @@ function RouterConfig() {
       <Route path="/manage/" element={<VisitorManage />}>
         <Route index element={<VisitorDashBoard />} />
         <Route path="createTour" element={<VisitorCreateTour />} />
+        <Route path="tours" element={<VisitorTours />} />
+        <Route path="profile" element={<VisitorProfile />} />
       </Route>
       {/* admin */}
       <Route path="/admin/" element={<Layout />}>

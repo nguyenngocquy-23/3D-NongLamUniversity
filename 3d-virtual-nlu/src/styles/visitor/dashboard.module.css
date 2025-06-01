@@ -1,20 +1,19 @@
-
 .container {
-    width: 98vw;
-    min-height: 80vh;
-    height: 100%;
-    margin: 1rem auto;
-    padding: 1rem;
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(8px);
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
+  width: 98vw;
+  min-height: 80vh;
+  height: 100%;
+  margin: 1rem auto;
+  padding: 1rem;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
 }
 
 .category {
-  background: linear-gradient(to bottom, #fff, rgba(255,2,2,0));
+  background: linear-gradient(to bottom, #fff, rgba(255, 2, 2, 0));
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -33,7 +32,8 @@
 
 .category svg {
   font-size: 2rem;
-  color: #3b82f6; /* Tailwind blue-500 */
+  color: #3b82f6;
+  /* Tailwind blue-500 */
 }
 
 .title {

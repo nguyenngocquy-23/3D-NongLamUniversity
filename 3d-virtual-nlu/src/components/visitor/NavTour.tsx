@@ -16,6 +16,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
   const userJson = sessionStorage.getItem("user");
   const user = userJson ? JSON.parse(userJson) : null;
   const navigate = useNavigate();
+  const [isNav, setIsNav] = useState(1);
 
   return (
     <nav
@@ -28,7 +29,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
         <span
           className={styles.backBtn}
           onClick={() => {
-            navigate(-1);
+            navigate("/");
           }}
         >
           <FaAngleLeft />
@@ -40,30 +41,34 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
         {isOpen ? <FaCaretUp /> : <FaCaretDown />}
       </span>
 
-      <ul
-        style={{
-          marginTop: isOpen ? undefined : "30px",
-        }}
-      >
-        <Link to={"/manage/"}>
-          <li className={styles.title}>{isOpen && <span>Thống kê</span>}</li>
-        </Link>
-        <Link to={"/manage/createTour"}>
-          <li className={styles.title}>
-            {isOpen && <span>Các tour đã tạo</span>}
-          </li>
-        </Link>
-        <Link to={"/manage/createTour"}>
-          <li className={styles.title}>
-            {isOpen && <span>Tạo tour mới</span>}
-          </li>
-        </Link>
-        <Link to={"/manage/createTour"}>
-          <li className={styles.title}>
-            {isOpen && <span>Thông tin cá nhân</span>}
-          </li>
-        </Link>
-      </ul>
+      {isOpen && (
+        <ul
+          style={{
+            marginTop: isOpen ? undefined : "30px",
+          }}
+        >
+          <Link to={"/manage/"} onClick={() => setIsNav(1)}>
+            <li className={`${styles.title} ${isNav == 1 ? styles.show : ""}`}>
+              <span>Thống kê</span>
+            </li>
+          </Link>
+          <Link to={"/manage/tours"} onClick={() => setIsNav(2)}>
+            <li className={`${styles.title} ${isNav == 2 ? styles.show : ""}`}>
+              <span>Các tour đã tạo</span>
+            </li>
+          </Link>
+          <Link to={"/manage/createTour"} onClick={() => setIsNav(3)}>
+            <li className={`${styles.title} ${isNav == 3 ? styles.show : ""}`}>
+              <span>Tạo tour mới</span>
+            </li>
+          </Link>
+          <Link to={"/manage/profile"} onClick={() => setIsNav(4)}>
+            <li className={`${styles.title} ${isNav == 4 ? styles.show : ""}`}>
+              <span>Thông tin cá nhân</span>
+            </li>
+          </Link>
+        </ul>
+      )}
       <div className={styles.info}>
         {isOpen && (
           <>

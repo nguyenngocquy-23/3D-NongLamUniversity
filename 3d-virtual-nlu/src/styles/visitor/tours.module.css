@@ -1,0 +1,38 @@
+.container {
+    width: 98vw;
+    min-height: 80vh;
+    height: 100%;
+    margin: 1rem auto;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+}
+
+.tour {
+    position: relative;
+    background: linear-gradient(to bottom, #fff, rgba(255, 2, 2, 0));
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    height: 200px;
+}
+
+.tour:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.name {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 700;
+}
