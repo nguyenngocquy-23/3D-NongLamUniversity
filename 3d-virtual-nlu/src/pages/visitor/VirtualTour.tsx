@@ -42,10 +42,6 @@ const VirtualTour = () => {
 
   const icons = useSelector((state: RootState) => state.data.icons);
 
-  if (!icons) {
-    return <div>Loading...</div>;
-  }
-
   const userJson = sessionStorage.getItem("user");
   const user = userJson ? JSON.parse(userJson) : null;
 
@@ -116,10 +112,22 @@ const VirtualTour = () => {
    * Lớp chờ để ẩn các tiến trình render
    * Tạo cảm giác loading cho người dùng
    */
-  const [isWaiting, setIsWaiting] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(true);
+
+  /**
+   * State để mở hộp thông tin
+   */
+  const [isOpenInfo, setIsOpenInfo] = useState(true);
+
+  const [hideMap, setHideMap] = useState(false);
+  const [fullMap, setFullMap] = useState(false);
+  const [hoverMap, setHoverMap] = useState(false);
+  /**
+   * Ref để cập nhật giá trị kích thước của map
+   */
+  const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
-    setIsWaiting(true);
     const timeout = setTimeout(() => {
       setIsWaiting(false); // ẩn trang chờ
     }, 5000);
@@ -222,7 +230,6 @@ const VirtualTour = () => {
       setIsFullscreen(false);
     }
   };
-  const [isOpenInfo, setIsOpenInfo] = useState(true);
 
   const toggleInformation = () => {
     const divInfo = document.querySelector<HTMLElement>(`.${styles.infoBox}`);
@@ -302,7 +309,7 @@ const VirtualTour = () => {
 
     const thresholdX = window.innerWidth * 0.05;
     const thresholdY = window.innerHeight * 0.5;
-    if (mouseX < thresholdX && mouseY < thresholdY) {
+    if (mouseX < thresholdX && mouseY < thresholdY && !hoverMap) {
       setIsMenuVisible(true);
     }
   };
@@ -327,11 +334,6 @@ const VirtualTour = () => {
     }, 50);
   }, []);
 
-  const [hideMap, setHideMap] = useState(false);
-  const [fullMap, setFullMap] = useState(false);
-  const [hoverMap, setHoverMap] = useState(false);
-  const mapRef = useRef<L.Map | null>(null);
-
   useEffect(() => {
     if (mapRef.current) {
       setTimeout(() => {
@@ -339,6 +341,17 @@ const VirtualTour = () => {
       }, 300); // chờ animation transition xong
     }
   }, [fullMap, hoverMap]);
+
+  if (!icons || icons.length === 0) {
+    return (
+      <>
+        <div className={styles.infoBox} style={{ display: "none" }}>
+          Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
+          Lâm Thành phố Hồ Chí Minh
+        </div>
+      </>
+    );
+  }
 
   return (
     <div
@@ -457,10 +470,9 @@ const VirtualTour = () => {
           </>
         )}
       </div>
-
+      /* Màn hình laoding */
+      {isWaiting ? <Waiting /> : ""}
       {/* <StatsPanel className={styles.statsPanel} /> */}
-      {/* Màn hình laoding */}
-      {/* {isWaiting ? <Waiting /> : ""} */}
     </div>
   );
 };

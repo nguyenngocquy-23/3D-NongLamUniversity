@@ -26,6 +26,7 @@ import VisitorManage from "./pages/visitor/Manage.tsx";
 import VisitorCreateTour from "./pages/visitor/CreateTour.tsx";
 import VisitorProfile from "./pages/visitor/Profile.tsx";
 import VisitorTours from "./pages/visitor/Tours.tsx";
+import TourDetail from "./pages/visitor/TourDetail.tsx";
 
 function RouterConfig() {
   return (
@@ -36,11 +37,13 @@ function RouterConfig() {
       <Route path="/verify" element={<Verify />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/virtualTour" element={<VirtualTour />} />
+      <Route path="/model" element={<Model />} />
       <Route path="/manage/" element={<VisitorManage />}>
         <Route index element={<VisitorDashBoard />} />
         <Route path="createTour" element={<VisitorCreateTour />} />
         <Route path="tours" element={<VisitorTours />} />
         <Route path="profile" element={<VisitorProfile />} />
+        <Route path="tour/:id" element={<TourDetail />} />
       </Route>
       {/* admin */}
       <Route path="/admin/" element={<Layout />}>

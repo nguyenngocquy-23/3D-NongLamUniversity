@@ -95,7 +95,7 @@ const Header: React.FC = () => {
               <ul className={style.dropdownMenu}>
                 <li>
                   <button className={style.dropdownBtn}>
-                    <Link to="/profile">Hồ sơ</Link>
+                    <Link to="/manage/profile">Hồ sơ</Link>
                   </button>
                 </li>
                 <li>

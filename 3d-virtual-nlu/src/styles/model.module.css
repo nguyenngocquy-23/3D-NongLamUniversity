@@ -1,8 +1,8 @@
 .container {
     position: fixed;
     top: 0;
-    left: 0;
-    width: 100%;
+    left: -20vw;
+    width: 98vw;
     height: 100%;
     z-index: 10000;
 }
@@ -84,11 +84,11 @@
 }
 
 .option_button:hover {
-    width: 200px;
+    width: 150px;
 }
 
 .option_button {
-    width: 50px;
+    width: 30px;
     height: 50px;
     overflow: hidden;
     white-space: nowrap;

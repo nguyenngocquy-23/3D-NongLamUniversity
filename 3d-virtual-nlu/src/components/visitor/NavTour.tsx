@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaAngleLeft, FaCaretDown, FaCaretUp } from "react-icons/fa6";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "../../styles/visitor/navTour.module.css";
 
 type NavTourProps = {
@@ -16,7 +16,22 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
   const userJson = sessionStorage.getItem("user");
   const user = userJson ? JSON.parse(userJson) : null;
   const navigate = useNavigate();
+  const location = useLocation();
   const [isNav, setIsNav] = useState(1);
+
+  useEffect(() => {
+    if (location.pathname === "/manage") {
+      setIsNav(1);
+    } else if (location.pathname === "/manage/tours") {
+      setIsNav(2);
+    } else if (location.pathname === "/manage/createTour") {
+      setIsNav(3);
+    } else if (location.pathname === "/manage/profile") {
+      setIsNav(4);
+    } else if (location.pathname.toString().includes("/manage/tour")) {
+      setIsNav(2);
+    }
+  }, [location.pathname]);
 
   return (
     <nav
