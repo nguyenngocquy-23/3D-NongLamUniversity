@@ -17,6 +17,10 @@
     margin: auto;
     border-radius: 50%;
     background: linear-gradient(to bottom, #1565c0, rgba(255, 2, 2, 0));
+
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
 }
 
 .avatar,
@@ -46,7 +50,7 @@
     border-radius: 4px;
 }
 
-.profile_container .button {
+.profile .button {
     padding: 0.5rem 1rem;
     background-color: #1e88e5;
     color: white;
@@ -55,7 +59,7 @@
     cursor: pointer;
 }
 
-.profile_container .button:hover {
+.profile .button:hover {
     background-color: #1565c0;
 }
 
@@ -65,12 +69,13 @@
 
 .showPassword {
     position: absolute;
-    right: 10px;
+    right: 5px;
     background-color: transparent;
     top: 50%;
     transform: translateY(-50%);
-    outline: none;
-    border: none;
+    outline: none !important;
+    border: none !important;
     cursor: pointer;
     font-size: 16px;
+    padding-right: 0.5rem;
 }

@@ -6,6 +6,8 @@ import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.ForgotPasswordRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdatePasswordRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdateProfileRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserLoginRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
@@ -58,6 +60,32 @@ public class UserController {
         return ApiResponse.<Boolean>builder()
                 .statusCode(result ? 1000 : 5000)
                 .message(result ? "Password reset email sent successfully" : "Failed to send password reset email")
+                .data(result)
+                .build();
+    }
+
+    @POST
+    @Path(("/updateProfile"))
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> updateProfile(UpdateProfileRequest request) {
+        boolean result = userService.updateProfile(request);
+        return ApiResponse.<Boolean>builder()
+                .statusCode(result ? 1000 : 5000)
+                .message(result ? "Update profile successfully" : "Update profile failed")
+                .data(result)
+                .build();
+    }
+
+    @POST
+    @Path(("/updatePassword"))
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> updatePassword(UpdatePasswordRequest request) {
+        boolean result = userService.updatePassword(request);
+        return ApiResponse.<Boolean>builder()
+                .statusCode(result ? 1000 : 5000)
+                .message(result ? "Update password successfully" : "Update password failed")
                 .data(result)
                 .build();
     }

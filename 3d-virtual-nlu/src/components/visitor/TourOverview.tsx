@@ -118,8 +118,8 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
               <TourScene
                 radius={RADIUS_SPHERE}
                 sphereRef={sphereRef}
-                textureCurrent={defaultNode.url ?? "/khoa.jpg"}
-                lightIntensity={defaultNode.lightIntensity}
+                textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
+                lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
               />
               <OrbitControls
                 enableZoom={false}

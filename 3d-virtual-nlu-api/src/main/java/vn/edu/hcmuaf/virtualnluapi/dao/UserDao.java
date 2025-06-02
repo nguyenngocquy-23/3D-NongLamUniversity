@@ -85,8 +85,10 @@ public class UserDao {
 
     public boolean updateProfile(User user) {
         int result = ConnectionPool.getConnection().inTransaction(handle ->
-                handle.createUpdate("UPDATE users SET username = :username WHERE id = :id")
-                        .bindBean(user)
+                handle.createUpdate("UPDATE users SET username = :username, email = :email WHERE id = :id")
+                        .bind("username", user.getUsername())
+                        .bind("email", user.getEmail())
+                        .bind("id", user.getId())
                         .execute()
         );
         return result > 0;

@@ -9,6 +9,8 @@ import vn.edu.hcmuaf.virtualnluapi.dao.EmailVerificationDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.RoleDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.ForgotPasswordRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdatePasswordRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdateProfileRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserRegisterRequest;
 import vn.edu.hcmuaf.virtualnluapi.entity.EmailVerification;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
@@ -67,5 +69,31 @@ public class UserService {
             }
         }
         return flag;
+    }
+
+    public boolean updateProfile(UpdateProfileRequest request) {
+        User oldUser = userDao.findById(request.getUserId());
+        if (oldUser == null) {
+            return false;
+        }
+        User user = userDao.findByUsername(request.getUsername());
+        if (user != null) {
+            return false;
+        }
+        oldUser.setEmail(request.getEmail());
+        oldUser.setUsername(request.getUsername());
+        return userDao.updateProfile(oldUser);
+    }
+
+    public boolean updatePassword(UpdatePasswordRequest request) {
+        User user = userDao.findById(request.getUserId());
+        if (user == null) {
+            return false;
+        }
+        if (!EncryptUtil.checkPassword(request.getPassword(), user.getPassword())) {
+            return false; // Old password does not match
+        }
+        user.setPassword(EncryptUtil.hashPassword(request.getNewPassword()));
+        return userDao.updatePassword(user.getId(), user.getPassword());
     }
 }
