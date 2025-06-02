@@ -1,7 +1,4 @@
-import TourScene from "../../components/visitor/TourScene";
-import { Canvas } from "@react-three/fiber";
 import styles from "../../styles/virtualTour.module.css";
-import CamControls from "../../components/visitor/CamControls";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
@@ -10,24 +7,22 @@ import { useNavigate } from "react-router-dom";
 import { IoIosCloseCircle } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
-import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../redux/Store.ts";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/Store.ts";
 import { fetchIcons, fetchMasterNodes } from "../../redux/slices/DataSlice.ts";
 import Waiting from "../../components/Waiting.tsx";
-import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
 import {
   HotspotInformation,
   HotspotMedia,
   HotspotModel,
   HotspotNavigation,
 } from "../../redux/slices/HotspotSlice.ts";
-import VideoMeshComponent from "../../components/admin/VideoMesh.tsx";
-import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo.tsx";
 import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 import { RADIUS_SPHERE } from "../../utils/Constants.ts";
 import CommentBox from "../../components/visitor/CommentBox.tsx";
-import Swal from "sweetalert2";
+import MapLeaflet from "../../components/visitor/MapLeaflet.tsx";
+import { FaAngleLeft, FaMap, FaScreenpal, FaX } from "react-icons/fa6";
+import { MdOpenInFull } from "react-icons/md";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -44,6 +39,12 @@ const VirtualTour = () => {
     dispatch(fetchIcons());
     // dispatch(fetchDefaultNodes());
   }, [dispatch]);
+
+  const icons = useSelector((state: RootState) => state.data.icons);
+
+  if (!icons) {
+    return <div>Loading...</div>;
+  }
 
   const userJson = sessionStorage.getItem("user");
   const user = userJson ? JSON.parse(userJson) : null;
@@ -296,10 +297,12 @@ const VirtualTour = () => {
   };
 
   const handleMouseEnterMenu = (event: any) => {
-    const mouse = event.clientX;
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
 
-    const threshold = window.innerWidth * 0.05;
-    if (mouse < threshold) {
+    const thresholdX = window.innerWidth * 0.05;
+    const thresholdY = window.innerHeight * 0.5;
+    if (mouseX < thresholdX && mouseY < thresholdY) {
       setIsMenuVisible(true);
     }
   };
@@ -323,6 +326,19 @@ const VirtualTour = () => {
       window.dispatchEvent(new Event("resize"));
     }, 50);
   }, []);
+
+  const [hideMap, setHideMap] = useState(false);
+  const [fullMap, setFullMap] = useState(false);
+  const [hoverMap, setHoverMap] = useState(false);
+  const mapRef = useRef<L.Map | null>(null);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      setTimeout(() => {
+        mapRef.current!.invalidateSize();
+      }, 300); // chờ animation transition xong
+    }
+  }, [fullMap, hoverMap]);
 
   return (
     <div
@@ -351,7 +367,11 @@ const VirtualTour = () => {
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
       {/* Menu bên trái */}
-      <LeftMenuTour isMenuVisible={isMenuVisible} />
+      {fullMap || hoverMap ? (
+        ""
+      ) : (
+        <LeftMenuTour isMenuVisible={isMenuVisible} />
+      )}
       {/* Hộp feedback */}
       <Chat nodeId={defaultNode.id} />
       {/* <Chat nodeId={defaultNode.id} /> */}
@@ -381,9 +401,66 @@ const VirtualTour = () => {
       ) : (
         ""
       )}
+      {/* Bản đồ */}
+      <div
+        className={`${fullMap ? styles.full_map : styles.mapBox}`}
+        onMouseEnter={() => setHoverMap(true)}
+        onMouseLeave={() => {
+          setTimeout(() => {
+            setHoverMap(false);
+          }, 2000);
+        }}
+      >
+        {hideMap ? (
+          <button
+            className={styles.show_map_button}
+            onClick={() => setHideMap(false)}
+            title={"Mở bản đồ"}
+          >
+            <FaMap />
+          </button>
+        ) : (
+          <>
+            <MapLeaflet mapRef={mapRef} />
+            {fullMap ? (
+              <button
+                className={styles.full_button}
+                onClick={() => setFullMap(false)}
+                title={"Thu nhỏ"}
+              >
+                <FaX />
+              </button>
+            ) : (
+              <>
+                <button
+                  className={styles.hide_button}
+                  onClick={() => {
+                    setHideMap(true);
+                  }}
+                  title={"Ẩn bản đồ"}
+                >
+                  <FaAngleLeft />
+                </button>
+                {hoverMap ? (
+                  <button
+                    className={styles.full_button}
+                    onClick={() => setFullMap(true)}
+                    title={"Mở rộng"}
+                  >
+                    <MdOpenInFull />
+                  </button>
+                ) : (
+                  ""
+                )}
+              </>
+            )}
+          </>
+        )}
+      </div>
+
       {/* <StatsPanel className={styles.statsPanel} /> */}
       {/* Màn hình laoding */}
-      {isWaiting ? <Waiting /> : ""}
+      {/* {isWaiting ? <Waiting /> : ""} */}
     </div>
   );
 };

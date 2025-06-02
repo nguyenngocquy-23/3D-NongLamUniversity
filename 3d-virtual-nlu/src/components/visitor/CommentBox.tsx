@@ -67,7 +67,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
       <div className={styles.box}>
         <div className={styles.header}>
           <h3 className={styles.title}>{comments.length} Bình luận</h3>
-          <button className={styles.button} onClick={handleClose}>
+          <button className={styles.close_btn} onClick={handleClose}>
             <FaX />
           </button>
         </div>

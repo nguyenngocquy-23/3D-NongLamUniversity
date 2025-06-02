@@ -66,3 +66,70 @@
   margin: 10px;
   transition: transform 0.3s ease;
 }
+
+.mapBox:hover {
+  width: 500px;
+  height: 400px;
+}
+
+.mapBox {
+  width: 300px;
+  height: 200px;
+  position: absolute;
+  bottom: 40px;
+  z-index: 1;
+  transition: all .5s ease;
+}
+
+.full_map {
+  position: absolute;
+  z-index: 3;
+  width: 95%;
+  height: 95%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.show_map_button:hover,
+.hide_button:hover,
+.full_button:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+.show_map_button:focus,
+.hide_button:focus,
+.full_button:focus {
+  border: none;
+  outline: none;
+}
+
+.show_map_button,
+.hide_button,
+.full_button {
+  position: absolute;
+  z-index: 3;
+  background-color: #1e84e4;
+  color: white;
+  transition: all .3s ease;
+}
+
+.full_button {
+  width: 40px;
+  height: 40px;
+  top: 0;
+  right: 0;
+}
+
+.show_map_button{
+  width: 40px;
+  height: 40px;
+  bottom: 0;
+  left: 0;
+}
+.hide_button {
+  width: 30px;
+  height: 30px;
+  bottom: 0;
+  left: 0;
+}
