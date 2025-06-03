@@ -586,9 +586,7 @@ const CreateTourStep2 = () => {
         </div>
         <div
           className={`${styles.update_hotspot_container} ${
-            currentHotspotId != null
-              ? styles.show
-              : ""
+            currentHotspotId != null ? styles.show : ""
           }`}
         >
           <UpdateHotspot

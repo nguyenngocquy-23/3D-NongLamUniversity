@@ -10,20 +10,16 @@ import { useNavigate } from "react-router-dom";
 import { IoIosCloseCircle } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
-import UpdateCameraOnResize from "../../components/UpdateCameraOnResize.tsx";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../redux/Store.ts";
 import { fetchIcons, fetchMasterNodes } from "../../redux/slices/DataSlice.ts";
 import Waiting from "../../components/Waiting.tsx";
-import GroundHotspotModel from "../../components/visitor/GroundHotspotModel.tsx";
 import {
   HotspotInformation,
   HotspotMedia,
   HotspotModel,
   HotspotNavigation,
 } from "../../redux/slices/HotspotSlice.ts";
-import VideoMeshComponent from "../../components/admin/VideoMesh.tsx";
-import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo.tsx";
 import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 
 /**

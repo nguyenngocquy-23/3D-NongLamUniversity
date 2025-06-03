@@ -8,6 +8,10 @@ import {
   BaseHotspot,
   updateConfigHotspot,
 } from "../../redux/slices/HotspotSlice";
+import styles from "../../styles/configIcon.module.css";
+import { FiEdit } from "react-icons/fi";
+import { IoIosArrowForward } from "react-icons/io";
+import { FaArrowRotateLeft } from "react-icons/fa6";
 
 const ConfigIcon = ({
   propHotspot,
@@ -120,68 +124,24 @@ const ConfigIcon = ({
    * Nghĩa là update lại component này thì các state vẫn giữ nguyên
    */
   useEffect(() => {
-  if (propHotspot) {
-    setIconId(propHotspot.iconId ?? 0);
-    setScale(propHotspot.scale ?? 1);
-    setPitchX(propHotspot.pitchX ?? 0);
-    setYawY(propHotspot.yawY ?? 0);
-    setRollZ(propHotspot.rollZ ?? 0);
-    setColor(propHotspot.color ?? "#333333");
-    setBackgroundColor(propHotspot.backgroundColor ?? "#333333");
-    setAllowBackgroundColor(propHotspot.allowBackgroundColor ?? false);
-    setOpacity(propHotspot.opacity ?? 1);
-  }
-}, [propHotspot])
+    if (propHotspot) {
+      setIconId(propHotspot.iconId ?? 0);
+      setScale(propHotspot.scale ?? 1);
+      setPitchX(propHotspot.pitchX ?? 0);
+      setYawY(propHotspot.yawY ?? 0);
+      setRollZ(propHotspot.rollZ ?? 0);
+      setColor(propHotspot.color ?? "#333333");
+      setBackgroundColor(propHotspot.backgroundColor ?? "#333333");
+      setAllowBackgroundColor(propHotspot.allowBackgroundColor ?? false);
+      setOpacity(propHotspot.opacity ?? 1);
+    }
+  }, [propHotspot]);
   return (
-    <div style={{ display: "flex" }}>
-      <label>Biểu tượng:</label>
+    <div className={styles.config_icon_wrapper}>
       <div>
-        <div style={{ display: "flex" }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <button
-              onClick={() => {
-                setOpenListIcon((prevState) => !prevState);
-              }}
-            >
-              Chọn biểu tượng
-            </button>
-            <div style={{ display: "flex" }}>
-              <label>Màu:</label>
-              <input
-                type="color"
-                name=""
-                id=""
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-              />
-            </div>
-            <div style={{ display: "flex" }}>
-              <label>Màu nền:</label>
-              <input
-                type="color"
-                name=""
-                id=""
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-                disabled={!allowBackgroundColor ? true : false}
-              />
-              <button
-                onClick={() => {
-                  setAllowBackgroundColor((preState) => !preState);
-                }}
-              >
-                {allowBackgroundColor ? "Tắt" : "Bật"}
-              </button>
-            </div>
-          </div>
+        <div className={styles.config_icon_infor}>
           {!isUpdate ? (
-            <div
-              style={{
-                width: "100px",
-                height: "100px",
-                backgroundColor: "white",
-              }}
-            >
+            <div className={styles.preview_icon}>
               <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <HotspotPreview
                   iconUrl={iconUrl}
@@ -196,116 +156,221 @@ const ConfigIcon = ({
                   opacity={opacity}
                 />
               </Canvas>
+              <div
+                onClick={() => {
+                  setOpenListIcon((prevState) => !prevState);
+                }}
+                className={styles.change_icon}
+              >
+                <FiEdit />
+              </div>
             </div>
           ) : (
             ""
           )}
-        </div>
-        <div style={{ display: "flex" }}>
-          <label>Độ mờ:</label>
-          <div>
-            <div>
-              <input
-                type="range"
-                name="opacity"
-                id="scale"
-                min={0.3}
-                max={1}
-                step={0.05}
-                value={opacity}
-                onChange={(e) => setOpacity(Number(e.target.value))}
-              />
-              <span>{Math.round(((opacity - 0.3) / 0.7) * 100)}%</span>
+          <div className={styles.edit_icon_content}>
+            <div className={styles.color_icon}>
+              <span>Màu:</span>
+
+              <div className={styles.color_icon_content}>
+                <input
+                  type="color"
+                  name=""
+                  id="style"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                />
+                <input
+                  type="text"
+                  name=""
+                  id="style"
+                  value={color}
+                  placeholder="HEX, RGB or HSL"
+                />
+              </div>
             </div>
-          </div>
-        </div>
-        <div style={{ display: "flex" }}>
-          <label>Độ xoay:</label>
-          <div>
-            <div>
-              <input
-                type="range"
-                name="rotateX"
-                id="rotateX"
-                min={-180}
-                max={180}
-                value={pitchX}
-                onChange={(e) => setPitchX(Number(e.target.value))}
-              />
-              <span>{Math.round((pitchX + 180) / 3.6)}%</span>
-            </div>
-            <div>
-              <input
-                type="range"
-                name="rotateX"
-                id="rotateX"
-                min={-180}
-                max={180}
-                value={yawY}
-                onChange={(e) => setYawY(Number(e.target.value))}
-              />
-              <span>{Math.round((yawY + 180) / 3.6)}%</span>
-            </div>
-            <div>
-              <input
-                type="range"
-                name="rotateX"
-                id="rotateX"
-                min={-180}
-                max={180}
-                step={1}
-                value={rollZ}
-                onChange={(e) => setRollZ(Number(e.target.value))}
-              />
-              <span>{Math.round((rollZ + 180) / 3.6)}%</span>
-            </div>
-            <div>
-              <input
-                type="radio"
-                id="floor"
-                value="floor"
-                checked={isFloor}
-                onChange={() => {
-                  setIsFloor(true);
-                  setPitchX(-90); // hoặc -90 độ
-                  setYawY(0);
-                  setRollZ(0);
-                }} // set lại giá trị của rotate x,y,z
-              />
-              <label htmlFor="floor">Nền</label>
-            </div>
-            <div>
-              <input
-                type="radio"
-                id="wall"
-                value="wall"
-                checked={!isFloor}
-                onChange={() => {
-                  setIsFloor(false);
-                  setPitchX(0);
-                  setYawY(0);
-                  setRollZ(0);
+
+            <div className={styles.color_icon}>
+              <span>Nền:</span>
+              <div className={styles.color_icon_content}>
+                <input
+                  type="color"
+                  name="head"
+                  id="bkg"
+                  value={backgroundColor}
+                  onChange={(e) => setBackgroundColor(e.target.value)}
+                  disabled={!allowBackgroundColor ? true : false}
+                />
+                <input
+                  type="text"
+                  name=""
+                  id="bkg"
+                  value={backgroundColor}
+                  placeholder="HEX, RGB or HSL"
+                />
+              </div>
+
+              <div
+                className={styles.allow_color_background}
+                onClick={() => {
+                  setAllowBackgroundColor((preState) => !preState);
                 }}
-              />
-              <label htmlFor="wall">Tường</label>
+              >
+                <input id="checkbox" type="checkbox"></input>
+              </div>
+            </div>
+            <div className={styles.color_icon}>
+              <span>Độ mờ:</span>
+              <div className={styles.opacity_icon_content}>
+                <div className={styles.label_opacity}>{opacity}</div>
+                <div className={styles.edit_icon_opacity}>
+                  <input
+                    type="range"
+                    name="opacity"
+                    id="opacity"
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    value={opacity}
+                    onChange={(e) => setOpacity(Number(e.target.value))}
+                  />
+                  <progress max="1" value={opacity}></progress>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.color_icon}>
+              <span>Kích thước:</span>
+              <div className={styles.opacity_icon_content}>
+                <div className={styles.label_opacity}>{scale}x</div>
+                <div className={styles.edit_icon_opacity}>
+                  <input
+                    type="range"
+                    name="scale"
+                    id="scale"
+                    min={0.5}
+                    max={2.5}
+                    step={0.25}
+                    value={scale}
+                    onChange={(e) => setScale(Number(e.target.value))}
+                  />
+                  <progress
+                    max="100"
+                    value={((scale - 0.5) * 100) / (2.5 - 0.5)}
+                  ></progress>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div style={{ display: "flex" }}>
-          <label>Độ to:</label>
-          <div>
-            <div>
-              <input
-                type="range"
-                name="scale"
-                id="scale"
-                min={0.5}
-                max={2}
-                step={0.1}
-                value={scale}
-                onChange={(e) => setScale(Number(e.target.value))}
-              />
-              <span>{Math.round(((scale - 0.5) / 1.5) * 100)}%</span>
+
+        {/* Test */}
+        <div className={styles.rotation_cfg}>
+          <div className={styles.rotation_cfg_label}>Độ xoay: </div>
+          <div className={styles.rotation_cfg_container}>
+            <div className={styles.rotation_cfg_optional}>
+              <div className={styles.optional_available}>
+                <div className={styles.radio_container}>
+                  <label className={styles.radio_item}>
+                    <input type="radio" name="radio" />
+                    <span className={styles.radio_name}>Thủ công</span>
+                  </label>
+                  <label className={styles.radio_item}>
+                    <input
+                      type="radio"
+                      name="radio"
+                      value="floor"
+                      checked={isFloor}
+                      onChange={() => {
+                        setIsFloor(true);
+                        setPitchX(-90); // hoặc -90 độ
+                        setYawY(0);
+                        setRollZ(0);
+                      }}
+                    />
+                    <span className={styles.radio_name}>Dưới nền</span>
+                  </label>
+
+                  <label className={styles.radio_item}>
+                    <input
+                      type="radio"
+                      name="radio"
+                      id="wall"
+                      value="wall"
+                      checked={!isFloor}
+                      onChange={() => {
+                        setIsFloor(false);
+                        setPitchX(0);
+                        setYawY(0);
+                        setRollZ(0);
+                      }}
+                    />
+                    <span className={styles.radio_name}>Trên tường</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className={styles.optional_adjust}>
+                {["x", "y", "z"].map((axis) => {
+                  let axisClass = ""; //Sử dụng cho css label.
+                  let value = 0; //giá trị hiển thị trên input
+                  let onChange = (e: React.ChangeEvent<HTMLInputElement>) => {}; //Sử dụng cho method.
+                  if (axis === "x") {
+                    axisClass = styles.label_x;
+                    value = pitchX;
+                    onChange = (e) => setPitchX(Number(e.target.value));
+                  } else if (axis === "y") {
+                    axisClass = styles.label_y;
+                    value = yawY;
+                    onChange = (e) => setYawY(Number(e.target.value));
+                  } else if (axis === "z") {
+                    axisClass = styles.label_z;
+                    value = rollZ;
+                    onChange = (e) => setRollZ(Number(e.target.value));
+                  }
+                  return (
+                    <>
+                      <div
+                        className={styles.opacity_icon_content}
+                        key={axis}
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <div className={`${styles.label_opacity} ${axisClass}`}>
+                          {value}&deg;
+                        </div>
+                        <div className={styles.edit_icon_opacity}>
+                          <input
+                            type="range"
+                            min={-180}
+                            max={180}
+                            value={value}
+                            onChange={onChange}
+                          />
+                          <progress max="360" value={value + 180}></progress>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })}
+              </div>
+            </div>
+            <div className={styles.rotation_cfg_preview}>
+              <div className={styles.grid_xz_plane}></div>
+              <div id="x" className={`${styles.axis_x} ${styles.axis}`}>
+                <FaArrowRotateLeft className={styles.axis_rotation} />
+                <IoIosArrowForward className={styles.axis_arrow} />
+                <span>x</span>
+              </div>
+              <div id="y" className={`${styles.axis_y} ${styles.axis}`}>
+                <FaArrowRotateLeft className={styles.axis_rotation} />
+                <IoIosArrowForward className={styles.axis_arrow} />
+                <span>y</span>
+              </div>
+              <div id="z" className={`${styles.axis_z} ${styles.axis}`}>
+                <FaArrowRotateLeft className={styles.axis_rotation} />
+                <IoIosArrowForward className={styles.axis_arrow} />
+                <span> z</span>
+              </div>
             </div>
           </div>
         </div>

@@ -3,7 +3,11 @@ import styles from "../../styles/modelCreate.module.css";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFields, fetchIcons, fetchSpaces } from "../../redux/slices/DataSlice";
+import {
+  fetchFields,
+  fetchIcons,
+  fetchSpaces,
+} from "../../redux/slices/DataSlice";
 import { AppDispatch, RootState } from "../../redux/Store";
 import UploadFile from "./UploadFile";
 
