@@ -9,15 +9,15 @@ import TourScene from "./TourScene";
 import styles from "../../styles/virtualTour.module.css";
 import GroundHotspot from "./GroundHotspot";
 import * as THREE from "three";
-import { useDispatch } from "react-redux";
-import { selectPanorama } from "../../redux/slices/PanoramaSlice";
-
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/Store";
+import { setDefaultNode } from "../../redux/slices/DataSlice";
+import gsap from "gsap";
 const TourCanvas = React.memo(
   ({
     windowSize,
     sphereRef,
     radius,
-    cursor,
     defaultNode,
     isRotation,
     targetPosition,
@@ -41,8 +41,17 @@ const TourCanvas = React.memo(
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const controlsRef = useRef<any>(null); //OrbitControls
     const dispatch = useDispatch();
-    const handleSelectNode = (id: string) => {
-      dispatch(selectPanorama(id));
+    const preloadNodes = useSelector(
+      (state: RootState) => state.data.preloadNodes
+    );
+
+    /**
+     *
+     *
+     */
+    const handleSelectNode = (id: number) => {
+      const activeNode = preloadNodes.find((h) => h.id === id);
+      dispatch(setDefaultNode(activeNode));
     };
 
     const handleHotspotNavigate = (
@@ -50,11 +59,10 @@ const TourCanvas = React.memo(
       hotspotTargetPosition: [number, number, number]
     ) => {
       if (!cameraRef.current || !controlsRef.current) return;
-
       const camera = cameraRef.current;
       const control = controlsRef.current;
       const originalFov = camera.fov;
-      const zoomTarget = 45; // Có thể điều chỉnh FOV này tùy theo yêu cầu
+      const zoomTarget = 45;
 
       const [x, y, z] = hotspotTargetPosition;
 
@@ -77,7 +85,7 @@ const TourCanvas = React.memo(
             duration: 1.0,
             ease: "power2.inOut",
             onUpdate: () => {
-              handleSelectNode(targetNodeId);
+              handleSelectNode(Number(targetNodeId));
               camera.updateProjectionMatrix();
             },
             onComplete: () => {
@@ -112,10 +120,12 @@ const TourCanvas = React.memo(
         <CamControls
           controlsRef={controlsRef}
           targetPosition={targetPosition}
+          cameraRef={cameraRef}
           sphereRef={sphereRef}
           autoRotate={isRotation}
           autoRotateSpeed={defaultNode.speedRotate}
         />
+
         {hotspotInformations.map((hotspot, index) => (
           <GroundHotspotInfo key={index} hotspotInfo={hotspot} />
         ))}

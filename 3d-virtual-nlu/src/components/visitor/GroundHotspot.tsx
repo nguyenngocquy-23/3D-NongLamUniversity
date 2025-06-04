@@ -62,16 +62,16 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     }
   });
 
-  const panoramaList = useSelector(
-    (state: RootState) => state.panoramas.panoramaList
-  );
+  // const panoramaList = useSelector(
+  //   (state: RootState) => state.panoramas.panoramaList
+  // );
 
-  const hotspot = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.find(
-      (h): h is HotspotNavigation =>
-        h.id === hotspotNavigation.id && h.type === 1
-    )
-  );
+  // const hotspot = useSelector((state: RootState) =>
+  //   state.hotspots.hotspotList.find(
+  //     (h): h is HotspotNavigation =>
+  //       h.id === hotspotNavigation.id && h.type === 1
+  //   )
+  // );
 
   /**
    * Tập trung cho việc xử lý chỉnh sửa icon cho hotspsot.
@@ -146,11 +146,11 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         }}
         onClick={(e) => {
           e.stopPropagation();
-          if (hotspot && hotspot.targetNodeId) {
-            onNavigate(hotspot.targetNodeId, [
-              hotspot.positionX,
-              hotspot.positionY,
-              hotspot.positionZ,
+          if (hotspotNavigation && hotspotNavigation.targetNodeId) {
+            onNavigate(hotspotNavigation.targetNodeId, [
+              hotspotNavigation.positionX,
+              hotspotNavigation.positionY,
+              hotspotNavigation.positionZ,
             ]);
           }
         }}

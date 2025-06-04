@@ -9,7 +9,10 @@ interface DataState {
   nodes: any[];
   hotspotTypes: any[];
   masterNodes: any[];
+  preloadNodes: any[];
+  activeNode: any;
   defaultNode: any;
+  trackNodes: any[];
   icons: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
 }
@@ -23,6 +26,9 @@ const initialState: DataState = {
   hotspotTypes: [],
   masterNodes: [],
   defaultNode: null,
+  activeNode: null,
+  trackNodes: [],
+  preloadNodes: [],
   icons: [],
   status: "idle",
 };
@@ -50,7 +56,6 @@ export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
   const response = await axios.post(
     "http://localhost:8080/api/v1/admin/node/all"
   );
-  console.log("nodes........", response.data.data);
   return response.data.data;
 });
 
@@ -84,6 +89,39 @@ export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
   return response.data.data;
 });
 
+export const fetchActiveNode = createAsyncThunk(
+  "data/fetchActiveNodes",
+  async () => {
+    const response = await axios.post("http://localhost:8080/api/node/default");
+    return response.data.data;
+  }
+);
+
+/**
+ * Fetch dành cho Preload - Danh sách các node liên quan đến node đang tham quan.
+ * + Nếu node đang tham quan là Master Node (status = 2)
+ *  => Gọi và lấy preload (danh sách các node liên quan đến nó thông qua hotspot navigation) + các master node liên kết đến.
+ * + Nếu node đang tham quan là Node con
+ * => Không cần gọi API preload, mà chỉ thực hiện thêm node master vào mảng preload.
+ */
+export const fetchPreloadNodes = createAsyncThunk(
+  "data/fetchPreloadNodes",
+  async (nodeId: number, thunkAPI) => {
+    try {
+      const resp = await axios.post(
+        `http://localhost:8080/api/node/preloadNodeList`,
+        {
+          nodeId,
+        }
+      );
+      return resp.data.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Unknown error"
+      );
+    }
+  }
+);
 // Fetch icon
 export const fetchIcons = createAsyncThunk("data/fetchIcons", async () => {
   const response = await axios.get("http://localhost:8080/api/v1/admin/icon");
@@ -104,7 +142,12 @@ export const fetchHotspotTypes = createAsyncThunk(
 const dataSlice = createSlice({
   name: "data",
   initialState,
-  reducers: {},
+  reducers: {
+    setDefaultNode: (state, action) => {
+      state.defaultNode = action.payload;
+    },
+  },
+
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.pending, (state) => {
@@ -139,14 +182,14 @@ const dataSlice = createSlice({
       .addCase(fetchMasterNodes.rejected, (state) => {
         state.status = "failed";
       })
-      
+
       .addCase(fetchDefaultNodes.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchDefaultNodes.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.defaultNode = action.payload;
-        localStorage.setItem("defaultNode",JSON.stringify(action.payload));
+        localStorage.setItem("defaultNode", JSON.stringify(action.payload));
       })
       .addCase(fetchDefaultNodes.rejected, (state) => {
         state.status = "failed";
@@ -194,8 +237,19 @@ const dataSlice = createSlice({
       })
       .addCase(fetchHotspotTypes.rejected, (state) => {
         state.status = "failed";
+      })
+
+      .addCase(fetchPreloadNodes.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPreloadNodes.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.preloadNodes = action.payload;
+      })
+      .addCase(fetchPreloadNodes.rejected, (state) => {
+        state.status = "failed";
       });
   },
 });
-
+export const { setDefaultNode } = dataSlice.actions;
 export default dataSlice.reducer;

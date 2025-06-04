@@ -8,18 +8,29 @@ import { useEffect, useRef } from "react";
 import styles from "../../styles/tourOverview.module.css";
 
 import { FaArrowsToEye, FaPause, FaPlay } from "react-icons/fa6";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/Store";
+import {
+  fetchActiveNode,
+  fetchPreloadNodes,
+} from "../../redux/slices/DataSlice";
 const TourOverview = () => {
   const navigate = useNavigate();
-  // Variables ------ Start
   const container = useRef<HTMLDivElement>(null);
 
   const scroll = useScroll();
 
   const y = useTransform(scroll.scrollYProgress, [0, 1], ["-10vh", "10vh"]);
 
-  // Variables ------ End
+  /**
+   * Đưa default node vào redux.
+   * Đưa PreloadNodes với defaultnode id ban đầu.
+   */
 
+  const dispatch = useDispatch<AppDispatch>();
+  const defaultNode = useSelector((state: RootState) => state.data.defaultNode);
   const handleVirtualTour = () => {
+    dispatch(fetchActiveNode());
     navigate("/virtualTour");
   };
 
