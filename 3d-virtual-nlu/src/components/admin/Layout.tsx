@@ -63,21 +63,21 @@ const Layout = () => {
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(true);
 
   useEffect(() => {
-    if (currentStep === 2 || currentStep === 3) {
-      setIsOptionFullScreen(false);
-    } else {
+    if (currentStep === 2 || currentStep === 3 || location.pathname == "/admin/model") {
       setIsOptionFullScreen(true);
+    } else {
+      setIsOptionFullScreen(false);
     }
   }, [currentStep]);
   return (
     <div className={styles.container}>
       {/* Sidebar */}
-      {isOptionFullScreen && currentUser && (
+      {!isOptionFullScreen && currentUser && (
         <Sidebar isOpenSidebar={true} currentUser={currentUser} />
       )}
       {/* Main Content */}
       <main className={styles.main_contain}>
-        {isOptionFullScreen && (
+        {!isOptionFullScreen && (
           <header className={styles.header}>
             <div className={styles.extension}>
               <input
