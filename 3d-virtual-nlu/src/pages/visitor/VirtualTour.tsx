@@ -434,7 +434,7 @@ const VirtualTour = () => {
           </button>
         ) : (
           <>
-            <MapLeaflet mapRef={mapRef} />
+            <MapLeaflet spaceId={defaultNode.spaceId} mapRef={mapRef} />
             {fullMap ? (
               <button
                 className={styles.full_button}
