@@ -27,7 +27,6 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
 
   useEffect(() => {
     if (!user) return;
-
     const wsUrl = `ws://localhost:8080/chat/${nodeId}/${user?.id}`;
     console.log("wsUrl", wsUrl);
     const ws = new WebSocket(wsUrl);
@@ -38,7 +37,6 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
     };
 
     ws.onmessage = (event) => {
-      console.log("Received:", event.data);
       const [username, content] = event.data.split(": ", 2);
       setMessages((prev) => [...prev, { username, content }]);
     };

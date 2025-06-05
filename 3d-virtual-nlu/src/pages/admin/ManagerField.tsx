@@ -14,6 +14,7 @@ import { formatDateTime } from "../../utils/formatDateTime";
 import ModelCreate from "../../components/admin/CustomModal";
 import CustomModal from "../../components/admin/CustomModal";
 import StatusToggle from "../../components/admin/ToggleChangeStatus";
+import FieldCard from "../../components/admin/FieldCard";
 
 interface Field {
   id: number;
@@ -81,7 +82,13 @@ const Field = () => {
     },
     {
       name: "Trạng thái",
-      selector: (row: Field) => <StatusToggle id={row.id} status={row.status} apiUrl="http://localhost:8080/api/admin/field/changeStatus"/>,
+      selector: (row: Field) => (
+        <StatusToggle
+          id={row.id}
+          status={row.status}
+          apiUrl="http://localhost:8080/api/admin/field/changeStatus"
+        />
+      ),
       sortable: true,
     },
     {
@@ -99,6 +106,7 @@ const Field = () => {
 
   return (
     <div className={styles.container}>
+      <FieldCard />
       <input
         type="text"
         title="Keyword trong tên"
@@ -109,7 +117,8 @@ const Field = () => {
       <h2>Danh Sách Lĩnh vực</h2>
       {loading && <p>Đang tải...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <button className={stylesCommon.addRow} 
+      <button
+        className={stylesCommon.addRow}
         onClick={() => {
           setOpenModel(true);
         }}

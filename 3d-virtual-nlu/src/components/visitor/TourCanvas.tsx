@@ -104,7 +104,6 @@ const TourCanvas = React.memo(
           position: [0, 0, 0.0000001],
         }}
         className={styles.tourCanvas}
-        // style={{ cursor }}
       >
         <UpdateCameraOnResize />
         <TourScene
