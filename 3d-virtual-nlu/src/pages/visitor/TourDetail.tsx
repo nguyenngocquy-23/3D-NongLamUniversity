@@ -4,13 +4,55 @@ import TourScene from "../../components/visitor/TourScene";
 import styles from "../../styles/visitor/tourDetail.module.css";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 import { Canvas } from "@react-three/fiber";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { FaChartBar, FaChartLine } from "react-icons/fa";
 import { FaChartPie, FaComment, FaEye } from "react-icons/fa6";
+import { useLocation, useParams } from "react-router-dom";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/Store";
+import { fetchCommentOfNode } from "../../redux/slices/DataSlice";
+import { formatTimeAgo } from "../../utils/formatDateTime";
 
 const TourDetail = () => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
+  const { nodeId } = useParams<{ nodeId: string }>();
+  const [node, setNode] = useState<any>();
+  const comments = useSelector((state: RootState) => state.data.commentOfNode);
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    const handleFetchNode = async () => {
+      if (!nodeId) {
+        console.warn("Missing nodeId from URL");
+        return;
+      }
+      try {
+        const response = await axios.post(
+          "http://localhost:8080/api/node/byId",
+          {
+            nodeId: nodeId,
+          }
+        );
+        if (response.data) {
+          setNode(response.data.data);
+        }
+      } catch (err: any) {
+        console.error(err);
+      }
+    };
+    handleFetchNode();
+  }, [nodeId]);
+
+  useEffect(() => {
+    dispatch(fetchCommentOfNode(parseInt(nodeId || "", 10)));
+  }, [dispatch]);
+
+  if (!node || !comments) {
+    return null;
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.canvas_container}>
@@ -29,7 +71,7 @@ const TourDetail = () => {
           <TourScene
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
-            textureCurrent={"/khoa.jpg"}
+            textureCurrent={node.url}
             lightIntensity={1}
           />
           <OrbitControls
@@ -47,7 +89,7 @@ const TourDetail = () => {
           </div>
           <div className={styles.sub_info}>
             <FaComment />
-            <span className={styles.name}>100</span>
+            <span className={styles.name}>{comments.length}</span>
           </div>
           <div className={styles.sub_info}>
             <FaEye />
@@ -66,9 +108,22 @@ const TourDetail = () => {
           </ul>
         </div>
 
-        <div className={styles.comment}>
+        <div className={styles.commentContainer}>
           <span className={styles.title}>Bình luận</span>
           <div className={styles.commentBox}>
+            {comments.map((comment) => (
+              <div key={comment.id} className={styles.comment}>
+                <div className={styles.content}>
+                  {comment.content}
+                  <button className={styles.replyBtn}>Trả lời</button>
+                </div>
+                <div className={styles.meta}>
+                  <small>{formatTimeAgo(comment.updatedAt)}</small>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className={styles.inputContainer}>
             <textarea
               placeholder="Nhập bình luận..."
               className={styles.textarea}

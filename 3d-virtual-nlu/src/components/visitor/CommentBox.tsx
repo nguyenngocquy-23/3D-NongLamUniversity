@@ -4,6 +4,9 @@ import { IoMdSend } from "react-icons/io";
 import { FaX } from "react-icons/fa6";
 import axios from "axios";
 import { formatTimeAgo } from "../../utils/formatDateTime";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/Store";
+import { fetchCommentOfNode } from "../../redux/slices/DataSlice";
 
 interface CommentProp {
   userId: number;
@@ -12,9 +15,10 @@ interface CommentProp {
 }
 
 const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
-  const [comments, setComments] = useState<any[]>([]);
+  const comments = useSelector((state: RootState) => state.data.commentOfNode);
   const [content, setContent] = useState("");
   const [parentId, setParentId] = useState(null);
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleSend = async () => {
     if (!content.trim()) return;
@@ -31,36 +35,24 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
       );
       if (response.data.data) {
         setContent("");
-        handleGetComment();
+        dispatch(fetchCommentOfNode(nodeId));
       }
     } catch (error) {
       console.error("Lỗi khi gửi bình luận:", error);
     }
   };
-
-  const handleGetComment = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/api/comment/getOfNode",
-        {
-          nodeId: nodeId
-        }
-      );
-      if (response.data.data) {
-        setComments(response.data.data);
-      }
-    } catch (error) {
-      console.error("Lỗi khi gửi bình luận:", error);
-    }
-  };
-
+  
   useEffect(() => {
-    handleGetComment();
-  }, [nodeId]);
+    dispatch(fetchCommentOfNode(nodeId));
+  }, [dispatch]);
 
   const handleClose = () => {
     setIsComment(false);
   };
+
+  if (!comments) {
+    return null;
+  }
 
   return (
     <div className={styles.overlay}>

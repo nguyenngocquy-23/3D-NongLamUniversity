@@ -27,6 +27,7 @@ import VisitorCreateTour from "./pages/visitor/CreateTour.tsx";
 import VisitorProfile from "./pages/visitor/Profile.tsx";
 import VisitorTours from "./pages/visitor/Tours.tsx";
 import TourDetail from "./pages/visitor/TourDetail.tsx";
+import AttachMap from "./pages/admin/AttachMap.tsx";
 
 function RouterConfig() {
   return (
@@ -43,7 +44,7 @@ function RouterConfig() {
         <Route path="createTour" element={<VisitorCreateTour />} />
         <Route path="tours" element={<VisitorTours />} />
         <Route path="profile" element={<VisitorProfile />} />
-        <Route path="tour/:id" element={<TourDetail />} />
+        <Route path="tour/:nodeId" element={<TourDetail />} />
       </Route>
       {/* admin */}
       <Route path="/admin/" element={<Layout />}>
@@ -60,6 +61,7 @@ function RouterConfig() {
         <Route path="manageTour" element={<ManageNode />} />
         <Route path="updateTour" element={<UpdateNode />} />
         <Route path="model" element={<Model />} />
+        <Route path="attachMap" element={<AttachMap />} />
       </Route>
       {/* Nếu URL không đúng, điều hướng đến trang lỗi */}
       <Route path="*" element={<PageNotFound />} />

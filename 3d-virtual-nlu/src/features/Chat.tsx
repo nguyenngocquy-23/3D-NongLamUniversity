@@ -31,8 +31,9 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
     const wsUrl = `ws://localhost:8080/chat/${nodeId}/${user?.id}`;
     console.log("wsUrl", wsUrl);
     const ws = new WebSocket(wsUrl);
-
+    
     ws.onopen = () => {
+      console.log("nodeId...", nodeId);
       console.log(`Connected to node ${nodeId} as user ${user?.id}`);
       loadMessages(0);
     };

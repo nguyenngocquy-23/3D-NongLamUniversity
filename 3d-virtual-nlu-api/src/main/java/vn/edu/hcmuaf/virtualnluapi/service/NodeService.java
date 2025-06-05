@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
@@ -42,6 +43,15 @@ public class NodeService {
     public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {
         try {
             return nodeDao.getNodeByUser(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public NodeFullResponse getNodeById(NodeIdRequest request) {
+        try {
+            return nodeDao.getNodeById(request);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
