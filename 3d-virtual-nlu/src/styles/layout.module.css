@@ -3,8 +3,9 @@
   height: 100vh;
   border-radius: 8px;
   position: relative;
-  background: url("backgroundNL.jpg") no-repeat center / cover;
+  background: url("/backgroundNL.jpg") no-repeat center / cover;
   display: flex;
+  overflow: hidden;
 }
 
 .main_contain {

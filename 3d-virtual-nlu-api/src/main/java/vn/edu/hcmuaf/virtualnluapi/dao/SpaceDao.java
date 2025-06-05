@@ -2,14 +2,15 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jdbi.v3.core.statement.PreparedBatch;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceReadRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceResponse;
 import vn.edu.hcmuaf.virtualnluapi.entity.Space;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class SpaceDao {
 
     public List<SpaceResponse> getSpaceByFieldId(SpaceReadRequest req) {
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("SELECT id, name from spaces where fieldId = :fieldId and status = 1")
+            return handle.createQuery("SELECT id, name from spaces where fieldId = :fieldId and status = 1 and status`= 2")
                     .bind("fieldId", req.getFieldId())
                     .mapToBean(SpaceResponse.class)
                     .list();
@@ -46,7 +47,7 @@ public class SpaceDao {
 
     public List<SpaceFullResponse> getAllSpaces() {
         String sql = """
-                SELECT s.id, f.name as fieldName, s.name, s.description, s.status, s.updatedAt
+                SELECT s.id, f.name as fieldName, s.name, s.description, s.status, s.location, s.updatedAt
                  FROM spaces s
                  JOIN fields f ON s.fieldId = f.id
                 """;
@@ -65,5 +66,41 @@ public class SpaceDao {
                     .execute();
             return i > 0;
         });
+    }
+
+    public boolean attachLocation(List<AttachLocationRequest> requestList) {
+        String sql = "UPDATE spaces SET location = :location WHERE id = :id";
+
+        try {
+            return ConnectionPool.getConnection().inTransaction(handle -> {
+                PreparedBatch batch = handle.prepareBatch(sql);
+                for (AttachLocationRequest req : requestList) {
+                    batch.bind("id", req.getSpaceId())
+                            .bind("location", req.getLocation())
+                            .add();
+                }
+                batch.execute(); // thực thi batch
+                return true; // cần return để inTransaction hợp lệ
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean removeLocation(SpaceIdRequest request) {
+        String sql = "UPDATE spaces SET location = NULL WHERE id = :id";
+
+        try {
+            return ConnectionPool.getConnection().inTransaction(handle -> {
+                int i = handle.createUpdate(sql)
+                        .bind("id", request.getSpaceId())
+                        .execute();
+                return i > 0;
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

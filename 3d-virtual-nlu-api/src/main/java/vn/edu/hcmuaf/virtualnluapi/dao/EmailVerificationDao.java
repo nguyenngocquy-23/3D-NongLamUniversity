@@ -55,4 +55,15 @@ public class EmailVerificationDao {
             e.printStackTrace();
         }
     }
+
+    public EmailVerification findByUserEmail(String email) {
+        String sql = "SELECT ev.* FROM email_verifications ev JOIN users u ON ev.userId = u.id WHERE u.email = :email";
+        Optional<EmailVerification> verification = ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("email", email)
+                        .mapToBean(EmailVerification.class)
+                        .stream()
+                        .findFirst());
+        return verification.orElse(null);
+    }
 }

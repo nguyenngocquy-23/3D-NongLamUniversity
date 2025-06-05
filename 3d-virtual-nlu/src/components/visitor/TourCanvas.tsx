@@ -112,6 +112,7 @@ const TourCanvas = React.memo(
         <CamControls
           targetPosition={targetPosition}
           sphereRef={sphereRef}
+          controlsRef={controlsRef}
           autoRotate={isRotation}
           autoRotateSpeed={defaultNode.speedRotate}
         />

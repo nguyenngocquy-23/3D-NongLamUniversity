@@ -191,7 +191,6 @@ const ConfigIcon = ({
                   pitchX={pitchX}
                   yawY={yawY}
                   rollZ={rollZ}
-                  isFloor={isFloor}
                   allowBackgroundColor={allowBackgroundColor}
                   opacity={opacity}
                 />

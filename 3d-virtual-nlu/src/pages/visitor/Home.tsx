@@ -4,7 +4,11 @@ import CampusMap from "../../components/visitor/CampusMap";
 import Lenis from "@studio-freight/lenis";
 import TourOverview from "../../components/visitor/TourOverview";
 import { useDispatch } from "react-redux";
-import { fetchDefaultNodes, fetchIcons, fetchMasterNodes } from "../../redux/slices/DataSlice";
+import {
+  fetchDefaultNodes,
+  fetchIcons,
+  fetchMasterNodes,
+} from "../../redux/slices/DataSlice";
 import { AppDispatch } from "../../redux/Store";
 
 const Home: React.FC = () => {
@@ -14,6 +18,9 @@ const Home: React.FC = () => {
     dispatch(fetchIcons());
     dispatch(fetchDefaultNodes());
   }, [dispatch]);
+
+  const defaultNodeJson = localStorage.getItem("defaultNode");
+  const defaultNode = defaultNodeJson ? JSON.parse(defaultNodeJson) : null;
 
   // useEffect(() => {
   //   const lenis = new Lenis();
@@ -30,7 +37,7 @@ const Home: React.FC = () => {
 
       <CampusMap />
 
-      <TourOverview />
+      <TourOverview defaultNode={defaultNode} />
     </main>
   );
 };

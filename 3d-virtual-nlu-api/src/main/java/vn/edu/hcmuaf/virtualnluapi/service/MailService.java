@@ -27,17 +27,11 @@ public class MailService {
     UserDao userDAO;
     private ExecutorService executorService = Executors.newFixedThreadPool(3); // Số lượng thread tùy chọn
 
-    public void sendMailResetPassword(Map<User, String> map) {
-        User user = null;
-        String newPassword = null;
-        for (Map.Entry<User, String> entry : map.entrySet()) {
-            user = entry.getKey();
-            newPassword = entry.getValue();
-        }
+    public void sendMailResetPassword(User user, String newPassword) {
         String subject = "Thông báo: Mật khẩu đã được đổi thành công";
         StringBuilder content = new StringBuilder();
         content.append("<p>Xin ch&agrave;o <strong>").append(user.getUsername()).append("</strong>.</p>").append(
-                        "<p>Ch&uacute;ng t&ocirc;i đến từ <strong>ComMeNau.com</strong>, xin th&ocirc;ng b&aacute;o rằng mật khẩu của bạn đ&atilde; được đổi th&agrave;nh c&ocirc;ng.</p>")
+                        "<p>Ch&uacute;ng t&ocirc;i đến từ <strong>VirtualTour.NLU.edu.vn</strong>, xin th&ocirc;ng b&aacute;o rằng mật khẩu của bạn đ&atilde; được đổi th&agrave;nh c&ocirc;ng.</p>")
                 .append("<p>Mật khẩu mới của bạn l&agrave;:<strong>").append(newPassword).append("</strong></p>")
                 .append("<p>&nbsp;Vui l&ograve;ng đăng nhập bằng mật khẩu mới n&agrave;y để tiếp tục sử dụng t&agrave;i khoản.</p>")
                 .append("<p>Vui l&ograve;ng nhấn v&agrave;o link b&ecirc;n dưới để đăng nhập bằng mật khẩu mới:</p>")
@@ -49,16 +43,6 @@ public class MailService {
     public void sendMailVerifyUser(User user, EmailVerification verification) {
         String subject = "Thông báo: Đăng kí tài khoản thành công";
         StringBuilder content = new StringBuilder();
-//        content.append("<p>Ch&agrave;o bạn <em><strong>").append(user.getUsername()).append("</strong></em>,</p>")
-//                .append("<p>Ch&uacute;c mừng! Bạn đ&atilde; đăng k&yacute; th&agrave;nh c&ocirc;ng t&agrave;i khoản tr&ecirc;n website <strong>VirtualTour.NLU.edu.vn</strong>.</p>")
-//                .append("<p>H&atilde;y kh&aacute;m ph&aacute; kh&ocirc;ng gian học tập v&agrave; sinh hoạt tại <strong>Trường Đại học Nông Lâm TP. HCM</strong> qua hệ thống tham quan ảo.</p>")
-//                .append("<p>Để bắt đầu trải nghiệm, vui l&ograve;ng nhấp v&agrave;o đường dẫn dưới đ&acirc;y:</p>")
-//                .append("<p><a href=\"").append(verification.getToken()).append("/virtual-tour?userId=").append(user.getId())
-//                .append("&token=").append(verification.getToken()).append("\"")
-//                .append("><strong>Nhấn v&agrave;o đ&acirc;y để tham quan ngay.</strong></a></p>")
-//                .append("<p>Hệ thống tham quan ảo sẽ đưa bạn đến những địa điểm nổi bật như giảng đường, thư viện, khu ký túc x&aacute;, v&agrave; c&aacute;c khu vực thực nghiệm.</p>")
-//                .append("<p>Ch&uacute;ng t&ocirc;i hy vọng rằng trải nghiệm n&agrave;y sẽ gi&uacute;p bạn c&oacute; một c&aacute;i nh&igrave;n tổng quan về cuộc sống sinh vi&ecirc;n tại <strong>NLU</strong>.</p>")
-//                .append("<p>Tr&acirc;n trọng,</p><p>Ban quản trị <strong>VirtualTour.NLU.edu.vn</strong>.</p>");
         content.append("<p>Chào bạn <strong>").append(user.getUsername()).append("</strong>,</p>")
                 .append("<p>Bạn đã đăng ký tài khoản thành công tại <strong>VirtualTour.NLU.edu.vn</strong>.</p>")
                 .append("<p>Để kích hoạt tài khoản, vui lòng sử dụng mã xác thực sau:</p>")

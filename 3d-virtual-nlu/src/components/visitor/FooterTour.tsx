@@ -5,18 +5,21 @@ import {
   IoMdVolumeHigh,
   IoMdVolumeOff,
 } from "react-icons/io";
-import { FaLanguage, FaPause, FaPlay } from "react-icons/fa6";
+import { FaComment, FaLanguage, FaPause, FaPlay } from "react-icons/fa6";
 import { FaInfoCircle } from "react-icons/fa";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 interface FooterTourProps {
   isRotation: boolean;
-  setIsRotation: (value:boolean) => void;
+  setIsRotation: (val: boolean) => void;
   isMuted: boolean;
   isFullscreen: boolean;
   toggleInformation: () => void;
   toggleMute: () => void;
   toggleFullscreen: () => void;
+  setIsComment: (val: boolean) => void;
 }
 
 const FooterTour = ({
@@ -27,23 +30,44 @@ const FooterTour = ({
   toggleInformation,
   toggleMute,
   toggleFullscreen,
+  setIsComment,
 }: FooterTourProps) => {
-  {
-    /* Footer chứa các tính năng trong tour*/
-  }
+  const userJson = sessionStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : null;
+  const navigate = useNavigate();
   return (
     <div className={styles.footerTour}>
       <i>NLU360</i>
       <div className="contain_extension" style={{ display: "flex" }}>
+        <FaComment
+          className={styles.info_btn}
+          onClick={() => {
+            user
+              ? setIsComment(true)
+              : Swal.fire({
+                  title: "Bạn cần đăng nhập để bình luận",
+                  icon: "info",
+                  confirmButtonText: "Đăng nhập",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    navigate("/login");
+                  }
+                });
+          }}
+        />
         <FaPause
           className={styles.pauseBtn}
           style={{ display: isRotation ? "block" : "none" }}
-          onClick={() => {setIsRotation(false)}}
+          onClick={() => {
+            setIsRotation(false);
+          }}
         />
         <FaPlay
           className={styles.playBtn}
           style={{ display: isRotation ? "none" : "block" }}
-          onClick={() => {setIsRotation(true)}}
+          onClick={() => {
+            setIsRotation(true);
+          }}
         />
         <FaLanguage className={styles.info_btn} onClick={toggleInformation} />
         {isMuted ? (

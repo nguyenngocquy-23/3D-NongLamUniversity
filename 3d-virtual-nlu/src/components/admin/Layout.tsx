@@ -19,11 +19,25 @@ import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 import Sidebar from "./Sidebar";
 
 const Layout = () => {
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const currentUserJson = sessionStorage.getItem("user");
+  const currentUser = currentUserJson ? JSON.parse(currentUserJson) : null;
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    console.log("currentUser:", currentUser);
+    if (
+      currentUser == undefined ||
+      currentUser == null ||
+      (currentUser && currentUser.roleId !== 2)
+    ) {
+      console.log("navigate");
+      navigate("/unauthorized");
+      return;
+    }
+  }, []);
 
   useEffect(() => {
     dispatch(fetchFields());
@@ -49,24 +63,22 @@ const Layout = () => {
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(true);
 
   useEffect(() => {
-    if (currentStep === 2 || currentStep === 3) {
-      setIsOptionFullScreen(false);
-    } else {
+    if (currentStep === 2 || currentStep === 3 || location.pathname == "/admin/model") {
       setIsOptionFullScreen(true);
+    } else {
+      setIsOptionFullScreen(false);
     }
   }, [currentStep]);
   return (
     <div className={styles.container}>
       {/* Sidebar */}
-      {isOptionFullScreen && (
+      {!isOptionFullScreen && currentUser && (
         <Sidebar isOpenSidebar={true} currentUser={currentUser} />
       )}
-
       {/* Main Content */}
       <main className={styles.main_contain}>
-        {isOptionFullScreen && (
+        {!isOptionFullScreen && (
           <header className={styles.header}>
-            {/* <h2>Welcome to Admin</h2> */}
             <div className={styles.extension}>
               <input
                 className={styles.input_search}
@@ -83,7 +95,6 @@ const Layout = () => {
                 <FaMessage />
               </div>
             </div>
-            {/* <Link to="/login">Đăng xuất</Link> */}
             <button onClick={handleLogout}>Đăng xuất</button>
           </header>
         )}

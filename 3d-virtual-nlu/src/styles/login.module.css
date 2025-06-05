@@ -7,7 +7,7 @@
   height: 100vh;
   width: 100vw;
   margin: 0;
-  background: url("/src/assets/picture/login_bgk1.jpg") no-repeat center / cover;
+  background: url("/backgroundNL.jpg") no-repeat center / cover;
   font-family: Arial, sans-serif;
   position: relative;
 }
@@ -44,6 +44,7 @@
   backdrop-filter: blur(5px);
   transition: transform 0.5s ease;
   animation: slideDown 0.8s ease-out forwards;
+  width: 400px;
 }
 
 .h2 {
@@ -64,11 +65,14 @@
 .icon {
   font-weight: 800;
   margin-left: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .inputField {
-  width: 90%;
-  padding: 1rem;
+  width: 100%;
+  padding: 1rem 3rem;
   font-size: 1rem;
   border: none;
   background: transparent;
@@ -104,14 +108,14 @@ input::placeholder {
 
 .link {
   text-decoration: none;
-  color: #fff;
+  color: #6fa9ff;
   line-height: 2;
   transform: scale(1);
   transition: all 0.5s ease;
 }
 
 .link:hover {
-  color: white;
+  color: #78f7bc;
   opacity: 0.8 !important;
 }
 
@@ -128,8 +132,35 @@ input::placeholder {
   color: rgb(255, 18, 18);
   font-style: italic;
   font-weight: 700;
+  white-space: normal;
+  /* Cho phép xuống hàng */
+  word-wrap: break-word;
+  /* Ngắt từ nếu cần */
+  overflow-wrap: break-word;
+  /* Cho trình duyệt hiện đại */
 }
 
 .passLengthError {
   border: 2px solid rgb(255, 18, 18);
+}
+
+.codeInputContainer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.codeInput {
+  width: 40px;
+  height: 50px;
+  text-align: center;
+  font-size: 24px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.codeInput:focus {
+  border-color: #007bff;
 }
