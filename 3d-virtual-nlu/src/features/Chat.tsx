@@ -27,13 +27,12 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
 
   useEffect(() => {
     if (!user) return;
-
+    setMessages([]);
     const wsUrl = `ws://localhost:8080/chat/${nodeId}/${user?.id}`;
     console.log("wsUrl", wsUrl);
     const ws = new WebSocket(wsUrl);
-    
+
     ws.onopen = () => {
-      console.log("nodeId...", nodeId);
       console.log(`Connected to node ${nodeId} as user ${user?.id}`);
       loadMessages(0);
     };
@@ -57,7 +56,7 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
     return () => {
       ws.close();
     };
-  }, []);
+  }, [nodeId]);
 
   const scrollPositionRef = useRef<number>(0);
 

@@ -18,3 +18,18 @@
     margin-bottom: 50px;
     offset: 10;
 }
+.customIcon:hover {
+    opacity: 0.5;
+    transform: translateY(-2px);
+}
+.customIcon {
+  font-size: 24px;
+  background-color: red;
+  border: none;
+  border-radius: 50%;
+  height: 32px;
+  width: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -19,7 +19,6 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 200px;
     font-family: sans-serif;
 }
 
@@ -48,4 +47,27 @@
     font-size: 14px;
     border-radius: 6px;
     border: 1px solid #ccc;
+}
+
+
+.custom_select {
+    appearance: none;
+    /* ẩn mũi tên mặc định */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+
+    width: 200px;
+    padding: 5px 20px;
+    color: black;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    font-size: 15px;
+    outline: none;
+
+    background-image: url("/public/down.svg");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
 }

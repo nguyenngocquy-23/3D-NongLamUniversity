@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
 interface DataState {
@@ -141,7 +141,40 @@ export const fetchHotspotTypes = createAsyncThunk(
 const dataSlice = createSlice({
   name: "data",
   initialState,
-  reducers: {},
+  reducers: {
+    attachLocation: (
+      state,
+      action: PayloadAction<{
+        spaceId: number;
+        location: string;
+      }>
+    ) => {
+      const index = state.spaces.findIndex(
+        (h) => h.id === action.payload.spaceId
+      );
+      if (index !== -1) {
+        const space = state.spaces[index];
+        space.location = action.payload.location;
+      }
+    },
+    
+    removeLocation: (
+      state,
+      action: PayloadAction<{
+        spaceId: number;
+      }>
+    ) => {
+      console.log('spaceId...', action.payload.spaceId)
+      const index = state.spaces.findIndex(
+        (h) => h.id === action.payload.spaceId
+      );
+      if (index !== -1) {
+        const space = state.spaces[index];
+        space.location = null;
+      }
+    },
+
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.pending, (state) => {
@@ -259,5 +292,5 @@ const dataSlice = createSlice({
       });
   },
 });
-
+export const {attachLocation,removeLocation} = dataSlice.actions;
 export default dataSlice.reducer;
