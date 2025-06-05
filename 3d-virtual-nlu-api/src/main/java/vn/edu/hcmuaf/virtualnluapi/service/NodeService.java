@@ -37,4 +37,8 @@ public class NodeService {
     public NodeFullResponse getDefaultNode() {
         return nodeDao.getDefaultNode();
     }
+
+    public List<NodeFullResponse> getListPreloadNodeByNode(int nodeId) {
+        return nodeDao.getListPreloadNodeByNode(nodeId);
+    }
 }

@@ -45,10 +45,6 @@ const TourCanvas = React.memo(
       (state: RootState) => state.data.preloadNodes
     );
 
-    /**
-     *
-     *
-     */
     const handleSelectNode = (id: number) => {
       const activeNode = preloadNodes.find((h) => h.id === id);
       dispatch(setDefaultNode(activeNode));
