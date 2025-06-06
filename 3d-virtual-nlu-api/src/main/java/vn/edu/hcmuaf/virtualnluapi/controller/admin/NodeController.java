@@ -82,6 +82,19 @@ public class NodeController {
     }
 
     /**
+     * Định nghĩa cho tour.
+     *
+     * @return
+     */
+    @POST
+    @Path("/allMasterNode")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getAllMasterNodes() {
+//        List<NodeFullResponse> result = nodeService.getAllMasterNodes();
+        return null;
+    }
+
+    /**
      * Method dùng để thay thế realId trong Dabatabase cho:
      * 1. tempId của node.
      * 2. targetNodeId (temp) của hotspot trong node.
@@ -104,5 +117,6 @@ public class NodeController {
             }
         }
     }
+
 
 }
