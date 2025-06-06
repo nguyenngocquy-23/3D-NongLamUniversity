@@ -3,7 +3,7 @@ import style from "../../styles/header.module.css";
 
 import { Link as ScrollLink } from "react-scroll";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store.ts";
 import { logoutUser } from "../../redux/slices/AuthSlice.ts";
@@ -41,6 +41,27 @@ const Header: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const links = document.querySelectorAll(`.${style.navLink}`);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add(style.visible);
+          }
+        });
+      },
+      {
+        threshold: 0.2,
+      }
+    );
+
+    links.forEach((link) => observer.observe(link));
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <header className={style.header}>
       <div className={style.logo_container}>
@@ -49,17 +70,27 @@ const Header: React.FC = () => {
           alt="University Logo"
           className={style.logo}
         />
-        <span className={style.name}>TRƯỜNG ĐẠI HỌC NÔNG LÂM TP.HCM</span>
+        <span className={style.name}>NLU</span>
       </div>
 
       <nav className={style.nav}>
         <ScrollLink
           to="campusMap"
           className={style.navLink}
+          offset={-60}
           smooth={true}
           duration={500}
         >
           Sơ đồ trường
+        </ScrollLink>
+
+        <ScrollLink
+          to="introduce"
+          className={style.navLink}
+          smooth={true}
+          duration={500}
+        >
+          Giới thiệu
         </ScrollLink>
 
         <ScrollLink
@@ -70,10 +101,6 @@ const Header: React.FC = () => {
         >
           Khám phá tour ảo
         </ScrollLink>
-
-        <a href="#" className={style.navLink}>
-          Chương trình đào tạo
-        </a>
         <span
           onClick={handleManage}
           className={style.navLink}

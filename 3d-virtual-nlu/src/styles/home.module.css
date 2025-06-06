@@ -1,5 +1,6 @@
 .homeContainer {
-  background-color: aliceblue;
+  background-color: #fff;
+  overflow: auto;
 }
 
 .section2 {

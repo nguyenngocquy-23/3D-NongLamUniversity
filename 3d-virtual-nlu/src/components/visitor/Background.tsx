@@ -178,10 +178,13 @@ const Background: React.FC = () => {
             fontSize: "100px",
             color: "transparent",
             WebkitTextStroke: "2px white",
+            // textShadow:
+              // "-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white",
           }}
         >
           NÔNG LÂM
         </h2>
+
         <h2 style={{ fontSize: "40px", color: "white" }}>
           THÀNH PHỐ HỒ CHÍ MINH
         </h2>
@@ -209,7 +212,7 @@ const Background: React.FC = () => {
           autoPlay
           loop
           playsInline
-          style={{ width: "100%", height: "100%" }}
+          style={{ minWidth: "100%", minHeight: "100%" }}
         >
           <source src="/public/background.mp4" type="video/mp4" />
           Trình duyệt của bạn không hỗ trợ video.

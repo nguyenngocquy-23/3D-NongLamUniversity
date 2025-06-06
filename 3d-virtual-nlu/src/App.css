@@ -4,7 +4,11 @@
   box-sizing: border-box;
 }
 
-body{
+body {
   background-color: #cfcfce;
   overflow-x: hidden;
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }

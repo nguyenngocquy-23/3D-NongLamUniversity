@@ -1,15 +1,12 @@
 import React, { useEffect } from "react";
 import Banner from "../../components/visitor/BannerContainer";
 import CampusMap from "../../components/visitor/CampusMap";
-import Lenis from "@studio-freight/lenis";
+import styles from "../../styles/home.module.css";
 import TourOverview from "../../components/visitor/TourOverview";
 import { useDispatch } from "react-redux";
-import {
-  fetchDefaultNodes,
-  fetchIcons,
-  fetchMasterNodes,
-} from "../../redux/slices/DataSlice";
+import { fetchDefaultNodes, fetchIcons } from "../../redux/slices/DataSlice";
 import { AppDispatch } from "../../redux/Store";
+import ScrollOnTop from "../../components/visitor/ScrollOnTop";
 
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -32,12 +29,14 @@ const Home: React.FC = () => {
   // }, []);
 
   return (
-    <main>
+    <main className={styles.homeContainer}>
       <Banner />
 
       <CampusMap />
 
       <TourOverview defaultNode={defaultNode} />
+
+      <ScrollOnTop />
     </main>
   );
 };
