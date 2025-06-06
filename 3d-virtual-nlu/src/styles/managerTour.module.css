@@ -88,3 +88,14 @@
   border-radius: 50%;
   background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0.3));
 }
+
+.list_tour {
+}
+
+.list_tour .list_tour_main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 3.5%;
+  margin-left: 20px;
+}

@@ -19,7 +19,6 @@ import Task2 from "../../components/admin/taskCreateTourList/Task2BasicConfig";
 import Task1 from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
 import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
-import PointMedia from "../../components/admin/PointMedia";
 import TourScene from "../../components/visitor/TourScene";
 import CamControls from "../../components/visitor/CamControls";
 import gsap from "gsap";

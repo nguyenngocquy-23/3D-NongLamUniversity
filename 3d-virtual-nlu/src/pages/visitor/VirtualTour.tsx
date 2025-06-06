@@ -335,7 +335,6 @@ const VirtualTour = () => {
         Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
         Lâm Thành phố Hồ Chí Minh
       </div>{" "}
-      {/* <StatsPanel className={styles.statsPanel} /> */}
       {/* Màn hình laoding */}
       {isWaiting ? <Waiting /> : ""}
     </div>

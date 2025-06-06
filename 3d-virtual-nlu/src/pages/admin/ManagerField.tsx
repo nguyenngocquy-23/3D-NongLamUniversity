@@ -67,57 +67,62 @@ const Field = () => {
     setSearchData(newData);
   };
 
-  const columns = [
-    {
-      name: "Mã Lĩnh vực",
-      selector: (row: Field) => row.code,
-      sortable: true,
-      width: "250px",
-    },
-    {
-      name: "Tên Lĩnh vực",
-      selector: (row: Field) => row.name,
-      sortable: true,
-      width: "280px",
-    },
-    {
-      name: "Trạng thái",
-      selector: (row: Field) => (
-        <StatusToggle
-          id={row.id}
-          status={row.status}
-          apiUrl="http://localhost:8080/api/admin/field/changeStatus"
-        />
-      ),
-      sortable: true,
-    },
-    {
-      name: "Thời gian cập nhật",
-      selector: (row: Field) => formatDateTime(row.updatedAt),
-      sortable: true,
-    },
-  ];
+  // const columns = [
+  //   {
+  //     name: "Mã Lĩnh vực",
+  //     selector: (row: Field) => row.code,
+  //     sortable: true,
+  //     width: "250px",
+  //   },
+  //   {
+  //     name: "Tên Lĩnh vực",
+  //     selector: (row: Field) => row.name,
+  //     sortable: true,
+  //     width: "280px",
+  //   },
+  //   {
+  //     name: "Trạng thái",
+  //     selector: (row: Field) => (
+  //       <StatusToggle
+  //         id={row.id}
+  //         status={row.status}
+  //         apiUrl="http://localhost:8080/api/admin/field/changeStatus"
+  //       />
+  //     ),
+  //     sortable: true,
+  //   },
+  //   {
+  //     name: "Thời gian cập nhật",
+  //     selector: (row: Field) => formatDateTime(row.updatedAt),
+  //     sortable: true,
+  //   },
+  // ];
 
-  const field = [
-    { label: "Tên lĩnh vực", name: "name", type: "text" },
-    { label: "Mã", name: "code", type: "text" },
-    // Thêm các trường khác nếu cần
-  ];
+  // const field = [
+  //   { label: "Tên lĩnh vực", name: "name", type: "text" },
+  //   { label: "Mã", name: "code", type: "text" },
+  //   // Thêm các trường khác nếu cần
+  // ];
 
   return (
     <div className={styles.container}>
-      <FieldCard />
-      <input
+      <h2 className={styles.manager_title}>Lĩnh vực</h2>
+      <div className={styles.field_list}>
+        <div className={styles.field_item}>
+          <FieldCard />
+        </div>
+      </div>
+      {/* <input
         type="text"
         title="Keyword trong tên"
         onChange={handleSearch}
         placeholder="Tìm kiếm..."
         className={stylesCommon.search_input}
-      />
-      <h2>Danh Sách Lĩnh vực</h2>
+      /> */}
+      {/* <h2>Danh Sách Lĩnh vực</h2> */}
       {loading && <p>Đang tải...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <button
+      {/* <button
         className={stylesCommon.addRow}
         onClick={() => {
           setOpenModel(true);
@@ -136,7 +141,7 @@ const Field = () => {
         ""
       )}
 
-      <Datatable columns={columns} searchData={searchData!} loading={loading} />
+      <Datatable columns={columns} searchData={searchData!} loading={loading} /> */}
     </div>
   );
 };

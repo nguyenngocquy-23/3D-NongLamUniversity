@@ -1,0 +1,28 @@
+.field_card {
+  width: 250px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  position: relative;
+}
+.field_top {
+  width: 100%;
+  height: 100%;
+}
+.field_top img {
+  width: 250px;
+  height: 100px;
+  object-fit: cover;
+  opacity: 0.9;
+}
+.field_id {
+  position: absolute;
+}
+
+.field_title {
+  font-size: 2rem;
+}

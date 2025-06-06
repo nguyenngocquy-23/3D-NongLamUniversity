@@ -1,5 +1,4 @@
 import { OrbitControls, useTexture } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
 import styles from "../../styles/nodeItem.module.css";
 import * as THREE from "three";
 import { useState } from "react";
@@ -45,7 +44,7 @@ export const NodeItem = ({
   spaceName,
   description,
   url,
-  updatedAt
+  updatedAt,
 }: NodeItemProps) => {
   const [isShow, setIsShow] = useState(false);
 
@@ -57,45 +56,54 @@ export const NodeItem = ({
   };
   return (
     <div className={styles.container} onClick={onclick}>
-      <Canvas
+      {/* <Canvas
         camera={{ fov: 75, position: [0, 0, 1] }}
         className={`${styles.canvas} ${isShow ? styles.show : styles.hide}`}
       >
         <Node panoramaURL={url} />
         <OrbitControls autoRotate={true} autoRotateSpeed={1} />
-      </Canvas>
+      </Canvas> */}
       <div
         className={styles.info}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className={styles.header}>
+        <img src={url} alt="" />
+        {/* <div className={styles.header}>
           <b>{fieldName}</b>
           <b>{spaceName}</b>
-        </div>
+        </div> */}
         <div className={styles.name}>
-          <b>{name}</b>
+          <span>
+            {name} #{id}
+          </span>
         </div>
+
         <div className={styles.footer}>
-          <div className={styles.status}>
+          <div
+            className={`${styles.status} ${
+              status === 0 ? styles.status_stop : styles.status_open
+            }`}
+          >
             {status == 0 ? (
-              <>
-                <div className={styles.status_stop}></div>
-                <b>Ngưng hoạt động</b>
-              </>
+              <span>Hoạt động</span>
             ) : status == 1 ? (
-              <>
-                <div className={styles.status_open}></div>
-                <b>Đang hoạt động</b>
-              </>
+              <span>Tạm ngưng</span>
             ) : (
-              <>
-                <div className={styles.status_open}></div>
-                <b>Đang hoạt động <span style={{color:'red'}}>*</span></b>
-              </>
+              <span>Đang hoạt động</span>
             )}
           </div>
-          <b>{formatTimestampToDate(updatedAt)}</b>
+          {/* <b>{formatTimestampToDate(updatedAt)}</b> */}
+        </div>
+        <hr />
+        <div className={styles.by_user}>
+          <div className={styles.by_user_wrapper}>
+            <img src="/avatar.jpg" alt="" />
+            <p>
+              <ins>Người tạo: </ins>
+              {userId}
+            </p>
+          </div>
         </div>
       </div>
     </div>

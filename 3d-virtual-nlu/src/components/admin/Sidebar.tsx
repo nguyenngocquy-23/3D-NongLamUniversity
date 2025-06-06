@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "../../styles/sidebar.module.css";
-import { MdDashboard } from "react-icons/md";
+import {
+  MdDashboard,
+  MdInsertEmoticon,
+  MdKeyboardArrowDown,
+} from "react-icons/md";
 import { FaHome, FaUserCog } from "react-icons/fa";
 import { FaBookOpen, FaComment, FaUserPlus } from "react-icons/fa6";
 import { GoSidebarExpand } from "react-icons/go";
 import { IoSettings } from "react-icons/io5";
 import { BiSolidCommentDetail } from "react-icons/bi";
+import { CiLogout } from "react-icons/ci";
+import { TbTournament } from "react-icons/tb";
 
 type SideBarProps = {
   isOpenSidebar: boolean;
@@ -18,17 +24,19 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
   const toggleSideBar = () => {
     setIsOpen((prev) => !prev);
   };
+
+  const [showSubMenu, setShowSubMenu] = useState(false);
   return (
     <nav
       className={styles.side_bar}
       style={{
-        width: isOpen ? "20%" : undefined,
+        maxWidth: isOpen ? "20%" : undefined,
       }}
     >
       <div className={styles.side_bar_admin}>
         {isOpen && (
           <>
-            <img src="/public/avatar.jpg" alt="" />
+            <img src="/public/avatar.jpg" alt="avatar-admin" />
             <div className={styles.admin_info}>
               <Link to="/">
                 <h5>Chào bạn, {currentUser.username} !</h5>
@@ -37,6 +45,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
           </>
         )}
       </div>
+
       <span className={styles.side_bar_toggle} onClick={toggleSideBar}>
         <GoSidebarExpand />
       </span>
@@ -46,70 +55,84 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
           marginTop: isOpen ? undefined : "30px",
         }}
       >
-        <li className={styles.title}>
-          <FaHome />
-          {isOpen && <span>Trang chủ</span>}
-        </li>
-        {isOpen && (
-          <Link to="/admin">
-            <li className={location.pathname === "/admin" ? styles.click : ""}>
-              <MdDashboard />
-              <span>Dashboard</span>
-            </li>
-          </Link>
-        )}
-
-        <li className={styles.title}>
-          <IoSettings />
-          {isOpen && <span>Quản lý</span>}
-        </li>
+        <Link to="/admin">
+          <li
+            className={`
+              ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
+            ${location.pathname === "/admin" ? styles.click : ""}
+            
+            `}
+          >
+            <MdDashboard />
+            {isOpen && <span>Tổng quan</span>}
+          </li>
+        </Link>
 
         {isOpen && (
           <>
             <Link to="/admin/icons">
               <li
-                className={
-                  location.pathname === "/admin/icons" ? styles.click : ""
-                }
+                className={`
+              ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
+            ${location.pathname === "/admin/icons" ? styles.click : ""}
+            
+            `}
               >
-                {isOpen && <span>Quản Lý Biểu tượng</span>}
-              </li>
-            </Link>
-            <Link to="/admin/fields">
-              <li
-                className={
-                  location.pathname === "/admin/fields" ? styles.click : ""
-                }
-              >
-                {isOpen && <span>Quản Lý Lĩnh vực</span>}
-              </li>
-            </Link>
-            <Link to="/admin/spaces">
-              <li
-                className={
-                  location.pathname === "/admin/spaces" ? styles.click : ""
-                }
-              >
-                {isOpen && <span> Quản Lý Không gian</span>}
-              </li>
-            </Link>
-            <Link to="/admin/tours">
-              <li
-                className={
-                  location.pathname.includes("our") ? styles.click : ""
-                }
-              >
-                Quản Lý Tour
+                <MdInsertEmoticon />
+                {isOpen && <span>Biểu tượng</span>}
               </li>
             </Link>
 
+            <li
+              className={` ${styles.visit}`}
+              onClick={() => setShowSubMenu((prev) => !prev)}
+            >
+              <TbTournament />
+              {isOpen && <span>Tham quan</span>}
+              <MdKeyboardArrowDown className={styles.open_sub_visit} />
+            </li>
+
+            {showSubMenu && (
+              <ul className={styles.sub_menu}>
+                <Link to="/admin/fields">
+                  <li
+                    className={
+                      location.pathname === "/admin/fields" ? styles.click : ""
+                    }
+                  >
+                    <span>Lĩnh vực</span>
+                  </li>
+                </Link>
+                <Link to="/admin/spaces">
+                  <li
+                    className={
+                      location.pathname === "/admin/spaces" ? styles.click : ""
+                    }
+                  >
+                    <span>Không gian</span>
+                  </li>
+                </Link>
+                <Link to="/admin/tours">
+                  <li
+                    className={
+                      location.pathname.includes("our") ? styles.click : ""
+                    }
+                  >
+                    Quản lý tour
+                  </li>
+                </Link>
+              </ul>
+            )}
+
             <Link to="/admin/users">
               <li
-                className={
-                  location.pathname === "/admin/users" ? styles.click : ""
-                }
+                className={`
+              ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
+            ${location.pathname === "/admin/users" ? styles.click : ""}
+            
+            `}
               >
-                <FaUserCog /> Quản Lý Tài Khoản
+                <FaUserCog /> Tài khoản
               </li>
             </Link>
           </>
@@ -120,15 +143,6 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
         </li>
         {isOpen && (
           <>
-            <Link to="/admin/category">
-              <li
-                className={
-                  location.pathname === "/admin/category" ? styles.click : ""
-                }
-              >
-                <FaBookOpen /> Quản Lý danh mục
-              </li>
-            </Link>
             <Link to="/admin/adminCreate">
               <li
                 className={
@@ -146,7 +160,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
                     : ""
                 }
               >
-                <FaComment /> Quản Lý bình luận
+                <FaComment /> Bình luận
               </li>
             </Link>
           </>
@@ -156,6 +170,10 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
           {isOpen && <span>Khác</span>}
         </li>
       </ul>
+      <div className={styles.side_bar_logout}>
+        <CiLogout />
+        {isOpen && <span>Đăng xuất</span>}
+      </div>
     </nav>
   );
 };
