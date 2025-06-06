@@ -42,9 +42,7 @@ import { prevStep } from "../../redux/slices/StepSlice";
 import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
-import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
-
-export const RADIUS = 100;
+import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 
 const CreateTourStep2 = () => {
   /**
@@ -422,7 +420,7 @@ const CreateTourStep2 = () => {
           <UpdateCameraOnResize />
           <TourScene
             nodeId={currentSelectId ?? ""}
-            radius={RADIUS}
+            radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             onPointerDown={handleScenePointerDown}

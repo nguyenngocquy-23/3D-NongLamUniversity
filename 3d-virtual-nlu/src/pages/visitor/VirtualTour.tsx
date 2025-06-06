@@ -24,6 +24,10 @@ import {
 } from "../../redux/slices/HotspotSlice.ts";
 import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 import { RADIUS_SPHERE } from "../../utils/Constants.ts";
+import CommentBox from "../../components/visitor/CommentBox.tsx";
+import MapLeaflet from "../../components/visitor/MapLeaflet.tsx";
+import { FaAngleLeft, FaMap, FaScreenpal, FaX } from "react-icons/fa6";
+import { MdOpenInFull } from "react-icons/md";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -36,6 +40,7 @@ import { RADIUS_SPHERE } from "../../utils/Constants.ts";
 const VirtualTour = () => {
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.data.status);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     dispatch(fetchMasterNodes());
@@ -46,6 +51,7 @@ const VirtualTour = () => {
     (state: RootState) => state.data.defaultNode
   );
 
+  const icons = useSelector((state: RootState) => state.data.icons);
   // Fallback: lấy từ localStorage nếu Redux chưa có dữ liệu
   const nodeToRender = useMemo(() => {
     if (reduxDefaultNode) return reduxDefaultNode;
@@ -95,6 +101,8 @@ const VirtualTour = () => {
 
   const [isMuted, setIsMuted] = useState(false); // Trạng thái âm thanh
 
+  const [isComment, setIsComment] = useState(false); // Trạng thái âm thanh
+
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
     null
   ); // Giữ lại đối tượng
@@ -103,10 +111,22 @@ const VirtualTour = () => {
    * Lớp chờ để ẩn các tiến trình render
    * Tạo cảm giác loading cho người dùng
    */
-  const [isWaiting, setIsWaiting] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(true);
+
+  /**
+   * State để mở hộp thông tin
+   */
+  const [isOpenInfo, setIsOpenInfo] = useState(true);
+
+  const [hideMap, setHideMap] = useState(false);
+  const [fullMap, setFullMap] = useState(false);
+  const [hoverMap, setHoverMap] = useState(false);
+  /**
+   * Ref để cập nhật giá trị kích thước của map
+   */
+  const mapRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
-    setIsWaiting(true);
     const timeout = setTimeout(() => {
       setIsWaiting(false); // ẩn trang chờ
     }, 5000);
@@ -188,7 +208,6 @@ const VirtualTour = () => {
       setIsFullscreen(false);
     }
   };
-  const [isOpenInfo, setIsOpenInfo] = useState(true);
 
   const toggleInformation = () => {
     const divInfo = document.querySelector<HTMLElement>(`.${styles.infoBox}`);
@@ -263,10 +282,12 @@ const VirtualTour = () => {
   };
 
   const handleMouseEnterMenu = (event: any) => {
-    const mouse = event.clientX;
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
 
-    const threshold = window.innerWidth * 0.05;
-    if (mouse < threshold) {
+    const thresholdX = window.innerWidth * 0.05;
+    const thresholdY = window.innerHeight * 0.5;
+    if (mouseX < thresholdX && mouseY < thresholdY && !hoverMap) {
       setIsMenuVisible(true);
     }
   };
@@ -290,6 +311,25 @@ const VirtualTour = () => {
       window.dispatchEvent(new Event("resize"));
     }, 50);
   }, []);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      setTimeout(() => {
+        mapRef.current!.invalidateSize();
+      }, 300); // chờ animation transition xong
+    }
+  }, [fullMap, hoverMap]);
+
+  if (!icons || icons.length === 0) {
+    return (
+      <>
+        <div className={styles.infoBox} style={{ display: "none" }}>
+          Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
+          Lâm Thành phố Hồ Chí Minh
+        </div>
+      </>
+    );
+  }
 
   return (
     <div
@@ -316,7 +356,11 @@ const VirtualTour = () => {
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
       {/* Menu bên trái */}
-      <LeftMenuTour isMenuVisible={isMenuVisible} />
+      {fullMap || hoverMap ? (
+        ""
+      ) : (
+        <LeftMenuTour isMenuVisible={isMenuVisible} />
+      )}
       {/* Hộp feedback */}
       <Chat nodeId={nodeToRender.id} />
       {/* <Chat nodeId={defaultNode.id} /> */}
@@ -329,13 +373,80 @@ const VirtualTour = () => {
         toggleInformation={toggleInformation}
         toggleFullscreen={toggleFullscreen}
         toggleMute={toggleMute}
+        setIsComment={setIsComment}
       />
       {/* Hộp thông tin */}
       <div className={styles.infoBox} onClick={toggleInformation}>
         Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
         Lâm Thành phố Hồ Chí Minh
-      </div>{" "}
-      {/* Màn hình laoding */}
+      </div>
+      {/* Hộp Bình luận */}
+      {isComment && user ? (
+        <CommentBox
+          userId={user.id}
+          nodeId={nodeToRender.id}
+          setIsComment={setIsComment}
+        />
+      ) : (
+        ""
+      )}
+      {/* Bản đồ */}
+      <div
+        className={`${fullMap ? styles.full_map : styles.mapBox}`}
+        onMouseEnter={() => setHoverMap(true)}
+        onMouseLeave={() => {
+          setTimeout(() => {
+            setHoverMap(false);
+          }, 2000);
+        }}
+      >
+        {hideMap ? (
+          <button
+            className={styles.show_map_button}
+            onClick={() => setHideMap(false)}
+            title={"Mở bản đồ"}
+          >
+            <FaMap />
+          </button>
+        ) : (
+          <>
+            <MapLeaflet spaceId={nodeToRender.spaceId} mapRef={mapRef} />
+            {fullMap ? (
+              <button
+                className={styles.full_button}
+                onClick={() => setFullMap(false)}
+                title={"Thu nhỏ"}
+              >
+                <FaX />
+              </button>
+            ) : (
+              <>
+                <button
+                  className={styles.hide_button}
+                  onClick={() => {
+                    setHideMap(true);
+                  }}
+                  title={"Ẩn bản đồ"}
+                >
+                  <FaAngleLeft />
+                </button>
+                {hoverMap ? (
+                  <button
+                    className={styles.full_button}
+                    onClick={() => setFullMap(true)}
+                    title={"Mở rộng"}
+                  >
+                    <MdOpenInFull />
+                  </button>
+                ) : (
+                  ""
+                )}
+              </>
+            )}
+          </>
+        )}
+      </div>
+      /* Màn hình laoding */
       {isWaiting ? <Waiting /> : ""}
     </div>
   );

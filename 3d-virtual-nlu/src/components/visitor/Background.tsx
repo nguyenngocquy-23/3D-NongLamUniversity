@@ -153,16 +153,67 @@ const Background: React.FC = () => {
 
   return (
     <main ref={parallaxRef}>
-      {images.map((img, index) => (
+      {/* {images.map((img, index) => (
         <img key={index} src={img.src} alt="" className={img.className} />
-      ))}
+      ))} */}
 
       {/* Text Layer */}
-      <div className="text parallax">
-        <h2>Tham quan ảo</h2>
-        <h1>NLU360</h1>
+      <div
+        className="text parallax"
+        style={{
+          color: "black",
+          position: "absolute",
+          zIndex: "3",
+          top: "5%",
+          left: "50%",
+          transform: "translate(-50%,50%)",
+          textAlign: "center",
+        }}
+      >
+        <h2 style={{ fontSize: "30px", color: "white" }}>THAM QUAN</h2>
+        <h2 style={{ fontSize: "50px", color: "white" }}>TRƯỜNG ĐẠI HỌC</h2>
+        <h2
+          style={{
+            fontSize: "100px",
+            color: "transparent",
+            WebkitTextStroke: "2px white",
+          }}
+        >
+          NÔNG LÂM
+        </h2>
+        <h2 style={{ fontSize: "40px", color: "white" }}>
+          THÀNH PHỐ HỒ CHÍ MINH
+        </h2>
       </div>
-      <div className="vignette"></div>
+      <div
+        style={{
+          position: "absolute",
+          backgroundColor: "rgba(0,0,0,0.3)",
+          width: "100%",
+          height: "100%",
+          zIndex: 2,
+        }}
+      ></div>
+      <div
+        className="vignette"
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "absolute",
+          top: "0",
+          zIndex: "1",
+        }}
+      >
+        <video
+          autoPlay
+          loop
+          playsInline
+          style={{ width: "100%", height: "100%" }}
+        >
+          <source src="/public/background.mp4" type="video/mp4" />
+          Trình duyệt của bạn không hỗ trợ video.
+        </video>
+      </div>
     </main>
   );
 };

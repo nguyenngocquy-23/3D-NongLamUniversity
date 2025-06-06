@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.SpaceDao;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceReadRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceResponse;
 
@@ -35,5 +32,14 @@ public class SpaceService {
 
     public boolean changeStatusSpace(StatusRequest req) {
         return spaceDao.changeStatusSpace(req);
+    }
+
+
+    public boolean attachLocation(List<AttachLocationRequest> request) {
+        return spaceDao.attachLocation(request);
+    }
+
+    public boolean removeLocation(SpaceIdRequest request) {
+        return spaceDao.removeLocation(request);
     }
 }

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
 interface DataState {
@@ -11,9 +11,11 @@ interface DataState {
   masterNodes: any[];
   preloadNodes: any[];
   activeNode: any;
+  nodeOfUser: any[];
   defaultNode: any;
   trackNodes: any[];
   icons: any[];
+  commentOfNode: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
 }
 
@@ -25,11 +27,13 @@ const initialState: DataState = {
   nodes: [],
   hotspotTypes: [],
   masterNodes: [],
+  nodeOfUser: [],
   defaultNode: null,
   activeNode: null,
   trackNodes: [],
   preloadNodes: [],
   icons: [],
+  commentOfNode: [],
   status: "idle",
 };
 
@@ -74,6 +78,39 @@ export const fetchDefaultNodes = createAsyncThunk(
   async () => {
     const response = await axios.post("http://localhost:8080/api/node/default");
     return response.data.data;
+  }
+);
+
+// Fetch nodes of user
+export const fetchNodeOfUser = createAsyncThunk(
+  "data/fetchNodeOfUser",
+  async (userId: number) => {
+    console.log("userUd..", userId);
+    const response = await axios.post("http://localhost:8080/api/node/byUser", {
+      userId: userId,
+    });
+    return response.data.data;
+  }
+);
+
+// Fetch comments of node
+export const fetchCommentOfNode = createAsyncThunk(
+  "data/fetchCommentOfNode",
+  async (nodeId: number) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/comment/getOfNode",
+        {
+          nodeId: nodeId,
+        }
+      );
+      if (response.data.data) {
+        console.log(response.data.data);
+        return response.data.data;
+      }
+    } catch (error: any) {
+      console.error(error);
+    }
   }
 );
 
@@ -146,8 +183,39 @@ const dataSlice = createSlice({
     setDefaultNode: (state, action) => {
       state.defaultNode = action.payload;
     },
-  },
 
+    attachLocation: (
+      state,
+      action: PayloadAction<{
+        spaceId: number;
+        location: string;
+      }>
+    ) => {
+      const index = state.spaces.findIndex(
+        (h) => h.id === action.payload.spaceId
+      );
+      if (index !== -1) {
+        const space = state.spaces[index];
+        space.location = action.payload.location;
+      }
+    },
+
+    removeLocation: (
+      state,
+      action: PayloadAction<{
+        spaceId: number;
+      }>
+    ) => {
+      console.log("spaceId...", action.payload.spaceId);
+      const index = state.spaces.findIndex(
+        (h) => h.id === action.payload.spaceId
+      );
+      if (index !== -1) {
+        const space = state.spaces[index];
+        space.location = null;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.pending, (state) => {
@@ -248,8 +316,33 @@ const dataSlice = createSlice({
       })
       .addCase(fetchPreloadNodes.rejected, (state) => {
         state.status = "failed";
+      })
+      /**
+       * Visitor
+       */
+      .addCase(fetchNodeOfUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchNodeOfUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.nodeOfUser = action.payload;
+      })
+      .addCase(fetchNodeOfUser.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchCommentOfNode.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchCommentOfNode.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.commentOfNode = action.payload;
+      })
+      .addCase(fetchCommentOfNode.rejected, (state) => {
+        state.status = "failed";
       });
   },
 });
-export const { setDefaultNode } = dataSlice.actions;
+export const { attachLocation, removeLocation, setDefaultNode } =
+  dataSlice.actions;
 export default dataSlice.reducer;

@@ -5,18 +5,40 @@ import { Link as ScrollLink } from "react-scroll";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../redux/Store.ts";
+import { AppDispatch, RootState } from "../../redux/Store.ts";
 import { logoutUser } from "../../redux/slices/AuthSlice.ts";
+import Swal from "sweetalert2";
 
 const Header: React.FC = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
-  const dispatch = useDispatch();
+  const userJson = sessionStorage.getItem("user");
+  const currentUser = userJson ? JSON.parse(userJson) : null;
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(logoutUser()); // Gọi action logout
     navigate("/login");
+  };
+
+  const handleManage = (e: React.MouseEvent) => {
+    e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
+    if (currentUser) {
+      navigate("/manage");
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Bạn chưa đăng nhập",
+        text: "Vui lòng đăng nhập để tiếp tục.",
+        showCancelButton: true,
+        cancelButtonText: "Hủy",
+        confirmButtonText: "Đăng nhập",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login");
+        }
+      });
+    }
   };
 
   return (
@@ -52,40 +74,48 @@ const Header: React.FC = () => {
         <a href="#" className={style.navLink}>
           Chương trình đào tạo
         </a>
-        <a href="/createTour" className={style.navLink}>
+        <span
+          onClick={handleManage}
+          className={style.navLink}
+          style={{ cursor: "pointer" }}
+        >
           Thêm không gian
-        </a>
+        </span>
+      </nav>
+      {currentUser ? (
+        <div className={style.dropdown}>
+          <button
+            className={style.dropdownBtn}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
+            👤 {currentUser.username}
+          </button>
 
-        {user ? (
-          <div className={style.dropdown}>
-            <button
-              className={style.dropdownBtn}
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              👤 {user.username}
-            </button>
-
-            {dropdownOpen && (
-              <ul className={style.dropdownMenu}>
-                <li>
-                  <button className={style.dropdownBtn}>
-                    <Link to="/profile">Hồ sơ</Link>
-                  </button>
-                </li>
-                <li>
-                  <button className={style.dropdownBtn} onClick={handleLogout}>
-                    Đăng xuất
-                  </button>
-                </li>
-              </ul>
-            )}
-          </div>
-        ) : (
+          {dropdownOpen && (
+            <ul className={style.dropdownMenu}>
+              <li>
+                <button className={style.dropdownBtn}>
+                  <Link to="/manage/profile">Hồ sơ</Link>
+                </button>
+              </li>
+              <li>
+                <button className={style.dropdownBtn} onClick={handleLogout}>
+                  <Link to="">Đăng xuất</Link>
+                </button>
+              </li>
+            </ul>
+          )}
+        </div>
+      ) : (
+        <div>
           <Link to="/login" className={style.navLink}>
             Đăng nhập
           </Link>
-        )}
-      </nav>
+          <Link to="/register" className={style.register_button}>
+            Đăng ký
+          </Link>
+        </div>
+      )}
     </header>
   );
 };

@@ -38,7 +38,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
   };
 
   const handleUpFileIcon = (url: string) => {
-    setFormData((prev) => ({ ...prev, iconUrl: url }));
+    setFormData((prev) => ({ ...prev, url: url }));
   };
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +46,8 @@ const CustomModal: React.FC<CustomModalProps> = ({
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
       // Nếu trường đang nhập là "name", thì update luôn "code"
-      if (name === "name" && fields[0].name.includes("code")) {
+      // if (name === "name" && fields[0].name.includes("code")) {
+      if (name === "name") {
         updated["code"] = removeVietnameseTones(value);
       }
       return updated;
@@ -146,6 +147,11 @@ const CustomModal: React.FC<CustomModalProps> = ({
               ) : field.name === "iconUrl" ? (
                 <UploadFile
                   className={"upload_icon"}
+                  onUploaded={handleUpFileIcon}
+                />
+              ) : field.name === "url" ? (
+                <UploadFile
+                  className={"upload_image"}
                   onUploaded={handleUpFileIcon}
                 />
               ) : (

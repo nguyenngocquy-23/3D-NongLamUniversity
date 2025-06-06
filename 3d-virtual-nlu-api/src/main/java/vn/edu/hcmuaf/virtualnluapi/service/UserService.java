@@ -5,9 +5,14 @@ import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import vn.edu.hcmuaf.virtualnluapi.dao.EmailVerificationDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.RoleDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.ForgotPasswordRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdatePasswordRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdateProfileRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserRegisterRequest;
+import vn.edu.hcmuaf.virtualnluapi.entity.EmailVerification;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
 import vn.edu.hcmuaf.virtualnluapi.utils.EncryptUtil;
 
@@ -23,6 +28,10 @@ public class UserService {
     UserDao userDao;
     @Inject
     RoleDao roleDao;
+    @Inject
+    EmailVerificationService emailVerificationService;
+    @Inject
+    MailService mailService;
 
     public boolean isUsernameExists(String username) {
         return userDao.findByUsername(username) != null;
@@ -42,5 +51,49 @@ public class UserService {
 
     public User findById(int userId) {
         return userDao.findById(userId);
+    }
+
+    public boolean forgotPassword(ForgotPasswordRequest request) {
+        boolean flag = false;
+        User user = userDao.getUserByEmail(request.getEmail());
+        if (user != null) {
+            String newPassword = emailVerificationService.randomPassword(6);
+            try{
+                mailService.sendMailResetPassword(user, newPassword);
+                user.setPassword(EncryptUtil.hashPassword(newPassword));
+                userDao.updatePassword(user.getId(), user.getPassword());
+                flag = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return flag;
+    }
+
+    public boolean updateProfile(UpdateProfileRequest request) {
+        User oldUser = userDao.findById(request.getUserId());
+        if (oldUser == null) {
+            return false;
+        }
+        User user = userDao.findByUsername(request.getUsername());
+        if (user != null) {
+            return false;
+        }
+        oldUser.setEmail(request.getEmail());
+        oldUser.setUsername(request.getUsername());
+        return userDao.updateProfile(oldUser);
+    }
+
+    public boolean updatePassword(UpdatePasswordRequest request) {
+        User user = userDao.findById(request.getUserId());
+        if (user == null) {
+            return false;
+        }
+        if (!EncryptUtil.checkPassword(request.getPassword(), user.getPassword())) {
+            return false; // Old password does not match
+        }
+        user.setPassword(EncryptUtil.hashPassword(request.getNewPassword()));
+        return userDao.updatePassword(user.getId(), user.getPassword());
     }
 }

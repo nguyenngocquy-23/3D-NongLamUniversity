@@ -7,7 +7,7 @@ import {
   MdKeyboardArrowDown,
 } from "react-icons/md";
 import { FaHome, FaUserCog } from "react-icons/fa";
-import { FaBookOpen, FaComment, FaUserPlus } from "react-icons/fa6";
+import { FaBookOpen, FaComment, FaMap, FaUserPlus } from "react-icons/fa6";
 import { GoSidebarExpand } from "react-icons/go";
 import { IoSettings } from "react-icons/io5";
 import { BiSolidCommentDetail } from "react-icons/bi";
@@ -143,6 +143,15 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
         </li>
         {isOpen && (
           <>
+            <Link to="/admin/attachMap">
+              <li
+                className={
+                  location.pathname === "/admin/attachMap" ? styles.click : ""
+                }
+              >
+                <FaMap /> Gán nhãn bản đồ
+              </li>
+            </Link>
             <Link to="/admin/adminCreate">
               <li
                 className={

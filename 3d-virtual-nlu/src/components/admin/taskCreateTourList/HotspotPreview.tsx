@@ -10,7 +10,6 @@ const HotspotPreview = ({
   pitchX,
   yawY,
   rollZ,
-  isFloor,
   allowBackgroundColor,
   opacity,
 }: {
@@ -21,7 +20,6 @@ const HotspotPreview = ({
   pitchX: number;
   yawY: number;
   rollZ: number;
-  isFloor: boolean;
   allowBackgroundColor: boolean;
   opacity: number;
 }) => {
@@ -37,7 +35,7 @@ const HotspotPreview = ({
         rollZ * (Math.PI / 180)
       );
     }
-  }, [pitchX, yawY, rollZ, isFloor]);
+  }, [pitchX, yawY, rollZ]);
 
   useEffect(() => {
     const loadAndModifySVG = async () => {

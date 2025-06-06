@@ -121,16 +121,20 @@ const TourScene: React.FC<TourSceneProps> = ({
 
   useEffect(() => {
     const load = async () => {
-      const loader = new THREE.TextureLoader();
-      const texNew = await loader.loadAsync(textureCurrent);
+      try {
+        const loader = new THREE.TextureLoader();
+        const texNew = await loader.loadAsync(textureCurrent);
 
-      if (!textures) {
-        setTextures([texNew, null]);
-      } else {
-        const [prevTex] = textures;
-        setTextures([prevTex, texNew]);
-        setProgress(0);
-        progressRef.current = 0;
+        if (!textures) {
+          setTextures([texNew, null]);
+        } else {
+          const [prevTex] = textures;
+          setTextures([prevTex, texNew]);
+          setProgress(0);
+          progressRef.current = 0;
+        }
+      } catch (err: any) {
+        console.error(err);
       }
     };
     load();
@@ -181,7 +185,7 @@ const TourScene: React.FC<TourSceneProps> = ({
           uAmbientLight={new THREE.Color().setScalar(lightIntensity)} // ánh sáng môi trường
         />
       </Sphere>
-      <Stats />
+      {/* <Stats /> */}
       {/* <directionalLight position={[5, 5, 5]} intensity={lightIntensity} /> */}
     </>
   );

@@ -5,6 +5,8 @@ import jakarta.inject.Inject;
 import vn.edu.hcmuaf.virtualnluapi.connection.Connection;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 
 import java.time.LocalDateTime;
@@ -18,7 +20,7 @@ public class NodeDao {
     HotspotDao hotspotDao;
 
     public List<NodeIdMapResponse> insertNode(List<NodeCreateRequest> reqs) {
-        String sql = "INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, lightIntensity, autoRotate, speedRotate, status) VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :lightIntensity, :autoRotate, :speedRotate, :status)";
+        String sql = "INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, lightIntensity, autoRotate, speedRotate, status, numView) VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :lightIntensity, :autoRotate, :speedRotate, :status, :numView)";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
 
@@ -39,6 +41,7 @@ public class NodeDao {
                         .bind("autoRotate", req.getAutoRotate())
                         .bind("speedRotate", req.getSpeedRotate())
                         .bind("status", req.getStatus())
+                        .bind("numView", 0)
                         .executeAndReturnGeneratedKeys("id")
                         .mapTo(int.class)
                         .one();
@@ -152,6 +155,47 @@ public class NodeDao {
                 """;
         NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
                 .bind("nodeId", nodeId)
+                .mapToBean(NodeFullResponse.class).one());
+        if (nodeFullResponse == null) {
+            return null;
+        }
+        List<HotspotMediaResponse> mediaHotspots = hotspotDao.getMediaByNodeId(nodeFullResponse.getId());
+        List<HotspotModelResponse> modelHotspots = hotspotDao.getModelByNodeId(nodeFullResponse.getId());
+        List<HotspotNavigationResponse> navigationHotspots = hotspotDao.getNavigationByNodeId(nodeFullResponse.getId());
+        List<HotspotInformationResponse> informationHotspots = hotspotDao.getInformationByNodeId(nodeFullResponse.getId());
+
+        nodeFullResponse.setNavHotspots(navigationHotspots);
+        nodeFullResponse.setInfoHotspots(informationHotspots);
+        nodeFullResponse.setMediaHotspots(mediaHotspots);
+        nodeFullResponse.setModelHotspots(modelHotspots);
+        return nodeFullResponse;
+    }
+    public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {
+        String sql = """
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.lightIntensity
+                FROM nodes n
+                JOIN spaces s ON n.spaceId = s.id
+                JOIN fields f ON s.fieldId = f.id
+                WHERE n.userId = :userId
+                ORDER BY n.updatedAt DESC
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+                .bind("userId", request.getUserId())
+                .mapToBean(NodeFullResponse.class).list());
+    }
+
+    public NodeFullResponse getNodeById(NodeIdRequest request) {
+        String sql = """
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.lightIntensity
+                FROM nodes n
+                JOIN spaces s ON n.spaceId = s.id
+                JOIN fields f ON s.fieldId = f.id
+                WHERE n.id = :nodeId
+                """;
+        NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+                .bind("nodeId", request.getNodeId())
                 .mapToBean(NodeFullResponse.class).one());
         if (nodeFullResponse == null) {
             return null;

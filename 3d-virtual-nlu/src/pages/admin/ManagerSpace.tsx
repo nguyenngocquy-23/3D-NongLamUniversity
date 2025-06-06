@@ -96,6 +96,7 @@ const Space = () => {
     { label: "Tên không gian", name: "name", type: "text" },
     { label: "Mã", name: "code", type: "text" },
     { label: "Mô tả", name: "description", type: "area" },
+    { label: "Ảnh đại diện", name: "url", type: "text" },
     // Thêm các trường khác nếu cần
   ];
 

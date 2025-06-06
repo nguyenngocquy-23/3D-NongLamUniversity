@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import vn.edu.hcmuaf.virtualnluapi.dao.EmailVerificationDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.ForgotPasswordRequest;
 import vn.edu.hcmuaf.virtualnluapi.entity.EmailVerification;
 
 import java.sql.Timestamp;
@@ -24,12 +25,12 @@ public class EmailVerificationService {
     @Inject
     MailService mailService;
     @Inject
-    UserDao userDAO;
+    UserDao userDao;
 
     private static final int LENGTH_VERIFY_PASSWORD = 6;
 
     public EmailVerification sendVerify(int userId) {
-        String token = UUID.randomUUID().toString();
+        String token = randomPassword(6);
         Timestamp now = new Timestamp(System.currentTimeMillis());
         Timestamp expried = new Timestamp(now.getTime() + 12 * 60 * 60 * 1000);// 12 hours
         EmailVerification verification = EmailVerification.builder().userId(userId).token(token).expiredAt(expried).build();
@@ -66,17 +67,17 @@ public class EmailVerificationService {
 //        }
 //    }
 
-//    public boolean verifyUser(int userId, String token) {
-//        boolean flag = false;
-//        EmailVerification verification = emailVerificationDAO.findByUserId(userId);
-//        Timestamp now = new Timestamp(System.currentTimeMillis());
-//        if (verification != null && now.before(verification.getExpiredAt())) {
-//            flag = userDao.activatedUser(userId);
-//        }
-//        if (flag)
-//            emailVerificationDAO.deleteToken(verification);
-//        return flag;
-//    }
+    public boolean verifyUser(int userId, String token) {
+        boolean flag = false;
+        EmailVerification verification = emailVerificationDAO.findByUserId(userId);
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        if (verification != null && now.before(verification.getExpiredAt())) {
+            flag = userDao.activatedUser(userId);
+        }
+        if (flag)
+            emailVerificationDAO.deleteToken(verification);
+        return flag;
+    }
 
     public String randomPassword(int lenght) {
         String password = "";

@@ -60,12 +60,12 @@ public class RegisterController {
         // Create email verification
         EmailVerification verification = verificationService.sendVerify(user.getId());
         if (verification != null) {
-            try{
+            try {
                 mail.sendMailVerifyUser(user, verification);
-            }catch(Exception e){
+            } catch (Exception e) {
                 throw new RuntimeException(e.getMessage());
             }
-            return Response.ok("Registration successful. Please check your email to verify your account.")
+            return Response.ok("Registration successful. Please check your email to verify your account.").entity(user.getId())
                     .build();
         }
 

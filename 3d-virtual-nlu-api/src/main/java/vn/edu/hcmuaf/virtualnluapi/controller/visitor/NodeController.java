@@ -8,6 +8,8 @@ import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
+
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
@@ -67,12 +69,28 @@ public class NodeController {
                     .build();
 
         } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
             return ApiResponse.<List<NodeFullResponse>>builder()
                     .statusCode(1002)
                     .message("Đã xảy ra lỗi nội bộ: " + e.getMessage())
                     .data(null)
                     .build();
         }
+    }
+
+    @POST
+    @Path("/byId")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<NodeFullResponse> getNodeById(NodeIdRequest request) {
+        NodeFullResponse result = nodeService.getNodeById(request);
+        return ApiResponse.<NodeFullResponse>builder().statusCode(1000).message("Lay node theo id thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/byUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getNodeByUser(UserIdRequest request) {
+        List<NodeFullResponse> result = nodeService.getNodeByUser(request);
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node theo nguoi tao thanh cong").data(result).build();
     }
 }

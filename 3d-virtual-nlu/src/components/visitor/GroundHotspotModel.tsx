@@ -52,6 +52,9 @@ const GroundHotspotModel = ({
 
   const [loadedModel, setLoadedModel] = useState<THREE.Group | null>(null);
 
+  const userJson = sessionStorage.getItem("user");
+  const user = JSON.parse(userJson || "{}");
+
   useEffect(() => {
     if (!hotspotModel.modelUrl) return;
     const loader = new GLTFLoader();
@@ -175,11 +178,23 @@ const GroundHotspotModel = ({
                 </div>
                 <button
                   className={styles.button_detail}
-                  onClick={() =>
-                    navigate("/admin/model", {
-                      state: { modelUrl: hotspotModel.modelUrl },
-                    })
-                  }
+                  onClick={() => {
+                    user && user.role == 2
+                      ? navigate("/admin/model", {
+                          state: {
+                            title: hotspotModel.name,
+                            description: hotspotModel.description,
+                            modelUrl: hotspotModel.modelUrl,
+                          },
+                        })
+                      : navigate("/model", {
+                          state: {
+                            title: hotspotModel.name,
+                            description: hotspotModel.description,
+                            modelUrl: hotspotModel.modelUrl,
+                          },
+                        });
+                  }}
                 >
                   Xem chi tiết
                 </button>
