@@ -19,8 +19,8 @@ import Swal from "sweetalert2";
 const customIcon = L.divIcon({
   className: "",
   html: `<div class="${styles.customIcon}">🗑</div>`,
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
 });
 
 const centerPosition: [number, number] = [
@@ -41,6 +41,7 @@ interface MapLeafletProps {
   points?: any[];
   isRemove?: boolean;
   setPoints?: React.Dispatch<React.SetStateAction<any[]>>;
+  spaceId?: number;
 }
 
 // Component con để lắng nghe sự kiện click trên map
@@ -100,6 +101,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
   onMapClick,
   isRemove,
   setPoints,
+  spaceId,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
@@ -207,11 +209,23 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
             const location = JSON.parse(space.location);
             const lat = location[0];
             const lng = location[1];
+            const defaultIcon = L.divIcon({
+              className: "",
+              html: `<div class="${styles.defaultIcon} ${
+                spaceId == space.id ? styles.pulse : ""
+              }"
+              style="background: url(${space.url});
+                    ${spaceId == space.id ? "border: 3px solid blue;" : ""}">
+              </div>`,
+              iconSize: [40, 40],
+              iconAnchor: [20, 20],
+            });
             return (
               <Marker
                 key={space.id}
                 position={{ lat: lat, lng: lng }}
-                icon={isRemove ? customIcon : new L.Icon.Default()}
+                icon={isRemove ? customIcon : defaultIcon}
+                // icon={isRemove ? customIcon : new L.Icon.Default()}
                 eventHandlers={{
                   click: () => {
                     isRemove ? handleRemove(space.id) : "";
@@ -219,11 +233,16 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
                 }}
               >
                 <Tooltip
-                  offset={[-15, -10]}
+                  offset={[0, -15]}
                   direction="top"
                   className={styles.tooltip}
                 >
-                  {spaces.find((s) => s.id == space.id).name}
+                  <div className={styles.customTooltip}>
+                    <img src={space.url} alt="Image" />
+                    <div className={styles.text}>
+                      {spaces.find((s) => s.id === space.id)?.name}
+                    </div>
+                  </div>
                 </Tooltip>
               </Marker>
             );

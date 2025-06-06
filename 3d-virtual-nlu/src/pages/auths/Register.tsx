@@ -136,7 +136,7 @@ const Register: React.FC = () => {
   return (
     <div className={styles.container} style={{ position: "relative" }}>
       <div className={styles.loginContainer}>
-        <h2 className={styles.h2}>Register</h2>
+        <h2 className={styles.h2}>Đăng ký</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <FaRegUser className={styles.icon} />

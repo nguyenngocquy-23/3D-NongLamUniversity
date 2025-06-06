@@ -18,7 +18,7 @@ const Banner: React.FC = () => {
 
   return (
     <div className={styles.homeContainer} ref={container}>
-      <motion.div style={{ y: headerY }}>
+      <motion.div style={{ y: headerY }} >
         <Header />
       </motion.div>
 

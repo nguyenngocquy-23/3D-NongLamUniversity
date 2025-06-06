@@ -19,7 +19,7 @@ public class NodeDao {
     HotspotDao hotspotDao;
 
     public List<NodeIdMapResponse> insertNode(List<NodeCreateRequest> reqs) {
-        String sql = "INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, lightIntensity, autoRotate, speedRotate, status, numView) VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :lightIntensity, :autoRotate, :speedRotate, :status. :numView)";
+        String sql = "INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, lightIntensity, autoRotate, speedRotate, status, numView) VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :lightIntensity, :autoRotate, :speedRotate, :status, :numView)";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
 

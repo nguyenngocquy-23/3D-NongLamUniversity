@@ -23,12 +23,13 @@ public class SpaceDao {
 
     public boolean insertSpace(SpaceCreateRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
-            int i = handle.createUpdate("INSERT INTO spaces (fieldId, name, code, description, status, createdAt, updatedAt) VALUES (:fieldId, :name, :code, :description, :status, :createdAt, :updatedAt)")
+            int i = handle.createUpdate("INSERT INTO spaces (fieldId, name, code, description, url, status, createdAt, updatedAt) VALUES (:fieldId, :name, :code, :description, :url, :status, :createdAt, :updatedAt)")
                     .bind("fieldId", req.getFieldId())
                     .bind("name", req.getName())
                     .bind("code", req.getCode())
                     .bind("description", req.getDescription())
                     .bind("status", 1)
+                    .bind("url", req.getUrl())
                     .bind("createdAt", LocalDateTime.now())
                     .bind("updatedAt", LocalDateTime.now())
                     .execute();
@@ -38,7 +39,7 @@ public class SpaceDao {
 
     public List<SpaceResponse> getSpaceByFieldId(SpaceReadRequest req) {
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("SELECT id, name from spaces where fieldId = :fieldId and status = 1 and status`= 2")
+            return handle.createQuery("SELECT id, name from spaces where fieldId = :fieldId and status = 1 or status = 2")
                     .bind("fieldId", req.getFieldId())
                     .mapToBean(SpaceResponse.class)
                     .list();
@@ -47,7 +48,7 @@ public class SpaceDao {
 
     public List<SpaceFullResponse> getAllSpaces() {
         String sql = """
-                SELECT s.id, f.name as fieldName, s.name, s.description, s.status, s.location, s.updatedAt
+                SELECT s.id, f.name as fieldName, s.name, s.description, s.url, s.status, s.location, s.updatedAt
                  FROM spaces s
                  JOIN fields f ON s.fieldId = f.id
                 """;
