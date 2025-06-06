@@ -1,0 +1,81 @@
+.container {
+    width: 98vw;
+    min-height: 80vh;
+    height: 100%;
+    margin: 0.5rem auto;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: space-around;
+}
+
+.avatar .avatarImage{
+    width: 300px;
+    height: 300px;
+    margin: auto;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #1565c0, rgba(255, 2, 2, 0));
+
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+}
+
+.avatar,
+.profile {
+    padding: 1rem;
+    border-radius: 8px;
+    background: linear-gradient(to bottom, #fff, rgba(255, 2, 2, 0));
+    width: 45%;
+}
+
+.account_info,
+.change-password {
+    margin-bottom: 2rem;
+}
+
+.title {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.profile input {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.profile .button {
+    padding: 0.5rem 1rem;
+    background-color: #1e88e5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.profile .button:hover {
+    background-color: #1565c0;
+}
+
+.passwordContainer {
+    position: relative;
+}
+
+.showPassword {
+    position: absolute;
+    right: 5px;
+    background-color: transparent;
+    top: 50%;
+    transform: translateY(-50%);
+    outline: none !important;
+    border: none !important;
+    cursor: pointer;
+    font-size: 16px;
+    padding-right: 0.5rem;
+}

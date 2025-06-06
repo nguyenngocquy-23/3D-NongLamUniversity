@@ -1,5 +1,5 @@
 // src/components/LoginForm.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../../styles/login.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { loginUser } from "../../redux/slices/AuthSlice";
 import { FaRegUser, FaUser } from "react-icons/fa6";
 import { CiLock } from "react-icons/ci";
+import Swal from "sweetalert2";
 
 const Login: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username và password
@@ -22,16 +23,46 @@ const Login: React.FC = () => {
 
   const dispatch = useDispatch<AppDispatch>();
 
+  useEffect(() => {
+    if (password.length >= 6 || password.length == 0) {
+      setPassLengthError(false);
+    } else {
+      setPassLengthError(true);
+    }
+  }, [password]);
+  useEffect(() => {
+     if (isError) {
+      Swal.fire({
+        icon: "error",
+        title: "Tài khoản hoặc mật khẩu chưa đúng",
+        text: "Vui lòng kiểm tra tài khoản và mật khẩu",
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      setIsError(false);
+      return;
+    }
+  }, [isError]);
+
   // Xử lý khi form được submit
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    // if (password.length < 6) {
-    //   setPassLengthError(true);
-    //   setIsError(false);
+    // if (passLengthError) {
+    //   Swal.fire({
+    //     icon: "error",
+    //     title: "Mật khẩu chưa đúng",
+    //     text: "Độ dài trên 8",
+    //     toast: true,
+    //     timer: 2000,
+    //     position: "top-end",
+    //     showConfirmButton: false,
+    //     timerProgressBar:true,
+    //   });
     //   return;
-    // }else{
-    //   setPassLengthError(false);
     // }
 
     try {
@@ -57,7 +88,7 @@ const Login: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.loginContainer}>
-        <h2 className={styles.h2}>Login</h2>
+        <h2 className={styles.h2}>Đăng nhập</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <FaRegUser className={styles.icon} />
@@ -99,10 +130,10 @@ const Login: React.FC = () => {
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
-          {isError && <p className={styles.error}>{error}</p>}
+          {/* {isError && <p className={styles.error}>{error}</p>}
           {passLengthError && (
             <p className={styles.error}> Mật khẩu phải có ít nhất 6 ký tự</p>
-          )}
+          )} */}
           {/* <button className={styles.loginBtn} type="submit">Login</button> */}
         </form>
         <Link className={styles.link} to="/forgotPassword">

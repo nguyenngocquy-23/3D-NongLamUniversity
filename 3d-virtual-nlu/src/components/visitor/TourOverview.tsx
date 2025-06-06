@@ -2,103 +2,35 @@
 
 import { useScroll, useTransform, motion } from "framer-motion";
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "../../styles/tourOverview.module.css";
 
 import { FaArrowsToEye, FaPause, FaPlay } from "react-icons/fa6";
-const TourOverview = () => {
+import UpdateCameraOnResize from "../UpdateCameraOnResize";
+import TourScene from "./TourScene";
+import { RADIUS_SPHERE } from "../../utils/Constants";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
   const navigate = useNavigate();
-  // Variables ------ Start
   const container = useRef<HTMLDivElement>(null);
 
   const scroll = useScroll();
 
   const y = useTransform(scroll.scrollYProgress, [0, 1], ["-10vh", "10vh"]);
 
-  // Variables ------ End
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+  const sphereRef = useRef<THREE.Mesh | null>(null);
 
   const handleVirtualTour = () => {
     navigate("/virtualTour");
   };
 
   useEffect(() => {
-    // Khởi tạo scene, camera, renderer chung
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-
-    const canvasIntroTour = document.querySelector("#intro-tour");
-    if (!canvasIntroTour) {
-      throw new Error("Canvas element not found");
-    }
-
-    // Khởi tạo renderer cho từng canvas
-    const rendererIntroTour = new THREE.WebGLRenderer({
-      canvas: canvasIntroTour,
-    });
-
-    rendererIntroTour.setPixelRatio(window.devicePixelRatio);
-    rendererIntroTour.setSize(window.innerWidth, window.innerHeight);
-    camera.position.z = 500;
-
-    // Tạo geometry và texture chung
-    const geometry = new THREE.SphereGeometry(100, 128, 128);
-    const textureKhoa = new THREE.TextureLoader().load("khoa.jpg");
-    textureKhoa.wrapS = THREE.RepeatWrapping;
-    textureKhoa.repeat.x = -1;
-
-    const material = new THREE.MeshBasicMaterial({
-      map: textureKhoa,
-      side: THREE.BackSide,
-    });
-
-    const sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
-
-    // Thêm ánh sáng vào scene chung
-    const ambientLight = new THREE.AmbientLight(0x404040, 1);
-    scene.add(ambientLight);
-    const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
-    pointLight.position.set(100, 100, 100);
-    scene.add(pointLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(1, 1, 1).normalize();
-    scene.add(directionalLight);
-
-    // Đặt OrbitControls cho camera
-    const controls = new OrbitControls(camera, rendererIntroTour.domElement);
-    controls.enableZoom = false;
-    controls.enablePan = false;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.3;
-    controls.minDistance = 0.001;
-    controls.maxDistance = 0.002;
-    controls.target.set(0, 0, 0);
-    controls.rotateSpeed = -1.0;
-
-    let rotationY = 0;
-
-    // Thêm phần cập nhật cho animation chung
-    function animate() {
-      requestAnimationFrame(animate);
-
-      // Chuyển đổi giữa các cảnh hoặc điều chỉnh vật thể
-      rotationY += 0.001;
-
-      sphere.rotation.y = rotationY;
-      controls.update();
-      rendererIntroTour.render(scene, camera); // Render cho canvasIntroTour khi isOpen là false
-    }
-
-    animate();
-
     function moveDivWithMouse() {
       const myDiv = document.getElementById("myDiv");
       const parent = document.querySelector<HTMLDivElement>(
@@ -148,16 +80,36 @@ const TourOverview = () => {
     }
 
     moveDivWithMouse();
+  }, []);
+  useEffect(() => {
+    const secondary = document.querySelector<HTMLElement>(
+      `.${styles.secondary}`
+    );
+    const container = document.querySelector<HTMLElement>(
+      `.${styles.containCanvas}`
+    );
 
-    // Cleanup function để giải phóng tài nguyên
+    if (!secondary || !container) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      secondary.style.setProperty("--mouse-x", `${x}%`);
+      secondary.style.setProperty("--mouse-y", `${y}%`);
+    };
+
+    const handleMouseLeave = () => {
+      secondary.style.setProperty("--mouse-x", `50%`);
+      secondary.style.setProperty("--mouse-y", `50%`);
+    };
+
+    container.addEventListener("mousemove", handleMouseMove);
+    container.addEventListener("mouseleave", handleMouseLeave);
+
     return () => {
-      rendererIntroTour.dispose();
-      controls.dispose();
-      scene.clear();
-      const canvas = document.querySelector("#intro-tour");
-      if (canvas) {
-        canvas.remove();
-      }
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
 
@@ -169,19 +121,19 @@ const TourOverview = () => {
       style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
     >
       <div className={styles.vtBackground}>
-        <motion.div style={{ y }} className={styles.vtBackgroundImage}>
-          <h2 className={styles.title}>Tham quan ảo</h2>
+        <motion.div className={styles.vtBackgroundImage}>
+          <div className={styles.titleContainer}>
+            <h2 className={styles.title} style={{ fontSize: "50px" }}>
+              TOUR 3D
+            </h2>
+            <h2 className={styles.title}>THAM QUAN ẢO</h2>
+            <i className={styles.title}>
+              Chào mừng bạn đến với chuyến tham quan khuôn viên Trường Đại học
+              Nông Lâm Thành phố Hồ Chí Minh. Chúc bạn có một trải nghiệm thú
+              vị.
+            </i>
+          </div>
           <div className={styles.containCanvas}>
-            <FaPause
-              className={styles.pause}
-              // onClick={handleAnimationChange}
-              // style={{ display: isAnimation ? "block" : "none" }}
-            />
-            <FaPlay
-              className={styles.play}
-              // onClick={handleAnimationChange}
-              // style={{ display: isAnimation ? "none" : "block" }}
-            />
             <div id="myDiv" style={{ position: "absolute" }}>
               <FaArrowsToEye
                 className={styles.comein}
@@ -191,8 +143,35 @@ const TourOverview = () => {
             </div>
 
             {/* intro - canvas */}
-            <canvas id="intro-tour" />
+            {/* <canvas id="intro-tour" /> */}
+            <Canvas
+              camera={{
+                fov: 75,
+                aspect: windowSize.width / windowSize.height,
+                near: 0.1,
+                far: 1000,
+                position: [0, 0, 0.0000001],
+              }}
+              className={styles.tourCanvas}
+              // style={{ cursor }}
+            >
+              <UpdateCameraOnResize />
+              <TourScene
+                radius={RADIUS_SPHERE}
+                sphereRef={sphereRef}
+                textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
+                lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
+              />
+              <OrbitControls
+                enableZoom={false}
+                enablePan={false}
+                enableRotate={false}
+                autoRotate
+                autoRotateSpeed={0.5}
+              />
+            </Canvas>
           </div>
+          <div className={styles.secondary}></div>
         </motion.div>
       </div>
     </div>

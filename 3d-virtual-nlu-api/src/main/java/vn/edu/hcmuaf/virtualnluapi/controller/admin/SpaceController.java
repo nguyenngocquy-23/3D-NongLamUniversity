@@ -8,9 +8,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SpaceReadRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceResponse;
@@ -61,6 +59,30 @@ public class SpaceController {
             return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai field thanh cong").data(result).build();
         } else {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai field").data(result).build();
+        }
+    }
+
+    @POST
+    @Path("/attachLocation")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> attachLocation(List<AttachLocationRequest> request) {
+        boolean result = spaceService.attachLocation(request);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Gan location thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Gan location trang thai field").data(result).build();
+        }
+    }
+
+    @POST
+    @Path("/removeLocation")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> removeLocation(SpaceIdRequest request) {
+        boolean result = spaceService.removeLocation(request);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Gan location thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Gan location trang thai field").data(result).build();
         }
     }
 }

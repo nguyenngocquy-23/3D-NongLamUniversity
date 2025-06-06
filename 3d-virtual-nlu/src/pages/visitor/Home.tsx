@@ -19,13 +19,25 @@ const Home: React.FC = () => {
     dispatch(fetchDefaultNodes());
   }, [dispatch]);
 
+  const defaultNodeJson = localStorage.getItem("defaultNode");
+  const defaultNode = defaultNodeJson ? JSON.parse(defaultNodeJson) : null;
+
+  // useEffect(() => {
+  //   const lenis = new Lenis();
+  //   function raf(time: number) {
+  //     lenis.raf(time);
+  //     requestAnimationFrame(raf);
+  //   }
+  //   requestAnimationFrame(raf);
+  // }, []);
+
   return (
     <main>
       <Banner />
 
       <CampusMap />
 
-      <TourOverview />
+      <TourOverview defaultNode={defaultNode} />
     </main>
   );
 };

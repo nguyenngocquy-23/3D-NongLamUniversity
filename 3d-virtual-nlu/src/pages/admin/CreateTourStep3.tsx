@@ -20,7 +20,6 @@ import {
   HotspotMedia,
 } from "../../redux/slices/HotspotSlice";
 import * as THREE from "three";
-import { RADIUS } from "./CreateTourStep2";
 import { FaAngleLeft } from "react-icons/fa6";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import Swal from "sweetalert2";
@@ -28,7 +27,11 @@ import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 import { nextStep, prevStep } from "../../redux/slices/StepSlice";
 import { fetchMasterNodes } from "../../redux/slices/DataSlice";
 import gsap from "gsap";
+<<<<<<< HEAD
 import MiniMap from "../../components/Minimap";
+=======
+import { RADIUS_SPHERE } from "../../utils/Constants";
+>>>>>>> 93d61a147cff456b44bf1e81d7d35b678c0b8654
 
 const CreateTourStep3: React.FC = () => {
   const panoramas = useSelector((state: RootState) => state.panoramas);
@@ -243,7 +246,7 @@ const CreateTourStep3: React.FC = () => {
           <UpdateCameraOnResize />
           <TourScene
             nodeId={currentSelectId ?? ""}
-            radius={RADIUS}
+            radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             lightIntensity={lightIntensity}

@@ -28,6 +28,106 @@ const initialState: AuthState = {
   error: null,
 };
 
+// Thunk đăng ký
+export const registerUser = createAsyncThunk(
+  "auth/registerUser",
+  async (
+    { username, email, password }: { username: string; email: string; password: string },
+    thunkAPI
+  ) => {
+    try {
+      const response = await axios.post("http://localhost:8080/api/register", {
+        username,
+        email,
+        password,
+      });
+
+      if (!response.data) {
+        throw new Error(
+          response.data.message || "Invalid username or password"
+        );
+      }
+      sessionStorage.setItem("userId", response.data);
+      return response.data;
+    } catch (error: any) {
+      if (error.code === "ERR_NETWORK") {
+        return thunkAPI.rejectWithValue(
+          "Không thể kết nối đến server. Vui lòng thử lại sau."
+        );
+      }
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại."
+      );
+    }
+  }
+);
+
+// Thunk xác thực tài khoản
+export const verifyUser = createAsyncThunk(
+  "auth/verifyUser",
+  async (
+    { userId, token }: { userId: number; token: string },
+    thunkAPI
+  ) => {
+    try {
+      const response = await axios.post("http://localhost:8080/api/authenticate/verifyEmail", {
+        userId,
+        token,
+      });
+
+      if (!response.data) {
+        throw new Error(
+          response.data.message || "Verify fail"
+        );
+      }
+      return response.data.data;
+    } catch (error: any) {
+      if (error.code === "ERR_NETWORK") {
+        return thunkAPI.rejectWithValue(
+          "Không thể kết nối đến server. Vui lòng thử lại sau."
+        );
+      }
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Mã xác thực không hợp lệ. Vui lòng thử lại."
+      );
+    }
+  }
+);
+
+// Thunk quên mật khẩu
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (
+    { email }: { email: string },
+    thunkAPI
+  ) => {
+    try {
+      const response = await axios.post("http://localhost:8080/api/user/forgotPassword", {
+        email
+      });
+
+      if (!response.data) {
+        throw new Error(
+          response.data.message || "Change password fail"
+        );
+      }
+      return response.data.data;
+    } catch (error: any) {
+      if (error.code === "ERR_NETWORK") {
+        return thunkAPI.rejectWithValue(
+          "Không thể kết nối đến server. Vui lòng thử lại sau."
+        );
+      }
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Đổi mật khẩu thất bại. Vui lòng thử lại."
+      );
+    }
+  }
+);
+
 // Thunk đăng nhập
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
@@ -144,6 +244,45 @@ const authSlice = createSlice({
         sessionStorage.setItem("token", action.payload.token);
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      
+      // REGISTER
+      .addCase(registerUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // VERIFY
+      .addCase(verifyUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(verifyUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      //  FORGOTP_ASSWORD
+      .addCase(forgotPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
