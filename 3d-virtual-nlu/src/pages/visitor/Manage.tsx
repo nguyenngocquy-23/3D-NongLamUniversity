@@ -10,7 +10,7 @@ const VisitorManage = () => {
       <NavTour setIsOpenNav={setIsOpen}/>
       {/* <CreateNode/> */}
       <div
-        style={{ height: isOpen ? "80%" : "90%", transition: "all .5s ease" }}
+        style={{ height: isOpen ? "80%" : "95%", transition: "all .5s ease" }}
       >
         <Outlet /> {/* Nội dung page */}
       </div>

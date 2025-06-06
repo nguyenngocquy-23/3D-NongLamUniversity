@@ -81,6 +81,37 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
 
     moveDivWithMouse();
   }, []);
+  useEffect(() => {
+    const secondary = document.querySelector<HTMLElement>(
+      `.${styles.secondary}`
+    );
+    const container = document.querySelector<HTMLElement>(
+      `.${styles.containCanvas}`
+    );
+
+    if (!secondary || !container) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      secondary.style.setProperty("--mouse-x", `${x}%`);
+      secondary.style.setProperty("--mouse-y", `${y}%`);
+    };
+
+    const handleMouseLeave = () => {
+      secondary.style.setProperty("--mouse-x", `50%`);
+      secondary.style.setProperty("--mouse-y", `50%`);
+    };
+
+    container.addEventListener("mousemove", handleMouseMove);
+    container.addEventListener("mouseleave", handleMouseLeave);
+
+    return () => {
+      container.removeEventListener("mousemove", handleMouseMove);
+      container.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, []);
 
   return (
     <div
@@ -90,8 +121,18 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
       style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
     >
       <div className={styles.vtBackground}>
-        <motion.div style={{ y }} className={styles.vtBackgroundImage}>
-          <h2 className={styles.title}>Tham quan ảo</h2>
+        <motion.div className={styles.vtBackgroundImage}>
+          <div className={styles.titleContainer}>
+            <h2 className={styles.title} style={{ fontSize: "50px" }}>
+              TOUR 3D
+            </h2>
+            <h2 className={styles.title}>THAM QUAN ẢO</h2>
+            <i className={styles.title}>
+              Chào mừng bạn đến với chuyến tham quan khuôn viên Trường Đại học
+              Nông Lâm Thành phố Hồ Chí Minh. Chúc bạn có một trải nghiệm thú
+              vị.
+            </i>
+          </div>
           <div className={styles.containCanvas}>
             <div id="myDiv" style={{ position: "absolute" }}>
               <FaArrowsToEye
@@ -130,6 +171,7 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
               />
             </Canvas>
           </div>
+          <div className={styles.secondary}></div>
         </motion.div>
       </div>
     </div>
