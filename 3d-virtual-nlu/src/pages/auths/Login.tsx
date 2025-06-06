@@ -88,7 +88,7 @@ const Login: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.loginContainer}>
-        <h2 className={styles.h2}>Login</h2>
+        <h2 className={styles.h2}>Đăng nhập</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <FaRegUser className={styles.icon} />

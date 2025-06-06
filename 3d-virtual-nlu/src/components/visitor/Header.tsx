@@ -30,8 +30,8 @@ const Header: React.FC = () => {
         icon: "warning",
         title: "Bạn chưa đăng nhập",
         text: "Vui lòng đăng nhập để tiếp tục.",
-        showCancelButton:true,
-        cancelButtonText:"Hủy",
+        showCancelButton: true,
+        cancelButtonText: "Hủy",
         confirmButtonText: "Đăng nhập",
       }).then((result) => {
         if (result.isConfirmed) {
@@ -81,37 +81,41 @@ const Header: React.FC = () => {
         >
           Thêm không gian
         </span>
+      </nav>
+      {currentUser ? (
+        <div className={style.dropdown}>
+          <button
+            className={style.dropdownBtn}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
+            👤 {currentUser.username}
+          </button>
 
-        {currentUser ? (
-          <div className={style.dropdown}>
-            <button
-              className={style.dropdownBtn}
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              👤 {currentUser.username}
-            </button>
-
-            {dropdownOpen && (
-              <ul className={style.dropdownMenu}>
-                <li>
-                  <button className={style.dropdownBtn}>
-                    <Link to="/manage/profile">Hồ sơ</Link>
-                  </button>
-                </li>
-                <li>
-                  <button className={style.dropdownBtn} onClick={handleLogout}>
-                    Đăng xuất
-                  </button>
-                </li>
-              </ul>
-            )}
-          </div>
-        ) : (
+          {dropdownOpen && (
+            <ul className={style.dropdownMenu}>
+              <li>
+                <button className={style.dropdownBtn}>
+                  <Link to="/manage/profile">Hồ sơ</Link>
+                </button>
+              </li>
+              <li>
+                <button className={style.dropdownBtn} onClick={handleLogout}>
+                  <Link to="">Đăng xuất</Link>
+                </button>
+              </li>
+            </ul>
+          )}
+        </div>
+      ) : (
+        <div>
           <Link to="/login" className={style.navLink}>
             Đăng nhập
           </Link>
-        )}
-      </nav>
+          <Link to="/register" className={style.register_button}>
+            Đăng ký
+          </Link>
+        </div>
+      )}
     </header>
   );
 };

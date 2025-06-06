@@ -68,7 +68,7 @@ const ForgotPassword: React.FC = () => {
   return (
     <div className={styles.container} style={{ position: "relative" }}>
       <div className={styles.loginContainer}>
-        <h2 className={styles.h2}>Enter your email</h2>
+        <h2 className={styles.h2}>Quên mật khẩu</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <FaRegUser className={styles.icon} />

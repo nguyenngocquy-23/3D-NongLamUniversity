@@ -50,7 +50,7 @@
 .h2 {
   text-align: center;
   font-size: 30px;
-  color: #fff;
+  color: #333;
   margin-bottom: 1.5rem;
 }
 
@@ -60,6 +60,7 @@
   position: relative;
   border-radius: 10px;
   border: 1px solid #333;
+  color: #333;
 }
 
 .icon {
@@ -68,6 +69,7 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+  color: #333;
 }
 
 .inputField {
@@ -76,14 +78,14 @@
   font-size: 1rem;
   border: none;
   background: transparent;
-  color: #fff;
+  color: #333;
   outline: none;
   transition: all 0.3s ease;
 }
 
 /* Style cho placeholder (nếu có) */
 input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(0, 0, 0, 0.7);
   transition: opacity 0.3s ease;
 }
 

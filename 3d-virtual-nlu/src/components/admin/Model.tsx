@@ -6,7 +6,6 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import styles from "../../styles/model.module.css";
 import { FaAngleLeft, FaInbox, FaQuestion } from "react-icons/fa6";
 import { useLocation, useNavigate } from "react-router-dom";
-import { div, p } from "framer-motion/client";
 
 interface NodeProps {
   modelUrl: string;
