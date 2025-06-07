@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+
 import { useNavigate } from "react-router-dom";
-import styles from "../../styles/user.module.css";
-import stylesCommon from "../../styles/common/navigateBar.module.css";
-import { FaLock, FaUnlock } from "react-icons/fa";
+import styles from "../../styles/managerField.module.css";
+
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { MdAdminPanelSettings } from "react-icons/md";
-import { Datatable } from "../../components/admin/DataTable";
+
 import { fetchUsers } from "../../redux/slices/DataSlice";
-import { formatDateTime } from "../../utils/formatDateTime";
-import ModelCreate from "../../components/admin/CustomModal";
-import CustomModal from "../../components/admin/CustomModal";
-import StatusToggle from "../../components/admin/ToggleChangeStatus";
+
 import FieldCard from "../../components/admin/FieldCard";
+import { IoSearch } from "react-icons/io5";
+import { FaMicrophone } from "react-icons/fa6";
+import { TiFilter } from "react-icons/ti";
+import { FaSortAmountDown } from "react-icons/fa";
+import Space from "./ManagerSpace";
 
 interface Field {
   id: number;
@@ -22,14 +22,18 @@ interface Field {
   code: string;
   status: number;
   updatedAt: string;
+  listSpace: Space[];
 }
 
-const Field = () => {
+const Field: React.FC<Field> = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
   const currentUser = useSelector((state: RootState) => state.auth.user);
+
   const fields = useSelector((state: RootState) => state.data.fields) || [];
+  const spaces = useSelector((state: RootState) => state.data.spaces) || [];
+  const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [searchData, setSearchData] = useState<Field[]>([]);
   const [openModel, setOpenModel] = useState(false);
 
@@ -67,82 +71,99 @@ const Field = () => {
     setSearchData(newData);
   };
 
-  // const columns = [
-  //   {
-  //     name: "Mã Lĩnh vực",
-  //     selector: (row: Field) => row.code,
-  //     sortable: true,
-  //     width: "250px",
-  //   },
-  //   {
-  //     name: "Tên Lĩnh vực",
-  //     selector: (row: Field) => row.name,
-  //     sortable: true,
-  //     width: "280px",
-  //   },
-  //   {
-  //     name: "Trạng thái",
-  //     selector: (row: Field) => (
-  //       <StatusToggle
-  //         id={row.id}
-  //         status={row.status}
-  //         apiUrl="http://localhost:8080/api/admin/field/changeStatus"
-  //       />
-  //     ),
-  //     sortable: true,
-  //   },
-  //   {
-  //     name: "Thời gian cập nhật",
-  //     selector: (row: Field) => formatDateTime(row.updatedAt),
-  //     sortable: true,
-  //   },
-  // ];
-
-  // const field = [
-  //   { label: "Tên lĩnh vực", name: "name", type: "text" },
-  //   { label: "Mã", name: "code", type: "text" },
-  //   // Thêm các trường khác nếu cần
-  // ];
-
   return (
-    <div className={styles.container}>
-      <h2 className={styles.manager_title}>Lĩnh vực</h2>
-      <div className={styles.field_list}>
-        <div className={styles.field_item}>
-          <FieldCard />
+    <>
+      <div className={styles.container}>
+        <div className={styles.field_features}>
+          <div className={`${styles.field_search_box} ${styles.field_box}`}>
+            <input
+              type="text"
+              name="field"
+              id="input"
+              placeholder="Tìm kiếm lĩnh vực..."
+              className={styles.field_search_input}
+            />
+            <label htmlFor="input" className={styles.label_for_search}>
+              <IoSearch className={styles.search_icon} />
+            </label>
+            <div className={styles.border}></div>
+            <button className={styles.mic_search}>
+              <FaMicrophone className={styles.mic_icon} />
+            </button>
+          </div>
+
+          <div className={`${styles.field_filter_box} ${styles.field_box}`}>
+            <TiFilter className={styles.filter_icon} />
+            <button className={styles.filter_popup}>Lọc</button>
+          </div>
+
+          <div className={`${styles.field_sort_box} ${styles.field_box}`}>
+            <FaSortAmountDown className={styles.sort_icon} />
+            <button className={styles.filter_popup}>Tên</button>
+          </div>
+
+          <button className={`${styles.field_add} ${styles.field_box}`}>
+            Thêm lĩnh vực
+          </button>
         </div>
-      </div>
-      {/* <input
+        <hr className={styles.break} />
+        <div className={styles.field_quantity}>
+          Kết quả: {fields.length} lĩnh vực.
+        </div>
+
+        <div className={styles.field_list}>
+          {fields.map((field) => {
+            const listSpace = spaces.filter((s) => s.fieldId === field.id);
+            return (
+              <div
+                key={field.id}
+                className={styles.field_item}
+                onClick={() => setSelectedField({ ...field, listSpace })}
+              >
+                <FieldCard field={{ ...field, listSpace }} />
+              </div>
+            );
+          })}
+        </div>
+
+        {/* <input
         type="text"
-        title="Keyword trong tên"
+        ti              tle="Keyword trong tên"
         onChange={handleSearch}
         placeholder="Tìm kiếm..."
         className={stylesCommon.search_input}
       /> */}
-      {/* <h2>Danh Sách Lĩnh vực</h2> */}
-      {loading && <p>Đang tải...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {/* <button
+        {/* <h2>Danh Sách Lĩnh vực</h2> */}
+        {loading && <p>Đang tải...</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        {/* <button
         className={stylesCommon.addRow}
         onClick={() => {
           setOpenModel(true);
-        }}
-      >
-        ➕ Thêm dòng
-      </button>
-      {openModel ? (
-        <CustomModal
-          onClose={() => setOpenModel(false)}
-          title="Tạo Lĩnh vực"
-          fields={field}
-          apiUrl="http://localhost:8080/api/admin/field" // URL API
-        />
-      ) : (
-        ""
+          }}
+          >
+          ➕ Thêm dòng
+          </button>
+          {openModel ? (
+            <CustomModal
+            onClose={() => setOpenModel(false)}
+            title="Tạo Lĩnh vực"
+            fields={field}
+            apiUrl="http://localhost:8080/api/admin/field" // URL API
+            />
+            ) : (
+              ""
       )}
-
+      
       <Datatable columns={columns} searchData={searchData!} loading={loading} /> */}
-    </div>
+      </div>
+
+      {selectedField && (
+        <div className={styles.field_edit_by_id}>
+          <span>{selectedField.name}</span>
+        </div>
+      )}
+    </>
   );
 };
 

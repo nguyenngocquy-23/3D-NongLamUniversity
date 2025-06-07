@@ -166,7 +166,6 @@ const TourOverview = () => {
                 position: [0, 0, 0.0000001],
               }}
               className={styles.tourCanvas}
-              // style={{ cursor }}
             >
               <UpdateCameraOnResize />
               <TourScene

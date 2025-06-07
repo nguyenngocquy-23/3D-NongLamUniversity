@@ -67,6 +67,7 @@
 .side_bar ul {
   list-style: none;
   padding: 0;
+  gap: 0.5rem;
 }
 /* Li bình thường */
 .side_bar .expand_nav_item {
@@ -79,14 +80,27 @@
   font-size: 1rem;
 }
 
-.side_bar .expand_nav_item:hover {
+.side_bar .expand_nav_item:hover,
+.collapse_nav_item:hover {
   background: rgba(0, 0, 0, 0.1);
   cursor: pointer;
   border-radius: 0.5rem;
 }
-
-.collapse_nav_item:hover {
-  border-radius: 50%;
+.side_bar .collapse_nav_item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+.collapse_nav_item .open_sub_visit {
+  font-size: 1rem;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  /* transform: translate(-50%, -50%); */
 }
 
 .sub_menu li {
@@ -106,6 +120,15 @@
   right: 0;
   transform: translateX(-50%);
 }
+.active_nav_item {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.active_nav_item_ul {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 0.5rem 0.5rem;
+}
 
 .side_bar_logout {
   margin-top: auto;
@@ -116,4 +139,11 @@
   font-size: 1rem;
   align-items: center;
   margin-bottom: 0.5rem;
+}
+
+.side_bar_logout:hover {
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  color: #f7f4f4;
 }

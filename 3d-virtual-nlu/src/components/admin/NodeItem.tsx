@@ -56,23 +56,12 @@ export const NodeItem = ({
   };
   return (
     <div className={styles.container} onClick={onclick}>
-      {/* <Canvas
-        camera={{ fov: 75, position: [0, 0, 1] }}
-        className={`${styles.canvas} ${isShow ? styles.show : styles.hide}`}
-      >
-        <Node panoramaURL={url} />
-        <OrbitControls autoRotate={true} autoRotateSpeed={1} />
-      </Canvas> */}
       <div
         className={styles.info}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         <img src={url} alt="" />
-        {/* <div className={styles.header}>
-          <b>{fieldName}</b>
-          <b>{spaceName}</b>
-        </div> */}
         <div className={styles.name}>
           <span>
             {name} #{id}
