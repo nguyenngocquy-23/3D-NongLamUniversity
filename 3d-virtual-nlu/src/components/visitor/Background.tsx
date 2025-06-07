@@ -211,6 +211,7 @@ const Background: React.FC = () => {
         <video
           autoPlay
           loop
+          muted
           playsInline
           style={{ minWidth: "100%", minHeight: "100%" }}
         >

@@ -12,6 +12,8 @@ import TourScene from "./TourScene";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import CurvedScreen from "./CurvedScreen";
+import ShadowScreen from "./ShadowScreen";
 const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
   const navigate = useNavigate();
   const container = useRef<HTMLDivElement>(null);
@@ -121,58 +123,65 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
       style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
     >
       <div className={styles.vtBackground}>
-        <motion.div className={styles.vtBackgroundImage}>
-          <div className={styles.titleContainer}>
-            <h2 className={styles.title} style={{ fontSize: "50px" }}>
-              TOUR 3D
-            </h2>
-            <h2 className={styles.title}>THAM QUAN ẢO</h2>
-            <i className={styles.title}>
-              Chào mừng bạn đến với chuyến tham quan khuôn viên Trường Đại học
-              Nông Lâm Thành phố Hồ Chí Minh. Chúc bạn có một trải nghiệm thú
-              vị.
-            </i>
+        <div className={styles.titleContainer}>
+          <h2 className={styles.title} style={{ fontSize: "50px" }}>
+            TOUR 3D
+          </h2>
+          <h2 className={styles.title}>THAM QUAN ẢO</h2>
+          <i className={styles.title}>
+            Chào mừng bạn đến với chuyến tham quan khuôn viên Trường Đại học
+            Nông Lâm Thành phố Hồ Chí Minh. Chúc bạn có một trải nghiệm thú vị.
+          </i>
+        </div>
+        <div className={styles.containCanvas}>
+          <div id="myDiv" style={{ position: "absolute" }}>
+            <FaArrowsToEye
+              className={styles.comein}
+              onClick={handleVirtualTour}
+            />
+            <h2 className={styles.exploreText}>Khám phá ngay!</h2>
           </div>
-          <div className={styles.containCanvas}>
-            <div id="myDiv" style={{ position: "absolute" }}>
-              <FaArrowsToEye
-                className={styles.comein}
-                onClick={handleVirtualTour}
-              />
-              <h2 className={styles.exploreText}>Khám phá ngay!</h2>
-            </div>
 
-            {/* intro - canvas */}
-            {/* <canvas id="intro-tour" /> */}
-            <Canvas
-              camera={{
-                fov: 75,
-                aspect: windowSize.width / windowSize.height,
-                near: 0.1,
-                far: 1000,
-                position: [0, 0, 0.0000001],
-              }}
-              className={styles.tourCanvas}
-              // style={{ cursor }}
-            >
-              <UpdateCameraOnResize />
-              <TourScene
-                radius={RADIUS_SPHERE}
-                sphereRef={sphereRef}
-                textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
-                lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
-              />
-              <OrbitControls
-                enableZoom={false}
-                enablePan={false}
-                enableRotate={false}
-                autoRotate
-                autoRotateSpeed={0.5}
-              />
-            </Canvas>
-          </div>
-          <div className={styles.secondary}></div>
-        </motion.div>
+          {/* <canvas id="intro-tour" /> */}
+          <Canvas
+            camera={{
+              fov: 75,
+              aspect: windowSize.width / windowSize.height,
+              near: 0.1,
+              far: 1000,
+              position: [0, 0, 400],
+            }}
+            className={styles.tourCanvas}
+          >
+            <UpdateCameraOnResize />
+            {/* <TourScene
+              radius={RADIUS_SPHERE}
+              sphereRef={sphereRef}
+              textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
+              lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
+            /> */}
+            <CurvedScreen
+              radius={RADIUS_SPHERE}
+              sphereRef={sphereRef}
+              textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
+              lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
+            />
+            <ShadowScreen
+              radius={RADIUS_SPHERE}
+              sphereRef={sphereRef}
+              textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
+              lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
+            />
+
+            <OrbitControls
+              enableZoom={false}
+              enablePan={false}
+              // autoRotate
+              enableRotate={false}
+            />
+          </Canvas>
+        </div>
+        <div className={styles.secondary}></div>
       </div>
     </div>
   );

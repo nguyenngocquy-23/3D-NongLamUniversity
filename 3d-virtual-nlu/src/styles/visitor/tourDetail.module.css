@@ -25,48 +25,74 @@
 .canvas_container .info {
     position: absolute;
     bottom: 0;
-    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
     height: 20%;
-    background: linear-gradient(to top, #000000, #00000000);
+    /* background: linear-gradient(to top, #000000, #00000000); */
     border-radius: 10px;
     display: flex;
-    justify-content: space-around;
-    align-items: center;
+    justify-content: space-between;
+    align-items: end;
 }
 
 .info .sub_info {
     display: flex;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    width: auto;
-    height: 100%;
+    width: 200px;
+    height: 70%;
     gap: 10px;
     font-size: 30px;
     font-weight: 700;
+    border-radius: 10px;
+    background-color: white;
+    color: black;
 }
 
-.right_box {
-    width: 30%;
+.sub_info .name {
+    margin-top: 10px;
+}
+
+.sub_info .des {
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+.canvas_container .feature {
+    height: 10%;
+    width: 80%;
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
+    padding: 10px;
     display: flex;
-    gap: 1rem;
-    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
     position: absolute;
-    right: 0;
+    bottom: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
 }
 
-.right_box .feature {
-    height: 30%;
+.commentContainer {
+    height: 0;
+    opacity: 0;
+    width: 20%;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
     padding: 10px;
+    position: absolute;
+    right: 10%;
+    bottom: 26%;
+    transition: all .5s ease;
+    z-index: 1;
 }
 
-.right_box .commentContainer {
+.show {
     height: 70%;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    padding: 10px;
-    position: relative;
+    opacity: 1;
 }
 
 .title {
@@ -78,14 +104,11 @@
 }
 
 .featureList {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    display: flex;
+    gap: 10px;
     list-style: none;
     color: #333;
-    margin-top: 4px;
-    height: 70%;
-    overflow-y: auto;
+    justify-content: space-between;
 }
 
 .featureList li:hover {
@@ -99,7 +122,7 @@
     border-radius: 8px;
     text-align: center;
     height: 10px;
-    font-size: 10px;
+    font-size: 15px;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -113,7 +136,7 @@
     margin-top: 8px;
     bottom: 5px; */
     width: 100%;
-    height: 70%;
+    height: 85%;
     overflow: auto;
 }
 
@@ -173,12 +196,10 @@
 .inputContainer {
     width: 100%;
     min-height: 50px;
-    position: relative;
+    display: flex;
 }
 
 .textarea {
-    width: 100%;
-    /* min-height: 50px; */
     padding: 10px;
     font-size: 14px;
     border: 1px solid #ccc;
@@ -188,9 +209,6 @@
 }
 
 .sendBtn {
-    position: absolute;
-    right: 0;
-    bottom: 5px;
     align-self: flex-end;
     padding: 8px 16px;
     background-color: #007bff;
