@@ -74,16 +74,7 @@ public class NodeDao {
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(MasterNodeResponse.class).list());
     }
 
-    public List<NodeFullInformationResponse> getFullInformationAllMasterNodes() {
-        String sql = """
-                 SELECT n.* , s.`name` as spaceName, u.username as userName, f.`name` as fieldName
-                  FROM `spaces` s JOIN `nodes` n ON s.id = n.spaceId
-                JOIN `users` u ON n.userId = u.id
-                JOIN `fields` f ON f.id = s.fieldId
-               
-                WHERE n.`status` = 2""";
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullInformationResponse.class).list());
-    }
+
 
     public NodeFullResponse getDefaultNode() {
         String sql = """

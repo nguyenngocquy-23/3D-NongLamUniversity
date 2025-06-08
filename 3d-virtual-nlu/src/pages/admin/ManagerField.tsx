@@ -259,12 +259,12 @@ const Field: React.FC<Field> = () => {
                 {!isEditing ? (
                   <RiEdit2Line
                     className={styles.field_input_name_edit}
-                    // onClick={}
+                    onClick={handleEditInput}
                   />
                 ) : (
                   <FaSave
                     className={styles.field_input_name_edit}
-                    // onClick={handleRename}
+                    onClick={handleRename}
                   />
                 )}
 

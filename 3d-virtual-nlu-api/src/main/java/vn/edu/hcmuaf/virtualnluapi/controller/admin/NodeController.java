@@ -81,18 +81,6 @@ public class NodeController {
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 
-    /**
-     * Định nghĩa cho tour.
-     *
-     * @return
-     */
-    @POST
-    @Path("/allMasterNode")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<NodeFullResponse>> getAllMasterNodes() {
-//        List<NodeFullResponse> result = nodeService.getAllMasterNodes();
-        return null;
-    }
 
     /**
      * Method dùng để thay thế realId trong Dabatabase cho:
