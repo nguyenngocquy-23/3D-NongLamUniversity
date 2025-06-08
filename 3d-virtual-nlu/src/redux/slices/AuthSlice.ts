@@ -149,7 +149,7 @@ export const loginUser = createAsyncThunk(
 
       const userResponse = await axios.post(
         "http://localhost:8080/api/user",
-        { username, password },
+        { username },
         {
           headers: {
             Authorization: response.data.data.token,
@@ -177,6 +177,45 @@ export const loginUser = createAsyncThunk(
       return thunkAPI.rejectWithValue(
         error.response?.data?.message ||
           "Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại."
+      );
+    }
+  }
+);
+
+// Thunk cập nhật user
+export const fetchUser = createAsyncThunk(
+  "auth/fetchUser",
+  async (
+     username: string ,
+    thunkAPI
+  ) => {
+    try {
+      console.log('username :', username)
+      const userResponse = await axios.post(
+        "http://localhost:8080/api/user",
+        { username: username,
+          password: null
+         },
+        {
+          headers: {
+            Authorization: sessionStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return {
+        user: userResponse.data,
+      };
+    } catch (error: any) {
+      if (error.code === "ERR_NETWORK") {
+        return thunkAPI.rejectWithValue(
+          "Không thể kết nối đến server. Vui lòng thử lại sau."
+        );
+      }
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Lỗi cập nhật user. Vui lòng thử lại."
       );
     }
   }
@@ -244,6 +283,21 @@ const authSlice = createSlice({
         sessionStorage.setItem("token", action.payload.token);
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // FETCH USER
+      .addCase(fetchUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        sessionStorage.setItem("user", JSON.stringify(action.payload.user));
+      })
+      .addCase(fetchUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })

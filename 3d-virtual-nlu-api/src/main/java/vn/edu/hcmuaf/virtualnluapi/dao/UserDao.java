@@ -204,6 +204,21 @@ public class UserDao {
         });
     }
 
+    public boolean updateAvatar(User user) {
+        try {
+            return ConnectionPool.getConnection().inTransaction(handle -> {
+                int updatedRows = handle.createUpdate("update users set avatar = :avatar where id = :id")
+                        .bind("id", user.getId())
+                        .bind("avatar", user.getAvatar())
+                        .execute();
+                return updatedRows > 0;
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 //    public List<String> getAllAdminEmail() {
 //        return ConnectionPool.getConnection().withHandle(n -> {
 //            return n.createQuery("Select email from users where roleId = 2").mapTo(String.class).stream().toList();

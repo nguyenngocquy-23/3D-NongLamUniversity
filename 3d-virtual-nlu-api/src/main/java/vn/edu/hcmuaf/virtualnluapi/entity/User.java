@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     int id, roleId;
-    String username, password, email;
+    String username, password, email, avatar;
     byte status; // 0: inactive, 1: authenticating, 2: active
     Timestamp createdAt;
 }
