@@ -1,0 +1,168 @@
+/* new */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  background: url("/backgroundNL.jpg") no-repeat center / cover;
+  font-family: Arial, sans-serif;
+  position: relative;
+}
+
+@keyframes slideDown {
+  0% {
+    top: -300px;
+    filter: blur(3px);
+    opacity: 0;
+  }
+
+  50% {
+    filter: blur(1px);
+    opacity: 0.5;
+  }
+
+  100% {
+    top: 50%;
+    transform: translateY(-50%);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+.loginContainer {
+  position: absolute;
+  top: 50%;
+  right: 5%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2rem 3rem;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px);
+  transition: transform 0.5s ease;
+  animation: slideDown 0.8s ease-out forwards;
+  width: 400px;
+}
+
+.h2 {
+  text-align: center;
+  font-size: 30px;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* Style cho các trường input */
+.inputGroup {
+  margin-bottom: 1.5rem;
+  position: relative;
+  border-radius: 10px;
+  border: 1px solid #333;
+  color: #333;
+}
+
+.icon {
+  font-weight: 800;
+  margin-left: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #333;
+}
+
+.inputField {
+  width: 100%;
+  padding: 1rem 3rem;
+  font-size: 1rem;
+  border: none;
+  background: transparent;
+  color: #333;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* Style cho placeholder (nếu có) */
+input::placeholder {
+  color: rgba(0, 0, 0, 0.7);
+  transition: opacity 0.3s ease;
+}
+
+.loginBtn {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 5px;
+  background: #50f373;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
+  transition: transform 0.5s ease;
+}
+
+.loginBtn:hover {
+  transform: perspective(1000px) scale(1.1);
+  background: #23c045;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.link {
+  text-decoration: none;
+  color: #6fa9ff;
+  line-height: 2;
+  transform: scale(1);
+  transition: all 0.5s ease;
+}
+
+.link:hover {
+  color: #78f7bc;
+  opacity: 0.8 !important;
+}
+
+.eye {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 10px;
+}
+
+.error {
+  text-align: center;
+  color: rgb(255, 18, 18);
+  font-style: italic;
+  font-weight: 700;
+  white-space: normal;
+  /* Cho phép xuống hàng */
+  word-wrap: break-word;
+  /* Ngắt từ nếu cần */
+  overflow-wrap: break-word;
+  /* Cho trình duyệt hiện đại */
+}
+
+.passLengthError {
+  border: 2px solid rgb(255, 18, 18);
+}
+
+.codeInputContainer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.codeInput {
+  width: 40px;
+  height: 50px;
+  text-align: center;
+  font-size: 24px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.codeInput:focus {
+  border-color: #007bff;
+}

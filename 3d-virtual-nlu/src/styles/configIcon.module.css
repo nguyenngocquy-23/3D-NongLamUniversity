@@ -1,0 +1,409 @@
+/* <div class="range-wrapper">
+  <input type="range" id="rotateX" />
+</div> */
+.range-wrapper {
+  position: relative;
+  width: 200px;
+  margin: 40px;
+}
+/* 
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  background: #ddd;
+  border-radius: 4px;
+  outline: none;
+}
+
+/* Track */
+/* input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  background: #ccc;
+  border-radius: 4px;
+} */
+
+/* Thumb (nút tròn) */
+/* input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  background: #333;
+  color: white;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  font-size: 14px;
+} */
+
+/* Tạo một layer chữ "X" nằm trong thumb */
+/* input[type="range"]::-webkit-slider-thumb::before {
+  content: "X";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  pointer-events: none;
+} */
+.config_icon_wrapper {
+  display: flex;
+}
+.config_icon_infor {
+  display: flex;
+  gap: 10px;
+}
+.change_icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  border-radius: 10px;
+  background-color: #0303034e;
+}
+.edit_icon_content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.preview_icon {
+  width: 100px;
+  height: 100px;
+  background-image: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%);
+  background-size: 15px 15px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.color_icon {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-bottom: 1px solid #fff;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.color_icon span {
+  min-width: 3em;
+  font-weight: 500;
+}
+.color_icon_content {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+.color_icon_content input[type="color"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  width: 40px;
+  height: 100%;
+  border: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 150ms ease;
+}
+.color_icon_content input[type="color"]::-webkit-color-swatch {
+  padding: 0;
+  margin: 0;
+  border-radius: 8px 0 0 8px;
+  border: none;
+}
+
+.color_icon_content input[type="color"]::-moz-color-swatch {
+  padding: 0;
+  margin: 0;
+  border-radius: 8px 0 0 8px;
+  border: none;
+}
+.color_icon_content input[type="text"] {
+  color: #524a4a;
+  box-sizing: border-box;
+  border: 1px solid #f1f1f1;
+  height: 32px;
+  box-shadow: 0 1px 1px 0 rgb(0 0 0 / 10%);
+  display: flex;
+  font-size: 0.9 em;
+  border-radius: 0 8px 8px 0;
+  border-left: 0;
+  padding: 1em;
+}
+
+.allow_color_background {
+  display: flex;
+  align-items: center;
+  color: white;
+}
+
+.allow_color_background input[type="checkbox"] {
+  appearance: none;
+  width: 48px;
+  height: 27px;
+  border: 2px solid #877e7ee2;
+  border-radius: 20px;
+  background: #f1e1e1;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.allow_color_background input[type="checkbox"]::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: rgba(119, 113, 113, 0.5);
+  border: 2px solid #706363f1;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(13%, 15%);
+  transition: all 0.3s ease-in-out;
+}
+
+.allow_color_background input[type="checkbox"]::after {
+  content: url("data:image/svg+xml,%3Csvg xmlns='://www.w3.org/2000/svg' width='23' height='23' viewBox='0 0 23 23' fill='none'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M6.55021 5.84315L17.1568 16.4498L16.4497 17.1569L5.84311 6.55026L6.55021 5.84315Z' fill='%23EA0707' fill-opacity='0.89'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M17.1567 6.55021L6.55012 17.1568L5.84302 16.4497L16.4496 5.84311L17.1567 6.55021Z' fill='%23EA0707' fill-opacity='0.89'/%3E%3C/svg%3E");
+  position: absolute;
+  top: 0;
+  left: 20px;
+}
+
+.allow_color_background input[type="checkbox"]:checked {
+  border: 2px solid #02c202;
+  background: #e2f1e1;
+}
+
+.allow_color_background input[type="checkbox"]:checked::before {
+  background: rgba(2, 194, 2, 0.5);
+  border: 2px solid #02c202;
+  transform: translate(133%, 13%);
+  transition: all 0.3s ease-in-out;
+}
+
+.allow_color_background input[type="checkbox"]:checked::after {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='13' viewBox='0 0 15 13' fill='none'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14.8185 0.114533C15.0314 0.290403 15.0614 0.605559 14.8855 0.818454L5.00187 12.5L0.113036 6.81663C-0.0618274 6.60291 -0.0303263 6.2879 0.183396 6.11304C0.397119 5.93817 0.71213 5.96967 0.886994 6.18339L5.00187 11L14.1145 0.181573C14.2904 -0.0313222 14.6056 -0.0613371 14.8185 0.114533Z' fill='%2302C202' fill-opacity='0.9'/%3E%3C/svg%3E");
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.allow_color_background label {
+  margin-left: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Opacity. */
+
+.opacity_icon_content {
+  display: flex;
+  align-items: center;
+  height: 2rem;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.label_opacity {
+  font-size: 12px;
+  background-color: #00000028;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px 0 0 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit_icon_opacity {
+  position: relative;
+  width: 200px;
+  height: 2rem;
+  background-color: #ffffff4e;
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit_icon_opacity input[type="range"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(5%, 50%);
+  width: 90%;
+  -webkit-appearance: none;
+  height: 1rem;
+  appearance: none;
+  background-color: transparent;
+  z-index: 3;
+}
+.edit_icon_opacity input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  background-color: #524a4a;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  /* transition: transform 2ms ease; */
+  cursor: pointer;
+}
+.edit_icon_opacity progress {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 8px;
+  width: 90%;
+  height: 1rem;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(5%, 50%);
+  transition: background-color 0.3s ease;
+}
+.edit_icon_opacity progress::-webkit-progress-bar {
+  background-color: #ffffff46;
+}
+.edit_icon_opacity progress::-webkit-progress-value {
+  background-color: #000000;
+}
+/* Độ xoay */
+.rotation_cfg_label {
+  margin: 1rem 0;
+  border-bottom: 1px solid #fff;
+}
+
+.rotation_cfg_container {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  gap: 10px;
+}
+/* Hiện thực cho phần minh hoạ */
+.rotation_cfg_preview {
+  position: relative;
+  transform-style: preserve-3d;
+  perspective: 500px;
+  width: 250px;
+  height: 250px;
+}
+.grid_xz_plane {
+  position: absolute;
+  top: 25px;
+  left: 25px;
+  width: 200px;
+  height: 200px;
+  transform: rotateX(-125deg);
+  transform-origin: center;
+  background-color: #eae8e89b;
+  background-image: linear-gradient(to right, #444 1px, transparent 1px),
+    linear-gradient(to bottom, #444 1px, transparent 1px);
+  background-size: 18px 18px;
+  z-index: 0;
+}
+.axis {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 2px;
+  border: solid 2px;
+  box-sizing: border-box;
+  text-align: right;
+  line-height: 0px;
+}
+.axis .axis_rotation {
+  font-size: 1.2rem;
+  position: absolute;
+  right: 50%;
+  top: 0;
+  transform: translateY(-50%);
+}
+.axis .axis_arrow {
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: translate(50%, -50%);
+}
+
+.axis span {
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: translateY(-1rem);
+}
+.axis_x {
+  border-color: red;
+  color: red;
+}
+
+.axis_y {
+  transform: rotateZ(-90deg);
+  transform-origin: 0 0 0;
+  border-color: green;
+  color: green;
+}
+
+.axis_z {
+  transform: rotateY(225deg) rotateZ(25deg) rotateX(125deg);
+  transform-origin: 0 0 0;
+  border-color: blue;
+  color: blue;
+}
+
+/** Phần tuỳ chỉnh thủ công.
+*/
+.radio_container {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 0.5rem;
+  background-color: #eee;
+  box-sizing: border-box;
+  box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
+  padding: 0.1rem;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.radio_container .radio_item {
+  flex: 1 1 auto;
+  text-align: center;
+}
+.radio_container .radio_item input {
+  display: none;
+}
+.radio_container .radio_item .radio_name {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: none;
+  padding: 0.5rem 0;
+  color: rgba(51, 65, 85, 1);
+  transition: all 0.15s ease-in-out;
+}
+.radio_container .radio_item input:checked + .radio_name {
+  background-color: #fff;
+  font-weight: 600;
+}
+
+.label_x {
+  background-color: red;
+}
+.label_y {
+  background-color: green;
+}
+.label_z {
+  background-color: blue;
+}

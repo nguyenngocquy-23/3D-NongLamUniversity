@@ -1,0 +1,103 @@
+.left_menu {
+    position: absolute;
+    top: 0;
+    left: -300px;
+    /* Ẩn menu bên trái */
+    width: 300px;
+    height: 100vh;
+    background-color: #333;
+    color: white;
+    transition: left 0.5s ease;
+    z-index: 3;
+}
+
+.left_menu.show {
+    left: 0;
+    /* Hiển thị menu khi con chuột vào */
+}
+
+
+.left_menu .header {
+    height: 15vh;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+.left_menu .searchBox {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header .inputSeach {
+    padding: 5px;
+    font-size: 15px;
+    width: 80%;
+    outline: none;
+}
+
+.header .searchBtn {
+    font-size: 20px;
+    margin-left: 10px;
+    transition: transform 0.3s ease;
+}
+
+.header .searchBtn:hover {
+    cursor: pointer;
+    opacity: 0.7;
+    transform: scale(1.2);
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.left_menu .master_container {
+    list-style-type: none;
+    height: 85vh;
+    padding: 0;
+    overflow-y: scroll;
+    pointer-events: auto;
+}
+
+.left_menu .node:hover {
+    cursor: pointer;
+    opacity: 1;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+    background-size: 120%;
+    background-position: center;
+    /* background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../../../../public/thuvien.jpg'); */
+}
+
+.left_menu .node:hover::before {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.left_menu .node .nodeName {
+    margin-left: 30px;
+    word-wrap: break-word;
+    display: inline-block;
+    max-width: 80%;
+}
+
+.left_menu .node {
+    background-position: center;
+    background-size: 100%;
+    padding: 40px 0;
+    opacity: 0.9;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-weight: 700;
+    position: relative;
+    overflow: hidden;
+}
+
+.left_menu .node::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}

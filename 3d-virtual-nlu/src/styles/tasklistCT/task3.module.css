@@ -1,0 +1,103 @@
+.task3 {
+  transition: height 1s ease-in-out, opacity 1s ease-in-out;
+}
+
+.select_type {
+  position: absolute;
+  right: 20px;
+  top: 5%;
+
+  appearance: none;
+  /* ẩn mũi tên mặc định */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+
+  width: 150px;
+  padding: 5px 20px;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 15px;
+  outline: none;
+
+  background-image: url("/down.svg");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+.type_navigation,
+.type_infomation,
+.type_model,
+.type_media {
+  width: 40vw;
+  height: auto;
+  border-radius: 10px;
+  opacity: 1;
+  padding: 0 10px;
+  overflow: hidden;
+  /* Ngăn nội dung tràn ra */
+  pointer-events: none;
+  /* Vô hiệu tương tác */
+  transition: height 1s ease-in-out, opacity 1s ease-in-out;
+  pointer-events: auto;
+}
+
+.contain_input {
+  display: flex;
+  margin-top: 10px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.label {
+  display: inline-block;
+  width: 150px;
+  margin-right: 20px;
+}
+
+.descript_input {
+  width: 70%;
+  height: 100px;
+}
+
+.mode_button {
+  cursor: pointer;
+  border-radius: 5px;
+  width: 50%;
+  height: auto;
+  opacity: 0.8;
+  border: none;
+  outline: none !important;
+}
+
+.choosed {
+  outline: none;
+  border: none;
+  background-color: green;
+  opacity: 1;
+  pointer-events: none;
+}
+
+.frame {
+  width: 80px;
+  height: 80px;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.open_type_media {
+  height: 300px;
+}
+
+.link {
+  text-decoration: none;
+  color: #fff;
+}
+
+.chooseMediaType {
+  width: 100%;
+}

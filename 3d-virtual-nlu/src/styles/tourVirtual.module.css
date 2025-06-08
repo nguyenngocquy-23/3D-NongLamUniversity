@@ -1,0 +1,248 @@
+/* Tour.module.css */
+.h1 {
+  margin-left: 50px;
+  padding: 100px;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#virtual_tour.grabbing {
+  cursor: grabbing;
+}
+.virtual_tour {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: fadeIn 1s ease;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.containCanvas {
+  position: relative;
+  margin: auto;
+  width: 96%;
+  height: 600px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.pause:hover,
+.play:hover,
+.close_btn:hover,
+.fullscreen_btn:hover,
+.searchBtn:hover,
+.playBtn:hover,
+.pauseBtn:hover,
+.info_btn:hover {
+  cursor: pointer;
+  opacity: 0.7;
+  transform: scale(1.2);
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.pause,
+.play {
+  color: white;
+  position: absolute;
+  right: 0;
+  padding: 10px;
+}
+
+.play {
+  display: none;
+}
+
+.comein {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  transition: all 0.3s ease-in-out;
+  opacity: 0.8;
+  color: green;
+  cursor: pointer;
+}
+
+.comein:hover {
+  opacity: 1;
+  font-size: 60px;
+}
+
+.close_btn {
+  font-size: 30px;
+  z-index: 2;
+  color: white;
+  margin: 10px;
+  transition: transform 0.3s ease;
+}
+
+.fullscreen_btn,
+.info_btn,
+.playBtn,
+.pauseBtn {
+  z-index: 2;
+  color: white;
+  transform: scale(1);
+  transition: transform 0.3s ease;
+  margin: 0 20px;
+  font-size: 25px;
+}
+
+.exploreText {
+  margin-top: 45px;
+  line-height: 5px;
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  color: green;
+  width: 400px;
+  transform: translate(-50%, -50%);
+}
+
+.headerTour {
+  top: 0;
+}
+.footerTour {
+  bottom: 10px;
+}
+.headerTour,
+.footerTour {
+  position: absolute;
+  left: 0;
+  width: 98%;
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+  padding: 0 20px;
+}
+
+.leftMenu {
+  position: absolute;
+  top: 0;
+  left: -300px;
+  /* Ẩn menu bên trái */
+  width: 300px;
+  height: 100%;
+  background-color: #333;
+  color: white;
+  transition: left 0.5s ease;
+  z-index: 3;
+  overflow-y: scroll;
+}
+
+.leftMenu.show {
+  left: 0;
+  /* Hiển thị menu khi con chuột vào */
+}
+
+.leftMenu ul {
+  list-style-type: none;
+  margin-top: 10px;
+  padding: 0;
+}
+
+.leftMenu .node:hover {
+  cursor: pointer;
+  opacity: 1;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+  background-size: 120%;
+  background-position: center;
+  background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('../../../../public/thuvien.jpg');
+}
+
+.leftMenu .node .nodeName{
+  margin-left: 30px;
+}
+
+.leftMenu .node {
+  background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../../../../public/thuvien.jpg');
+  background-position: center;
+  background-size: 100%;
+  padding: 40px 0;
+  opacity: 0.9;
+  transition: all 0.3s ease;
+  width: 100%;
+  font-weight: 700;
+}
+
+.link {
+  text-decoration: none;
+  color: #fff;
+}
+
+/* .leftMenu .node:hover::before {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+.leftMenu .node:hover {
+  opacity: 1;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+  background-size: 120%;
+  background-position: center;
+}
+
+.node::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.leftMenu .node {
+  position: relative;
+  background-image: url('../../../../public/khoa.jpg');
+  background-position: center;
+  background-size: 100%;
+  padding: 40px 0;
+  opacity: 0.9;
+  transition: all 0.3s ease;
+  width: 100%;
+  font-weight: 700;
+} */
+
+body:fullscreen #virtaul_tour,
+html:fullscreen #virtaul_tour {
+  width: 100vw; /* Full width màn hình */
+  height: 100vh; /* Full height màn hình */
+}
+
+.inputSeach {
+  padding: 5px;
+  font-size: 15px;
+  width: 80%;
+}
+
+.searchBtn {
+  font-size: 20px;
+  margin-left: 10px;
+  transition: transform 0.3s ease;
+}
+
+.infoBox{
+  position: absolute;
+  display: none;
+  width: 200px;
+  height: 200px;
+  overflow-y: auto;
+  bottom: -100px;
+  right: 10px;
+}

@@ -1,0 +1,30 @@
+/* .task_container {
+  width: 40vw;
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: all 0.4s ease-in-out;
+} */
+
+.task_container .task_header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.task_content {
+  padding: 10px;
+  animation: fadeOn 1s ease;
+}
+
+.task_save {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 5px;
+}

@@ -1,0 +1,218 @@
+.virtualTourContainer {
+  /* position: relative; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+  background-color: white;
+  /* background-color: #5cb338; */
+}
+
+.single {
+  font-family: "Forte" !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 200px;
+  color: black;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  /* transform: skewX(-15deg); */
+  text-shadow: 4px 4px 0 #444;
+  text-shadow:
+    1px 1px 0 #ccc,
+    2px 2px 0 #bbb,
+    3px 3px 0 #aaa,
+    4px 4px 0 #999,
+    5px 5px 0 #888,
+    6px 6px 5px rgba(0, 0, 0, 0.3);
+}
+
+
+.vtBackground .titleContainer {
+  position: absolute;
+  margin: auto;
+  color: black;
+  text-align: center;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.vtBackground .title {}
+
+.vtBackground {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.vtBackgroundImage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.vtImage {
+  object-fit: cover;
+}
+
+/* Tour.module.css */
+.h1 {
+  margin-left: 50px;
+  padding: 100px;
+}
+
+.tour {
+  background-color: white;
+  height: auto;
+  width: 100%;
+  padding-top: 30px;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#virtual_tour.grabbing {
+  cursor: grabbing;
+}
+
+.virtual_tour {
+  height: 100%;
+  width: 100%;
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: fadeIn 1s ease;
+  z-index: 1;
+}
+
+.explore {
+  margin: 30px;
+  padding: 30px;
+  display: flex;
+  background-color: none;
+  /* border: 1px solid #ccc; */
+  color: black;
+}
+
+.containCanvas {
+  position: relative;
+  margin: auto;
+  width: 90%;
+  height: 100%;
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
+  overflow: hidden;
+  z-index: 1;
+}
+
+.explore_button:hover {
+  transform: translate(-50%,-5px);
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.3);
+}
+
+.explore_button {
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: black;
+  color: white;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 20px;
+  z-index: 10;
+  transition: all .3s ease;
+}
+
+.pause:hover,
+.play:hover,
+.close_btn:hover,
+.fullscreen_btn:hover,
+.searchBtn:hover,
+.playBtn:hover,
+.pauseBtn:hover,
+.info_btn:hover {
+  cursor: pointer;
+  opacity: 0.7;
+  transform: scale(1.2);
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.pause,
+.play {
+  color: white;
+  position: absolute;
+  right: 0;
+  padding: 10px;
+}
+
+.play {
+  display: none;
+}
+
+.comein {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  transition: all 0.3s ease-in-out;
+  opacity: 0.8;
+  color: white;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.comein:hover {
+  opacity: 1;
+  font-size: 60px;
+}
+
+.close_btn {
+  font-size: 30px;
+  z-index: 2;
+  color: white;
+  margin: 10px;
+  transition: transform 0.3s ease;
+}
+
+.fullscreen_btn,
+.info_btn,
+.playBtn,
+.pauseBtn {
+  z-index: 2;
+  color: white;
+  transform: scale(1);
+  transition: transform 0.3s ease;
+  margin: 0 20px;
+  font-size: 25px;
+}
+
+.exploreText {
+  margin-top: 45px;
+  line-height: 5px;
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  color: white;
+  width: 400px;
+  text-align: center;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+}

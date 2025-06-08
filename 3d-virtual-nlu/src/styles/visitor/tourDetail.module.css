@@ -1,0 +1,225 @@
+.container {
+    width: 98vw;
+    min-height: 83vh;
+    height: 100%;
+    margin: 0.5em auto;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.canvas_container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.tourCanvas {
+    border-radius: 10px;
+}
+
+.canvas_container .info {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 20%;
+    /* background: linear-gradient(to top, #000000, #00000000); */
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+
+.info .sub_info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 70%;
+    gap: 10px;
+    font-size: 30px;
+    font-weight: 700;
+    border-radius: 10px;
+    background-color: white;
+    color: black;
+}
+
+.sub_info .name {
+    margin-top: 10px;
+}
+
+.sub_info .des {
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+.canvas_container .feature {
+    height: 10%;
+    width: 80%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: absolute;
+    bottom: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.commentContainer {
+    height: 0;
+    opacity: 0;
+    width: 20%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px;
+    position: absolute;
+    right: 10%;
+    bottom: 26%;
+    transition: all .5s ease;
+    z-index: 1;
+}
+
+.show {
+    height: 70%;
+    opacity: 1;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.featureList {
+    display: flex;
+    gap: 10px;
+    list-style: none;
+    color: #333;
+    justify-content: space-between;
+}
+
+.featureList li:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.featureList li {
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    height: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .3s ease;
+}
+
+.commentBox {
+    /* position: absolute;
+    margin-top: 8px;
+    bottom: 5px; */
+    width: 100%;
+    height: 85%;
+    overflow: auto;
+}
+
+.commentBox::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+/* Track – nền sau */
+.commentBox::-webkit-scrollbar-track {
+    background-color: white;
+}
+
+/* Thumb – phần trượt */
+.commentBox::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00fff0 0%, #00d2ff 50%, #007cf0 100%);
+    border-radius: 15px;
+}
+
+/* Hover – đổi màu nhẹ */
+.commentBox::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #00d2ff, #3a47d5);
+    box-shadow: inset 0 0 1px #3a47d5;
+}
+
+.content {
+    display: flex;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comment {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 5px 10px;
+    color: black;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.meta {
+    margin-top: 4px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+.replyBtn {
+    background: none;
+    border: none;
+    color: #1976d2;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.inputContainer {
+    width: 100%;
+    min-height: 50px;
+    display: flex;
+}
+
+.textarea {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    margin-top: 5px;
+}
+
+.sendBtn {
+    align-self: flex-end;
+    padding: 8px 16px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.sendBtn:hover {
+    background-color: #0056b3;
+}

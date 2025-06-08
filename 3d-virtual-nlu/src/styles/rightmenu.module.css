@@ -1,0 +1,25 @@
+ul {
+  list-style-type: none;
+  /* margin-top: 10px; */
+}
+
+ul .taskRow {
+  margin: 16px;
+  cursor: pointer;
+  box-shadow: 2px 2px 10px rgba(219, 212, 212, 0.1);
+  background-size: 100%;
+  background-position: center;
+  opacity: 0.9;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  padding: 16px;
+  border-radius: 6px;
+  backdrop-filter: blur(7px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.taskIcon {
+  margin-left: auto;
+}

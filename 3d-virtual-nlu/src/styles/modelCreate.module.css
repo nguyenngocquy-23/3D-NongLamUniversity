@@ -1,0 +1,76 @@
+.container {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 20;
+    display: block;
+}
+
+.container.fadeOut{
+    animation: hidden 2s forwards;
+}
+
+@keyframes hidden{
+    0% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+.monitor {
+    position: absolute;
+    left: 50%;
+    bottom: -50px;
+    width: 55%;
+    height: 100%;
+    transform: translateX(-50%);
+    background-image: url("/monitor.png");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: fadeIn 1.5s forwards;
+}
+
+.monitor.fadeOut{
+    animation: fadeOut 1.5s forwards;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translate(-50%,100%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate(-50%,0);
+    }
+}
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+        transform: translate(-50%,0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%,100%);
+    }
+}
+
+.content{
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.input{
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #333;
+    margin-left: 10px;
+    color: #000;
+    outline: none;
+}

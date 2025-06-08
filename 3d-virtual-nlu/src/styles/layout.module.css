@@ -1,0 +1,76 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 8px;
+  position: relative;
+  /* background: url("/backgroundNL.jpg") no-repeat center / cover;
+   */
+  background-color: #fff;
+  display: flex;
+  overflow: hidden;
+}
+
+.main_contain {
+  background-color: #fff;
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  margin: 0 0.5rem 0.5rem 0;
+  flex-grow: 1; /* Phần chính chiếm hết phần còn lại */
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #267026;
+  padding: 1rem;
+}
+
+.header a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  padding-left: -50px;
+  margin-right: 20px;
+}
+
+.content {
+  flex-grow: 1;
+  background: #f5f5f5;
+  padding: 0.5rem;
+  border-radius: 8px;
+  height: 100%;
+  display: flex;
+}
+
+.extension {
+  display: flex;
+}
+.sub_extension:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
+.sub_extension {
+  width: 25px;
+  height: 25px;
+  padding: 5px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  margin: 0 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.input_search {
+  padding: 5px 10px;
+  border: none;
+  border-bottom: 2px solid #fff;
+  font-size: 15px;
+  color: #fff;
+  background: none;
+  outline: none;
+}

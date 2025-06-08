@@ -1,0 +1,278 @@
+/* Tour.module.css */
+.h1 {
+  margin-left: 50px;
+  padding: 100px;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    /* transform: scale(0); */
+  }
+
+  100% {
+    opacity: 1;
+    /* transform: scale(1); */
+  }
+}
+
+.previewTour {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  animation: fadeIn 1.5s ease-in-out;
+  overflow: hidden;
+  border-radius: 10px;
+  /* border-radius: 10px; */
+  /* margin-bottom: 20px; */
+}
+
+.header_tour {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.show_menu:hover,
+.fullscreen_btn:hover {
+  cursor: pointer;
+  opacity: 0.7;
+  transform: scale(1.2);
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.back_btn {
+  font-size: 20px;
+}
+
+.show_menu {
+  font-size: 30px;
+  margin: 10px;
+}
+
+.back_btn,
+.show_menu {
+  z-index: 2;
+  color: white;
+  transition: transform 0.3s ease;
+}
+
+.step_title {
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.header_tour_left {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  background-color: #333;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  padding: 5px 10px;
+  width: 70px;
+  /* ban đầu chỉ đủ chứa số */
+  overflow: hidden;
+  white-space: nowrap;
+  transition: width 0.4s ease;
+  cursor: pointer;
+}
+
+.header_tour_left:hover {
+  width: 300px;
+}
+
+.number_step {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ccc;
+  border-radius: 50%;
+  margin-left: 0;
+  flex-shrink: 0;
+  position: absolute;
+  left: 30px;
+  pointer-events: none;
+  font-size: 20px;
+  font-weight: 700;
+  color: black;
+}
+
+.header_tour_left span {
+  font-size: 18px;
+  margin-left: 50px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.5s ease 0.2s;
+}
+
+.header_tour_left:hover span {
+  opacity: 1;
+}
+
+.back_btn {
+  color: white;
+  margin-right: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.2s;
+  flex-shrink: 0;
+}
+
+back_btn:hover {
+  cursor: pointer;
+  opacity: 0.7;
+  transform: scale(1.2);
+}
+
+.header_tour_left:hover .back_btn {
+  opacity: 1;
+}
+
+/*      Box đại diện cho mỗi node.  */
+
+.thumbnailsBox {
+  display: flex;
+  gap: 5px;
+  max-width: 50%;
+  background: url("/public/shelf.png") no-repeat;
+  background-size: contain;
+  background-position-y: bottom;
+}
+
+/* 
+.add_node_button:hover{
+  opacity: 0.8;
+  font-size: 35px;
+} */
+.add_node_button {
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  color: #333;
+  font-size: 30px;
+  font-weight: 800;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.toggleRightMenu {
+  position: absolute;
+  right: 0;
+}
+
+.done_button {
+  margin-top: 10px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.rightMenu.show {
+  right: 0px;
+}
+
+.rightMenu {
+  position: absolute;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100%;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  /* ẩn menu bằng transform */
+  transition: right 1s ease;
+  z-index: 26677998;
+}
+
+.rightMenu .rightTitle {
+  margin-top: 20px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #fff;
+}
+
+.rightMenu .rightTitle .close_menu_btn {
+  cursor: pointer;
+  position: absolute;
+  left: 0;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  margin-left: 10px;
+  animation: fadeInMenu 0.5s ease;
+  z-index: 26777271;
+}
+
+@keyframes fadeInMenu {
+  0% {
+    left: -10px;
+    width: 0;
+  }
+
+  100% {
+    left: 0;
+    width: 25px;
+  }
+}
+
+.task_container {
+  width: 40vw;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 10px;
+  border-radius: 10px;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transform: translateY(100%); /* Ẩn xuống dưới hoàn toàn */
+  transition: transform 1s ease-in-out;
+}
+
+.update_hotspot_container {
+  width: 40vw;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  transform: translateY(100%);
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: transform 1.4s ease;
+}
+
+.task_container.show,
+.update_hotspot_container.show {
+  transform: translateY(0);
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+}
+
+.publish_tour_button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}

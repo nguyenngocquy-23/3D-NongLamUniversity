@@ -1,0 +1,71 @@
+/* Sử dụng để chứa thanh tiến trình tạo tour. */
+.stepper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.stepWrapper {
+  width: 200px;
+  position: relative;
+}
+
+.stepLine {
+  height: 3px;
+  width: 200px;
+  background-color: #ccc;
+  border-radius: 2px;
+  position: absolute;
+  top: 18px;
+  left: 100px;
+}
+
+.stepActive {
+  background-color: rgb(17, 228, 63) !important;
+  border: none !important;
+}
+
+/*Đại diện cho 1 step (stepNumber + stepName). Ví dụ: khởi tạo*/
+.step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* margin: 0 20px; */
+}
+
+/* Đại diện cho số bước, bước 1  */
+.stepNumber {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #000;
+  color: #000;
+  background-color: #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5px;
+  z-index: 2;
+  font-weight: 700;
+  font-size: 18px;
+  /* Dùng cho việc đè nó lên trên thằng progress.*/
+}
+
+.stepName {
+  font-size: 15px;
+  color: #000;
+}
+
+.btnNext {
+  position: absolute;
+  right: 0;
+}
+
+.stepContent {
+  border-radius: 10px;
+  height: 100%;
+  width: 100%;
+}
