@@ -1,14 +1,12 @@
 // Import Libraries
 
-import { useScroll, useTransform, motion } from "framer-motion";
+import { useScroll, useTransform } from "framer-motion";
 import * as THREE from "three";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import styles from "../../styles/tourOverview.module.css";
 
-import { FaArrowsToEye, FaPause, FaPlay } from "react-icons/fa6";
 import UpdateCameraOnResize from "../UpdateCameraOnResize";
-import TourScene from "./TourScene";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
@@ -135,13 +133,14 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
           </i>
         </div>
         <div className={styles.containCanvas}>
-          <div id="myDiv" style={{ position: "absolute" }}>
+          {/* <div id="myDiv" style={{ position: "absolute" }}>
             <FaArrowsToEye
               className={styles.comein}
               onClick={handleVirtualTour}
             />
             <h2 className={styles.exploreText}>Khám phá ngay!</h2>
-          </div>
+          </div> */}
+          <button className={styles.explore_button} onClick={handleVirtualTour}>Khám phá ngay!</button>
 
           {/* <canvas id="intro-tour" /> */}
           <Canvas
