@@ -185,7 +185,6 @@ const TourScene: React.FC<TourSceneProps> = ({
           uAmbientLight={new THREE.Color().setScalar(lightIntensity)} // ánh sáng môi trường
         />
       </Sphere>
-      {/* <Stats /> */}
       {/* <directionalLight position={[5, 5, 5]} intensity={lightIntensity} /> */}
     </>
   );

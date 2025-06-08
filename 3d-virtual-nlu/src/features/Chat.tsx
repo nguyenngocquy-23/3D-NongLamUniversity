@@ -152,10 +152,19 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
             onClick={() => handleChooseOption(1)}
           >
             <FaMessage />
+            <span>All</span>
+          </div>
+          <div
+            className={`${styles.chat_option} ${
+              isSelectOption === 2 ? styles.choose_option : ""
+            }`}
+            onClick={() => handleChooseOption(2)}
+          >
+            <FaMessage />
             <span>Help</span>
           </div>
         </div>
-        {isSelectOption == 0 ? (
+        {isSelectOption == 0 || isSelectOption == 1 ? (
           <>
             <div
               className={styles.chatContent}

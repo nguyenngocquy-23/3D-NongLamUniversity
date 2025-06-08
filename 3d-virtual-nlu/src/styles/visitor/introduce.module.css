@@ -1,0 +1,78 @@
+.virtualTourContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+  user-select: none;
+}
+
+.vtBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: background-image 0.5s ease;
+  z-index: 0;
+}
+
+.carousel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 460px;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  padding: 20px 0;
+}
+
+.carouselImage {
+  width: 200px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.carouselImage:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.activeImage {
+  width: 200px;
+  height: 150px;
+  opacity: 1;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+  border: 3px solid white;
+  transform: scale(1.05);
+}
+
+.infoPanel {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 12px 20px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+
+.infoPanel h2 {
+  margin: 0 0 8px;
+  font-size: 26px;
+}
+
+.infoPanel p {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.9;
+}

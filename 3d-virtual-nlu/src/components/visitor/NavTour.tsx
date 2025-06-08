@@ -37,7 +37,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
     <nav
       className={styles.container}
       style={{
-        height: isOpen ? "15%" : undefined,
+        height: isOpen ? "10%" : undefined,
       }}
     >
       {isOpen ? (
@@ -87,7 +87,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
       <div className={styles.info}>
         {isOpen && (
           <>
-            <img src="/public/avatar.jpg" alt="" />
+            <img src={user.avatar !== "" || user.avatar !== null ? user.avatar : "/avatar.jpg"} alt="" />
             <div className={styles.admin_info}>
               <Link to="/">
                 <h5>{user.username} !</h5>

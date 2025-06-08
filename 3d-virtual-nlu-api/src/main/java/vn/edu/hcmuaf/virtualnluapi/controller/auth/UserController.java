@@ -5,10 +5,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.ForgotPasswordRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdatePasswordRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdateProfileRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UserLoginRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
 import vn.edu.hcmuaf.virtualnluapi.service.AuthenticationService;
@@ -29,13 +26,13 @@ public class UserController {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public User userInfo(@HeaderParam("Authorization") String token, UserLoginRequest userLoginDTO) {
+    public User userInfo(@HeaderParam("Authorization") String token, UserLoginRequest request) {
         // check token có trong table invlaidToken không
         boolean authenticated = authenticationService.authenticate(token);
         if (!authenticated) {
             return null;
         }
-        User user = userService.getUserByUserName(userLoginDTO.getUsername());
+        User user = userService.getUserByUserName(request.getUsername());
         return user;
     }
 
@@ -86,6 +83,19 @@ public class UserController {
         return ApiResponse.<Boolean>builder()
                 .statusCode(result ? 1000 : 5000)
                 .message(result ? "Update password successfully" : "Update password failed")
+                .data(result)
+                .build();
+    }
+
+    @POST
+    @Path(("/updateAvatar"))
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> updateAvatar(AvatarRequest request) {
+        boolean result = userService.updateAvatar(request);
+        return ApiResponse.<Boolean>builder()
+                .statusCode(result ? 1000 : 5000)
+                .message(result ? "Update avatar successfully" : "Update avatar failed")
                 .data(result)
                 .build();
     }

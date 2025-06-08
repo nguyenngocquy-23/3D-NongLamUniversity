@@ -1,0 +1,69 @@
+.footer {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+    padding: 40px 0 20px;
+    text-align: center;
+}
+
+.relation {
+    margin: 20px auto;
+    width: 60vw;
+}
+
+.relation h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+.partnerGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4 cột cố định */
+    gap: 20px;
+    padding: 0 20px;
+    justify-items: center;
+}
+
+.partnerLogo {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.partnerLogo:hover {
+    transform: scale(1.1);
+    filter: grayscale(0%);
+    cursor: pointer;
+}
+
+.bottom {
+    border-top: 1px solid #444;
+    padding-top: 20px;
+}
+
+.text {
+    margin: 0;
+    font-size: 14px;
+    color: #cccccc;
+}
+
+.links {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.links a {
+    color: #f0f0f0;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.links a:hover {
+    color: #00bfff;
+}

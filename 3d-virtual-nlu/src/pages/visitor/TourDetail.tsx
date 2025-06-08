@@ -6,9 +6,9 @@ import { RADIUS_SPHERE } from "../../utils/Constants";
 import { Canvas } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { FaChartBar, FaChartLine } from "react-icons/fa";
-import { FaChartPie, FaComment, FaEye } from "react-icons/fa6";
-import { useLocation, useParams } from "react-router-dom";
+import { FaChartBar } from "react-icons/fa";
+import { FaComment, FaEye } from "react-icons/fa6";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
@@ -21,6 +21,7 @@ const TourDetail = () => {
   const [node, setNode] = useState<any>();
   const comments = useSelector((state: RootState) => state.data.commentOfNode);
   const dispatch = useDispatch<AppDispatch>();
+  const [isOpenComment, setIsOpenComment] = useState(false);
 
   useEffect(() => {
     const handleFetchNode = async () => {
@@ -84,20 +85,22 @@ const TourDetail = () => {
         </Canvas>
         <div className={styles.info}>
           <div className={styles.sub_info}>
-            <FaChartBar />
             <span className={styles.name}>10</span>
+            <span className={styles.des}>Số bình luận</span>
           </div>
           <div className={styles.sub_info}>
-            <FaComment />
+            <span className={styles.name}>Trạng thái</span>
+            <span className={styles.des}>Đang hoạt động</span>
+          </div>
+          <div className={styles.sub_info}>
             <span className={styles.name}>{comments.length}</span>
+            <span className={styles.des}>Số bình luận</span>
           </div>
           <div className={styles.sub_info}>
-            <FaEye />
             <span className={styles.name}>1000</span>
+            <span className={styles.des}>Số lượt truy cập</span>
           </div>
         </div>
-      </div>
-      <div className={styles.right_box}>
         <div className={styles.feature}>
           <span className={styles.title}>Tính năng</span>
           <ul className={styles.featureList}>
@@ -105,31 +108,42 @@ const TourDetail = () => {
             <li>Xóa tour</li>
             <li>Cập nhật tour</li>
             <li>Chế độ xem toàn cảnh</li>
+            <li onClick={() => setIsOpenComment((pre) => !pre)}>
+              Xem bình luận
+            </li>
           </ul>
         </div>
-
-        <div className={styles.commentContainer}>
-          <span className={styles.title}>Bình luận</span>
-          <div className={styles.commentBox}>
-            {comments.map((comment) => (
-              <div key={comment.id} className={styles.comment}>
-                <div className={styles.content}>
-                  {comment.content}
-                  <button className={styles.replyBtn}>Trả lời</button>
-                </div>
-                <div className={styles.meta}>
-                  <small>{formatTimeAgo(comment.updatedAt)}</small>
-                </div>
+        <div
+          className={`${styles.commentContainer} ${
+            isOpenComment ? styles.show : ""
+          }`}
+        >
+          {isOpenComment ? (
+            <>
+              <div className={styles.commentBox}>
+                {comments.map((comment) => (
+                  <div key={comment.id} className={styles.comment}>
+                    <div className={styles.content}>
+                      {comment.content}
+                      <button className={styles.replyBtn}>Trả lời</button>
+                    </div>
+                    <div className={styles.meta}>
+                      <small>{formatTimeAgo(comment.updatedAt)}</small>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className={styles.inputContainer}>
-            <textarea
-              placeholder="Nhập bình luận..."
-              className={styles.textarea}
-            ></textarea>
-            <button className={styles.sendBtn}>Gửi</button>
-          </div>
+              <div className={styles.inputContainer}>
+                <textarea
+                  placeholder="Nhập bình luận..."
+                  className={styles.textarea}
+                ></textarea>
+                <button className={styles.sendBtn}>Gửi</button>
+              </div>
+            </>
+          ) : (
+            ""
+          )}
         </div>
       </div>
     </div>

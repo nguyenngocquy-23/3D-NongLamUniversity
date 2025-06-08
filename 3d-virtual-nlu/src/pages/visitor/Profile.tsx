@@ -4,6 +4,9 @@ import { FaEyeSlash, FaEye, FaUpload } from "react-icons/fa6";
 import UploadFile from "../../components/admin/UploadFile";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { fetchUser } from "../../redux/slices/AuthSlice";
+import { AppDispatch } from "../../redux/Store";
+import { useDispatch } from "react-redux";
 
 const VisitorProfile = () => {
   const userJson = sessionStorage.getItem("user");
@@ -16,7 +19,52 @@ const VisitorProfile = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
 
-  const [avatar, setAvatar] = useState("");
+  const [avatar, setAvatar] = useState(user.avatar || "");
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleFileChange = (e: any) => {
+    console.log("handle file change");
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      if (typeof reader.result === "string") {
+        setAvatar(reader.result);
+        // Gửi lên server hoặc xử lý tiếp
+        const response = await axios.post(
+          "http://localhost:8080/api/user/updateAvatar",
+          { userId: user.id, avatar: reader.result }
+        );
+        if (response.data.data) {
+          Swal.fire({
+            title: "Thành công",
+            text: "Cập nhật ảnh đại diện thành công",
+            icon: "success",
+            position: "top-end",
+            toast: true,
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+          });
+          dispatch(fetchUser(user.username));
+        }
+      } else {
+        Swal.fire({
+          title: "Thất bại",
+          text: "Cập nhật ảnh đại diện thất bại",
+          icon: "error",
+          position: "top-end",
+          toast: true,
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
+      }
+    };
+    reader.readAsDataURL(file); // đọc file thành base64
+  };
 
   const handleChangeProfile = async () => {
     if (username.trim() == "" || email.trim() == "") {
@@ -50,6 +98,7 @@ const VisitorProfile = () => {
         title: "Thành công",
         text: "Cập nhật thông tin thành công",
       });
+      dispatch(fetchUser(username))
     } else {
       Swal.fire({
         icon: "error",
@@ -58,6 +107,7 @@ const VisitorProfile = () => {
       });
     }
   };
+
   const handleChangePassword = async () => {
     if (password.trim() == "" || newPassword.trim() == "") {
       Swal.fire({
@@ -145,9 +195,9 @@ const VisitorProfile = () => {
         showConfirmButton: false,
         timerProgressBar: true,
       });
-      setPassword("")
-      setNewPassword("")
-      setConfirmPassword("")
+      setPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
     } else {
       Swal.fire({
         icon: "error",
@@ -162,22 +212,23 @@ const VisitorProfile = () => {
     }
   };
 
-  const handleChangeAvatar = useCallback((url: string) => {
-    setAvatar(url);
-  }, []);
-
   return (
     <div className={styles.container}>
       <div className={styles.avatar}>
         <div
           className={styles.avatarImage}
-          style={{ background: avatar !== "" ? `url(${avatar})` : "" }}
+          style={{
+            background:
+              avatar !== "" && avatar !== null
+                ? `url(${avatar})`
+                : `url("/avatar.jpg")`,
+          }}
         />
-        <div style={{ width: "100%", display: 'flex', justifyContent:'center' }}>
-          <UploadFile
-            className={"upload_image"}
-            onUploaded={handleChangeAvatar}
-          />
+        <div className={styles.uploadContainer}>
+          <label className={styles.customFileInput}>
+            Chọn ảnh
+            <input type="file" accept="image/*" onChange={handleFileChange} />
+          </label>
         </div>
       </div>
       <div className={styles.profile}>

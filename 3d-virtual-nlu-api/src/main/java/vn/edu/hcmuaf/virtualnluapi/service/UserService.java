@@ -8,10 +8,7 @@ import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.EmailVerificationDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.RoleDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.ForgotPasswordRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdatePasswordRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdateProfileRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UserRegisterRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.entity.EmailVerification;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
 import vn.edu.hcmuaf.virtualnluapi.utils.EncryptUtil;
@@ -58,7 +55,7 @@ public class UserService {
         User user = userDao.getUserByEmail(request.getEmail());
         if (user != null) {
             String newPassword = emailVerificationService.randomPassword(6);
-            try{
+            try {
                 mailService.sendMailResetPassword(user, newPassword);
                 user.setPassword(EncryptUtil.hashPassword(newPassword));
                 userDao.updatePassword(user.getId(), user.getPassword());
@@ -95,5 +92,19 @@ public class UserService {
         }
         user.setPassword(EncryptUtil.hashPassword(request.getNewPassword()));
         return userDao.updatePassword(user.getId(), user.getPassword());
+    }
+
+    public boolean updateAvatar(AvatarRequest request) {
+        User user = userDao.findById(request.getUserId());
+        if (user == null) {
+            return false;
+        }
+        user.setAvatar(request.getAvatar());
+        try {
+            return userDao.updateAvatar(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

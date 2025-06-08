@@ -11,11 +11,12 @@
     justify-content: space-around;
 }
 
-.avatar .avatarImage{
+.avatar .avatarImage {
     width: 300px;
     height: 300px;
     margin: auto;
     border-radius: 50%;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
     background: linear-gradient(to bottom, #1565c0, rgba(255, 2, 2, 0));
 
     background-position: center !important;
@@ -41,13 +42,17 @@
     color: #333;
 }
 
+.profile input::placeholder {
+    color: white;
+}
 .profile input {
     display: block;
     width: 100%;
+    font-size: 15px;
     margin-bottom: 1rem;
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 40px;
 }
 
 .profile .button {
@@ -78,4 +83,41 @@
     cursor: pointer;
     font-size: 16px;
     padding-right: 0.5rem;
+}
+
+.uploadContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.customFileInput {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    background-color: #1e88e5;
+    /* Indigo */
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.customFileInput:hover {
+    background-color: #1565c0;
+    /* Darker Indigo */
+}
+
+.customFileInput input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
 }

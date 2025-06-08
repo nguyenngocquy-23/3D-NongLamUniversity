@@ -5,8 +5,7 @@
     width: 100%;
     background-color: #fff;
     z-index: 10;
-    padding: 0 20px;
-    padding-bottom: 20px;
+    padding: 10px 20px;
     /* Hiệu ứng mượt khi ẩn/hiện */
     height: 20px;
     transition: height 0.4s ease;
@@ -14,8 +13,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom-left-radius: 40px ;
-    border-bottom-right-radius: 40px ;
+    /* border-bottom-left-radius: 40px ;
+    border-bottom-right-radius: 40px ; */
 }
 
 .info {
@@ -39,21 +38,17 @@
 }
 
 .toggle:hover {
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
+    font-size: 30px;
+    bottom: -11px;
 }
 .toggle {
     position: absolute;
     left: 50%;
-    bottom: -20px;
+    bottom: -10px;
     transform: translateX(-50%);
-    font-size: 20px;
+    font-size: 25px;
     cursor: pointer;
     color: #444;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -62,16 +57,15 @@
 }
 
 .container .show{
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
+    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.5);
     cursor: default;
 }
 
 .container ul li:hover{
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
+    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.5);
 }
 .container ul li{
+    color: black;
     font-weight: bold;
     cursor: pointer;
     border-radius: 20px;
@@ -97,8 +91,8 @@
 }
 
 .backBtn {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     color: black;
     font-size: 20px;
