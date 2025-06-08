@@ -7,12 +7,18 @@ import { useEffect, useRef, useState } from "react";
 import styles from "../../styles/tourOverview.module.css";
 
 import { FaArrowsToEye, FaPause, FaPlay } from "react-icons/fa6";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/Store";
+import {
+  fetchActiveNode,
+  fetchPreloadNodes,
+} from "../../redux/slices/DataSlice";
+import { Canvas } from "@react-three/fiber";
 import UpdateCameraOnResize from "../UpdateCameraOnResize";
 import TourScene from "./TourScene";
 import { RADIUS_SPHERE } from "../../utils/Constants";
-import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
+const TourOverview = () => {
   const navigate = useNavigate();
   const container = useRef<HTMLDivElement>(null);
 
@@ -20,13 +26,20 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
 
   const y = useTransform(scroll.scrollYProgress, [0, 1], ["-10vh", "10vh"]);
 
+  /**
+   * Đưa default node vào redux.
+   * Đưa PreloadNodes với defaultnode id ban đầu.
+   */
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
     height: window.innerHeight,
   });
   const sphereRef = useRef<THREE.Mesh | null>(null);
 
+  const dispatch = useDispatch<AppDispatch>();
+  const defaultNode = useSelector((state: RootState) => state.data.defaultNode);
   const handleVirtualTour = () => {
+    dispatch(fetchActiveNode());
     navigate("/virtualTour");
   };
 
@@ -153,7 +166,6 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
                 position: [0, 0, 0.0000001],
               }}
               className={styles.tourCanvas}
-              // style={{ cursor }}
             >
               <UpdateCameraOnResize />
               <TourScene

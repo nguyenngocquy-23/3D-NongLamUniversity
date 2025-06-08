@@ -12,15 +12,13 @@ import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
-import vn.edu.hcmuaf.virtualnluapi.entity.Space;
-
 import java.util.List;
 
 @ApplicationScoped
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class NodeService {
+
     @Inject
     NodeDao nodeDao;
 
@@ -38,6 +36,10 @@ public class NodeService {
 
     public NodeFullResponse getDefaultNode() {
         return nodeDao.getDefaultNode();
+    }
+
+    public List<NodeFullResponse> getListPreloadNodeByNode(int nodeId) {
+        return nodeDao.getListPreloadNodeByNode(nodeId);
     }
 
     public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {

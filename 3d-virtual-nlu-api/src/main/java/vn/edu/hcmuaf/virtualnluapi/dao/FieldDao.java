@@ -45,10 +45,11 @@ public class FieldDao {
     public boolean changeStatusField(StatusRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int i = handle.createUpdate("UPDATE fields SET status = :status WHERE id = :id")
-                    .bind("status", req.getStatus() == 0 ? "1" : "0" )
+                    .bind("status", req.getStatus() )
                     .bind("id", req.getId())
                     .execute();
             return i > 0;
         });
     }
+
 }

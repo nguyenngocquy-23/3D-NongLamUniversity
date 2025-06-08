@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
 import axios from "axios";
 import { Canvas } from "@react-three/fiber";
-import PointMedia from "../../components/admin/PointMedia";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import CamControls from "../../components/visitor/CamControls";
@@ -28,6 +27,7 @@ import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 import { nextStep, prevStep } from "../../redux/slices/StepSlice";
 import { fetchMasterNodes } from "../../redux/slices/DataSlice";
 import gsap from "gsap";
+import MiniMap from "../../components/Minimap";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 
 const CreateTourStep3: React.FC = () => {
@@ -112,7 +112,8 @@ const CreateTourStep3: React.FC = () => {
     )
   );
 
-  if(!hotspotNavigations && !hotspotInfos && !hotspotModels && !hotspotMedias) return;
+  if (!hotspotNavigations && !hotspotInfos && !hotspotModels && !hotspotMedias)
+    return;
 
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
@@ -222,6 +223,8 @@ const CreateTourStep3: React.FC = () => {
       console.log("Lỗi khi xuất bản: ", error);
     }
   };
+
+  const [cameraAngle, setCameraAngle] = useState(0);
   return (
     <>
       <div className={styles.previewTour}>
@@ -295,6 +298,13 @@ const CreateTourStep3: React.FC = () => {
                 );
               return null;
             })}
+
+          {/* {currentPanorama && (
+            <MiniMap
+              currentPanorama={currentPanorama}
+              angleCurrent={cameraAngle}
+            />
+          )} */}
         </Canvas>
         {/* Header chứa back */}
         <div className={styles.header_tour} style={{ height: "50px" }}>

@@ -1,0 +1,81 @@
+.field_wrapper {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.field_card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  filter: brightness(0.4);
+}
+.field_content {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  color: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.field_wrapper:hover {
+  width: 210px;
+  transition-duration: 0.3s;
+}
+
+.field_id {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(50%, 50%);
+}
+
+.field_title {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.field_edit {
+  font-size: 1rem;
+}
+.field_code {
+  font-style: italic;
+  font-size: 0.8rem;
+}
+.field_bottom {
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 2px;
+  padding: 0.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  font-size: 0.8rem;
+}
+.field_bottom .status {
+  border-radius: 0.5rem;
+  padding: 2px;
+}
+
+.field_updated_at {
+  color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}

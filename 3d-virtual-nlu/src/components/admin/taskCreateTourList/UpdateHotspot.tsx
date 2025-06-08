@@ -65,7 +65,7 @@ const UpdateHotspot = ({
             {(() => {
               switch (currentType) {
                 case 1:
-                  return <TypeNavigation hotspotId={hotspotId} />;
+                  return <TypeNavigation hotspotNav={propHotspot} />;
                 case 2:
                   return <TypeInfomation hotspotInfo={propHotspot} />;
                 case 4:

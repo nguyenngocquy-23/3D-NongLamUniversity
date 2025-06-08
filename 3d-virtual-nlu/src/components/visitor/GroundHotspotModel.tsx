@@ -1,4 +1,4 @@
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useRef, useState } from "react";
 import styles from "../../styles/cardModel.module.css";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { DoubleSide } from "three";
 import { Html, OrbitControls, useGLTF } from "@react-three/drei";
-import Model from "../admin/Model";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
   setHoveredHotspot?: (hotspot: THREE.Mesh | null) => void;

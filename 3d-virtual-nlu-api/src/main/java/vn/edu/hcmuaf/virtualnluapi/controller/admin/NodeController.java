@@ -81,6 +81,7 @@ public class NodeController {
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 
+
     /**
      * Method dùng để thay thế realId trong Dabatabase cho:
      * 1. tempId của node.
@@ -104,5 +105,6 @@ public class NodeController {
             }
         }
     }
+
 
 }

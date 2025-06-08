@@ -42,6 +42,7 @@ public class SpaceController {
         return ApiResponse.<List<SpaceResponse>>builder().statusCode(1000).message("Lay danh sach ten space thanh cong").data(result).build();
     }
 
+
     @GET
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)

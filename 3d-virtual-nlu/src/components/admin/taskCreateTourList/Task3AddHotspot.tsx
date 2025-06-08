@@ -76,7 +76,8 @@ const Task3 = ({
             currentHotspotType={openTypeIndex}
           />
           <label className={styles.label}>Chọn vị trí điểm:</label>
-          {hotspotNavigationFromNode.length >= limitNavigation() * 2 && openTypeIndex == 1 ? (
+          {hotspotNavigationFromNode.length >= limitNavigation() * 2 &&
+          openTypeIndex == 1 ? (
             <span>Bạn đã đạt giới hạn.</span>
           ) : (
             <button
