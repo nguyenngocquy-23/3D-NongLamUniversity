@@ -4,6 +4,12 @@
   padding: 1rem;
 }
 
+.field_item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .field_features {
   height: 2.5rem;
   display: flex;
@@ -107,8 +113,135 @@
   display: grid;
   max-height: 420px;
   margin: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   justify-items: center;
   gap: 1rem;
   overflow: auto;
+}
+
+.field_edit_by_id {
+  position: relative;
+  font-size: 1rem;
+  width: calc(100% - 600px);
+  display: flex;
+  flex-direction: column;
+  background-color: transparent;
+  padding: 0.5rem;
+  border-left: 3px solid #267026;
+  color: #123315;
+}
+
+.close_btn {
+  position: absolute;
+  right: 0;
+  transform: translateX(-50%);
+  font-size: 30px;
+  color: #bd1919;
+}
+.close_btn:hover {
+  cursor: pointer;
+  opacity: 0.7;
+}
+.field_edit_content {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.field_edit_label {
+  text-align: center;
+}
+
+.field_information_item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.field_input_name_container {
+  flex: 1;
+  position: relative;
+}
+
+.field_input_name_container input[type="text"] {
+  font-size: 15px;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  padding: 5px 5px;
+  background-color: transparent;
+  outline: none;
+}
+
+.field_input_name_container .underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  width: 100%;
+  background-color: #267026;
+  transform: scaleX(0);
+  transition: all 0.3s ease;
+}
+
+.field_input_name_container input[type="text"]:focus ~ .underline,
+.field_input_name_container input[type="text"]:valid ~ .underline {
+  transform: scaleX(1);
+}
+.field_input_name_container .field_input_name_edit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(50%);
+  color: #267026;
+}
+.field_input_name_container .field_input_name_edit:hover {
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 10px;
+  background-color: #fff;
+  transition: ease 0.2s all;
+}
+
+.field_status_label {
+  font-size: 0.8rem;
+  font-style: italic;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.field_space_list {
+  font-weight: bold;
+}
+
+.field_navigation_list_space:hover {
+}
+
+.field_navigation_add_space {
+  font-size: 0.8rem;
+  text-decoration: underline;
+  color: blue;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.field_footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  justify-content: center;
+}
+
+.field_footer .field_delete_change_btn {
+  color: #fff;
+  background-color: #bd1919;
+  padding: 0.5rem;
+}
+
+.field_footer .field_add_change_btn {
+  color: #fff;
+  background-color: #267026;
+  padding: 0.5rem;
 }

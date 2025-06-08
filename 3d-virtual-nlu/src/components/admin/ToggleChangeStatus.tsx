@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../redux/Store';
-import { fetchFields } from '../../redux/slices/DataSlice';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/Store";
+import { fetchFields } from "../../redux/slices/DataSlice";
+import styles from "../../styles/toggleChangeStatus.module.css";
 
 type StatusToggleProps = {
   id: number;
@@ -12,44 +13,46 @@ type StatusToggleProps = {
 
 const StatusToggle: React.FC<StatusToggleProps> = ({ id, status, apiUrl }) => {
   const [loading, setLoading] = useState(false);
-  const [toggle, setToggle] = useState(status);
+
+  // const [toggle, setToggle] = useState(status);
+  // useEffect(() => {
+  //   setToggle(status);
+  // }, [status]);
+
   const dispatch = useDispatch<AppDispatch>();
 
-  const toggleStatus = async () => {
-    setToggle(toggle === 1 ? 0 : 1);
+  const handleToggleStatus = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    const newToggle = checked ? 1 : 0;
+
     setLoading(true);
 
     try {
-      console.log('apiUrl',apiUrl)
-      console.log('id',id)
-      console.log('sttatus',status)
-      // Gửi API lên server
-      await axios.post(apiUrl, {id: id, status: status });
+      await axios.post(apiUrl, { id, status: newToggle });
       dispatch(fetchFields());
     } catch (err) {
-      console.error('Cập nhật trạng thái thất bại:', err);
-      alert('Không thể cập nhật trạng thái!');
+      console.error("Cập nhật trạng thái thất bại:", err);
+      alert("Không thể cập nhật trạng thái!");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <button
-      onClick={toggleStatus}
-      disabled={loading}
-      style={{
-        padding: '6px 12px',
-        borderRadius: '8px',
-        border: 'none',
-        backgroundColor: toggle === 0 ? '#4CAF50' : '#f44336',
-        color: 'white',
-        cursor: 'pointer',
-        opacity: loading ? 0.6 : 1,
-      }}
-    >
-      {loading ? 'Đang gửi...' : toggle === 0 ? 'Bật' : 'Tắt'}
-    </button>
+    <div className={styles.field_status_toggle}>
+      <input
+        id="checkbox"
+        type="checkbox"
+        checked={status > 0}
+        onChange={id > 0 ? handleToggleStatus : undefined}
+        disabled={loading}
+        style={{
+          cursor: loading ? "not-allowed" : "pointer",
+          opacity: loading ? 0.6 : 1,
+        }}
+      />
+      {/* <div>{loading ? "Đang gửi..." : toggle === 1 ? "Tắt" : "Bật"}</div> */}
+    </div>
   );
 };
 

@@ -34,7 +34,7 @@ const FieldCard: React.FC<FieldCardProps> = ({ field }) => {
           ({field.listSpace.length} không gian)
         </span>
         <div className={styles.field_bottom}>
-          {field.status === 2 ? (
+          {field.status > 0 ? (
             <div
               className={styles.status}
               style={{
