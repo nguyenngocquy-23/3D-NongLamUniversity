@@ -101,9 +101,28 @@ const Field: React.FC<Field> = () => {
   const [statusField, setStatusField] = useState(
     (selectedField?.status ?? 0) > 0 ? true : false
   );
-  useEffect(() => {
-    setStatusField((selectedField?.status ?? 0) > 0);
-  }, [selectedField]);
+
+  const handleEditInput = () => {
+    if (!isEditing) setIsEditing(true);
+  };
+  // const handleRename = () => {
+  //     if (!masterPanorama) return;
+
+  //     const trimmedName = masterNameInput.trim();
+  //     if (!trimmedName) return; // tránh tên trống
+
+  //     dispatch(
+  //       renameMasterAndUpdateSlaves({
+  //         id: masterPanorama.id,
+  //         newName: trimmedName,
+  //       })
+  //     );
+  //     setIsEditing(false);
+  //   };
+
+  // useEffect(() => {
+  //   setStatusField((selectedField?.status ?? 0) > 0);
+  // }, [selectedField]);
 
   return (
     <>
@@ -264,7 +283,7 @@ const Field: React.FC<Field> = () => {
                 ) : (
                   <FaSave
                     className={styles.field_input_name_edit}
-                    onClick={handleRename}
+                    // onClick={handleRename}
                   />
                 )}
 
