@@ -64,7 +64,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
         >
           <Link to={"/manage/"} onClick={() => setIsNav(1)}>
             <li className={`${styles.title} ${isNav == 1 ? styles.show : ""}`}>
-              <span>Thống kê</span>
+              <span>Hồ sơ & Thống kê</span>
             </li>
           </Link>
           <Link to={"/manage/tours"} onClick={() => setIsNav(2)}>
@@ -77,9 +77,9 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
               <span>Tạo tour mới</span>
             </li>
           </Link>
-          <Link to={"/manage/profile"} onClick={() => setIsNav(4)}>
+          <Link to={"/manage/createTour"} onClick={() => setIsNav(4)}>
             <li className={`${styles.title} ${isNav == 4 ? styles.show : ""}`}>
-              <span>Thông tin cá nhân</span>
+              <span>Tạo tour tự động</span>
             </li>
           </Link>
         </ul>

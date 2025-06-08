@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "../../styles/visitor/footer.module.css";
+import { Link as ScrollLink } from "react-scroll";
 
 export default function Footer() {
   const partners = [
@@ -13,11 +14,14 @@ export default function Footer() {
     "data:image/png;base64,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",
   ];
 
+  // Lặp để tạo hiệu ứng trượt liên tục
+  const duplicatedPartners = [...partners, ...partners];
+
   return (
     <>
-      <div className={styles.relation}>
-        <div className={styles.partnerGrid}>
-          {partners.map((logo, index) => (
+      <div className={styles.marqueeWrapper}>
+        <div className={styles.marqueeContent}>
+          {duplicatedPartners.map((logo, index) => (
             <img
               key={index}
               src={logo}
@@ -27,6 +31,7 @@ export default function Footer() {
           ))}
         </div>
       </div>
+
       <footer className={styles.footer}>
         <div className={styles.container}>
           <p className={styles.text}>
@@ -34,9 +39,32 @@ export default function Footer() {
             bảo lưu.
           </p>
           <div className={styles.links}>
-            <a href="#about">Giới thiệu</a>
-            <a href="#contact">Liên hệ</a>
-            <a href="#privacy">Chính sách bảo mật</a>
+            <ScrollLink
+              to="introduce"
+              className={styles.navLink}
+              smooth={true}
+              duration={800}
+            >
+              Giới thiệu
+            </ScrollLink>
+
+            <ScrollLink
+              to="tourOverview"
+              className={styles.navLink}
+              smooth={true}
+              duration={800}
+            >
+              Khám phá tour ảo
+            </ScrollLink>
+            <ScrollLink
+              to="contact"
+              className={styles.navLink}
+              smooth={true}
+              offset={-40}
+              duration={800}
+            >
+              Liên hệ
+            </ScrollLink>
           </div>
         </div>
       </footer>

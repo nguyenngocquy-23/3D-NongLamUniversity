@@ -7,12 +7,18 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
 import { FaMessage, FaXmark } from "react-icons/fa6";
 
-const Chat = ({ nodeId }: { nodeId: number }) => {
+const Chat = ({
+  nodeId,
+  setAccessing,
+}: {
+  nodeId: number;
+  setAccessing: (value: any) => void;
+}) => {
   // const { roomId, userId } = useParams(); // Lấy roomId & userId từ URL
   const user = useSelector((state: RootState) => state.auth.user);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<
-    { username: string; content: string }[]
+    { avatar: string; username: string; content: string; createdAt: string }[]
   >([]);
   const [inputMessage, setInputMessage] = useState("");
   const [page, setPage] = useState(0);
@@ -38,8 +44,21 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
     };
 
     ws.onmessage = (event) => {
-      const [username, content] = event.data.split(": ", 2);
-      setMessages((prev) => [...prev, { username, content }]);
+      const data = event.data;
+      if (data.startsWith("COUNT:")) {
+        const count = data.split(":")[1];
+        setAccessing(count);
+      } else {
+        console.log("Message: ", data);
+        const [avatar, username, content, createdAt] = event.data.split(
+          ": ",
+          2
+        );
+        setMessages((prev) => [
+          ...prev,
+          { avatar, username, content, createdAt },
+        ]);
+      }
     };
 
     ws.onclose = () => {
@@ -180,8 +199,17 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
                   >
                     {!isMine && (
                       <div className={styles.otherAccount}>
-                        <div className={styles.avatar}>
-                          {msg.username.charAt(0)}
+                        <div
+                          className={styles.avatar}
+                          style={{
+                            background: `url(${
+                              msg.avatar !== null && msg.avatar !== ""
+                                ? msg.avatar
+                                : "/avatar.jpg"
+                            })`,
+                          }}
+                        >
+                          {/* {msg.username.charAt(0)} */}
                         </div>
                       </div>
                     )}

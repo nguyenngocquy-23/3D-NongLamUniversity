@@ -7,7 +7,7 @@ import { Canvas } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { FaChartBar } from "react-icons/fa";
-import { FaComment, FaEye } from "react-icons/fa6";
+import { FaAngleUp, FaComment, FaEye } from "react-icons/fa6";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +22,7 @@ const TourDetail = () => {
   const comments = useSelector((state: RootState) => state.data.commentOfNode);
   const dispatch = useDispatch<AppDispatch>();
   const [isOpenComment, setIsOpenComment] = useState(false);
+  const [isFullPreview, setIsFullPreview] = useState(false);
 
   useEffect(() => {
     const handleFetchNode = async () => {
@@ -83,36 +84,48 @@ const TourDetail = () => {
             rotateSpeed={0.2}
           />
         </Canvas>
-        <div className={styles.info}>
-          <div className={styles.sub_info}>
-            <span className={styles.name}>10</span>
-            <span className={styles.des}>Số bình luận</span>
+        {isFullPreview ? (
+          <FaAngleUp
+            className={styles.toggle}
+            title={"Mở tính năng"}
+            onClick={() => setIsFullPreview(false)}
+          />
+        ) : (
+          <div>
+            <div className={styles.info}>
+              <div className={styles.sub_info}>
+                <span className={styles.name}>10</span>
+                <span className={styles.des}>Số bình luận</span>
+              </div>
+              <div className={styles.sub_info}>
+                <span className={styles.name}>Trạng thái</span>
+                <span className={styles.des}>Đang hoạt động</span>
+              </div>
+              <div className={styles.sub_info}>
+                <span className={styles.name}>{comments.length}</span>
+                <span className={styles.des}>Số bình luận</span>
+              </div>
+              <div className={styles.sub_info}>
+                <span className={styles.name}>1000</span>
+                <span className={styles.des}>Số lượt truy cập</span>
+              </div>
+            </div>
+            <div className={styles.feature}>
+              <span className={styles.title}>Tính năng</span>
+              <ul className={styles.featureList}>
+                <li>Ngưng hoạt động</li>
+                <li>Xóa tour</li>
+                <li>Cập nhật tour</li>
+                <li onClick={() => setIsFullPreview((pre) => !pre)}>
+                  Chế độ xem toàn cảnh
+                </li>
+                <li onClick={() => setIsOpenComment((pre) => !pre)}>
+                  Xem bình luận
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className={styles.sub_info}>
-            <span className={styles.name}>Trạng thái</span>
-            <span className={styles.des}>Đang hoạt động</span>
-          </div>
-          <div className={styles.sub_info}>
-            <span className={styles.name}>{comments.length}</span>
-            <span className={styles.des}>Số bình luận</span>
-          </div>
-          <div className={styles.sub_info}>
-            <span className={styles.name}>1000</span>
-            <span className={styles.des}>Số lượt truy cập</span>
-          </div>
-        </div>
-        <div className={styles.feature}>
-          <span className={styles.title}>Tính năng</span>
-          <ul className={styles.featureList}>
-            <li>Ngưng hoạt động</li>
-            <li>Xóa tour</li>
-            <li>Cập nhật tour</li>
-            <li>Chế độ xem toàn cảnh</li>
-            <li onClick={() => setIsOpenComment((pre) => !pre)}>
-              Xem bình luận
-            </li>
-          </ul>
-        </div>
+        )}
         <div
           className={`${styles.commentContainer} ${
             isOpenComment ? styles.show : ""
