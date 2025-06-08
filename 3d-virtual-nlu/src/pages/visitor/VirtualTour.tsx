@@ -1,7 +1,6 @@
 import styles from "../../styles/virtualTour.module.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import gsap from "gsap";
 import Chat from "../../features/Chat.tsx";
 import { useNavigate } from "react-router-dom";
 import { IoIosCloseCircle } from "react-icons/io";
@@ -9,7 +8,13 @@ import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store.ts";
-import { fetchIcons, fetchMasterNodes } from "../../redux/slices/DataSlice.ts";
+import {
+  fetchActiveNode,
+  fetchDefaultNodes,
+  fetchIcons,
+  fetchMasterNodes,
+  fetchPreloadNodes,
+} from "../../redux/slices/DataSlice.ts";
 import Waiting from "../../components/Waiting.tsx";
 import {
   HotspotInformation,
@@ -34,36 +39,44 @@ import { MdOpenInFull } from "react-icons/md";
  */
 const VirtualTour = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const status = useSelector((state: RootState) => state.data.status);
+  const user = useSelector((state: RootState) => state.auth.user);
+
   useEffect(() => {
     dispatch(fetchMasterNodes());
     dispatch(fetchIcons());
-    // dispatch(fetchDefaultNodes());
+    dispatch(fetchDefaultNodes());
   }, [dispatch]);
+  const reduxDefaultNode = useSelector(
+    (state: RootState) => state.data.defaultNode
+  );
 
   const icons = useSelector((state: RootState) => state.data.icons);
-
-  const userJson = sessionStorage.getItem("user");
-  const user = userJson ? JSON.parse(userJson) : null;
-
-  const stored = localStorage.getItem("defaultNode");
-  const defaultNode = useMemo(() => {
+  // Fallback: lấy từ localStorage nếu Redux chưa có dữ liệu
+  const nodeToRender = useMemo(() => {
+    if (reduxDefaultNode) return reduxDefaultNode;
+    const stored = localStorage.getItem("defaultNode");
     return stored ? JSON.parse(stored) : null;
-  }, [stored]);
+  }, [reduxDefaultNode]);
+
+  useEffect(() => {
+    dispatch(fetchPreloadNodes(nodeToRender.id));
+  }, [nodeToRender]);
   const hotspotModels = useMemo(() => {
-    return (defaultNode?.modelHotspots as HotspotModel[]) || [];
-  }, [defaultNode]);
+    return (nodeToRender?.modelHotspots as HotspotModel[]) || [];
+  }, [nodeToRender]);
 
   const hotspotMedias = useMemo(() => {
-    return (defaultNode?.mediaHotspots as HotspotMedia[]) || [];
-  }, [defaultNode]);
+    return (nodeToRender?.mediaHotspots as HotspotMedia[]) || [];
+  }, [nodeToRender]);
 
   const hotspotNavigations = useMemo(() => {
-    return (defaultNode?.navHotspots as HotspotNavigation[]) || [];
-  }, [defaultNode]);
+    return (nodeToRender?.navHotspots as HotspotNavigation[]) || [];
+  }, [nodeToRender]);
 
   const hotspotInformations = useMemo(() => {
-    return (defaultNode?.infoHotspots as HotspotInformation[]) || [];
-  }, [defaultNode]);
+    return (nodeToRender?.infoHotspots as HotspotInformation[]) || [];
+  }, [nodeToRender]);
 
   if (
     !hotspotModels ||
@@ -78,7 +91,7 @@ const VirtualTour = () => {
   // let defaultNode = null;
   // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
 
-  const [isRotation, setIsRotation] = useState(defaultNode.autoRotate || true);
+  const [isRotation, setIsRotation] = useState(nodeToRender.autoRotate || true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
 
@@ -94,19 +107,7 @@ const VirtualTour = () => {
     null
   ); // Giữ lại đối tượng
 
-  /**
-   * Giải pháp tạm thời cho việc reload mới scroll duoc
-   * Tự động reload trang khi render và ẩn sau lớp Waiting
-   */
-  // useEffect(() => {
-  //   const alreadyReloaded = sessionStorage.getItem("reloaded");
-
-  //   if (!alreadyReloaded) {
-  //     console.log("🔄 Reloading page...");
-  //     sessionStorage.setItem("reloaded", "true");
-  //     window.location.reload();
-  //   }
-  // }, []);
+  const [accessing, setAccessing] = useState(0);
 
   /**
    * Lớp chờ để ẩn các tiến trình render
@@ -169,27 +170,6 @@ const VirtualTour = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  const handledSwitchTexture = (newPosition: [number, number, number]) => {
-    if (sphereRef.current) {
-      const material = sphereRef.current.material as THREE.MeshBasicMaterial;
-      const newTexture = material.map?.image.src.includes("khoa.jpg")
-        ? new THREE.TextureLoader().load("thuvien.jpg")
-        : new THREE.TextureLoader().load("khoa.jpg");
-      newTexture.wrapS = THREE.RepeatWrapping;
-      newTexture.repeat.x = -1;
-
-      gsap.to(material, {
-        opacity: 0,
-        duration: 0.5,
-        onComplete: () => {
-          material.map = newTexture;
-          material.needsUpdate = true;
-          gsap.to(material, { opacity: 1, duration: 0.5 });
-        },
-      });
-    }
-  };
 
   const handleClose = () => {
     navigate("/");
@@ -364,15 +344,13 @@ const VirtualTour = () => {
         cursor={cursor}
         sphereRef={sphereRef}
         radius={RADIUS_SPHERE}
-        defaultNode={defaultNode}
+        defaultNode={nodeToRender}
         targetPosition={targetPosition ?? null}
         hotspotNavigations={hotspotNavigations}
         hotspotInformations={hotspotInformations}
         hotspotModels={hotspotModels}
         hotspotMedias={hotspotMedias}
         isRotation={isRotation}
-        // handleMouseEnterMenu={handleMouseEnterMenu}
-        // handleCloseMenu={handleCloseMenu}
       />
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>
@@ -386,7 +364,7 @@ const VirtualTour = () => {
         <LeftMenuTour isMenuVisible={isMenuVisible} />
       )}
       {/* Hộp feedback */}
-      <Chat nodeId={defaultNode.id} />
+      <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />
       {/* <Chat nodeId={defaultNode.id} /> */}
       {/* Footer chứa các tính năng */}
       <FooterTour
@@ -398,6 +376,7 @@ const VirtualTour = () => {
         toggleFullscreen={toggleFullscreen}
         toggleMute={toggleMute}
         setIsComment={setIsComment}
+        accessing={accessing}
       />
       {/* Hộp thông tin */}
       <div className={styles.infoBox} onClick={toggleInformation}>
@@ -408,7 +387,7 @@ const VirtualTour = () => {
       {isComment && user ? (
         <CommentBox
           userId={user.id}
-          nodeId={defaultNode.id}
+          nodeId={nodeToRender.id}
           setIsComment={setIsComment}
         />
       ) : (
@@ -434,7 +413,7 @@ const VirtualTour = () => {
           </button>
         ) : (
           <>
-            <MapLeaflet spaceId={defaultNode.spaceId} mapRef={mapRef} />
+            <MapLeaflet spaceId={nodeToRender.spaceId} mapRef={mapRef} />
             {fullMap ? (
               <button
                 className={styles.full_button}
@@ -472,7 +451,6 @@ const VirtualTour = () => {
       </div>
       /* Màn hình laoding */
       {isWaiting ? <Waiting /> : ""}
-      {/* <StatsPanel className={styles.statsPanel} /> */}
     </div>
   );
 };

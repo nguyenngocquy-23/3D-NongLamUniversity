@@ -38,7 +38,6 @@ const Chat = ({ nodeId }: { nodeId: number }) => {
     };
 
     ws.onmessage = (event) => {
-      console.log("Received:", event.data);
       const [username, content] = event.data.split(": ", 2);
       setMessages((prev) => [...prev, { username, content }]);
     };

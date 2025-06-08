@@ -20,20 +20,27 @@ public class MyWebSocketServer {
     @Inject
     private UserService userDAO;
 
-    private static final Map<String, Session> sessions = new ConcurrentHashMap<>();
+    // Lưu session theo nodeId → userId → session
+    private static final Map<String, Map<String, Session>> nodeSessions = new ConcurrentHashMap<>();
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("nodeId") String nodeId, @PathParam("userId") String userId) {
-        String sessionKey = nodeId + "_" + userId;
-        sessions.put(sessionKey, session);
+    public void onOpen(Session session,
+                       @PathParam("nodeId") String nodeId,
+                       @PathParam("userId") String userId) {
+        nodeSessions
+                .computeIfAbsent(nodeId, k -> new ConcurrentHashMap<>())
+                .put(userId, session);
+
         System.out.println("User " + userId + " connected to node " + nodeId);
 
-        // Gửi ping sau 10 giây để giữ kết nối
+        broadcastCount(nodeId);
+
+        // Ping giữ kết nối
         new Thread(() -> {
             while (session.isOpen()) {
                 try {
                     Thread.sleep(10000);
-                    session.getBasicRemote().sendPing(ByteBuffer.allocate(0)); // Gửi ping giữ kết nối
+                    session.getBasicRemote().sendPing(ByteBuffer.allocate(0));
                 } catch (Exception e) {
                     System.err.println("Ping failed: " + e.getMessage());
                     break;
@@ -41,6 +48,7 @@ public class MyWebSocketServer {
             }
         }).start();
     }
+
 
     @OnMessage
     public void onMessage(String message, Session session, @PathParam("nodeId") String nodeId, @PathParam("userId") String userId) {
@@ -59,14 +67,21 @@ public class MyWebSocketServer {
     }
 
     @OnClose
-    public void onClose(Session session, @PathParam("nodeId") String nodeId, @PathParam("userId") String userId) throws IOException {
-        String sessionKey = nodeId + "_" + userId;
-        if (session.isOpen()) {
-            session.close();
+    public void onClose(Session session,
+                        @PathParam("nodeId") String nodeId,
+                        @PathParam("userId") String userId) {
+        Map<String, Session> users = nodeSessions.get(nodeId);
+        if (users != null) {
+            users.remove(userId);
+            if (users.isEmpty()) {
+                nodeSessions.remove(nodeId);
+            }
         }
-        sessions.remove(sessionKey);
+
         System.out.println("User " + userId + " disconnected from node " + nodeId);
+        broadcastCount(nodeId);
     }
+
 
 
     @OnError
@@ -89,19 +104,38 @@ public class MyWebSocketServer {
     private void broadcastMessage(String nodeId, String userId, String message) {
         User user = userDAO.findById(Integer.parseInt(userId));
         String formattedMessage = user.getUsername() + ": " + message;
-        sessions.forEach((key, session) -> {
-            if (key.startsWith(nodeId + "_")) {
-                try {
-                    if (session.isOpen()) {
+
+        Map<String, Session> users = nodeSessions.get(nodeId);
+        if (users != null) {
+            for (Map.Entry<String, Session> entry : users.entrySet()) {
+                Session session = entry.getValue();
+                if (session.isOpen()) {
+                    try {
                         session.getBasicRemote().sendText(formattedMessage);
-                        session.getBasicRemote().flushBatch();
-                        System.out.println("Sent to " + key + ": " + formattedMessage);
+                        System.out.println("Sent to " + entry.getKey() + ": " + formattedMessage);
+                    } catch (IOException e) {
+                        System.err.println("Error sending message to " + entry.getKey() + ": " + e.getMessage());
                     }
-                } catch (IOException e) {
-                    System.err.println("Error sending message to user " + key + ": " + e.getMessage());
                 }
             }
-        });
+        }
     }
 
+    private void broadcastCount(String nodeId) {
+        Map<String, Session> users = nodeSessions.get(nodeId);
+        int count = users != null ? users.size() : 0;
+        String message = "COUNT:" + count;
+
+        if (users != null) {
+            for (Session s : users.values()) {
+                if (s.isOpen()) {
+                    try {
+                        s.getBasicRemote().sendText(message);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 }

@@ -63,7 +63,11 @@ const Layout = () => {
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(true);
 
   useEffect(() => {
-    if (currentStep === 2 || currentStep === 3 || location.pathname == "/admin/model") {
+    if (
+      currentStep === 2 ||
+      currentStep === 3 ||
+      location.pathname == "/admin/model"
+    ) {
       setIsOptionFullScreen(true);
     } else {
       setIsOptionFullScreen(false);
@@ -77,7 +81,7 @@ const Layout = () => {
       )}
       {/* Main Content */}
       <main className={styles.main_contain}>
-        {!isOptionFullScreen && (
+        {/* {isOptionFullScreen && (
           <header className={styles.header}>
             <div className={styles.extension}>
               <input
@@ -96,6 +100,11 @@ const Layout = () => {
               </div>
             </div>
             <button onClick={handleLogout}>Đăng xuất</button>
+          </header>
+        )} */}
+        {!isOptionFullScreen && (
+          <header className={styles.header}>
+            <h2>Tổng quan</h2>
           </header>
         )}
         <section className={styles.content}>

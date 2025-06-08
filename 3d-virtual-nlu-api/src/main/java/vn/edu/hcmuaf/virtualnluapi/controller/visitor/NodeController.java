@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
+
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
@@ -37,6 +38,44 @@ public class NodeController {
     public ApiResponse<NodeFullResponse> getDefaultNode() {
         NodeFullResponse result = nodeService.getDefaultNode();
         return ApiResponse.<NodeFullResponse>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
+    }
+
+    /**
+     * Method : Nhận vào id của node Id. => Lấy ra danh sách các node liên quan dựa trên target của hotspot.
+     * Điều kiện gọi API: Là master node. (Chứa tối đa 4 node con và các liên kết navigation sang các tour xung quanh khác)
+     * => Danh sách preload sẽ gồm:
+     * + 1. Danh sách các node con trong cùng 1 tour (tối đa 4).
+     * + 2. Danh sách các master node của các tour khác có liên kết tới (không hạn chế).
+     */
+
+    @POST
+    @Path("/preloadNodeList")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getPreloadNodeList(NodeIdRequest node) {
+        try {
+            List<NodeFullResponse> result = nodeService.getListPreloadNodeByNode(node.getNodeId());
+
+            return ApiResponse.<List<NodeFullResponse>>builder()
+                    .statusCode(1000)
+                    .message("Lấy danh sách node thành công")
+                    .data(result)
+                    .build();
+
+        } catch (NumberFormatException e) {
+            return ApiResponse.<List<NodeFullResponse>>builder()
+                    .statusCode(1001)
+                    .message("ID node không hợp lệ: " + node.getNodeId())
+                    .data(null)
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.<List<NodeFullResponse>>builder()
+                    .statusCode(1002)
+                    .message("Đã xảy ra lỗi nội bộ: " + e.getMessage())
+                    .data(null)
+                    .build();
+        }
     }
 
     @POST
