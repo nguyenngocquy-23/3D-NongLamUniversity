@@ -1,5 +1,5 @@
 .virtualTourContainer {
-  position: relative;
+  /* position: relative; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,6 +8,28 @@
   background-color: white;
   /* background-color: #5cb338; */
 }
+
+.single {
+  font-family: "Forte" !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 200px;
+  color: black;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  /* transform: skewX(-15deg); */
+  text-shadow: 4px 4px 0 #444;
+  text-shadow:
+    1px 1px 0 #ccc,
+    2px 2px 0 #bbb,
+    3px 3px 0 #aaa,
+    4px 4px 0 #999,
+    5px 5px 0 #888,
+    6px 6px 5px rgba(0, 0, 0, 0.3);
+}
+
 
 .vtBackground .titleContainer {
   position: absolute;
@@ -23,7 +45,7 @@
 .vtBackground .title {}
 
 .vtBackground {
-  position: fixed;
+  position: relative;
   top: 0;
   left: 0;
   height: 100%;

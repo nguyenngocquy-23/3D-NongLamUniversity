@@ -34,8 +34,8 @@ const ShadowScreen: React.FC<CurvedScreenProps> = ({
     ctx.drawImage(img, 0, 0);
 
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, "rgba(0,0,0,0)"); // Phần trên cùng, 0% - 20% rõ
-    gradient.addColorStop(0.6, "rgba(0,0,0,0)"); // Đảm bảo 20% đầu vẫn rõ
+    gradient.addColorStop(0, "rgba(255,255,255,0)"); // Phần trên cùng, 0% - 20% rõ
+    gradient.addColorStop(0.6, "rgba(255,255,255,0)"); // Đảm bảo 20% đầu vẫn rõ
     gradient.addColorStop(1, "rgba(0,0,0,0.5)");
 
     ctx.globalCompositeOperation = "destination-in";
@@ -47,7 +47,6 @@ const ShadowScreen: React.FC<CurvedScreenProps> = ({
   });
 
   texture.minFilter = THREE.NearestFilter;
-  texture.colorSpace = "srgb";
   texture.needsUpdate = true;
   texture.flipY = false;
 
@@ -70,12 +69,12 @@ const ShadowScreen: React.FC<CurvedScreenProps> = ({
         ref={meshRef}
         geometry={geometry}
         rotation={[0, 0, 0]}
-        position={[0, -window.innerHeight * 0.8, 0]}
+        position={[0, -window.innerHeight * 0.8 - 2, 0]}
         castShadow // mesh phát bóng
       >
         <meshBasicMaterial
           map={texture}
-          color={"#fff"}
+          color={"#bbb"}
           transparent
           side={THREE.BackSide}
           opacity={1}

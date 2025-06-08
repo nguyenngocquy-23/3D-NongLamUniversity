@@ -120,14 +120,15 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
       id="tourOverview"
       ref={container}
       className={styles.virtualTourContainer}
-      style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
+      // style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
     >
       <div className={styles.vtBackground}>
+        <h1 className={styles.single} style={{fontSize:'150px',top:'20%'}}>
+          TOUR
+        </h1>
+        <h1 className={styles.single}>3D</h1>
         <div className={styles.titleContainer}>
-          <h2 className={styles.title} style={{ fontSize: "50px" }}>
-            TOUR 3D
-          </h2>
-          <h2 className={styles.title}>THAM QUAN ẢO</h2>
+          <h2 className={styles.title} style={{fontSize:'40px'}}>THAM QUAN ẢO</h2>
           <i className={styles.title}>
             Chào mừng bạn đến với chuyến tham quan khuôn viên Trường Đại học
             Nông Lâm Thành phố Hồ Chí Minh. Chúc bạn có một trải nghiệm thú vị.

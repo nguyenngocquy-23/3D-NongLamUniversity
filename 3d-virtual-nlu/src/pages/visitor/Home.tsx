@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { fetchDefaultNodes, fetchIcons } from "../../redux/slices/DataSlice";
 import { AppDispatch } from "../../redux/Store";
 import ScrollOnTop from "../../components/visitor/ScrollOnTop";
+import Introduce from "../../components/visitor/Introduce";
 
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -33,6 +34,8 @@ const Home: React.FC = () => {
       <Banner />
 
       <CampusMap />
+
+      <Introduce />
 
       <TourOverview defaultNode={defaultNode} />
 
