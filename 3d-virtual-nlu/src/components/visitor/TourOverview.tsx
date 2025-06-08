@@ -122,9 +122,9 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
     >
       <div className={styles.vtBackground}>
         <h1 className={styles.single} style={{fontSize:'150px',top:'20%'}}>
-          TOUR
+          TOUR 3D
         </h1>
-        <h1 className={styles.single}>3D</h1>
+        {/* <h1 className={styles.single}>3D</h1> */}
         <div className={styles.titleContainer}>
           <h2 className={styles.title} style={{fontSize:'40px'}}>THAM QUAN ẢO</h2>
           <i className={styles.title}>
@@ -149,7 +149,7 @@ const TourOverview = ({ defaultNode }: { defaultNode: any }) => {
               aspect: windowSize.width / windowSize.height,
               near: 0.1,
               far: 1000,
-              position: [0, 0, 400],
+              position: [0, 0, 200],
             }}
             className={styles.tourCanvas}
           >
