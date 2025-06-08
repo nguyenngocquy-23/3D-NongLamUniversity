@@ -3,29 +3,29 @@ import styles from "../../styles/visitor/introduce.module.css";
 
 const images = [
   {
-    src: "/khoa.jpg",
+    src: "/public/thienly.jpg",
+    title: "Toàn Thiên Lý",
+    description: "Và tòa nhà điều hành của trường, được xem là tòa nhà biểu tượng cho trường. Nơi tiếp nhận và giải quyết các vấn đè của sinh viên.",
+  },
+  {
+    src: "/public/phuongvy.jpg",
+    title: "Giảng đường Phượng Vỹ",
+    description: "Nơi tổ chức các hoạt động ngoại khóa và chương trình của đoàn hội trường.",
+  },
+  {
+    src: "/public/rangdong.jpg",
+    title: "Giảng đưuòng Rạng Đông",
+    description: "Giảng đường có diện tích lớn nhất trường.",
+  },
+  {
+    src: "/public/khoa.jpg",
     title: "Khoa Công nghệ thông tin",
     description: "Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.",
   },
   {
-    src: "https://picsum.photos/id/1012/400/300",
-    title: "Không gian 2",
-    description: "Mô tả không gian 2.",
-  },
-  {
-    src: "https://picsum.photos/id/1013/400/300",
-    title: "Không gian 3",
-    description: "Mô tả không gian 3.",
-  },
-  {
-    src: "https://picsum.photos/id/1015/400/300",
-    title: "Không gian 4",
-    description: "Mô tả không gian 4.",
-  },
-  {
-    src: "https://picsum.photos/id/1016/400/300",
-    title: "Không gian 5",
-    description: "Mô tả không gian 5.",
+    src: "/public/thuvienthunk.jpg",
+    title: "Thư viện",
+    description: "Nơi trau dồi thêm các kiến thức và nơi họp nhóm lý tưởng cho các sinh viên.",
   },
 ];
 
@@ -36,7 +36,7 @@ export default function Introduce() {
       setSelectedIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 2000);
 
-    return () => clearTimeout(timer); // clear timeout khi unmount hoặc khi selectedIndex thay đổi
+    return () => clearTimeout(timer);
   }, [selectedIndex]);
   return (
     <div id="introduce" className={styles.virtualTourContainer}>

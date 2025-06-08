@@ -177,6 +177,7 @@ const Background: React.FC = () => {
             fontSize: "100px",
             color: "transparent",
             WebkitTextStroke: "2px white",
+            fontFamily:"Arial",
             // textShadow:
               // "-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white",
           }}
