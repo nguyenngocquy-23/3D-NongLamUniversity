@@ -27,7 +27,7 @@ public class FieldDao {
 
     public List<FieldResponse> getAllFields() {
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("SELECT id, name, status, updatedAt FROM fields")
+            return handle.createQuery("SELECT id, code, name, status, updatedAt FROM fields")
                     .mapToBean(FieldResponse.class)
                     .list();
         });
@@ -50,6 +50,26 @@ public class FieldDao {
                     .execute();
             return i > 0;
         });
+    }
+
+    public boolean changeNameField(FieldCreateRequest req) {
+        String updateSql = "UPDATE fields SET name = :name, code = :code WHERE id = :id";
+        return ConnectionPool.getConnection().inTransaction(
+                handle -> {
+                    int i = handle.createUpdate(updateSql)
+                            .bind("name", req.getName()
+                                    )
+                            .bind("code", req.getCode())
+                            .bind("id", req.getId())
+                            .execute();
+
+
+                    if(i == 0) {
+                        throw new IllegalStateException("Không thể thay đổi, id có thể sai!");
+                    }
+                    return i > 0;
+                }
+        );
     }
 
 }

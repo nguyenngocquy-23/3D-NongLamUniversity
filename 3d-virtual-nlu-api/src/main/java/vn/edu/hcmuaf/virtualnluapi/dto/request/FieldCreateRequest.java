@@ -12,5 +12,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class FieldCreateRequest {
+    int id;
     String name, code;
 }

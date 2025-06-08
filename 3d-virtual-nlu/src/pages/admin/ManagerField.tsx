@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 
-import { fetchUsers } from "../../redux/slices/DataSlice";
+import { fetchFields, fetchUsers } from "../../redux/slices/DataSlice";
 
 import FieldCard from "../../components/admin/FieldCard";
 import { IoSearch } from "react-icons/io5";
@@ -19,7 +19,9 @@ import { RiEdit2Line } from "react-icons/ri";
 import StatusToggle from "../../components/admin/ToggleChangeStatus";
 import { TfiNewWindow } from "react-icons/tfi";
 import { a } from "framer-motion/client";
-import { IoIosCloseCircle } from "react-icons/io";
+import { IoIosCloseCircle, IoIosWarning } from "react-icons/io";
+import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
+import axios from "axios";
 
 interface Field {
   id: number;
@@ -29,6 +31,7 @@ interface Field {
   updatedAt: string;
   listSpace: Space[];
 }
+interface FieldCreateRequest extends Pick<Field, "id" | "name" | "code"> {}
 
 const emptyField: Field = {
   id: 0, // ID giả để phân biệt với các field thật
@@ -102,27 +105,67 @@ const Field: React.FC<Field> = () => {
     (selectedField?.status ?? 0) > 0 ? true : false
   );
 
+  /**
+   * Chỉnh sửa tên cho lĩnh vực
+   */
+
   const handleEditInput = () => {
     if (!isEditing) setIsEditing(true);
   };
-  // const handleRename = () => {
-  //     if (!masterPanorama) return;
 
-  //     const trimmedName = masterNameInput.trim();
-  //     if (!trimmedName) return; // tránh tên trống
+  /**
+   * Dispatch tên mới lên redux.
+   * Gửi API lưu về database.
+   */
+  const handleRename = async (req: FieldCreateRequest) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/admin/field/changeName",
+        req
+      );
 
-  //     dispatch(
-  //       renameMasterAndUpdateSlaves({
-  //         id: masterPanorama.id,
-  //         newName: trimmedName,
-  //       })
-  //     );
-  //     setIsEditing(false);
-  //   };
+      /**
+       * Xử lý sau khi có api trả về:
+       * + dispatch vào redux cho đồng bộ
+       */
 
-  // useEffect(() => {
-  //   setStatusField((selectedField?.status ?? 0) > 0);
-  // }, [selectedField]);
+      if (response.data.statusCode === 1000 || response.status === 200) {
+        dispatch(fetchFields());
+        setError("");
+      } else {
+        setError(response.data.message || "Lỗi không xác định");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Có lỗi xảy ra");
+    }
+
+    setIsEditing(false);
+  };
+
+  useEffect(() => {
+    setStatusField((selectedField?.status ?? 0) > 0);
+    setInputFieldName(selectedField?.name || "");
+    setFieldCode(selectedField?.code || "");
+    setIsEditing(false);
+    setError("");
+  }, [selectedField]);
+
+  const [inputFieldName, setInputFieldName] = useState(selectedField?.name);
+  const [fieldCode, setFieldCode] = useState(selectedField?.code);
+  const fieldCodeList = fields.map((field) => field.code);
+
+  const handleChangeFieldName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const fieldCodeNew = RemoveVietnameseTones(value);
+
+    if (fieldCodeList.includes(fieldCodeNew)) {
+      setError("Tên đã tồn tại, vui lòng chọn tên mới !");
+    } else {
+      setError("");
+    }
+    setInputFieldName(value);
+    setFieldCode(fieldCodeNew);
+  };
 
   return (
     <>
@@ -191,7 +234,6 @@ const Field: React.FC<Field> = () => {
       /> */}
         {/* <h2>Danh Sách Lĩnh vực</h2> */}
         {loading && <p>Đang tải...</p>}
-        {error && <p style={{ color: "red" }}>{error}</p>}
         {/* <button
         className={stylesCommon.addRow}
         onClick={() => {
@@ -246,18 +288,6 @@ const Field: React.FC<Field> = () => {
             </div>
             <div className={`${styles.field_information_item} `}>
               <span>Trạng thái: </span>
-              {/* <div
-                className={styles.field_status_toggle}
-                onClick={() => {
-                  setStatusField((preState) => !preState);
-                }}
-              >
-                <input
-                  id="checkbox"
-                  type="checkbox"
-                  checked={statusField}
-                ></input>
-              </div> */}
               <StatusToggle
                 id={selectedField.id}
                 status={selectedField.status}
@@ -267,28 +297,46 @@ const Field: React.FC<Field> = () => {
 
             <div className={`${styles.field_information_item} `}>
               <span>Tên lĩnh vực : </span>
+
               <div className={styles.field_input_name_container}>
                 <input
                   type="text"
                   id="input"
                   required
-                  value={selectedField.name}
-                  onChange={(e) => e.target.value}
+                  readOnly={!isEditing}
+                  value={inputFieldName}
+                  onChange={handleChangeFieldName}
                 />
                 {!isEditing ? (
                   <RiEdit2Line
                     className={styles.field_input_name_edit}
                     onClick={handleEditInput}
                   />
+                ) : error ? (
+                  <IoIosWarning className={styles.field_input_name_warning} />
                 ) : (
                   <FaSave
                     className={styles.field_input_name_edit}
-                    // onClick={handleRename}
+                    onClick={() =>
+                      handleRename({
+                        id: selectedField.id,
+                        name: inputFieldName ?? "",
+                        code: fieldCode ?? "",
+                      })
+                    }
                   />
                 )}
 
                 <div className={styles.underline}></div>
               </div>
+              {error && (
+                <p className={styles.field_input_name_error}>{error}</p>
+              )}
+            </div>
+
+            <div className={`${styles.field_information_item} `}>
+              <span>Mã lĩnh vực: </span>
+              <span className={styles.field_code}>{fieldCode}</span>
             </div>
 
             <div className={`${styles.field_information_item} `}>

@@ -34,4 +34,7 @@ public class FieldService {
     public boolean changeStatusField(StatusRequest req) {
         return fieldDao.changeStatusField(req);
     }
+    public boolean changeNameField(FieldCreateRequest req) {
+        return fieldDao.changeNameField(req);
+    }
 }
