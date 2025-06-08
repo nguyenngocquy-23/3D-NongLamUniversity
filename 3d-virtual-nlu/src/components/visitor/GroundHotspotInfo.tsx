@@ -21,7 +21,9 @@ const GroundHotspotInfo = ({
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   const icons = useSelector((state: RootState) => state.data.icons);
-  const iconUrl = icons.find((i) => i.id == hotspotInfo.iconId).url;
+
+  const iconObj = icons.find((i) => i.id == hotspotInfo.iconId);
+  const iconUrl = iconObj ? iconObj.url : "";
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
 
@@ -177,7 +179,7 @@ const GroundHotspotInfo = ({
           side={DoubleSide}
         />
       </mesh>
-      {isOpenHotspotOption && currentStep != 3 && currentStep != 1? (
+      {isOpenHotspotOption && currentStep != 3 && currentStep != 1 ? (
         <OptionHotspot
           hotspotId={hotspotInfo.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}

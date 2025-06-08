@@ -2,10 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "../../styles/createTourStepper.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
-import { nextStep } from "../../redux/slices/StepSlice";
-import Swal from "sweetalert2";
 import Waiting from "../Waiting";
-import { clearHotspot, removeHotspot } from "../../redux/slices/HotspotSlice";
+import { clearHotspot } from "../../redux/slices/HotspotSlice";
 import { clearPanorama } from "../../redux/slices/PanoramaSlice";
 
 /**
@@ -42,10 +40,10 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
   useEffect(() => {
     if (currentStep == stepsConfig.length) {
       setIsComplete(true);
-    } 
-    if(currentStep == 1) {
-      dispatch(clearHotspot())
-      dispatch(clearPanorama())
+    }
+    if (currentStep == 1) {
+      dispatch(clearHotspot());
+      dispatch(clearPanorama());
       setIsComplete(false);
     }
 
@@ -56,8 +54,6 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
 
     return () => clearTimeout(timeout);
   }, [currentStep]);
-
- 
 
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(false);
 
@@ -93,12 +89,6 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
             <div className={styles.progressBar}>
               <div className={styles.progress}></div>
             </div>
-
-            {!isComplete && (
-              <button className={styles.btnNext} onClick={handleNextStep}>
-                Tiếp tục
-              </button>
-            )}
           </div>
         </>
       )}

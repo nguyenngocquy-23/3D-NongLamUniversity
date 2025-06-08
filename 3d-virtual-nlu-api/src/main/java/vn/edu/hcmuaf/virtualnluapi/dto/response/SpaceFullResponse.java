@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class SpaceFullResponse {
     int id;
+    int fieldId;
     String fieldName, name, description, url, location;
     byte status;
     LocalDateTime updatedAt;

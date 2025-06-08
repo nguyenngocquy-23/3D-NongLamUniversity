@@ -62,16 +62,16 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     }
   });
 
-  const panoramaList = useSelector(
-    (state: RootState) => state.panoramas.panoramaList
-  );
+  // const panoramaList = useSelector(
+  //   (state: RootState) => state.panoramas.panoramaList
+  // );
 
-  const hotspot = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.find(
-      (h): h is HotspotNavigation =>
-        h.id === hotspotNavigation.id && h.type === 1
-    )
-  );
+  // const hotspot = useSelector((state: RootState) =>
+  //   state.hotspots.hotspotList.find(
+  //     (h): h is HotspotNavigation =>
+  //       h.id === hotspotNavigation.id && h.type === 1
+  //   )
+  // );
 
   /**
    * Tập trung cho việc xử lý chỉnh sửa icon cho hotspsot.
@@ -127,7 +127,11 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
           hotspotNavigation.positionY,
           hotspotNavigation.positionZ,
         ]}
-        rotation={[-Math.PI / 2, 0, 0]}
+        rotation={[
+          THREE.MathUtils.degToRad(hotspotNavigation.pitchX),
+          THREE.MathUtils.degToRad(hotspotNavigation.yawY),
+          THREE.MathUtils.degToRad(hotspotNavigation.rollZ),
+        ]}
         onPointerOver={() => {
           setIsHovered(true);
           console.log("🖱 Hover vào hotspot!", [
@@ -142,11 +146,11 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         }}
         onClick={(e) => {
           e.stopPropagation();
-          if (hotspot && hotspot.targetNodeId) {
-            onNavigate(hotspot.targetNodeId, [
-              hotspot.positionX,
-              hotspot.positionY,
-              hotspot.positionZ,
+          if (hotspotNavigation && hotspotNavigation.targetNodeId) {
+            onNavigate(hotspotNavigation.targetNodeId, [
+              hotspotNavigation.positionX,
+              hotspotNavigation.positionY,
+              hotspotNavigation.positionZ,
             ]);
           }
         }}
@@ -171,7 +175,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       {isOpenHotspotOption && currentStep != 1 ? (
         <OptionHotspot
           hotspotId={hotspotNavigation.id}
-          setCurrentHotspotId={setCurrentHotspotId ?? (()=>{})}
+          setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
           onClose={() => {
             setIsOpenHotspotOption(false);
           }}
@@ -181,7 +185,9 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             hotspotNavigation.positionZ,
           ]}
         />
-      ):""}
+      ) : (
+        ""
+      )}
 
       {/* {isClicked && (
         <Html position={position} center distanceFactor={50}>

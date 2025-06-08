@@ -3,6 +3,7 @@ import { RootState } from "../Store";
 import { HotspotNavigation } from "./HotspotSlice";
 
 const selectHotspotList = (state: RootState) => state.hotspots.hotspotList;
+const spaceList = (state: RootState) => state.data.spaces;
 const panoramaList = (state: RootState) => state.panoramas.panoramaList;
 const masterNode = (state: RootState) =>
   state.panoramas.panoramaList.find((p) => p.config.status === 2);
@@ -78,3 +79,14 @@ export const getListTargetNodeFromUpdateHotspotNavigation = (
     }
   );
 };
+
+/**
+ * Lấy ra tất cả số liệu về Field.
+ * + Thông tin cơ bản của field.
+ * + Số lượng space trên mỗi field.
+ *
+ */
+export const getListSpaceFromFieldId = (fieldId: string) =>
+  createSelector([spaceList], (list) =>
+    list.filter((l) => l.fieldId === fieldId)
+  );

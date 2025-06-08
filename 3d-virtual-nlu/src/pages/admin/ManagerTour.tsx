@@ -12,43 +12,6 @@ import { AppDispatch, RootState } from "../../redux/Store.tsx";
 import { NodeItem } from "../../components/admin/NodeItem.tsx";
 import SearchBar from "../../features/SearchBar.tsx";
 
-interface ControlsProps {
-  enableZoom?: boolean;
-}
-
-const Controls: React.FC = () => {
-  const controlsRef = useRef<OrbitControlsImpl>(null);
-
-  return (
-    <OrbitControls
-      ref={controlsRef}
-      enableZoom={false}
-      autoRotate={true}
-      autoRotateSpeed={0.5}
-    />
-  );
-};
-
-interface DomeProps {
-  panoramaURL: string;
-}
-
-const Dome: React.FC<DomeProps> = ({ panoramaURL }) => {
-  const texture = useMemo(
-    () => new THREE.TextureLoader().load(panoramaURL),
-    [panoramaURL]
-  );
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.repeat.x = -1;
-
-  return (
-    <mesh>
-      <sphereGeometry args={[100, 128, 128]} />
-      <meshBasicMaterial map={texture} side={THREE.BackSide} />
-    </mesh>
-  );
-};
-
 const ManageNode: React.FC = () => {
   const [activeStep, setActiveStep] = useState(1);
   const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
@@ -82,11 +45,11 @@ const ManageNode: React.FC = () => {
 
   //search
   const [searchTerm, setSearchTerm] = useState("");
-  const filteredNodes = nodes.filter((node) =>
-    node.name.toLowerCase().includes(searchTerm.toLowerCase())
-  //  ||
-  //   node.spaceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //   node.fieldName.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredNodes = nodes.filter(
+    (node) => node.name.toLowerCase().includes(searchTerm.toLowerCase())
+    //  ||
+    //   node.spaceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //   node.fieldName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -108,16 +71,8 @@ const ManageNode: React.FC = () => {
           <FaAngleDown className={styles.iconDown} />
         )}
       </div>
-      <div className={styles.listTour}>
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "flex-start",
-            gap: "3.5%",
-            marginLeft: "20px",
-          }}
-        >
+      <div className={styles.list_tour}>
+        <div className={styles.list_tour_main}>
           {filteredNodes.map((node) => (
             <NodeItem
               key={node.id}

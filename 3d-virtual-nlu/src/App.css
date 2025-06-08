@@ -5,8 +5,10 @@
 }
 
 body {
-  background-color: #cfcfce;
+  background-color: #fff;
   overflow-x: hidden;
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
 }
 
 body::-webkit-scrollbar {

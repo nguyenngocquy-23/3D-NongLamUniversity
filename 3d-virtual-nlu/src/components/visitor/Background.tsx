@@ -76,23 +76,22 @@ const Background: React.FC = () => {
       const styleSheet = document.styleSheets[0];
 
       // Thêm CSS animation vào stylesheet
-      styleSheet.insertRule(
-        `
-        @keyframes ${animationName} {
-          0% {
-            transform: translateX(0);
-          }
-          50% {
-            transform: translateX(${randomYPosition}px);
-          }
-          100% {
-            transform: translateX(0);
-          }
-        }
+      // styleSheet.insertRule(
+      //   `
+      //   @keyframes ${animationName} {
+      //     0% {
+      //       transform: translateX(0);
+      //     }
+      //     50% {
+      //       transform: translateX(${randomYPosition}px);
+      //     }
+      //     100% {
+      //       transform: translateX(0);
+      //     }
+      //   }
 
-      `,
-        styleSheet.cssRules.length
-      );
+      // `
+      // );
 
       // Áp dụng animation cho phần tử
       (
