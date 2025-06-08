@@ -29,7 +29,7 @@ const images = [
   },
 ];
 
-export default function VirtualTour() {
+export default function Introduce() {
   const [selectedIndex, setSelectedIndex] = useState(2); // mặc định ảnh giữa
   useEffect(() => {
     const timer = setTimeout(() => {

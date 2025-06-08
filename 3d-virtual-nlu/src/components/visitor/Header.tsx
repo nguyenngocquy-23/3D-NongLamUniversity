@@ -79,7 +79,7 @@ const Header: React.FC = () => {
           className={style.navLink}
           offset={-60}
           smooth={true}
-          duration={500}
+          duration={800}
         >
           Sơ đồ trường
         </ScrollLink>
@@ -88,7 +88,7 @@ const Header: React.FC = () => {
           to="introduce"
           className={style.navLink}
           smooth={true}
-          duration={500}
+          duration={800}
         >
           Giới thiệu
         </ScrollLink>
@@ -97,9 +97,18 @@ const Header: React.FC = () => {
           to="tourOverview"
           className={style.navLink}
           smooth={true}
-          duration={500}
+          duration={800}
         >
           Khám phá tour ảo
+        </ScrollLink>
+        <ScrollLink
+          to="contact"
+          className={style.navLink}
+          smooth={true}
+          offset={-40}
+          duration={800}
+        >
+          Liên hệ
         </ScrollLink>
         <span
           onClick={handleManage}
