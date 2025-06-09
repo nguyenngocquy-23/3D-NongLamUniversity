@@ -29,18 +29,30 @@ public class CommentDao {
 
     public List<CommentResponse> getOfNode(NodeIdRequest request) {
         String sql = """
-                SELECT c.id, c.userId, u.username, u.avatar, c.nodeId, c.parentId, c.content, c.status, c.updatedAt
+                SELECT c.id, c.userId, u.username, u.avatar, c.nodeId, c.content, c.status, c.updatedAt
                 FROM comments c 
                 JOIN users u ON c.userId = u.id
-                WHERE c.nodeId = :nodeId and c.status = 1
+                WHERE c.nodeId = :nodeId and c.status = 1 and parentId = 0
                 ORDER BY c.updatedAt DESC
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        List<CommentResponse> result = ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql)
                     .bind("nodeId", request.getNodeId())
                     .mapToBean(CommentResponse.class)
                     .list();
         });
+        for(CommentResponse comment: result){
+            List<CommentResponse> replies = ConnectionPool.getConnection().withHandle(handle -> {
+                return handle.createQuery("SELECT c.id, c.userId, u.username, u.avatar, c.nodeId, c.content, c.status, c.updatedAt " +
+                                "FROM comments c JOIN users u ON c.userId = u.id " +
+                                "WHERE c.parentId = :parentId AND c.status = 1 ORDER BY c.updatedAt DESC")
+                        .bind("parentId", comment.getId())
+                        .mapToBean(CommentResponse.class)
+                        .list();
+            });
+            comment.setReplies(replies);
+        }
+        return result;
     }
 
     public boolean updateComment(UpdateCommentRequest request) {

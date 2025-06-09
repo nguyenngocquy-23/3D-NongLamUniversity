@@ -8,14 +8,16 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentResponse {
-    int id, userId, nodeId, parentId;
+    int id, userId, nodeId;
     String content, username, avatar;
     int status;
+    List<CommentResponse> replies;
     Timestamp updatedAt;
 }
