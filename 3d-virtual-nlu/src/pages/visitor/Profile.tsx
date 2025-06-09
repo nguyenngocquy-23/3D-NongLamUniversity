@@ -218,10 +218,7 @@ const VisitorProfile = () => {
         <div
           className={styles.avatarImage}
           style={{
-            background:
-              avatar !== "" && avatar !== null
-                ? `url(${avatar})`
-                : `url("/avatar.jpg")`,
+            background:`url(${avatar})`,
           }}
         />
         <div className={styles.uploadContainer}>

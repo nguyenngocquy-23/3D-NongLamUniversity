@@ -178,8 +178,6 @@ const Background: React.FC = () => {
             color: "transparent",
             WebkitTextStroke: "2px white",
             fontFamily:"Arial",
-            // textShadow:
-              // "-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white",
           }}
         >
           NÔNG LÂM

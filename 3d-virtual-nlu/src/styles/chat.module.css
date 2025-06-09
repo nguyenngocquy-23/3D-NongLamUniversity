@@ -112,6 +112,7 @@
     align-self: flex-end;
     margin-left: auto;
     border-bottom-right-radius: 0;
+    font-size: 15px;
 }
 
 .otherMessage {
@@ -122,6 +123,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 15px;
 }
 
 .avatar{

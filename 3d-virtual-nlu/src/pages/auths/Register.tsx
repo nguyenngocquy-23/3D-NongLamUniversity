@@ -24,6 +24,18 @@ const Register: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
+  const getDefaultAvatarBase64 = async (): Promise<string> => {
+  const response = await fetch("/avatar.jpg");
+  const blob = await response.blob();
+
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
+};
+
+
   // Xử lý sự kiện khi form được submit
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault(); // Ngăn chặn việc reload trang
@@ -104,9 +116,10 @@ const Register: React.FC = () => {
     }
 
     try {
+      const avatar = await getDefaultAvatarBase64();
       // Dispatch action đăng nhập
       const response = await dispatch(
-        registerUser({ username, email, password })
+        registerUser({ username, email, password, avatar })
       ).unwrap();
       if (response) {
         setUsername("")

@@ -32,7 +32,7 @@ const initialState: AuthState = {
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (
-    { username, email, password }: { username: string; email: string; password: string },
+    { username, email, password, avatar }: { username: string; email: string; password: string; avatar: string },
     thunkAPI
   ) => {
     try {
@@ -40,6 +40,7 @@ export const registerUser = createAsyncThunk(
         username,
         email,
         password,
+        avatar,
       });
 
       if (!response.data) {

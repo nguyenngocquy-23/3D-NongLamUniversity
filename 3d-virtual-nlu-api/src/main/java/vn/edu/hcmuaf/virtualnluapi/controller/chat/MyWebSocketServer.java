@@ -22,18 +22,23 @@ public class MyWebSocketServer {
 
     // Lưu session theo nodeId → userId → session
     private static final Map<String, Map<String, Session>> nodeSessions = new ConcurrentHashMap<>();
+    // Danh sách session tham gia chat tổng
+    private static final Map<String, Session> globalSessions = new ConcurrentHashMap<>();
 
     @OnOpen
     public void onOpen(Session session,
                        @PathParam("nodeId") String nodeId,
                        @PathParam("userId") String userId) {
-        nodeSessions
-                .computeIfAbsent(nodeId, k -> new ConcurrentHashMap<>())
-                .put(userId, session);
-
-        System.out.println("User " + userId + " connected to node " + nodeId);
-
-        broadcastCount(nodeId);
+        if ("global".equals(nodeId)) {
+            globalSessions.put(userId, session);
+            System.out.println("User " + userId + " connected to GLOBAL chat");
+        } else {
+            nodeSessions
+                    .computeIfAbsent(nodeId, k -> new ConcurrentHashMap<>())
+                    .put(userId, session);
+            System.out.println("User " + userId + " connected to node " + nodeId);
+            broadcastCount(nodeId);
+        }
 
         // Ping giữ kết nối
         new Thread(() -> {
@@ -56,11 +61,12 @@ public class MyWebSocketServer {
         System.out.println("Received message from user " + userId + " in node " + nodeId + ": " + message);
 
         try{
-            // Lưu tin nhắn vào cơ sở dữ liệu
-            saveMessageToDatabase(nodeId, userId, message);
-
-            // Gửi tin nhắn đến tất cả người dùng trong phòng
-            broadcastMessage(nodeId, userId, message);
+            if ("global".equals(nodeId)) {
+                broadcastGlobalMessage(userId, message);
+            } else {
+                saveMessageToDatabase(nodeId, userId, message);
+                broadcastMessage(nodeId, userId, message);
+            }
         }catch (Exception e){
             throw new RuntimeException(e.getMessage());
         }
@@ -70,19 +76,21 @@ public class MyWebSocketServer {
     public void onClose(Session session,
                         @PathParam("nodeId") String nodeId,
                         @PathParam("userId") String userId) {
-        Map<String, Session> users = nodeSessions.get(nodeId);
-        if (users != null) {
-            users.remove(userId);
-            if (users.isEmpty()) {
-                nodeSessions.remove(nodeId);
+        if ("global".equals(nodeId)) {
+            globalSessions.remove(userId);
+            System.out.println("User " + userId + " disconnected from GLOBAL chat");
+        } else {
+            Map<String, Session> users = nodeSessions.get(nodeId);
+            if (users != null) {
+                users.remove(userId);
+                if (users.isEmpty()) {
+                    nodeSessions.remove(nodeId);
+                }
             }
+            System.out.println("User " + userId + " disconnected from node " + nodeId);
+            broadcastCount(nodeId);
         }
-
-        System.out.println("User " + userId + " disconnected from node " + nodeId);
-        broadcastCount(nodeId);
     }
-
-
 
     @OnError
     public void onError(Session session, Throwable throwable) {
@@ -103,7 +111,7 @@ public class MyWebSocketServer {
 
     private void broadcastMessage(String nodeId, String userId, String message) {
         User user = userDAO.findById(Integer.parseInt(userId));
-        String formattedMessage = user.getUsername() + ": " + message;
+        String formattedMessage = user.getAvatar() + ": " + user.getUsername() + ": " + message;
 
         Map<String, Session> users = nodeSessions.get(nodeId);
         if (users != null) {
@@ -116,6 +124,23 @@ public class MyWebSocketServer {
                     } catch (IOException e) {
                         System.err.println("Error sending message to " + entry.getKey() + ": " + e.getMessage());
                     }
+                }
+            }
+        }
+    }
+
+    private void broadcastGlobalMessage(String userId, String message) {
+        User user = userDAO.findById(Integer.parseInt(userId));
+        String formattedMessage = user.getAvatar() + ": " + user.getUsername() + ": " + message;
+
+        for (Map.Entry<String, Session> entry : globalSessions.entrySet()) {
+            Session session = entry.getValue();
+            if (session.isOpen()) {
+                try {
+                    session.getBasicRemote().sendText(formattedMessage);
+                    System.out.println("Sent to (global) " + entry.getKey() + ": " + formattedMessage);
+                } catch (IOException e) {
+                    System.err.println("Error sending to global " + entry.getKey() + ": " + e.getMessage());
                 }
             }
         }

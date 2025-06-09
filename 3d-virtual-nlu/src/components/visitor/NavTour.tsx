@@ -87,7 +87,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
       <div className={styles.info}>
         {isOpen && (
           <>
-            <img src={user.avatar !== "" || user.avatar !== null ? user.avatar : "/avatar.jpg"} alt="" />
+            <img src={user.avatar}/>
             <div className={styles.admin_info}>
               <Link to="/">
                 <h5>{user.username} !</h5>

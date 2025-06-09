@@ -17,12 +17,17 @@ const Chat = ({
   // const { roomId, userId } = useParams(); // Lấy roomId & userId từ URL
   const user = useSelector((state: RootState) => state.auth.user);
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [globalSocket, setGlobalSocket] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<
+    { avatar: string; username: string; content: string; createdAt: string }[]
+  >([]);
+  const [globalMessages, setGlobalMessages] = useState<
     { avatar: string; username: string; content: string; createdAt: string }[]
   >([]);
   const [inputMessage, setInputMessage] = useState("");
   const [page, setPage] = useState(0);
-  const messagesRef = useRef<HTMLDivElement>(null);
+  const nodeMessagesRef = useRef<HTMLDivElement>(null);
+  const globalMessagesRef = useRef<HTMLDivElement>(null);
 
   const [isOpenBox, setIsOpenBox] = useState(false);
   const [isFillInput, setIsFillInput] = useState(false);
@@ -35,7 +40,6 @@ const Chat = ({
     if (!user) return;
     setMessages([]);
     const wsUrl = `ws://localhost:8080/chat/${nodeId}/${user?.id}`;
-    console.log("wsUrl", wsUrl);
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -50,13 +54,10 @@ const Chat = ({
         setAccessing(count);
       } else {
         console.log("Message: ", data);
-        const [avatar, username, content, createdAt] = event.data.split(
-          ": ",
-          2
-        );
+        const [avatar, username, content] = event.data.split(": ", 3);
         setMessages((prev) => [
           ...prev,
-          { avatar, username, content, createdAt },
+          { avatar, username, content, createdAt: new Date().toISOString() },
         ]);
       }
     };
@@ -76,10 +77,41 @@ const Chat = ({
     };
   }, [nodeId]);
 
+  useEffect(() => {
+    if (!user) return;
+    setGlobalMessages([]);
+    const wsGlobal = new WebSocket(
+      `ws://localhost:8080/chat/global/${user.id}`
+    );
+    setGlobalSocket(wsGlobal);
+
+    wsGlobal.onmessage = (event) => {
+      const [avatar, username, content] = event.data.split(": ", 3);
+      setGlobalMessages((prev) => [
+        ...prev,
+        { avatar, username, content, createdAt: new Date().toISOString() },
+      ]);
+    };
+
+    wsGlobal.onclose = () => {
+      console.log(`User ${user?.id} disconnected from node ${nodeId}`);
+    };
+
+    wsGlobal.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
+
+    setGlobalSocket(wsGlobal);
+
+    return () => {
+      wsGlobal.close();
+    };
+  }, [user?.id]);
+
   const scrollPositionRef = useRef<number>(0);
 
   const handleScroll = () => {
-    const container = messagesRef.current;
+    const container = nodeMessagesRef.current;
     if (container && container.scrollTop === 0) {
       scrollPositionRef.current = container.scrollHeight;
       loadMessages(page + 1);
@@ -87,7 +119,7 @@ const Chat = ({
   };
 
   const loadMessages = async (newPage: number) => {
-    const container = messagesRef.current;
+    const container = nodeMessagesRef.current;
     if (!container) return;
 
     const prevScrollHeight = container.scrollHeight;
@@ -104,20 +136,26 @@ const Chat = ({
 
     // Đợi render xong rồi giữ nguyên scroll
     setTimeout(() => {
-      if (messagesRef.current) {
-        const newScrollHeight = messagesRef.current.scrollHeight;
+      if (nodeMessagesRef.current) {
+        const newScrollHeight = nodeMessagesRef.current.scrollHeight;
         const delta = newScrollHeight - prevScrollHeight;
-        messagesRef.current.scrollTop += delta; // giữ nguyên vị trí tin nhắn cũ
+        nodeMessagesRef.current.scrollTop += delta; // giữ nguyên vị trí tin nhắn cũ
       }
       setIsLoadingMore(false); // Đặt sau scroll để tránh scrollBottom từ useEffect
     }, 20);
   };
 
   const sendMessage = () => {
-    console.log("socket", socket);
     if (inputMessage.trim() !== "") {
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(inputMessage);
+      const targetSocket =
+        isSelectOption === 0
+          ? socket
+          : isSelectOption === 1
+          ? globalSocket
+          : null;
+
+      if (targetSocket && targetSocket.readyState === WebSocket.OPEN) {
+        targetSocket.send(inputMessage);
         setInputMessage("");
       } else {
         console.error("WebSocket is not connected.");
@@ -140,11 +178,11 @@ const Chat = ({
   };
 
   useEffect(() => {
-    if (!messagesRef.current) return;
+    if (!nodeMessagesRef.current) return;
 
     // Nếu không phải đang load thêm (tức là tin nhắn mới gửi hoặc nhận)
     if (!isLoadingMore) {
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+      nodeMessagesRef.current.scrollTop = nodeMessagesRef.current.scrollHeight;
     }
     // Nếu đang load tin nhắn cũ, ta đã xử lý scroll riêng rồi trong loadMessages()
   }, [messages.length, isSelectOption]);
@@ -183,14 +221,15 @@ const Chat = ({
             <span>Help</span>
           </div>
         </div>
-        {isSelectOption == 0 || isSelectOption == 1 ? (
+        {isSelectOption == 0 ? (
           <>
             <div
               className={styles.chatContent}
               onScroll={handleScroll}
-              ref={messagesRef}
+              ref={isSelectOption === 0 ? nodeMessagesRef : globalMessagesRef}
             >
               {messages.map((msg, index) => {
+                console.log("message ::", msg);
                 const isMine = msg.username === user?.username;
                 return (
                   <div
@@ -202,11 +241,60 @@ const Chat = ({
                         <div
                           className={styles.avatar}
                           style={{
-                            background: `url(${
-                              msg.avatar !== null && msg.avatar !== ""
-                                ? msg.avatar
-                                : "/avatar.jpg"
-                            })`,
+                            background: `url(${msg.avatar})`,
+                          }}
+                        >
+                          {/* {msg.username.charAt(0)} */}
+                        </div>
+                      </div>
+                    )}
+                    <div
+                      className={`${styles.message} ${
+                        isMine ? styles.myMessage : styles.otherMessage
+                      }`}
+                    >
+                      <span>{msg.content}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <input
+              className={styles.chatInput}
+              type="text"
+              value={inputMessage}
+              onChange={handleCheckFillInput}
+              placeholder="Compose your message..."
+            />
+            <button
+              className={`${styles.sendChatBtn} ${
+                isFillInput ? styles.show : ""
+              }`}
+              onClick={sendMessage}
+            >
+              <IoMdSend />
+            </button>
+          </>
+        ) : isSelectOption == 1 ? (
+          <>
+            <div
+              className={styles.chatContent}
+              onScroll={handleScroll}
+              ref={isSelectOption === 1 ? nodeMessagesRef : globalMessagesRef}
+            >
+              {globalMessages.map((msg, index) => {
+                const isMine = msg.username === user?.username;
+                return (
+                  <div
+                    key={index}
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
+                    {!isMine && (
+                      <div className={styles.otherAccount}>
+                        <div
+                          className={styles.avatar}
+                          style={{
+                            background: `url(${msg.avatar})`,
                           }}
                         >
                           {/* {msg.username.charAt(0)} */}

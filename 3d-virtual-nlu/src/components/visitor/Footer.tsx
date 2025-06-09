@@ -1,4 +1,3 @@
-import React from "react";
 import styles from "../../styles/visitor/footer.module.css";
 import { Link as ScrollLink } from "react-scroll";
 

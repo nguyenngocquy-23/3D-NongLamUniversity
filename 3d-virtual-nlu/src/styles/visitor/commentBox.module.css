@@ -48,6 +48,7 @@
 .container_content{
     height: 70%;
     overflow: auto;
+    margin-right: 10px;
 }
 
 .container_content::-webkit-scrollbar {
