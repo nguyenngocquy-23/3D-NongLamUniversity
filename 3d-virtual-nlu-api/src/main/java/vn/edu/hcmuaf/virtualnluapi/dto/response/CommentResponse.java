@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CommentResponse {
     int id, userId, nodeId, parentId;
-    String content;
+    String content, username, avatar;
     int status;
     Timestamp updatedAt;
 }

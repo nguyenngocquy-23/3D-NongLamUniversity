@@ -169,7 +169,7 @@ public class NodeDao {
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
-                WHERE n.userId = :userId and n.status = 2
+                WHERE n.userId = :userId and (n.status = 2 or n.status = 0)
                 ORDER BY n.updatedAt DESC
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)

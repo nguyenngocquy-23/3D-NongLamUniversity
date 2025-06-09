@@ -24,6 +24,10 @@ const TourDetail = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [isOpenComment, setIsOpenComment] = useState(false);
   const [isFullPreview, setIsFullPreview] = useState(false);
+  const [content, setContent] = useState("");
+  const [parentId, setParentId] = useState(null);
+  const userJson = sessionStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : null;
 
   const handleFetchNode = async () => {
     if (!nodeId) {
@@ -42,6 +46,28 @@ const TourDetail = () => {
     }
   };
 
+  const handleSendComment = async () => {
+    if (!content.trim()) return;
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/comment/send",
+        {
+          userId: user.id,
+          nodeId: nodeId,
+          parentId: parentId,
+          content: content,
+        }
+      );
+      if (response.data.data) {
+        setContent("");
+        dispatch(fetchCommentOfNode(node.id));
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi bình luận:", error);
+    }
+  };
+
   useEffect(() => {
     handleFetchNode();
   }, [nodeId]);
@@ -55,6 +81,21 @@ const TourDetail = () => {
   }
 
   const handleChangeStatus = async (node: any) => {
+    if (node.status == 2) {
+      Swal.fire({
+        title: "Bạn có chắc chắn",
+        text: "Việc ngưng hoạt động có thể ảnh hưởng tới các node khác",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Đồng ý",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          return;
+        }
+      });
+    }
     const response = await axios.post(
       "http://localhost:8080/api/node/changeStatus",
       { id: node.id, status: node.status }
@@ -62,7 +103,9 @@ const TourDetail = () => {
     if (response.data.data) {
       Swal.fire({
         title: "Thành công",
-        text: `${node.status == 0 ? "Mở hoạt động" : "Ngưng hoạt động" } thành công`,
+        text: `${
+          node.status == 0 ? "Mở hoạt động" : "Ngưng hoạt động"
+        } thành công`,
         icon: "success",
         position: "top-end",
         toast: true,
@@ -71,7 +114,7 @@ const TourDetail = () => {
         showConfirmButton: false,
       });
       handleFetchNode();
-      console.log('node...', node)
+      console.log("node...", node);
     } else {
       Swal.fire({
         title: "Thất bại",
@@ -188,8 +231,12 @@ const TourDetail = () => {
                 <textarea
                   placeholder="Nhập bình luận..."
                   className={styles.textarea}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
                 ></textarea>
-                <button className={styles.sendBtn}>Gửi</button>
+                <button className={styles.sendBtn} onClick={handleSendComment}>
+                  Gửi
+                </button>
               </div>
             </>
           ) : (

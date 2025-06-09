@@ -109,6 +109,7 @@ const TourCanvas = React.memo(
         <TourScene
           radius={radius}
           sphereRef={sphereRef}
+          // textureCurrent={"/CMU0-all.jpg"}
           textureCurrent={defaultNode.url ?? "/khoa.jpg"}
           lightIntensity={defaultNode.lightIntensity}
         />

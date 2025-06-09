@@ -136,7 +136,7 @@ const TourOverview = () => {
     >
       <div className={styles.vtBackground}>
         <h1 className={styles.single} style={{fontSize:'150px',top:'20%'}}>
-          TOUR 3D
+          3D TOUR
         </h1>
         {/* <h1 className={styles.single}>3D</h1> */}
         <div className={styles.titleContainer}>

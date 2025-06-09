@@ -53,7 +53,6 @@ const Chat = ({
         const count = data.split(":")[1];
         setAccessing(count);
       } else {
-        console.log("Message: ", data);
         const [avatar, username, content] = event.data.split(": ", 3);
         setMessages((prev) => [
           ...prev,
@@ -229,7 +228,6 @@ const Chat = ({
               ref={isSelectOption === 0 ? nodeMessagesRef : globalMessagesRef}
             >
               {messages.map((msg, index) => {
-                console.log("message ::", msg);
                 const isMine = msg.username === user?.username;
                 return (
                   <div

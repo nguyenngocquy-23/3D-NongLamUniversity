@@ -30,8 +30,6 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
   if (loading) {
     return <div>Đang tải dữ liệu...</div>;
   }
-  console.log("listMasterNode.. ", listMasterNode);
-  console.log("mount left menu");
 
   return (
     <div className={`${styles.left_menu} ${isMenuVisible ? styles.show : ""}`}>

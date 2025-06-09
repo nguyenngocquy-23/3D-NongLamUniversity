@@ -2,10 +2,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SendCommentRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.CommentResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 
@@ -31,11 +28,39 @@ public class CommentDao {
     }
 
     public List<CommentResponse> getOfNode(NodeIdRequest request) {
+        String sql = """
+                SELECT c.id, c.userId, u.username, u.avatar, c.nodeId, c.parentId, c.content, c.status, c.updatedAt
+                FROM comments c 
+                JOIN users u ON c.userId = u.id
+                WHERE c.nodeId = :nodeId and c.status = 1
+                ORDER BY c.updatedAt DESC
+                """;
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("SELECT id, userId, nodeId, parentId, content, status, updatedAt FROM comments WHERE nodeId = :nodeId ORDER BY updatedAt DESC")
+            return handle.createQuery(sql)
                     .bind("nodeId", request.getNodeId())
                     .mapToBean(CommentResponse.class)
                     .list();
+        });
+    }
+
+    public boolean updateComment(UpdateCommentRequest request) {
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int i = handle.createUpdate("UPDATE comments SET content = :content, updatedAt = :updatedAt WHERE id = :id")
+                    .bind("content", request.getContent())
+                    .bind("updatedAt", LocalDateTime.now())
+                    .bind("id", request.getCommentId())
+                    .execute();
+            return i > 0;
+        });
+    }
+
+    public boolean removeComment(CommentIdRequest request) {
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int i = handle.createUpdate("UPDATE comments SET status = 0, updatedAt = :updatedAt WHERE id = :id")
+                    .bind("updatedAt", LocalDateTime.now())
+                    .bind("id", request.getCommentId())
+                    .execute();
+            return i > 0;
         });
     }
 }
