@@ -22,13 +22,16 @@ import { IoIosCloseCircle, IoIosWarning } from "react-icons/io";
 import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 import axios from "axios";
 import { validateName } from "../../utils/ValidateInputName";
+import { format, parseISO } from "date-fns";
+import { parseDateFromArray } from "../../utils/formatDateTime";
 
 interface Field {
   id: number;
   name: string | null;
   code: string;
   status: number;
-  updatedAt: string;
+  createdAt: number | null;
+  updatedAt: number | null;
   listSpace: Space[];
 }
 interface FieldCreateRequest extends Pick<Field, "id" | "name" | "code"> {}
@@ -38,7 +41,8 @@ const emptyField: Field = {
   name: null,
   code: "",
   status: 1,
-  updatedAt: "",
+  createdAt: null,
+  updatedAt: null,
   listSpace: [],
 };
 
@@ -133,6 +137,9 @@ const Field: React.FC<Field> = () => {
           "http://localhost:8080/api/admin/field/create",
           req
         );
+        setSelectedField(emptyField);
+        setInputFieldName("");
+        setFieldCode("");
       } else {
         response = await axios.post(
           "http://localhost:8080/api/admin/field/changeName",
@@ -154,7 +161,6 @@ const Field: React.FC<Field> = () => {
     } catch (err: any) {
       setError(err.response?.data?.message || "Có lỗi xảy ra");
     }
-    setSelectedField(emptyField);
     setIsEditing(false);
   };
 
@@ -223,7 +229,9 @@ const Field: React.FC<Field> = () => {
 
           <button
             className={`${styles.field_add} ${styles.field_box}`}
-            onClick={() => setSelectedField(emptyField)}
+            onClick={() => {
+              setSelectedField(emptyField);
+            }}
           >
             Thêm lĩnh vực
           </button>
@@ -302,6 +310,7 @@ const Field: React.FC<Field> = () => {
                   value={inputFieldName ?? ""}
                   onChange={handleChangeFieldName}
                 />
+
                 {!isEditing ? (
                   <RiEdit2Line
                     className={styles.field_input_name_edit}
@@ -312,13 +321,14 @@ const Field: React.FC<Field> = () => {
                 ) : (
                   <FaSave
                     className={styles.field_input_name_edit}
-                    onClick={() =>
-                      handleRename({
-                        id: selectedField.id,
-                        name: inputFieldName ?? "",
-                        code: fieldCode ?? "",
-                      })
-                    }
+                    onClick={() => {
+                      selectedField.id !== 0 &&
+                        handleRename({
+                          id: selectedField.id,
+                          name: inputFieldName ?? "",
+                          code: fieldCode ?? "",
+                        });
+                    }}
                   />
                 )}
 
@@ -336,12 +346,26 @@ const Field: React.FC<Field> = () => {
 
             <div className={`${styles.field_information_item} `}>
               <span>Ngày khởi tạo: </span>
-              <span className={styles.field_space_list}>abcdz</span>
+              <span className={styles.field_space_list}>
+                {selectedField.createdAt === null
+                  ? "Chưa có"
+                  : format(
+                      new Date(selectedField.createdAt),
+                      "dd/MM/yyyy HH:mm"
+                    )}
+              </span>
             </div>
 
             <div className={`${styles.field_information_item} `}>
               <span>Cập nhật gần nhất: </span>
-              <span className={styles.field_space_list}>abcdz</span>
+              <span className={styles.field_space_list}>
+                {selectedField.updatedAt === null
+                  ? "Chưa có"
+                  : format(
+                      new Date(selectedField.updatedAt),
+                      "dd/MM/yyyy HH:mm"
+                    )}
+              </span>
             </div>
           </div>
 

@@ -43,3 +43,13 @@ export function formatTimeAgo(updatedAt: number | Date): string {
     return `${years} năm trước`;
   }
 }
+
+export function parseDateFromArray(arr: number[]): Date {
+  if (!arr || arr.length < 6) {
+    throw new Error(
+      "Array must have at least 6 elements: [year, month, day, hour, minute, second]"
+    );
+  }
+  const [year, month, day, hour, minute, second] = arr;
+  return new Date(year, month - 1, day, hour, minute, second);
+}
