@@ -13,6 +13,6 @@ public class Icon {
         int id;
         String name;
         String url;
-        LocalDateTime createdAt;
+        Timestamp createdAt;
         boolean isActive;
 }

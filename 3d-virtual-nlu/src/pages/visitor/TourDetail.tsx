@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { fetchCommentOfNode } from "../../redux/slices/DataSlice";
 import { formatTimeAgo } from "../../utils/formatDateTime";
+import Swal from "sweetalert2";
 
 const TourDetail = () => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
@@ -24,26 +25,24 @@ const TourDetail = () => {
   const [isOpenComment, setIsOpenComment] = useState(false);
   const [isFullPreview, setIsFullPreview] = useState(false);
 
+  const handleFetchNode = async () => {
+    if (!nodeId) {
+      console.warn("Missing nodeId from URL");
+      return;
+    }
+    try {
+      const response = await axios.post("http://localhost:8080/api/node/byId", {
+        nodeId: nodeId,
+      });
+      if (response.data) {
+        setNode(response.data.data);
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
-    const handleFetchNode = async () => {
-      if (!nodeId) {
-        console.warn("Missing nodeId from URL");
-        return;
-      }
-      try {
-        const response = await axios.post(
-          "http://localhost:8080/api/node/byId",
-          {
-            nodeId: nodeId,
-          }
-        );
-        if (response.data) {
-          setNode(response.data.data);
-        }
-      } catch (err: any) {
-        console.error(err);
-      }
-    };
     handleFetchNode();
   }, [nodeId]);
 
@@ -54,6 +53,39 @@ const TourDetail = () => {
   if (!node || !comments) {
     return null;
   }
+
+  const handleChangeStatus = async (node: any) => {
+    const response = await axios.post(
+      "http://localhost:8080/api/node/changeStatus",
+      { id: node.id, status: node.status }
+    );
+    if (response.data.data) {
+      Swal.fire({
+        title: "Thành công",
+        text: `${node.status == 0 ? "Mở hoạt động" : "Ngưng hoạt động" } thành công`,
+        icon: "success",
+        position: "top-end",
+        toast: true,
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+      handleFetchNode();
+      console.log('node...', node)
+    } else {
+      Swal.fire({
+        title: "Thất bại",
+        text: "Đổi trạng thái thất bại",
+        icon: "error",
+        position: "top-end",
+        toast: true,
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+      return;
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -94,12 +126,16 @@ const TourDetail = () => {
           <div>
             <div className={styles.info}>
               <div className={styles.sub_info}>
-                <span className={styles.name}>10</span>
-                <span className={styles.des}>Số bình luận</span>
+                <span className={styles.name}>Cập nhật</span>
+                <span className={styles.des}>
+                  {formatTimeAgo(node.updatedAt)}
+                </span>
               </div>
               <div className={styles.sub_info}>
                 <span className={styles.name}>Trạng thái</span>
-                <span className={styles.des}>Đang hoạt động</span>
+                <span className={styles.des}>
+                  {node.status == 2 ? "Đang hoạt động" : "Ngưng hoạt động"}
+                </span>
               </div>
               <div className={styles.sub_info}>
                 <span className={styles.name}>{comments.length}</span>
@@ -113,7 +149,9 @@ const TourDetail = () => {
             <div className={styles.feature}>
               <span className={styles.title}>Tính năng</span>
               <ul className={styles.featureList}>
-                <li>Ngưng hoạt động</li>
+                <li onClick={() => handleChangeStatus(node)}>
+                  {node.status == 2 ? "Ngưng hoạt động" : "Mở hoạt động"}
+                </li>
                 <li>Xóa tour</li>
                 <li>Cập nhật tour</li>
                 <li onClick={() => setIsFullPreview((pre) => !pre)}>

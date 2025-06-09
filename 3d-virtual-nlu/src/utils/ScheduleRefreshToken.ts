@@ -1,8 +1,8 @@
 import axios from "axios";
 import {jwtDecode} from "jwt-decode";
 import { logoutUser, refreshToken } from "../redux/slices/AuthSlice";
-import { formatTimestampToDate } from "./formatTimestamp";
 import { AppDispatch } from "../redux/Store";
+import { formatTimestampToDate } from "./formatDateTime";
 
 let refreshTimer: ReturnType<typeof setTimeout> | null = null;
 

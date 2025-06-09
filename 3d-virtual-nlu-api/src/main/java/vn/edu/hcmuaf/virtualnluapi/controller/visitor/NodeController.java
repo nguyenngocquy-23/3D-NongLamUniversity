@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
 
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
@@ -92,5 +93,13 @@ public class NodeController {
     public ApiResponse<List<NodeFullResponse>> getNodeByUser(UserIdRequest request) {
         List<NodeFullResponse> result = nodeService.getNodeByUser(request);
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node theo nguoi tao thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/changeStatus")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeStatus(StatusRequest request) {
+        boolean result = nodeService.changeStatus(request);
+        return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat trang thai thanh cong").data(result).build();
     }
 }

@@ -1,3 +1,16 @@
+export function formatTimestampToDate(timestamp: number): string {
+  const date = new Date(timestamp);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // tháng bắt đầu từ 0
+  const year = date.getFullYear();
+
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  const second = date.getSeconds();
+
+  return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+}
+
 export const formatDateTime = (value: string): string => {
   // Chia chuỗi thành ngày và giờ
 
@@ -37,9 +50,7 @@ export function formatTimeAgo(updatedAt: number | Date): string {
     return `${days} ngày trước`;
   } else if (days < 30) {
     return `${weeks} tuần trước`;
-  } else if (days < 365) {
-    return `${months} tháng trước`;
   } else {
-    return `${years} năm trước`;
+    return formatTimestampToDate(diffInSeconds * 1000);
   }
 }

@@ -6,6 +6,7 @@ import vn.edu.hcmuaf.virtualnluapi.connection.Connection;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 
@@ -168,7 +169,7 @@ public class NodeDao {
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
-                WHERE n.userId = :userId
+                WHERE n.userId = :userId and n.status = 2
                 ORDER BY n.updatedAt DESC
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
@@ -203,4 +204,13 @@ public class NodeDao {
         return nodeFullResponse;
     }
 
+    public boolean changeStatus(StatusRequest request) {
+        String sql = "UPDATE nodes SET status = :status, updatedAt = :updatedAt WHERE id = :nodeId";
+        int rowsUpdated = ConnectionPool.getConnection().withHandle(handle -> handle.createUpdate(sql)
+                .bind("status", request.getStatus() == 0 ? 2 : 0)
+                .bind("updatedAt", LocalDateTime.now())
+                .bind("nodeId", request.getId())
+                .execute());
+        return rowsUpdated > 0;
+    }
 }
