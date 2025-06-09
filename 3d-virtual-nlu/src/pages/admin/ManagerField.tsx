@@ -18,14 +18,14 @@ import Space from "./ManagerSpace";
 import { RiEdit2Line } from "react-icons/ri";
 import StatusToggle from "../../components/admin/ToggleChangeStatus";
 import { TfiNewWindow } from "react-icons/tfi";
-import { a } from "framer-motion/client";
 import { IoIosCloseCircle, IoIosWarning } from "react-icons/io";
 import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 import axios from "axios";
+import { validateName } from "../../utils/ValidateInputName";
 
 interface Field {
   id: number;
-  name: string;
+  name: string | null;
   code: string;
   status: number;
   updatedAt: string;
@@ -35,7 +35,7 @@ interface FieldCreateRequest extends Pick<Field, "id" | "name" | "code"> {}
 
 const emptyField: Field = {
   id: 0, // ID giả để phân biệt với các field thật
-  name: "null",
+  name: null,
   code: "",
   status: 1,
   updatedAt: "",
@@ -50,7 +50,9 @@ const Field: React.FC<Field> = () => {
 
   const fields = useSelector((state: RootState) => state.data.fields) || [];
   const spaces = useSelector((state: RootState) => state.data.spaces) || [];
+
   const [selectedField, setSelectedField] = useState<Field | null>(null);
+
   const [searchData, setSearchData] = useState<Field[]>([]);
   const [openModel, setOpenModel] = useState(false);
 
@@ -114,15 +116,29 @@ const Field: React.FC<Field> = () => {
   };
 
   /**
-   * Dispatch tên mới lên redux.
-   * Gửi API lưu về database.
+   * Xử lý phần chỉnh sửa tên cho lĩnh vực.
    */
   const handleRename = async (req: FieldCreateRequest) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/admin/field/changeName",
-        req
-      );
+      const nameCheck = validateName(req.name);
+      if (!nameCheck.valid) {
+        setError(nameCheck.error);
+        return;
+      }
+
+      let response;
+
+      if (req.id === 0) {
+        response = await axios.post(
+          "http://localhost:8080/api/admin/field/create",
+          req
+        );
+      } else {
+        response = await axios.post(
+          "http://localhost:8080/api/admin/field/changeName",
+          req
+        );
+      }
 
       /**
        * Xử lý sau khi có api trả về:
@@ -138,7 +154,7 @@ const Field: React.FC<Field> = () => {
     } catch (err: any) {
       setError(err.response?.data?.message || "Có lỗi xảy ra");
     }
-
+    setSelectedField(emptyField);
     setIsEditing(false);
   };
 
@@ -150,8 +166,15 @@ const Field: React.FC<Field> = () => {
     setError("");
   }, [selectedField]);
 
-  const [inputFieldName, setInputFieldName] = useState(selectedField?.name);
+  const [inputFieldName, setInputFieldName] = useState<string | null>(
+    selectedField?.name || null
+  );
+
+  /**
+   * Validate cho input name.
+   */
   const [fieldCode, setFieldCode] = useState(selectedField?.code);
+
   const fieldCodeList = fields.map((field) => field.code);
 
   const handleChangeFieldName = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,36 +247,6 @@ const Field: React.FC<Field> = () => {
             );
           })}
         </div>
-
-        {/* <input
-        type="text"
-        ti              tle="Keyword trong tên"
-        onChange={handleSearch}
-        placeholder="Tìm kiếm..."
-        className={stylesCommon.search_input}
-      /> */}
-        {/* <h2>Danh Sách Lĩnh vực</h2> */}
-        {loading && <p>Đang tải...</p>}
-        {/* <button
-        className={stylesCommon.addRow}
-        onClick={() => {
-          setOpenModel(true);
-          }}
-          >
-          ➕ Thêm dòng
-          </button>
-          {openModel ? (
-            <CustomModal
-            onClose={() => setOpenModel(false)}
-            title="Tạo Lĩnh vực"
-            fields={field}
-            apiUrl="http://localhost:8080/api/admin/field" // URL API
-            />
-            ) : (
-              ""
-      )}
-      
-      <Datatable columns={columns} searchData={searchData!} loading={loading} /> */}
       </div>
 
       {selectedField && (
@@ -263,7 +256,9 @@ const Field: React.FC<Field> = () => {
             onClick={() => setSelectedField(null)}
           />
           <div className={styles.field_item}>
-            <FieldCard field={selectedField} />
+            <FieldCard
+              field={{ ...selectedField, name: selectedField.name ?? "" }}
+            />
           </div>
 
           <div className={styles.field_edit_content}>
@@ -304,7 +299,7 @@ const Field: React.FC<Field> = () => {
                   id="input"
                   required
                   readOnly={!isEditing}
-                  value={inputFieldName}
+                  value={inputFieldName ?? ""}
                   onChange={handleChangeFieldName}
                 />
                 {!isEditing ? (
@@ -357,9 +352,19 @@ const Field: React.FC<Field> = () => {
                 Xoá lĩnh vực{" "}
               </button>
             ) : (
-              <button className={styles.field_add_change_btn}>
+              <button
+                className={styles.field_add_change_btn}
+                disabled={!!error}
+                onClick={() =>
+                  handleRename({
+                    id: selectedField.id,
+                    name: inputFieldName ?? "",
+                    code: fieldCode ?? "",
+                  })
+                }
+              >
                 {" "}
-                Thêm lĩnh vực{" "}
+                Hoàn tất{" "}
               </button>
             )}
           </div>

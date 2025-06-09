@@ -27,6 +27,7 @@ public class FieldController {
     FieldService fieldService;
 
     @POST
+    @Path("/create")
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> createField(FieldCreateRequest req) {
         boolean result = fieldService.createField(req);
