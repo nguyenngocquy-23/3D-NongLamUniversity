@@ -7,9 +7,6 @@ const VisitorCreateTour = () => {
   return (
     <div className={styles.container}>
      <CreateNode/>
-     <button className={styles.guide_button} title='Hướng dẫn'>
-      <FaBook/>
-     </button>
     </div>
   )
 }

@@ -172,7 +172,7 @@
 }
 
 .sendChatBtn {
-    padding: 10px 10px;
+    padding: 10px;
     position: absolute;
     bottom: 10px;
     right: 10px;
@@ -181,6 +181,16 @@
     outline: none !important;
     border: none;
     transition: all .3s ease-in;
+}
+
+.login_button{
+    width: 90%;
+    padding: 10px;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #007cf0;
 }
 
 .chatIcon:hover {

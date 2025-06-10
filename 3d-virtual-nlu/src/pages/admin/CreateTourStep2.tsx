@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../../styles/createTourStep2.module.css";
-import { FaAngleLeft, FaAngleRight, FaPlus } from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight, FaBook, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -581,6 +581,7 @@ const CreateTourStep2 = () => {
               : ""}
           </TaskContainerCT>
         </div>
+        {/* Hộp chỉnh sửa hotspot */}
         <div
           className={`${styles.update_hotspot_container} ${
             currentHotspotId != null ? styles.show : ""
@@ -593,6 +594,10 @@ const CreateTourStep2 = () => {
             setChangeCorner={setChangeCornerMedia}
           />
         </div>
+        {/* Hướng dẫn sử dụng */}
+        <button className={styles.guide_button} title="Hướng dẫn">
+          <FaBook />
+        </button>
       </div>
     </>
   );

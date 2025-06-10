@@ -12,7 +12,8 @@ const PageNotFound = () => {
       </p>
       <button
         onClick={() => {
-          navigate("/login");
+          // navigate("/login");
+          navigate(-1);
         }}
         className={styles.homeButton}
       >

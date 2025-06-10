@@ -23,6 +23,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
   const [parent, setParent] = useState<any>(null);
   const dispatch = useDispatch<AppDispatch>();
   const [node, setNode] = useState<any>();
+  const totalComments = comments.reduce((acc, c) => acc + 1 + (c.replies?.length || 0), 0);
 
   const [edittedCommentId, setEdittedCommentId] = useState(0);
 
@@ -56,7 +57,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
         {
           userId: userId,
           nodeId: nodeId,
-          parentId: parent.id,
+          parentId: parent ? parent.id : null,
           content: content,
         }
       );
@@ -137,7 +138,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
     <div className={styles.overlay}>
       <div className={styles.box}>
         <div className={styles.header}>
-          <h3 className={styles.title}>{comments.length} Bình luận</h3>
+          <h3 className={styles.title}>{totalComments} Bình luận</h3>
           <button className={styles.close_btn} onClick={handleClose}>
             <FaX />
           </button>
@@ -171,9 +172,28 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
                       </small>
                     </div>
                     <div>
-                      {comment.userId == userId &&
-                      (formatTimeAgo(comment.updatedAt) == "Bây giờ" ||
-                        formatTimeAgo(comment.updatedAt).includes("phút")) ? (
+                      {userId == 43 ? (
+                        <>
+                          <button
+                            className={styles.reply_btn}
+                            onClick={() => handleRemoveComment(comment.id)}
+                          >
+                            Gỡ
+                          </button>
+                          <button
+                            className={styles.reply_btn}
+                            onClick={() =>
+                              setParent(
+                                comments.find((c) => c.id == comment.id)
+                              )
+                            }
+                          >
+                            Trả lời
+                          </button>
+                        </>
+                      ) : comment.userId == userId &&
+                        (formatTimeAgo(comment.updatedAt) == "Bây giờ" ||
+                          formatTimeAgo(comment.updatedAt).includes("phút")) ? (
                         <>
                           <button
                             className={styles.reply_btn}
@@ -220,6 +240,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
                     <div className={styles.content}>{comment.content}</div>
                   )}
                 </div>
+                {/* Danh sách phản hồi bình luận */}
                 {comment.replies.map((reply: any) => {
                   return (
                     <div key={reply.id} className={styles.sub_comment}>
@@ -247,9 +268,30 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
                           </small>
                         </div>
                         <div>
-                          {(reply.userId == userId &&
-                            formatTimeAgo(reply.updatedAt) == "Bây giờ") ||
-                          formatTimeAgo(reply.updatedAt).includes("phút") ? (
+                          {userId == 43 ? (
+                            <>
+                              <button
+                                className={styles.reply_btn}
+                                onClick={() => handleRemoveComment(comment.id)}
+                              >
+                                Gỡ
+                              </button>
+                              <button
+                                className={styles.reply_btn}
+                                onClick={() =>
+                                  setParent(
+                                    comments.find((c) => c.id == comment.id)
+                                  )
+                                }
+                              >
+                                Trả lời
+                              </button>
+                            </>
+                          ) : reply.userId == userId &&
+                            (formatTimeAgo(reply.updatedAt) == "Bây giờ" ||
+                              formatTimeAgo(reply.updatedAt).includes(
+                                "phút"
+                              )) ? (
                             <>
                               <button
                                 className={styles.reply_btn}
@@ -264,7 +306,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
                                 Gỡ
                               </button>
                             </>
-                          ) : (
+                          ) : reply.userId != userId ? (
                             <button
                               className={styles.reply_btn}
                               onClick={() =>
@@ -275,6 +317,8 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
                             >
                               Trả lời
                             </button>
+                          ) : (
+                            ""
                           )}
                         </div>
                       </div>

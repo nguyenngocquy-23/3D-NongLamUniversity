@@ -36,7 +36,7 @@
 
 .box {
     width: 50vw;
-    height: 50vh;
+    height: 60vh;
     background: #fff;
     padding: 20px 0;
     padding-left: 20px;
@@ -47,7 +47,7 @@
 }
 
 .container_content {
-    height: 70%;
+    height: 75%;
     overflow: auto;
     margin-right: 10px;
 }
@@ -228,14 +228,16 @@
     padding: 5px 10px;
     color: black;
     margin-bottom: 8px;
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.4);
 }
 
 .sub_comment {
     padding: 5px 10px;
     color: black;
     border-left: 2px solid black;
-    margin-left: 10%;
+    margin-left: 8%;
     margin-bottom: 8px;
+    box-shadow: 1px 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 .reply_btn:focus {

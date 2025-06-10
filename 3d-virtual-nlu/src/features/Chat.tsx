@@ -6,6 +6,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
 import { FaMessage, FaXmark } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 
 const Chat = ({
   nodeId,
@@ -32,6 +33,7 @@ const Chat = ({
   const [isOpenBox, setIsOpenBox] = useState(false);
   const [isFillInput, setIsFillInput] = useState(false);
   const [isSelectOption, setIsSelectOption] = useState(0);
+  const navigate = useNavigate();
 
   // cờ để kiểm tra có load tin nhắn cũ không, nếu không thì sẽ nhận tin nhắn mới khi nhắn và scroll dưới cùng
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -257,21 +259,32 @@ const Chat = ({
                 );
               })}
             </div>
-            <input
-              className={styles.chatInput}
-              type="text"
-              value={inputMessage}
-              onChange={handleCheckFillInput}
-              placeholder="Compose your message..."
-            />
-            <button
-              className={`${styles.sendChatBtn} ${
-                isFillInput ? styles.show : ""
-              }`}
-              onClick={sendMessage}
-            >
-              <IoMdSend />
-            </button>
+            {user ? (
+              <>
+                <input
+                  className={styles.chatInput}
+                  type="text"
+                  value={inputMessage}
+                  onChange={handleCheckFillInput}
+                  placeholder="Compose your message..."
+                />
+                <button
+                  className={`${styles.sendChatBtn} ${
+                    isFillInput ? styles.show : ""
+                  }`}
+                  onClick={sendMessage}
+                >
+                  <IoMdSend />
+                </button>
+              </>
+            ) : (
+              <button
+                className={styles.login_button}
+                onClick={() => navigate("/login")}
+              >
+                Đăng nhập để trò chuyện
+              </button>
+            )}
           </>
         ) : isSelectOption == 1 ? (
           <>
@@ -310,21 +323,32 @@ const Chat = ({
                 );
               })}
             </div>
-            <input
-              className={styles.chatInput}
-              type="text"
-              value={inputMessage}
-              onChange={handleCheckFillInput}
-              placeholder="Compose your message..."
-            />
-            <button
-              className={`${styles.sendChatBtn} ${
-                isFillInput ? styles.show : ""
-              }`}
-              onClick={sendMessage}
-            >
-              <IoMdSend />
-            </button>
+            {user ? (
+              <>
+                <input
+                  className={styles.chatInput}
+                  type="text"
+                  value={inputMessage}
+                  onChange={handleCheckFillInput}
+                  placeholder="Compose your message..."
+                />
+                <button
+                  className={`${styles.sendChatBtn} ${
+                    isFillInput ? styles.show : ""
+                  }`}
+                  onClick={sendMessage}
+                >
+                  <IoMdSend />
+                </button>
+              </>
+            ) : (
+              <button
+                className={styles.login_button}
+                onClick={() => navigate("/login")}
+              >
+                Đăng nhập để trò chuyện
+              </button>
+            )}
           </>
         ) : (
           <></>

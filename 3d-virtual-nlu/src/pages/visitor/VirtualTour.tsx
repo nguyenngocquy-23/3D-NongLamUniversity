@@ -91,6 +91,10 @@ const VirtualTour = () => {
   // let defaultNode = null;
   // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
 
+  if (!nodeToRender) {
+    return null;
+  }
+
   const [isRotation, setIsRotation] = useState(nodeToRender.autoRotate || true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
