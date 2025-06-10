@@ -3,6 +3,7 @@ import axios from "axios";
 import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../Store";
+import { API_URLS } from "../../env";
 
 // Kiểu dữ liệu người dùng
 export interface User {
@@ -36,7 +37,7 @@ export const registerUser = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/register", {
+      const response = await axios.post(API_URLS.REGISTER, {
         username,
         email,
         password,
@@ -72,7 +73,7 @@ export const verifyUser = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/authenticate/verifyEmail", {
+      const response = await axios.post(API_URLS.VERIFY, {
         userId,
         token,
       });
@@ -105,7 +106,7 @@ export const forgotPassword = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/user/forgotPassword", {
+      const response = await axios.post(API_URLS.FORGOT_PASSWORD, {
         email
       });
 
@@ -137,7 +138,7 @@ export const loginUser = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/login", {
+      const response = await axios.post(API_URLS.LOGIN, {
         username,
         password,
       });
@@ -149,7 +150,7 @@ export const loginUser = createAsyncThunk(
       }
 
       const userResponse = await axios.post(
-        "http://localhost:8080/api/user",
+        API_URLS.USER,
         { username },
         {
           headers: {
@@ -193,7 +194,7 @@ export const fetchUser = createAsyncThunk(
     try {
       console.log('username :', username)
       const userResponse = await axios.post(
-        "http://localhost:8080/api/user",
+        API_URLS.USER,
         { username: username,
           password: null
          },
@@ -230,7 +231,7 @@ export const logoutUser = createAsyncThunk(
       const token = sessionStorage.getItem("token");
       sessionStorage.removeItem("user");
       sessionStorage.removeItem("token");
-      await axios.post("http://localhost:8080/api/authenticate/logout", { token });
+      await axios.post(API_URLS.LOGOUT, { token });
 
 
       // Xoá sessionStorage
@@ -249,7 +250,7 @@ export const refreshToken = createAsyncThunk(
   async (token: string, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/authenticate/refresh",
+        API_URLS.REFRESH_TOKEN,
         {
           token,
         }

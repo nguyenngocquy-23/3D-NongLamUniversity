@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
 import { FaMessage, FaXmark } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import { API_URLS } from "../env";
 
 const Chat = ({
   nodeId,
@@ -126,7 +127,7 @@ const Chat = ({
     const prevScrollHeight = container.scrollHeight;
     setIsLoadingMore(true); // -> Đánh dấu là đang load thêm ở trên
     const response = await axios.get(
-      `http://localhost:8080/api/chat/messages?nodeId=${nodeId}&page=${newPage}&limit=6`
+      `${API_URLS.BASE}/chat/messages?nodeId=${nodeId}&page=${newPage}&limit=6`
     );
     const data = response.data;
 

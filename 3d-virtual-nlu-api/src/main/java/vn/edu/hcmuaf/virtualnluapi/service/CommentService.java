@@ -57,4 +57,13 @@ public class CommentService {
             return false;
         }
     }
+
+    public int getNumOfUser(UserIdRequest request) {
+        try {
+            return commentDao.getNumOfUser(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

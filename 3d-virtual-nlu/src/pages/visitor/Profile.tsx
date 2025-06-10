@@ -7,6 +7,7 @@ import axios from "axios";
 import { fetchUser } from "../../redux/slices/AuthSlice";
 import { AppDispatch } from "../../redux/Store";
 import { useDispatch } from "react-redux";
+import { API_URLS } from "../../env";
 
 const VisitorProfile = () => {
   const userJson = sessionStorage.getItem("user");
@@ -34,7 +35,7 @@ const VisitorProfile = () => {
         setAvatar(reader.result);
         // Gửi lên server hoặc xử lý tiếp
         const response = await axios.post(
-          "http://localhost:8080/api/user/updateAvatar",
+          API_URLS.CHANGE_AVATAR,
           { userId: user.id, avatar: reader.result }
         );
         if (response.data.data) {
@@ -85,7 +86,7 @@ const VisitorProfile = () => {
     }
 
     const response = await axios.post(
-      "http://localhost:8080/api/user/updateProfile",
+      API_URLS.CHANGE_PROFILE,
       {
         userId: user.id,
         username: username,
@@ -177,7 +178,7 @@ const VisitorProfile = () => {
     }
 
     const response = await axios.post(
-      "http://localhost:8080/api/user/updatePassword",
+      API_URLS.CHANGE_PASSWORD,
       {
         userId: user.id,
         password: password,

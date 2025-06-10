@@ -213,4 +213,13 @@ public class NodeDao {
                 .execute());
         return rowsUpdated > 0;
     }
+
+    public boolean removeNode(NodeIdRequest request) {
+        String sql = "UPDATE nodes SET status = -1, updatedAt = :updatedAt WHERE id = :nodeId";
+        int rowsUpdated = ConnectionPool.getConnection().withHandle(handle -> handle.createUpdate(sql)
+                .bind("updatedAt", LocalDateTime.now())
+                .bind("nodeId", request.getNodeId())
+                .execute());
+        return rowsUpdated > 0;
+    }
 }

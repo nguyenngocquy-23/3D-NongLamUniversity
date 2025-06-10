@@ -75,4 +75,13 @@ public class CommentDao {
             return i > 0;
         });
     }
+
+    public int getNumOfUser(UserIdRequest request) {
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery("SELECT COUNT(*) FROM comments WHERE userId = :userId AND status = 1")
+                    .bind("userId", request.getUserId())
+                    .mapTo(Integer.class)
+                    .one();
+        });
+    }
 }

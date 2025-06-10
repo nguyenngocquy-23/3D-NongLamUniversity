@@ -20,6 +20,7 @@ import StatusToggle from "../../components/admin/ToggleChangeStatus";
 import { TfiNewWindow } from "react-icons/tfi";
 import { a } from "framer-motion/client";
 import { IoIosCloseCircle } from "react-icons/io";
+import { API_URLS } from "../../env";
 
 interface Field {
   id: number;
@@ -261,7 +262,7 @@ const Field: React.FC<Field> = () => {
               <StatusToggle
                 id={selectedField.id}
                 status={selectedField.status}
-                apiUrl="http://localhost:8080/api/admin/field/changeStatus"
+                apiUrl={API_URLS.ADMIN_CHANGE_FIELD_STATUS}
               />
             </div>
 

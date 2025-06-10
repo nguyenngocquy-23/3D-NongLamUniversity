@@ -102,4 +102,12 @@ public class NodeController {
         boolean result = nodeService.changeStatus(request);
         return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat trang thai thanh cong").data(result).build();
     }
+
+    @POST
+    @Path("/remove")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> remove(NodeIdRequest request) {
+        boolean result = nodeService.remoev(request);
+        return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat trang thai thanh cong").data(result).build();
+    }
 }

@@ -15,6 +15,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { fetchSpaces, removeLocation } from "../../redux/slices/DataSlice";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { API_URLS } from "../../env";
 
 const customIcon = L.divIcon({
   className: "",
@@ -121,7 +122,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
     if (result.isConfirmed) {
       try {
         const response = await axios.post(
-          "http://localhost:8080/api/admin/space/removeLocation",
+          API_URLS.ADMIN_REMOVE_SPACE_LOCATION,
           { spaceId: spaceId }
         );
         if (response.data.data) {

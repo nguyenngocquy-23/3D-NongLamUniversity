@@ -8,13 +8,14 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { FaChartBar } from "react-icons/fa";
 import { FaAngleUp, FaComment, FaEye } from "react-icons/fa6";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { fetchCommentOfNode } from "../../redux/slices/DataSlice";
 import { formatTimeAgo } from "../../utils/formatDateTime";
 import Swal from "sweetalert2";
+import { API_URLS } from "../../env";
 
 const TourDetail = () => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
@@ -28,6 +29,7 @@ const TourDetail = () => {
   const [parentId, setParentId] = useState(null);
   const userJson = sessionStorage.getItem("user");
   const user = userJson ? JSON.parse(userJson) : null;
+  const navigate = useNavigate();
 
   const handleFetchNode = async () => {
     if (!nodeId) {
@@ -35,7 +37,7 @@ const TourDetail = () => {
       return;
     }
     try {
-      const response = await axios.post("http://localhost:8080/api/node/byId", {
+      const response = await axios.post(API_URLS.NODE_BY_ID, {
         nodeId: nodeId,
       });
       if (response.data) {
@@ -50,15 +52,12 @@ const TourDetail = () => {
     if (!content.trim()) return;
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/comment/send",
-        {
-          userId: user.id,
-          nodeId: nodeId,
-          parentId: parentId,
-          content: content,
-        }
-      );
+      const response = await axios.post(API_URLS.SEND_COMMENT, {
+        userId: user.id,
+        nodeId: nodeId,
+        parentId: parentId,
+        content: content,
+      });
       if (response.data.data) {
         setContent("");
         dispatch(fetchCommentOfNode(node.id));
@@ -91,15 +90,16 @@ const TourDetail = () => {
         cancelButtonColor: "#d33",
         confirmButtonText: "Đồng ý",
       }).then((result) => {
-        if (result.isConfirmed) {
+        if (!result.isConfirmed) {
           return;
         }
       });
     }
-    const response = await axios.post(
-      "http://localhost:8080/api/node/changeStatus",
-      { id: node.id, status: node.status }
-    );
+
+    const response = await axios.post(API_URLS.CHANGE_NODE_STATUS, {
+      id: node.id,
+      status: node.status,
+    });
     if (response.data.data) {
       Swal.fire({
         title: "Thành công",
@@ -114,11 +114,56 @@ const TourDetail = () => {
         showConfirmButton: false,
       });
       handleFetchNode();
-      console.log("node...", node);
     } else {
       Swal.fire({
         title: "Thất bại",
         text: "Đổi trạng thái thất bại",
+        icon: "error",
+        position: "top-end",
+        toast: true,
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+      return;
+    }
+  };
+
+  const handleRemove = async (node: any) => {
+    const result = await Swal.fire({
+      title: "Bạn có chắc chắn",
+      text: "Việc xóa node sẽ không thể hoàn tác",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Đồng ý",
+      cancelButtonText: "Hủy",
+    });
+
+    if(!result.isConfirmed){
+      return;
+    }
+
+    const response = await axios.post(API_URLS.REMOVE_NODE, {
+      nodeId: node.id,
+    });
+    if (response.data.data) {
+      Swal.fire({
+        title: "Thành công",
+        text: "Node đã được xóa thành công",
+        icon: "success",
+        position: "top-end",
+        toast: true,
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+      navigate("/manage/tours");
+    } else {
+      Swal.fire({
+        title: "Thất bại",
+        text: "Xóa node thất bại. Vui lòng thử lại sau.",
         icon: "error",
         position: "top-end",
         toast: true,
@@ -195,7 +240,7 @@ const TourDetail = () => {
                 <li onClick={() => handleChangeStatus(node)}>
                   {node.status == 2 ? "Ngưng hoạt động" : "Mở hoạt động"}
                 </li>
-                <li>Xóa tour</li>
+                <li onClick={() => handleRemove(node)}>Xóa tour</li>
                 <li>Cập nhật tour</li>
                 <li onClick={() => setIsFullPreview((pre) => !pre)}>
                   Chế độ xem toàn cảnh

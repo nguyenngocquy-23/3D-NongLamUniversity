@@ -69,4 +69,13 @@ public class NodeService {
             return false;
         }
     }
+
+    public boolean remoev(NodeIdRequest request) {
+        try {
+            return nodeDao.removeNode(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

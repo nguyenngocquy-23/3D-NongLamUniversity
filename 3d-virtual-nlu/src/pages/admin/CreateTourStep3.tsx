@@ -29,6 +29,7 @@ import { fetchMasterNodes } from "../../redux/slices/DataSlice";
 import gsap from "gsap";
 import MiniMap from "../../components/Minimap";
 import { RADIUS_SPHERE } from "../../utils/Constants";
+import { API_URLS } from "../../env";
 
 const CreateTourStep3: React.FC = () => {
   const panoramas = useSelector((state: RootState) => state.panoramas);
@@ -198,7 +199,7 @@ const CreateTourStep3: React.FC = () => {
 
       // Step2: Gửi lên backend
       const response = await axios.post(
-        "http://localhost:8080/api/v1/admin/node/insert",
+        API_URLS.ADMIN_CREATE_NODES,
         payload
       );
       if (response.data?.statusCode === 1000) {

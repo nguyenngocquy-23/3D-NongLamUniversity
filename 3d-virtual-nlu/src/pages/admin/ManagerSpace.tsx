@@ -81,7 +81,13 @@ const Space = () => {
     },
     {
       name: "Trạng thái",
-      selector: (row: Space) => <StatusToggle id={row.id} status={row.status} apiUrl="http://localhost:8080/api/admin/space/changeStatus"/>,
+      selector: (row: Space) => (
+        <StatusToggle
+          id={row.id}
+          status={row.status}
+          apiUrl="http://localhost:8080/api/admin/space/changeStatus"
+        />
+      ),
       sortable: true,
     },
     {
@@ -112,7 +118,12 @@ const Space = () => {
       <h2>Danh Sách Không gian</h2>
       {loading && <p>Đang tải...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <button className={stylesCommon.addRow} onClick={() => setOpenModel(true)}>➕ Thêm dòng</button>
+      <button
+        className={stylesCommon.addRow}
+        onClick={() => setOpenModel(true)}
+      >
+        ➕ Thêm dòng
+      </button>
       {openModel ? (
         <CustomModal
           onClose={() => setOpenModel(false)}

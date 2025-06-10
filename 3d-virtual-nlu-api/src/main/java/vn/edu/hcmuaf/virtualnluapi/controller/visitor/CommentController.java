@@ -7,10 +7,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.CommentIdRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SendCommentRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UpdateCommentRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.CommentResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
@@ -57,5 +54,13 @@ public class CommentController {
     public ApiResponse<List<CommentResponse>> getOfNode(NodeIdRequest request) {
         List<CommentResponse> result = commentService.getOfNode(request);
         return ApiResponse.<List<CommentResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/getNumOfUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Integer> getNumOfUser(UserIdRequest request) {
+        int result = commentService.getNumOfUser(request);
+        return ApiResponse.<Integer>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 }

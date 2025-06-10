@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "../../styles/visitor/dashboard.module.css";
 import { FaChartColumn, FaEye, FaEyeSlash } from "react-icons/fa6";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 import { fetchUser } from "../../redux/slices/AuthSlice";
-import { AppDispatch } from "../../redux/Store";
+import { AppDispatch, RootState } from "../../redux/Store";
 import { RiEdit2Line } from "react-icons/ri";
+import { API_URLS } from "../../env";
+import {
+  fetchCommentOfNode,
+  fetchNodeOfUser,
+} from "../../redux/slices/DataSlice";
 
 const VisitorDashBoard = () => {
   const userJson = sessionStorage.getItem("user");
@@ -19,9 +24,31 @@ const VisitorDashBoard = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
 
+  const dispatch = useDispatch<AppDispatch>();
   const [avatar, setAvatar] = useState(user.avatar || "");
 
-  const dispatch = useDispatch<AppDispatch>();
+  useEffect(() => {
+    dispatch(fetchNodeOfUser(user.id));
+  }, [dispatch]);
+
+  const nodes = useSelector((state: RootState) => state.data.nodeOfUser);
+
+  const [totalComments, setTotalComments] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchTotalComments = async () => {
+      try {
+        const response = await axios.post(API_URLS.NUM_COMMENT_OF_USER, {
+          userId: user.id,
+        });
+        setTotalComments(response.data.data); // hoặc response.data nếu trả về số trực tiếp
+      } catch (error) {
+        console.error("Lỗi khi lấy tổng số comment:", error);
+      }
+    };
+
+    fetchTotalComments();
+  }, [user.id]);
 
   const handleFileChange = (e: any) => {
     console.log("handle file change");
@@ -33,10 +60,10 @@ const VisitorDashBoard = () => {
       if (typeof reader.result === "string") {
         setAvatar(reader.result);
         // Gửi lên server hoặc xử lý tiếp
-        const response = await axios.post(
-          "http://localhost:8080/api/user/updateAvatar",
-          { userId: user.id, avatar: reader.result }
-        );
+        const response = await axios.post(API_URLS.CHANGE_AVATAR, {
+          userId: user.id,
+          avatar: reader.result,
+        });
         if (response.data.data) {
           Swal.fire({
             title: "Thành công",
@@ -84,14 +111,11 @@ const VisitorDashBoard = () => {
       return;
     }
 
-    const response = await axios.post(
-      "http://localhost:8080/api/user/updateProfile",
-      {
-        userId: user.id,
-        username: username,
-        email: email,
-      }
-    );
+    const response = await axios.post(API_URLS.CHANGE_PROFILE, {
+      userId: user.id,
+      username: username,
+      email: email,
+    });
     if (response.data.data) {
       Swal.fire({
         icon: "success",
@@ -285,7 +309,7 @@ const VisitorDashBoard = () => {
         <div className={styles.category}>
           <FaChartColumn />
           <span className={styles.title}>Số tour</span>
-          <span>2</span>
+          <span>{nodes.length}</span>
         </div>
         <div className={styles.category}>
           <FaChartColumn />
@@ -295,7 +319,7 @@ const VisitorDashBoard = () => {
         <div className={styles.category}>
           <FaChartColumn />
           <span className={styles.title}>Số bình luận</span>
-          <span>20</span>
+          <span>{totalComments !== null ? totalComments : "Đang tải..."}</span>
         </div>
         <div className={styles.category}>
           <FaChartColumn />

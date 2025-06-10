@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { fetchCommentOfNode } from "../../redux/slices/DataSlice";
 import Swal from "sweetalert2";
 import { FaCheckCircle } from "react-icons/fa";
+import { API_URLS } from "../../env";
 
 interface CommentProp {
   userId: number;
@@ -23,7 +24,12 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
   const [parent, setParent] = useState<any>(null);
   const dispatch = useDispatch<AppDispatch>();
   const [node, setNode] = useState<any>();
-  const totalComments = comments.reduce((acc, c) => acc + 1 + (c.replies?.length || 0), 0);
+  const totalComments = comments.reduce(
+    (acc, c) => acc + 1 + (c.replies?.length || 0),
+    0
+  );
+  const userJson = sessionStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : null;
 
   const [edittedCommentId, setEdittedCommentId] = useState(0);
 
@@ -33,7 +39,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
       return;
     }
     try {
-      const response = await axios.post("http://localhost:8080/api/node/byId", {
+      const response = await axios.post(API_URLS.NODE_BY_ID, {
         nodeId: nodeId,
       });
       if (response.data) {
@@ -52,15 +58,12 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
     if (!content.trim()) return;
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/comment/send",
-        {
-          userId: userId,
-          nodeId: nodeId,
-          parentId: parent ? parent.id : null,
-          content: content,
-        }
-      );
+      const response = await axios.post(API_URLS.SEND_COMMENT, {
+        userId: userId,
+        nodeId: nodeId,
+        parentId: parent ? parent.id : null,
+        content: content,
+      });
       if (response.data.data) {
         setContent("");
         setParent(null);
@@ -75,13 +78,10 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
     if (!updateContent.trim()) return;
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/comment/update",
-        {
-          commentId: commentId,
-          content: updateContent,
-        }
-      );
+      const response = await axios.post(API_URLS.EDIT_COMMENT, {
+        commentId: commentId,
+        content: updateContent,
+      });
       if (response.data.data) {
         setEdittedCommentId(0);
         setUpdateContent("");
@@ -104,12 +104,9 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.post(
-            "http://localhost:8080/api/comment/remove",
-            {
-              commentId: commentId,
-            }
-          );
+          const response = await axios.post(API_URLS.REMOVE_COMMENT, {
+            commentId: commentId,
+          });
           if (response.data.data) {
             dispatch(fetchCommentOfNode(nodeId));
           }
@@ -172,7 +169,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
                       </small>
                     </div>
                     <div>
-                      {userId == 43 ? (
+                      {user.username == 'admin' ? (
                         <>
                           <button
                             className={styles.reply_btn}
@@ -268,7 +265,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
                           </small>
                         </div>
                         <div>
-                          {userId == 43 ? (
+                          {user.username == 'admin' ? (
                             <>
                               <button
                                 className={styles.reply_btn}
