@@ -122,7 +122,11 @@ const Header: React.FC = () => {
         <div className={style.dropdown}>
           <button
             className={style.dropdownBtn}
-            onClick={() => setDropdownOpen(!dropdownOpen)}
+            onClick={() => {
+              currentUser.username == "admin"
+                ? navigate("/admin")
+                : setDropdownOpen(!dropdownOpen);
+            }}
           >
             👤 {currentUser.username}
           </button>

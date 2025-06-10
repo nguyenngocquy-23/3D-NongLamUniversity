@@ -13,6 +13,7 @@ interface DataState {
   preloadNodes: any[];
   activeNode: any;
   nodeOfUser: any[];
+  privateNodeOfUser: any[];
   defaultNode: any;
   trackNodes: any[];
   icons: any[];
@@ -29,6 +30,7 @@ const initialState: DataState = {
   hotspotTypes: [],
   masterNodes: [],
   nodeOfUser: [],
+  privateNodeOfUser: [],
   defaultNode: null,
   activeNode: null,
   trackNodes: [],
@@ -88,6 +90,18 @@ export const fetchNodeOfUser = createAsyncThunk(
   async (userId: number) => {
     console.log("userUd..", userId);
     const response = await axios.post(API_URLS.NODE_OF_USER, {
+      userId: userId,
+    });
+    return response.data.data;
+  }
+);
+
+// Fetch private nodes of user
+export const fetchPrivateNodeOfUser = createAsyncThunk(
+  "data/fetchPrivateNodeOfUser",
+  async (userId: number) => {
+    console.log("userUd..", userId);
+    const response = await axios.post(API_URLS.PRIVATE_NODE_OF_USER, {
       userId: userId,
     });
     return response.data.data;
@@ -329,6 +343,17 @@ const dataSlice = createSlice({
         state.nodeOfUser = action.payload;
       })
       .addCase(fetchNodeOfUser.rejected, (state) => {
+        state.status = "failed";
+      })
+      
+      .addCase(fetchPrivateNodeOfUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPrivateNodeOfUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.privateNodeOfUser = action.payload;
+      })
+      .addCase(fetchPrivateNodeOfUser.rejected, (state) => {
         state.status = "failed";
       })
 

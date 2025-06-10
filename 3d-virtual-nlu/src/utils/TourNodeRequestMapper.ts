@@ -99,6 +99,8 @@ export class TourNodeRequestMapper {
     userId: number
   ): NodeCreateRequest[] {
     return panoramaList.map((pano) => {
+      const userJson = sessionStorage.getItem("user");
+      const user = userJson ? JSON.parse(userJson) : null;
       const nodeIdTemp = pano.id; // id temp của từng pano một
       const hotspotsForNode = hotspotList.filter(
         (h) => h.nodeId === nodeIdTemp
@@ -207,7 +209,7 @@ export class TourNodeRequestMapper {
         autoRotate: pano.config.autoRotate,
         speedRotate: pano.config.speedRotate,
         lightIntensity: pano.config.lightIntensity,
-        status: pano.config.status,
+        status: !user ? 2 : user.username == 'admin' ? pano.config.status : 3,
         navHotspots,
         infoHotspots,
         mediaHotspots,

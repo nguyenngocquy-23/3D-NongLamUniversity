@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import { RiLoader2Fill } from "react-icons/ri";
 import { nextStep } from "../../redux/slices/StepSlice";
 import { RootState } from "../../redux/Store";
+import { API_URLS } from "../../env";
 
 /**
  * UploadFile sẽ nhận vào các kiểu props:
@@ -298,7 +299,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
         formData.append("file", file);
 
         const resp = await axios.post<ApiResponse<CloudinaryUploadResp>>(
-          "http://localhost:8080/api/v1/admin/cloud/upload",
+          API_URLS.UPLOAD_CLOUD,
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );

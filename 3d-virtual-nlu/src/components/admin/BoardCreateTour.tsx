@@ -7,6 +7,7 @@ import { fetchFields } from "../../redux/slices/DataSlice.ts";
 import axios from "axios";
 import UploadFile from "./UploadFile.tsx";
 import TrackingNode from "./minimap/TrackingNode.tsx";
+import { API_URLS } from "../../env.ts";
 
 const BoardUploader = () => {
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
@@ -32,7 +33,7 @@ const BoardUploader = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/admin/space/byField",
+        API_URLS.ADMIN_GET_SPACE_OF_FIELD,
         { fieldId: fieldId }
       );
       const listSpace = response.data.data;

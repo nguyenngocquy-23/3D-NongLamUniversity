@@ -78,4 +78,13 @@ public class NodeService {
             return false;
         }
     }
+
+    public List<NodeFullResponse> getPrivateNodeByUser(UserIdRequest request) {
+        try {
+            return nodeDao.getPrivateNodeByUser(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

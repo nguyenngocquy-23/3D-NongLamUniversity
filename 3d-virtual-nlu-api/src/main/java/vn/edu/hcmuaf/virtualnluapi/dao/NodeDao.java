@@ -222,4 +222,19 @@ public class NodeDao {
                 .execute());
         return rowsUpdated > 0;
     }
+
+    public List<NodeFullResponse> getPrivateNodeByUser(UserIdRequest request) {
+        String sql = """
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.lightIntensity
+                FROM nodes n
+                JOIN spaces s ON n.spaceId = s.id
+                JOIN fields f ON s.fieldId = f.id
+                WHERE n.userId = :userId and n.status = 3
+                ORDER BY n.updatedAt DESC
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+                .bind("userId", request.getUserId())
+                .mapToBean(NodeFullResponse.class).list());
+    }
 }

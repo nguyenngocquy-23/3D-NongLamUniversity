@@ -15,9 +15,12 @@ export const API_URLS = {
   CHANGE_NODE_STATUS: `${DOMAIN}/node/changeStatus`,
   REMOVE_NODE: `${DOMAIN}/node/remove`,
 
+  UPLOAD_CLOUD: `${DOMAIN}/v1/admin/cloud/upload`,
+
   GET_MASTER_NODES: `${DOMAIN}/node/master`,
   GET_PRELOAD_NODES: `${DOMAIN}/node/preloadNodeList`,
   GET_DEFAULT_NODE: `${DOMAIN}/node/default`,
+  PRIVATE_NODE_OF_USER: `${DOMAIN}/node/privateByUser`,
   NODE_OF_USER: `${DOMAIN}/node/byUser`,
   NODE_BY_ID: `${DOMAIN}/node/byId`,
   COMMENT_OF_NODE: `${DOMAIN}/comment/getOfNode`,
@@ -28,6 +31,7 @@ export const API_URLS = {
   
   ADMIN_GET_ALL_NODES: `${DOMAIN}/v1/admin/node/all`,
   ADMIN_GET_ALL_SPACES: `${DOMAIN}/admin/space/all`,
+  ADMIN_GET_SPACE_OF_FIELD: `${DOMAIN}/admin/space/byField`,
   ADMIN_GET_ALL_ICONS: `${DOMAIN}/v1/admin/icon`,
   ADMIN_GET_HOTSPOT_TYPES: `${DOMAIN}/admin/hotspotType`,
   ADMIN_GET_ALL_FIELDS: `${DOMAIN}/admin/field`,

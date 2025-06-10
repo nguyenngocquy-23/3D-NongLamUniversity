@@ -141,7 +141,7 @@ const TourDetail = () => {
       cancelButtonText: "Hủy",
     });
 
-    if(!result.isConfirmed){
+    if (!result.isConfirmed) {
       return;
     }
 
@@ -204,7 +204,9 @@ const TourDetail = () => {
             rotateSpeed={0.2}
           />
         </Canvas>
-        {isFullPreview ? (
+        {node.status == 3 ? (
+          ""
+        ) : isFullPreview ? (
           <FaAngleUp
             className={styles.toggle}
             title={"Mở tính năng"}
