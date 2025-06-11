@@ -293,7 +293,7 @@ const CreateTourStep3: React.FC = () => {
                 return (
                   <line
                     key={i}
-                    points={[point, currentPoints[i + 1]]}
+                    points={`${point[0]},${point[1]} ${currentPoints[i + 1][0]},${currentPoints[i + 1][1]}`}
                     color="cyan"
                   />
                 );

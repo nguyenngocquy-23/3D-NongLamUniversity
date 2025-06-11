@@ -109,6 +109,21 @@ const GroundHotspotInfo = ({
     }
   });
 
+  
+  useFrame((state, delta) => {
+  if (!hotspotRef.current || isHovered) return;
+
+  // Sử dụng thời gian để tạo hiệu ứng sin tuần hoàn
+  const time = state.clock.getElapsedTime();
+  const s = 1 + 0.5 * Math.sin(time * 2); // dao động giữa 0.5 -> 1.5
+
+  hotspotRef.current.scale.set(s, s, s);
+
+  // Làm mờ theo tỉ lệ scale
+  const opacity = 1 - (s - 1) / 0.5;
+  (hotspotRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
+});
+
   return (
     <>
       {isClicked ? (

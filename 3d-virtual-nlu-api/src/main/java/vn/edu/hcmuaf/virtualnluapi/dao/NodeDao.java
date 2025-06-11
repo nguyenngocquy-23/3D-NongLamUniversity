@@ -71,6 +71,7 @@ public class NodeDao {
                 SELECT n.id, n.name, n.url
                 FROM nodes n
                 WHERE n.status = 2
+                LIMIT 10 OFFSET 0
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(MasterNodeResponse.class).list());
     }

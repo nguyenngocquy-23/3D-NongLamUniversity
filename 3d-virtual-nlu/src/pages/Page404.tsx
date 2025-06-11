@@ -3,6 +3,9 @@ import styles from "../styles/pageNotFound.module.css";
 
 const PageNotFound = () => {
   const navigate = useNavigate();
+  const userJson = sessionStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : null;
+
   return (
     <div className={styles.container}>
       <h1 className={styles.errorCode}>404</h1>
@@ -12,8 +15,7 @@ const PageNotFound = () => {
       </p>
       <button
         onClick={() => {
-          // navigate("/login");
-          navigate(-1);
+          user ? navigate(-1) : navigate("/login");
         }}
         className={styles.homeButton}
       >

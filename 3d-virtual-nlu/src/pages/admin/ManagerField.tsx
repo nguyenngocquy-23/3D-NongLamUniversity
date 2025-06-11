@@ -40,7 +40,7 @@ const emptyField: Field = {
   listSpace: [],
 };
 
-const Field: React.FC<Field> = () => {
+const Field = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();

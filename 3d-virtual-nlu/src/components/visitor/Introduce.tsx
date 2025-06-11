@@ -3,27 +3,27 @@ import styles from "../../styles/visitor/introduce.module.css";
 
 const images = [
   {
-    src: "/public/thienly.jpg",
+    src: "/thienly.jpg",
     title: "Toàn Thiên Lý",
     description: "Và tòa nhà điều hành của trường, được xem là tòa nhà biểu tượng cho trường. Nơi tiếp nhận và giải quyết các vấn đè của sinh viên.",
   },
   {
-    src: "/public/phuongvy.jpg",
+    src: "/phuongvy.jpg",
     title: "Giảng đường Phượng Vỹ",
     description: "Nơi tổ chức các hoạt động ngoại khóa và chương trình của đoàn hội trường.",
   },
   {
-    src: "/public/rangdong.jpg",
+    src: "/rangdong.jpg",
     title: "Giảng đưuòng Rạng Đông",
     description: "Giảng đường có diện tích lớn nhất trường.",
   },
   {
-    src: "/public/khoa.jpg",
+    src: "/khoa.jpg",
     title: "Khoa Công nghệ thông tin",
     description: "Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.",
   },
   {
-    src: "/public/thuvienthunk.jpg",
+    src: "/thuvienthunk.jpg",
     title: "Thư viện",
     description: "Nơi trau dồi thêm các kiến thức và nơi họp nhóm lý tưởng cho các sinh viên.",
   },

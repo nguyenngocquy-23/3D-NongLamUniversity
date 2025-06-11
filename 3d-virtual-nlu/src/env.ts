@@ -1,4 +1,5 @@
-const DOMAIN = "http://localhost:8080/app/api";
+//3dtour.io.vn/app
+const DOMAIN = "https://3dtour.io.vn/app/api";
 
 export const API_URLS = {
   BASE: `${DOMAIN}`,

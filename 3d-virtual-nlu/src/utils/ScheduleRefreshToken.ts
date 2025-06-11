@@ -1,4 +1,3 @@
-import axios from "axios";
 import {jwtDecode} from "jwt-decode";
 import { logoutUser, refreshToken } from "../redux/slices/AuthSlice";
 import { AppDispatch } from "../redux/Store";
