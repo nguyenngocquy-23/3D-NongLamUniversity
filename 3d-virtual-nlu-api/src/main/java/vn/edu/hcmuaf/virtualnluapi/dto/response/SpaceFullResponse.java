@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class SpaceFullResponse {
     int id;
     int fieldId;
-    String fieldName, name, description, url, location;
+    String fieldName, code, name, masterNodeName, description, url, location;
     byte status;
-    Timestamp updatedAt;
+    Timestamp createdAt, updatedAt;
 }

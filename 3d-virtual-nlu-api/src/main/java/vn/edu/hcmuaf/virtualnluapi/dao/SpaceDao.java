@@ -49,9 +49,11 @@ public class SpaceDao {
 
     public List<SpaceFullResponse> getAllSpaces() {
         String sql = """
-                SELECT s.id, f.name as fieldName, s.fieldId, s.name, s.description, s.url, s.status, s.location, s.updatedAt
+                SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name  as masterNodeName
+                ,s.createdAt,  s.updatedAt
                  FROM spaces s
                  JOIN fields f ON s.fieldId = f.id
+                 JOIN nodes n ON s.masterNodeId = n.id
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql)

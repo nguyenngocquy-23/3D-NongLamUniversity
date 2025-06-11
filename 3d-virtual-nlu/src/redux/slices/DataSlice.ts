@@ -10,7 +10,6 @@ interface DataState {
   hotspotTypes: any[];
   masterNodes: any[];
   preloadNodes: any[];
-  activeNode: any;
   nodeOfUser: any[];
   defaultNode: any;
   trackNodes: any[];
@@ -29,7 +28,6 @@ const initialState: DataState = {
   masterNodes: [],
   nodeOfUser: [],
   defaultNode: null,
-  activeNode: null,
   trackNodes: [],
   preloadNodes: [],
   icons: [],
@@ -125,14 +123,6 @@ export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
   const response = await axios.get("http://localhost:8080/api/admin/space/all");
   return response.data.data;
 });
-
-export const fetchActiveNode = createAsyncThunk(
-  "data/fetchActiveNodes",
-  async () => {
-    const response = await axios.post("http://localhost:8080/api/node/default");
-    return response.data.data;
-  }
-);
 
 /**
  * Fetch dành cho Preload - Danh sách các node liên quan đến node đang tham quan.

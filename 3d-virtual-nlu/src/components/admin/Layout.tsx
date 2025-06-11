@@ -81,27 +81,6 @@ const Layout = () => {
       )}
       {/* Main Content */}
       <main className={styles.main_contain}>
-        {/* {isOptionFullScreen && (
-          <header className={styles.header}>
-            <div className={styles.extension}>
-              <input
-                className={styles.input_search}
-                type="text"
-                placeholder="Search..."
-              />
-              <div className={styles.sub_extension}>
-                <FaSearch />
-              </div>
-              <div className={styles.sub_extension}>
-                <FaBell />
-              </div>
-              <div className={styles.sub_extension}>
-                <FaMessage />
-              </div>
-            </div>
-            <button onClick={handleLogout}>Đăng xuất</button>
-          </header>
-        )} */}
         {!isOptionFullScreen && (
           <header className={styles.header}>
             <h2>Tổng quan</h2>
