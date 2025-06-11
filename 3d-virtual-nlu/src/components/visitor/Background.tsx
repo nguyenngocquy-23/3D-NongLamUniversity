@@ -159,7 +159,7 @@ const Background: React.FC = () => {
           playsInline
           style={{ minWidth: "100%", minHeight: "100%" }}
         >
-          <source src="/background.mp4" type="video/mp4" />
+          <source src= {`${import.meta.env.BASE_URL}background.mp4`} type="video/mp4" />
           Trình duyệt của bạn không hỗ trợ video.
         </video>
       </div>

@@ -49,7 +49,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
       <div className={styles.side_bar_admin}>
         {isOpen && (
           <>
-            <img src="/public/avatar.jpg" alt="avatar-admin" />
+            <img src={`${import.meta.env.BASE_URL}avatar.jpg`} alt="avatar-admin" />
             <div className={styles.admin_info}>
               <Link to="/">
                 <h5>Chào bạn, {currentUser.username} !</h5>

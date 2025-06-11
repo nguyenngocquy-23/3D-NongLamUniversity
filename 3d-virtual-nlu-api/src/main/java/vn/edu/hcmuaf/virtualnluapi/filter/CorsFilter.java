@@ -21,7 +21,11 @@ public class CorsFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
 
         String origin = req.getHeader("Origin");
-        res.setHeader("Access-Control-Allow-Origin", origin);
+        if (origin != null && !origin.isEmpty()) {
+            res.setHeader("Access-Control-Allow-Origin", origin);
+        } else {
+            res.setHeader("Access-Control-Allow-Origin", " ); // fallback an toàn (trừ khi có credentials)
+        }
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
         res.setHeader("Access-Control-Allow-Credentials", "false");
@@ -35,6 +39,7 @@ public class CorsFilter implements Filter {
             chain.doFilter(request, response);
         } catch (Exception e) {
             e.printStackTrace();
+            res.setContentType("text/plain;charset=UTF-8");
             res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             res.getWriter().write("Internal Server Error: " + e.getMessage());
         }

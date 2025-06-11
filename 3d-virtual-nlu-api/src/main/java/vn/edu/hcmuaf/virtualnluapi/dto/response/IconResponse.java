@@ -4,6 +4,7 @@ package vn.edu.hcmuaf.virtualnluapi.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,5 +16,5 @@ public class IconResponse {
     int id;
     String name, url;
     boolean active;
-    LocalDateTime createdAt;
+    Timestamp createdAt;
 }

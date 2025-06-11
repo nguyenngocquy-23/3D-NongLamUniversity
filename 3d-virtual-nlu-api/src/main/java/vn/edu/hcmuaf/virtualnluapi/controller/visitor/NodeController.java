@@ -1,6 +1,7 @@
 package vn.edu.hcmuaf.virtualnluapi.controller.visitor;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -28,6 +29,7 @@ public class NodeController {
     @POST
     @Path("/master")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<List<MasterNodeResponse>> getAllMasterNodes() {
         List<MasterNodeResponse> result = nodeService.getAllMasterNodes();
         return ApiResponse.<List<MasterNodeResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
@@ -36,6 +38,7 @@ public class NodeController {
     @POST
     @Path("/default")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<NodeFullResponse> getDefaultNode() {
         NodeFullResponse result = nodeService.getDefaultNode();
         return ApiResponse.<NodeFullResponse>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
@@ -52,6 +55,7 @@ public class NodeController {
     @POST
     @Path("/preloadNodeList")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<List<NodeFullResponse>> getPreloadNodeList(NodeIdRequest node) {
         try {
             List<NodeFullResponse> result = nodeService.getListPreloadNodeByNode(node.getNodeId());
@@ -82,6 +86,7 @@ public class NodeController {
     @POST
     @Path("/byId")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<NodeFullResponse> getNodeById(NodeIdRequest request) {
         NodeFullResponse result = nodeService.getNodeById(request);
         return ApiResponse.<NodeFullResponse>builder().statusCode(1000).message("Lay node theo id thanh cong").data(result).build();
@@ -90,6 +95,7 @@ public class NodeController {
     @POST
     @Path("/byUser")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<List<NodeFullResponse>> getNodeByUser(UserIdRequest request) {
         List<NodeFullResponse> result = nodeService.getNodeByUser(request);
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node theo nguoi tao thanh cong").data(result).build();
@@ -98,6 +104,7 @@ public class NodeController {
     @POST
     @Path("/privateByUser")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<List<NodeFullResponse>> getPrivateNodeByUser(UserIdRequest request) {
         List<NodeFullResponse> result = nodeService.getPrivateNodeByUser(request);
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node theo nguoi tao thanh cong").data(result).build();
@@ -106,6 +113,7 @@ public class NodeController {
     @POST
     @Path("/changeStatus")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> changeStatus(StatusRequest request) {
         boolean result = nodeService.changeStatus(request);
         return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat trang thai thanh cong").data(result).build();
@@ -114,6 +122,7 @@ public class NodeController {
     @POST
     @Path("/remove")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> remove(NodeIdRequest request) {
         boolean result = nodeService.remoev(request);
         return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat trang thai thanh cong").data(result).build();

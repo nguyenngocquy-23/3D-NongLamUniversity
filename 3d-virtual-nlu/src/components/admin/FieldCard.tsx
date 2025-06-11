@@ -21,7 +21,7 @@ const FieldCard: React.FC<FieldCardProps> = ({ field }) => {
       <div
         className={styles.field_card}
         style={{
-          backgroundImage: 'url("/backgroundNL.jpg")',
+          backgroundImage: `url(${import.meta.env.BASE_URL}backgroundNL.jpg)`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           backgroundSize: "cover",

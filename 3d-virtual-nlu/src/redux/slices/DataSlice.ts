@@ -131,11 +131,7 @@ export const fetchCommentOfNode = createAsyncThunk(
 
 // Fetch field
 export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
-  const response = await axios.get(API_URLS.ADMIN_GET_ALL_FIELDS,{
-    headers: {
-      "Content-Type": "application/json",
-    }
-  });
+  const response = await axios.get(API_URLS.ADMIN_GET_ALL_FIELDS);
   return response.data.data;
 });
 

@@ -1,4 +1,4 @@
-//3dtour.io.vn/app
+export const DOMAIN_CLIENT = "3dtour"
 const DOMAIN = "https://3dtour.io.vn/app/api";
 
 export const API_URLS = {

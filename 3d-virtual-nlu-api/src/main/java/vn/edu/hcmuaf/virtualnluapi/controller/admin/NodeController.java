@@ -30,6 +30,7 @@ public class NodeController {
     @POST
     @Path("/insert")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> createNode(List<NodeCreateRequest> reqs) {
         /**
          * Input: Insert danh sách node
@@ -75,6 +76,7 @@ public class NodeController {
     @POST
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<List<NodeFullResponse>> getAllNodes() {
         List<NodeFullResponse> result = nodeService.getAllNodes();
 

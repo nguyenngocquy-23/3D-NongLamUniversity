@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Builder
@@ -15,5 +16,5 @@ public class FieldResponse {
     int id;
     String code,name;
     byte status;
-    LocalDateTime updatedAt;
+    Timestamp updatedAt;
 }

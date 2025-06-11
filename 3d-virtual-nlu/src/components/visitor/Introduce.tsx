@@ -3,29 +3,33 @@ import styles from "../../styles/visitor/introduce.module.css";
 
 const images = [
   {
-    src: "/thienly.jpg",
+    src: `${import.meta.env.BASE_URL}thienly.jpg`,
     title: "Toàn Thiên Lý",
-    description: "Và tòa nhà điều hành của trường, được xem là tòa nhà biểu tượng cho trường. Nơi tiếp nhận và giải quyết các vấn đè của sinh viên.",
+    description:
+      "Và tòa nhà điều hành của trường, được xem là tòa nhà biểu tượng cho trường. Nơi tiếp nhận và giải quyết các vấn đè của sinh viên.",
   },
   {
-    src: "/phuongvy.jpg",
+    src: `${import.meta.env.BASE_URL}phuongvy.jpg`,
     title: "Giảng đường Phượng Vỹ",
-    description: "Nơi tổ chức các hoạt động ngoại khóa và chương trình của đoàn hội trường.",
+    description:
+      "Nơi tổ chức các hoạt động ngoại khóa và chương trình của đoàn hội trường.",
   },
   {
-    src: "/rangdong.jpg",
+    src: `${import.meta.env.BASE_URL}rangdong.jpg`,
     title: "Giảng đưuòng Rạng Đông",
     description: "Giảng đường có diện tích lớn nhất trường.",
   },
   {
-    src: "/khoa.jpg",
+    src: `${import.meta.env.BASE_URL}khoa.jpg`,
     title: "Khoa Công nghệ thông tin",
-    description: "Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.",
+    description:
+      "Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.",
   },
   {
-    src: "/thuvienthunk.jpg",
+    src: `${import.meta.env.BASE_URL}thuvienthunk.jpg`,
     title: "Thư viện",
-    description: "Nơi trau dồi thêm các kiến thức và nơi họp nhóm lý tưởng cho các sinh viên.",
+    description:
+      "Nơi trau dồi thêm các kiến thức và nơi họp nhóm lý tưởng cho các sinh viên.",
   },
 ];
 

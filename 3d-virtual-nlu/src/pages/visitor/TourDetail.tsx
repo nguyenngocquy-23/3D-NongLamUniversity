@@ -81,7 +81,7 @@ const TourDetail = () => {
 
   const handleChangeStatus = async (node: any) => {
     if (node.status == 2) {
-      Swal.fire({
+      const result = await Swal.fire({
         title: "Bạn có chắc chắn",
         text: "Việc ngưng hoạt động có thể ảnh hưởng tới các node khác",
         icon: "warning",
@@ -89,11 +89,10 @@ const TourDetail = () => {
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
         confirmButtonText: "Đồng ý",
-      }).then((result) => {
-        if (!result.isConfirmed) {
-          return;
-        }
       });
+      if (!result.isConfirmed) {
+        return;
+      }
     }
 
     const response = await axios.post(API_URLS.CHANGE_NODE_STATUS, {
