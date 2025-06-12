@@ -177,13 +177,13 @@ const TourOverview = () => {
             <CurvedScreen
               radius={RADIUS_SPHERE}
               sphereRef={sphereRef}
-              textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
+              textureCurrent={defaultNode ? defaultNode.url : `${import.meta.env.BASE_URL}khoa.jpg`}
               lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
             />
             <ShadowScreen
               radius={RADIUS_SPHERE}
               sphereRef={sphereRef}
-              textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
+              textureCurrent={defaultNode ? defaultNode.url : `${import.meta.env.BASE_URL}khoa.jpg`}
               lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
             />
 

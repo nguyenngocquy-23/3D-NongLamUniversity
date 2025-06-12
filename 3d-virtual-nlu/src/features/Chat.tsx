@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
 import { FaMessage, FaXmark } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import { API_URLS } from "../env";
+import { AFTER_DOMAIN, API_URLS } from "../env";
 
 const Chat = ({
   nodeId,
@@ -42,7 +42,7 @@ const Chat = ({
   useEffect(() => {
     if (!user) return;
     setMessages([]);
-    const wsUrl = `ws://localhost:8080/chat/${nodeId}/${user?.id}`;
+    const wsUrl = `ws://${AFTER_DOMAIN}/chat/${nodeId}/${user?.id}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -83,7 +83,7 @@ const Chat = ({
     if (!user) return;
     setGlobalMessages([]);
     const wsGlobal = new WebSocket(
-      `ws://localhost:8080/chat/global/${user.id}`
+      `ws://${AFTER_DOMAIN}/chat/global/${user.id}`
     );
     setGlobalSocket(wsGlobal);
 

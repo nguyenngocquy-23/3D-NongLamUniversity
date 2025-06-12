@@ -199,11 +199,11 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
       />
 
       {/* 4. Marker ở centerPosition với Tooltip */}
-      <Marker position={centerPosition}>
+      {/* <Marker position={centerPosition}>
         <Tooltip direction="top" offset={[-15, -10]} className={styles.tooltip}>
           Trường Đại học Nông Lâm TP.HCM
         </Tooltip>
-      </Marker>
+      </Marker> */}
 
       {maker.length > 0
         ? maker.map((space: any) => {

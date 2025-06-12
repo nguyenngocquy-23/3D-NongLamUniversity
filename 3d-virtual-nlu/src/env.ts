@@ -1,5 +1,8 @@
 export const DOMAIN_CLIENT = "3dtour"
-const DOMAIN = "https://3dtour.io.vn/app/api";
+const DOMAIN = "https://3dtour.io.vn/app/api"; // product
+export const AFTER_DOMAIN = "3dtour.io.vn/app"; // product
+// export const AFTER_DOMAIN = "localhost:8080/app"; // dev
+// const DOMAIN = "http://localhost:8080/app/api"; // dev
 
 export const API_URLS = {
   BASE: `${DOMAIN}`,

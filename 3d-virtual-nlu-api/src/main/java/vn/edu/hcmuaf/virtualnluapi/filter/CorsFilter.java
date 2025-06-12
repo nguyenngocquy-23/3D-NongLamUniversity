@@ -24,7 +24,7 @@ public class CorsFilter implements Filter {
         if (origin != null && !origin.isEmpty()) {
             res.setHeader("Access-Control-Allow-Origin", origin);
         } else {
-            res.setHeader("Access-Control-Allow-Origin", " ); // fallback an toàn (trừ khi có credentials)
+            res.setHeader("Access-Control-Allow-Origin", "*"); // fallback an toàn (trừ khi có credentials)
         }
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
@@ -33,6 +33,11 @@ public class CorsFilter implements Filter {
         // Xử lý request OPTIONS (preflight request)
         if ("OPTIONS".equalsIgnoreCase(req.getMethod())) {
             res.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+        String upgrade = req.getHeader("Upgrade");
+        if (upgrade != null && "websocket".equalsIgnoreCase(upgrade)) {
+            chain.doFilter(request, response); // Bỏ qua CORS với WebSocket
             return;
         }
         try{

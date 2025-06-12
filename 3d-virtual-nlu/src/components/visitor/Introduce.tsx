@@ -16,11 +16,11 @@ const images = [
   },
   {
     src: `${import.meta.env.BASE_URL}rangdong.jpg`,
-    title: "Giảng đưuòng Rạng Đông",
+    title: "Giảng đường Rạng Đông",
     description: "Giảng đường có diện tích lớn nhất trường.",
   },
   {
-    src: `${import.meta.env.BASE_URL}khoa.jpg`,
+    src: `${import.meta.env.BASE_URL}khoacntt.jpg`,
     title: "Khoa Công nghệ thông tin",
     description:
       "Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.",

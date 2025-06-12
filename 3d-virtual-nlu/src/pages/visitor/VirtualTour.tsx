@@ -367,9 +367,8 @@ const VirtualTour = () => {
       ) : (
         <LeftMenuTour isMenuVisible={isMenuVisible} />
       )}
-      {/* Hộp feedback */}
-      <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />
-      {/* <Chat nodeId={defaultNode.id} /> */}
+      {/* Hộp chat sửa wss */}
+      {/* <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} /> */}
       {/* Footer chứa các tính năng */}
       <FooterTour
         isRotation={isRotation}
