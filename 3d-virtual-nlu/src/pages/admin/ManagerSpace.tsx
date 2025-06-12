@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "../../styles/managerSpace.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
@@ -31,6 +31,7 @@ interface Space {
   status: number;
   createdAt: number | null;
   updatedAt: number | null;
+  tourIds: number[] | null;
 }
 interface SpaceCreateRequest extends Pick<Space, "id" | "name" | "code"> {}
 const emptySpace: Space = {
@@ -45,6 +46,7 @@ const emptySpace: Space = {
   status: 1,
   createdAt: null,
   updatedAt: null,
+  tourIds: null,
 };
 
 const Space = () => {
@@ -162,6 +164,54 @@ const Space = () => {
     setIsEditing(false);
   };
 
+  const [isChecked, setIsChecked] = useState(false); // mặc định chưa chọn
+
+  const handleCheckboxChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    id: number
+  ) => {
+    const checked = event.target.checked;
+
+    if (!event.target.checked) {
+      // Ngăn không cho bỏ chọn
+      event.preventDefault();
+      return;
+    }
+    setIsChecked(checked);
+
+    // Nếu chọn -> gọi API
+    try {
+      await axios.post("http://localhost:8080/api/admin/space/setMasterSpace", {
+        id,
+        status: 2,
+      });
+      console.log("Cập nhật thành công");
+    } catch (error) {
+      console.error("Lỗi khi cập nhật:", error);
+    }
+  };
+
+  const handleSelect = async (spaceId: number, masterNodeId: number) => {
+    if (!masterNodeId || masterNodeId === 0) return;
+
+    try {
+      const payload = {
+        id: spaceId,
+        masterNodeId: masterNodeId,
+      };
+
+      const response = await axios.post(
+        "http://localhost:8080/api/admin/space/setMasterNodeById",
+        payload
+      );
+
+      console.log("Cập nhật thành công:", response.data.message);
+      // Thêm toast hoặc cập nhật UI nếu cần
+    } catch (error) {
+      console.error("Lỗi khi cập nhật master node:", error);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.space_view_mode}>
@@ -242,9 +292,13 @@ const Space = () => {
                 <span className={styles.space_feature_inner_item}>
                   <RiEdit2Line /> Ảnh đại diện.
                 </span>
-                <span className={styles.space_feature_inner_item}>
+                <Link
+                  to={`./${selectedSpace.id}`}
+                  className={styles.space_feature_inner_item}
+                >
                   <GrConfigure /> Không gian con.
-                </span>
+                </Link>
+
                 <span className={styles.space_feature_inner_item}>
                   <FiMapPin /> Gắn nhãn bản đồ.
                 </span>
@@ -254,22 +308,24 @@ const Space = () => {
             <div className={styles.space_edit_content}>
               <p className={styles.space_edit_label}>Thông tin</p>
 
-              <div className={`${styles.space_information_item} `}>
-                <span>Không gian con:</span>
-                {/* <span className={styles.field_space_list}>
-                {" "}
-                {selectedField.listSpace.length}
-              </span> */}
+              <div className={styles.space_choose_master}>
+                <span>Trung tâm:</span>
+                <select
+                  className={styles.custom_select}
+                  onChange={(e) =>
+                    handleSelect(selectedSpace.id, parseInt(e.target.value, 10))
+                  }
 
-                {/* {selectedSpace.listSpace.length > 0 ? (
-                <TfiNewWindow className={styles.field_navigation_list_space} />
-              ) : (
-                selectedField.id > 0 && (
-                  <a className={styles.field_navigation_add_space}>
-                    Thêm không gian mới
-                  </a>
-                )
-              )} */}
+                  // onChange={handleSelectSpace}
+                >
+                  <option value="0">-- Chọn tour --</option>
+                  {selectedSpace.tourIds &&
+                    selectedSpace.tourIds.map((tourId) => (
+                      <option key={tourId} value={tourId}>
+                        Tour {tourId}
+                      </option>
+                    ))}
+                </select>
               </div>
               <div className={`${styles.space_information_item} `}>
                 <span>Trạng thái: </span>
@@ -348,6 +404,20 @@ const Space = () => {
                         "dd/MM/yyyy HH:mm"
                       )}
                 </span>
+              </div>
+
+              <div className={styles.space_select_master}>
+                <span>Chọn làm không gian chính: </span>
+                <label className={styles.check_container}>
+                  <input
+                    checked={isChecked}
+                    type="checkbox"
+                    onChange={(event) =>
+                      handleCheckboxChange(event, selectedSpace.id)
+                    }
+                  />
+                  <div className={styles.checkmark}></div>
+                </label>
               </div>
             </div>
 

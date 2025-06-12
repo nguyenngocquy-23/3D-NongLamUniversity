@@ -28,6 +28,7 @@ import VisitorProfile from "./pages/visitor/Profile.tsx";
 import VisitorTours from "./pages/visitor/Tours.tsx";
 import TourDetail from "./pages/visitor/TourDetail.tsx";
 import AttachMap from "./pages/admin/AttachMap.tsx";
+import SpaceDetail from "./components/admin/SpaceDetail.tsx";
 
 function RouterConfig() {
   return (
@@ -53,6 +54,7 @@ function RouterConfig() {
         <Route path="users" element={<User />} />
         <Route path="fields" element={<Field />} />
         <Route path="spaces" element={<Space />} />
+        <Route path="spaces/:id" element={<SpaceDetail />} />
         <Route path="icons" element={<ManagerIcon />} />
         <Route path="createTour" element={<CreateTour />} />
         <Route path="createTour/2" element={<CreateTourStep2 />} />

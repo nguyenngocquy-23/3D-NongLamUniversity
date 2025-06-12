@@ -47,10 +47,21 @@ public class SpaceDao {
         });
     }
 
+    /**
+     * TourIds là 1 mảng JSON chứa id của tất cả các nodes có status = 2 ~ masternode đại diện cho 1 tour.
+     * + 0 đang tạm ngưng
+     * +2 đang hiển thị bình thường.
+     * + 3 đang chờ duyệt để hiển thị.
+     */
     public List<SpaceFullResponse> getAllSpaces() {
         String sql = """
                 SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name  as masterNodeName
-                ,s.createdAt,  s.updatedAt
+                ,s.createdAt,  s.updatedAt,
+                (
+                SELECT JSON_ARRAYAGG(n2.id) 
+                FROM nodes n2 
+                WHERE n2.spaceId = s.id AND n2.status IN (0,2,3)
+                ) AS tourIds
                  FROM spaces s
                  JOIN fields f ON s.fieldId = f.id
                  JOIN nodes n ON s.masterNodeId = n.id
@@ -62,13 +73,30 @@ public class SpaceDao {
         });
     }
 
+
     public boolean changeStatusSpace(StatusRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
-            int i = handle.createUpdate("UPDATE spaces SET status = :status WHERE id = :id")
-                    .bind("status", req.getStatus() == 0 ? "1" : "0")
+            // Bước 1: Cập nhật tất cả status = 2 về 1
+            handle.createUpdate("UPDATE spaces SET status = 1 WHERE status = 2")
+                    .execute();
+
+            // Bước 2: Đặt status = 2 cho space hiện tại
+            int updated = handle.createUpdate("UPDATE spaces SET status = 2 WHERE id = :id")
                     .bind("id", req.getId())
                     .execute();
-            return i > 0;
+
+            return updated > 0; // chỉ cần 1 bản ghi được cập nhật là thành công
+        });
+    }
+
+    public boolean setMasterNode(SpaceChangeMasterRequest req) {
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int updated = handle.createUpdate("UPDATE spaces SET masterNodeId = :masterNodeId WHERE id = :spaceId")
+                    .bind("masterNodeId", req.getMasterNodeId())
+                    .bind("spaceId", req.getId())
+                    .execute();
+
+            return updated > 0;
         });
     }
 

@@ -138,6 +138,11 @@ const ConfigIcon = ({
   }, [propHotspot]);
   return (
     <div className={styles.config_icon_wrapper}>
+      {openListIcon ? (
+        <ListIcon setIconId={setIconId} setOpen={setOpenListIcon} />
+      ) : (
+        ""
+      )}
       <div>
         <div className={styles.config_icon_infor}>
           {!isUpdate ? (
@@ -374,11 +379,6 @@ const ConfigIcon = ({
           </div>
         </div>
       </div>
-      {openListIcon ? (
-        <ListIcon setIconId={setIconId} setOpen={setOpenListIcon} />
-      ) : (
-        ""
-      )}
     </div>
   );
 };

@@ -285,12 +285,8 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                   onChange={(e) => {
                     const selectedId = e.target.value;
                     if (selectedId) {
-                      dispatch(setMasterPanorama(selectedId));
-                      dispatch(clearHotspotNavigation());
                     }
                   }}
-
-                  // onChange={handleSelectSpace}
                 >
                   <option value="0">-- Chọn ảnh --</option>
                   {panoramaList.map((p) => (

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { safeParseJsonArray } from "../../utils/ParseJsonArray";
 
 interface DataState {
   users: any[];
@@ -121,7 +122,14 @@ export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
 // Fetch space
 export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
   const response = await axios.get("http://localhost:8080/api/admin/space/all");
-  return response.data.data;
+  const rawSpaces = response.data.data;
+
+  const parsedSpaces = rawSpaces.map((space: any) => ({
+    ...space,
+    tourIds: safeParseJsonArray(space.tourIds),
+  }));
+
+  return parsedSpaces;
 });
 
 /**
@@ -163,6 +171,24 @@ export const fetchHotspotTypes = createAsyncThunk(
       "http://localhost:8080/api/admin/hotspotType"
     );
     return response.data.data;
+  }
+);
+
+//Fetch lấy thông tin của node trong 1 spaces
+export const fetchToursFromSpace = createAsyncThunk(
+  "data/fetchToursFromSpace",
+  async (tourIds: number[], { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/admin/node/many",
+        { ids: tourIds }
+      );
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Lỗi tải danh sách node từ tourIds."
+      );
+    }
   }
 );
 
@@ -341,6 +367,16 @@ const dataSlice = createSlice({
         state.commentOfNode = action.payload;
       })
       .addCase(fetchCommentOfNode.rejected, (state) => {
+        state.status = "failed";
+      })
+      .addCase(fetchToursFromSpace.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchToursFromSpace.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.trackNodes = action.payload;
+      })
+      .addCase(fetchToursFromSpace.rejected, (state) => {
         state.status = "failed";
       });
   },

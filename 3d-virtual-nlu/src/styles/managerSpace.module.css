@@ -319,3 +319,83 @@
   background-color: #267026;
   padding: 0.5rem;
 }
+
+.space_select_master {
+  display: flex;
+  justify-content: start;
+  gap: 1rem;
+}
+
+.check_container {
+  --input-focus: #2d8cf0;
+  --input-out-of-focus: #ccc;
+  --bg-color: #fff;
+  --bg-color-alt: #666;
+  --main-color: #323232;
+  position: relative;
+  cursor: pointer;
+}
+
+.check_container input {
+  position: absolute;
+  opacity: 0;
+}
+
+.checkmark {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  top: 0;
+  left: 0;
+  border: 2px solid var(--main-color);
+  border-radius: 5px;
+  box-shadow: 4px 4px var(--main-color);
+  background-color: var(--input-out-of-focus);
+  transition: all 0.3s;
+}
+
+.check_container input:checked ~ .checkmark {
+  background-color: var(--input-focus);
+}
+
+.checkmark:after {
+  content: "";
+  width: 7px;
+  height: 15px;
+  position: absolute;
+  top: 2px;
+  left: 8px;
+  display: none;
+  border: solid var(--bg-color);
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+
+.check_container input:checked ~ .checkmark:after {
+  display: block;
+}
+.space_choose_master {
+  display: flex;
+  gap: 10px;
+}
+
+.custom_select {
+  appearance: none;
+  /* ẩn mũi tên mặc định */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  flex: 1;
+  padding: 5px 20px;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.443);
+  font-size: 15px;
+  outline: none;
+
+  background-image: url("/vite.svg");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
