@@ -86,4 +86,30 @@ public class SpaceController {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Gan location trang thai field").data(result).build();
         }
     }
+
+    @POST
+    @Path("/setMasterSpace")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeMasterSpace(StatusRequest req) {
+        boolean result = spaceService.changeStatusSpace(req);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai field thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai field").data(result).build();
+        }
+    }
+
+    @POST
+    @Path("/setMasterNodeById")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeMasterNode(SpaceChangeMasterRequest req) {
+        boolean result = spaceService.setMasterNode(req);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai field thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai field").data(result).build();
+        }
+    }
+
+
 }

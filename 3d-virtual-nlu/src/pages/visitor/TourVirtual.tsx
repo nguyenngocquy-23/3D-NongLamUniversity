@@ -89,7 +89,6 @@ const TourVirtual = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
 
-
   const toggleFullscreen = () => {
     const canvas = document.querySelector<HTMLCanvasElement>(
       `.${styles.virtual_tour}`

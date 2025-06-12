@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-public class FieldCreateRequest {
+public class SpaceChangeMasterRequest {
     int id;
-    String name, code;
+    int masterNodeId;
 }

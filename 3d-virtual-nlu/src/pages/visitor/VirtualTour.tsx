@@ -9,7 +9,6 @@ import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store.ts";
 import {
-  fetchActiveNode,
   fetchDefaultNodes,
   fetchIcons,
   fetchMasterNodes,

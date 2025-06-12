@@ -112,6 +112,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
         }}
         onClick={handleFadeOut}
       ></div>
+
       <div className={`${styles.monitor} ${fadeOut ? styles.fadeOut : ""}`}>
         <div className={styles.content}>
           <h1>{title}</h1>
@@ -129,6 +130,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
                   value={formData[field.name] || ""}
                 >
                   <option value="">-- Chọn lĩnh vực --</option>
+
                   {listFields.map((f) => (
                     <option key={f.id} value={f.id}>
                       {f.name}

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { API_URLS } from "../../env";
+import { safeParseJsonArray } from "../../utils/ParseJsonArray";
 
 interface DataState {
   users: any[];
@@ -11,7 +12,6 @@ interface DataState {
   hotspotTypes: any[];
   masterNodes: any[];
   preloadNodes: any[];
-  activeNode: any;
   nodeOfUser: any[];
   privateNodeOfUser: any[];
   defaultNode: any;
@@ -32,7 +32,6 @@ const initialState: DataState = {
   nodeOfUser: [],
   privateNodeOfUser: [],
   defaultNode: null,
-  activeNode: null,
   trackNodes: [],
   preloadNodes: [],
   icons: [],
@@ -135,16 +134,15 @@ export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
 // Fetch space
 export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
   const response = await axios.get(API_URLS.ADMIN_GET_ALL_SPACES);
-  return response.data.data;
-});
+  const rawSpaces = response.data.data;
 
-export const fetchActiveNode = createAsyncThunk(
-  "data/fetchActiveNodes",
-  async () => {
-    const response = await axios.post(API_URLS.GET_DEFAULT_NODE);
-    return response.data.data;
-  }
-);
+  const parsedSpaces = rawSpaces.map((space: any) => ({
+    ...space,
+    tourIds: safeParseJsonArray(space.tourIds),
+  }));
+
+  return parsedSpaces;
+});
 
 /**
  * Fetch dành cho Preload - Danh sách các node liên quan đến node đang tham quan.
@@ -188,6 +186,24 @@ export const fetchHotspotTypes = createAsyncThunk(
   }
 );
 
+//Fetch lấy thông tin của node trong 1 spaces
+export const fetchToursFromSpace = createAsyncThunk(
+  "data/fetchToursFromSpace",
+  async (tourIds: number[], { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/admin/node/many",
+        { ids: tourIds }
+      );
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Lỗi tải danh sách node từ tourIds."
+      );
+    }
+  }
+);
+
 const dataSlice = createSlice({
   name: "data",
   initialState,
@@ -224,6 +240,19 @@ const dataSlice = createSlice({
       if (index !== -1) {
         const space = state.spaces[index];
         space.location = null;
+      }
+    },
+
+    changeFieldName: (
+      state,
+      action: PayloadAction<{ fieldId: number; name: string; code: string }>
+    ) => {
+      const index = state.fields.findIndex(
+        (f) => f.id === action.payload.fieldId
+      );
+      if (index !== -1) {
+        state.fields[index].name = action.payload.name;
+        state.fields[index].code = action.payload.code;
       }
     },
   },
@@ -361,6 +390,16 @@ const dataSlice = createSlice({
         state.commentOfNode = action.payload;
       })
       .addCase(fetchCommentOfNode.rejected, (state) => {
+        state.status = "failed";
+      })
+      .addCase(fetchToursFromSpace.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchToursFromSpace.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.trackNodes = action.payload;
+      })
+      .addCase(fetchToursFromSpace.rejected, (state) => {
         state.status = "failed";
       });
   },

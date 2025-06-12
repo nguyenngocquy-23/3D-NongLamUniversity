@@ -92,6 +92,19 @@ public class NodeController {
         return ApiResponse.<NodeFullResponse>builder().statusCode(1000).message("Lay node theo id thanh cong").data(result).build();
     }
 
+
+//
+//    @POST
+//    @Path("/manyId")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    public ApiResponse<List<NodeFullResponse>> getNodesByIds(NodeIdListRequest req) {
+//        List<NodeFullResponse> nodes = nodeService.getNode
+//    }
+
+
+
+
     @POST
     @Path("/byUser")
     @Produces(MediaType.APPLICATION_JSON)

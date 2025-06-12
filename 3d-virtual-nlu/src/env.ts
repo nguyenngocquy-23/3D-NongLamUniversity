@@ -41,9 +41,12 @@ export const API_URLS = {
   ADMIN_GET_ALL_FIELDS: `${DOMAIN}/admin/field`,
 
   ADMIN_CREATE_NODES: `${DOMAIN}/v1/admin/node/insert`,
+  ADMIN_CREATE_FIELDS: `${DOMAIN}/admin/field/create`,
+  ADMIN_CREATE_SPACES: `${DOMAIN}/admin/field/create`,
   ADMIN_ATTACH_SPACE_LOCATION: `${DOMAIN}/admin/space/attachLocation`,
   ADMIN_REMOVE_SPACE_LOCATION: `${DOMAIN}/admin/space/removeLocation`,
 
   ADMIN_CHANGE_FIELD_STATUS: `${DOMAIN}/admin/field/changeStatus`,
+  ADMIN_CHANGE_NAME_FIELD: `${DOMAIN}/admin/field/changeName`,
   ADMIN_CHANGE_ICON_STATUS: `${DOMAIN}/admin/field/changeStatus`,
 };
