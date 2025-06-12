@@ -50,10 +50,12 @@ export type HotspotItem =
 
 interface HotspotState {
   hotspotList: HotspotItem[];
+  hotspotPositions: [number, number, number][];
 }
 
 const initialState: HotspotState = {
   hotspotList: [],
+  hotspotPositions: [],
 };
 
 const hotspotSlice = createSlice({
@@ -252,15 +254,22 @@ const hotspotSlice = createSlice({
     },
 
     removeHotspot: (state, action: PayloadAction<{ hotspotId: string }>) => {
-      console.log("hotspotId..", action.payload.hotspotId);
       const index = state.hotspotList.findIndex(
         (h) => h.id === action.payload.hotspotId
       );
       if (index !== -1) {
+        const hotspot = state.hotspotList.find(
+          (h) => h.id == action.payload.hotspotId
+        );
+        state.hotspotPositions = state.hotspotPositions.filter((h) => h[0] !== hotspot?.positionX);
         state.hotspotList = state.hotspotList.filter(
           (h) => h.id !== action.payload.hotspotId
         );
       }
+    },
+    
+    addHotspotPosition: (state, action: PayloadAction<[number, number, number]>) => {
+      state.hotspotPositions.push(action.payload);
     },
   },
 });
@@ -282,5 +291,6 @@ export const {
   updateHotspotMedia,
   updateCornerHotspotMedia,
   removeHotspot,
+  addHotspotPosition,
 } = hotspotSlice.actions;
 export default hotspotSlice.reducer;

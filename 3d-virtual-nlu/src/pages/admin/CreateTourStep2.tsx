@@ -23,6 +23,7 @@ import TourScene from "../../components/visitor/TourScene";
 import CamControls from "../../components/visitor/CamControls";
 import gsap from "gsap";
 import {
+  addHotspotPosition,
   addInformationHotspot,
   addMediaHotspot,
   addModelHotspot,
@@ -43,6 +44,7 @@ import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
+import { Timer } from "three/examples/jsm/Addons.js";
 
 const CreateTourStep2 = () => {
   /**
@@ -124,6 +126,10 @@ const CreateTourStep2 = () => {
     (pano) => pano.id === currentSelectId
   );
 
+  const hotspotPosition = useSelector(
+    (state: RootState) => state.hotspots.hotspotPositions
+  );
+
   /**
    * Lấy URL panorama hiện tại - hoặc dùng mặc định.
    */
@@ -183,6 +189,38 @@ const CreateTourStep2 = () => {
       return;
     }
     console.log("currentHotspotType...", currentHotspotType);
+    const limit = (basicProps?.scale || 1) * 5 + 5;
+
+    const minX = point.x - limit;
+    const maxX = point.x + limit;
+    const minY = point.y - limit;
+    const maxY = point.y + limit;
+    const minZ = point.z - limit;
+    const maxZ = point.z + limit;
+
+    const isNear = hotspotPosition.some((h) => {
+      return (
+        h[0] > minX &&
+        h[0] < maxX &&
+        h[1] > minY &&
+        h[1] < maxY &&
+        h[2] > minZ &&
+        h[2] < maxZ
+      );
+    });
+    if (isNear) {
+      Swal.fire({
+        title: "Cảnh báo",
+        text: "Các hotspot không được nằm gần nhau",
+        icon: "warning",
+        showCancelButton: false,
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
+      return;
+    }
 
     const newPoints = [...currentPoints, [point.x, point.y, point.z]] as [
       number,
@@ -217,7 +255,6 @@ const CreateTourStep2 = () => {
         setCurrentHotspotType(1);
         setCurrentPoints([]);
       }
-
       return;
     }
 
@@ -265,6 +302,7 @@ const CreateTourStep2 = () => {
         );
         break;
     }
+    dispatch(addHotspotPosition([point.x, point.y, point.z]));
 
     if ([1, 2, 4].includes(currentHotspotType)) {
       setAssignable(false);
@@ -292,6 +330,7 @@ const CreateTourStep2 = () => {
         return (
           <>
             <Task3
+              isAssignable={assignable}
               setAssignable={setAssignable}
               setCurrentHotspotType={setCurrentHotspotType}
               onPropsChange={handleOnPropsChange}

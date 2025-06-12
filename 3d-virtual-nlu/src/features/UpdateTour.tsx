@@ -26,7 +26,7 @@ const Controls: React.FC = () => {
   );
 };
 
-interface NodeProps {
+interface NodeProps { 
   url: string;
   radius: number;
   sphereRef: React.RefObject<THREE.Mesh | null>;

@@ -209,7 +209,7 @@ export class TourNodeRequestMapper {
         autoRotate: pano.config.autoRotate,
         speedRotate: pano.config.speedRotate,
         lightIntensity: pano.config.lightIntensity,
-        status: !user ? 2 : user.username == 'admin' ? pano.config.status : 3,
+        status: pano.config.status,
         navHotspots,
         infoHotspots,
         mediaHotspots,

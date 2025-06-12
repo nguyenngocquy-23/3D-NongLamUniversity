@@ -88,7 +88,6 @@ export const fetchDefaultNodes = createAsyncThunk(
 export const fetchNodeOfUser = createAsyncThunk(
   "data/fetchNodeOfUser",
   async (userId: number) => {
-    console.log("userUd..", userId);
     const response = await axios.post(API_URLS.NODE_OF_USER, {
       userId: userId,
     });
@@ -100,7 +99,6 @@ export const fetchNodeOfUser = createAsyncThunk(
 export const fetchPrivateNodeOfUser = createAsyncThunk(
   "data/fetchPrivateNodeOfUser",
   async (userId: number) => {
-    console.log("userUd..", userId);
     const response = await axios.post(API_URLS.PRIVATE_NODE_OF_USER, {
       userId: userId,
     });
@@ -120,7 +118,6 @@ export const fetchCommentOfNode = createAsyncThunk(
         }
       );
       if (response.data.data) {
-        console.log(response.data.data);
         return response.data.data;
       }
     } catch (error: any) {
@@ -221,7 +218,6 @@ const dataSlice = createSlice({
         spaceId: number;
       }>
     ) => {
-      console.log("spaceId...", action.payload.spaceId);
       const index = state.spaces.findIndex(
         (h) => h.id === action.payload.spaceId
       );
