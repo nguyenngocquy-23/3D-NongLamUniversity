@@ -1,6 +1,7 @@
 package vn.edu.hcmuaf.virtualnluapi.controller.visitor;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -85,6 +86,19 @@ public class NodeController {
         NodeFullResponse result = nodeService.getNodeById(request);
         return ApiResponse.<NodeFullResponse>builder().statusCode(1000).message("Lay node theo id thanh cong").data(result).build();
     }
+
+
+//
+//    @POST
+//    @Path("/manyId")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    public ApiResponse<List<NodeFullResponse>> getNodesByIds(NodeIdListRequest req) {
+//        List<NodeFullResponse> nodes = nodeService.getNode
+//    }
+
+
+
 
     @POST
     @Path("/byUser")

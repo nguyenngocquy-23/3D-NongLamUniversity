@@ -126,7 +126,7 @@
   flex-direction: column;
   background-color: transparent;
   padding: 1rem;
-  border-left: 2px ridge #123315;
+  border-left: 0.5rem solid #fff;
   color: #123315;
 }
 

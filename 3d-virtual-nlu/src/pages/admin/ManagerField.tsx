@@ -18,12 +18,11 @@ import Space from "./ManagerSpace";
 import { RiEdit2Line } from "react-icons/ri";
 import StatusToggle from "../../components/admin/ToggleChangeStatus";
 import { TfiNewWindow } from "react-icons/tfi";
-import { IoIosCloseCircle, IoIosWarning } from "react-icons/io";
+import { IoIosCloseCircle, IoIosWarning, IoMdExit } from "react-icons/io";
 import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 import axios from "axios";
 import { validateName } from "../../utils/ValidateInputName";
-import { format, parseISO } from "date-fns";
-import { parseDateFromArray } from "../../utils/formatDateTime";
+import { format } from "date-fns";
 
 interface Field {
   id: number;
@@ -46,7 +45,7 @@ const emptyField: Field = {
   listSpace: [],
 };
 
-const Field: React.FC<Field> = () => {
+const Field = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
@@ -237,6 +236,7 @@ const Field: React.FC<Field> = () => {
           </button>
         </div>
         <hr className={styles.break} />
+
         <div className={styles.field_quantity}>
           Kết quả: {fields.length} lĩnh vực.
         </div>
@@ -259,7 +259,7 @@ const Field: React.FC<Field> = () => {
 
       {selectedField && (
         <div className={styles.field_edit_by_id}>
-          <IoIosCloseCircle
+          <IoMdExit
             className={styles.close_btn}
             onClick={() => setSelectedField(null)}
           />

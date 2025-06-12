@@ -6,7 +6,9 @@ export const isFieldCodeUnique = (
   return exists ? 0 : 1;
 };
 
-type NameValidationResult = { valid: true } | { valid: false; error: string };
+type NameValidationResult =
+  | { valid: true; error: string }
+  | { valid: false; error: string };
 
 export function validateName(name: unknown): NameValidationResult {
   if (typeof name !== "string") {
@@ -45,5 +47,5 @@ export function validateName(name: unknown): NameValidationResult {
     };
   }
 
-  return { valid: true };
+  return { valid: true, error: "" };
 }

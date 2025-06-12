@@ -128,7 +128,6 @@ const CustomModal: React.FC<CustomModalProps> = ({
                   className={styles.input}
                   name={field.name}
                   value={formData[field.name] || ""}
-                  onChange={handleChangeInput}
                 >
                   <option value="">-- Chọn lĩnh vực --</option>
 
@@ -143,7 +142,6 @@ const CustomModal: React.FC<CustomModalProps> = ({
                   className={styles.input}
                   name={field.name}
                   value={formData[field.name] || ""}
-                  onChange={handleChangeInput}
                   rows={4}
                 />
               ) : field.name === "iconUrl" ? (

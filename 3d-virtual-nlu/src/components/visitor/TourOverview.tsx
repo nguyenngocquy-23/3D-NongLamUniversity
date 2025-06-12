@@ -6,13 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import styles from "../../styles/tourOverview.module.css";
 
-import { FaArrowsToEye, FaPause, FaPlay } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
-import {
-  fetchActiveNode,
-  fetchPreloadNodes,
-} from "../../redux/slices/DataSlice";
+import { fetchPreloadNodes } from "../../redux/slices/DataSlice";
 import { Canvas } from "@react-three/fiber";
 import UpdateCameraOnResize from "../UpdateCameraOnResize";
 import { RADIUS_SPHERE } from "../../utils/Constants";
@@ -40,7 +36,6 @@ const TourOverview = () => {
   const dispatch = useDispatch<AppDispatch>();
   const defaultNode = useSelector((state: RootState) => state.data.defaultNode);
   const handleVirtualTour = () => {
-    dispatch(fetchActiveNode());
     navigate("/virtualTour");
   };
 
@@ -135,12 +130,14 @@ const TourOverview = () => {
       // style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
     >
       <div className={styles.vtBackground}>
-        <h1 className={styles.single} style={{fontSize:'150px',top:'20%'}}>
+        <h1 className={styles.single} style={{ fontSize: "150px", top: "20%" }}>
           TOUR
         </h1>
         <h1 className={styles.single}>3D</h1>
         <div className={styles.titleContainer}>
-          <h2 className={styles.title} style={{fontSize:'40px'}}>THAM QUAN ẢO</h2>
+          <h2 className={styles.title} style={{ fontSize: "40px" }}>
+            THAM QUAN ẢO
+          </h2>
           <i className={styles.title}>
             Chào mừng bạn đến với chuyến tham quan khuôn viên Trường Đại học
             Nông Lâm Thành phố Hồ Chí Minh. Chúc bạn có một trải nghiệm thú vị.
@@ -154,7 +151,9 @@ const TourOverview = () => {
             />
             <h2 className={styles.exploreText}>Khám phá ngay!</h2>
           </div> */}
-          <button className={styles.explore_button} onClick={handleVirtualTour}>Khám phá ngay!</button>
+          <button className={styles.explore_button} onClick={handleVirtualTour}>
+            Khám phá ngay!
+          </button>
 
           {/* <canvas id="intro-tour" /> */}
           <Canvas

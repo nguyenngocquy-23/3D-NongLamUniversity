@@ -26,6 +26,7 @@ public class SpaceService {
     public List<SpaceResponse> getSpaceByFieldId(SpaceReadRequest req) {
         return spaceDao.getSpaceByFieldId(req);
     }
+
     public List<SpaceFullResponse> getAllSpaces() {
         return spaceDao.getAllSpaces();
     }
@@ -34,6 +35,9 @@ public class SpaceService {
         return spaceDao.changeStatusSpace(req);
     }
 
+    public boolean setMasterNode(SpaceChangeMasterRequest req) {
+        return spaceDao.setMasterNode(req);
+    }
 
     public boolean attachLocation(List<AttachLocationRequest> request) {
         return spaceDao.attachLocation(request);
