@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Builder
@@ -16,5 +17,5 @@ public class SpaceFullResponse {
     int fieldId;
     String fieldName, name, description, url, location;
     byte status;
-    LocalDateTime updatedAt;
+    Timestamp updatedAt;
 }

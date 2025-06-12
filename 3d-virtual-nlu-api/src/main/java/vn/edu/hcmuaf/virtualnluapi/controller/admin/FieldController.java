@@ -15,6 +15,7 @@ import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.FieldService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Path("/admin/field")
@@ -26,6 +27,7 @@ public class FieldController {
     FieldService fieldService;
 
     @POST
+    @Path("/create")
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> createField(FieldCreateRequest req) {
         boolean result = fieldService.createField(req);
@@ -56,6 +58,30 @@ public class FieldController {
             return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai field thanh cong").data(result).build();
         } else {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai field").data(result).build();
+        }
+    }
+
+    /**
+     * Cập nhật tên lĩnh vực.
+     * +> True, không chỉ gửi true/false, cần cập nhật lại thời gian cập nhật lĩnh vực trên FE.
+     */
+    @POST
+    @Path("/changeName")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeNameField(FieldCreateRequest req) {
+        try {
+            boolean result = fieldService.changeNameField(req);
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(1000)
+                    .message("Thay đổi tên field thành công")
+                    .data(result)
+                    .build();
+        } catch (IllegalStateException e) {
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(5000)
+                    .message("Lỗi thay đổi tên field: " + e.getMessage())
+                    .data(null)
+                    .build();
         }
     }
 }

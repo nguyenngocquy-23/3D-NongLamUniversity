@@ -206,13 +206,25 @@ const dataSlice = createSlice({
         spaceId: number;
       }>
     ) => {
-      console.log("spaceId...", action.payload.spaceId);
       const index = state.spaces.findIndex(
         (h) => h.id === action.payload.spaceId
       );
       if (index !== -1) {
         const space = state.spaces[index];
         space.location = null;
+      }
+    },
+
+    changeFieldName: (
+      state,
+      action: PayloadAction<{ fieldId: number; name: string; code: string }>
+    ) => {
+      const index = state.fields.findIndex(
+        (f) => f.id === action.payload.fieldId
+      );
+      if (index !== -1) {
+        state.fields[index].name = action.payload.name;
+        state.fields[index].code = action.payload.code;
       }
     },
   },
