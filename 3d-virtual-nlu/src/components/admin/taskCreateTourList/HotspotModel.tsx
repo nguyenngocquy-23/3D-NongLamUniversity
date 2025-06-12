@@ -64,7 +64,14 @@ const TypeModel = ({
             {hotspotModel?.positionZ}{" "}
           </span>
         </p>
-        <div style={{ position: "relative", display: "flex", flex: "1", minHeight: '80px' }}>
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            flex: "1",
+            minHeight: "80px",
+          }}
+        >
           <label className={styles.label}>Tệp mô hình:</label>
           <UploadFile
             className="upload_model"
@@ -96,7 +103,12 @@ const TypeModel = ({
           />
         </div>
       </div>
-      <button onClick={() => handleUpdateModel()}>Cập nhật</button>
+      <button
+        onClick={() => handleUpdateModel()}
+        style={{ padding: "0.5rem 1rem" }}
+      >
+        Cập nhật
+      </button>
     </div>
   );
 };

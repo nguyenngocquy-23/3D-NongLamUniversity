@@ -3,15 +3,25 @@
   flex-direction: column;
   position: absolute;
   top: 0;
-  left: 100%;
-  width: 450px;
-  height: 300px;
+  right: 0;
+  width: calc(100% - 100px);
+  height: 200px;
   background-color: brown;
   text-align: center;
   border-radius: 10px;
   padding: 10px;
   overflow-y: auto;
   overflow-x: hidden;
+  z-index: 5;
+}
+
+.search_input{
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: white;
+  color: black;
+  border-radius: 10px;
+  border: none;
 }
 
 .icons_container {
