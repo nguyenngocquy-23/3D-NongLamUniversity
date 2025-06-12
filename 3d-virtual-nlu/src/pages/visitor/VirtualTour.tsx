@@ -90,6 +90,10 @@ const VirtualTour = () => {
   // let defaultNode = null;
   // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
 
+  if (!nodeToRender) {
+    return null;
+  }
+
   const [isRotation, setIsRotation] = useState(nodeToRender.autoRotate || true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
@@ -105,6 +109,8 @@ const VirtualTour = () => {
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
     null
   ); // Giữ lại đối tượng
+
+  const [accessing, setAccessing] = useState(0);
 
   /**
    * Lớp chờ để ẩn các tiến trình render
@@ -360,9 +366,8 @@ const VirtualTour = () => {
       ) : (
         <LeftMenuTour isMenuVisible={isMenuVisible} />
       )}
-      {/* Hộp feedback */}
-      <Chat nodeId={nodeToRender.id} />
-      {/* <Chat nodeId={defaultNode.id} /> */}
+      {/* Hộp chat sửa wss */}
+      {/* <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} /> */}
       {/* Footer chứa các tính năng */}
       <FooterTour
         isRotation={isRotation}
@@ -373,6 +378,7 @@ const VirtualTour = () => {
         toggleFullscreen={toggleFullscreen}
         toggleMute={toggleMute}
         setIsComment={setIsComment}
+        accessing={accessing}
       />
       {/* Hộp thông tin */}
       <div className={styles.infoBox} onClick={toggleInformation}>

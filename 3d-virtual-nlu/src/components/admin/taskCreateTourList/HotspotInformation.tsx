@@ -65,7 +65,8 @@ const TypeInfomation = ({
           }}
         />
       </div>
-      <button onClick={() => handleUpdateInfo()}>Cập nhật</button>
+      <button onClick={() => handleUpdateInfo()}
+        style={{padding: '0.5rem 1rem'}}>Cập nhật</button>
     </div>
   );
 };

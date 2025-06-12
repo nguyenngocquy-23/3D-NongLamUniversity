@@ -138,40 +138,31 @@ const ConfigIcon = ({
   }, [propHotspot]);
   return (
     <div className={styles.config_icon_wrapper}>
-      {openListIcon ? (
-        <ListIcon setIconId={setIconId} setOpen={setOpenListIcon} />
-      ) : (
-        ""
-      )}
-      <div>
+      <div style={{position:'relative'}}>
         <div className={styles.config_icon_infor}>
-          {!isUpdate ? (
-            <div className={styles.preview_icon}>
-              <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
-                <HotspotPreview
-                  iconUrl={iconUrl}
-                  color={color}
-                  backgroundColor={backgroundColor}
-                  scale={scale}
-                  pitchX={pitchX}
-                  yawY={yawY}
-                  rollZ={rollZ}
-                  allowBackgroundColor={allowBackgroundColor}
-                  opacity={opacity}
-                />
-              </Canvas>
-              <div
-                onClick={() => {
-                  setOpenListIcon((prevState) => !prevState);
-                }}
-                className={styles.change_icon}
-              >
-                <FiEdit />
-              </div>
+          <div className={styles.preview_icon}>
+            <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
+              <HotspotPreview
+                iconUrl={iconUrl}
+                color={color}
+                backgroundColor={backgroundColor}
+                scale={scale}
+                pitchX={pitchX}
+                yawY={yawY}
+                rollZ={rollZ}
+                allowBackgroundColor={allowBackgroundColor}
+                opacity={opacity}
+              />
+            </Canvas>
+            <div
+              onClick={() => {
+                setOpenListIcon((prevState) => !prevState);
+              }}
+              className={styles.change_icon}
+            >
+              <FiEdit />
             </div>
-          ) : (
-            ""
-          )}
+          </div>
           <div className={styles.edit_icon_content}>
             <div className={styles.color_icon}>
               <span>Màu:</span>
@@ -378,6 +369,12 @@ const ConfigIcon = ({
             </div>
           </div>
         </div>
+        {/* List icon */}
+        {openListIcon ? (
+          <ListIcon setIconId={setIconId} setOpen={setOpenListIcon} />
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );

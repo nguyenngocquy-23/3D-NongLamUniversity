@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { API_URLS } from "../../env";
 import { safeParseJsonArray } from "../../utils/ParseJsonArray";
 
 interface DataState {
@@ -12,6 +13,7 @@ interface DataState {
   masterNodes: any[];
   preloadNodes: any[];
   nodeOfUser: any[];
+  privateNodeOfUser: any[];
   defaultNode: any;
   trackNodes: any[];
   icons: any[];
@@ -28,6 +30,7 @@ const initialState: DataState = {
   hotspotTypes: [],
   masterNodes: [],
   nodeOfUser: [],
+  privateNodeOfUser: [],
   defaultNode: null,
   trackNodes: [],
   preloadNodes: [],
@@ -41,7 +44,7 @@ export const fetchUsers = createAsyncThunk(
   "data/fetchUsers",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://localhost:8080/api/user", {
+      const response = await axios.get(API_URLS.USER, {
         headers: { Authorization: sessionStorage.getItem("token") },
       });
       return response.data.data;
@@ -57,7 +60,7 @@ export const fetchUsers = createAsyncThunk(
 // Fetch nodes
 export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
   const response = await axios.post(
-    "http://localhost:8080/api/v1/admin/node/all"
+    API_URLS.ADMIN_GET_ALL_NODES
   );
   return response.data.data;
 });
@@ -66,7 +69,7 @@ export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
 export const fetchMasterNodes = createAsyncThunk(
   "data/fetchMasterNodes",
   async () => {
-    const response = await axios.post("http://localhost:8080/api/node/master");
+    const response = await axios.post(API_URLS.GET_MASTER_NODES);
     return response.data.data;
   }
 );
@@ -75,7 +78,7 @@ export const fetchMasterNodes = createAsyncThunk(
 export const fetchDefaultNodes = createAsyncThunk(
   "data/fetchDefaultNodes",
   async () => {
-    const response = await axios.post("http://localhost:8080/api/node/default");
+    const response = await axios.post(API_URLS.GET_DEFAULT_NODE);
     return response.data.data;
   }
 );
@@ -84,8 +87,18 @@ export const fetchDefaultNodes = createAsyncThunk(
 export const fetchNodeOfUser = createAsyncThunk(
   "data/fetchNodeOfUser",
   async (userId: number) => {
-    console.log("userUd..", userId);
-    const response = await axios.post("http://localhost:8080/api/node/byUser", {
+    const response = await axios.post(API_URLS.NODE_OF_USER, {
+      userId: userId,
+    });
+    return response.data.data;
+  }
+);
+
+// Fetch private nodes of user
+export const fetchPrivateNodeOfUser = createAsyncThunk(
+  "data/fetchPrivateNodeOfUser",
+  async (userId: number) => {
+    const response = await axios.post(API_URLS.PRIVATE_NODE_OF_USER, {
       userId: userId,
     });
     return response.data.data;
@@ -98,13 +111,12 @@ export const fetchCommentOfNode = createAsyncThunk(
   async (nodeId: number) => {
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/comment/getOfNode",
+        API_URLS.COMMENT_OF_NODE,
         {
           nodeId: nodeId,
         }
       );
       if (response.data.data) {
-        console.log(response.data.data);
         return response.data.data;
       }
     } catch (error: any) {
@@ -115,13 +127,13 @@ export const fetchCommentOfNode = createAsyncThunk(
 
 // Fetch field
 export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
-  const response = await axios.get("http://localhost:8080/api/admin/field");
+  const response = await axios.get(API_URLS.ADMIN_GET_ALL_FIELDS);
   return response.data.data;
 });
 
 // Fetch space
 export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
-  const response = await axios.get("http://localhost:8080/api/admin/space/all");
+  const response = await axios.get(API_URLS.ADMIN_GET_ALL_SPACES);
   const rawSpaces = response.data.data;
 
   const parsedSpaces = rawSpaces.map((space: any) => ({
@@ -144,7 +156,7 @@ export const fetchPreloadNodes = createAsyncThunk(
   async (nodeId: number, thunkAPI) => {
     try {
       const resp = await axios.post(
-        `http://localhost:8080/api/node/preloadNodeList`,
+        API_URLS.GET_PRELOAD_NODES,
         {
           nodeId,
         }
@@ -159,7 +171,7 @@ export const fetchPreloadNodes = createAsyncThunk(
 );
 // Fetch icon
 export const fetchIcons = createAsyncThunk("data/fetchIcons", async () => {
-  const response = await axios.get("http://localhost:8080/api/v1/admin/icon");
+  const response = await axios.get(API_URLS.ADMIN_GET_ALL_ICONS);
   return response.data.data;
 });
 
@@ -168,7 +180,7 @@ export const fetchHotspotTypes = createAsyncThunk(
   "data/fetchHotspotTypes",
   async () => {
     const response = await axios.get(
-      "http://localhost:8080/api/admin/hotspotType"
+      API_URLS.ADMIN_GET_HOTSPOT_TYPES
     );
     return response.data.data;
   }
@@ -356,6 +368,17 @@ const dataSlice = createSlice({
         state.nodeOfUser = action.payload;
       })
       .addCase(fetchNodeOfUser.rejected, (state) => {
+        state.status = "failed";
+      })
+      
+      .addCase(fetchPrivateNodeOfUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPrivateNodeOfUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.privateNodeOfUser = action.payload;
+      })
+      .addCase(fetchPrivateNodeOfUser.rejected, (state) => {
         state.status = "failed";
       })
 

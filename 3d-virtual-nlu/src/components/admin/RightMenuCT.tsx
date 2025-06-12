@@ -67,6 +67,7 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
           transform: "translateX(-50%)",
           margin: "auto",
           textAlign: "center",
+          padding: "0.5rem 1rem",
         }}
         onClick={() => {
           dispatch(nextStep());

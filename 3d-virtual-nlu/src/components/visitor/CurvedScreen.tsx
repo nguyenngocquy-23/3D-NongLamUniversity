@@ -26,7 +26,7 @@ const CurvedScreen: React.FC<CurvedScreenProps> = ({
   const texture = new THREE.TextureLoader().load(textureCurrent);
   texture.minFilter = THREE.NearestFilter;
   texture.colorSpace = "srgb";
-  texture.needsUpdate = true;
+  // texture.needsUpdate = true;
 
   const geometry = useMemo(() => {
     return new THREE.CylinderGeometry(

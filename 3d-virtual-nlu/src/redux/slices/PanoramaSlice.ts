@@ -54,6 +54,8 @@ const panoramaSlice = createSlice({
       state,
       action: PayloadAction<Array<{ originalFileName: string; url: string }>>
     ) {
+      const userJson = sessionStorage.getItem("user");
+      const user = userJson ? JSON.parse(userJson) : null;
       const panoramas = action.payload.map((item, index) => ({
         id: nanoid(),
         url: item.url,
@@ -67,7 +69,7 @@ const panoramaSlice = createSlice({
           autoRotate: 0,
           speedRotate: 0,
           lightIntensity: 1,
-          status: index === 0 ? 2 : 1,
+          status: index === 0 ? user.username == 'admin' ? 2 : 3 : 1,
         },
       }));
       state.panoramaList = panoramas;

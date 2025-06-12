@@ -52,6 +52,7 @@ const UpdateHotspot = ({
             setHotspotId(null);
           }}
         />
+        <h3>Cập nhật</h3>
       </div>
       <div className={styles.task3}>
         {currentType != 3 ? (

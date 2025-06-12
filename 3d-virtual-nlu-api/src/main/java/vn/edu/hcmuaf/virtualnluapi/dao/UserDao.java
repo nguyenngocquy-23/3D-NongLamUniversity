@@ -40,8 +40,8 @@ public class UserDao {
     }
 
     public boolean insert(User user) {
-        String sql = "INSERT INTO users (roleId, email, username, password, status, createdAt ) " +
-                "VALUES(:roleId, :email, :username, :password, :status , :createdAt)";
+        String sql = "INSERT INTO users (roleId, email, username, password, status, avatar, createdAt ) " +
+                "VALUES(:roleId, :email, :username, :password, :status, :avatar , :createdAt)";
         try {
             int result = ConnectionPool.getConnection().inTransaction(handle ->
                     handle.createUpdate(sql)

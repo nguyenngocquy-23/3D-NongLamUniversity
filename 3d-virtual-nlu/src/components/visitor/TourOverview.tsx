@@ -130,10 +130,10 @@ const TourOverview = () => {
       // style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
     >
       <div className={styles.vtBackground}>
-        <h1 className={styles.single} style={{ fontSize: "150px", top: "20%" }}>
-          TOUR
+        <h1 className={styles.single} style={{fontSize:'150px',top:'20%'}}>
+          3D TOUR
         </h1>
-        <h1 className={styles.single}>3D</h1>
+        {/* <h1 className={styles.single}>3D</h1> */}
         <div className={styles.titleContainer}>
           <h2 className={styles.title} style={{ fontSize: "40px" }}>
             THAM QUAN ẢO
@@ -162,7 +162,7 @@ const TourOverview = () => {
               aspect: windowSize.width / windowSize.height,
               near: 0.1,
               far: 1000,
-              position: [0, 0, 400],
+              position: [0, 0, 200],
             }}
             className={styles.tourCanvas}
           >
@@ -176,13 +176,13 @@ const TourOverview = () => {
             <CurvedScreen
               radius={RADIUS_SPHERE}
               sphereRef={sphereRef}
-              textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
+              textureCurrent={defaultNode ? defaultNode.url : `${import.meta.env.BASE_URL}khoa.jpg`}
               lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
             />
             <ShadowScreen
               radius={RADIUS_SPHERE}
               sphereRef={sphereRef}
-              textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
+              textureCurrent={defaultNode ? defaultNode.url : `${import.meta.env.BASE_URL}khoa.jpg`}
               lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
             />
 

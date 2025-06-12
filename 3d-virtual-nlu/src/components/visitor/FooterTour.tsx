@@ -9,7 +9,7 @@ import { FaComment, FaLanguage, FaPause, FaPlay } from "react-icons/fa6";
 import { FaInfoCircle } from "react-icons/fa";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface FooterTourProps {
   isRotation: boolean;
@@ -20,6 +20,7 @@ interface FooterTourProps {
   toggleMute: () => void;
   toggleFullscreen: () => void;
   setIsComment: (val: boolean) => void;
+  accessing: any;
 }
 
 const FooterTour = ({
@@ -31,13 +32,14 @@ const FooterTour = ({
   toggleMute,
   toggleFullscreen,
   setIsComment,
+  accessing,
 }: FooterTourProps) => {
   const userJson = sessionStorage.getItem("user");
   const user = userJson ? JSON.parse(userJson) : null;
   const navigate = useNavigate();
   return (
     <div className={styles.footerTour}>
-      <i>NLU360</i>
+      <i>Số lượng truy cập hiện tại: {user ? accessing : <Link to={"/login"}>Đăng nhập để xem</Link>}</i>
       <div className="contain_extension" style={{ display: "flex" }}>
         <FaComment
           className={styles.info_btn}

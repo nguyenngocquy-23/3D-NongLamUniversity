@@ -2,7 +2,6 @@ import { OrbitControls, useTexture } from "@react-three/drei";
 import styles from "../../styles/nodeItem.module.css";
 import * as THREE from "three";
 import { useState } from "react";
-import { formatTimestampToDate } from "../../utils/formatTimestamp";
 
 interface NodeProps {
   panoramaURL: string;

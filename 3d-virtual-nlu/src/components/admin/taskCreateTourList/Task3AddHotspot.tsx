@@ -12,6 +12,7 @@ import { PanoramaItem } from "../../../redux/slices/PanoramaSlice";
 import { getFilteredHotspotNavigationById } from "../../../redux/slices/Selectors";
 
 interface Task3Props {
+  isAssignable: boolean;
   setAssignable: (value: boolean) => void;
   setCurrentHotspotType: (value: number) => void;
   onPropsChange: (value: BaseHotspot) => void;
@@ -20,6 +21,7 @@ interface Task3Props {
 
 // Component cho Task3
 const Task3 = ({
+  isAssignable,
   setAssignable,
   setCurrentHotspotType,
   onPropsChange,
@@ -82,11 +84,14 @@ const Task3 = ({
           ) : (
             <button
               onClick={() => {
-                setAssignable(true);
+                setAssignable(!isAssignable);
                 setCurrentHotspotType(openTypeIndex);
               }}
+              style={{
+                padding: '0.5rem 1rem'
+              }}
             >
-              Chọn vị trí
+              {isAssignable ? "Hủy" : "Chọn vị trí"}
             </button>
           )}
         </>

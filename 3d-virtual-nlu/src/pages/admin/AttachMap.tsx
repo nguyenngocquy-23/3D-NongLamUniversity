@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import Swal from "sweetalert2";
 import { attachLocation, fetchSpaces } from "../../redux/slices/DataSlice";
+import { API_URLS } from "../../env";
 
 const AttachMap = () => {
   /**
@@ -56,7 +57,7 @@ const AttachMap = () => {
       }));
 
       const response = await axios.post(
-        "http://localhost:8080/api/admin/space/attachLocation",
+        API_URLS.ADMIN_ATTACH_SPACE_LOCATION,
         payload
       );
       if (response.data.data) {

@@ -18,6 +18,7 @@ import { validateName } from "../../utils/ValidateInputName";
 import { fetchSpaces } from "../../redux/slices/DataSlice";
 import { GrConfigure } from "react-icons/gr";
 import { FiMapPin } from "react-icons/fi";
+import { API_URLS } from "../../env";
 
 interface Space {
   id: number;
@@ -109,7 +110,6 @@ const Space = () => {
   const handleChangeFieldName = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     const spaceCodeNew = RemoveVietnameseTones(value);
-
     if (spaceCodeList.includes(spaceCodeNew)) {
       setError("Tên đã tồn tại, vui lòng chọn tên mới !");
     } else {
@@ -134,7 +134,7 @@ const Space = () => {
 
       if (req.id === 0) {
         response = await axios.post(
-          "http://localhost:8080/api/admin/field/create",
+          API_URLS.ADMIN_CREATE_SPACES,
           req
         );
         setSelectedSpace(emptySpace);
@@ -142,7 +142,7 @@ const Space = () => {
         setFieldCode("");
       } else {
         response = await axios.post(
-          "http://localhost:8080/api/admin/field/changeName",
+          API_URLS.ADMIN_CHANGE_NAME_FIELD,
           req
         );
       }

@@ -6,6 +6,7 @@ import vn.edu.hcmuaf.virtualnluapi.connection.Connection;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 
@@ -70,6 +71,7 @@ public class NodeDao {
                 SELECT n.id, n.name, n.url
                 FROM nodes n
                 WHERE n.status = 2
+                LIMIT 10 OFFSET 0
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(MasterNodeResponse.class).list());
     }
@@ -168,7 +170,7 @@ public class NodeDao {
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
-                WHERE n.userId = :userId
+                WHERE n.userId = :userId and (n.status = 2 or n.status = 0)
                 ORDER BY n.updatedAt DESC
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
@@ -203,4 +205,37 @@ public class NodeDao {
         return nodeFullResponse;
     }
 
+    public boolean changeStatus(StatusRequest request) {
+        String sql = "UPDATE nodes SET status = :status, updatedAt = :updatedAt WHERE id = :nodeId";
+        int rowsUpdated = ConnectionPool.getConnection().withHandle(handle -> handle.createUpdate(sql)
+                .bind("status", request.getStatus() == 0 ? 2 : 0)
+                .bind("updatedAt", LocalDateTime.now())
+                .bind("nodeId", request.getId())
+                .execute());
+        return rowsUpdated > 0;
+    }
+
+    public boolean removeNode(NodeIdRequest request) {
+        String sql = "UPDATE nodes SET status = -1, updatedAt = :updatedAt WHERE id = :nodeId";
+        int rowsUpdated = ConnectionPool.getConnection().withHandle(handle -> handle.createUpdate(sql)
+                .bind("updatedAt", LocalDateTime.now())
+                .bind("nodeId", request.getNodeId())
+                .execute());
+        return rowsUpdated > 0;
+    }
+
+    public List<NodeFullResponse> getPrivateNodeByUser(UserIdRequest request) {
+        String sql = """
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.lightIntensity
+                FROM nodes n
+                JOIN spaces s ON n.spaceId = s.id
+                JOIN fields f ON s.fieldId = f.id
+                WHERE n.userId = :userId and n.status = 3
+                ORDER BY n.updatedAt DESC
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+                .bind("userId", request.getUserId())
+                .mapToBean(NodeFullResponse.class).list());
+    }
 }

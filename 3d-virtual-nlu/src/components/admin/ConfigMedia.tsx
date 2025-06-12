@@ -172,7 +172,9 @@ const ConfigMedia = ({
               <button
                 onClick={() => {
                   setAllowBackgroundColor((preState) => !preState);
-                }}
+                }} style={{
+                padding: '0.5rem 1rem'
+              }}
               >
                 {allowBackgroundColor ? "Tắt" : "Bật"}
               </button>
@@ -205,6 +207,9 @@ const ConfigMedia = ({
               // setCurrentPoints([]);
               setCurrentHotspotType(3);
             }}
+              style={{
+                padding: '0.5rem 1rem'
+              }}
           >
             Chọn điểm
           </button>

@@ -64,6 +64,9 @@ const TypeMedia = ({
               onClick={() => {
                 setChangeCorner(true);
               }}
+              style={{
+                padding: "0.5rem 1rem",
+              }}
             >
               Điều chỉnh góc
             </button>
@@ -98,7 +101,14 @@ const TypeMedia = ({
         </div>
         <div style={{ display: "flex" }}>
           <label className={styles.label}>Tải lên:</label>
-          <div style={{position:'relative', display:'flex', flex:'1 1', minHeight: '80px'}}>
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              flex: "1 1",
+              minHeight: "80px",
+            }}
+          >
             <UploadFile
               className={
                 mediaType == "PICTURE" ? "upload_image" : "upload_video"
@@ -117,7 +127,14 @@ const TypeMedia = ({
             onChange={(e) => setCaption(e.target.value)}
           />
         </div>
-        <button onClick={() => handleUpdateMedia()}>Cập nhật</button>
+        <button
+          onClick={() => handleUpdateMedia()}
+          style={{
+            padding: "0.5rem 1rem",
+          }}
+        >
+          Cập nhật
+        </button>
       </>
     </div>
   );

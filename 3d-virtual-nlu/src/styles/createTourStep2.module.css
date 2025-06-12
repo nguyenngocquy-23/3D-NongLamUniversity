@@ -261,6 +261,7 @@ back_btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
   transition: transform 1.4s ease;
+  z-index: 2;
 }
 
 .task_container.show,
@@ -269,10 +270,29 @@ back_btn:hover {
   color: white;
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
+  z-index: 2;
+  max-height: 80vh;
+  overflow: hidden;
+  overflow-y: auto;
 }
 
 .publish_tour_button {
   position: absolute;
   top: 20px;
   right: 20px;
+  padding: 0.5rem 1rem;
+}
+
+.guide_button:focus{
+  outline: none;
+  border: none;
+}
+.guide_button{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: black;
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.5rem;
 }

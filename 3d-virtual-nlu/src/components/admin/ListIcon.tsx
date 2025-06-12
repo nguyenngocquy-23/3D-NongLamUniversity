@@ -32,16 +32,16 @@ const ListIcon = ({
   }, [icons]);
   return (
     <div className={styles.container}>
-      <IoIosCloseCircle
-        className={styles.close_button}
-        onClick={() => {
-          setOpen(false);
-        }}
-      />
-      <label>Biểu tượng</label>
-      <div>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <IoIosCloseCircle
+          className={styles.close_button}
+          onClick={() => {
+            setOpen(false);
+          }}
+        />
         <div>
           <input
+            className={styles.search_input}
             type="text"
             title="Tên biểu tượng"
             onChange={handleSearch}
@@ -49,6 +49,8 @@ const ListIcon = ({
             // className={stylesCommon.search_input}
           />
         </div>
+      </div>
+      <div>
         <div className={styles.icons_container}>
           {searchData.map((icon, index) => (
             <div

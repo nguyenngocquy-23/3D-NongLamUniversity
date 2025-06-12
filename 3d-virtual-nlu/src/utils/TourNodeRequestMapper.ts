@@ -99,6 +99,8 @@ export class TourNodeRequestMapper {
     userId: number
   ): NodeCreateRequest[] {
     return panoramaList.map((pano) => {
+      const userJson = sessionStorage.getItem("user");
+      const user = userJson ? JSON.parse(userJson) : null;
       const nodeIdTemp = pano.id; // id temp của từng pano một
       const hotspotsForNode = hotspotList.filter(
         (h) => h.nodeId === nodeIdTemp

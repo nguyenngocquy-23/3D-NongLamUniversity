@@ -149,6 +149,24 @@ const GroundHotspotModel = ({
     }
   });
 
+  const scaleRef = useRef(1);
+  useFrame((_, delta) => {
+    if (!hotspotRef.current || isHovered) return;
+
+    // Tăng scale đều
+    scaleRef.current += delta * 1;
+    if (scaleRef.current > 2) {
+      scaleRef.current = 1; // Reset sau khi lan rộng
+    }
+
+    const s = scaleRef.current;
+    hotspotRef.current.scale.set(s, s, s);
+
+    // Làm mờ dần khi lan rộng
+    const opacity = 1 - (s - 1) / 2;
+    (hotspotRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
+  });
+
   return (
     <>
       {isClicked ? (

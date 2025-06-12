@@ -18,11 +18,12 @@ import Space from "./ManagerSpace";
 import { RiEdit2Line } from "react-icons/ri";
 import StatusToggle from "../../components/admin/ToggleChangeStatus";
 import { TfiNewWindow } from "react-icons/tfi";
+import { API_URLS } from "../../env";
 import { IoIosCloseCircle, IoIosWarning, IoMdExit } from "react-icons/io";
 import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 import axios from "axios";
 import { validateName } from "../../utils/ValidateInputName";
-import { format } from "date-fns";
+import { format } from "date-fns"
 
 interface Field {
   id: number;
@@ -133,7 +134,7 @@ const Field = () => {
 
       if (req.id === 0) {
         response = await axios.post(
-          "http://localhost:8080/api/admin/field/create",
+          API_URLS.ADMIN_CREATE_FIELDS,
           req
         );
         setSelectedField(emptyField);
@@ -141,7 +142,7 @@ const Field = () => {
         setFieldCode("");
       } else {
         response = await axios.post(
-          "http://localhost:8080/api/admin/field/changeName",
+          API_URLS.ADMIN_CHANGE_NAME_FIELD,
           req
         );
       }
@@ -294,7 +295,7 @@ const Field = () => {
               <StatusToggle
                 id={selectedField.id}
                 status={selectedField.status}
-                apiUrl="http://localhost:8080/api/admin/field/changeStatus"
+                apiUrl={API_URLS.ADMIN_CHANGE_FIELD_STATUS}
               />
             </div>
 

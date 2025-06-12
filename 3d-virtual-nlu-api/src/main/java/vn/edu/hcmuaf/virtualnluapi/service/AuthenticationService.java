@@ -116,6 +116,7 @@ public class AuthenticationService {
         User user = User.builder()
                 .username(userRegisterDTO.getUsername())
                 .password(encryptPassword)
+                .avatar(userRegisterDTO.getAvatar())
                 .status((byte) 1)
                 .email(userRegisterDTO.getEmail())
                 .roleId(roleDao.getRoleByName("USER").getId())

@@ -1,11 +1,12 @@
 import "./App.css";
+import { DOMAIN_CLIENT } from "./env";
 import RouterConfig from "./Router";
 
 import { BrowserRouter as Router } from "react-router-dom";
 
 function App() {
   return (
-    <Router>
+    <Router basename={DOMAIN_CLIENT}>
       <>
         <RouterConfig />
       </>

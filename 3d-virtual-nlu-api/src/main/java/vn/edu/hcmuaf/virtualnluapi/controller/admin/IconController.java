@@ -34,6 +34,7 @@ public class IconController {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> createIcon(IconCreateRequest req) {
         boolean result = iconService.createIcon(req);
         if (result) {

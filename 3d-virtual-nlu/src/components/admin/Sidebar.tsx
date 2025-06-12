@@ -6,6 +6,7 @@ import {
   MdInsertEmoticon,
   MdKeyboardArrowDown,
   MdKeyboardArrowUp,
+  MdNotifications,
 } from "react-icons/md";
 import { FaHome, FaUserCog } from "react-icons/fa";
 import { FaBookOpen, FaComment, FaMap, FaUserPlus } from "react-icons/fa6";
@@ -48,7 +49,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
       <div className={styles.side_bar_admin}>
         {isOpen && (
           <>
-            <img src="/public/avatar.jpg" alt="avatar-admin" />
+            <img src={`${import.meta.env.BASE_URL}avatar.jpg`} alt="avatar-admin" />
             <div className={styles.admin_info}>
               <Link to="/">
                 <h5>Chào bạn, {currentUser.username} !</h5>
@@ -145,6 +146,54 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
                 }
               >
                 Quản lý tour
+              </li>
+            </Link>
+          </ul>
+        )}
+        
+        <li
+          className={` ${isOpen ? styles.visit : styles.collapse_nav_item} ${
+            styles.expand_nav_item
+          }
+          ${showSubMenu && styles.active_nav_item}
+          
+          `}
+          onClick={() => {
+            setShowSubMenu((prev) => !prev);
+            setIsOpen(true);
+          }}
+        >
+          <MdNotifications />
+          {isOpen && <span>Phê duyệt</span>}
+          {showSubMenu ? (
+            <MdKeyboardArrowUp className={styles.open_sub_visit} />
+          ) : (
+            <MdKeyboardArrowDown className={styles.open_sub_visit} />
+          )}
+        </li>
+
+        {isOpen && showSubMenu && (
+          <ul
+            className={`${styles.sub_menu} 
+          ${showSubMenu && styles.active_nav_item_ul}
+          `}
+          >
+            <Link to="/admin/fields">
+              <li
+                className={
+                  location.pathname === "/admin/fields" ? styles.click : ""
+                }
+              >
+                <span>Tour</span>
+              </li>
+            </Link>
+            <Link to="/admin/spaces">
+              <li
+                className={
+                  location.pathname === "/admin/spaces" ? styles.click : ""
+                }
+              >
+                <span>Báo cáo</span>
               </li>
             </Link>
           </ul>

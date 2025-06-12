@@ -14,6 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class MessageResponse {
     int userId;
-    String username,content;
+    String avatar, username,content;
     Timestamp createdAt;
 }

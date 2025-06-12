@@ -34,6 +34,8 @@ public class RegisterController {
     MailService mail;
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response registerUser(UserRegisterRequest userForm) {
         if (userForm == null) {
             return Response.status(Response.Status.BAD_REQUEST)
