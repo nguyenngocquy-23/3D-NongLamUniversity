@@ -317,11 +317,12 @@ const hotspotSlice = createSlice({
       const hotspots = action.payload ?? [];
 
       state.hotspotList = hotspots;
-      state.hotspotPositions = hotspots.map((h) => [
-        h.positionX ?? 0,
-        h.positionY ?? 0,
-        h.positionZ ?? 0,
-      ]);
+      state.hotspotPositions = hotspots.map((h) => ({
+        nodeId: h.nodeId,
+        hotspotPositions: [
+          [h.positionX ?? 0, h.positionY ?? 0, h.positionZ ?? 0],
+        ],
+      }));
     },
   },
 });
