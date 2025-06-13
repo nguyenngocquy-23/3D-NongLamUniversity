@@ -243,12 +243,13 @@ const hotspotSlice = createSlice({
     ) => {
       const { hotspotId, cornerPointList } = action.payload;
 
-      const index = state.hotspotList.findIndex(h => h.id === hotspotId);
+      const index = state.hotspotList.findIndex((h) => h.id === hotspotId);
       if (index !== -1) {
         const hotspot = state.hotspotList[index];
         if (hotspot.type === 3) {
           // Cập nhật cornerPointList dưới dạng JSON string mới
-          (hotspot as HotspotMedia).cornerPointList = JSON.stringify(cornerPointList);
+          (hotspot as HotspotMedia).cornerPointList =
+            JSON.stringify(cornerPointList);
         }
       }
     },
@@ -261,15 +262,31 @@ const hotspotSlice = createSlice({
         const hotspot = state.hotspotList.find(
           (h) => h.id == action.payload.hotspotId
         );
-        state.hotspotPositions = state.hotspotPositions.filter((h) => h[0] !== hotspot?.positionX);
+        state.hotspotPositions = state.hotspotPositions.filter(
+          (h) => h[0] !== hotspot?.positionX
+        );
         state.hotspotList = state.hotspotList.filter(
           (h) => h.id !== action.payload.hotspotId
         );
       }
     },
-    
-    addHotspotPosition: (state, action: PayloadAction<[number, number, number]>) => {
+
+    addHotspotPosition: (
+      state,
+      action: PayloadAction<[number, number, number]>
+    ) => {
       state.hotspotPositions.push(action.payload);
+    },
+
+    addHotspotsFromResponse: (state, action: PayloadAction<HotspotItem[]>) => {
+      const hotspots = action.payload ?? [];
+
+      state.hotspotList = hotspots;
+      state.hotspotPositions = hotspots.map((h) => [
+        h.positionX ?? 0,
+        h.positionY ?? 0,
+        h.positionZ ?? 0,
+      ]);
     },
   },
 });
@@ -292,5 +309,6 @@ export const {
   updateCornerHotspotMedia,
   removeHotspot,
   addHotspotPosition,
+  addHotspotsFromResponse,
 } = hotspotSlice.actions;
 export default hotspotSlice.reducer;

@@ -69,7 +69,7 @@ const panoramaSlice = createSlice({
           autoRotate: 0,
           speedRotate: 0,
           lightIntensity: 1,
-          status: index === 0 ? user.username == 'admin' ? 2 : 3 : 1,
+          status: index === 0 ? (user.username == "admin" ? 2 : 3) : 1,
         },
       }));
       state.panoramaList = panoramas;
@@ -100,6 +100,21 @@ const panoramaSlice = createSlice({
         // nếu cần thiết, nên cho nó là cái được chọn luôn.
         // state.currentSelectId = newPanorama.id;
       }
+    },
+
+    addPanoramasFromResponse(state, action: PayloadAction<PanoramaItem[]>) {
+      const panoramas = action.payload;
+
+      state.panoramaList = panoramas;
+
+      // Ưu tiên chọn panorama đầu tiên có status = 2 (master), nếu không thì chọn đầu tiên
+      const master = panoramas.find((p) => p.config.status === 2);
+      state.currentSelectId = master?.id || panoramas[0]?.id || null;
+
+      // Đồng bộ vị trí
+      state.currentSelectedPosition = panoramas.findIndex(
+        (p) => p.id === state.currentSelectId
+      );
     },
     selectPanorama(state, action: PayloadAction<string>) {
       // state.currentSelectedPosition = action.payload;
@@ -164,6 +179,7 @@ export const {
   setSpaceId,
   setPanoramas,
   addPanorama,
+  addPanoramasFromResponse,
   selectPanorama,
   setMasterPanorama,
   updatePanoConfig,
