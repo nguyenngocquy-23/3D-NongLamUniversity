@@ -5,10 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotInformationResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotMediaResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotModelResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotNavigationResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -116,13 +113,6 @@ public class HotspotDao {
         });
     }
 
-    public List<HotspotModelResponse> getModelByNodeId(int nodeId) {
-        String sql = "SELECT h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity, m.modelUrl, m.name, m.description " + "FROM hotspots AS h JOIN hotspot_models " + "AS m ON h.id = m.hotspotId WHERE h.nodeId = :nodeId";
-        return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotModelResponse.class).list();
-        });
-    }
-
     public boolean insertHotspotMedia(List<HotspotMediaCreateRequest> reqs, String nodeId) {
         String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity, createdAt, updatedAt) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity, :createdAt, :updatedAt)";
         String sqlInsertNavigation = "INSERT INTO hotspot_medias(hotspotId, mediaType, mediaUrl, caption, cornerPointList) " + "VALUES(:hotspotId, :mediaType, :mediaUrl, :caption, :cornerPointList)";
@@ -165,8 +155,12 @@ public class HotspotDao {
         });
     }
 
+
+
+
+
     public List<HotspotMediaResponse> getMediaByNodeId(int nodeId) {
-        String sql = "SELECT h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
+        String sql = "SELECT h.id, h.nodeId,h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
                 "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" +
                 ", m.mediaType, m.mediaUrl, m.caption, m.cornerPointList " +
                 "FROM hotspots AS h JOIN hotspot_medias " +
@@ -177,7 +171,7 @@ public class HotspotDao {
     }
 
     public List<HotspotNavigationResponse> getNavigationByNodeId(int nodeId) {
-        String sql = "SELECT h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
+        String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
                 "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" +
                 ", n.targetNodeId " +
                 "FROM hotspots AS h JOIN hotspot_navigations AS n ON h.id = n.hotspotId WHERE h.nodeId = :nodeId";
@@ -187,7 +181,7 @@ public class HotspotDao {
     }
 
     public List<HotspotInformationResponse> getInformationByNodeId(int nodeId) {
-        String sql = "SELECT h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
+        String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
                 "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" +
                 ", i.title, i.content " +
                 "FROM hotspots AS h JOIN hotspot_informations AS i ON h.id = i.hotspotId WHERE h.nodeId = :nodeId";
@@ -195,4 +189,13 @@ public class HotspotDao {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotInformationResponse.class).list();
         });
     }
+
+
+    public List<HotspotModelResponse> getModelByNodeId(int nodeId) {
+        String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity, m.modelUrl, m.name, m.description " + "FROM hotspots AS h JOIN hotspot_models " + "AS m ON h.id = m.hotspotId WHERE h.nodeId = :nodeId";
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotModelResponse.class).list();
+        });
+    }
+
 }

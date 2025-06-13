@@ -13,7 +13,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class SpaceDao {
@@ -23,7 +26,8 @@ public class SpaceDao {
 
     public boolean insertSpace(SpaceCreateRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
-            int i = handle.createUpdate("INSERT INTO spaces (fieldId, name, code, description, url, status, createdAt, updatedAt) VALUES (:fieldId, :name, :code, :description, :url, :status, :createdAt, :updatedAt)")
+            int i = handle.createUpdate(
+                    "INSERT INTO spaces (fieldId, name, code, description, url, status, createdAt, updatedAt) VALUES (:fieldId, :name, :code, :description, :url, :status, :createdAt, :updatedAt)")
                     .bind("fieldId", req.getFieldId())
                     .bind("name", req.getName())
                     .bind("code", req.getCode())
@@ -40,7 +44,8 @@ public class SpaceDao {
     public List<SpaceResponse> getSpaceByFieldId(SpaceReadRequest req) {
         return ConnectionPool.getConnection().withHandle(handle -> {
 
-            return handle.createQuery("SELECT id, name from spaces where fieldId = :fieldId and status = 1 or status = 2")
+            return handle
+                    .createQuery("SELECT id, name from spaces where fieldId = :fieldId and status = 1 or status = 2")
                     .bind("fieldId", req.getFieldId())
                     .mapToBean(SpaceResponse.class)
                     .list();
@@ -48,31 +53,29 @@ public class SpaceDao {
     }
 
     /**
-     * TourIds là 1 mảng JSON chứa id của tất cả các nodes có status = 2 ~ masternode đại diện cho 1 tour.
+     * TourIds là 1 mảng JSON chứa id của tất cả các nodes có status = 2 ~
+     * masternode đại diện cho 1 tour.
      * + 0 đang tạm ngưng
      * +2 đang hiển thị bình thường.
      * + 3 đang chờ duyệt để hiển thị.
      */
     public List<SpaceFullResponse> getAllSpaces() {
-        String sql = """
-                SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name  as masterNodeName
-                ,s.createdAt,  s.updatedAt,
-                (
-                SELECT JSON_ARRAYAGG(n2.id) 
-                FROM nodes n2 
-                WHERE n2.spaceId = s.id AND n2.status IN (0,2,3)
-                ) AS tourIds
-                 FROM spaces s
-                 JOIN fields f ON s.fieldId = f.id
-                 JOIN nodes n ON s.masterNodeId = n.id
+        String spaceSql = """
+                SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name as masterNodeName
+                , s.createdAt, s.updatedAt
+                FROM spaces s
+                JOIN fields f ON s.fieldId = f.id
+                JOIN nodes n ON s.masterNodeId = n.id
                 """;
+
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery(sql)
+            // Lấy danh sách spaces
+         return   handle.createQuery(spaceSql)
                     .mapToBean(SpaceFullResponse.class)
                     .list();
+
         });
     }
-
 
     public boolean changeStatusSpace(StatusRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
