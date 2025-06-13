@@ -6,10 +6,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
@@ -87,4 +84,14 @@ public class NodeService {
             return null;
         }
     }
+    public List<NodeFullResponse> getMasterNodeListBySpaceId (SpaceIdRequest request) {
+        try {
+            return nodeDao.getMasterNodeListBySpaceId(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
 }

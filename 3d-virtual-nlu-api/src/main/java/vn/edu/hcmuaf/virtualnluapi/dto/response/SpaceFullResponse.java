@@ -18,6 +18,5 @@ public class SpaceFullResponse {
     int fieldId;
     String fieldName, code, name, masterNodeName, description, url, location;
     byte status;
-    String tourIds;
     Timestamp createdAt, updatedAt;
 }
