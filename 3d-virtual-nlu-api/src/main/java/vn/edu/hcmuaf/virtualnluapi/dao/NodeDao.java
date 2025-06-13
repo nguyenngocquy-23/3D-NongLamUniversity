@@ -4,10 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import vn.edu.hcmuaf.virtualnluapi.connection.Connection;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 
 import java.time.LocalDateTime;
@@ -77,7 +74,6 @@ public class NodeDao {
     }
 
 
-
     public NodeFullResponse getDefaultNode() {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
@@ -123,14 +119,14 @@ public class NodeDao {
                         .list()
         );
 
-        if(targetNodeIds == null || targetNodeIds.isEmpty()) {
+        if (targetNodeIds == null || targetNodeIds.isEmpty()) {
             return new ArrayList<>();
         }
 
         List<NodeFullResponse> preloadNodes = new ArrayList<>();
-        for(Integer i : targetNodeIds) {
+        for (Integer i : targetNodeIds) {
             NodeFullResponse node = getFullNodeByNodeId(i);
-            if(node != null) preloadNodes.add(node);
+            if (node != null) preloadNodes.add(node);
 
         }
         return preloadNodes;
@@ -139,7 +135,7 @@ public class NodeDao {
     /**
      * Trả về Full Response cho 1 node dựa vào Ids.
      */
-    public NodeFullResponse getFullNodeByNodeId (int nodeId) {
+    public NodeFullResponse getFullNodeByNodeId(int nodeId) {
         String sql = """
                 SELECT id, spaceId, url , name, updatedAt, userId, description, status, positionX, positionY, positionZ,
                  autoRotate, speedRotate, lightIntensity
@@ -163,6 +159,7 @@ public class NodeDao {
         nodeFullResponse.setModelHotspots(modelHotspots);
         return nodeFullResponse;
     }
+
     public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
@@ -237,5 +234,36 @@ public class NodeDao {
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
                 .bind("userId", request.getUserId())
                 .mapToBean(NodeFullResponse.class).list());
+    }
+
+    public List<NodeFullResponse> getMasterNodeListBySpaceId(SpaceIdRequest request) {
+        String sql = """
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.lightIntensity
+                FROM nodes n
+                JOIN spaces s ON n.spaceId = s.id
+                JOIN fields f ON s.fieldId = f.id
+                WHERE n.spaceId = :spaceId and n.status IN (0,2,3)
+                """;
+        return ConnectionPool.getConnection().withHandle(handle ->
+        {
+            List<NodeFullResponse> nodes = handle.createQuery(sql)
+                    .bind("spaceId", request.getSpaceId())
+                    .mapToBean(NodeFullResponse.class).list();
+    for (NodeFullResponse n : nodes) {
+        List<HotspotNavigationResponse> navigationResponses = hotspotDao.getNavigationByNodeId(n.getId());
+        List<HotspotInformationResponse> informationResponses = hotspotDao.getInformationByNodeId(n.getId());
+        List<HotspotMediaResponse> mediaResponses = hotspotDao.getMediaByNodeId(n.getId());
+        List<HotspotModelResponse> modelResponses = hotspotDao.getModelByNodeId(n.getId());
+        n.setNavHotspots(navigationResponses);
+        n.setInfoHotspots(informationResponses);
+        n.setMediaHotspots(mediaResponses);
+        n.setModelHotspots(modelResponses);
+    }
+    return nodes;
+
+        });
+
+
     }
 }

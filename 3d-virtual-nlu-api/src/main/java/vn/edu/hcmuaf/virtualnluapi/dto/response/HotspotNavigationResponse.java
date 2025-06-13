@@ -10,6 +10,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults (level = AccessLevel.PRIVATE)
 public class HotspotNavigationResponse {
+    int id;
+    int nodeId;
     byte type;
     int iconId;
     double positionX, positionY, positionZ;

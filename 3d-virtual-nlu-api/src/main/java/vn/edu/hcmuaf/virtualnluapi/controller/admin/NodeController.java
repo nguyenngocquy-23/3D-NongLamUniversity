@@ -73,6 +73,18 @@ public class NodeController {
         }
     }
 
+
+    @POST
+    @Path("/masterNodeList")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getMasterNodeListBySpaceId(SpaceIdRequest request) {
+        List<NodeFullResponse> result = nodeService.getMasterNodeListBySpaceId(request);
+
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
+    }
+
+
     @POST
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
@@ -107,6 +119,8 @@ public class NodeController {
             }
         }
     }
+
+
 
 
 }
