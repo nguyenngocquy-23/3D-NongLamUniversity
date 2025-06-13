@@ -25,7 +25,7 @@ export interface PanoramaItem {
   id: string; //nanoid => id là string.
   spaceId: string;
   url: string;
-  config: PanoramaConfig;
+  config: PanoramaConfig; 
 }
 
 interface PanoramaState {

@@ -198,16 +198,19 @@ const CreateTourStep2 = () => {
     const minZ = point.z - limit;
     const maxZ = point.z + limit;
 
-    const isNear = hotspotPosition.some((h) => {
-      return (
-        h[0] > minX &&
-        h[0] < maxX &&
-        h[1] > minY &&
-        h[1] < maxY &&
-        h[2] > minZ &&
-        h[2] < maxZ
+    const isNear = hotspotPosition
+      .filter((h) => h.nodeId === currentSelectId)
+      .some((h) =>
+        h.hotspotPositions.some(
+          (positions) =>
+            positions[0] > minX &&
+            positions[0] < maxX &&
+            positions[1] > minY &&
+            positions[1] < maxY &&
+            positions[2] > minZ &&
+            positions[2] < maxZ
+        )
       );
-    });
     if (isNear) {
       Swal.fire({
         title: "Cảnh báo",
@@ -302,7 +305,12 @@ const CreateTourStep2 = () => {
         );
         break;
     }
-    dispatch(addHotspotPosition([point.x, point.y, point.z]));
+    dispatch(
+      addHotspotPosition({
+        nodeId: currentSelectId ? currentSelectId : "",
+        hotspotPosition: [point.x, point.y, point.z],
+      })
+    );
 
     if ([1, 2, 4].includes(currentHotspotType)) {
       setAssignable(false);

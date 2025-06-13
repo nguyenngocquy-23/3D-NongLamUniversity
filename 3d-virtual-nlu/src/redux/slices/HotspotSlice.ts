@@ -42,6 +42,11 @@ export interface HotspotModel extends BaseHotspot {
   colorCode: string;
 }
 
+interface HotspotPositions {
+  nodeId: string;
+  hotspotPositions: [number, number, number][];
+}
+
 export type HotspotItem =
   | HotspotNavigation
   | HotspotInformation
@@ -50,7 +55,7 @@ export type HotspotItem =
 
 interface HotspotState {
   hotspotList: HotspotItem[];
-  hotspotPositions: [number, number, number][];
+  hotspotPositions: HotspotPositions[];
 }
 
 const initialState: HotspotState = {
@@ -260,11 +265,23 @@ const hotspotSlice = createSlice({
       );
       if (index !== -1) {
         const hotspot = state.hotspotList.find(
-          (h) => h.id == action.payload.hotspotId
+          (h) => h.id === action.payload.hotspotId
         );
-        state.hotspotPositions = state.hotspotPositions.filter(
-          (h) => h[0] !== hotspot?.positionX
-        );
+        if (!hotspot) return; // Nếu không tìm thấy thì thoát
+
+        const { positionX, positionY, positionZ } = hotspot;
+
+        // Duyệt từng nodeId trong hotspotPositions
+        state.hotspotPositions = state.hotspotPositions
+          .map((node) => ({
+            ...node,
+            hotspotPositions: node.hotspotPositions.filter(
+              ([x, y, z]) =>
+                !(x === positionX && y === positionY && z === positionZ)
+            ),
+          }))
+          // Xóa luôn node nếu mảng vị trí rỗng sau filter
+          .filter((node) => node.hotspotPositions.length > 0);
         state.hotspotList = state.hotspotList.filter(
           (h) => h.id !== action.payload.hotspotId
         );
@@ -273,9 +290,27 @@ const hotspotSlice = createSlice({
 
     addHotspotPosition: (
       state,
-      action: PayloadAction<[number, number, number]>
+      action: PayloadAction<{
+        nodeId: string;
+        hotspotPosition: [number, number, number];
+      }>
     ) => {
-      state.hotspotPositions.push(action.payload);
+      const { nodeId, hotspotPosition } = action.payload;
+
+      const index = state.hotspotPositions.findIndex(
+        (h) => h.nodeId === nodeId
+      );
+
+      if (index === -1) {
+        // Nếu nodeId chưa tồn tại => thêm mới
+        state.hotspotPositions.push({
+          nodeId,
+          hotspotPositions: [hotspotPosition],
+        });
+      } else {
+        // Nếu đã có nodeId => chỉ thêm vào danh sách vị trí
+        state.hotspotPositions[index].hotspotPositions.push(hotspotPosition);
+      }
     },
 
     addHotspotsFromResponse: (state, action: PayloadAction<HotspotItem[]>) => {

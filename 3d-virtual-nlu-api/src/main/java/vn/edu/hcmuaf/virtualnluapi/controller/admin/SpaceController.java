@@ -43,6 +43,7 @@ public class SpaceController {
     @GET
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<List<SpaceFullResponse>> getAllSpaces() {
         List<SpaceFullResponse> result = spaceService.getAllSpaces();
         return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Lay danh sach space thanh cong").data(result).build();
