@@ -119,13 +119,17 @@ const TourCanvas = React.memo(
           cameraRef={cameraRef}
           sphereRef={sphereRef}
           autoRotate={isRotation}
-          autoRotateSpeed={defaultNode || defaultNode.speedRotate == 0 ? 0.2 : defaultNode.speedRotate}
+          autoRotateSpeed={
+            defaultNode || defaultNode.speedRotate == 0
+              ? 0.2
+              : defaultNode.speedRotate
+          }
         />
 
         {hotspotInformations.map((hotspot) => (
           <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} />
         ))}
-        {hotspotNavigations.map((hotspot ) => (
+        {hotspotNavigations.map((hotspot) => (
           <GroundHotspot
             key={hotspot.id}
             onNavigate={(targetNodeId, cameraTargetPosition) =>

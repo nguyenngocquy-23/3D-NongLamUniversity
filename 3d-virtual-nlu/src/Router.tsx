@@ -54,7 +54,7 @@ function RouterConfig() {
         <Route path="users" element={<User />} />
         <Route path="fields" element={<Field />} />
         <Route path="spaces" element={<Space />} />
-        <Route path="spaces/:id" element={<SpaceDetail />} />
+        <Route path="spaces/:spaceId" element={<SpaceDetail />} />
         <Route path="icons" element={<ManagerIcon />} />
         <Route path="createTour" element={<CreateTour />} />
         <Route path="createTour/2" element={<CreateTourStep2 />} />

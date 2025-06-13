@@ -31,6 +31,91 @@ export interface NodeCreateRequest {
   modelHotspots: HotspotModelCreateRequest[];
 }
 
+export interface NodeResponse {
+  id: string;
+  spaceId: string;
+  fieldId: string;
+  userId: string;
+  url: string;
+  name: string;
+  description: string;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  autoRotate: number;
+  speedRotate: number;
+  lightIntensity: number;
+  status: number;
+  navHotspots: HotspotNavResponse[];
+  infoHotspots: HotspotInfoResponse[];
+  mediaHotspots: HotspotMediaResponse[];
+  modelHotspots: HotspotModelResponse[];
+}
+export interface HotspotNavResponse {
+  id: string;
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  targetNodeId: string;
+}
+
+export interface HotspotInfoResponse {
+  id: string;
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  title: string;
+  content: string;
+}
+export interface HotspotMediaResponse {
+  id: string;
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  mediaType: string;
+  mediaUrl: string;
+  caption: string;
+  cornerPointList: string;
+}
+export interface HotspotModelResponse {
+  id: string;
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  modelUrl: string;
+  name: string;
+  description: string;
+  colorCode: string;
+}
+
 export interface HotspotNavCreateRequest {
   nodeId: string;
   type: number;
@@ -216,5 +301,131 @@ export class TourNodeRequestMapper {
         modelHotspots,
       };
     });
+  }
+
+  static mapToPanoramaAndHotspots(nodes: NodeResponse[]): {
+    panoramaList: PanoramaItem[];
+    hotspotList: HotspotItem[];
+  } {
+    const panoramaList: PanoramaItem[] = [];
+    const hotspotList: HotspotItem[] = [];
+
+    const applyHotspotDefaults = (
+      hotspot: Partial<HotspotItem>
+    ): Partial<HotspotItem> => ({
+      color: hotspot.color ?? "#ffffff",
+      backgroundColor: hotspot.backgroundColor ?? "#000000",
+      allowBackgroundColor: hotspot.allowBackgroundColor ?? undefined,
+      opacity: hotspot.opacity ?? 1,
+      ...hotspot,
+    });
+
+    for (const node of nodes) {
+      panoramaList.push({
+        id: node.id,
+        spaceId: node.spaceId,
+        url: node.url,
+        config: {
+          name: node.name,
+          description: node.description,
+          positionX: node.positionX,
+          positionY: node.positionY,
+          positionZ: node.positionZ,
+          autoRotate: node.autoRotate,
+          speedRotate: node.speedRotate,
+          lightIntensity: node.lightIntensity,
+          status: node.status,
+        },
+      });
+
+      // Nav Hotspots
+      node.navHotspots?.forEach((h, idx) => {
+        hotspotList.push(
+          applyHotspotDefaults({
+            id: h.id,
+            nodeId: h.nodeId,
+            type: h.type,
+            iconId: h.iconId,
+            positionX: h.positionX,
+            positionY: h.positionY,
+            positionZ: h.positionZ,
+            pitchX: h.pitchX,
+            yawY: h.yawY,
+            rollZ: h.rollZ,
+            scale: h.scale,
+            targetNodeId: h.targetNodeId,
+          }) as HotspotItem
+        );
+      });
+
+      // Info Hotspots
+      node.infoHotspots?.forEach((h, idx) => {
+        hotspotList.push(
+          applyHotspotDefaults({
+            id: h.id,
+            nodeId: h.nodeId,
+            type: h.type,
+            iconId: h.iconId,
+            positionX: h.positionX,
+            positionY: h.positionY,
+            positionZ: h.positionZ,
+            pitchX: h.pitchX,
+            yawY: h.yawY,
+            rollZ: h.rollZ,
+            scale: h.scale,
+            title: h.title,
+            content: h.content,
+          }) as HotspotItem
+        );
+      });
+
+      // Media Hotspots
+      node.mediaHotspots?.forEach((h, idx) => {
+        hotspotList.push(
+          applyHotspotDefaults({
+            id: h.id,
+            nodeId: h.nodeId,
+            type: h.type,
+            iconId: h.iconId,
+            positionX: h.positionX,
+            positionY: h.positionY,
+            positionZ: h.positionZ,
+            pitchX: h.pitchX,
+            yawY: h.yawY,
+            rollZ: h.rollZ,
+            scale: h.scale,
+            mediaType: h.mediaType,
+            mediaUrl: h.mediaUrl,
+            caption: h.caption,
+            cornerPointList: h.cornerPointList,
+          }) as HotspotItem
+        );
+      });
+
+      // Model Hotspots
+      node.modelHotspots?.forEach((h, idx) => {
+        hotspotList.push(
+          applyHotspotDefaults({
+            id: h.id,
+            nodeId: h.nodeId,
+            type: h.type,
+            iconId: h.iconId,
+            positionX: h.positionX,
+            positionY: h.positionY,
+            positionZ: h.positionZ,
+            pitchX: h.pitchX,
+            yawY: h.yawY,
+            rollZ: h.rollZ,
+            scale: h.scale,
+            modelUrl: h.modelUrl,
+            name: h.name,
+            description: h.description,
+            colorCode: h.colorCode,
+          }) as HotspotItem
+        );
+      });
+    }
+
+    return { panoramaList, hotspotList };
   }
 }

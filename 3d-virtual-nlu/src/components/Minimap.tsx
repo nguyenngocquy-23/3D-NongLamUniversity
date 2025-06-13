@@ -206,10 +206,10 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
     setIsEditing(false);
   };
   const [masterNameInput, setMasterNameInput] = useState(
-    masterPanorama?.config.name || ""
+    (masterPanorama?.config.name || "").slice(0, 40)
   );
   useEffect(() => {
-    setMasterNameInput(masterPanorama?.config.name || "");
+    setMasterNameInput(masterPanorama?.config.name.slice(0, 40) || "");
   }, [masterPanorama]);
   return (
     <Html
@@ -285,6 +285,8 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                   onChange={(e) => {
                     const selectedId = e.target.value;
                     if (selectedId) {
+                      dispatch(setMasterPanorama(selectedId));
+                      dispatch(clearHotspotNavigation());
                     }
                   }}
                 >
@@ -304,7 +306,11 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                     id="input"
                     required
                     readOnly={!isEditing}
-                    value={masterNameInput}
+                    value={
+                      masterNameInput.length > 40
+                        ? masterNameInput.slice(0, 40) + "..."
+                        : masterNameInput
+                    }
                     onChange={(e) => setMasterNameInput(e.target.value)}
                   />
                   {!isEditing ? (
@@ -374,15 +380,15 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
         {isExpanded && (
           <>
             <div className={styles.tour_settings}>
+              <div className={`${styles.tour_edit} ${styles.tour_general}`}>
+                <span>Lĩnh vực: </span>
+                <span>Không gian: </span>
+              </div>
               <div className={styles.tour_tracking}>
                 <TrackingNode
                   panoramaList={panoramaList}
                   hotspotNavigations={hotspotNavigations}
                 />
-              </div>
-              <div className={`${styles.tour_edit} ${styles.tour_general}`}>
-                <span>Lĩnh vực: </span>
-                <span>Không gian: </span>
               </div>
             </div>
 
