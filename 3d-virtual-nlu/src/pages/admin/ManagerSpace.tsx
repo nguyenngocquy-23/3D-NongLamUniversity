@@ -32,7 +32,6 @@ interface Space {
   status: number;
   createdAt: number | null;
   updatedAt: number | null;
-  tourIds: number[] | null;
 }
 interface SpaceCreateRequest extends Pick<Space, "id" | "name" | "code"> {}
 const emptySpace: Space = {
@@ -47,7 +46,6 @@ const emptySpace: Space = {
   status: 1,
   createdAt: null,
   updatedAt: null,
-  tourIds: null,
 };
 
 const Space = () => {
@@ -133,18 +131,12 @@ const Space = () => {
       let response;
 
       if (req.id === 0) {
-        response = await axios.post(
-          API_URLS.ADMIN_CREATE_SPACES,
-          req
-        );
+        response = await axios.post(API_URLS.ADMIN_CREATE_SPACES, req);
         setSelectedSpace(emptySpace);
         setInputFieldName("");
         setFieldCode("");
       } else {
-        response = await axios.post(
-          API_URLS.ADMIN_CHANGE_NAME_FIELD,
-          req
-        );
+        response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_FIELD, req);
       }
 
       /**
@@ -181,7 +173,7 @@ const Space = () => {
 
     // Nếu chọn -> gọi API
     try {
-      await axios.post("http://localhost:8080/api/admin/space/setMasterSpace", {
+      await axios.post(API_URLS.ADMIN_CHANGE_MASTER_SPACE, {
         id,
         status: 2,
       });
@@ -201,7 +193,7 @@ const Space = () => {
       };
 
       const response = await axios.post(
-        "http://localhost:8080/api/admin/space/setMasterNodeById",
+        API_URLS.ADMIN_CHANGE_MASTER_NODE_BY_ID,
         payload
       );
 
@@ -308,7 +300,7 @@ const Space = () => {
             <div className={styles.space_edit_content}>
               <p className={styles.space_edit_label}>Thông tin</p>
 
-              <div className={styles.space_choose_master}>
+              {/* <div className={styles.space_choose_master}>
                 <span>Trung tâm:</span>
                 <select
                   className={styles.custom_select}
@@ -319,20 +311,20 @@ const Space = () => {
                   // onChange={handleSelectSpace}
                 >
                   <option value="0">-- Chọn tour --</option>
-                  {selectedSpace.tourIds &&
-                    selectedSpace.tourIds.map((tourId) => (
+                  {selectedSpace.tours &&
+                    selectedSpace.tours.map((tourId) => (
                       <option key={tourId} value={tourId}>
                         Tour {tourId}
                       </option>
                     ))}
                 </select>
-              </div>
+              </div> */}
               <div className={`${styles.space_information_item} `}>
                 <span>Trạng thái: </span>
                 <StatusToggle
                   id={selectedSpace.id}
                   status={selectedSpace.status}
-                  apiUrl="http://localhost:8080/api/admin/space/changeStatus"
+                  apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
                 />
               </div>
 

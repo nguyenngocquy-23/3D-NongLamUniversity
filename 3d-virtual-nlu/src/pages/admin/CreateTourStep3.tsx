@@ -27,7 +27,6 @@ import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 import { nextStep, prevStep } from "../../redux/slices/StepSlice";
 import { fetchMasterNodes } from "../../redux/slices/DataSlice";
 import gsap from "gsap";
-import MiniMap from "../../components/Minimap";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 import { API_URLS } from "../../env";
 
@@ -198,10 +197,7 @@ const CreateTourStep3: React.FC = () => {
       );
 
       // Step2: Gửi lên backend
-      const response = await axios.post(
-        API_URLS.ADMIN_CREATE_NODES,
-        payload
-      );
+      const response = await axios.post(API_URLS.ADMIN_CREATE_NODES, payload);
       if (response.data?.statusCode === 1000) {
         Swal.fire({
           icon: "success",
