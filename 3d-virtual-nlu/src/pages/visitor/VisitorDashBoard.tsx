@@ -13,6 +13,17 @@ import {
   fetchNodeOfUser,
 } from "../../redux/slices/DataSlice";
 
+interface CloudinaryUploadResp {
+  originalFileName?: string;
+  url?: string;
+}
+
+interface ApiResponse<T> {
+  statusCode: number;
+  message: string;
+  data: T;
+}
+
 const VisitorDashBoard = () => {
   const userJson = sessionStorage.getItem("user");
   const user = userJson ? JSON.parse(userJson) : null;
@@ -50,47 +61,71 @@ const VisitorDashBoard = () => {
     fetchTotalComments();
   }, [user.id]);
 
-  const handleFileChange = (e: any) => {
+  const handleFileChange = async (e: any) => {
     console.log("handle file change");
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      if (typeof reader.result === "string") {
-        setAvatar(reader.result);
-        // Gửi lên server hoặc xử lý tiếp
-        const response = await axios.post(API_URLS.CHANGE_AVATAR, {
-          userId: user.id,
-          avatar: reader.result,
-        });
-        if (response.data.data) {
-          Swal.fire({
-            title: "Thành công",
-            text: "Cập nhật ảnh đại diện thành công",
-            icon: "success",
-            position: "top-end",
-            toast: true,
-            timer: 2000,
-            timerProgressBar: true,
-            showConfirmButton: false,
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const resp = await axios.post<ApiResponse<CloudinaryUploadResp>>(
+        API_URLS.UPLOAD_CLOUD,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      if (resp.data.statusCode === 200) {
+        const item = resp.data.data!;
+        if (item.originalFileName && item.url) {
+          setAvatar(item.url);
+          // Gửi lên server hoặc xử lý tiếp
+          const response = await axios.post(API_URLS.CHANGE_AVATAR, {
+            userId: user.id,
+            avatar: item.url,
           });
-          dispatch(fetchUser(user.username));
+          if (response.data.data) {
+            Swal.fire({
+              title: "Thành công",
+              text: "Cập nhật ảnh đại diện thành công",
+              icon: "success",
+              position: "top-end",
+              toast: true,
+              timer: 2000,
+              timerProgressBar: true,
+              showConfirmButton: false,
+            });
+            dispatch(fetchUser(user.username));
+          }
         }
       } else {
         Swal.fire({
           title: "Thất bại",
           text: "Cập nhật ảnh đại diện thất bại",
-          icon: "error",
+          icon: "warning",
           position: "top-end",
           toast: true,
           timer: 2000,
           timerProgressBar: true,
           showConfirmButton: false,
         });
+        return;
       }
-    };
-    reader.readAsDataURL(file); // đọc file thành base64
+    } catch (error: any) {
+      Swal.fire({
+        title: "Thất bại",
+        text: "Cập nhật ảnh đại diện thất bại",
+        icon: "warning",
+        position: "top-end",
+        toast: true,
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+
+      console.error("[UploadFile Error:]", error.message);
+    }
   };
 
   const handleChangeProfile = async () => {
@@ -241,10 +276,7 @@ const VisitorDashBoard = () => {
         <div
           className={styles.avatar_image}
           style={{
-            background:
-              avatar !== "" && avatar !== null
-                ? `url(${avatar})`
-                : `url("/avatar.jpg")`,
+            background: `url(${avatar})`,
           }}
         >
           <label className={styles.custom_file_input}>

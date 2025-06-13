@@ -292,6 +292,7 @@ back_btn:hover {
     height: 40px;
     border-radius: 50%;
     background-color: black;
+    color: white;
     position: absolute;
     bottom: 0.5rem;
     left: 0.5rem;

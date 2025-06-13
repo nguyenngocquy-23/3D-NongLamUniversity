@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { registerUser } from "../../redux/slices/AuthSlice";
+import { DEFAULT_AVATAR } from "../../env";
 
 const Register: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username, password và confirmPassword
@@ -23,18 +24,6 @@ const Register: React.FC = () => {
   const { isLoading, error } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-
-  const getDefaultAvatarBase64 = async (): Promise<string> => {
-  const response = await fetch("/avatar.jpg");
-  const blob = await response.blob();
-
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.readAsDataURL(blob);
-  });
-};
-
 
   // Xử lý sự kiện khi form được submit
   const handleSubmit = async (event: React.FormEvent) => {
@@ -116,16 +105,16 @@ const Register: React.FC = () => {
     }
 
     try {
-      const avatar = await getDefaultAvatarBase64();
+      const avatar = DEFAULT_AVATAR;
       // Dispatch action đăng nhập
       const response = await dispatch(
         registerUser({ username, email, password, avatar })
       ).unwrap();
       if (response) {
-        setUsername("")
-        setEmail("")
-        setPassword("")
-        setConfirmPassword("")
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
         navigate("/verify");
       }
     } catch (err: any) {

@@ -128,7 +128,7 @@ const Header: React.FC = () => {
                 : setDropdownOpen(!dropdownOpen);
             }}
           >
-            👤 {currentUser.username}
+            <img src={currentUser.avatar || ""}/> {currentUser.username}
           </button>
 
           {dropdownOpen && (
