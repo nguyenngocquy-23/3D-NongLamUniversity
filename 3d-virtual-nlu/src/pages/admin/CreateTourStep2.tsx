@@ -5,7 +5,7 @@ import { FaAngleLeft, FaAngleRight, FaBook, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
-import { Canvas, ThreeEvent } from "@react-three/fiber";
+import { Canvas, ThreeEvent, useFrame } from "@react-three/fiber";
 import { Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
@@ -376,8 +376,8 @@ const CreateTourStep2 = () => {
 
   /**
    *
-   * @param targetNodeId
-   * @param hotspotTargetPosition
+   * @param targetNodeId : Id node đích cần di chuyển.
+   * @param hotspotTargetPosition : Thay thế vị trí camera hướng đến tại vị trí hotspot mục tiêu.
    */
   const handleHotspotNavigate = (
     targetNodeId: string,
@@ -386,44 +386,84 @@ const CreateTourStep2 = () => {
     if (!cameraRef.current || !controlsRef.current) return;
 
     const camera = cameraRef.current;
-    console.log("Text step2" + camera);
     const control = controlsRef.current;
     const originalFov = camera.fov;
-    const zoomTarget = 45; // Có thể điều chỉnh FOV này tùy theo yêu cầu
+    const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
+    const targetPano = panoramaList.find((pano) => pano.id === targetNodeId);
 
     const [x, y, z] = hotspotTargetPosition;
 
-    // === Bước 1: Tạo điểm cần nhìn đến (hotspot)
-    const targetLookAt = new THREE.Vector3(x, 0, z);
+    // === Bước 1:Xoay camera về vị trí (hotspot)
+    lookAtHotspot([x, y, z]);
 
-    // === Bước 2: Animation tạm thời "quay" camera bằng cách move lookAt
-    const tempTarget = targetLookAt.clone();
+    // === Bước 2: Zoom vào
 
-    gsap.to(camera.rotation, {
-      duration: 0.2,
+    gsap.to(camera, {
+      fov: zoomTarget,
+      duration: 1.0,
       ease: "power2.inOut",
       onUpdate: () => {
-        camera.lookAt(tempTarget);
-        control.update();
+        camera.updateProjectionMatrix();
       },
       onComplete: () => {
+        handleSelectNode(targetNodeId);
         gsap.to(camera, {
-          fov: zoomTarget,
-          duration: 1.0,
+          fov: originalFov,
+          duration: 0.2,
+          delay: 0.1,
           ease: "power2.inOut",
           onUpdate: () => {
-            handleSelectNode(targetNodeId);
             camera.updateProjectionMatrix();
           },
           onComplete: () => {
-            camera.fov = originalFov;
-            camera.lookAt(0, 0, 0); // về
+            const [px, py, pz] = [
+              targetPano?.config.positionX,
+              targetPano?.config.positionY,
+              targetPano?.config.positionZ,
+            ];
+            if (
+              typeof px === "number" &&
+              typeof py === "number" &&
+              typeof pz === "number"
+            ) {
+              camera.position.set(px, py, pz);
+            }
             camera.updateProjectionMatrix();
-            control.update();
+            control.update(); // đảm bảo OrbitControls cập nhật
           },
         });
+
+        // camera.lookAt(0, 0, 0); // về
       },
     });
+  };
+
+  const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
+    if (!cameraRef.current || !controlsRef.current) return;
+
+    const controls = controlsRef.current;
+
+    /**
+     * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
+     * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
+     */
+    const hotspotVec = new THREE.Vector3(
+      hotspotTargetPosition[0],
+      0,
+      hotspotTargetPosition[2]
+    );
+    const center = new THREE.Vector3(0, 0, 0);
+
+    const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
+
+    const spherical = new THREE.Spherical();
+    spherical.setFromVector3(dir);
+
+    // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
+    controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
+    controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
+
+    controls.update();
   };
 
   const handleBackStep2 = () => {
@@ -496,19 +536,19 @@ const CreateTourStep2 = () => {
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
               <>
-                {/* <GroundHotspot
+                <GroundHotspot
                   key={hotspot.id}
                   onNavigate={(targetNodeId, cameraTargetPosition) =>
                     handleHotspotNavigate(targetNodeId, cameraTargetPosition)
                   }
                   setCurrentHotspotId={setCurrentHotspotId}
                   hotspotNavigation={hotspot}
-                /> */}
-                <MarkerModel
+                />
+                {/* <MarkerModel
                   key={hotspot.id}
                   hotspotNavigation={hotspot}
                   setCurrentHotspotId={setCurrentHotspotId}
-                />
+                /> */}
               </>
             ))}
 

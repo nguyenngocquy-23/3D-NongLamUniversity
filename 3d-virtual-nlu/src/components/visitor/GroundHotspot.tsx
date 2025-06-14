@@ -16,6 +16,11 @@ type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
 };
 
+/**
+ *
+ * @param param0
+ * @returns
+ */
 const GroundHotspot: React.FC<GroundHotspotProps> = ({
   onNavigate,
   hotspotNavigation,
@@ -61,17 +66,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       );
     }
   });
-
-  // const panoramaList = useSelector(
-  //   (state: RootState) => state.panoramas.panoramaList
-  // );
-
-  // const hotspot = useSelector((state: RootState) =>
-  //   state.hotspots.hotspotList.find(
-  //     (h): h is HotspotNavigation =>
-  //       h.id === hotspotNavigation.id && h.type === 1
-  //   )
-  // );
 
   /**
    * Tập trung cho việc xử lý chỉnh sửa icon cho hotspsot.

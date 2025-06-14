@@ -401,8 +401,8 @@ const ConfigIcon = ({
                     <div className={styles.edit_icon_opacity}>
                       <input
                         type="range"
-                        min={-50}
-                        max={50}
+                        min={-20}
+                        max={20}
                         step={0.01}
                         value={value}
                         onChange={(e) => set(Number(e.target.value))}
