@@ -11,11 +11,13 @@ import { Html } from "@react-three/drei";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
   hotspotInfo: HotspotInformation;
+  blockUpdate?: boolean;
 };
 
 const GroundHotspotInfo = ({
   setCurrentHotspotId,
   hotspotInfo,
+  blockUpdate,
 }: GroundHotspotProps) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
@@ -40,11 +42,9 @@ const GroundHotspotInfo = ({
     if (isHovered || isClicked) {
       targetOpacity.current = hotspotInfo.opacity + 0.5;
       targetScale.current = hotspotInfo.scale + 0.5;
-      console.log("opacity 1:..", targetOpacity.current);
     } else {
       targetOpacity.current = hotspotInfo.opacity;
       targetScale.current = hotspotInfo.scale;
-      console.log("opacity 2:..", targetOpacity.current);
     }
   }, [isHovered, hotspotInfo]);
 
@@ -194,7 +194,7 @@ const GroundHotspotInfo = ({
           side={DoubleSide}
         />
       </mesh>
-      {isOpenHotspotOption && currentStep != 3 && currentStep != 1 ? (
+      {isOpenHotspotOption && currentStep == 2 && !blockUpdate ? (
         <OptionHotspot
           hotspotId={hotspotInfo.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}

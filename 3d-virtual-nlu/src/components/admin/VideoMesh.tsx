@@ -8,10 +8,12 @@ import { RootState } from "../../redux/Store";
 interface VideoMeshProps {
   hotspotMedia: HotspotMedia;
   setCurrentHotspotId?: (val: string | null) => void;
+  blockUpdate?: boolean;
 }
 const VideoMeshComponent = ({
   hotspotMedia,
   setCurrentHotspotId,
+  blockUpdate,
 }: VideoMeshProps) => {
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
   const [texture, setTexture] = useState<THREE.VideoTexture | THREE.Texture | null>(null);
@@ -183,7 +185,7 @@ const VideoMeshComponent = ({
           setIsOpenHotspotOption(true);
         }}
       />
-      {isOpenHotspotOption && currentStep !== 3  && currentStep != 1 && (
+      {isOpenHotspotOption && currentStep == 2 && !blockUpdate && (
         <OptionHotspot
           hotspotId={hotspotMedia.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}

@@ -138,7 +138,7 @@ const ConfigIcon = ({
   }, [propHotspot]);
   return (
     <div className={styles.config_icon_wrapper}>
-      <div style={{position:'relative'}}>
+      <div style={{ position: "relative" }}>
         <div className={styles.config_icon_infor}>
           <div className={styles.preview_icon}>
             <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
@@ -181,6 +181,7 @@ const ConfigIcon = ({
                   id="style"
                   value={color}
                   placeholder="HEX, RGB or HSL"
+                  readOnly
                 />
               </div>
             </div>
@@ -202,6 +203,7 @@ const ConfigIcon = ({
                   id="bkg"
                   value={backgroundColor}
                   placeholder="HEX, RGB or HSL"
+                  readOnly
                 />
               </div>
 
@@ -324,27 +326,25 @@ const ConfigIcon = ({
                     onChange = (e) => setRollZ(Number(e.target.value));
                   }
                   return (
-                    <>
-                      <div
-                        className={styles.opacity_icon_content}
-                        key={axis}
-                        style={{ display: "flex", alignItems: "center" }}
-                      >
-                        <div className={`${styles.label_opacity} ${axisClass}`}>
-                          {value}&deg;
-                        </div>
-                        <div className={styles.edit_icon_opacity}>
-                          <input
-                            type="range"
-                            min={-180}
-                            max={180}
-                            value={value}
-                            onChange={onChange}
-                          />
-                          <progress max="360" value={value + 180}></progress>
-                        </div>
+                    <div
+                      className={styles.opacity_icon_content}
+                      key={axis}
+                      style={{ display: "flex", alignItems: "center" }}
+                    >
+                      <div className={`${styles.label_opacity} ${axisClass}`}>
+                        {value}&deg;
                       </div>
-                    </>
+                      <div className={styles.edit_icon_opacity}>
+                        <input
+                          type="range"
+                          min={-180}
+                          max={180}
+                          value={value}
+                          onChange={onChange}
+                        />
+                        <progress max="360" value={value + 180}></progress>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

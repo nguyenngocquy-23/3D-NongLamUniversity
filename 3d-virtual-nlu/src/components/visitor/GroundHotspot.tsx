@@ -14,12 +14,14 @@ type GroundHotspotProps = {
   ) => void;
   hotspotNavigation: HotspotNavigation;
   setCurrentHotspotId?: (val: string | null) => void;
+  blockUpdate?: boolean;
 };
 
 const GroundHotspot: React.FC<GroundHotspotProps> = ({
   onNavigate,
   hotspotNavigation,
   setCurrentHotspotId,
+  blockUpdate,
 }) => {
   const camera = useThree();
   const hotspotRef = useRef<THREE.Mesh>(null);
@@ -134,15 +136,9 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         ]}
         onPointerOver={() => {
           setIsHovered(true);
-          console.log("🖱 Hover vào hotspot!", [
-            hotspotNavigation.positionX,
-            hotspotNavigation.positionY,
-            hotspotNavigation.positionZ,
-          ]);
         }}
         onPointerOut={() => {
           setIsHovered(false);
-          console.log("Rời khỏi hotspot!");
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -172,7 +168,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         />
       </mesh>
 
-      {isOpenHotspotOption && currentStep != 1 ? (
+      {isOpenHotspotOption && currentStep == 2 && !blockUpdate ? (
         <OptionHotspot
           hotspotId={hotspotNavigation.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
@@ -188,33 +184,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       ) : (
         ""
       )}
-
-      {/* {isClicked && (
-        <Html position={position} center distanceFactor={50}>
-          <select
-            onChange={(e) => {
-              const selectedId = e.target.value;
-              if (selectedId) {
-                console.log("🔽 Đã chọn panorama:", hotspotNavigation.id);
-                dispatch(
-                  updateNavigationHotspotTarget({
-                    id: hotspotNavigation.id,
-                    targetNodeId: selectedId,
-                  })
-                );
-                setIsClicked(false);
-              }
-            }}
-          >
-            <option value="">Chọn panorama</option>
-            {panoramaList.map((pano) => (
-              <option key={pano.id} value={pano.id}>
-                {pano.config.name || "null"}
-              </option>
-            ))}
-          </select>
-        </Html>
-      )} */}
     </>
   );
 };

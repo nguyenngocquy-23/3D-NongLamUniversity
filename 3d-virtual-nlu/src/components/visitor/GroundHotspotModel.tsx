@@ -14,6 +14,7 @@ type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
   setHoveredHotspot?: (hotspot: THREE.Mesh | null) => void;
   hotspotModel: HotspotModel;
+  blockUpdate?: boolean;
 };
 
 const Node = ({ modelUrl }: { modelUrl: string }) => {
@@ -25,6 +26,7 @@ const Node = ({ modelUrl }: { modelUrl: string }) => {
 const GroundHotspotModel = ({
   setCurrentHotspotId,
   hotspotModel,
+  blockUpdate,
 }: GroundHotspotProps) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
@@ -77,11 +79,9 @@ const GroundHotspotModel = ({
     if (isHovered || isClicked) {
       targetOpacity.current = hotspotModel.opacity + 0.5;
       targetScale.current = hotspotModel.scale + 0.5;
-      console.log("opacity 1:..", targetOpacity.current);
     } else {
       targetOpacity.current = hotspotModel.opacity;
       targetScale.current = hotspotModel.scale;
-      console.log("opacity 2:..", targetOpacity.current);
     }
   }, [isHovered, hotspotModel]);
 
@@ -262,7 +262,7 @@ const GroundHotspotModel = ({
           side={DoubleSide}
         />
       </mesh>
-      {isOpenHotspotOption && currentStep != 3 && currentStep != 1 ? (
+      {isOpenHotspotOption && currentStep == 2 && !blockUpdate? (
         <OptionHotspot
           hotspotId={hotspotModel.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}

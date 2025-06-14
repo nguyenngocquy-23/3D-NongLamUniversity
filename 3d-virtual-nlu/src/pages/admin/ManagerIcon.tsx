@@ -14,6 +14,7 @@ import { formatDateTime } from "../../utils/formatDateTime";
 import ModelCreate from "../../components/admin/CustomModal";
 import CustomModal from "../../components/admin/CustomModal";
 import StatusToggle from "../../components/admin/ToggleChangeStatus";
+import { format } from "date-fns";
 
 interface Icon {
   id: number;
@@ -98,7 +99,8 @@ const ManagerIcon = () => {
     },
     {
       name: "Thời gian cập nhật",
-      selector: (row: Icon) => formatDateTime(row.createdAt),
+      selector: (row: Icon) =>
+        format(new Date(row.createdAt), "dd/MM/yyyy HH:mm"),
       sortable: true,
     },
   ];
