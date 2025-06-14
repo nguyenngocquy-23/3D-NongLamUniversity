@@ -45,6 +45,7 @@ import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import { Timer } from "three/examples/jsm/Addons.js";
+import MarkerModel from "../../components/visitor/MarkerModel";
 
 const CreateTourStep2 = () => {
   /**
@@ -494,15 +495,23 @@ const CreateTourStep2 = () => {
           {hotspotNavigations
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
-              <GroundHotspot
-                key={hotspot.id}
-                onNavigate={(targetNodeId, cameraTargetPosition) =>
-                  handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                }
-                setCurrentHotspotId={setCurrentHotspotId}
-                hotspotNavigation={hotspot}
-              />
+              <>
+                {/* <GroundHotspot
+                  key={hotspot.id}
+                  onNavigate={(targetNodeId, cameraTargetPosition) =>
+                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                  }
+                  setCurrentHotspotId={setCurrentHotspotId}
+                  hotspotNavigation={hotspot}
+                /> */}
+                <MarkerModel
+                  key={hotspot.id}
+                  hotspotNavigation={hotspot}
+                  setCurrentHotspotId={setCurrentHotspotId}
+                />
+              </>
             ))}
+
           {hotspotInfos
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
@@ -511,6 +520,13 @@ const CreateTourStep2 = () => {
                 setCurrentHotspotId={setCurrentHotspotId}
                 hotspotInfo={hotspot}
               />
+              // <MarkerModel
+              //   position={[
+              //     hotspot.positionX + 10,
+              //     hotspot.positionY + 10,
+              //     hotspot.positionZ + 10,
+              //   ]}
+              // />
             ))}
           {hotspotModels
             .filter((hotspot) => hotspot.nodeId === currentSelectId)

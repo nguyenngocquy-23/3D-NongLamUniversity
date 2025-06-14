@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { setDefaultNode } from "../../redux/slices/DataSlice";
 import gsap from "gsap";
+import MarkerModel from "./MarkerModel";
 const TourCanvas = React.memo(
   ({
     windowSize,
@@ -130,13 +131,15 @@ const TourCanvas = React.memo(
           <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} />
         ))}
         {hotspotNavigations.map((hotspot) => (
-          <GroundHotspot
-            key={hotspot.id}
-            onNavigate={(targetNodeId, cameraTargetPosition) =>
-              handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-            }
-            hotspotNavigation={hotspot}
-          />
+          <>
+            <GroundHotspot
+              key={hotspot.id}
+              onNavigate={(targetNodeId, cameraTargetPosition) =>
+                handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+              }
+              hotspotNavigation={hotspot}
+            />
+          </>
         ))}
         {hotspotModels.map((hotspot) => (
           <GroundHotspotModel key={hotspot.id} hotspotModel={hotspot} />

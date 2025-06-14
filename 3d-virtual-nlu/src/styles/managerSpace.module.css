@@ -13,6 +13,7 @@
 }
 
 .space_switch_view_btn {
+  color: #000;
   outline: none;
   border-radius: 0;
   padding: 1rem;
@@ -102,6 +103,8 @@
   outline: none;
   font-size: 0.9rem;
   caret-color: #267026;
+  background-color: #fff;
+  color: #000;
 }
 .space_search_box .label_for_search {
   cursor: text;
@@ -144,6 +147,7 @@
 .space_box button {
   background-color: transparent;
   border: none;
+  color: #000;
 }
 .space_sort_box {
   color: #000;
@@ -154,6 +158,7 @@
 .space_add {
   margin-left: auto;
   padding: 1rem;
+  color: #000;
 }
 
 .space_quantity {
@@ -229,6 +234,7 @@
   background-color: transparent;
   outline: none;
   width: 100%;
+  color: #000;
 }
 
 .space_input_name_container .underline {
