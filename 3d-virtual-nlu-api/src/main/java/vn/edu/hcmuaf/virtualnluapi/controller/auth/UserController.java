@@ -27,7 +27,7 @@ public class UserController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public User userInfo(@HeaderParam("Authorization") String token, UserLoginRequest request) {
-        // check token có trong table invlaidToken không
+        // check token có trong table invalidToken không
         boolean authenticated = authenticationService.authenticate(token);
         if (!authenticated) {
             return null;

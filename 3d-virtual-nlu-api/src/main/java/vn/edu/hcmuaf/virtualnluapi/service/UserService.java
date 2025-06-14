@@ -39,7 +39,12 @@ public class UserService {
     }
 
     public User getUserByUserName(String username) {
-        return userDao.findByUsername(username);
+        try{
+            return userDao.findByUsername(username);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public List<User> getAllUser() {
