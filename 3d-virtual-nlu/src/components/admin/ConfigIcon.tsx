@@ -44,13 +44,15 @@ const ConfigIcon = ({
 
   const [iconId, setIconId] = useState(propHotspot?.iconId ?? 0);
 
-  const iconUrl =
+  const foundIcon =
     iconId != 0
-      ? icons.find((i) => i.id == iconId).url
+      ? icons.find((i) => i.id == iconId)
       : icons.find(
           (i) =>
-            i.id == hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId
-        ).url;
+            i.id == hotspotTypes[(currentHotspotType ?? 1) - 1]?.defaultIconId
+        );
+
+  const iconUrl = foundIcon?.url ?? "";
 
   const [scale, setScale] = useState(propHotspot?.scale ?? 1);
   const [isFloor, setIsFloor] = useState(false);
@@ -179,7 +181,7 @@ const ConfigIcon = ({
               <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <HotspotPreview
                   iconUrl={iconUrl}
-                  type={typeIcon}
+                  typeIcon={typeIcon}
                   color={color}
                   backgroundColor={backgroundColor}
                   scale={scale}
@@ -300,7 +302,7 @@ const ConfigIcon = ({
               <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <HotspotPreview
                   iconUrl={iconUrl}
-                  type={typeIcon}
+                  typeIcon={typeIcon}
                   color={color}
                   backgroundColor={backgroundColor}
                   scale={scale}
