@@ -19,7 +19,7 @@ import {
 } from "../utils/Constants";
 import { GiQueenCrown } from "react-icons/gi";
 import { TiTick } from "react-icons/ti";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import TrackingNode from "./admin/minimap/TrackingNode";
 import {
   getFilteredHotspotNavigationById,
@@ -66,6 +66,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
    * @param endAngle : Toạ độ x,z của điểm kết thúc cánh quạt (Lấy góc so với trục x dương)
    * @returns 1 phần hình tròn: 1 phần quạt dạng radar.
    */
+
   function generateArcPath(
     cx: number,
     cz: number,
@@ -98,6 +99,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
     Z
   `;
   }
+
   /**
    *
    * @param id : targetNodeId được truyền vào
@@ -342,6 +344,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                 isExpanded ? styles.master_node_zoom : styles.master_node
               }
             />
+
             {hotspotFromMaster.map((item) => {
               const { x, y } = scalePosition(item.positionX, item.positionZ);
               return (
