@@ -25,19 +25,19 @@ export interface PanoramaItem {
   id: string; //nanoid => id là string.
   spaceId: string;
   url: string;
-  config: PanoramaConfig; 
+  config: PanoramaConfig;
 }
 
 interface PanoramaState {
   panoramaList: PanoramaItem[];
-  currentSelectedPosition: number;
+  currentAngleMaster: number;
   currentSelectId: string | null;
   spaceId: string | null;
 }
 
 const initialState: PanoramaState = {
   panoramaList: [],
-  currentSelectedPosition: 0,
+  currentAngleMaster: 0,
   currentSelectId: null,
   spaceId: null,
 };
@@ -74,7 +74,7 @@ const panoramaSlice = createSlice({
       }));
       state.panoramaList = panoramas;
       state.currentSelectId = panoramas[0]?.id || null;
-      state.currentSelectedPosition = 0;
+      // state.currentSelectedPosition = 0;
     },
 
     addPanorama(state, action: PayloadAction<string>) {
@@ -112,9 +112,9 @@ const panoramaSlice = createSlice({
       state.currentSelectId = master?.id || panoramas[0]?.id || null;
 
       // Đồng bộ vị trí
-      state.currentSelectedPosition = panoramas.findIndex(
-        (p) => p.id === state.currentSelectId
-      );
+      // state.currentSelectedPosition = panoramas.findIndex(
+      //   (p) => p.id === state.currentSelectId
+      // );
     },
     selectPanorama(state, action: PayloadAction<string>) {
       // state.currentSelectedPosition = action.payload;
@@ -160,6 +160,9 @@ const panoramaSlice = createSlice({
         }
       }
     },
+    updateCurrentAngleMaster(state, action: PayloadAction<number>) {
+      state.currentAngleMaster = action.payload;
+    },
     // deletePanorame(state, action: PayloadAction<number>) {
     //   const deleted = state.panoramaList.splice(action.payload, 1);
     //   if (state.currentSelectedPosition >= state.panoramaList.length) {
@@ -168,7 +171,7 @@ const panoramaSlice = createSlice({
     // },
     clearPanorama(state) {
       (state.panoramaList = []),
-        (state.currentSelectedPosition = 0),
+        (state.currentAngleMaster = 0),
         (state.currentSelectId = null),
         (state.spaceId = null);
     },
@@ -184,6 +187,7 @@ export const {
   setMasterPanorama,
   updatePanoConfig,
   renameMasterAndUpdateSlaves,
+  updateCurrentAngleMaster,
   clearPanorama,
 } = panoramaSlice.actions;
 export default panoramaSlice.reducer;

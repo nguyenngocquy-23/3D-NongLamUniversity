@@ -12,26 +12,10 @@ import java.util.List;
 @ApplicationScoped
 public class IconDao {
 
-    public IconResponse insertIcon (IconCreateRequest iconReq) {
-        String sqlQueryInsert = "INSERT INTO icons(name, url) VALUES (:name, :url)";
-        String sqlQuerySelect = "SELECT id, name, url, createdAt, isActive as active from icons WHERE id = :id";
-        return  ConnectionPool.getConnection().inTransaction( handle -> {
-                int generatedId = handle.createUpdate(sqlQueryInsert)
-                        .bind("name", iconReq.getName())
-                        .bind("url", iconReq.getIconUrl())
-                        .executeAndReturnGeneratedKeys("id")
-                        .mapTo(int.class)
-                        .findOne()
-                        .orElseThrow(() -> new RuntimeException("Error inserting icon [IconDao - insertIcon method]"));
-                return handle.createQuery(sqlQuerySelect).bind("id", generatedId)
-                        .mapToBean(IconResponse.class)
-                        .one();
-        });
-    }
 
 
     public List<IconResponse> getAllIcons() {
-        String sqlQuery = "SELECT id, name,url, isActive, createdAt, isActive as active FROM icons";
+        String sqlQuery = "SELECT id, name,url, isActive, createdAt, isActive as active, type, thumbnail  FROM icons";
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sqlQuery)
                     .mapToBean(IconResponse.class)
@@ -40,13 +24,15 @@ public class IconDao {
     }
 
     public boolean createIcon(IconCreateRequest req) {
-        String sqlQuery = "INSERT INTO icons(name, url, isActive, createdAt) VALUES (:name, :url, :isActive, :createdAt)";
+        String sqlQuery = "INSERT INTO icons(name, url, isActive, type, thumbnail  createdAt) VALUES (:name, :url, :isActive, :createdAt, :type, :thumbnail)";
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("name", req.getName())
                     .bind("url", req.getIconUrl())
                     .bind("isActive", 1)
                     .bind("createdAt", Timestamp.valueOf(LocalDateTime.now()))
+                    .bind("type", req.getType())
+                    .bind("type", req.getThumbnail())
                     .execute();
             return rows == 1;
         });

@@ -11,6 +11,7 @@ import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
   clearPanorama,
   selectPanorama,
+  updateCurrentAngleMaster,
 } from "../../redux/slices/PanoramaSlice";
 import RightMenuCreateTour from "../../components/admin/RightMenuCT";
 import TaskContainerCT from "../../components/admin/TaskContainerCT";
@@ -44,7 +45,8 @@ import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
-import { Timer } from "three/examples/jsm/Addons.js";
+
+import MarkerModel from "../../components/visitor/MarkerModel";
 
 const CreateTourStep2 = () => {
   /**
@@ -63,7 +65,7 @@ const CreateTourStep2 = () => {
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  // lưu giá trị truyền vào radar không phụ thuộc vào hướng default
+  // TEST @@
   const cameraRadarRef = useRef<number>(null);
   const controlsRef = useRef<any>(null); //OrbitControls
 
@@ -120,7 +122,7 @@ const CreateTourStep2 = () => {
     )
   );
 
-  const { panoramaList, currentSelectId } = useSelector(
+  const { panoramaList, currentSelectId, currentAngleMaster } = useSelector(
     (state: RootState) => state.panoramas
   );
   // Panorama hiện tại.
@@ -175,9 +177,6 @@ const CreateTourStep2 = () => {
    * dùng để nhận giá trị trả về từ OptionHotspot.tsx để update cho đúng hotspot
    */
   const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
-  useEffect(() => {
-    console.log("currentHotspotId đã cập nhật:", currentHotspotId);
-  }, [currentHotspotId]);
   /**
    *
    * @param e : Sự kiện click chuột từ frontend
@@ -445,6 +444,7 @@ const CreateTourStep2 = () => {
   };
 
   const [cameraAngle, setCameraAngle] = useState(0);
+  // const [cameraAngleForMinimap, setCameraAngleForMinimap] = useState(0);
 
   useEffect(() => {
     console.log('cameraAngle...')
@@ -481,6 +481,13 @@ const CreateTourStep2 = () => {
             lightIntensity={lightIntensity}
           />
 
+          {/* {currentPanorama && (
+            <MiniMap
+              currentPanorama={currentPanorama}
+              angleCurrent={currentAngleMaster}
+            />
+          )} */}
+
           {currentPanorama && (
             <MiniMap
               currentPanorama={currentPanorama}
@@ -496,6 +503,7 @@ const CreateTourStep2 = () => {
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
             onAngleChange={setCameraAngle}
+            // onAngleChangeForMinimap={setCameraAngleForMinimap}
           />
 
           {hotspotNavigations
