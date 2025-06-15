@@ -45,24 +45,6 @@ const Node: React.FC<NodeProps> = ({ modelUrl }) => {
         gl.domElement.style.cursor = "grabbing";
       }}
     >
-      {/* mesh nền */}
-      {/* <mesh
-        position={[0, -0.6, 0]} // bù trừ theo scale (ví dụ scale = 2, thì -0.25 x 2 = -0.5)
-        rotation={[-Math.PI / 2, 0, 0]}
-      >
-        <circleGeometry args={[5, 64]} />
-        <meshStandardMaterial
-          map={texture}
-          color="#ffffff" // trắng để không áp màu
-          // emissive="#ffffff" // phát sáng màu trắng nhẹ
-          // emissiveIntensity={0.3}
-          roughness={0.2}
-          metalness={0}
-          transparent
-          opacity={1}
-          side={FrontSide}
-        />
-      </mesh> */}
       <ambientLight color={"#fff"} intensity={2} />
       <pointLight position={[10, 10, 10]} intensity={2} />
       <directionalLight position={[5, 5, 5]} intensity={2} />
@@ -91,7 +73,7 @@ const Model = () => {
         </div>
         <div
           className={styles.avatar}
-          style={{ background: "url('/avatar.jpg')" }}
+          style={{ background: `url(${import.meta.env.BASE_URL}avatar.jpg)` }}
         >
           <b className={styles.username}>Người tạo: {} </b>
         </div>

@@ -83,21 +83,27 @@ const VisitorTours = () => {
           )}
         </button>
         <button className={styles.task_button}>
-          <TiFilter/> Lọc
+          <TiFilter /> Lọc
         </button>
       </div>
       <div className={styles.node_container}>
-        {searchData.map((node) => (
-          <div
-            key={node.id}
-            className={styles.tour}
-            onClick={() => handleDetail(node.id)}
-            style={{ background: `url(${node.url})` }}
-          >
-            <div className={styles.blur} />
-            <span className={styles.name}>{node.name}</span>
+        {searchData.length > 0 ? (
+          searchData.map((node) => (
+            <div
+              key={node.id}
+              className={styles.tour}
+              onClick={() => handleDetail(node.id)}
+              style={{ background: `url(${node.url})` }}
+            >
+              <div className={styles.blur} />
+              <span className={styles.name}>{node.name}</span>
+            </div>
+          ))
+        ) : (
+          <div style={{color:'black'}}>
+            Danh sách trống...
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
