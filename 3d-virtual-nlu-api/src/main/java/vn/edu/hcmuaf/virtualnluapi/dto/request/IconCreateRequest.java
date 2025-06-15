@@ -10,5 +10,5 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults( level = AccessLevel.PRIVATE)
 public class IconCreateRequest {
-    String name, iconUrl;
+    String name, iconUrl, type, thumbnail;
 }

@@ -16,5 +16,7 @@ public class IconResponse {
     int id;
     String name, url;
     boolean active;
+    int type;
+    String thumbnail;
     Timestamp createdAt;
 }

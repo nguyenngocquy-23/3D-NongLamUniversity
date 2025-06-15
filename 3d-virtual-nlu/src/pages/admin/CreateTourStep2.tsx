@@ -64,6 +64,10 @@ const CreateTourStep2 = () => {
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+
+  // TEST @@
+  const cameraRadarRef = useRef<number>(null);
+
   const controlsRef = useRef<any>(null); //OrbitControls
 
   const [currentPoints, setCurrentPoints] = useState<
@@ -479,7 +483,12 @@ const CreateTourStep2 = () => {
   };
 
   const [cameraAngle, setCameraAngle] = useState(0);
-  const [cameraAngleForMinimap, setCameraAngleForMinimap] = useState(0);
+  // const [cameraAngleForMinimap, setCameraAngleForMinimap] = useState(0);
+
+  useEffect(() => {
+    console.log("cameraAngle...", cameraAngle);
+    cameraRadarRef.current = cameraAngle;
+  }, [cameraAngle]);
 
   return (
     <>
@@ -511,10 +520,17 @@ const CreateTourStep2 = () => {
             lightIntensity={lightIntensity}
           />
 
-          {currentPanorama && (
+          {/* {currentPanorama && (
             <MiniMap
               currentPanorama={currentPanorama}
               angleCurrent={currentAngleMaster}
+            />
+          )} */}
+
+          {currentPanorama && (
+            <MiniMap
+              currentPanorama={currentPanorama}
+              angleCurrent={cameraRadarRef.current || 0}
             />
           )}
 
@@ -526,7 +542,7 @@ const CreateTourStep2 = () => {
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
             onAngleChange={setCameraAngle}
-            onAngleChangeForMinimap={setCameraAngleForMinimap}
+            // onAngleChangeForMinimap={setCameraAngleForMinimap}
           />
 
           {hotspotNavigations

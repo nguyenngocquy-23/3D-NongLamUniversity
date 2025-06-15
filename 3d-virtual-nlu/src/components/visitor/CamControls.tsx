@@ -338,7 +338,7 @@ const CamControls: React.FC<CamControlsProps> = ({
       if (isUserRotatingRef.current) {
         onAngleChangeForMinimap?.(angleDeg);
       }
-      console.log(`Angle hieenj taij : ${angleDeg} `);
+      // console.log(`Angle hieenj taij : ${angleDeg} `);
     }
   });
 

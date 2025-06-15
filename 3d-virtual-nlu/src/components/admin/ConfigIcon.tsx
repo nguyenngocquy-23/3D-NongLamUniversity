@@ -26,6 +26,8 @@ const ConfigIcon = ({
 }) => {
   const [openListIcon, setOpenListIcon] = useState(false);
 
+  const [typeIcon, setTypeIcon] = useState(1); // Default cho 2D
+
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
@@ -41,6 +43,7 @@ const ConfigIcon = ({
   const icons = useSelector((state: RootState) => state.data.icons);
 
   const [iconId, setIconId] = useState(propHotspot?.iconId ?? 0);
+
   const iconUrl =
     iconId != 0
       ? icons.find((i) => i.id == iconId).url
@@ -152,125 +155,218 @@ const ConfigIcon = ({
   return (
     <div className={styles.config_icon_wrapper}>
       <div style={{ position: "relative" }}>
-        <div className={styles.config_icon_infor}>
-          <div className={styles.preview_icon}>
-            <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
-              <HotspotPreview
-                iconUrl={iconUrl}
-                color={color}
-                backgroundColor={backgroundColor}
-                scale={scale}
-                pitchX={pitchX}
-                yawY={yawY}
-                rollZ={rollZ}
-                allowBackgroundColor={allowBackgroundColor}
-                opacity={opacity}
-              />
-            </Canvas>
-            <div
-              onClick={() => {
-                setOpenListIcon((prevState) => !prevState);
-              }}
-              className={styles.change_icon}
-            >
-              <FiEdit />
-            </div>
-          </div>
-          <div className={styles.edit_icon_content}>
-            <div className={styles.color_icon}>
-              <span>Màu:</span>
-
-              <div className={styles.color_icon_content}>
-                <input
-                  type="color"
-                  name=""
-                  id="style"
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
-                />
-                <input
-                  type="text"
-                  name=""
-                  id="style"
-                  value={color}
-                  placeholder="HEX, RGB or HSL"
-                />
-              </div>
-            </div>
-
-            <div className={styles.color_icon}>
-              <span>Nền:</span>
-              <div className={styles.color_icon_content}>
-                <input
-                  type="color"
-                  name="head"
-                  id="bkg"
-                  value={backgroundColor}
-                  onChange={(e) => setBackgroundColor(e.target.value)}
-                  disabled={!allowBackgroundColor ? true : false}
-                />
-                <input
-                  type="text"
-                  name=""
-                  id="bkg"
-                  value={backgroundColor}
-                  placeholder="HEX, RGB or HSL"
-                />
-              </div>
-
-              <div
-                className={styles.allow_color_background}
-                onClick={() => {
-                  setAllowBackgroundColor((preState) => !preState);
-                }}
-              >
-                <input id="checkbox" type="checkbox"></input>
-              </div>
-            </div>
-            <div className={styles.color_icon}>
-              <span>Độ mờ:</span>
-              <div className={styles.opacity_icon_content}>
-                <div className={styles.label_opacity}>{opacity}</div>
-                <div className={styles.edit_icon_opacity}>
-                  <input
-                    type="range"
-                    name="opacity"
-                    id="opacity"
-                    min={0}
-                    max={1}
-                    step={0.1}
-                    value={opacity}
-                    onChange={(e) => setOpacity(Number(e.target.value))}
-                  />
-                  <progress max="1" value={opacity}></progress>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.color_icon}>
-              <span>Kích thước:</span>
-              <div className={styles.opacity_icon_content}>
-                <div className={styles.label_opacity}>{scale}x</div>
-                <div className={styles.edit_icon_opacity}>
-                  <input
-                    type="range"
-                    name="scale"
-                    id="scale"
-                    min={0.5}
-                    max={2.5}
-                    step={0.25}
-                    value={scale}
-                    onChange={(e) => setScale(Number(e.target.value))}
-                  />
-                  <progress
-                    max="100"
-                    value={((scale - 0.5) * 100) / (2.5 - 0.5)}
-                  ></progress>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className={styles.config_icon_option}>
+          <button
+            className={styles.config_option_item}
+            onClick={() => {
+              typeIcon === 2 ? setTypeIcon(1) : "";
+            }}
+          >
+            2d
+          </button>
+          <button
+            className={styles.config_option_item}
+            onClick={() => {
+              typeIcon === 1 ? setTypeIcon(2) : "";
+            }}
+          >
+            3d
+          </button>
         </div>
+        {typeIcon === 1 ? (
+          <div className={styles.config_icon_infor}>
+            <div className={styles.preview_icon}>
+              <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
+                <HotspotPreview
+                  iconUrl={iconUrl}
+                  type={typeIcon}
+                  color={color}
+                  backgroundColor={backgroundColor}
+                  scale={scale}
+                  pitchX={pitchX}
+                  yawY={yawY}
+                  rollZ={rollZ}
+                  allowBackgroundColor={allowBackgroundColor}
+                  opacity={opacity}
+                />
+              </Canvas>
+              <div
+                onClick={() => {
+                  setOpenListIcon((prevState) => !prevState);
+                }}
+                className={styles.change_icon}
+              >
+                <FiEdit />
+              </div>
+            </div>
+            <div className={styles.edit_icon_content}>
+              <div className={styles.color_icon}>
+                <span>Màu:</span>
+
+                <div className={styles.color_icon_content}>
+                  <input
+                    type="color"
+                    name=""
+                    id="style"
+                    value={color}
+                    onChange={(e) => setColor(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    name=""
+                    id="style"
+                    value={color}
+                    placeholder="HEX, RGB or HSL"
+                  />
+                </div>
+              </div>
+
+              <div className={styles.color_icon}>
+                <span>Nền:</span>
+                <div className={styles.color_icon_content}>
+                  <input
+                    type="color"
+                    name="head"
+                    id="bkg"
+                    value={backgroundColor}
+                    onChange={(e) => setBackgroundColor(e.target.value)}
+                    disabled={!allowBackgroundColor ? true : false}
+                  />
+                  <input
+                    type="text"
+                    name=""
+                    id="bkg"
+                    value={backgroundColor}
+                    placeholder="HEX, RGB or HSL"
+                  />
+                </div>
+
+                <div
+                  className={styles.allow_color_background}
+                  onClick={() => {
+                    setAllowBackgroundColor((preState) => !preState);
+                  }}
+                >
+                  <input id="checkbox" type="checkbox"></input>
+                </div>
+              </div>
+              <div className={styles.color_icon}>
+                <span>Độ mờ:</span>
+                <div className={styles.opacity_icon_content}>
+                  <div className={styles.label_opacity}>{opacity}</div>
+                  <div className={styles.edit_icon_opacity}>
+                    <input
+                      type="range"
+                      name="opacity"
+                      id="opacity"
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      value={opacity}
+                      onChange={(e) => setOpacity(Number(e.target.value))}
+                    />
+                    <progress max="1" value={opacity}></progress>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.color_icon}>
+                <span>Kích thước:</span>
+                <div className={styles.opacity_icon_content}>
+                  <div className={styles.label_opacity}>{scale}x</div>
+                  <div className={styles.edit_icon_opacity}>
+                    <input
+                      type="range"
+                      name="scale"
+                      id="scale"
+                      min={0.5}
+                      max={2.5}
+                      step={0.25}
+                      value={scale}
+                      onChange={(e) => setScale(Number(e.target.value))}
+                    />
+                    <progress
+                      max="100"
+                      value={((scale - 0.5) * 100) / (2.5 - 0.5)}
+                    ></progress>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.config_icon_infor}>
+            <div className={styles.preview_icon}>
+              <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
+                <HotspotPreview
+                  iconUrl={iconUrl}
+                  type={typeIcon}
+                  color={color}
+                  backgroundColor={backgroundColor}
+                  scale={scale}
+                  pitchX={pitchX}
+                  yawY={yawY}
+                  rollZ={rollZ}
+                  allowBackgroundColor={allowBackgroundColor}
+                  opacity={opacity}
+                />
+              </Canvas>
+              <div
+                onClick={() => {
+                  setOpenListIcon((prevState) => !prevState);
+                }}
+                className={styles.change_icon}
+              >
+                <FiEdit />
+              </div>
+            </div>
+
+            <div className={styles.edit_icon_content}>
+              <div className={styles.color_icon}>
+                <span>Độ sáng:</span>
+                <div className={styles.opacity_icon_content}>
+                  <div className={styles.label_opacity}>{opacity}</div>
+                  <div className={styles.edit_icon_opacity}>
+                    <input
+                      type="range"
+                      name="opacity"
+                      id="opacity"
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      value={opacity}
+                      onChange={(e) => setOpacity(Number(e.target.value))}
+                    />
+                    <progress max="1" value={opacity}></progress>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.color_icon}>
+                <span>Kích thước:</span>
+                <div className={styles.opacity_icon_content}>
+                  <div className={styles.label_opacity}>{scale}x</div>
+                  <div className={styles.edit_icon_opacity}>
+                    <input
+                      type="range"
+                      name="scale"
+                      id="scale"
+                      min={0.5}
+                      max={2.5}
+                      step={0.25}
+                      value={scale}
+                      onChange={(e) => setScale(Number(e.target.value))}
+                    />
+                    <progress
+                      max="100"
+                      value={((scale - 0.5) * 100) / (2.5 - 0.5)}
+                    ></progress>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className={styles.rotation_cfg}>
           <div className={styles.rotation_cfg_label}>Độ xoay: </div>
@@ -417,10 +513,12 @@ const ConfigIcon = ({
         </div>
 
         {/* List icon */}
-        {openListIcon ? (
-          <ListIcon setIconId={setIconId} setOpen={setOpenListIcon} />
-        ) : (
-          ""
+        {openListIcon && (
+          <ListIcon
+            setIconId={setIconId}
+            setOpen={setOpenListIcon}
+            typeIcon={typeIcon}
+          />
         )}
       </div>
     </div>
