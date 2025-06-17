@@ -26,7 +26,7 @@ const Controls: React.FC = () => {
   );
 };
 
-interface NodeProps { 
+interface NodeProps {
   url: string;
   radius: number;
   sphereRef: React.RefObject<THREE.Mesh | null>;
@@ -113,10 +113,8 @@ const UpdateNode: React.FC = () => {
   const location = useLocation();
   const tourData = location.state;
 
-  console.log("Tour nhận được:", tourData);
-
   const handleClose = () => {
-    console.log('close manage tour')
+    console.log("close manage tour");
     navigate("/admin/manageTour");
   };
 
@@ -135,7 +133,13 @@ const UpdateNode: React.FC = () => {
           sphereRef={sphereRef}
           lightIntensity={tourData.lightIntensity}
         />
-        <Scene cameraPosition={[tourData.positionX, tourData.positionY, tourData.positionZ]} />
+        <Scene
+          cameraPosition={[
+            tourData.positionX,
+            tourData.positionY,
+            tourData.positionZ,
+          ]}
+        />
         <OrbitControls
           rotateSpeed={0.5}
           autoRotate={tourData.autoRotate}
@@ -144,7 +148,10 @@ const UpdateNode: React.FC = () => {
       </Canvas>
       <div className={styles.header_tour}>
         <div className={styles.step_title}>
-          <FaAngleLeft className={styles.back_btn} onClick={()=>handleClose()} />
+          <FaAngleLeft
+            className={styles.back_btn}
+            onClick={() => handleClose()}
+          />
           <h2> Quay lại</h2>
         </div>
       </div>

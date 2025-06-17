@@ -44,6 +44,12 @@ const TypeNavigation = ({
   );
 
   const dispatch = useDispatch<AppDispatch>();
+
+  const options = panoramaList.map((p) => ({
+    value: p.id,
+    label: p.config.name,
+    imageUrl: p.url,
+  }));
   return (
     <div
       className={`${styles.type_navigation} ${

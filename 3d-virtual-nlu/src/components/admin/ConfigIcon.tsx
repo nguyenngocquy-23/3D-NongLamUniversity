@@ -74,21 +74,33 @@ const ConfigIcon = ({
       value: positionX,
       set: setPositionX,
       class: styles.label_x,
-      minMax: getAxisRange([positionX, positionY, positionZ], "x"),
+      minMax: getAxisRange(
+        [positionX, positionY, positionZ],
+        "x",
+        iconType === 2 ? 10 : 0
+      ),
     },
     {
       axis: "y",
       value: positionY,
       set: setPositionY,
       class: styles.label_y,
-      minMax: getAxisRange([positionX, positionY, positionZ], "y"),
+      minMax: getAxisRange(
+        [positionX, positionY, positionZ],
+        "y",
+        iconType === 2 ? 10 : 0
+      ),
     },
     {
       axis: "z",
       value: positionZ,
       set: setPositionZ,
       class: styles.label_z,
-      minMax: getAxisRange([positionX, positionY, positionZ], "z"),
+      minMax: getAxisRange(
+        [positionX, positionY, positionZ],
+        "z",
+        iconType === 2 ? 10 : 0
+      ),
     },
   ];
 
@@ -211,8 +223,8 @@ const ConfigIcon = ({
                   checked={typeIcon === 2}
                   onChange={() => {
                     if (typeIcon !== 2) {
-                      setTypeIcon(2);
                       setIconId(0);
+                      setTypeIcon(2);
                     }
                   }}
                 />
@@ -551,12 +563,18 @@ const ConfigIcon = ({
                             type="range"
                             min={min}
                             max={max}
-                            step={0.01}
+                            step={0.1}
                             value={value}
                             onChange={(e) => set(Number(e.target.value))}
                           />
-                          <progress max="100" value={value}></progress>
+                          <progress
+                            max={100}
+                            value={((value - min) / (max - min)) * 100}
+                          ></progress>
                         </div>
+                        {/* <span>
+                          Giá trị min: {min} và max: {max}
+                        </span> */}
                       </div>
                     );
                   }
