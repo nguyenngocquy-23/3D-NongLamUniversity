@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import ListIcon from "./ListIcon";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -192,7 +192,10 @@ const ConfigIcon = ({
                   value="2d"
                   checked={typeIcon === 1}
                   onChange={() => {
-                    if (typeIcon !== 1) setTypeIcon(1);
+                    if (typeIcon !== 1) {
+                      setTypeIcon(1);
+                      setIconId(1);
+                    }
                   }}
                 />
                 <span className={styles.radio_name}>2D</span>
@@ -207,7 +210,10 @@ const ConfigIcon = ({
                   value="3d"
                   checked={typeIcon === 2}
                   onChange={() => {
-                    if (typeIcon !== 2) setTypeIcon(2);
+                    if (typeIcon !== 2) {
+                      setTypeIcon(2);
+                      setIconId(0);
+                    }
                   }}
                 />
                 <span className={styles.radio_name}>3D</span>
@@ -476,27 +482,25 @@ const ConfigIcon = ({
                     onChange = (e) => setRollZ(Number(e.target.value));
                   }
                   return (
-                    <>
-                      <div
-                        className={styles.opacity_icon_content}
-                        key={axis}
-                        style={{ display: "flex", alignItems: "center" }}
-                      >
-                        <div className={`${styles.label_opacity} ${axisClass}`}>
-                          {value}&deg;
-                        </div>
-                        <div className={styles.edit_icon_opacity}>
-                          <input
-                            type="range"
-                            min={-180}
-                            max={180}
-                            value={value}
-                            onChange={onChange}
-                          />
-                          <progress max="360" value={value + 180}></progress>
-                        </div>
+                    <div
+                      className={styles.opacity_icon_content}
+                      key={axis}
+                      style={{ display: "flex", alignItems: "center" }}
+                    >
+                      <div className={`${styles.label_opacity} ${axisClass}`}>
+                        {value}&deg;
                       </div>
-                    </>
+                      <div className={styles.edit_icon_opacity}>
+                        <input
+                          type="range"
+                          min={-180}
+                          max={180}
+                          value={value}
+                          onChange={onChange}
+                        />
+                        <progress max="360" value={value + 180}></progress>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

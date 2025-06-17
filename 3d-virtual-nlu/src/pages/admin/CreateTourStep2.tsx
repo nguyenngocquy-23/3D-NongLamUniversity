@@ -6,7 +6,7 @@ import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { Canvas, ThreeEvent, useFrame } from "@react-three/fiber";
-import { Line } from "@react-three/drei";
+import { Environment, Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
   clearPanorama,
@@ -75,6 +75,7 @@ const CreateTourStep2 = () => {
   >([]);
 
   const [assignable, setAssignable] = useState(false);
+  const [validIcon, setValidIcon] = useState(true);
   const [chooseCornerMediaPoint, setChooseCornerMediaPoint] = useState(false);
 
   const handleMouseDown = () => {
@@ -190,9 +191,7 @@ const CreateTourStep2 = () => {
     if (!currentHotspotType || !assignable) {
       return;
     }
-    console.log("currentHotspotType...", currentHotspotType);
     const limit = (basicProps?.scale || 1) * 5 + 5;
-
     const minX = point.x - limit;
     const maxX = point.x + limit;
     const minY = point.y - limit;
@@ -217,6 +216,19 @@ const CreateTourStep2 = () => {
       Swal.fire({
         title: "Cảnh báo",
         text: "Các hotspot không được nằm gần nhau",
+        icon: "warning",
+        showCancelButton: false,
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
+      return;
+    }
+    if (!validIcon) {
+      Swal.fire({
+        title: "Cảnh báo",
+        text: "Vui lòng chọn Icon trước khi click",
         icon: "warning",
         showCancelButton: false,
         toast: true,
@@ -342,6 +354,7 @@ const CreateTourStep2 = () => {
             <Task3
               isAssignable={assignable}
               setAssignable={setAssignable}
+              setValidIcon={setValidIcon}
               setCurrentHotspotType={setCurrentHotspotType}
               onPropsChange={handleOnPropsChange}
               currentPanorama={currentPanorama}
@@ -509,7 +522,7 @@ const CreateTourStep2 = () => {
             e.preventDefault();
           }}
         >
-          {/* <Axes /> */}
+          <Environment preset="studio" background={false} />
           <axesHelper args={[10]} position={[0, -90, 0]} />
           <UpdateCameraOnResize />
           <TourScene
@@ -520,13 +533,6 @@ const CreateTourStep2 = () => {
             onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
           />
-
-          {/* {currentPanorama && (
-            <MiniMap
-              currentPanorama={currentPanorama}
-              angleCurrent={currentAngleMaster}
-            />
-          )} */}
 
           {currentPanorama && (
             <MiniMap
