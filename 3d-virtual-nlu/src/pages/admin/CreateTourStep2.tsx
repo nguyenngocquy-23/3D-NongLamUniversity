@@ -408,10 +408,11 @@ const CreateTourStep2 = () => {
       },
       onComplete: () => {
         handleSelectNode(targetNodeId);
+
         gsap.to(camera, {
           fov: originalFov,
           duration: 0.2,
-          delay: 0.1,
+          delay: 0.2,
           ease: "power2.inOut",
           onUpdate: () => {
             camera.updateProjectionMatrix();
@@ -557,11 +558,6 @@ const CreateTourStep2 = () => {
                   setCurrentHotspotId={setCurrentHotspotId}
                   hotspotNavigation={hotspot}
                 />
-                {/* <MarkerModel
-                  key={hotspot.id}
-                  hotspotNavigation={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                /> */}
               </>
             ))}
 
@@ -573,13 +569,6 @@ const CreateTourStep2 = () => {
                 setCurrentHotspotId={setCurrentHotspotId}
                 hotspotInfo={hotspot}
               />
-              // <MarkerModel
-              //   position={[
-              //     hotspot.positionX + 10,
-              //     hotspot.positionY + 10,
-              //     hotspot.positionZ + 10,
-              //   ]}
-              // />
             ))}
           {hotspotModels
             .filter((hotspot) => hotspot.nodeId === currentSelectId)

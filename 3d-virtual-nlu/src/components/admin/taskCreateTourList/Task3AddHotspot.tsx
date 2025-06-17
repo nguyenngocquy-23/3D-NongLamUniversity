@@ -88,7 +88,7 @@ const Task3 = ({
                 setCurrentHotspotType(openTypeIndex);
               }}
               style={{
-                padding: '0.5rem 1rem'
+                padding: "0.5rem 1rem",
               }}
             >
               {isAssignable ? "Hủy" : "Chọn vị trí"}

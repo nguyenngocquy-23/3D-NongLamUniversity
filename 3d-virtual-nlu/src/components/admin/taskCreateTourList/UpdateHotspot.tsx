@@ -27,7 +27,11 @@ const UpdateHotspot = ({
 }: UpdateHotspotProps) => {
   const propHotspot = useSelector(
     (state: RootState) => state.hotspots.hotspotList
-  ).find((h) => h.id == hotspotId);
+  ).find((h) => h.id === hotspotId);
+
+  const iconObj = useSelector((state: RootState) => state.data.icons).find(
+    (i) => i.id === propHotspot?.iconId
+  );
 
   const [isUpdate, setIsUpdate] = useState(true);
   /**
@@ -58,6 +62,7 @@ const UpdateHotspot = ({
         {currentType != 3 ? (
           <>
             <ConfigIcon
+              type={iconObj.type}
               propHotspot={propHotspot}
               isUpdate={isUpdate}
               onPropsChange={onPropsChange}

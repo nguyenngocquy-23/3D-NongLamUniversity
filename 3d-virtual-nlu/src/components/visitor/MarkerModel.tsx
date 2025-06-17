@@ -1,17 +1,21 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import OptionHotspot from "../admin/taskCreateTourList/OptionHotspot";
 import { HotspotNavigation } from "../../redux/slices/HotspotSlice";
 
 type GroundHotspotProps = {
   hotspotNavigation: HotspotNavigation;
   setCurrentHotspotId?: (val: string | null) => void;
+  iconUrl: string;
+  scale?: number;
 };
 
 const MarkerModel = ({
   hotspotNavigation,
   setCurrentHotspotId,
+  iconUrl,
+  scale = 5,
 }: GroundHotspotProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -20,7 +24,12 @@ const MarkerModel = ({
    */
   // const [isClicked, setIsClicked] = useState(false);
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
-  const { scene } = useGLTF(import.meta.env.BASE_URL + "mapMarker.glb");
+
+  const { scene } = useGLTF(iconUrl);
+
+  // clone scene:
+  const clonedScene = useMemo(() => scene.clone(true), [scene]);
+
   useFrame(() => {
     if (scene) {
       scene.rotation.y += 0.01;
@@ -29,7 +38,7 @@ const MarkerModel = ({
   return (
     <>
       <group
-        scale={10}
+        scale={5}
         position={[
           hotspotNavigation.positionX,
           hotspotNavigation.positionY,
@@ -40,27 +49,10 @@ const MarkerModel = ({
           setIsOpenHotspotOption((prev) => !prev);
         }}
       >
-        <primitive object={scene} />
+        <primitive object={clonedScene} />
         <ambientLight color={"#fff"} intensity={5} />
         <directionalLight position={[10, 10, 10]} intensity={1} />
       </group>
-
-      {isOpenHotspotOption ? (
-        <OptionHotspot
-          hotspotId={hotspotNavigation.id}
-          setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
-          onClose={() => {
-            setIsOpenHotspotOption(false);
-          }}
-          position={[
-            hotspotNavigation.positionX,
-            hotspotNavigation.positionY,
-            hotspotNavigation.positionZ,
-          ]}
-        />
-      ) : (
-        ""
-      )}
     </>
   );
 };

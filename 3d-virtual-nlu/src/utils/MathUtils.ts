@@ -65,3 +65,55 @@ export function getArcAnglesThree(
 
   return { startSvg, endSvg };
 }
+
+/**
+ * Tính toán khoảng giá trị (min, max) cho một trục (x, y hoặc z)
+ * sao cho điểm vẫn nằm trên mặt cầu với tâm tại (0,0,0).
+ *
+ * @param currentPosition - Tọa độ hiện tại của điểm [x, y, z]
+ * @param axis - Trục cần tính ('x' | 'y' | 'z')
+ * @returns [min, max] giới hạn của trục đó
+ */
+export function getAxisRange(
+  currentPosition: [number, number, number],
+  axis: "x" | "y" | "z"
+): [number, number] {
+  const [x, y, z] = currentPosition;
+  const r = Math.sqrt(x * x + y * y + z * z); // Bán kính cầu
+
+  let fixed1 = 0;
+  let fixed2 = 0;
+
+  switch (axis) {
+    case "x":
+      fixed1 = y;
+      fixed2 = z;
+      break;
+    case "y":
+      fixed1 = x;
+      fixed2 = z;
+      break;
+    case "z":
+      fixed1 = x;
+      fixed2 = y;
+      break;
+  }
+
+  const max = Math.sqrt(Math.max(0, r * r - fixed1 * fixed1 - fixed2 * fixed2));
+  return [-max, max];
+}
+
+export function limitNewPostionFor3D(
+  currentPosition: [number, number, number]
+): { x: number; y: number; z: number } {
+  const [x, y, z] = currentPosition;
+
+  const clamp = (val: number, min: number, max: number) =>
+    Math.max(min, Math.min(max, val));
+
+  return {
+    x: clamp(x, -100, 100),
+    y: clamp(y, -100, 100),
+    z: clamp(z, -100, 100),
+  };
+}

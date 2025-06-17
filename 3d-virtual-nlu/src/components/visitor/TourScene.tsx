@@ -124,7 +124,7 @@ const TourScene: React.FC<TourSceneProps> = ({
     if (!textures || !textures[1]) return;
 
     if (progressRef.current < 1) {
-      progressRef.current = Math.min(progressRef.current + delta, 1);
+      progressRef.current = Math.min(progressRef.current + delta * 0.5, 1);
       setProgress(progressRef.current);
     }
 

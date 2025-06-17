@@ -41,7 +41,7 @@ const HotspotPreview = ({
     }
   }, [pitchX, yawY, rollZ]);
   // useFrame(() => {
-  //   if (type === 2 && groupRef.current) {
+  //   if (typeIcon === 2 && groupRef.current) {
   //     groupRef.current.rotation.y += 0.01;
   //   }
   // });
@@ -88,9 +88,9 @@ const HotspotPreview = ({
   }, [iconUrl, color]);
 
   //CASE 2: 3D ICON -GLB
-  // const iconGlb = typeIcon === 2 ? useGLTF(iconUrl) : null;
+  const iconGlb = typeIcon === 2 && iconUrl ? useGLTF(iconUrl) : null;
 
-  // if (typeIcon === 1 && !texture) return null;
+  if (typeIcon === 1 && !texture) return null;
   if (!texture) return null;
   return (
     <group ref={groupRef} position={[0, 0, 0]} scale={scale}>
@@ -107,26 +107,26 @@ const HotspotPreview = ({
         ""
       )}
 
-      {/* {typeIcon === 1 && ( */}
-      <mesh position={[0, 0, 0]}>
-        <planeGeometry args={[5, 5]} />
-        <meshBasicMaterial
-          map={texture}
-          color={new THREE.Color(color)}
-          transparent
-          side={DoubleSide}
-          opacity={opacity}
-        />
-      </mesh>
-      {/* )} */}
+      {typeIcon === 1 && (
+        <mesh position={[0, 0, 0]}>
+          <planeGeometry args={[5, 5]} />
+          <meshBasicMaterial
+            map={texture}
+            color={new THREE.Color(color)}
+            transparent
+            side={DoubleSide}
+            opacity={opacity}
+          />
+        </mesh>
+      )}
 
-      {/* {typeIcon === 2 && iconGlb && (
+      {typeIcon === 2 && iconGlb && (
         <>
           <primitive object={iconGlb.scene} scale={5} />
-          <ambientLight color={"#fff"} intensity={5} />
+          <ambientLight color={"#fff"} intensity={4} />
           <directionalLight position={[10, 10, 10]} intensity={1} />
         </>
-      )} */}
+      )}
     </group>
   );
 };
