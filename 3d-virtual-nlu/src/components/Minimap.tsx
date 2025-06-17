@@ -37,11 +37,12 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
   };
-
+  
   const dispatch = useDispatch();
-
+  
   const { panoramaList } = useSelector((state: RootState) => state.panoramas);
-
+  
+  // console.log("MiniMap currentPanorama:", panoramaList);
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
   const masterPanorama = panoramaList.find((h) => h.config.status === 2);
@@ -359,6 +360,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
             />
 
             {hotspotFromMaster.map((item) => {
+              // console.log("Radar item:", item);
               const { x, y } = scalePosition(item.positionX, item.positionZ);
               return (
                 <img
