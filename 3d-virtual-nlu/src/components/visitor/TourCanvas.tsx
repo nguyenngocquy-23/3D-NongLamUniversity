@@ -131,15 +131,13 @@ const TourCanvas = React.memo(
           <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} />
         ))}
         {hotspotNavigations.map((hotspot) => (
-          <>
-            <GroundHotspot
-              key={hotspot.id}
-              onNavigate={(targetNodeId, cameraTargetPosition) =>
-                handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-              }
-              hotspotNavigation={hotspot}
-            />
-          </>
+          <GroundHotspot
+            key={hotspot.id}
+            onNavigate={(targetNodeId, cameraTargetPosition) =>
+              handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+            }
+            hotspotNavigation={hotspot}
+          />
         ))}
         {hotspotModels.map((hotspot) => (
           <GroundHotspotModel key={hotspot.id} hotspotModel={hotspot} />

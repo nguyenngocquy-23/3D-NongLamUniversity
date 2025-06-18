@@ -217,12 +217,14 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
           <planeGeometry
             args={[5 * hotspotNavigation.scale, 5 * hotspotNavigation.scale]}
           />
-          <meshBasicMaterial
+          <meshStandardMaterial
             map={texture}
             transparent
             opacity={hotspotNavigation.opacity}
             depthTest={false}
             color={new THREE.Color(hotspotNavigation.color)}
+            emissive={new THREE.Color(hotspotNavigation.color)}
+            emissiveIntensity={isHovered ? 4 : 0}
             side={THREE.DoubleSide}
           />
         </mesh>
