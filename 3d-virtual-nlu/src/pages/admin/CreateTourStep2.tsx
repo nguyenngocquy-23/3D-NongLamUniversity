@@ -522,7 +522,6 @@ const CreateTourStep2 = () => {
   };
 
   const [cameraAngle, setCameraAngle] = useState(0);
-  // const [cameraAngleForMinimap, setCameraAngleForMinimap] = useState(0);
 
   useEffect(() => {
     cameraRadarRef.current = cameraAngle;
@@ -582,16 +581,14 @@ const CreateTourStep2 = () => {
             hotspotNavigations
               .filter((hotspot) => hotspot.nodeId === currentSelectId)
               .map((hotspot) => (
-                <>
-                  <GroundHotspot
-                    key={hotspot.id}
-                    onNavigate={(targetNodeId, cameraTargetPosition) =>
-                      handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                    }
-                    setCurrentHotspotId={setCurrentHotspotId}
-                    hotspotNavigation={hotspot}
-                  />
-                </>
+                <GroundHotspot
+                  key={hotspot.id}
+                  onNavigate={(targetNodeId, cameraTargetPosition) =>
+                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                  }
+                  setCurrentHotspotId={setCurrentHotspotId}
+                  hotspotNavigation={hotspot}
+                />
               ))}
 
           {isTextureReady &&

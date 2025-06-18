@@ -16,7 +16,6 @@ import { getAxisRange } from "../../utils/MathUtils";
 
 const ConfigIcon = ({
   propHotspot,
-  isUpdate,
   type,
   onPropsChange,
   currentHotspotType,
@@ -41,9 +40,7 @@ const ConfigIcon = ({
   const hotspotTypes = useSelector(
     (state: RootState) => state.data.hotspotTypes
   );
-
   const icons = useSelector((state: RootState) => state.data.icons);
-
   const [iconId, setIconId] = useState(propHotspot?.iconId ?? 0);
 
   const foundIcon =
@@ -140,12 +137,16 @@ const ConfigIcon = ({
 
   const dispatch = useDispatch();
 
+  /**
+   *
+   */
   useEffect(() => {
     if (propHotspot == null) {
       const props = handleInitialHotspotProps();
       onPropsChange(props); // gọi hàm truyền lên component cha
     } else {
       const props = handleInitialHotspotProps();
+
       dispatch(
         updateConfigHotspot({
           hotspotId: propHotspot.id,
