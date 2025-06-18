@@ -46,6 +46,21 @@ import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import { Timer } from "three/examples/jsm/Addons.js";
 
+export const tasks = [
+  {
+    id: 1,
+    title: "Thông tin hiển thị",
+  },
+  {
+    id: 2,
+    title: "Thông số cơ bản",
+  },
+  {
+    id: 3,
+    title: "Thiết lập điểm tương tác",
+  },
+];
+
 const CreateTourStep2 = () => {
   /**
    * Xử lý toggle hiển thị menu - start
@@ -352,21 +367,6 @@ const CreateTourStep2 = () => {
     }
   };
 
-  const tasks = [
-    {
-      id: 1,
-      title: "Thông tin hiển thị",
-    },
-    {
-      id: 2,
-      title: "Thông số cơ bản",
-    },
-    {
-      id: 3,
-      title: "Thiết lập điểm tương tác",
-    },
-  ];
-
   const { openTaskIndex, completedTaskIds, unlockedTaskIds, handleOpenTask } =
     useSequentialTasks(tasks.length);
 
@@ -639,7 +639,6 @@ const CreateTourStep2 = () => {
             hotspotId={currentHotspotId}
             setHotspotId={setCurrentHotspotId}
             onPropsChange={handleOnPropsChange}
-            setChangeCorner={setChangeCornerMedia}
           />
         </div>
         {/* Hướng dẫn sử dụng */}

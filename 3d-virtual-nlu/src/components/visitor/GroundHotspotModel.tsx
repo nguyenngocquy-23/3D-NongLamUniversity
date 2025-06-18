@@ -28,7 +28,6 @@ const GroundHotspotModel = ({
   hotspotModel,
   blockUpdate,
 }: GroundHotspotProps) => {
-  console.log('hotspot model :', hotspotModel)
   const hotspotRef = useRef<THREE.Mesh>(null);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 

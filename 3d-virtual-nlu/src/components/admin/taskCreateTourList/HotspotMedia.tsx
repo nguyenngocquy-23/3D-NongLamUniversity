@@ -11,16 +11,11 @@ import { useDispatch } from "react-redux";
 
 interface TypeMediaProps {
   isOpenTypeMedia?: boolean;
-  setChangeCorner: (value: boolean) => void;
   hotspotMedia: any;
 }
 
 // Component cho Type media
-const TypeMedia = ({
-  hotspotMedia,
-  isOpenTypeMedia,
-  setChangeCorner,
-}: TypeMediaProps) => {
+const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
   const [mediaUrl, setMediaUrl] = useState("");
   const [caption, setCaption] = useState("");
   const [mediaType, setMediaType] = useState("PICTURE");
@@ -61,9 +56,6 @@ const TypeMedia = ({
           <label className={styles.label}>Điều chỉnh góc:</label>
           <div>
             <button
-              onClick={() => {
-                setChangeCorner(true);
-              }}
               style={{
                 padding: "0.5rem 1rem",
               }}
