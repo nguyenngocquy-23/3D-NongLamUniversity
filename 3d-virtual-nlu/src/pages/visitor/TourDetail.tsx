@@ -147,21 +147,28 @@ const TourDetail = () => {
     dispatch(fetchIcons());
     dispatch(fetchHotspotTypes());
   }, [dispatch]);
-  const hotspotModels = useMemo(() => {
-    return (node?.modelHotspots as HotspotModel[]) || [];
-  }, [node]);
 
-  const hotspotMedias = useMemo(() => {
-    return (node?.mediaHotspots as HotspotMedia[]) || [];
-  }, [node]);
+  const hotspotNavigations = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
+    )
+  );
+  const hotspotInformations = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
+    )
+  );
+  const hotspotModels = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotModel => hotspot.type === 4
+    )
+  );
 
-  const hotspotNavigations = useMemo(() => {
-    return (node?.navHotspots as HotspotNavigation[]) || [];
-  }, [node]);
-
-  const hotspotInformations = useMemo(() => {
-    return (node?.infoHotspots as HotspotInformation[]) || [];
-  }, [node]);
+  const hotspotMedias = useSelector((state: RootState) =>
+    state.hotspots.hotspotList.filter(
+      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
+    )
+  );
 
   const handleFetchNode = async () => {
     if (!nodeId) {

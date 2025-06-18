@@ -204,7 +204,6 @@ const CreateTourStep2 = () => {
     if (!currentHotspotType || !assignable) {
       return;
     }
-    console.log("currentHotspotType...", currentHotspotType);
     const limit = (basicProps?.scale || 1) * 5 + 5;
 
     const minX = point.x - limit;

@@ -63,6 +63,10 @@ export interface HotspotNavResponse {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   targetNodeId: string;
 }
 
@@ -78,6 +82,10 @@ export interface HotspotInfoResponse {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   title: string;
   content: string;
 }
@@ -93,6 +101,10 @@ export interface HotspotMediaResponse {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   mediaType: string;
   mediaUrl: string;
   caption: string;
@@ -110,6 +122,10 @@ export interface HotspotModelResponse {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   modelUrl: string;
   name: string;
   description: string;
@@ -310,15 +326,6 @@ export class TourNodeRequestMapper {
     const panoramaList: PanoramaItem[] = [];
     const hotspotList: HotspotItem[] = [];
 
-    const applyHotspotDefaults = (
-      hotspot: Partial<HotspotItem>
-    ): Partial<HotspotItem> => ({
-      color: hotspot.color ?? "#ffffff",
-      backgroundColor: hotspot.backgroundColor ?? "#000000",
-      allowBackgroundColor: hotspot.allowBackgroundColor ?? undefined,
-      opacity: hotspot.opacity ?? 1,
-      ...hotspot,
-    });
 
     for (const node of nodes) {
       panoramaList.push({
@@ -340,8 +347,7 @@ export class TourNodeRequestMapper {
 
       // Nav Hotspots
       node.navHotspots?.forEach((h, idx) => {
-        hotspotList.push(
-          applyHotspotDefaults({
+        hotspotList.push({
             id: h.id,
             nodeId: h.nodeId,
             type: h.type,
@@ -352,16 +358,20 @@ export class TourNodeRequestMapper {
             pitchX: h.pitchX,
             yawY: h.yawY,
             rollZ: h.rollZ,
+            color: h.color,
+            backgroundColor: h.backgroundColor,
+            allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
+            opacity: h.opacity,
             scale: h.scale,
             targetNodeId: h.targetNodeId,
-          }) as HotspotItem
+          } as HotspotNavigation
         );
       });
 
       // Info Hotspots
       node.infoHotspots?.forEach((h, idx) => {
-        hotspotList.push(
-          applyHotspotDefaults({
+        console.log("Applying defaults to hotspot:", h);
+        hotspotList.push({
             id: h.id,
             nodeId: h.nodeId,
             type: h.type,
@@ -373,16 +383,19 @@ export class TourNodeRequestMapper {
             yawY: h.yawY,
             rollZ: h.rollZ,
             scale: h.scale,
+            color: h.color,
+            backgroundColor: h.backgroundColor,
+            allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
+            opacity: h.opacity,
             title: h.title,
             content: h.content,
-          }) as HotspotItem
+          } as HotspotInformation
         );
       });
 
       // Media Hotspots
       node.mediaHotspots?.forEach((h, idx) => {
-        hotspotList.push(
-          applyHotspotDefaults({
+        hotspotList.push({
             id: h.id,
             nodeId: h.nodeId,
             type: h.type,
@@ -394,18 +407,21 @@ export class TourNodeRequestMapper {
             yawY: h.yawY,
             rollZ: h.rollZ,
             scale: h.scale,
+            color: h.color,
+            backgroundColor: h.backgroundColor,
+            allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
+            opacity: h.opacity,
             mediaType: h.mediaType,
             mediaUrl: h.mediaUrl,
             caption: h.caption,
             cornerPointList: h.cornerPointList,
-          }) as HotspotItem
+          } as HotspotMedia
         );
       });
 
       // Model Hotspots
       node.modelHotspots?.forEach((h, idx) => {
-        hotspotList.push(
-          applyHotspotDefaults({
+        hotspotList.push({
             id: h.id,
             nodeId: h.nodeId,
             type: h.type,
@@ -417,11 +433,15 @@ export class TourNodeRequestMapper {
             yawY: h.yawY,
             rollZ: h.rollZ,
             scale: h.scale,
+            color: h.color,
+            backgroundColor: h.backgroundColor,
+            allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
+            opacity: h.opacity,
             modelUrl: h.modelUrl,
             name: h.name,
             description: h.description,
             colorCode: h.colorCode,
-          }) as HotspotItem
+          } as HotspotModel
         );
       });
     }
