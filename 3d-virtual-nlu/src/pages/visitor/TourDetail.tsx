@@ -548,6 +548,7 @@ const TourDetail = () => {
                 unlockedTaskIds={unlockedTaskIds}
                 onTaskClick={handleOpenTask}
                 setPreOpenTask={setPreTaskIndex}
+                isUpdateTour={true}
               />
             </div>
             {/* tasks */}

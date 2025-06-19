@@ -27,6 +27,10 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
   const [mediaUrl, setMediaUrl] = useState("");
   const [caption, setCaption] = useState("");
   const [mediaType, setMediaType] = useState("PICTURE");
+  const [isEmbed, setIsEmbed] = useState(false);
+  const [embedUrl, setEmbedUrl] = useState(
+    hotspotMedia.mediaUrl.includes("youtube") ? hotspotMedia.mediaUrl : ""
+  ); 
   const cornerPointList = JSON.parse(hotspotMedia.cornerPointList || "[]") as [
     number,
     number,
@@ -48,7 +52,7 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
     dispatch(
       updateHotspotMedia({
         hotspotId: hotspotMedia.id,
-        mediaUrl,
+        mediaUrl: !isEmbed ? mediaUrl : embedUrl,
         mediaType,
         caption,
         // positionX: hotspotModel.positionX,
@@ -162,14 +166,14 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
             })}
           </div>
         </div>
-        <div style={{ display: "inline-flex" }}>
+        <div className={styles.row_container}>
           <label className={styles.label}>Thể loại:</label>
           <div>
             <button
               onClick={() => {
                 setMediaType("PICTURE");
               }}
-              className={`${styles.chooseMediaType} ${
+              className={`${styles.choose_media_type} ${
                 mediaType == "PICTURE" ? styles.choosed : ""
               }`}
             >
@@ -181,7 +185,7 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
               onClick={() => {
                 setMediaType("VIDEO");
               }}
-              className={`${styles.chooseMediaType} ${
+              className={`${styles.choose_media_type} ${
                 mediaType == "VIDEO" ? styles.choosed : ""
               }`}
             >
@@ -189,8 +193,25 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
             </button>
           </div>
         </div>
-        <div style={{ display: "flex" }}>
-          <label className={styles.label}>Tải lên:</label>
+        <div className={styles.row_container}>
+          <div className={styles.label_container}>
+            <button
+              className={`${styles.label_upload} ${
+                isEmbed ? "" : styles.choosed
+              }`}
+              onClick={() => setIsEmbed(false)}
+            >
+              Tải lên
+            </button>
+            <button
+              className={`${styles.label_upload} ${
+                isEmbed ? styles.choosed : ""
+              }`}
+              onClick={() => setIsEmbed(true)}
+            >
+              Nhúng
+            </button>
+          </div>
           <div
             style={{
               position: "relative",
@@ -199,16 +220,26 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
               minHeight: "80px",
             }}
           >
-            <UploadFile
-              className={
-                mediaType == "PICTURE" ? "upload_image" : "upload_video"
-              }
-              hotspotId={hotspotMedia?.id}
-              onUploaded={handleUploadedFile}
-            />
+            {!isEmbed ? (
+              <UploadFile
+                className={
+                  mediaType == "PICTURE" ? "upload_image" : "upload_video"
+                }
+                hotspotId={hotspotMedia?.id}
+                onUploaded={handleUploadedFile}
+              />
+            ) : (
+              <input
+                type="text"
+                placeholder="Nhập URL nhúng (embed URL)..."
+                value={embedUrl}
+                onChange={(e) => setEmbedUrl(e.target.value)}
+                className={styles.embed_input}
+              />
+            )}
           </div>
         </div>
-        <div style={{ display: "inline-flex" }}>
+        <div className={styles.row_container}>
           <label className={styles.label}>Tiêu đề:</label>
           <textarea
             name=""
