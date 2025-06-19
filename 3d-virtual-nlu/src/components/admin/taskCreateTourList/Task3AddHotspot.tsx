@@ -18,6 +18,7 @@ interface Task3Props {
   onPropsChange: (value: BaseHotspot) => void;
   currentPanorama?: PanoramaItem;
   setValidIcon: (value: boolean) => void;
+  limitNav: boolean;
 }
 
 // Component cho Task3
@@ -28,6 +29,7 @@ const Task3 = ({
   onPropsChange,
   currentPanorama,
   setValidIcon,
+  limitNav,
 }: Task3Props) => {
   const [openTypeIndex, setOpenTypeIndex] = useState<number>(1); // State để lưu index của type đang mở
   const hotspotType = useSelector(
@@ -99,7 +101,8 @@ const Task3 = ({
             currentHotspotType={openTypeIndex}
           />
           <label className={styles.label}>Chọn vị trí điểm:</label>
-          {hotspotNavigationFromNode.length >= limitNavigation() * 2 &&
+          {limitNav &&
+          hotspotNavigationFromNode.length >= limitNavigation() * 2 &&
           openTypeIndex == 1 ? (
             <span>Bạn đã đạt giới hạn.</span>
           ) : currentHotspotData !== null &&

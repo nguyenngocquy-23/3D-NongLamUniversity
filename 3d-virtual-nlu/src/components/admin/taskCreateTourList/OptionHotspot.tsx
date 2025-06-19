@@ -81,7 +81,7 @@ const OptionHotspot = ({
             handleEdit();
           }}
         >
-          Cập nhật {hotspotId}
+          Cập nhật
         </div>
 
         <div className={styles.remove_option} onClick={handleDelete}>

@@ -134,6 +134,10 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     }
   }, [isHovered]);
 
+  useEffect(() => {
+    console.log(`Trang thai open: ${isOpenHotspotOption}`);
+  }, [isOpenHotspotOption]);
+
   /**
    * ICON 3D
    */

@@ -84,7 +84,7 @@ export function getArcAnglesThree(
  */
 export function getAxisRange(
   currentPosition: [number, number, number],
-  axis: "x" | "y" | "z",
+  axis: "positionX" | "positionY" | "positionZ",
   fixed: number
 ): [number, number] {
   const [x, y, z] = currentPosition;
@@ -94,15 +94,15 @@ export function getAxisRange(
 
   // Chọn các trục cố định dựa trên axis
   switch (axis) {
-    case "x":
+    case "positionX":
       fixed1 = y;
       fixed2 = z;
       break;
-    case "y":
+    case "positionY":
       fixed1 = x;
       fixed2 = z;
       break;
-    case "z":
+    case "positionZ":
       fixed1 = x;
       fixed2 = y;
       break;

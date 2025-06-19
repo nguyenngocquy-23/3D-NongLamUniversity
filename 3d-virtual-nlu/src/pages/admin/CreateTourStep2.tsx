@@ -22,7 +22,7 @@ import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import TourScene from "../../components/visitor/TourScene";
 import CamControls from "../../components/visitor/CamControls";
 import gsap from "gsap";
-import { useControls } from "leva";
+
 import {
   addHotspotPosition,
   addInformationHotspot,
@@ -363,6 +363,7 @@ const CreateTourStep2 = () => {
               setCurrentHotspotType={setCurrentHotspotType}
               onPropsChange={handleOnPropsChange}
               currentPanorama={currentPanorama}
+              limitNav={true}
             />
           </>
         );
@@ -386,8 +387,7 @@ const CreateTourStep2 = () => {
     },
   ];
 
-  const { openTaskIndex, completedTaskIds, unlockedTaskIds, handleOpenTask } =
-    useSequentialTasks(tasks.length);
+  const { openTaskIndex, handleOpenTask } = useSequentialTasks(tasks.length);
 
   const [preTaskIndex, setPreTaskIndex] = useState<number | null>(null);
 
@@ -671,10 +671,9 @@ const CreateTourStep2 = () => {
           <RightMenuCreateTour
             tasks={tasks}
             openTaskIndex={openTaskIndex}
-            completedTaskIds={completedTaskIds}
-            unlockedTaskIds={unlockedTaskIds}
             onTaskClick={handleOpenTask}
             setPreOpenTask={setPreTaskIndex}
+            saveLinkNode={false}
           />
         </div>
         {/* tasks */}
@@ -705,6 +704,7 @@ const CreateTourStep2 = () => {
             setHotspotId={setCurrentHotspotId}
             onPropsChange={handleOnPropsChange}
             setChangeCorner={setChangeCornerMedia}
+            limitNav={true}
           />
         </div>
         {/* Hướng dẫn sử dụng */}

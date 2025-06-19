@@ -13,6 +13,7 @@ import { FiEdit } from "react-icons/fi";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaArrowRotateLeft } from "react-icons/fa6";
 import { getAxisRange } from "../../utils/MathUtils";
+import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 
 const ConfigIcon = ({
   propHotspot,
@@ -65,37 +66,37 @@ const ConfigIcon = ({
   const [positionY, setPositionY] = useState(propHotspot?.positionY ?? 0);
   const [positionZ, setPositionZ] = useState(propHotspot?.positionZ ?? 0);
 
-  const positionAxes = [
+  const positionAxes = () => [
     {
-      axis: "x",
+      axis: "positionX",
       value: positionX,
       set: setPositionX,
       class: styles.label_x,
       minMax: getAxisRange(
         [positionX, positionY, positionZ],
-        "x",
+        "positionX",
         iconType === 2 ? 10 : 0
       ),
     },
     {
-      axis: "y",
+      axis: "positionY",
       value: positionY,
       set: setPositionY,
       class: styles.label_y,
       minMax: getAxisRange(
         [positionX, positionY, positionZ],
-        "y",
+        "positionY",
         iconType === 2 ? 10 : 0
       ),
     },
     {
-      axis: "z",
+      axis: "positionZ",
       value: positionZ,
       set: setPositionZ,
       class: styles.label_z,
       minMax: getAxisRange(
         [positionX, positionY, positionZ],
-        "z",
+        "positionZ",
         iconType === 2 ? 10 : 0
       ),
     },
@@ -137,16 +138,13 @@ const ConfigIcon = ({
 
   const dispatch = useDispatch();
 
-  /**
-   *
-   */
   useEffect(() => {
     if (propHotspot == null) {
       const props = handleInitialHotspotProps();
       onPropsChange(props); // gọi hàm truyền lên component cha
     } else {
       const props = handleInitialHotspotProps();
-
+      console.log();
       dispatch(
         updateConfigHotspot({
           hotspotId: propHotspot.id,
@@ -167,7 +165,7 @@ const ConfigIcon = ({
     positionZ,
     color,
     backgroundColor,
-    allowBackgroundColor,
+    setAllowBackgroundColor,
     iconId,
   ]);
 
@@ -546,7 +544,7 @@ const ConfigIcon = ({
           <div className={styles.rotation_cfg_container}>
             <div className={styles.rotation_cfg_optional}>
               <div className={styles.optional_adjust}>
-                {positionAxes.map(
+                {positionAxes().map(
                   ({ axis, value, set, class: axisClass, minMax }) => {
                     const [min, max] = minMax;
 
@@ -573,9 +571,6 @@ const ConfigIcon = ({
                             value={((value - min) / (max - min)) * 100}
                           ></progress>
                         </div>
-                        {/* <span>
-                          Giá trị min: {min} và max: {max}
-                        </span> */}
                       </div>
                     );
                   }
