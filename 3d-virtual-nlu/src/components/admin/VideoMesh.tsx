@@ -16,10 +16,17 @@ const VideoMeshComponent = ({
   blockUpdate,
 }: VideoMeshProps) => {
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
-  const [texture, setTexture] = useState<THREE.VideoTexture | THREE.Texture | null>(null);
+  const [texture, setTexture] = useState<
+    THREE.VideoTexture | THREE.Texture | null
+  >(null);
   const [cornerPointes, setCornerPointes] = useState(
     JSON.parse(hotspotMedia.cornerPointList) as [number, number, number][]
   );
+  useEffect(() => {
+    if (hotspotMedia.cornerPointList) {
+      setCornerPointes(JSON.parse(hotspotMedia.cornerPointList));
+    }
+  }, [hotspotMedia.cornerPointList]);
   const [isPaused, setIsPaused] = useState(false);
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
 
@@ -145,8 +152,14 @@ const VideoMeshComponent = ({
   if (cornerPointes.length !== 4) return null;
 
   // Tạo geometry và material bằng useMemo để tránh tạo lại quá nhiều lần
-  const geometry = useMemo(() => createCustomGeometry(cornerPointes), [cornerPointes]);
-  const center = useMemo(() => getCenterOfPoints(cornerPointes), [cornerPointes]);
+  const geometry = useMemo(
+    () => createCustomGeometry(cornerPointes),
+    [cornerPointes]
+  );
+  const center = useMemo(
+    () => getCenterOfPoints(cornerPointes),
+    [cornerPointes]
+  );
 
   const material = useMemo(() => {
     return new THREE.MeshBasicMaterial({
@@ -190,7 +203,11 @@ const VideoMeshComponent = ({
           hotspotId={hotspotMedia.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
           onClose={() => setIsOpenHotspotOption(false)}
-          position={[hotspotMedia.positionX, hotspotMedia.positionY, hotspotMedia.positionZ]}
+          position={[
+            hotspotMedia.positionX,
+            hotspotMedia.positionY,
+            hotspotMedia.positionZ,
+          ]}
         />
       )}
     </>

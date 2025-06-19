@@ -239,6 +239,35 @@ const hotspotSlice = createSlice({
         }
       }
     },
+    updateCornerPoint: (
+      state,
+      action: PayloadAction<{
+        hotspotId: string; // id của hotspot cần cập nhật
+        index: number; // index của điểm cần cập nhật
+        point: [number, number, number]; // điểm mới
+      }>
+    ) => {
+      const { index, point } = action.payload;
+      const hotspot = state.hotspotList.find(
+        (h) => h.type === 3 && h.id === action.payload.hotspotId
+      ) as HotspotMedia | undefined;
+      if (hotspot) {
+        // Chuyển đổi cornerPointList từ JSON string sang mảng
+        const cornerPointList = JSON.parse(hotspot.cornerPointList || "[]") as [
+          number,
+          number,
+          number
+        ][];
+
+        // Cập nhật điểm tại index
+        if (index >= 0 && index < cornerPointList.length) {
+          cornerPointList[index] = point;
+          // Cập nhật lại cornerPointList dưới dạng JSON string
+          hotspot.cornerPointList = JSON.stringify(cornerPointList);
+        }
+      }
+    }
+    ,
     updateCornerHotspotMedia: (
       state,
       action: PayloadAction<{
@@ -342,6 +371,7 @@ export const {
   updateHotspotInfomation,
   updateHotspotModel,
   updateHotspotMedia,
+  updateCornerPoint,
   updateCornerHotspotMedia,
   removeHotspot,
   addHotspotPosition,
