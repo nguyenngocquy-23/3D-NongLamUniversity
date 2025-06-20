@@ -78,6 +78,8 @@ const TourDetail = () => {
   const { openTaskIndex, completedTaskIds, unlockedTaskIds, handleOpenTask } =
     useSequentialTasks(tasks.length);
 
+  const cameraRadarRef = useRef<number>(0);
+
   useEffect(() => {
     if (nodeId) {
       console.log("Fetching preload nodes for nodeId:", nodeId);
@@ -441,6 +443,8 @@ const TourDetail = () => {
             autoRotateSpeed={
               node || node.speedRotate == 0 ? 0.2 : node.speedRotate
             }
+            cameraRadarRef={cameraRadarRef}
+            currentPano={node}
           />
           {isUpdateTour && (
             <>
@@ -591,12 +595,11 @@ const TourDetail = () => {
               <RightMenuCreateTour
                 tasks={tasks}
                 openTaskIndex={openTaskIndex}
-                completedTaskIds={completedTaskIds}
-                unlockedTaskIds={unlockedTaskIds}
                 onTaskClick={handleOpenTask}
                 setPreOpenTask={setPreTaskIndex}
                 isUpdateTour={true}
                 handleUpdateTour={handleUpdateTour}
+                saveLinkNode={false}
               />
             </div>
             {/* tasks */}
@@ -628,6 +631,7 @@ const TourDetail = () => {
                 hotspotId={currentHotspotId}
                 setHotspotId={setCurrentHotspotId}
                 onPropsChange={handleOnPropsChange}
+                limitNav={false}
               />
             </div>
           </>

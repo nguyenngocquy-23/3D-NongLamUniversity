@@ -45,6 +45,7 @@ import Swal from "sweetalert2";
 import { goToStep } from "../../redux/slices/StepSlice";
 import gsap from "gsap";
 import TrackingSpace from "../TrackingSpace";
+import CamControlAdmins from "./CamControlsAdmin";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
@@ -143,7 +144,7 @@ const SpaceDetail = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 
   // TEST @@
-  const cameraRadarRef = useRef<number>(null);
+  const cameraRadarRef = useRef<number>(0);
 
   const controlsRef = useRef<any>(null); //OrbitControls
 
@@ -167,6 +168,7 @@ const SpaceDetail = () => {
     const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
     const targetPano = panoramaList.find((pano) => pano.id === targetNodeId);
 
+    const cameraRadarRef = useRef<number>(0);
     const handleSelectNode = (id: string) => {
       setIsTextureReady(false);
 
@@ -542,7 +544,7 @@ const SpaceDetail = () => {
                   onTextureReady={() => setIsTextureReady(true)}
                 />
 
-                <CamControls
+                <CamControlAdmins
                   targetPosition={targetPosition}
                   sphereRef={sphereRef}
                   cameraRef={cameraRef}
@@ -550,6 +552,7 @@ const SpaceDetail = () => {
                   autoRotate={false}
                   autoRotateSpeed={0}
                   onAngleChange={setCameraAngle}
+                  cameraRadarRef={cameraRadarRef}
                 />
 
                 {isTextureReady &&
@@ -655,7 +658,6 @@ const SpaceDetail = () => {
                   hotspotId={currentHotspotId}
                   setHotspotId={setCurrentHotspotId}
                   onPropsChange={handleOnPropsChange}
-                  setChangeCorner={setChangeCornerMedia}
                   limitNav={false}
                 />
               </div>
