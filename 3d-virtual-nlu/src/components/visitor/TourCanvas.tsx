@@ -110,7 +110,7 @@ const TourCanvas = React.memo(
 
     const handleSelectNode = (id: number) => {
       setIsTextureReady(false);
-      const activeNode = preloadNodes.find((h) => h.id === id);
+      const activeNode = preloadNodesRedux.find((h) => h.id === id);
       dispatch(setDefaultNode(activeNode));
     };
 
@@ -131,7 +131,7 @@ const TourCanvas = React.memo(
       const originalFov = camera.fov;
       console.log(`Vij trí camera fov: ${originalFov}`);
       const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-      const targetPano = preloadNodes.find((pano) => pano.id === targetNodeId);
+      const targetPano = preloadNodesRedux.find((pano) => pano.id === targetNodeId);
 
       const [x, y, z] = hotspotTargetPosition;
 
