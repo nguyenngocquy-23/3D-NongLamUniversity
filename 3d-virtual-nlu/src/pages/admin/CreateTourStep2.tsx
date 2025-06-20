@@ -45,11 +45,6 @@ import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
-import {
-  EffectComposer,
-  Bloom,
-  ToneMapping,
-} from "@react-three/postprocessing";
 
 const CreateTourStep2 = () => {
   /**
@@ -104,6 +99,9 @@ const CreateTourStep2 = () => {
   const [currentHotspotType, setCurrentHotspotType] = useState(1);
 
   // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
+
+  // ========= REDUX ================
+
   const dispatch = useDispatch();
 
   const hotspotNavigations = useSelector((state: RootState) =>
@@ -131,7 +129,6 @@ const CreateTourStep2 = () => {
   const { panoramaList, currentSelectId, currentAngleMaster } = useSelector(
     (state: RootState) => state.panoramas
   );
-  // Panorama hiện tại.
   const currentPanorama = panoramaList.find(
     (pano) => pano.id === currentSelectId
   );
@@ -139,6 +136,13 @@ const CreateTourStep2 = () => {
   const hotspotPosition = useSelector(
     (state: RootState) => state.hotspots.hotspotPositions
   );
+
+  const handleSelectNode = (id: string) => {
+    setIsTextureReady(false);
+    dispatch(selectPanorama(id));
+    setCurrentHotspotId(null);
+  };
+  // ========= REDUX ================
 
   /**
    * Lấy URL panorama hiện tại - hoặc dùng mặc định.
@@ -159,12 +163,6 @@ const CreateTourStep2 = () => {
     positionY,
     positionZ,
   ];
-
-  const handleSelectNode = (id: string) => {
-    setIsTextureReady(false);
-    dispatch(selectPanorama(id));
-    setCurrentHotspotId(null);
-  };
 
   const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
   const [changeCornerMedia, setChangeCornerMedia] = useState(false);

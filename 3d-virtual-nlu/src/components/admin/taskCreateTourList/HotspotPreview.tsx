@@ -122,7 +122,7 @@ const HotspotPreview = ({
 
       {typeIcon === 2 && iconGlb && (
         <>
-          <primitive object={iconGlb.scene} scale={5} />
+          <primitive object={iconGlb.scene} scale={scale} />
           <ambientLight color={"#fff"} intensity={4} />
           <directionalLight position={[10, 10, 10]} intensity={1} />
         </>

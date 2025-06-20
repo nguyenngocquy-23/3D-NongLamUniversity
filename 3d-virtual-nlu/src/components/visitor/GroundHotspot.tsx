@@ -35,6 +35,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   const targetOpacity = useRef(hotspotNavigation.opacity);
   const isIcon3D = icon.type === 2;
   const maxSizeRef = useRef(10 * hotspotNavigation.scale); // ĐANG SỬ DỤNG GIÁ TRỊ CỐ ĐỊNH CHO 3D HOTSPOT
+  const groupRef = useRef<THREE.Group>(null);
 
   /**
    * Đang thử nghiệm
@@ -135,8 +136,16 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   }, [isHovered]);
 
   useEffect(() => {
-    console.log(`Trang thai open: ${isOpenHotspotOption}`);
-  }, [isOpenHotspotOption]);
+    if (groupRef.current) {
+      const box = new THREE.Box3().setFromObject(groupRef.current);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      console.log(
+        `Hotspot: ${hotspotNavigation.id} đang có scale ${hotspotNavigation.scale} `
+      );
+      console.log(size);
+    }
+  }, [clonedScene]);
 
   /**
    * ICON 3D
@@ -148,6 +157,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     <>
       {isIcon3D && clonedScene ? (
         <group
+          ref={groupRef}
           scale={hotspotNavigation.scale}
           position={[
             hotspotNavigation.positionX * scaleFactor,
