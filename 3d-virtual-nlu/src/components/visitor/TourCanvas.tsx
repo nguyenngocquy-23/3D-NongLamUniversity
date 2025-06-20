@@ -17,6 +17,7 @@ import { Environment } from "@react-three/drei";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 import { getAngleFromXZ } from "../../utils/MathUtils";
 import Radar from "./Radar";
+import CamControlAdmins from "../admin/CamControlsAdmin";
 const TourCanvas = React.memo(
   ({
     windowSize,
@@ -119,6 +120,87 @@ const TourCanvas = React.memo(
      * @param targetNodeId : Id node đích cần di chuyển.
      * @param hotspotTargetPosition : Thay thế vị trí camera hướng đến tại vị trí hotspot mục tiêu.
      */
+    // const handleHotspotNavigate = (
+    //   targetNodeId: string,
+    //   hotspotTargetPosition: [number, number, number]
+    // ) => {
+    //   if (!cameraRef.current || !controlsRef.current) return;
+
+    //   const camera = cameraRef.current;
+    //   const control = controlsRef.current;
+
+    //   const originalFov = camera.fov;
+    //   console.log(`Vij trí camera fov: ${originalFov}`);
+    //   const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
+    //   const targetPano = preloadNodesRedux.find(
+    //     (pano) => pano.id === targetNodeId
+    //   );
+
+    //   const [x, y, z] = hotspotTargetPosition;
+
+    //   // === Bước 1:Xoay camera về vị trí (hotspot)
+    //   lookAtHotspot([x, y, z]);
+
+    //   // === Bước 2: Zoom vào
+    //   console.log(
+    //     `[CreateTourStep2] Bắt đầu việc gọi vào handleSelectNode: ${
+    //       performance.now() / 1000
+    //     } giây`
+    //   );
+    //   handleSelectNode(Number(targetNodeId));
+
+    //   console.log(
+    //     `[CreateTourStep2] Bắt đầu việc gọi vào zoom: ${
+    //       performance.now() / 1000
+    //     } giây`
+    //   );
+    //   gsap.to(camera, {
+    //     fov: zoomTarget,
+    //     duration: 1.1,
+    //     ease: "power2.inOut",
+    //     onUpdate: () => {
+    //       camera.updateProjectionMatrix();
+    //     },
+    //     onComplete: () => {
+    //       console.log(
+    //         `[CreateTourStep2] Kết thúc việc zoom vào: ${
+    //           performance.now() / 1000
+    //         } giây`
+    //       );
+    //       const [px, py, pz] = [
+    //         targetPano?.positionX,
+    //         targetPano?.positionY,
+    //         targetPano?.positionZ,
+    //       ];
+    //       if (
+    //         typeof px === "number" &&
+    //         typeof py === "number" &&
+    //         typeof pz === "number"
+    //       ) {
+    //         camera.position.set(px, py, pz);
+    //       }
+    //       console.log(
+    //         `[CreateTourStep2] Bắt đầu set camera: ${
+    //           performance.now() / 1000
+    //         } giây`
+    //       );
+
+    //       gsap.to(camera, {
+    //         fov: originalFov,
+    //         duration: 0.3,
+    //         delay: 0.3,
+    //         ease: "power2.inOut",
+    //         onUpdate: () => {
+    //           camera.updateProjectionMatrix();
+    //         },
+    //         onComplete: () => {
+    //           camera.updateProjectionMatrix();
+    //           control.update(); // đảm bảo OrbitControls cập nhật
+    //         },
+    //       });
+    //     },
+    //   });
+    // };
     const handleHotspotNavigate = (
       targetNodeId: string,
       hotspotTargetPosition: [number, number, number]
@@ -129,70 +211,50 @@ const TourCanvas = React.memo(
       const control = controlsRef.current;
 
       const originalFov = camera.fov;
-      console.log(`Vij trí camera fov: ${originalFov}`);
-      const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-      const targetPano = preloadNodesRedux.find(
-        (pano) => pano.id === targetNodeId
-      );
-
+      const zoomTarget = 45;
       const [x, y, z] = hotspotTargetPosition;
 
+      // const targetVec = new THREE.Vector3(x, 0, z);
+
+      // // Step 1: cập nhật target của OrbitControls
+      // control.target.copy(targetVec);
+      // control.update();
       // === Bước 1:Xoay camera về vị trí (hotspot)
       lookAtHotspot([x, y, z]);
 
-      // === Bước 2: Zoom vào
-      console.log(
-        `[CreateTourStep2] Bắt đầu việc gọi vào handleSelectNode: ${
-          performance.now() / 1000
-        } giây`
-      );
-      handleSelectNode(Number(targetNodeId));
-
-      console.log(
-        `[CreateTourStep2] Bắt đầu việc gọi vào zoom: ${
-          performance.now() / 1000
-        } giây`
-      );
+      // Step 2: zoom đến vị trí đó
       gsap.to(camera, {
         fov: zoomTarget,
-        duration: 1.1,
+        duration: 1,
         ease: "power2.inOut",
         onUpdate: () => {
           camera.updateProjectionMatrix();
         },
         onComplete: () => {
-          console.log(
-            `[CreateTourStep2] Kết thúc việc zoom vào: ${
-              performance.now() / 1000
-            } giây`
-          );
-          const [px, py, pz] = [
-            targetPano?.positionX,
-            targetPano?.positionY,
-            targetPano?.positionZ,
-          ];
-          if (
-            typeof px === "number" &&
-            typeof py === "number" &&
-            typeof pz === "number"
-          ) {
-            camera.position.set(px, py, pz);
-          }
-          console.log(
-            `[CreateTourStep2] Bắt đầu set camera: ${
-              performance.now() / 1000
-            } giây`
-          );
-
+          // Quay về fov ban đầu
+          handleSelectNode(Number(targetNodeId));
           gsap.to(camera, {
             fov: originalFov,
-            duration: 0.3,
-            delay: 0.3,
+            duration: 0.2,
+            delay: 0.1,
             ease: "power2.inOut",
             onUpdate: () => {
               camera.updateProjectionMatrix();
             },
             onComplete: () => {
+              const [px, py, pz] = [
+                defaultNode.positionX,
+                defaultNode.positionY,
+                defaultNode.positionZ,
+              ];
+              if (
+                typeof px === "number" &&
+                typeof py === "number" &&
+                typeof pz === "number"
+              ) {
+                camera.position.set(px, py, pz);
+                setTargetPosition([px, py, pz]);
+              }
               camera.updateProjectionMatrix();
               control.update(); // đảm bảo OrbitControls cập nhật
             },
@@ -204,7 +266,6 @@ const TourCanvas = React.memo(
     const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
       if (!cameraRef.current || !controlsRef.current) return;
 
-      console.log("Hotspotnavigation: ", hotspotTargetPosition);
       const controls = controlsRef.current;
 
       /**
@@ -226,6 +287,7 @@ const TourCanvas = React.memo(
       // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
       controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
       controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
+
       controls.update();
     };
 
