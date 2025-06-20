@@ -126,31 +126,23 @@ const TourOverview = () => {
     <div
       id="tourOverview"
       ref={container}
-      className={styles.virtualTourContainer}
+      className={styles.virtual_tour_container}
       // style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
     >
-      <div className={styles.vtBackground}>
-        <h1 className={styles.single} style={{fontSize:'150px',top:'20%'}}>
+      <div className={styles.vt_background}>
+        <h1 className={styles.single} style={{ fontSize: "150px", top: "20%" }}>
           3D TOUR
         </h1>
-        {/* <h1 className={styles.single}>3D</h1> */}
-        <div className={styles.titleContainer}>
+        <div className={styles.title_container}>
           <h2 className={styles.title} style={{ fontSize: "40px" }}>
             THAM QUAN ẢO
           </h2>
           <i className={styles.title}>
             Chào mừng bạn đến với chuyến tham quan khuôn viên Trường Đại học
-            Nông Lâm Thành phố Hồ Chí Minh. Chúc bạn có một trải nghiệm thú vị.
+            Nông Lâm...
           </i>
         </div>
-        <div className={styles.containCanvas}>
-          {/* <div id="myDiv" style={{ position: "absolute" }}>
-            <FaArrowsToEye
-              className={styles.comein}
-              onClick={handleVirtualTour}
-            />
-            <h2 className={styles.exploreText}>Khám phá ngay!</h2>
-          </div> */}
+        <div className={styles.contain_canvas}>
           <button className={styles.explore_button} onClick={handleVirtualTour}>
             Khám phá ngay!
           </button>
@@ -176,13 +168,21 @@ const TourOverview = () => {
             <CurvedScreen
               radius={RADIUS_SPHERE}
               sphereRef={sphereRef}
-              textureCurrent={defaultNode ? defaultNode.url : `${import.meta.env.BASE_URL}khoa.jpg`}
+              textureCurrent={
+                defaultNode
+                  ? defaultNode.url
+                  : `${import.meta.env.BASE_URL}khoa.jpg`
+              }
               lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
             />
             <ShadowScreen
               radius={RADIUS_SPHERE}
               sphereRef={sphereRef}
-              textureCurrent={defaultNode ? defaultNode.url : `${import.meta.env.BASE_URL}khoa.jpg`}
+              textureCurrent={
+                defaultNode
+                  ? defaultNode.url
+                  : `${import.meta.env.BASE_URL}khoa.jpg`
+              }
               lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
             />
 

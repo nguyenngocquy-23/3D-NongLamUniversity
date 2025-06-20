@@ -15,6 +15,8 @@ const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const handleLogout = () => {
     dispatch(logoutUser()); // Gọi action logout
@@ -62,9 +64,26 @@ const Header: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize(); // initial check
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <header className={style.header}>
       <div className={style.logo_container}>
+        {isMobile && (
+          <button
+            className={style.menu_button}
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+          >
+            ☰
+          </button>
+        )}
         <img
           src="https://upload.wikimedia.org/wikipedia/vi/thumb/e/e1/Logo_HCMUAF.svg/900px-Logo_HCMUAF.svg.png?20230506055905"
           alt="University Logo"
@@ -73,62 +92,68 @@ const Header: React.FC = () => {
         <span className={style.name}>NLU</span>
       </div>
 
-      <nav className={style.nav}>
-        <ScrollLink
-          to="campusMap"
-          className={style.navLink}
-          offset={-60}
-          smooth={true}
-          duration={800}
-        >
-          Sơ đồ trường
-        </ScrollLink>
+      {(mobileNavOpen || !isMobile) && (
+        <nav className={isMobile ? style.nav_mobile : style.nav}>
+          <ScrollLink
+            to="campusMap"
+            className={style.navLink}
+            offset={-60}
+            smooth={true}
+            duration={800}
+          >
+            Sơ đồ trường
+          </ScrollLink>
 
-        <ScrollLink
-          to="introduce"
-          className={style.navLink}
-          smooth={true}
-          duration={800}
-        >
-          Giới thiệu
-        </ScrollLink>
+          <ScrollLink
+            to="introduce"
+            className={style.navLink}
+            smooth={true}
+            duration={800}
+          >
+            Giới thiệu
+          </ScrollLink>
 
-        <ScrollLink
-          to="tourOverview"
-          className={style.navLink}
-          smooth={true}
-          duration={800}
-        >
-          Khám phá tour ảo
-        </ScrollLink>
-        <ScrollLink
-          to="contact"
-          className={style.navLink}
-          smooth={true}
-          offset={-40}
-          duration={800}
-        >
-          Liên hệ
-        </ScrollLink>
-        <span
-          onClick={handleManage}
-          className={style.navLink}
-          style={{ cursor: "pointer" }}
-        >
-          Thêm không gian
-        </span>
-      </nav>
-      {currentUser ? (
+          <ScrollLink
+            to="tourOverview"
+            className={style.navLink}
+            smooth={true}
+            duration={800}
+          >
+            Khám phá tour ảo
+          </ScrollLink>
+
+          <ScrollLink
+            to="contact"
+            className={style.navLink}
+            smooth={true}
+            offset={-40}
+            duration={800}
+          >
+            Liên hệ
+          </ScrollLink>
+
+          {!isMobile && (
+            <span
+              onClick={handleManage}
+              className={style.navLink}
+              style={{ cursor: "pointer" }}
+            >
+              Thêm không gian
+            </span>
+          )}
+        </nav>
+      )}
+      {!isMobile && currentUser ? (
         <div className={style.dropdown}>
           <button
             className={style.dropdownBtn}
             onClick={() => {
-              currentUser.username == "admin"
+              currentUser.username === "admin"
                 ? navigate("/admin")
                 : setDropdownOpen(!dropdownOpen);
             }}
           >
-            <img src={currentUser.avatar || ""}/> {currentUser.username}
+            <img src={currentUser.avatar || ""} /> {currentUser.username}
           </button>
 
           {dropdownOpen && (
@@ -147,14 +172,16 @@ const Header: React.FC = () => {
           )}
         </div>
       ) : (
-        <div>
-          <Link to="/login" className={style.navLink}>
-            Đăng nhập
-          </Link>
-          <Link to="/register" className={style.register_button}>
-            Đăng ký
-          </Link>
-        </div>
+        !isMobile && (
+          <div>
+            <Link to="/login" className={style.navLink}>
+              Đăng nhập
+            </Link>
+            <Link to="/register" className={style.register_button}>
+              Đăng ký
+            </Link>
+          </div>
+        )
       )}
     </header>
   );
