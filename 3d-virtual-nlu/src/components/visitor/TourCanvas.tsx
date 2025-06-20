@@ -62,7 +62,7 @@ const TourCanvas = React.memo(
     useEffect(() => {
       if (defaultNode.status === 2) {
         const defaultHotspots = defaultNode.navHotspots || [];
-        const preloadHotspots = preloadNodesRedux.flatMap(
+        const preloadHotspots = preloadNodesRedux.filter((node) => node.status != 2).flatMap(
           (node) => node.navHotspots || []
         );
 

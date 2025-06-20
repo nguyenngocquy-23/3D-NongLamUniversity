@@ -54,6 +54,14 @@ const SpaceDetail = () => {
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
+    const sphereRef = useRef<THREE.Mesh | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+
+  // TEST @@
+  const cameraRadarRef = useRef<number>(0);
+
+  const controlsRef = useRef<any>(null); //OrbitControls
+
 
   useEffect(() => {
     dispatch(goToStep(4)); //
@@ -89,6 +97,8 @@ const SpaceDetail = () => {
    */
   const handleSelect = async (spaceId: number, masterNodeId: number) => {
     if (!masterNodeId || masterNodeId === 0) return;
+
+    dispatch(selectPanorama(masterNodeId.toString()));
 
     try {
       const payload = {
@@ -140,13 +150,6 @@ const SpaceDetail = () => {
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
   >(null);
-  const sphereRef = useRef<THREE.Mesh | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-
-  // TEST @@
-  const cameraRadarRef = useRef<number>(0);
-
-  const controlsRef = useRef<any>(null); //OrbitControls
 
   const [isTextureReady, setIsTextureReady] = useState(false);
   const [cameraAngle, setCameraAngle] = useState(0);
@@ -168,7 +171,6 @@ const SpaceDetail = () => {
     const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
     const targetPano = panoramaList.find((pano) => pano.id === targetNodeId);
 
-    const cameraRadarRef = useRef<number>(0);
     const handleSelectNode = (id: string) => {
       setIsTextureReady(false);
 

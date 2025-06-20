@@ -40,6 +40,12 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   const isIcon3D = icon.type === 2;
   const maxSizeRef = useRef(10 * hotspotNavigation.scale); // ĐANG SỬ DỤNG GIÁ TRỊ CỐ ĐỊNH CHO 3D HOTSPOT
   const groupRef = useRef<THREE.Group>(null);
+  const panoramaList = useSelector(
+    (state: RootState) => state.panoramas.panoramaList
+  );
+  const preloadNode = useSelector(
+    (state: RootState) => state.data.preloadNodes
+  );
 
   /**
    * Đang thử nghiệm
@@ -181,6 +187,37 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
 
   return (
     <>
+      {isHovered && (
+        <Html
+          position={[
+            hotspotNavigation.positionX,
+            hotspotNavigation.positionY,
+            hotspotNavigation.positionZ,
+          ]}
+        >
+          <div
+            style={{
+              maxWidth: "200px",
+              background: "rgba(0,0,0,0.7)",
+              color: "white",
+              padding: "4px 8px",
+              borderRadius: "4px",
+              fontSize: "10px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {panoramaList.length == 0
+              ? preloadNode.find(
+                  (pano) => pano.id === hotspotNavigation.targetNodeId
+                ).name
+              : preloadNode.find(
+                  (pano) => pano.id === hotspotNavigation.targetNodeId
+                ).config.name}
+          </div>
+        </Html>
+      )}
       {isIcon3D && clonedScene ? (
         <group
           ref={groupRef}
@@ -195,6 +232,14 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             THREE.MathUtils.degToRad(hotspotNavigation.yawY),
             THREE.MathUtils.degToRad(hotspotNavigation.rollZ),
           ]}
+          onPointerOver={() => {
+            setIsHovered(true);
+            gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
+          }}
+          onPointerOut={() => {
+            setIsHovered(false);
+            gl.domElement.style.cursor = "default";
+          }}
           onContextMenu={() => {
             setIsOpenHotspotOption((prev) => !prev);
           }}
@@ -266,7 +311,9 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         </mesh>
       )}
 
-      {isOpenHotspotOption && currentStep == 2 && !blockUpdate ? (
+      {isOpenHotspotOption &&
+      (currentStep == 2 || currentStep == 4) &&
+      !blockUpdate ? (
         <OptionHotspot
           hotspotId={hotspotNavigation.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
