@@ -489,7 +489,7 @@ const CreateTourStep2 = () => {
 
   const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
     if (!cameraRef.current || !controlsRef.current) return;
-
+    console.log(`Cos chay vao nhe`);
     const controls = controlsRef.current;
 
     /**
@@ -593,7 +593,7 @@ const CreateTourStep2 = () => {
           />
 
           {currentPanorama && (
-            <MiniMap 
+            <MiniMap
               currentPanorama={currentPanorama}
               angleCurrent={(cameraRadarRef.current + cameraAngle) % 360}
             />

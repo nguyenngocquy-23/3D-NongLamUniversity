@@ -204,6 +204,7 @@ const TourCanvas = React.memo(
     const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
       if (!cameraRef.current || !controlsRef.current) return;
 
+      console.log("Hotspotnavigation: ", hotspotTargetPosition);
       const controls = controlsRef.current;
 
       /**
@@ -225,7 +226,6 @@ const TourCanvas = React.memo(
       // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
       controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
       controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
-
       controls.update();
     };
 
