@@ -20,7 +20,6 @@ import Task1 from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
 import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import TourScene from "../../components/visitor/TourScene";
-import CamControls from "../../components/visitor/CamControls";
 import gsap from "gsap";
 
 import {
@@ -45,6 +44,8 @@ import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
+import { getAngleFromXZ } from "../../utils/MathUtils";
+import CamControlAdmins from "../../components/admin/CamControlsAdmin";
 
 const CreateTourStep2 = () => {
   /**
@@ -65,7 +66,7 @@ const CreateTourStep2 = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 
   // TEST @@
-  const cameraRadarRef = useRef<number>(null);
+  const cameraRadarRef = useRef<number>(0);
 
   const controlsRef = useRef<any>(null); //OrbitControls
 
@@ -169,7 +170,6 @@ const CreateTourStep2 = () => {
 
   useEffect(() => {
     if (controlsRef.current) {
-      console.log("edit corner");
       controlsRef.current.enabled = false; // tắt khi changeCornerMedia=true
     }
   }, [changeCornerMedia]);
@@ -466,6 +466,19 @@ const CreateTourStep2 = () => {
             camera.updateProjectionMatrix();
           },
           onComplete: () => {
+            const [px, py, pz] = [
+              targetPano?.config.positionX,
+              targetPano?.config.positionY,
+              targetPano?.config.positionZ,
+            ];
+            if (
+              typeof px === "number" &&
+              typeof py === "number" &&
+              typeof pz === "number"
+            ) {
+              camera.position.set(px, py, pz);
+              setTargetPosition([px, py, pz]);
+            }
             camera.updateProjectionMatrix();
             control.update(); // đảm bảo OrbitControls cập nhật
           },
@@ -521,9 +534,30 @@ const CreateTourStep2 = () => {
 
   const [cameraAngle, setCameraAngle] = useState(0);
 
+  const prevPanoramaIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    cameraRadarRef.current = cameraAngle;
-  }, [cameraAngle]);
+    if (!currentPanorama) return;
+
+    const defaultYaw = getAngleFromXZ(
+      currentPanorama.config.positionX / DEFAULT_ORIGINAL_Z,
+      currentPanorama.config.positionZ / DEFAULT_ORIGINAL_Z
+    );
+
+    if (
+      prevPanoramaIdRef.current &&
+      currentPanorama.id !== prevPanoramaIdRef.current
+    ) {
+      // Nếu không phải node gốc → cộng thêm delta xoay
+      cameraRadarRef.current = (cameraRadarRef.current + cameraAngle) % 360;
+    }
+
+    if (currentPanorama.config.status === 2) {
+      cameraRadarRef.current = defaultYaw;
+    }
+
+    prevPanoramaIdRef.current = currentPanorama.id;
+  }, [currentPanorama?.id]);
 
   const [isTextureReady, setIsTextureReady] = useState(false);
 
@@ -559,20 +593,27 @@ const CreateTourStep2 = () => {
           />
 
           {currentPanorama && (
-            <MiniMap
+            <MiniMap 
               currentPanorama={currentPanorama}
-              angleCurrent={cameraRadarRef.current || 0}
+              angleCurrent={(cameraRadarRef.current + cameraAngle) % 360}
             />
           )}
 
-          <CamControls
+          <CamControlAdmins
             targetPosition={targetPosition}
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
-            onAngleChange={setCameraAngle}
+            onAngleChange={(angle) => {
+              setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
+            }}
+            cameraRadarRef={cameraRadarRef}
+            // onAngleChangeForMinimap={(angle) => {
+            //   cameraRadarRef.current = angle;
+            // }}
+            // onAngleChangeForMinimap={setCameraAngleForMinimap}
           />
 
           {isTextureReady &&

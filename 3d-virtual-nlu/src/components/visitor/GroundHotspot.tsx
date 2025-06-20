@@ -155,6 +155,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
 
   return (
     <>
+
       {isIcon3D && clonedScene ? (
         <group
           ref={groupRef}
@@ -202,16 +203,9 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
           scale={hotspotNavigation.scale}
           onPointerOver={() => {
             setIsHovered(true);
-            console.log("🖱 Hover vào hotspot!", [
-              hotspotNavigation.positionX,
-              hotspotNavigation.positionY,
-              hotspotNavigation.positionZ,
-            ]);
-          }}
-          onPointerOut={() => {
-            setIsHovered(false);
-            console.log("Rời khỏi hotspot!");
-          }}
+            console.log("🖱 Hover vào hotspot!", [      
+        }}
+ 
           onClick={(e) => {
             e.stopPropagation();
             if (hotspotNavigation && hotspotNavigation.targetNodeId) {
