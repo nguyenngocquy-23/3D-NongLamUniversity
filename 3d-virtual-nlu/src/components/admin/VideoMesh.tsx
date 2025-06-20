@@ -234,7 +234,7 @@ const VideoMeshComponent = ({
     return dimensions;
   }, [hotspotMedia]);
 
-  const distanceFactor = Math.min(size.x, size.y) * 15 ;
+  const distanceFactor = Math.min(size.x, size.y) * 15;
 
   /**
    * Tạo HTML cho iframe YouTube

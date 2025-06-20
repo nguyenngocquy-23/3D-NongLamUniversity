@@ -31,6 +31,24 @@ export interface NodeCreateRequest {
   modelHotspots: HotspotModelCreateRequest[];
 }
 
+export interface NodeUpdateRequest {
+  id: number;
+  url: string;
+  name: string;
+  description: string;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  autoRotate: number;
+  speedRotate: number;
+  lightIntensity: number;
+  status: number;
+  navHotspots: HotspotNavCreateRequest[];
+  infoHotspots: HotspotInfoCreateRequest[];
+  mediaHotspots: HotspotMediaCreateRequest[];
+  modelHotspots: HotspotModelCreateRequest[];
+}
+
 export interface NodeResponse {
   id: string;
   spaceId: string;
@@ -132,6 +150,7 @@ export interface HotspotModelResponse {
   colorCode: string;
 }
 
+// thiếu color...?
 export interface HotspotNavCreateRequest {
   nodeId: string;
   type: number;
@@ -301,6 +320,125 @@ export class TourNodeRequestMapper {
         tempId: pano.id,
         spaceId: pano.spaceId ?? 0,
         userId,
+        url: pano.url,
+        name: pano.config.name,
+        description: pano.config.description,
+        positionX: pano.config.positionX,
+        positionY: pano.config.positionY,
+        positionZ: pano.config.positionZ,
+        autoRotate: pano.config.autoRotate,
+        speedRotate: pano.config.speedRotate,
+        lightIntensity: pano.config.lightIntensity,
+        status: pano.config.status,
+        navHotspots,
+        infoHotspots,
+        mediaHotspots,
+        modelHotspots,
+      };
+    });
+  }
+  
+  static mapOneNodeUpdateRequest(
+    panoramaList: PanoramaItem[],
+    hotspotList: HotspotItem[],
+  ): NodeUpdateRequest[] {
+    return panoramaList.map((pano) => {
+      const nodeIdTemp = pano.id; // id temp của từng pano 
+      const hotspotsForNode = hotspotList.filter(
+        (h) => h.nodeId === nodeIdTemp
+      );
+
+      //List hotspot của từng panorama.
+      const navHotspots: HotspotNavCreateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotNavigation => h.type === 1)
+        .map((h) => ({
+          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          type: h.type,
+          iconId: h.iconId,
+          positionX: h.positionX,
+          positionY: h.positionY,
+          positionZ: h.positionZ,
+          pitchX: h.pitchX,
+          yawY: h.yawY,
+          rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
+          opacity: h.opacity,
+          scale: h.scale,
+          targetNodeId: h.targetNodeId, //
+        }));
+
+      const infoHotspots: HotspotInfoCreateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotInformation => h.type === 2)
+        .map((h) => ({
+          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          type: h.type,
+          iconId: h.iconId,
+          positionX: h.positionX,
+          positionY: h.positionY,
+          positionZ: h.positionZ,
+          pitchX: h.pitchX,
+          yawY: h.yawY,
+          rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
+          opacity: h.opacity,
+          scale: h.scale,
+          title: h.title,
+          content: h.content,
+        }));
+
+      const mediaHotspots: HotspotMediaCreateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotMedia => h.type === 3)
+        .map((h) => ({
+          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          iconId: h.iconId,
+          type: h.type,
+          positionX: h.positionX,
+          positionY: h.positionY,
+          positionZ: h.positionZ,
+          pitchX: h.pitchX,
+          yawY: h.yawY,
+          rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
+          opacity: h.opacity,
+          scale: h.scale,
+          mediaType: h.mediaType,
+          mediaUrl: h.mediaUrl,
+          caption: h.caption,
+          cornerPointList: h.cornerPointList,
+        }));
+
+      const modelHotspots: HotspotModelCreateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotModel => h.type === 4)
+        .map((h) => ({
+          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          type: h.type,
+          iconId: h.iconId,
+          positionX: h.positionX,
+          positionY: h.positionY,
+          positionZ: h.positionZ,
+          pitchX: h.pitchX,
+          yawY: h.yawY,
+          rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
+          opacity: h.opacity,
+          scale: h.scale,
+          modelUrl: h.modelUrl,
+          name: h.name,
+          description: h.description,
+          autoRotate: h.autoRotate,
+          colorCode: h.colorCode,
+        }));
+
+      return {
+        id: Number.parseInt(pano.id, 10),
         url: pano.url,
         name: pano.config.name,
         description: pano.config.description,

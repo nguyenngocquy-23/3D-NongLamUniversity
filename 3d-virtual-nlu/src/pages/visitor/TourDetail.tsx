@@ -14,6 +14,7 @@ import {
   fetchCommentOfNode,
   fetchHotspotTypes,
   fetchIcons,
+  fetchMasterNodes,
   fetchPreloadNodes,
 } from "../../redux/slices/DataSlice";
 import { formatTimeAgo } from "../../utils/formatDateTime";
@@ -142,6 +143,12 @@ const TourDetail = () => {
    * end logc update tour step 2
    */
 
+  /**
+   * Cho update tour same step3
+   */
+  const panoramas = useSelector((state: RootState) => state.panoramas);
+  const hotspots = useSelector((state: RootState) => state.hotspots);
+
   useEffect(() => {
     dispatch(goToStep(2));
     dispatch(fetchIcons());
@@ -203,6 +210,46 @@ const TourDetail = () => {
       }
     } catch (error) {
       console.error("Lỗi khi gửi bình luận:", error);
+    }
+  };
+
+  const handleUpdateTour = async () => {
+    console.log("handleUpdateTour called");
+    const { panoramaList } = panoramas;
+
+    if (panoramaList.length === 0) {
+      alert("spaceId bị null hay panorama không chứa giá trị..");
+      return;
+    }
+    try {
+      //Step1: Mapping dữ liệu Redux với Request bên backend.
+      const payload = TourNodeRequestMapper.mapOneNodeUpdateRequest(
+        panoramaList,
+        hotspots.hotspotList
+      );
+
+      // Step2: Gửi lên backend
+      const response = await axios.post(API_URLS.ADMIN_UPDATE_NODES, payload);
+      if (response.data.data) {
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Xuất bản thành công",
+        }).then(() => {
+          // dispatch(nextStep());
+          dispatch(fetchMasterNodes());
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Thất bại",
+          text:
+            "Xuất bản thất bại: " +
+            (response.data?.message || "Không rõ lý do"),
+        });
+      }
+    } catch (error) {
+      console.log("Lỗi khi xuất bản: ", error);
     }
   };
 
@@ -492,7 +539,7 @@ const TourDetail = () => {
           {isOpenComment ? (
             <>
               <div className={styles.commentBox}>
-                {comments.map((comment) => (
+                {comments.map((comment: any) => (
                   <div key={comment.id} className={styles.comment}>
                     <div className={styles.content}>
                       {comment.content}
@@ -549,6 +596,7 @@ const TourDetail = () => {
                 onTaskClick={handleOpenTask}
                 setPreOpenTask={setPreTaskIndex}
                 isUpdateTour={true}
+                handleUpdateTour={handleUpdateTour}
               />
             </div>
             {/* tasks */}

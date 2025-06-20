@@ -21,6 +21,7 @@ interface RightMenuProps {
   onTaskClick: (id: number) => void;
   setPreOpenTask: (id: number) => void;
   isUpdateTour?: boolean;
+  handleUpdateTour?: () => void;
 }
 
 const RightMenuCreateTour: React.FC<RightMenuProps> = ({
@@ -31,6 +32,7 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
   onTaskClick,
   setPreOpenTask,
   isUpdateTour,
+  handleUpdateTour,
 }) => {
   const dispatch = useDispatch();
   return (
@@ -72,7 +74,7 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
           padding: "0.5rem 1rem",
         }}
         onClick={() => {
-          isUpdateTour ? dispatch(nextStep()) : "";
+          isUpdateTour ? handleUpdateTour?.() : dispatch(nextStep());
         }}
       >
         {isUpdateTour ? "Cập nhật" : "Tiếp tục"}

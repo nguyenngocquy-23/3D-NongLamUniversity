@@ -73,6 +73,37 @@ public class NodeController {
         }
     }
 
+    @POST
+    @Path("/update")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> updateNode(List<NodeUpdateRequest> reqs) {
+        boolean result = false;
+        try {
+            result = nodeService.updateNodes(reqs);
+            if (result) {
+                return ApiResponse.<Boolean>builder()
+                        .statusCode(1000)
+                        .message("Cập nhật node thành công")
+                        .data(result)
+                        .build();
+            } else {
+                return ApiResponse.<Boolean>builder()
+                        .statusCode(5000)
+                        .message("Cập nhật node thất bại")
+                        .data(result)
+                        .build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(5000)
+                    .message("Cập nhật node thất bại: " + e.getMessage())
+                    .data(result)
+                    .build();
+        }
+    }
+
 
     @POST
     @Path("/masterNodeList")
@@ -119,8 +150,6 @@ public class NodeController {
             }
         }
     }
-
-
 
 
 }

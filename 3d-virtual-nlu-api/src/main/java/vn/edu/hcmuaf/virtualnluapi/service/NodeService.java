@@ -94,4 +94,12 @@ public class NodeService {
 
     }
 
+    public boolean updateNodes(List<NodeUpdateRequest> reqs) {
+        try {
+            return nodeDao.updateNodes(reqs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

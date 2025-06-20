@@ -6,6 +6,7 @@ import vn.edu.hcmuaf.virtualnluapi.connection.Connection;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
+import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ public class NodeDao {
 
     @Inject
     HotspotDao hotspotDao;
+    @Inject
+    private HotspotService hotspotService;
 
     public List<NodeIdMapResponse> insertNode(List<NodeCreateRequest> reqs) {
         String sql = "INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, lightIntensity, autoRotate, speedRotate, status, numView) VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :lightIntensity, :autoRotate, :speedRotate, :status, :numView)";
@@ -250,20 +253,53 @@ public class NodeDao {
             List<NodeFullResponse> nodes = handle.createQuery(sql)
                     .bind("spaceId", request.getSpaceId())
                     .mapToBean(NodeFullResponse.class).list();
-    for (NodeFullResponse n : nodes) {
-        List<HotspotNavigationResponse> navigationResponses = hotspotDao.getNavigationByNodeId(n.getId());
-        List<HotspotInformationResponse> informationResponses = hotspotDao.getInformationByNodeId(n.getId());
-        List<HotspotMediaResponse> mediaResponses = hotspotDao.getMediaByNodeId(n.getId());
-        List<HotspotModelResponse> modelResponses = hotspotDao.getModelByNodeId(n.getId());
-        n.setNavHotspots(navigationResponses);
-        n.setInfoHotspots(informationResponses);
-        n.setMediaHotspots(mediaResponses);
-        n.setModelHotspots(modelResponses);
-    }
-    return nodes;
-
+            for (NodeFullResponse n : nodes) {
+                List<HotspotNavigationResponse> navigationResponses = hotspotDao.getNavigationByNodeId(n.getId());
+                List<HotspotInformationResponse> informationResponses = hotspotDao.getInformationByNodeId(n.getId());
+                List<HotspotMediaResponse> mediaResponses = hotspotDao.getMediaByNodeId(n.getId());
+                List<HotspotModelResponse> modelResponses = hotspotDao.getModelByNodeId(n.getId());
+                n.setNavHotspots(navigationResponses);
+                n.setInfoHotspots(informationResponses);
+                n.setMediaHotspots(mediaResponses);
+                n.setModelHotspots(modelResponses);
+            }
+            return nodes;
         });
+    }
 
+    public boolean updateNodes(List<NodeUpdateRequest> reqs) {
+        String sql = """
+                UPDATE nodes SET url = :url, name = :name, description = :description, positionX = :positionX,
+                positionY = :positionY, positionZ = :positionZ, autoRotate = :autoRotate, speedRotate = :speedRotate,
+                lightIntensity = :lightIntensity, status = :status, updatedAt = :updatedAt
+                WHERE id = :id
+                """;
 
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            for (NodeUpdateRequest req : reqs) {
+                int rowsUpdated = handle.createUpdate(sql)
+                        .bind("url", req.getUrl())
+                        .bind("name", req.getName())
+                        .bind("description", req.getDescription())
+                        .bind("positionX", req.getPositionX())
+                        .bind("positionY", req.getPositionY())
+                        .bind("positionZ", req.getPositionZ())
+                        .bind("autoRotate", req.getAutoRotate())
+                        .bind("speedRotate", req.getSpeedRotate())
+                        .bind("lightIntensity", req.getLightIntensity())
+                        .bind("status", req.getStatus())
+                        .bind("updatedAt", LocalDateTime.now())
+                        .bind("id", req.getId())
+                        .execute();
+                int navUpdate = hotspotService.updateNavHotspots(req.getNavHotspots(), req.getId());
+                int infoUpdate = hotspotService.updateInfoHotspots(req.getInfoHotspots(), req.getId());
+                int mediaUpdate = hotspotService.updateMediaHotspots(req.getMediaHotspots(), req.getId());
+                int modelUpdate = hotspotService.updateModelHotspots(req.getModelHotspots(), req.getId());
+                if (rowsUpdated + navUpdate + infoUpdate + mediaUpdate + modelUpdate == 0) {
+                    return false; // Nếu có bất kỳ bản ghi nào không được cập nhật, trả về false
+                }
+            }
+            return true; // Tất cả bản ghi đã được cập nhật thành công
+        });
     }
 }
