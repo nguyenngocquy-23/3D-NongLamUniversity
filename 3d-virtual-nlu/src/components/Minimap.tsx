@@ -392,7 +392,6 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                         />
                       </>
                     )}
-
                     <div className={styles.underline}></div>
                   </div>
                 </div>

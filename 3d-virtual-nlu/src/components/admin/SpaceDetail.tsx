@@ -44,6 +44,7 @@ import Task3 from "./taskCreateTourList/Task3AddHotspot";
 import Swal from "sweetalert2";
 import { goToStep } from "../../redux/slices/StepSlice";
 import gsap from "gsap";
+import TrackingSpace from "../TrackingSpace";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
@@ -105,7 +106,7 @@ const SpaceDetail = () => {
       console.error("Lỗi khi cập nhật master node:", error);
     }
   };
-  const userId = useSelector((state: RootState) => state.auth.user.id);
+
   const currentPanorama = panoramaList.find(
     (pano) =>
       !isNaN(Number(currentSelectId)) &&
@@ -428,7 +429,7 @@ const SpaceDetail = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
 
-  const handlePublishTour = async () => {
+  const handleUpdateTourInSpace = async () => {
     if (panoramaList.length === 0) {
       alert("Panorama không chứa giá trị..");
       return;
@@ -464,6 +465,7 @@ const SpaceDetail = () => {
       console.log("Lỗi khi xuất bản: ", error);
     }
   };
+  const [isViewMode, setIsViewMode] = useState<Number>(1);
   return (
     <>
       <div className={styles.space_container}>
@@ -490,155 +492,190 @@ const SpaceDetail = () => {
                 </option>
               ))}
             </select>
+            <div className={styles.space_mode}>
+              <button
+                className={styles.space_mode_item}
+                onClick={() => {
+                  if (isViewMode !== 1) setIsViewMode(1);
+                }}
+              >
+                Xem trước
+              </button>
+              <button
+                className={styles.space_mode_item}
+                onClick={() => {
+                  if (isViewMode !== 2) setIsViewMode(2);
+                }}
+              >
+                Sơ đồ tour
+              </button>
+            </div>
           </div>
 
-          <div className={styles.space_preview_tour}>
-            <Canvas
-              camera={{
-                fov: 75,
-                aspect: window.innerWidth / window.innerHeight,
-                near: 0.1,
-                far: 1000,
-                position: [0, 0, DEFAULT_ORIGINAL_Z],
-              }}
-              style={{ cursor: cursor }}
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
-              onContextMenu={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <Environment preset="studio" background={false} />
-              <axesHelper args={[10]} position={[0, -90, 0]} />
-              <UpdateCameraOnResize />
-              <TourScene
-                nodeId={currentSelectId ?? ""}
-                radius={RADIUS_SPHERE}
-                sphereRef={sphereRef}
-                textureCurrent={currentPanorama?.url ?? "/khoa.jpg"}
-                onPointerDown={handleScenePointerDown}
-                lightIntensity={1}
-                onTextureReady={() => setIsTextureReady(true)}
-              />
-
-              <CamControls
-                targetPosition={targetPosition}
-                sphereRef={sphereRef}
-                cameraRef={cameraRef}
-                controlsRef={controlsRef}
-                autoRotate={false}
-                autoRotateSpeed={0}
-                onAngleChange={setCameraAngle}
-              />
-
-              {isTextureReady &&
-                hotspotNavigations
-                  .filter((hotspot) => hotspot.nodeId === currentSelectId)
-                  .map((hotspot) => (
-                    <GroundHotspot
-                      key={hotspot.id}
-                      onNavigate={(targetNodeId, cameraTargetPosition) => {
-                        const isNumericString = /^\d+$/.test(hotspot.id);
-                        if (isNumericString) {
-                          return;
-                        }
-                        handleHotspotNavigate(
-                          targetNodeId,
-                          cameraTargetPosition
-                        );
-                      }}
-                      setCurrentHotspotId={setCurrentHotspotId}
-                      hotspotNavigation={hotspot}
-                    />
-                  ))}
-
-              {isTextureReady &&
-                hotspotInfos
-                  .filter((hotspot) => hotspot.nodeId === currentSelectId)
-                  .map((hotspot) => (
-                    <GroundHotspotInfo
-                      key={hotspot.id}
-                      setCurrentHotspotId={setCurrentHotspotId}
-                      hotspotInfo={hotspot}
-                    />
-                  ))}
-              {isTextureReady &&
-                hotspotModels
-                  .filter((hotspot) => hotspot.nodeId === currentSelectId)
-                  .map((hotspot) => (
-                    <GroundHotspotModel
-                      key={hotspot.id}
-                      setCurrentHotspotId={setCurrentHotspotId}
-                      hotspotModel={hotspot}
-                    />
-                  ))}
-
-              {isTextureReady &&
-                hotspotMedias
-                  .filter((hotspot) => hotspot.nodeId === currentSelectId)
-                  .map((hotspot) => (
-                    <VideoMeshComponent
-                      key={hotspot.id}
-                      hotspotMedia={hotspot}
-                      setCurrentHotspotId={setCurrentHotspotId}
-                    />
-                  ))}
-            </Canvas>
-
-            <div
-              className={`${styles.space_right_menu} ${
-                isMenuVisible ? styles.show : ""
-              }`}
-            >
-              <div className={styles.rightTitle}>
-                <FaAngleRight
-                  className={styles.close_menu_btn}
-                  // onClick={handleOpenMenu}
+          {isViewMode === 1 ? (
+            <div className={styles.space_preview_tour}>
+              <Canvas
+                camera={{
+                  fov: 75,
+                  aspect: window.innerWidth / window.innerHeight,
+                  near: 0.1,
+                  far: 1000,
+                  position: [0, 0, DEFAULT_ORIGINAL_Z],
+                }}
+                style={{ cursor: cursor }}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                }}
+              >
+                <Environment preset="studio" background={false} />
+                <axesHelper args={[10]} position={[0, -90, 0]} />
+                <UpdateCameraOnResize />
+                <TourScene
+                  nodeId={currentSelectId ?? ""}
+                  radius={RADIUS_SPHERE}
+                  sphereRef={sphereRef}
+                  textureCurrent={currentPanorama?.url ?? "/khoa.jpg"}
+                  onPointerDown={handleScenePointerDown}
+                  lightIntensity={1}
+                  onTextureReady={() => setIsTextureReady(true)}
                 />
-                <h2 onClick={handlePublishTour}>Cấu hình</h2>
+
+                <CamControls
+                  targetPosition={targetPosition}
+                  sphereRef={sphereRef}
+                  cameraRef={cameraRef}
+                  controlsRef={controlsRef}
+                  autoRotate={false}
+                  autoRotateSpeed={0}
+                  onAngleChange={setCameraAngle}
+                />
+
+                {isTextureReady &&
+                  hotspotNavigations
+                    .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                    .map((hotspot) => (
+                      <GroundHotspot
+                        key={hotspot.id}
+                        onNavigate={(targetNodeId, cameraTargetPosition) => {
+                          const isNumericString = /^\d+$/.test(hotspot.id);
+                          if (isNumericString) {
+                            return;
+                          }
+                          handleHotspotNavigate(
+                            targetNodeId,
+                            cameraTargetPosition
+                          );
+                        }}
+                        setCurrentHotspotId={setCurrentHotspotId}
+                        hotspotNavigation={hotspot}
+                      />
+                    ))}
+
+                {isTextureReady &&
+                  hotspotInfos
+                    .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                    .map((hotspot) => (
+                      <GroundHotspotInfo
+                        key={hotspot.id}
+                        setCurrentHotspotId={setCurrentHotspotId}
+                        hotspotInfo={hotspot}
+                      />
+                    ))}
+                {isTextureReady &&
+                  hotspotModels
+                    .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                    .map((hotspot) => (
+                      <GroundHotspotModel
+                        key={hotspot.id}
+                        setCurrentHotspotId={setCurrentHotspotId}
+                        hotspotModel={hotspot}
+                      />
+                    ))}
+
+                {isTextureReady &&
+                  hotspotMedias
+                    .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                    .map((hotspot) => (
+                      <VideoMeshComponent
+                        key={hotspot.id}
+                        hotspotMedia={hotspot}
+                        setCurrentHotspotId={setCurrentHotspotId}
+                      />
+                    ))}
+              </Canvas>
+
+              <div
+                className={`${styles.space_right_menu} ${
+                  isMenuVisible ? styles.show : ""
+                }`}
+              >
+                <div className={styles.rightTitle}>
+                  <FaAngleRight
+                    className={styles.close_menu_btn}
+                    // onClick={handleOpenMenu}
+                  />
+                  <h2>Cấu hình</h2>
+                </div>
+
+                <RightMenuCreateTour
+                  tasks={tasks}
+                  openTaskIndex={openTaskIndex}
+                  onTaskClick={handleOpenTask}
+                  setPreOpenTask={setPreTaskIndex}
+                  saveLinkNode={true}
+                />
+              </div>
+              <div
+                className={`${styles.task_container} ${
+                  isMenuVisible &&
+                  openTaskIndex !== null &&
+                  currentHotspotId === null
+                    ? styles.show
+                    : ""
+                }`}
+              >
+                <TaskContainerCT
+                  id={preTaskIndex}
+                  name={tasks.find((t) => t.id === preTaskIndex)?.title || ""}
+                >
+                  {preTaskIndex
+                    ? getTaskContentById(openTaskIndex ?? preTaskIndex)
+                    : ""}
+                </TaskContainerCT>
               </div>
 
-              <RightMenuCreateTour
-                tasks={tasks}
-                openTaskIndex={openTaskIndex}
-                onTaskClick={handleOpenTask}
-                setPreOpenTask={setPreTaskIndex}
-                saveLinkNode={true}
-              />
-            </div>
-            <div
-              className={`${styles.task_container} ${
-                isMenuVisible &&
-                openTaskIndex !== null &&
-                currentHotspotId === null
-                  ? styles.show
-                  : ""
-              }`}
-            >
-              <TaskContainerCT
-                id={preTaskIndex}
-                name={tasks.find((t) => t.id === preTaskIndex)?.title || ""}
+              <div
+                className={`${styles.update_hotspot_container} ${
+                  currentHotspotId != null ? styles.show : ""
+                }`}
               >
-                {preTaskIndex
-                  ? getTaskContentById(openTaskIndex ?? preTaskIndex)
-                  : ""}
-              </TaskContainerCT>
+                <UpdateHotspot
+                  hotspotId={currentHotspotId}
+                  setHotspotId={setCurrentHotspotId}
+                  onPropsChange={handleOnPropsChange}
+                  setChangeCorner={setChangeCornerMedia}
+                  limitNav={false}
+                />
+              </div>
+              <div className={styles.update_link_tour}>
+                <span
+                  className={styles.update_link_tour_btn}
+                  onClick={handleUpdateTourInSpace}
+                >
+                  Lưu
+                </span>
+              </div>
             </div>
-
-            <div
-              className={`${styles.update_hotspot_container} ${
-                currentHotspotId != null ? styles.show : ""
-              }`}
-            >
-              <UpdateHotspot
-                hotspotId={currentHotspotId}
-                setHotspotId={setCurrentHotspotId}
-                onPropsChange={handleOnPropsChange}
-                setChangeCorner={setChangeCornerMedia}
-                limitNav={false}
+          ) : (
+            <div className={styles.space_preview_tour}>
+              <TrackingSpace
+                panoramaList={panoramaList}
+                hotspotNavigations={hotspotNavigations}
               />
             </div>
-          </div>
+          )}
         </div>
       </div>
     </>

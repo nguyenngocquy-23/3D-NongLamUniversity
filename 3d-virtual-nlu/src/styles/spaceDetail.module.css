@@ -23,6 +23,7 @@
   box-shadow: 5px 5px 5px 5px #00000065;
   animation: all 1s ease-in;
 }
+
 .space_title {
   font-size: 1rem;
   font-weight: bold;
@@ -58,6 +59,15 @@
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 12px;
+}
+.space_mode {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.space_mode .space_mode_item {
+  padding: 0.5rem;
+  cursor: pointer;
 }
 
 .space_preview_tour {
@@ -169,4 +179,16 @@
   max-height: 80vh;
   overflow: hidden;
   overflow-y: auto;
+}
+
+.update_link_tour {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(-50%, -50%);
+  padding: 0.5rem;
+  color: #fff;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background-color: #4d4d4d65;
 }
