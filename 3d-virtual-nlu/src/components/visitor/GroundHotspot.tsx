@@ -15,12 +15,14 @@ type GroundHotspotProps = {
   ) => void;
   hotspotNavigation: HotspotNavigation;
   setCurrentHotspotId?: (val: string | null) => void;
+  blockUpdate?: boolean;
 };
 
 const GroundHotspot: React.FC<GroundHotspotProps> = ({
   onNavigate,
   hotspotNavigation,
   setCurrentHotspotId,
+  blockUpdate,
 }) => {
   const hotspotRef = useRef<THREE.Mesh>(null);
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
@@ -155,7 +157,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
 
   return (
     <>
-
       {isIcon3D && clonedScene ? (
         <group
           ref={groupRef}
@@ -238,7 +239,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         </mesh>
       )}
 
-      {isOpenHotspotOption && currentStep != 1 ? (
+      {isOpenHotspotOption && currentStep == 2 && !blockUpdate ? (
         <OptionHotspot
           hotspotId={hotspotNavigation.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}

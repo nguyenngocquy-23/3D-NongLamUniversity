@@ -86,7 +86,6 @@ const UpdateHotspot = ({
         ) : (
           <>
             <TypeMedia
-              setChangeCorner={setChangeCorner}
               hotspotMedia={propHotspot}
             />
           </>

@@ -275,11 +275,9 @@ const TourCanvas = React.memo(
           cameraRadarRef={cameraRadarRef}
           currentPano={defaultNode}
         />
-
-
         {isTextureReady &&
           hotspotInformations.map((hotspot) => (
-            <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} />
+            <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} blockUpdate={true}/>
           ))}
         {isTextureReady &&
           hotspotNavigations.map((hotspot) => (
@@ -289,15 +287,16 @@ const TourCanvas = React.memo(
                 handleHotspotNavigate(targetNodeId, cameraTargetPosition)
               }
               hotspotNavigation={hotspot}
+              blockUpdate={true}
             />
           ))}
         {isTextureReady &&
           hotspotModels.map((hotspot) => (
-            <GroundHotspotModel key={hotspot.id} hotspotModel={hotspot} />
+            <GroundHotspotModel key={hotspot.id} hotspotModel={hotspot} blockUpdate={true}/>
           ))}
         {isTextureReady &&
           hotspotMedias.map((hotspot) => (
-            <VideoMeshComponent key={hotspot.id} hotspotMedia={hotspot} />
+            <VideoMeshComponent key={hotspot.id} hotspotMedia={hotspot} blockUpdate={true}/>
           ))}
       </Canvas>
     );

@@ -47,6 +47,21 @@ import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import { getAngleFromXZ } from "../../utils/MathUtils";
 import CamControlAdmins from "../../components/admin/CamControlsAdmin";
 
+export const tasks = [
+  {
+    id: 1,
+    title: "Thông tin hiển thị",
+  },
+  {
+    id: 2,
+    title: "Thông số cơ bản",
+  },
+  {
+    id: 3,
+    title: "Thiết lập điểm tương tác",
+  },
+];
+
 const CreateTourStep2 = () => {
   /**
    * Xử lý toggle hiển thị menu - start
@@ -64,7 +79,6 @@ const CreateTourStep2 = () => {
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-
   // TEST @@
   const cameraRadarRef = useRef<number>(0);
 
@@ -370,22 +384,8 @@ const CreateTourStep2 = () => {
     }
   };
 
-  const tasks = [
-    {
-      id: 1,
-      title: "Thông tin hiển thị",
-    },
-    {
-      id: 2,
-      title: "Thông số cơ bản",
-    },
-    {
-      id: 3,
-      title: "Thiết lập điểm tương tác",
-    },
-  ];
-
-  const { openTaskIndex, handleOpenTask } = useSequentialTasks(tasks.length);
+  const { openTaskIndex, completedTaskIds, unlockedTaskIds, handleOpenTask } =
+    useSequentialTasks(tasks.length);
 
   const [preTaskIndex, setPreTaskIndex] = useState<number | null>(null);
 

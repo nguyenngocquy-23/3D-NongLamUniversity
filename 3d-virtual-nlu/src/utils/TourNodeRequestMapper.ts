@@ -55,6 +55,10 @@ export interface HotspotNavCreateRequest {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   targetNodeId: string;
 }
 
@@ -69,6 +73,10 @@ export interface HotspotInfoCreateRequest {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   title: string;
   content: string;
 }
@@ -83,6 +91,10 @@ export interface HotspotMediaCreateRequest {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   mediaType: string;
   mediaUrl: string;
   caption: string;
@@ -99,6 +111,10 @@ export interface HotspotModelCreateRequest {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   modelUrl: string;
   name: string;
   description: string;
@@ -125,6 +141,7 @@ export interface NodeResponse {
   mediaHotspots: HotspotMediaResponse[];
   modelHotspots: HotspotModelResponse[];
 }
+
 export interface HotspotNavResponse {
   id: string;
   nodeId: string;
@@ -315,6 +332,125 @@ export class TourNodeRequestMapper {
       };
     });
   }
+  
+  static mapOneNodeUpdateRequest(
+    panoramaList: PanoramaItem[],
+    hotspotList: HotspotItem[],
+  ): NodeUpdateRequest[] {
+    return panoramaList.map((pano) => {
+      const nodeIdTemp = pano.id; // id temp của từng pano 
+      const hotspotsForNode = hotspotList.filter(
+        (h) => h.nodeId === nodeIdTemp
+      );
+
+      //List hotspot của từng panorama.
+      const navHotspots: HotspotNavCreateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotNavigation => h.type === 1)
+        .map((h) => ({
+          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          type: h.type,
+          iconId: h.iconId,
+          positionX: h.positionX,
+          positionY: h.positionY,
+          positionZ: h.positionZ,
+          pitchX: h.pitchX,
+          yawY: h.yawY,
+          rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
+          opacity: h.opacity,
+          scale: h.scale,
+          targetNodeId: h.targetNodeId, //
+        }));
+
+      const infoHotspots: HotspotInfoCreateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotInformation => h.type === 2)
+        .map((h) => ({
+          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          type: h.type,
+          iconId: h.iconId,
+          positionX: h.positionX,
+          positionY: h.positionY,
+          positionZ: h.positionZ,
+          pitchX: h.pitchX,
+          yawY: h.yawY,
+          rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
+          opacity: h.opacity,
+          scale: h.scale,
+          title: h.title,
+          content: h.content,
+        }));
+
+      const mediaHotspots: HotspotMediaCreateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotMedia => h.type === 3)
+        .map((h) => ({
+          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          iconId: h.iconId,
+          type: h.type,
+          positionX: h.positionX,
+          positionY: h.positionY,
+          positionZ: h.positionZ,
+          pitchX: h.pitchX,
+          yawY: h.yawY,
+          rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
+          opacity: h.opacity,
+          scale: h.scale,
+          mediaType: h.mediaType,
+          mediaUrl: h.mediaUrl,
+          caption: h.caption,
+          cornerPointList: h.cornerPointList,
+        }));
+
+      const modelHotspots: HotspotModelCreateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotModel => h.type === 4)
+        .map((h) => ({
+          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          type: h.type,
+          iconId: h.iconId,
+          positionX: h.positionX,
+          positionY: h.positionY,
+          positionZ: h.positionZ,
+          pitchX: h.pitchX,
+          yawY: h.yawY,
+          rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
+          opacity: h.opacity,
+          scale: h.scale,
+          modelUrl: h.modelUrl,
+          name: h.name,
+          description: h.description,
+          autoRotate: h.autoRotate,
+          colorCode: h.colorCode,
+        }));
+
+      return {
+        id: Number.parseInt(pano.id, 10),
+        url: pano.url,
+        name: pano.config.name,
+        description: pano.config.description,
+        positionX: pano.config.positionX,
+        positionY: pano.config.positionY,
+        positionZ: pano.config.positionZ,
+        autoRotate: pano.config.autoRotate,
+        speedRotate: pano.config.speedRotate,
+        lightIntensity: pano.config.lightIntensity,
+        status: pano.config.status,
+        navHotspots,
+        infoHotspots,
+        mediaHotspots,
+        modelHotspots,
+      };
+    });
+  }
 
   static mapOneNodeLinkRequest(
     panoramaList: PanoramaItem[],
@@ -359,15 +495,6 @@ export class TourNodeRequestMapper {
     const panoramaList: PanoramaItem[] = [];
     const hotspotList: HotspotItem[] = [];
 
-    const applyHotspotDefaults = (
-      hotspot: Partial<HotspotItem>
-    ): Partial<HotspotItem> => ({
-      color: hotspot.color ?? "#ffffff",
-      backgroundColor: hotspot.backgroundColor ?? "#000000",
-      allowBackgroundColor: hotspot.allowBackgroundColor ?? undefined,
-      opacity: hotspot.opacity ?? 1,
-      ...hotspot,
-    });
 
     for (const node of nodes) {
       panoramaList.push({
@@ -389,10 +516,9 @@ export class TourNodeRequestMapper {
 
       // Nav Hotspots
       node.navHotspots?.forEach((h, idx) => {
-        hotspotList.push(
-          applyHotspotDefaults({
-            id: String(h.id),
-            nodeId: String(h.nodeId),
+        hotspotList.push({
+            id: h.id,
+            nodeId: h.nodeId,
             type: h.type,
             iconId: h.iconId,
             positionX: h.positionX,
@@ -401,18 +527,22 @@ export class TourNodeRequestMapper {
             pitchX: h.pitchX,
             yawY: h.yawY,
             rollZ: h.rollZ,
+            color: h.color,
+            backgroundColor: h.backgroundColor,
+            allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
+            opacity: h.opacity,
             scale: h.scale,
             targetNodeId: h.targetNodeId,
-          }) as HotspotItem
+          } as HotspotNavigation
         );
       });
 
       // Info Hotspots
       node.infoHotspots?.forEach((h, idx) => {
-        hotspotList.push(
-          applyHotspotDefaults({
-            id: String(h.id),
-            nodeId: String(h.nodeId),
+        console.log("Applying defaults to hotspot:", h);
+        hotspotList.push({
+            id: h.id,
+            nodeId: h.nodeId,
             type: h.type,
             iconId: h.iconId,
             positionX: h.positionX,
@@ -422,18 +552,21 @@ export class TourNodeRequestMapper {
             yawY: h.yawY,
             rollZ: h.rollZ,
             scale: h.scale,
+            color: h.color,
+            backgroundColor: h.backgroundColor,
+            allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
+            opacity: h.opacity,
             title: h.title,
             content: h.content,
-          }) as HotspotItem
+          } as HotspotInformation
         );
       });
 
       // Media Hotspots
       node.mediaHotspots?.forEach((h, idx) => {
-        hotspotList.push(
-          applyHotspotDefaults({
-            id: String(h.id),
-            nodeId: String(h.nodeId),
+        hotspotList.push({
+            id: h.id,
+            nodeId: h.nodeId,
             type: h.type,
             iconId: h.iconId,
             positionX: h.positionX,
@@ -443,20 +576,23 @@ export class TourNodeRequestMapper {
             yawY: h.yawY,
             rollZ: h.rollZ,
             scale: h.scale,
+            color: h.color,
+            backgroundColor: h.backgroundColor,
+            allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
+            opacity: h.opacity,
             mediaType: h.mediaType,
             mediaUrl: h.mediaUrl,
             caption: h.caption,
             cornerPointList: h.cornerPointList,
-          }) as HotspotItem
+          } as HotspotMedia
         );
       });
 
       // Model Hotspots
       node.modelHotspots?.forEach((h, idx) => {
-        hotspotList.push(
-          applyHotspotDefaults({
-            id: String(h.id),
-            nodeId: String(h.nodeId),
+        hotspotList.push({
+            id: h.id,
+            nodeId: h.nodeId,
             type: h.type,
             iconId: h.iconId,
             positionX: h.positionX,
@@ -466,11 +602,15 @@ export class TourNodeRequestMapper {
             yawY: h.yawY,
             rollZ: h.rollZ,
             scale: h.scale,
+            color: h.color,
+            backgroundColor: h.backgroundColor,
+            allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
+            opacity: h.opacity,
             modelUrl: h.modelUrl,
             name: h.name,
             description: h.description,
             colorCode: h.colorCode,
-          }) as HotspotItem
+          } as HotspotModel
         );
       });
     }

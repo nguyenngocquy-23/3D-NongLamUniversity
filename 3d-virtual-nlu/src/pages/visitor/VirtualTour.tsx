@@ -77,23 +77,6 @@ const VirtualTour = () => {
     return (nodeToRender?.infoHotspots as HotspotInformation[]) || [];
   }, [nodeToRender]);
 
-  if (
-    !hotspotModels ||
-    !hotspotMedias ||
-    !hotspotNavigations ||
-    !hotspotInformations
-  ) {
-    return null;
-  }
-
-  // const defaultNode = sessionStorage.getItem("defaultNode");
-  // let defaultNode = null;
-  // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
-
-  if (!nodeToRender) {
-    return null;
-  }
-
   const [isRotation, setIsRotation] = useState(nodeToRender.autoRotate || true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
@@ -137,13 +120,13 @@ const VirtualTour = () => {
    */
   const mapRef = useRef<L.Map | null>(null);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsWaiting(false); // ẩn trang chờ
-    }, 5000);
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     setIsWaiting(false); // ẩn trang chờ
+  //   }, 5000);
 
-    return () => clearTimeout(timeout);
-  }, []);
+  //   return () => clearTimeout(timeout);
+  // }, []);
 
   const navigate = useNavigate();
   const sphereRef = useRef<THREE.Mesh | null>(null);
@@ -331,6 +314,31 @@ const VirtualTour = () => {
     }
   }, [fullMap, hoverMap]);
 
+  // const defaultNode = sessionStorage.getItem("defaultNode");
+  // let defaultNode = null;
+  // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
+
+  const [percent, setPercent] = useState(0);
+
+  useEffect(() => {
+    console.log('isLoading : : :', isWaiting)
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 10;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        // Đợi render xong mới tắt loading
+        requestAnimationFrame(() => {
+          setTimeout(() => setIsWaiting(false), 500);
+        });
+      }
+      setPercent(Math.floor(progress));
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, []);
+
   if (!icons || icons.length === 0) {
     return (
       <>
@@ -340,6 +348,19 @@ const VirtualTour = () => {
         </div>
       </>
     );
+  }
+
+  if (
+    !hotspotModels ||
+    !hotspotMedias ||
+    !hotspotNavigations ||
+    !hotspotInformations
+  ) {
+    return null;
+  }
+
+  if (!nodeToRender) {
+    return null;
   }
 
   return (
@@ -471,7 +492,7 @@ const VirtualTour = () => {
         )}
       </div>
       /* Màn hình laoding */
-      {/* {isWaiting ? <Waiting /> : ""} */}
+      {isWaiting ? <Waiting percent={percent} /> : ""}
     </div>
   );
 };

@@ -34,25 +34,48 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
 
   const dispatch = useDispatch();
 
-  const [isLoading, setIsLoading] = useState(false);
   const ActiveComponent = stepsConfig[currentStep - 1]?.Component;
+  const [percent, setPercent] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const isLoadingRef = useRef(false);
 
   useEffect(() => {
-    if (currentStep == stepsConfig.length) {
-      setIsComplete(true);
-    }
-    if (currentStep == 1) {
+    if (currentStep === 1) {
       dispatch(clearHotspot());
       dispatch(clearPanorama());
       setIsComplete(false);
+      isLoadingRef.current = false;
+      setIsLoading(false);
+    } else {
+      setIsComplete(currentStep === stepsConfig.length);
+      isLoadingRef.current = true;
+      setIsLoading(true);
     }
+  }, [currentStep]);
 
-    if (currentStep != 1) setIsLoading(true);
-    const timeout = setTimeout(() => {
-      setIsLoading(false); // ẩn trang chờ
-    }, 3000);
+  useEffect(() => {
+    if (!isLoadingRef.current || currentStep === 1) return;
 
-    return () => clearTimeout(timeout);
+    let progress = 0;
+    setPercent(0);
+
+    const interval = setInterval(() => {
+      progress += Math.random() * 10;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            isLoadingRef.current = false;
+            setIsLoading(false);
+          }, 500);
+        });
+      }
+      setPercent(Math.floor(progress));
+    }, 200);
+
+    return () => clearInterval(interval);
   }, [currentStep]);
 
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(false);
@@ -94,7 +117,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
       )}
       <div className={styles.stepContent}>
         <ActiveComponent />
-        {isLoading ? <Waiting /> : ""}
+        {isLoading ? <Waiting percent={percent} /> : ""}
       </div>
     </>
   );

@@ -21,4 +21,5 @@ public class HotspotModelResponse {
     byte allowBackgroundColor;
     float opacity;
     String modelUrl, name, description;
+    String usernameAuthor;
 }
