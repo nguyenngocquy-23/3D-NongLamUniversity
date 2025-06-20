@@ -94,4 +94,8 @@ public class NodeService {
 
     }
 
+    public boolean updateLinkNodeById(List<NodeLinkRequest> request) {
+        return nodeDao.updateLinkNodeById(request);
+    }
+
 }

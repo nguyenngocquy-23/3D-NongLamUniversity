@@ -28,6 +28,7 @@ import {
 } from "../redux/slices/Selectors";
 import { clearHotspotNavigation } from "../redux/slices/HotspotSlice";
 import { FaSave } from "react-icons/fa";
+import ImageSelect from "./SelectPanorama";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
@@ -222,11 +223,17 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
     setIsEditing(false);
   };
   const [masterNameInput, setMasterNameInput] = useState(
-    (masterPanorama?.config.name || "").slice(0, 40)
+    masterPanorama?.config.name || ""
   );
   useEffect(() => {
-    setMasterNameInput(masterPanorama?.config.name.slice(0, 40) || "");
+    setMasterNameInput(masterPanorama?.config.name || "");
   }, [masterPanorama]);
+
+  const options = panoramaList.map((p) => ({
+    value: p.id,
+    label: p.config.name,
+    imageUrl: p.url,
+  }));
   return (
     <Html
       transform={false}
@@ -282,68 +289,9 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
 
         <div className={styles.minimap_preview_zoom}>
           {isExpanded && (
-            <div
-              className={`${styles.tour_general_information} ${styles.tour_general}`}
-            >
-              <div className={styles.tour_information_item}>
-                <span>Lĩnh vực: </span>
-              </div>
-              <div className={styles.tour_information_item}>
-                <span>Không gian: {"1"}</span>
-              </div>
-              <div className={styles.tour_information_item}>
-                <span>Số lượng ảnh: {panoramaList.length}</span>
-              </div>
-              <div className={styles.tour_information_item}>
-                <span>Trung tâm tour:</span>
-                <select
-                  className={styles.custom_select}
-                  onChange={(e) => {
-                    const selectedId = e.target.value;
-                    if (selectedId) {
-                      dispatch(setMasterPanorama(selectedId));
-                      dispatch(clearHotspotNavigation());
-                    }
-                  }}
-                >
-                  <option value="0">-- Chọn ảnh --</option>
-                  {panoramaList.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.config.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className={`${styles.tour_information_item} `}>
-                <span>Tên tour : </span>
-                <div className={styles.input_container}>
-                  <input
-                    type="text"
-                    id="input"
-                    required
-                    readOnly={!isEditing}
-                    value={
-                      masterNameInput.length > 40
-                        ? masterNameInput.slice(0, 40) + "..."
-                        : masterNameInput
-                    }
-                    onChange={(e) => setMasterNameInput(e.target.value)}
-                  />
-                  {!isEditing ? (
-                    <RiEdit2Line
-                      className={styles.input_edit}
-                      onClick={handleEditInput}
-                    />
-                  ) : (
-                    <FaSave
-                      className={styles.input_edit}
-                      onClick={handleRename}
-                    />
-                  )}
-
-                  <div className={styles.underline}></div>
-                </div>
-              </div>
+            <div className={`${styles.tour_edit} ${styles.tour_general}`}>
+              <span>Lĩnh vực: </span>
+              <span>Không gian: </span>
             </div>
           )}
           <div
@@ -398,9 +346,70 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
         {isExpanded && (
           <>
             <div className={styles.tour_settings}>
-              <div className={`${styles.tour_edit} ${styles.tour_general}`}>
-                <span>Lĩnh vực: </span>
-                <span>Không gian: </span>
+              <div
+                className={`${styles.tour_general_information} ${styles.tour_general}`}
+              >
+                <div className={styles.tour_information_item}>
+                  <span>Lĩnh vực: </span>
+                </div>
+                <div className={styles.tour_information_item}>
+                  <span>Không gian: {"1"}</span>
+                </div>
+                <div className={styles.tour_information_item}>
+                  <span>Số lượng ảnh: {panoramaList.length}</span>
+                </div>
+                <div className={styles.tour_information_item}>
+                  <span>Trung tâm tour:</span>
+                  <ImageSelect
+                    options={options}
+                    onChange={(selected) => {
+                      if (selected) {
+                        dispatch(setMasterPanorama(selected.value));
+                        dispatch(clearHotspotNavigation());
+                      }
+                    }}
+                    placeholder="-- Chọn ảnh panorama --"
+                  />
+                </div>
+                <div className={`${styles.tour_information_item} `}>
+                  <span>Tên tour : </span>
+                  <div className={styles.input_container}>
+                    {!isEditing ? (
+                      <>
+                        <input
+                          type="text"
+                          id="input"
+                          value={
+                            masterNameInput.length > 40
+                              ? masterNameInput.slice(0, 40) + "..."
+                              : masterNameInput
+                          }
+                          disabled
+                        />
+
+                        <RiEdit2Line
+                          className={styles.input_edit}
+                          onClick={handleEditInput}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <input
+                          type="text"
+                          id="input"
+                          required
+                          value={masterNameInput}
+                          onChange={(e) => setMasterNameInput(e.target.value)}
+                        />
+                        <FaSave
+                          className={styles.input_edit}
+                          onClick={handleRename}
+                        />
+                      </>
+                    )}
+                    <div className={styles.underline}></div>
+                  </div>
+                </div>
               </div>
               <div className={styles.tour_tracking}>
                 <TrackingNode

@@ -1,0 +1,16 @@
+.tracking_item_container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.item_img {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 1px solid #fff;
+}
+
+.item_name {
+  font-size: 1rem;
+}

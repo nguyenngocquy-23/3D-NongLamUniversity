@@ -31,6 +31,80 @@ export interface NodeCreateRequest {
   modelHotspots: HotspotModelCreateRequest[];
 }
 
+/**
+ * Dành cho việc liên kết các ảnh master với nhau trong space.
+ * 1. Thay đổi hướng mặc định của node.
+ * 2. Thêm các hotspot navigation di chuyển giữa các node.
+ */
+export interface NodeLinkRequest {
+  id: string;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  navHotspots: HotspotNavCreateRequest[];
+}
+
+export interface HotspotNavCreateRequest {
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  targetNodeId: string;
+}
+
+export interface HotspotInfoCreateRequest {
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  title: string;
+  content: string;
+}
+export interface HotspotMediaCreateRequest {
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  mediaType: string;
+  mediaUrl: string;
+  caption: string;
+  cornerPointList: string;
+}
+export interface HotspotModelCreateRequest {
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  modelUrl: string;
+  name: string;
+  description: string;
+  colorCode: string;
+}
+
 export interface NodeResponse {
   id: string;
   spaceId: string;
@@ -100,67 +174,6 @@ export interface HotspotMediaResponse {
 }
 export interface HotspotModelResponse {
   id: string;
-  nodeId: string;
-  type: number;
-  iconId: number;
-  positionX: number;
-  positionY: number;
-  positionZ: number;
-  pitchX: number;
-  yawY: number;
-  rollZ: number;
-  scale: number;
-  modelUrl: string;
-  name: string;
-  description: string;
-  colorCode: string;
-}
-
-export interface HotspotNavCreateRequest {
-  nodeId: string;
-  type: number;
-  iconId: number;
-  positionX: number;
-  positionY: number;
-  positionZ: number;
-  pitchX: number;
-  yawY: number;
-  rollZ: number;
-  scale: number;
-  targetNodeId: string;
-}
-
-export interface HotspotInfoCreateRequest {
-  nodeId: string;
-  type: number;
-  iconId: number;
-  positionX: number;
-  positionY: number;
-  positionZ: number;
-  pitchX: number;
-  yawY: number;
-  rollZ: number;
-  scale: number;
-  title: string;
-  content: string;
-}
-export interface HotspotMediaCreateRequest {
-  nodeId: string;
-  type: number;
-  iconId: number;
-  positionX: number;
-  positionY: number;
-  positionZ: number;
-  pitchX: number;
-  yawY: number;
-  rollZ: number;
-  scale: number;
-  mediaType: string;
-  mediaUrl: string;
-  caption: string;
-  cornerPointList: string;
-}
-export interface HotspotModelCreateRequest {
   nodeId: string;
   type: number;
   iconId: number;
@@ -303,6 +316,42 @@ export class TourNodeRequestMapper {
     });
   }
 
+  static mapOneNodeLinkRequest(
+    panoramaList: PanoramaItem[],
+    hotspotList: HotspotNavigation[]
+  ): NodeLinkRequest[] {
+    return panoramaList.map((pano) => {
+      const hotspotOfNode = hotspotList.filter((h) => h.nodeId === pano.id);
+      // Lọc ra hotspot có id dạng temp nano
+      const navHotspots: HotspotNavCreateRequest[] = hotspotOfNode
+        .filter((h) => !isInteger(h.id))
+        .map((h) => ({
+          nodeId: h.nodeId,
+          type: h.type,
+          iconId: h.iconId,
+          positionX: h.positionX,
+          positionY: h.positionY,
+          positionZ: h.positionZ,
+          pitchX: h.pitchX,
+          yawY: h.yawY,
+          rollZ: h.rollZ,
+          color: h.color,
+          backgroundColor: h.backgroundColor,
+          allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
+          opacity: h.opacity,
+          scale: h.scale,
+          targetNodeId: h.targetNodeId,
+        }));
+      return {
+        id: pano.id,
+        positionX: pano.config.positionX,
+        positionY: pano.config.positionY,
+        positionZ: pano.config.positionZ,
+        navHotspots: navHotspots,
+      };
+    });
+  }
+
   static mapToPanoramaAndHotspots(nodes: NodeResponse[]): {
     panoramaList: PanoramaItem[];
     hotspotList: HotspotItem[];
@@ -322,8 +371,8 @@ export class TourNodeRequestMapper {
 
     for (const node of nodes) {
       panoramaList.push({
-        id: node.id,
-        spaceId: node.spaceId,
+        id: String(node.id),
+        spaceId: String(node.spaceId),
         url: node.url,
         config: {
           name: node.name,
@@ -342,8 +391,8 @@ export class TourNodeRequestMapper {
       node.navHotspots?.forEach((h, idx) => {
         hotspotList.push(
           applyHotspotDefaults({
-            id: h.id,
-            nodeId: h.nodeId,
+            id: String(h.id),
+            nodeId: String(h.nodeId),
             type: h.type,
             iconId: h.iconId,
             positionX: h.positionX,
@@ -362,8 +411,8 @@ export class TourNodeRequestMapper {
       node.infoHotspots?.forEach((h, idx) => {
         hotspotList.push(
           applyHotspotDefaults({
-            id: h.id,
-            nodeId: h.nodeId,
+            id: String(h.id),
+            nodeId: String(h.nodeId),
             type: h.type,
             iconId: h.iconId,
             positionX: h.positionX,
@@ -383,8 +432,8 @@ export class TourNodeRequestMapper {
       node.mediaHotspots?.forEach((h, idx) => {
         hotspotList.push(
           applyHotspotDefaults({
-            id: h.id,
-            nodeId: h.nodeId,
+            id: String(h.id),
+            nodeId: String(h.nodeId),
             type: h.type,
             iconId: h.iconId,
             positionX: h.positionX,
@@ -406,8 +455,8 @@ export class TourNodeRequestMapper {
       node.modelHotspots?.forEach((h, idx) => {
         hotspotList.push(
           applyHotspotDefaults({
-            id: h.id,
-            nodeId: h.nodeId,
+            id: String(h.id),
+            nodeId: String(h.nodeId),
             type: h.type,
             iconId: h.iconId,
             positionX: h.positionX,
@@ -429,3 +478,13 @@ export class TourNodeRequestMapper {
     return { panoramaList, hotspotList };
   }
 }
+
+/**
+ * Ứng dụng cho phần kiểm tra id hotspot trước khi cập nhật liên kết node.
+ * @param value : chuỗi dạng số "123"
+ * @returns Kiểm tra xem nó có là chuỗi dạng số không
+ */
+export const isInteger = (value: string): boolean => {
+  const parsed = parseInt(value, 10);
+  return parsed.toString() === value;
+};

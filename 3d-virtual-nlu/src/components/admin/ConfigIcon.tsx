@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import ListIcon from "./ListIcon";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -12,10 +12,12 @@ import styles from "../../styles/configIcon.module.css";
 import { FiEdit } from "react-icons/fi";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaArrowRotateLeft } from "react-icons/fa6";
+import { getAxisRange } from "../../utils/MathUtils";
+import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 
 const ConfigIcon = ({
   propHotspot,
-  isUpdate,
+  type,
   onPropsChange,
   currentHotspotType,
 }: {
@@ -23,10 +25,10 @@ const ConfigIcon = ({
   isUpdate?: boolean;
   onPropsChange: (value: BaseHotspot) => void;
   currentHotspotType: number | null;
+  type?: number | null;
 }) => {
   const [openListIcon, setOpenListIcon] = useState(false);
-
-  const [typeIcon, setTypeIcon] = useState(1); // Default cho 2D
+  const [typeIcon, setTypeIcon] = useState(type ?? 1); // Default cho 2D
 
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
@@ -39,35 +41,65 @@ const ConfigIcon = ({
   const hotspotTypes = useSelector(
     (state: RootState) => state.data.hotspotTypes
   );
-
   const icons = useSelector((state: RootState) => state.data.icons);
-
   const [iconId, setIconId] = useState(propHotspot?.iconId ?? 0);
 
   const foundIcon =
     iconId != 0
       ? icons.find((i) => i.id == iconId)
-      : icons.find(
+      : typeIcon === 1 //Loại 2d
+      ? icons.find(
           (i) =>
             i.id == hotspotTypes[(currentHotspotType ?? 1) - 1]?.defaultIconId
-        );
+        )
+      : null;
 
   const iconUrl = foundIcon?.url ?? "";
+  const iconType = foundIcon?.type ?? 2;
 
   const [scale, setScale] = useState(propHotspot?.scale ?? 1);
   const [isFloor, setIsFloor] = useState(false);
   const [pitchX, setPitchX] = useState(propHotspot?.pitchX ?? 0);
   const [yawY, setYawY] = useState(propHotspot?.yawY ?? 0);
   const [rollZ, setRollZ] = useState(propHotspot?.rollZ ?? 0);
-
   const [positionX, setPositionX] = useState(propHotspot?.positionX ?? 0);
   const [positionY, setPositionY] = useState(propHotspot?.positionY ?? 0);
   const [positionZ, setPositionZ] = useState(propHotspot?.positionZ ?? 0);
 
-  const positionAxes = [
-    { axis: "x", value: positionX, set: setPositionX, class: styles.label_x },
-    { axis: "y", value: positionY, set: setPositionY, class: styles.label_y },
-    { axis: "z", value: positionZ, set: setPositionZ, class: styles.label_z },
+  const positionAxes = () => [
+    {
+      axis: "positionX",
+      value: positionX,
+      set: setPositionX,
+      class: styles.label_x,
+      minMax: getAxisRange(
+        [positionX, positionY, positionZ],
+        "positionX",
+        iconType === 2 ? 10 : 0
+      ),
+    },
+    {
+      axis: "positionY",
+      value: positionY,
+      set: setPositionY,
+      class: styles.label_y,
+      minMax: getAxisRange(
+        [positionX, positionY, positionZ],
+        "positionY",
+        iconType === 2 ? 10 : 0
+      ),
+    },
+    {
+      axis: "positionZ",
+      value: positionZ,
+      set: setPositionZ,
+      class: styles.label_z,
+      minMax: getAxisRange(
+        [positionX, positionY, positionZ],
+        "positionZ",
+        iconType === 2 ? 10 : 0
+      ),
+    },
   ];
 
   const [color, setColor] = useState(propHotspot?.color ?? "#333333");
@@ -86,7 +118,9 @@ const ConfigIcon = ({
       iconId:
         iconId !== 0 && propHotspot !== null
           ? iconId
-          : hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId,
+          : typeIcon === 1
+          ? hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId
+          : null,
       positionX: positionX,
       positionY: positionY,
       positionZ: positionZ,
@@ -102,8 +136,6 @@ const ConfigIcon = ({
     };
   };
 
-  const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
-
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -112,6 +144,7 @@ const ConfigIcon = ({
       onPropsChange(props); // gọi hàm truyền lên component cha
     } else {
       const props = handleInitialHotspotProps();
+      console.log();
       dispatch(
         updateConfigHotspot({
           hotspotId: propHotspot.id,
@@ -132,7 +165,7 @@ const ConfigIcon = ({
     positionZ,
     color,
     backgroundColor,
-    allowBackgroundColor,
+    setAllowBackgroundColor,
     iconId,
   ]);
 
@@ -154,34 +187,59 @@ const ConfigIcon = ({
       setOpacity(propHotspot.opacity ?? 1);
     }
   }, [propHotspot]);
+
   return (
     <div className={styles.config_icon_wrapper}>
       <div style={{ position: "relative" }}>
         <div className={styles.config_icon_option}>
-          <button
-            className={styles.config_option_item}
-            onClick={() => {
-              typeIcon === 2 ? setTypeIcon(1) : "";
-            }}
-          >
-            2d
-          </button>
-          <button
-            className={styles.config_option_item}
-            onClick={() => {
-              typeIcon === 1 ? setTypeIcon(2) : "";
-            }}
-          >
-            3d
-          </button>
+          <span>Dạng: </span>
+
+          <div className={styles.radio_container}>
+            {type !== 2 && (
+              <label className={styles.radio_item}>
+                <input
+                  type="radio"
+                  name="2d"
+                  value="2d"
+                  checked={typeIcon === 1}
+                  onChange={() => {
+                    if (typeIcon !== 1) {
+                      setTypeIcon(1);
+                      setIconId(1);
+                    }
+                  }}
+                />
+                <span className={styles.radio_name}>2D</span>
+              </label>
+            )}
+
+            {type !== 1 && (
+              <label className={styles.radio_item}>
+                <input
+                  type="radio"
+                  name="3d"
+                  value="3d"
+                  checked={typeIcon === 2}
+                  onChange={() => {
+                    if (typeIcon !== 2) {
+                      setIconId(0);
+                      setTypeIcon(2);
+                    }
+                  }}
+                />
+                <span className={styles.radio_name}>3D</span>
+              </label>
+            )}
+          </div>
         </div>
+
         {typeIcon === 1 ? (
           <div className={styles.config_icon_infor}>
             <div className={styles.preview_icon}>
               <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <HotspotPreview
                   iconUrl={iconUrl}
-                  typeIcon={typeIcon}
+                  typeIcon={iconType}
                   color={color}
                   backgroundColor={backgroundColor}
                   scale={scale}
@@ -209,14 +267,15 @@ const ConfigIcon = ({
                   <input
                     type="color"
                     name=""
-                    id="style"
+                    id="color_preview"
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
                   />
                   <input
                     type="text"
                     name=""
-                    id="style"
+                    id="color_text"
+                    onChange={(e) => setColor(e.target.value)}
                     value={color}
                     placeholder="HEX, RGB or HSL"
                   />
@@ -229,7 +288,7 @@ const ConfigIcon = ({
                   <input
                     type="color"
                     name="head"
-                    id="bkg"
+                    id="bkg_preview"
                     value={backgroundColor}
                     onChange={(e) => setBackgroundColor(e.target.value)}
                     disabled={!allowBackgroundColor ? true : false}
@@ -237,8 +296,9 @@ const ConfigIcon = ({
                   <input
                     type="text"
                     name=""
-                    id="bkg"
+                    id="bkg_text"
                     value={backgroundColor}
+                    onChange={(e) => setBackgroundColor(e.target.value)}
                     placeholder="HEX, RGB or HSL"
                   />
                 </div>
@@ -325,7 +385,6 @@ const ConfigIcon = ({
 
             <div className={styles.edit_icon_content}>
               <div className={styles.color_icon}>
-                <span>Độ sáng:</span>
                 <div className={styles.opacity_icon_content}>
                   <div className={styles.label_opacity}>{opacity}</div>
                   <div className={styles.edit_icon_opacity}>
@@ -434,27 +493,25 @@ const ConfigIcon = ({
                     onChange = (e) => setRollZ(Number(e.target.value));
                   }
                   return (
-                    <>
-                      <div
-                        className={styles.opacity_icon_content}
-                        key={axis}
-                        style={{ display: "flex", alignItems: "center" }}
-                      >
-                        <div className={`${styles.label_opacity} ${axisClass}`}>
-                          {value}&deg;
-                        </div>
-                        <div className={styles.edit_icon_opacity}>
-                          <input
-                            type="range"
-                            min={-180}
-                            max={180}
-                            value={value}
-                            onChange={onChange}
-                          />
-                          <progress max="360" value={value + 180}></progress>
-                        </div>
+                    <div
+                      className={styles.opacity_icon_content}
+                      key={axis}
+                      style={{ display: "flex", alignItems: "center" }}
+                    >
+                      <div className={`${styles.label_opacity} ${axisClass}`}>
+                        {value}&deg;
                       </div>
-                    </>
+                      <div className={styles.edit_icon_opacity}>
+                        <input
+                          type="range"
+                          min={-180}
+                          max={180}
+                          value={value}
+                          onChange={onChange}
+                        />
+                        <progress max="360" value={value + 180}></progress>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
@@ -487,28 +544,37 @@ const ConfigIcon = ({
           <div className={styles.rotation_cfg_container}>
             <div className={styles.rotation_cfg_optional}>
               <div className={styles.optional_adjust}>
-                {positionAxes.map(({ axis, value, set, class: axisClass }) => (
-                  <div
-                    className={styles.opacity_icon_content}
-                    key={axis}
-                    style={{ display: "flex", alignItems: "center" }}
-                  >
-                    <div className={`${styles.label_opacity} ${axisClass}`}>
-                      {value.toFixed(2)}
-                    </div>
-                    <div className={styles.edit_icon_opacity}>
-                      <input
-                        type="range"
-                        min={-20}
-                        max={20}
-                        step={0.01}
-                        value={value}
-                        onChange={(e) => set(Number(e.target.value))}
-                      />
-                      <progress max="100" value={value + 50}></progress>
-                    </div>
-                  </div>
-                ))}
+                {positionAxes().map(
+                  ({ axis, value, set, class: axisClass, minMax }) => {
+                    const [min, max] = minMax;
+
+                    return (
+                      <div
+                        className={styles.opacity_icon_content}
+                        key={axis}
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <div className={`${styles.label_opacity} ${axisClass}`}>
+                          {value.toFixed(2)}
+                        </div>
+                        <div className={styles.edit_icon_opacity}>
+                          <input
+                            type="range"
+                            min={min}
+                            max={max}
+                            step={0.1}
+                            value={value}
+                            onChange={(e) => set(Number(e.target.value))}
+                          />
+                          <progress
+                            max={100}
+                            value={((value - min) / (max - min)) * 100}
+                          ></progress>
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
               </div>
             </div>
           </div>

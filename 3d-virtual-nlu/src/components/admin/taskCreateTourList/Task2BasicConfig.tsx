@@ -25,7 +25,7 @@ const Task2 = ({ cameraRef }: Task2Props) => {
   const {
     autoRotate = 0,
     speedRotate = 1,
-    lightIntensity = 2,
+    lightIntensity = 1,
     positionX = 0,
     positionZ = DEFAULT_ORIGINAL_Z,
   } = currentPanorama.config ?? {};
@@ -107,8 +107,8 @@ const Task2 = ({ cameraRef }: Task2Props) => {
         <label className={styles.label}>Ánh sáng:</label>
         <input
           type="range"
-          min="1"
-          max="8"
+          min="0"
+          max="7"
           step="0.1"
           value={lightIntensity}
           onChange={(e) =>
