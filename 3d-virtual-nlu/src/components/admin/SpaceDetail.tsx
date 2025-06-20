@@ -45,6 +45,7 @@ import Swal from "sweetalert2";
 import { goToStep } from "../../redux/slices/StepSlice";
 import gsap from "gsap";
 import TrackingSpace from "../TrackingSpace";
+import CamControlAdmins from "./CamControlsAdmin";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
@@ -143,7 +144,7 @@ const SpaceDetail = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 
   // TEST @@
-  const cameraRadarRef = useRef<number>(null);
+  const cameraRadarRef = useRef<number>(0);
 
   const controlsRef = useRef<any>(null); //OrbitControls
 
@@ -542,13 +543,14 @@ const SpaceDetail = () => {
                   onTextureReady={() => setIsTextureReady(true)}
                 />
 
-                <CamControls
+                <CamControlAdmins
                   targetPosition={targetPosition}
                   sphereRef={sphereRef}
                   cameraRef={cameraRef}
                   controlsRef={controlsRef}
                   autoRotate={false}
                   autoRotateSpeed={0}
+                  cameraRadarRef={cameraRadarRef}
                   onAngleChange={setCameraAngle}
                 />
 

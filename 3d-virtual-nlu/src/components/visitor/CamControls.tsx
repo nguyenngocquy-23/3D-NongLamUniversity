@@ -208,9 +208,9 @@ const CamControls: React.FC<CamControlsProps> = ({
 
     if (justSwitchedRef.current) {
       const deltaTemp = getSignedAngleDelta(baseAngleRef.current, currentAngle);
- 
+
       // Nếu delta quá lớn sau khi chuyển node, camera chưa ổn → chờ tiếp
-      if (Math.abs(deltaTemp) > 179 ) return;
+      if (Math.abs(deltaTemp) > 179) return;
 
       baseAngleRef.current = currentAngle;
       justSwitchedRef.current = false;

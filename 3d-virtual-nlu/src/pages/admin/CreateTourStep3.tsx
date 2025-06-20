@@ -7,7 +7,6 @@ import axios from "axios";
 import { Canvas } from "@react-three/fiber";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
-import CamControls from "../../components/visitor/CamControls";
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
@@ -30,6 +29,7 @@ import gsap from "gsap";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 import { API_URLS } from "../../env";
 import { Environment } from "@react-three/drei";
+import CamControlAdmins from "../../components/admin/CamControlsAdmin";
 
 const CreateTourStep3: React.FC = () => {
   const panoramas = useSelector((state: RootState) => state.panoramas);
@@ -48,6 +48,7 @@ const CreateTourStep3: React.FC = () => {
   const [currentPoints, setCurrentPoints] = useState<
     [number, number, number][]
   >([]);
+  const cameraRadarRef = useRef<number>(0);
 
   const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
 
@@ -245,12 +246,13 @@ const CreateTourStep3: React.FC = () => {
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             lightIntensity={lightIntensity}
           />
-          <CamControls
+          <CamControlAdmins
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
+            cameraRadarRef={cameraRadarRef}
           />
           {hotspotNavigations
             .filter((hotspot) => hotspot.nodeId === currentSelectId)

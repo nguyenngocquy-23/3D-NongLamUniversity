@@ -64,6 +64,7 @@ const TourDetail = () => {
   const user = userJson ? JSON.parse(userJson) : null;
   const navigate = useNavigate();
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const cameraRadarRef = useRef<number>(0);
   const controlsRef = useRef<any>(null); //OrbitControls
   /**
    * Logic create tour step 2 of admin
@@ -441,6 +442,8 @@ const TourDetail = () => {
             autoRotateSpeed={
               node || node.speedRotate == 0 ? 0.2 : node.speedRotate
             }
+            cameraRadarRef={cameraRadarRef}
+            currentPano={node}
           />
           {isUpdateTour && (
             <>
@@ -591,12 +594,11 @@ const TourDetail = () => {
               <RightMenuCreateTour
                 tasks={tasks}
                 openTaskIndex={openTaskIndex}
-                completedTaskIds={completedTaskIds}
-                unlockedTaskIds={unlockedTaskIds}
                 onTaskClick={handleOpenTask}
                 setPreOpenTask={setPreTaskIndex}
                 isUpdateTour={true}
                 handleUpdateTour={handleUpdateTour}
+                saveLinkNode={false}
               />
             </div>
             {/* tasks */}
@@ -628,6 +630,7 @@ const TourDetail = () => {
                 hotspotId={currentHotspotId}
                 setHotspotId={setCurrentHotspotId}
                 onPropsChange={handleOnPropsChange}
+                limitNav={true}
               />
             </div>
           </>

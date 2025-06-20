@@ -204,9 +204,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
           scale={hotspotNavigation.scale}
           onPointerOver={() => {
             setIsHovered(true);
-            console.log("🖱 Hover vào hotspot!", [      
-        }}
- 
+          }}
           onClick={(e) => {
             e.stopPropagation();
             if (hotspotNavigation && hotspotNavigation.targetNodeId) {

@@ -110,7 +110,7 @@ const TourCanvas = React.memo(
 
     const handleSelectNode = (id: number) => {
       setIsTextureReady(false);
-      const activeNode = preloadNodes.find((h) => h.id === id);
+      const activeNode = preloadNodesRedux.find((h) => h.id === id);
       dispatch(setDefaultNode(activeNode));
     };
 
@@ -131,7 +131,9 @@ const TourCanvas = React.memo(
       const originalFov = camera.fov;
       console.log(`Vij trí camera fov: ${originalFov}`);
       const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-      const targetPano = preloadNodes.find((pano) => pano.id === targetNodeId);
+      const targetPano = preloadNodesRedux.find(
+        (pano) => pano.id === targetNodeId
+      );
 
       const [x, y, z] = hotspotTargetPosition;
 
@@ -277,7 +279,11 @@ const TourCanvas = React.memo(
         />
         {isTextureReady &&
           hotspotInformations.map((hotspot) => (
-            <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} blockUpdate={true}/>
+            <GroundHotspotInfo
+              key={hotspot.id}
+              hotspotInfo={hotspot}
+              blockUpdate={true}
+            />
           ))}
         {isTextureReady &&
           hotspotNavigations.map((hotspot) => (
@@ -292,11 +298,19 @@ const TourCanvas = React.memo(
           ))}
         {isTextureReady &&
           hotspotModels.map((hotspot) => (
-            <GroundHotspotModel key={hotspot.id} hotspotModel={hotspot} blockUpdate={true}/>
+            <GroundHotspotModel
+              key={hotspot.id}
+              hotspotModel={hotspot}
+              blockUpdate={true}
+            />
           ))}
         {isTextureReady &&
           hotspotMedias.map((hotspot) => (
-            <VideoMeshComponent key={hotspot.id} hotspotMedia={hotspot} blockUpdate={true}/>
+            <VideoMeshComponent
+              key={hotspot.id}
+              hotspotMedia={hotspot}
+              blockUpdate={true}
+            />
           ))}
       </Canvas>
     );

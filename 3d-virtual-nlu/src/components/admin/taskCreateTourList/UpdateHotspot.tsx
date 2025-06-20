@@ -15,7 +15,7 @@ interface UpdateHotspotProps {
   hotspotId: string | null;
   setHotspotId: (value: string | null) => void;
   onPropsChange: (value: BaseHotspot) => void;
-  setChangeCorner: (value: boolean) => void;
+  setChangeCorner?: (value: boolean) => void;
   limitNav: boolean;
 }
 
@@ -85,9 +85,7 @@ const UpdateHotspot = ({
           </>
         ) : (
           <>
-            <TypeMedia
-              hotspotMedia={propHotspot}
-            />
+            <TypeMedia hotspotMedia={propHotspot} />
           </>
         )}
       </div>
