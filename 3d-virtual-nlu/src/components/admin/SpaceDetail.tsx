@@ -671,6 +671,7 @@ const SpaceDetail = () => {
           ) : (
             <div className={styles.space_preview_tour}>
               <TrackingSpace
+                spaceId={spaceId}
                 panoramaList={panoramaList}
                 hotspotNavigations={hotspotNavigations}
               />
