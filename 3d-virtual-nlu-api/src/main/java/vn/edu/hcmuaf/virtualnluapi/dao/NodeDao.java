@@ -302,4 +302,41 @@ public class NodeDao {
             return true; // Tất cả bản ghi đã được cập nhật thành công
         });
     }
+    public boolean updateLinkNodeById(List<NodeLinkRequest> requestList) {
+        if (requestList == null || requestList.isEmpty()) {
+            return false;
+        }
+
+        String updateSql = """
+        UPDATE nodes
+        SET positionX = :positionX, 
+            positionY = :positionY, 
+            positionZ = :positionZ 
+        WHERE id = :id
+    """;
+
+        try {
+            return ConnectionPool.getConnection().withHandle(handle -> {
+                for (NodeLinkRequest req : requestList) {
+                    if (req == null || req.getId() == null) continue;
+
+                    int rowsUpdated = handle.createUpdate(updateSql)
+                            .bind("positionX", req.getPositionX())
+                            .bind("positionY", req.getPositionY())
+                            .bind("positionZ", req.getPositionZ())
+                            .bind("id", req.getId())
+                            .execute();
+
+                    if (rowsUpdated == 0) {
+                        System.err.println("Không update được node ID: " + req.getId());
+                        return false;
+                    }
+                }
+                return true;
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

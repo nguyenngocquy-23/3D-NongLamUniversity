@@ -19,6 +19,7 @@ import { fetchSpaces } from "../../redux/slices/DataSlice";
 import { GrConfigure } from "react-icons/gr";
 import { FiMapPin } from "react-icons/fi";
 import { API_URLS } from "../../env";
+import { goToStep } from "../../redux/slices/StepSlice";
 
 interface Space {
   id: number;
@@ -287,6 +288,7 @@ const Space = () => {
                 <Link
                   to={`./${selectedSpace.id}`}
                   className={styles.space_feature_inner_item}
+                  onClick={() => dispatch(goToStep(2))}
                 >
                   <GrConfigure /> Không gian con.
                 </Link>

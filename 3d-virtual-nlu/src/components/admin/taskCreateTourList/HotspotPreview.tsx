@@ -1,9 +1,12 @@
+import { OrbitControls, useGLTF } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 import { DoubleSide } from "three";
 
 const HotspotPreview = ({
   iconUrl,
+  typeIcon,
   color,
   backgroundColor,
   scale,
@@ -14,6 +17,7 @@ const HotspotPreview = ({
   opacity,
 }: {
   iconUrl: string;
+  typeIcon: number;
   color: string;
   backgroundColor: string;
   scale: number;
@@ -36,9 +40,16 @@ const HotspotPreview = ({
       );
     }
   }, [pitchX, yawY, rollZ]);
+  // useFrame(() => {
+  //   if (typeIcon === 2 && groupRef.current) {
+  //     groupRef.current.rotation.y += 0.01;
+  //   }
+  // });
 
+  //CASE 1: 2D ICON - SVG
   useEffect(() => {
     const loadAndModifySVG = async () => {
+      if (typeIcon !== 1) return;
       try {
         const res = await fetch(iconUrl);
         let svgText = await res.text();
@@ -76,8 +87,11 @@ const HotspotPreview = ({
     loadAndModifySVG();
   }, [iconUrl, color]);
 
-  if (!texture) return null;
+  //CASE 2: 3D ICON -GLB
+  const iconGlb = typeIcon === 2 && iconUrl ? useGLTF(iconUrl) : null;
 
+  if (typeIcon === 1 && !texture) return null;
+  if (!texture) return null;
   return (
     <group ref={groupRef} position={[0, 0, 0]} scale={scale}>
       {allowBackgroundColor ? (
@@ -93,16 +107,26 @@ const HotspotPreview = ({
         ""
       )}
 
-      <mesh position={[0, 0, 0]}>
-        <planeGeometry args={[5, 5]} />
-        <meshBasicMaterial
-          map={texture}
-          color={new THREE.Color(color)}
-          transparent
-          side={DoubleSide}
-          opacity={opacity}
-        />
-      </mesh>
+      {typeIcon === 1 && (
+        <mesh position={[0, 0, 0]}>
+          <planeGeometry args={[5, 5]} />
+          <meshBasicMaterial
+            map={texture}
+            color={new THREE.Color(color)}
+            transparent
+            side={DoubleSide}
+            opacity={opacity}
+          />
+        </mesh>
+      )}
+
+      {typeIcon === 2 && iconGlb && (
+        <>
+          <primitive object={iconGlb.scene} scale={scale} />
+          <ambientLight color={"#fff"} intensity={4} />
+          <directionalLight position={[10, 10, 10]} intensity={1} />
+        </>
+      )}
     </group>
   );
 };

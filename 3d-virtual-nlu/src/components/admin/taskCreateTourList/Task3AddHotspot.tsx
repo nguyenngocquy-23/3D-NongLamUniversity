@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "../../../styles/tasklistCT/task3.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/Store";
@@ -17,6 +17,8 @@ interface Task3Props {
   setCurrentHotspotType: (value: number) => void;
   onPropsChange: (value: BaseHotspot) => void;
   currentPanorama?: PanoramaItem;
+  setValidIcon: (value: boolean) => void;
+  limitNav: boolean;
 }
 
 // Component cho Task3
@@ -26,12 +28,26 @@ const Task3 = ({
   setCurrentHotspotType,
   onPropsChange,
   currentPanorama,
+  setValidIcon,
+  limitNav,
 }: Task3Props) => {
   const [openTypeIndex, setOpenTypeIndex] = useState<number>(1); // State để lưu index của type đang mở
   const hotspotType = useSelector(
     (state: RootState) => state.data.hotspotTypes
   );
   const { panoramaList } = useSelector((state: RootState) => state.panoramas);
+
+  const [currentHotspotData, setCurrentHotspotData] =
+    useState<BaseHotspot | null>(null);
+
+  const handlePropsChange = (data: BaseHotspot) => {
+    setCurrentHotspotData(data);
+  };
+
+  const handleCombinedPropsChange = (data: BaseHotspot) => {
+    onPropsChange(data);
+    handlePropsChange(data);
+  };
 
   const handleChooseType = (typeIndex: number) => {
     setOpenTypeIndex(typeIndex);
@@ -59,6 +75,12 @@ const Task3 = ({
     return 1;
   };
 
+  useEffect(() => {
+    if (currentHotspotData) {
+      console.log("🔍 currentHotspotData cập nhật:", currentHotspotData);
+    }
+  }, [currentHotspotData]);
+
   return (
     <div className={styles.task3}>
       <select
@@ -71,24 +93,41 @@ const Task3 = ({
           </option>
         ))}
       </select>
+
       {[1, 2, 4].includes(openTypeIndex) ? (
         <>
           <ConfigIcon
-            onPropsChange={onPropsChange}
+            onPropsChange={handleCombinedPropsChange}
             currentHotspotType={openTypeIndex}
           />
           <label className={styles.label}>Chọn vị trí điểm:</label>
-          {hotspotNavigationFromNode.length >= limitNavigation() * 2 &&
+          {limitNav &&
+          hotspotNavigationFromNode.length >= limitNavigation() * 2 &&
           openTypeIndex == 1 ? (
             <span>Bạn đã đạt giới hạn.</span>
+          ) : currentHotspotData !== null &&
+            currentHotspotData.iconId === null ? (
+            <button
+              onClick={() => {
+                setAssignable(!isAssignable);
+                setCurrentHotspotType(openTypeIndex);
+                setValidIcon(false);
+              }}
+              style={{
+                padding: "0.5rem 1rem",
+              }}
+            >
+              {isAssignable ? "Quay lại" : "Chọn vị trí"}
+            </button>
           ) : (
             <button
               onClick={() => {
                 setAssignable(!isAssignable);
                 setCurrentHotspotType(openTypeIndex);
+                setValidIcon(true);
               }}
               style={{
-                padding: '0.5rem 1rem'
+                padding: "0.5rem 1rem",
               }}
             >
               {isAssignable ? "Hủy" : "Chọn vị trí"}
@@ -102,7 +141,7 @@ const Task3 = ({
          */
         <ConfigMedia
           setAssignable={setAssignable}
-          onPropsChange={onPropsChange}
+          onPropsChange={handleCombinedPropsChange}
           currentHotspotType={openTypeIndex}
           setCurrentHotspotType={setCurrentHotspotType}
         />

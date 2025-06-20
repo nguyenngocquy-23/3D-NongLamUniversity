@@ -17,11 +17,13 @@ interface TypeNavigationProps {
   isOpenTypeNavigation?: boolean;
   setAssignable?: (value: boolean) => void;
   setCurrentHotspotType?: (value: HotspotType) => void;
+  limitNav: boolean;
 }
 
 const TypeNavigation = ({
   hotspotNav,
   isOpenTypeNavigation,
+  limitNav,
 }: TypeNavigationProps) => {
   /**
    * Lấy ra danh sách panorama
@@ -44,6 +46,12 @@ const TypeNavigation = ({
   );
 
   const dispatch = useDispatch<AppDispatch>();
+
+  const options = panoramaList.map((p) => ({
+    value: p.id,
+    label: p.config.name,
+    imageUrl: p.url,
+  }));
   return (
     <div
       className={`${styles.type_navigation} ${
@@ -67,11 +75,17 @@ const TypeNavigation = ({
           }}
         >
           <option value="">Chọn panorama</option>
-          {filteredPanoramas?.map((pano) => (
-            <option key={pano.id} value={pano.id}>
-              {pano.config.name || "null"}
-            </option>
-          ))}
+          {limitNav
+            ? filteredPanoramas?.map((pano) => (
+                <option key={pano.id} value={pano.id}>
+                  {pano.config.name || "null"}
+                </option>
+              ))
+            : panoramaList?.map((pano) => (
+                <option key={pano.id} value={pano.id}>
+                  {pano.config.name || "null"}
+                </option>
+              ))}
         </select>
       </div>
     </div>

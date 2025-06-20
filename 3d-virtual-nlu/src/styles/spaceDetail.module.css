@@ -1,25 +1,194 @@
+.space_container {
+  color: #000;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+}
+
+.space_header {
+  display: flex;
+  position: relative;
+  justify-content: center;
+}
+.space_header .space_icon_back {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+.space_header .space_icon_back:hover {
+  box-shadow: 5px 5px 5px 5px #00000065;
+  animation: all 1s ease-in;
+}
+
+.space_title {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.space_content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: calc(100% - 1rem - 0.75rem);
+}
+
 .space_choose_master {
   display: flex;
-  gap: 10px;
+  gap: 0.5rem;
 }
 
 .custom_select {
   appearance: none;
-  /* ẩn mũi tên mặc định */
   -webkit-appearance: none;
   -moz-appearance: none;
   cursor: pointer;
   flex: 1;
-  padding: 5px 20px;
+  padding: 0.5rem 1rem;
   color: black;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   background-color: rgba(255, 255, 255, 0.443);
-  font-size: 15px;
+  font-size: 1rem;
   outline: none;
 
   background-image: url("/vite.svg");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 12px;
+}
+.space_mode {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.space_mode .space_mode_item {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.space_preview_tour {
+  flex: 1;
+  border-radius: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.space_right_menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  /* ẩn menu bằng transform */
+  transition: right 1s ease;
+  color: #fff;
+}
+
+.space_right_menu .rightTitle {
+  margin-top: 20px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #fff;
+}
+
+.space_right_menu .rightTitle .close_menu_btn {
+  cursor: pointer;
+  position: absolute;
+  left: 0;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  margin-left: 10px;
+  animation: fadeInMenu 0.5s ease;
+  z-index: 26777271;
+}
+
+.task_container {
+  height: 70%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 10px;
+  border-radius: 10px;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  /* transform: translateY(100%); Ẩn xuống dưới hoàn toàn */
+  transition: transform 1s ease-in-out;
+  overflow: auto;
+}
+
+.update_hotspot_container {
+  width: 40vw;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  transform: translateY(100%);
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: transform 1.4s ease;
+  z-index: 2;
+}
+
+.task_container.show,
+.update_hotspot_container.show {
+  transform: translateY(0);
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  z-index: 2;
+  max-height: 80vh;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.update_hotspot_container {
+  width: 40vw;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  transform: translateY(100%);
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: transform 1.4s ease;
+  z-index: 2;
+}
+
+.task_container.show,
+.update_hotspot_container.show {
+  transform: translateY(0);
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  z-index: 2;
+  max-height: 80vh;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.update_link_tour {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(-50%, -50%);
+  padding: 0.5rem;
+  color: #fff;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background-color: #4d4d4d65;
 }

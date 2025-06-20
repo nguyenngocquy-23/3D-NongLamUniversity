@@ -7,9 +7,11 @@ import { IoIosCloseCircle } from "react-icons/io";
 const ListIcon = ({
   setIconId,
   setOpen,
+  typeIcon,
 }: {
   setIconId: (val: number) => void;
   setOpen: (val: boolean) => void;
+  typeIcon: number;
 }) => {
   const icons = useSelector((state: RootState) => state.data.icons);
 
@@ -19,17 +21,21 @@ const ListIcon = ({
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value.toLowerCase().trim();
     const newData = icons.filter((row) => {
-      return row.name.toLowerCase().includes(searchTerm);
+      return (
+        row?.type === typeIcon && row.name.toLowerCase().includes(searchTerm)
+      );
     });
     setSearchData(newData);
   };
 
   useEffect(() => {
     if (icons.length > 0) {
-      setSearchData(icons); // Chỉ cập nhật khi users có dữ liệu
+      const filteredIcons = icons.filter((i) => i?.type === typeIcon);
+      setSearchData(filteredIcons); // Chỉ cập nhật khi users có dữ liệu
     }
     setLoading(false); // Kết thúc trạng thái tải
-  }, [icons]);
+  }, [icons, typeIcon]);
+
   return (
     <div className={styles.container}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -39,6 +45,7 @@ const ListIcon = ({
             setOpen(false);
           }}
         />
+
         <div>
           <input
             className={styles.search_input}
@@ -63,7 +70,11 @@ const ListIcon = ({
             >
               <div
                 className={styles.icon_image}
-                style={{ backgroundImage: `url(${icon.url})` }}
+                style={{
+                  backgroundImage: `url(${
+                    typeIcon === 1 ? icon.url : icon.thumbnail
+                  })`,
+                }}
               />
               <span className={styles.icon_name}>{icon.name}</span>
             </div>

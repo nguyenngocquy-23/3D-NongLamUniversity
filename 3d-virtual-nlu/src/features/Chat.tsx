@@ -355,7 +355,7 @@ const Chat = ({
           <></>
         )}
       </div>
-      <div className={styles.chatIcon} onClick={handleOpenChatBox}>
+      <div className={styles.chat_icon} onClick={handleOpenChatBox}>
         {isOpenBox ? (
           <FaXmark style={{ color: "white" }} />
         ) : (

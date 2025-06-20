@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import Chat from "../../features/Chat.tsx";
 import { useNavigate } from "react-router-dom";
-import { IoIosCloseCircle } from "react-icons/io";
+import { IoIosCloseCircle, IoIosCompass } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,7 +25,7 @@ import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 import { RADIUS_SPHERE } from "../../utils/Constants.ts";
 import CommentBox from "../../components/visitor/CommentBox.tsx";
 import MapLeaflet from "../../components/visitor/MapLeaflet.tsx";
-import { FaAngleLeft, FaMap, FaScreenpal, FaX } from "react-icons/fa6";
+import { FaAngleLeft, FaCompass, FaMap, FaScreenpal, FaX } from "react-icons/fa6";
 import { MdOpenInFull } from "react-icons/md";
 
 /**
@@ -100,6 +100,12 @@ const VirtualTour = () => {
    * Tạo cảm giác loading cho người dùng
    */
   const [isWaiting, setIsWaiting] = useState(true);
+
+  /**
+   * State lưu trạng thái đóng mở hộp radar
+   * Radar sẽ hiển thị các điểm tham quan
+   */
+  const [isOpenRadar, setIsOpenRadar] = useState(false);
 
   /**
    * State để mở hộp thông tin
@@ -375,6 +381,9 @@ const VirtualTour = () => {
         hotspotModels={hotspotModels}
         hotspotMedias={hotspotMedias}
         isRotation={isRotation}
+        setTargetPosition={setTargetPosition}
+        isOpenRadar={isOpenRadar}
+        setIsOpenRadar={setIsOpenRadar}
       />
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>
@@ -386,6 +395,16 @@ const VirtualTour = () => {
         ""
       ) : (
         <LeftMenuTour isMenuVisible={isMenuVisible} />
+      )}
+      {/* Nút mở radar */}
+      {!isOpenRadar && (
+        <button
+          className={styles.open_radar_button}
+          title="Mở la bàn"
+          onClick={() => setIsOpenRadar(true)}
+        >
+          <IoIosCompass/>
+        </button>
       )}
       {/* Hộp chat sửa wss */}
       <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />

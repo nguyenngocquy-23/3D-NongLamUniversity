@@ -29,6 +29,7 @@ import { fetchMasterNodes } from "../../redux/slices/DataSlice";
 import gsap from "gsap";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 import { API_URLS } from "../../env";
+import { Environment } from "@react-three/drei";
 
 const CreateTourStep3: React.FC = () => {
   const panoramas = useSelector((state: RootState) => state.panoramas);
@@ -49,8 +50,6 @@ const CreateTourStep3: React.FC = () => {
   >([]);
 
   const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
-  const [assignable, setAssignable] = useState(false);
-  const [chooseCornerMediaPoint, setChooseCornerMediaPoint] = useState(false);
 
   const handleMouseDown = () => {
     setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
@@ -237,6 +236,7 @@ const CreateTourStep3: React.FC = () => {
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
         >
+          <Environment preset="studio" background={false} />
           <UpdateCameraOnResize />
           <TourScene
             nodeId={currentSelectId ?? ""}

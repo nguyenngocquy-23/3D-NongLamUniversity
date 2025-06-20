@@ -71,6 +71,7 @@ interface TourSceneProps {
    */
   onPointerDown?: (e: ThreeEvent<PointerEvent>, point: THREE.Vector3) => void;
   nodeId?: string;
+  onTextureReady?: () => void;
 }
 
 const TourScene: React.FC<TourSceneProps> = ({
@@ -79,6 +80,7 @@ const TourScene: React.FC<TourSceneProps> = ({
   textureCurrent,
   lightIntensity,
   onPointerDown,
+  onTextureReady,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<any>(null);
@@ -88,21 +90,9 @@ const TourScene: React.FC<TourSceneProps> = ({
   const [textures, setTextures] = useState<
     [THREE.Texture | null, THREE.Texture | null] | null
   >(null);
-  // console.log(`Texture 0 + ${textures && textures[0] ? textures : "không có"}`);
-  // console.log(`Texture 1 + ${textures && textures[1] ? textures : "không có"}`);
 
   const progressRef = useRef(0);
   const [progress, setProgress] = useState(0);
-
-  // const textureUrls = useMemo(
-  //   () => [prevTextureUrl, textureCurrent],
-  //   [prevTextureUrl, textureCurrent]
-  // );
-  // const [tex1, tex2] = useTexture(textureUrls);
-
-  // const [tex1, tex2] = useTexture([prevTextureUrl, textureCurrent]);
-  // console.log("Tex1[TourScene]: " + prevTextureUrl);
-  // console.log("Tex2[TourScene]: " + textureCurrent);
 
   useEffect(() => {
     if (sphereRef && meshRef.current) {
@@ -111,27 +101,37 @@ const TourScene: React.FC<TourSceneProps> = ({
     }
   }, [sphereRef]);
 
-  // useEffect(() => {
-  //   if (textureCurrent !== prevTextureUrl) {
-  //     setPrevTextureUrl(textureCurrent);
-  //     setProgress(0);
-  //     console.log("Texture current: " + textureCurrent);
-  //   }
-  // }, [textureCurrent]);
+  /**
+   * Thời gian load texture.
+   *
+   *
+   *
+   *
+   *
+   *
+   * Thời gian chuẩn = thời gian load texture + thời gian chuyển đổi ảnh.
+   */
 
   useEffect(() => {
     const load = async () => {
+      const startTime = performance.now();
       try {
         const loader = new THREE.TextureLoader();
         const texNew = await loader.loadAsync(textureCurrent);
+        const loadTime = performance.now() - startTime;
+        console.log(`Thời gian tải texture: ${loadTime / 1000} giây`);
 
         if (!textures) {
           setTextures([texNew, null]);
+          onTextureReady?.();
         } else {
           const [prevTex] = textures;
           setTextures([prevTex, texNew]);
           setProgress(0);
           progressRef.current = 0;
+          console.log(
+            `Bắt đầu chuyển đổi texture: ${performance.now() / 1000} giây`
+          );
         }
       } catch (err: any) {
         console.error(err);
@@ -140,21 +140,35 @@ const TourScene: React.FC<TourSceneProps> = ({
     load();
   }, [textureCurrent]);
 
+  /**
+   * Texture thực hiện việc đổi.
+   * delta: Thời gian tính bằng giây giữa 2 Frame liên tiếp
+   * 1. Mỗi Frame , progress tăng delta * 0.5. => Tăng 0.5 đơn vị
+   * => Tổng các lần delta + lại = 1 thì hoàn tất.
+   * Total time = 1 / 0.5 = 2s
+   */
+
   useFrame((_, delta) => {
     if (!textures || !textures[1]) return;
 
     if (progressRef.current < 1) {
-      progressRef.current = Math.min(progressRef.current + delta, 1);
+      progressRef.current = Math.min(progressRef.current + delta * 0.5, 1);
       setProgress(progressRef.current);
     }
 
     if (progressRef.current >= 1 && textures[1]) {
       setTextures([textures[1], null]);
-
+      console.log(
+        `Kết thúc thời gian chuyển đổi texture: ${
+          performance.now() / 1000
+        } giây.`
+      );
       if (materialRef.current) {
         materialRef.current.uTexture1 = textures[1];
         materialRef.current.uTexture2 = null; // hoặc dùng emptyTexture
         materialRef.current.uProgress = 0;
+
+        onTextureReady?.();
       }
 
       setProgress(0);
@@ -185,7 +199,6 @@ const TourScene: React.FC<TourSceneProps> = ({
           uAmbientLight={new THREE.Color().setScalar(lightIntensity)} // ánh sáng môi trường
         />
       </Sphere>
-      {/* <directionalLight position={[5, 5, 5]} intensity={lightIntensity} /> */}
     </>
   );
 };

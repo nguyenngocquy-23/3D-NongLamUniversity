@@ -15,6 +15,8 @@ interface UpdateHotspotProps {
   hotspotId: string | null;
   setHotspotId: (value: string | null) => void;
   onPropsChange: (value: BaseHotspot) => void;
+  setChangeCorner: (value: boolean) => void;
+  limitNav: boolean;
 }
 
 // Component cho Task3
@@ -22,10 +24,16 @@ const UpdateHotspot = ({
   hotspotId,
   setHotspotId,
   onPropsChange,
+  setChangeCorner,
+  limitNav,
 }: UpdateHotspotProps) => {
   const propHotspot = useSelector(
     (state: RootState) => state.hotspots.hotspotList
-  ).find((h) => h.id == hotspotId);
+  ).find((h) => h.id === hotspotId);
+
+  const iconObj = useSelector((state: RootState) => state.data.icons).find(
+    (i) => i.id === propHotspot?.iconId
+  );
 
   const [isUpdate, setIsUpdate] = useState(true);
   /**
@@ -38,11 +46,6 @@ const UpdateHotspot = ({
   const currentType = propHotspot?.type; // State để lưu index của type đang mở
 
   return (
-    // <div
-    //   className={`${styleCTs.task_container} ${
-    //     hotspotId != null ? styleCTs.show : ""
-    //   }`}
-    // >
     <div className={styleCTs.task_content}>
       <div className={styles.select_header}>
         <FaAngleLeft
@@ -56,6 +59,7 @@ const UpdateHotspot = ({
         {currentType != 3 ? (
           <>
             <ConfigIcon
+              type={iconObj.type}
               propHotspot={propHotspot}
               isUpdate={isUpdate}
               onPropsChange={onPropsChange}
@@ -64,7 +68,12 @@ const UpdateHotspot = ({
             {(() => {
               switch (currentType) {
                 case 1:
-                  return <TypeNavigation hotspotNav={propHotspot} />;
+                  return (
+                    <TypeNavigation
+                      hotspotNav={propHotspot}
+                      limitNav={limitNav}
+                    />
+                  );
                 case 2:
                   return <TypeInfomation hotspotInfo={propHotspot} />;
                 case 4:

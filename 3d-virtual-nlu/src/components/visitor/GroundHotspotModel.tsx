@@ -32,7 +32,7 @@ const GroundHotspotModel = ({
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
   const icons = useSelector((state: RootState) => state.data.icons);
-  const iconUrl = icons.find((i) => i.id == hotspotModel.iconId).url;
+  const icon = icons.find((i) => i.id == hotspotModel.iconId);
 
   // Kiểm tra trạng thái chuột với model.
   const [isHovered, setIsHovered] = useState(false);
@@ -99,7 +99,7 @@ const GroundHotspotModel = ({
   useEffect(() => {
     const loadAndModifySVG = async () => {
       try {
-        const res = await fetch(iconUrl);
+        const res = await fetch(icon.url);
         let svgText = await res.text();
 
         // Thay fill nếu không có hoặc cập nhật fill hiện tại
@@ -136,7 +136,7 @@ const GroundHotspotModel = ({
     };
 
     loadAndModifySVG();
-  }, [iconUrl, hotspotModel]); // thêm color khi update
+  }, [icon.url, hotspotModel]); // thêm color khi update
 
   const htmlGroupRef = useRef<THREE.Group>(null);
   const { camera } = useThree();
