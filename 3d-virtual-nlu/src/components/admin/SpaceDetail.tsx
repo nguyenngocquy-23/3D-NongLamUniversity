@@ -448,10 +448,7 @@ const SpaceDetail = () => {
           icon: "success",
           title: "Thành công",
           text: "Lưu thành công",
-        }).then(() => {
-          // dispatch(nextStep());
-          // dispatch(fetchMasterNodes());
-        });
+        }).then(() => {});
       } else {
         Swal.fire({
           icon: "error",
