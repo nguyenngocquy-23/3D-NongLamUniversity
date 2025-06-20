@@ -61,7 +61,10 @@ const SpaceDetail = () => {
     <>
       <div className={styles.space_container}>
         <div className={styles.space_header}>
-          <IoChevronBack onClick={() => navigate(-1)} />
+          <IoChevronBack
+            className={styles.space_icon_back}
+            onClick={() => navigate(-1)}
+          />
           <h5 className={styles.space_title}></h5>
         </div>
 

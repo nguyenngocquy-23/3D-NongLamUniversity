@@ -41,7 +41,7 @@
   flex-grow: 1;
   background: #f5f5f5;
   border-radius: 8px;
-  height: 100%;
+  height: calc(100% - 2rem -36px);
   display: flex;
 }
 

@@ -14,8 +14,9 @@ type Task2Props = {
 
 const Task2 = ({ cameraRef }: Task2Props) => {
   const dispatch = useDispatch();
-  const { panoramaList, currentSelectId, currentSelectedPosition } =
-    useSelector((state: RootState) => state.panoramas);
+  const { panoramaList, currentSelectId } = useSelector(
+    (state: RootState) => state.panoramas
+  );
 
   const currentPanorama = panoramaList.find((p) => p.id === currentSelectId);
   // const currentPanorama = panoramaList[currentSelectedPosition];

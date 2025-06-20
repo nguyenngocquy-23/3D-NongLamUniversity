@@ -88,21 +88,9 @@ const TourScene: React.FC<TourSceneProps> = ({
   const [textures, setTextures] = useState<
     [THREE.Texture | null, THREE.Texture | null] | null
   >(null);
-  // console.log(`Texture 0 + ${textures && textures[0] ? textures : "không có"}`);
-  // console.log(`Texture 1 + ${textures && textures[1] ? textures : "không có"}`);
 
   const progressRef = useRef(0);
   const [progress, setProgress] = useState(0);
-
-  // const textureUrls = useMemo(
-  //   () => [prevTextureUrl, textureCurrent],
-  //   [prevTextureUrl, textureCurrent]
-  // );
-  // const [tex1, tex2] = useTexture(textureUrls);
-
-  // const [tex1, tex2] = useTexture([prevTextureUrl, textureCurrent]);
-  // console.log("Tex1[TourScene]: " + prevTextureUrl);
-  // console.log("Tex2[TourScene]: " + textureCurrent);
 
   useEffect(() => {
     if (sphereRef && meshRef.current) {
@@ -110,14 +98,6 @@ const TourScene: React.FC<TourSceneProps> = ({
       // console.log("sphereRef đã được gán: ", sphereRef.current);
     }
   }, [sphereRef]);
-
-  // useEffect(() => {
-  //   if (textureCurrent !== prevTextureUrl) {
-  //     setPrevTextureUrl(textureCurrent);
-  //     setProgress(0);
-  //     console.log("Texture current: " + textureCurrent);
-  //   }
-  // }, [textureCurrent]);
 
   useEffect(() => {
     const load = async () => {
@@ -185,7 +165,6 @@ const TourScene: React.FC<TourSceneProps> = ({
           uAmbientLight={new THREE.Color().setScalar(lightIntensity)} // ánh sáng môi trường
         />
       </Sphere>
-      {/* <directionalLight position={[5, 5, 5]} intensity={lightIntensity} /> */}
     </>
   );
 };

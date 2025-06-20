@@ -5,12 +5,13 @@ import { FaAngleLeft, FaAngleRight, FaBook, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
-import { Canvas, ThreeEvent } from "@react-three/fiber";
+import { Canvas, ThreeEvent, useFrame } from "@react-three/fiber";
 import { Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
   clearPanorama,
   selectPanorama,
+  updateCurrentAngleMaster,
 } from "../../redux/slices/PanoramaSlice";
 import RightMenuCreateTour from "../../components/admin/RightMenuCT";
 import TaskContainerCT from "../../components/admin/TaskContainerCT";
@@ -20,7 +21,6 @@ import Task1 from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
 import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import TourScene from "../../components/visitor/TourScene";
-import CamControls from "../../components/visitor/CamControls";
 import gsap from "gsap";
 import {
   addHotspotPosition,
@@ -44,7 +44,8 @@ import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
-import { Timer } from "three/examples/jsm/Addons.js";
+import { getAngleFromXZ } from "../../utils/MathUtils";
+import CamControlAdmins from "../../components/admin/CamControlsAdmin";
 
 const CreateTourStep2 = () => {
   /**
@@ -63,6 +64,10 @@ const CreateTourStep2 = () => {
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+
+  // TEST @@
+  const cameraRadarRef = useRef<number>(0);
+
   const controlsRef = useRef<any>(null); //OrbitControls
 
   const [currentPoints, setCurrentPoints] = useState<
@@ -118,7 +123,7 @@ const CreateTourStep2 = () => {
     )
   );
 
-  const { panoramaList, currentSelectId } = useSelector(
+  const { panoramaList, currentSelectId, currentAngleMaster } = useSelector(
     (state: RootState) => state.panoramas
   );
   // Panorama hiện tại.
@@ -160,7 +165,6 @@ const CreateTourStep2 = () => {
 
   useEffect(() => {
     if (controlsRef.current) {
-      console.log("edit corner");
       controlsRef.current.enabled = false; // tắt khi changeCornerMedia=true
     }
   }, [changeCornerMedia]);
@@ -173,9 +177,6 @@ const CreateTourStep2 = () => {
    * dùng để nhận giá trị trả về từ OptionHotspot.tsx để update cho đúng hotspot
    */
   const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
-  useEffect(() => {
-    console.log("currentHotspotId đã cập nhật:", currentHotspotId);
-  }, [currentHotspotId]);
   /**
    *
    * @param e : Sự kiện click chuột từ frontend
@@ -188,7 +189,6 @@ const CreateTourStep2 = () => {
     if (!currentHotspotType || !assignable) {
       return;
     }
-    console.log("currentHotspotType...", currentHotspotType);
     const limit = (basicProps?.scale || 1) * 5 + 5;
 
     const minX = point.x - limit;
@@ -375,8 +375,8 @@ const CreateTourStep2 = () => {
 
   /**
    *
-   * @param targetNodeId
-   * @param hotspotTargetPosition
+   * @param targetNodeId : Id node đích cần di chuyển.
+   * @param hotspotTargetPosition : Thay thế vị trí camera hướng đến tại vị trí hotspot mục tiêu.
    */
   const handleHotspotNavigate = (
     targetNodeId: string,
@@ -385,44 +385,83 @@ const CreateTourStep2 = () => {
     if (!cameraRef.current || !controlsRef.current) return;
 
     const camera = cameraRef.current;
-    console.log("Text step2" + camera);
     const control = controlsRef.current;
     const originalFov = camera.fov;
-    const zoomTarget = 45; // Có thể điều chỉnh FOV này tùy theo yêu cầu
+    const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
+    const targetPano = panoramaList.find((pano) => pano.id === targetNodeId);
 
     const [x, y, z] = hotspotTargetPosition;
 
-    // === Bước 1: Tạo điểm cần nhìn đến (hotspot)
-    const targetLookAt = new THREE.Vector3(x, 0, z);
+    // === Bước 1:Xoay camera về vị trí (hotspot)
+    lookAtHotspot([x, y, z]);
 
-    // === Bước 2: Animation tạm thời "quay" camera bằng cách move lookAt
-    const tempTarget = targetLookAt.clone();
+    // === Bước 2: Zoom vào
 
-    gsap.to(camera.rotation, {
-      duration: 0.2,
+    gsap.to(camera, {
+      fov: zoomTarget,
+      duration: 1.0,
       ease: "power2.inOut",
       onUpdate: () => {
-        camera.lookAt(tempTarget);
-        control.update();
+        camera.updateProjectionMatrix();
       },
       onComplete: () => {
+        handleSelectNode(targetNodeId);
         gsap.to(camera, {
-          fov: zoomTarget,
-          duration: 1.0,
+          fov: originalFov,
+          duration: 0.2,
+          delay: 0.1,
           ease: "power2.inOut",
           onUpdate: () => {
-            handleSelectNode(targetNodeId);
             camera.updateProjectionMatrix();
           },
           onComplete: () => {
-            camera.fov = originalFov;
-            camera.lookAt(0, 0, 0); // về
+            const [px, py, pz] = [
+              targetPano?.config.positionX,
+              targetPano?.config.positionY,
+              targetPano?.config.positionZ,
+            ];
+            if (
+              typeof px === "number" &&
+              typeof py === "number" &&
+              typeof pz === "number"
+            ) {
+              camera.position.set(px, py, pz);
+              setTargetPosition([px, py, pz]);
+            }
             camera.updateProjectionMatrix();
-            control.update();
+            control.update(); // đảm bảo OrbitControls cập nhật
           },
         });
       },
     });
+  };
+
+  const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
+    if (!cameraRef.current || !controlsRef.current) return;
+
+    const controls = controlsRef.current;
+
+    /**
+     * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
+     * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
+     */
+    const hotspotVec = new THREE.Vector3(
+      hotspotTargetPosition[0],
+      0,
+      hotspotTargetPosition[2]
+    );
+    const center = new THREE.Vector3(0, 0, 0);
+
+    const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
+
+    const spherical = new THREE.Spherical();
+    spherical.setFromVector3(dir);
+
+    // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
+    controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
+    controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
+
+    controls.update();
   };
 
   const handleBackStep2 = () => {
@@ -443,6 +482,31 @@ const CreateTourStep2 = () => {
   };
 
   const [cameraAngle, setCameraAngle] = useState(0);
+
+  const prevPanoramaIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!currentPanorama) return;
+
+    const defaultYaw = getAngleFromXZ(
+      currentPanorama.config.positionX / DEFAULT_ORIGINAL_Z,
+      currentPanorama.config.positionZ / DEFAULT_ORIGINAL_Z
+    );
+
+    if (
+      prevPanoramaIdRef.current &&
+      currentPanorama.id !== prevPanoramaIdRef.current
+    ) {
+      // Nếu không phải node gốc → cộng thêm delta xoay
+      cameraRadarRef.current = (cameraRadarRef.current + cameraAngle) % 360;
+    }
+
+    if (currentPanorama.config.status === 2) {
+      cameraRadarRef.current = defaultYaw;
+    }
+
+    prevPanoramaIdRef.current = currentPanorama.id;
+  }, [currentPanorama?.id]);
 
   return (
     <>
@@ -474,35 +538,57 @@ const CreateTourStep2 = () => {
             lightIntensity={lightIntensity}
           />
 
-          {currentPanorama && (
+          {/* {currentPanorama && (
             <MiniMap
               currentPanorama={currentPanorama}
-              angleCurrent={cameraAngle}
+              angleCurrent={currentAngleMaster}
+            />
+          )} */}
+
+          {currentPanorama && (
+            <MiniMap 
+              currentPanorama={currentPanorama}
+              angleCurrent={(cameraRadarRef.current + cameraAngle) % 360}
             />
           )}
 
-          <CamControls
+          <CamControlAdmins
             targetPosition={targetPosition}
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
-            onAngleChange={setCameraAngle}
+            onAngleChange={(angle) => {
+              setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
+            }}
+            cameraRadarRef={cameraRadarRef}
+            // onAngleChangeForMinimap={(angle) => {
+            //   cameraRadarRef.current = angle;
+            // }}
+            // onAngleChangeForMinimap={setCameraAngleForMinimap}
           />
 
           {hotspotNavigations
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
-              <GroundHotspot
-                key={hotspot.id}
-                onNavigate={(targetNodeId, cameraTargetPosition) =>
-                  handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                }
-                setCurrentHotspotId={setCurrentHotspotId}
-                hotspotNavigation={hotspot}
-              />
+              <>
+                <GroundHotspot
+                  key={hotspot.id}
+                  onNavigate={(targetNodeId, cameraTargetPosition) =>
+                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                  }
+                  setCurrentHotspotId={setCurrentHotspotId}
+                  hotspotNavigation={hotspot}
+                />
+                {/* <MarkerModel
+                  key={hotspot.id}
+                  hotspotNavigation={hotspot}
+                  setCurrentHotspotId={setCurrentHotspotId}
+                /> */}
+              </>
             ))}
+
           {hotspotInfos
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
             .map((hotspot) => (
@@ -511,6 +597,13 @@ const CreateTourStep2 = () => {
                 setCurrentHotspotId={setCurrentHotspotId}
                 hotspotInfo={hotspot}
               />
+              // <MarkerModel
+              //   position={[
+              //     hotspot.positionX + 10,
+              //     hotspot.positionY + 10,
+              //     hotspot.positionZ + 10,
+              //   ]}
+              // />
             ))}
           {hotspotModels
             .filter((hotspot) => hotspot.nodeId === currentSelectId)

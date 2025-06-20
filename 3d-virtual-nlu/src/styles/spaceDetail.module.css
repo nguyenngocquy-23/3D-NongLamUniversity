@@ -1,3 +1,12 @@
+.space_container {
+  color: #000;
+}
+
+.space_header {
+}
+.space_header .space_icon_back {
+}
+
 .space_choose_master {
   display: flex;
   gap: 10px;

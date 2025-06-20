@@ -15,9 +15,6 @@ public class IconService {
     private IconDao iconDao;
 
 
-    public IconResponse insertIcon(IconCreateRequest iconReq) {
-        return iconDao.insertIcon(iconReq);
-    }
 
     public List<IconResponse> getAllIcons() {
         return iconDao.getAllIcons();

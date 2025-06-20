@@ -50,10 +50,26 @@ input[type="range"] {
   pointer-events: none;
 } */
 .config_icon_wrapper {
-  display: flex; 
+  display: flex;
   /* height: 60vh;
   overflow: hidden;
   overflow-y: auto; */
+}
+
+.config_icon_option {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.config_icon_option .config_option_item {
+  background-color: transparent;
+  padding: 0 0.5rem;
+  cursor: pointer;
+  border-radius: 0;
+}
+.config_icon_option .config_option_item:first-child {
+  border-right: 1px solid #fff;
 }
 .config_icon_infor {
   display: flex;

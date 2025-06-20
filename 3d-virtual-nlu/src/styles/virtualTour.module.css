@@ -97,6 +97,7 @@
   opacity: 0.8;
   transform: scale(1.05);
 }
+
 .show_map_button:focus,
 .hide_button:focus,
 .full_button:focus {
@@ -121,15 +122,43 @@
   right: 0;
 }
 
-.show_map_button{
+.show_map_button {
   width: 40px;
   height: 40px;
   bottom: 0;
   left: 0;
 }
+
 .hide_button {
   width: 30px;
   height: 30px;
   bottom: 0;
   left: 0;
+}
+
+.open_radar_button:focus {
+  border: none;
+  outline: none;
+}
+
+.open_radar_button:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.open_radar_button {
+  position: absolute;
+  z-index: 3;
+  background-color: #1e84e4;
+  color: white;
+  width: 40px;
+  height: 40px;
+  right: 20px;
+  bottom: 18vh;
+  border-radius: 50%;
+  transition: all .3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
 }

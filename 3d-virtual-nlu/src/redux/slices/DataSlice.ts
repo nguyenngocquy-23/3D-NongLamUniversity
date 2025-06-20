@@ -59,9 +59,7 @@ export const fetchUsers = createAsyncThunk(
 
 // Fetch nodes
 export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
-  const response = await axios.post(
-    API_URLS.ADMIN_GET_ALL_NODES
-  );
+  const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES);
   return response.data.data;
 });
 
@@ -110,12 +108,9 @@ export const fetchCommentOfNode = createAsyncThunk(
   "data/fetchCommentOfNode",
   async (nodeId: number) => {
     try {
-      const response = await axios.post(
-        API_URLS.COMMENT_OF_NODE,
-        {
-          nodeId: nodeId,
-        }
-      );
+      const response = await axios.post(API_URLS.COMMENT_OF_NODE, {
+        nodeId: nodeId,
+      });
       if (response.data.data) {
         return response.data.data;
       }
@@ -155,12 +150,9 @@ export const fetchPreloadNodes = createAsyncThunk(
   "data/fetchPreloadNodes",
   async (nodeId: number, thunkAPI) => {
     try {
-      const resp = await axios.post(
-        API_URLS.GET_PRELOAD_NODES,
-        {
-          nodeId,
-        }
-      );
+      const resp = await axios.post(API_URLS.GET_PRELOAD_NODES, {
+        nodeId,
+      });
       return resp.data.data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
@@ -179,9 +171,7 @@ export const fetchIcons = createAsyncThunk("data/fetchIcons", async () => {
 export const fetchHotspotTypes = createAsyncThunk(
   "data/fetchHotspotTypes",
   async () => {
-    const response = await axios.get(
-      API_URLS.ADMIN_GET_HOTSPOT_TYPES
-    );
+    const response = await axios.get(API_URLS.ADMIN_GET_HOTSPOT_TYPES);
     return response.data.data;
   }
 );
@@ -370,7 +360,7 @@ const dataSlice = createSlice({
       .addCase(fetchNodeOfUser.rejected, (state) => {
         state.status = "failed";
       })
-      
+
       .addCase(fetchPrivateNodeOfUser.pending, (state) => {
         state.status = "loading";
       })
