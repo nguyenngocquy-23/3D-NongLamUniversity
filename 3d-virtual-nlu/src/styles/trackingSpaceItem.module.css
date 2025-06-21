@@ -2,13 +2,18 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
 }
 
 .item_img {
-  width: 1rem;
-  height: 1rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 50%;
   border: 1px solid #fff;
+  object-fit: cover;
 }
 
 .item_name {

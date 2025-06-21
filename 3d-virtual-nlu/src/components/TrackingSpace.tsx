@@ -1,14 +1,17 @@
 import React, { useCallback } from "react";
-import { ReactFlow, MarkerType } from "@xyflow/react";
+import { ReactFlow, MarkerType, Background, Controls } from "@xyflow/react";
 import styles from "../styles/trackingNode.module.css";
 import "@xyflow/react/dist/style.css";
 import TrackingSpaceItem from "./admin/TrackingSpaceItem";
 import { PanoramaItem } from "../redux/slices/PanoramaSlice";
 import { HotspotNavigation } from "../redux/slices/HotspotSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/Store";
 
 type FlowProps = {
   panoramaList: PanoramaItem[];
   hotspotNavigations: HotspotNavigation[];
+  spaceId?: string;
 };
 
 const nodeTypes = {
@@ -18,32 +21,51 @@ const nodeTypes = {
 const TrackingSpace: React.FC<FlowProps> = ({
   panoramaList,
   hotspotNavigations,
+  spaceId,
 }) => {
-  const masterPanorama = React.useMemo(() => {
-    return panoramaList.find((h) => h.config.status === 2);
+  /**
+   * REDUX
+   */
+  const currentSpace = useSelector((state: RootState) =>
+    state.data.spaces.find((h) => h.id === spaceId)
+  );
+
+  const masterPanoramaInSpace = React.useMemo(() => {
+    return panoramaList.find((h) => h.id === currentSpace);
   }, [panoramaList]);
 
-  const panoramaListExceptMasterNode = React.useMemo(() => {
-    return panoramaList.filter((h) => h.id !== masterPanorama?.id);
-  }, [panoramaList, masterPanorama]);
+  /**
+   * Props
+   */
+
+  const masterPanoramaRegular = React.useMemo(() => {
+    return panoramaList.filter((h) => h.id !== masterPanoramaInSpace?.id);
+  }, [panoramaList, masterPanoramaInSpace]);
+
+  /**
+   * Thiết lập hiển thị điểm trong React Flow
+   */
 
   const nodes = React.useMemo(() => {
-    if (!masterPanorama) return [];
+    if (!masterPanoramaInSpace) return [];
     return [
       {
-        id: masterPanorama.id,
+        id: masterPanoramaInSpace.id,
         type: "customItem",
-        position: { x: 0, y: 54 },
-        data: { name: masterPanorama.config.name, img: masterPanorama.url },
+        position: { x: 0, y: 200 },
+        data: {
+          name: masterPanoramaInSpace.config.name,
+          img: masterPanoramaInSpace.url,
+        },
       },
-      ...panoramaListExceptMasterNode.map((item, index) => ({
+      ...masterPanoramaRegular.map((item, index) => ({
         id: item.id,
         type: "customItem",
         position: { x: 200, y: index * 36 },
         data: { name: item.config.name, img: item.url },
       })),
     ];
-  }, [masterPanorama, panoramaListExceptMasterNode]);
+  }, [masterPanoramaInSpace, masterPanoramaRegular]);
 
   const edges = React.useMemo(() => {
     return hotspotNavigations.map((item) => ({
@@ -64,16 +86,15 @@ const TrackingSpace: React.FC<FlowProps> = ({
         nodes={nodes}
         edges={hotspotNavigations.length > 0 ? edges : []}
         nodeTypes={nodeTypes}
-        zoomOnScroll={false}
-        zoomOnPinch={false}
-        panOnScroll={false}
-        panOnDrag={false}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
         selectionOnDrag={false}
         proOptions={{ hideAttribution: true }}
-      ></ReactFlow>
+      >
+        <Background />
+        <Controls />
+      </ReactFlow>
     </div>
   );
 };

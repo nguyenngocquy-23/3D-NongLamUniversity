@@ -57,6 +57,7 @@ const SpaceDetail = () => {
   useEffect(() => {
     dispatch(goToStep(4)); //
   }, [dispatch]);
+
   useEffect(() => {
     if (!spaceId) return;
 
@@ -670,6 +671,7 @@ const SpaceDetail = () => {
               <TrackingSpace
                 panoramaList={panoramaList}
                 hotspotNavigations={hotspotNavigations}
+                spaceId={spaceId}
               />
             </div>
           )}

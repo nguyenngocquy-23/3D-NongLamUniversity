@@ -77,6 +77,7 @@ public class SpaceDao {
         });
     }
 
+
     public boolean changeStatusSpace(StatusRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             // Bước 1: Cập nhật tất cả status = 2 về 1
