@@ -3,6 +3,7 @@
     bottom: 20%;
     right: 20px;
     height: 100%;
+    z-index: 99999999;
 }
 
 .option {
@@ -193,11 +194,11 @@
     background-color: #007cf0;
 }
 
-.chatIcon:hover {
+.chat_icon:hover {
     opacity: 0.7;
 }
 
-.chatIcon {
+.chat_icon {
     cursor: pointer;
     position: absolute;
     bottom: -70px;

@@ -135,3 +135,52 @@
   font-weight: 600;
   transition: all .3s ease;
 }
+
+/* responsive mobile */
+.nav_mobile {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 20px;
+  z-index: 999;
+  border-top: 1px solid #ccc;
+}
+
+.menu_button:focus {
+  outline: none;
+  border : none;
+}
+.menu_button {
+  font-size: 24px;
+  font-weight: 800;
+  margin-right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: black;
+}
+
+/* Ẩn các phần tử trên mobile */
+.hide_on_mobile {
+  display: none;
+}
+
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .nav {
+    display: none;
+  }
+
+  .register_button {
+    display: none;
+  }
+
+  .dropdown {
+    display: none;
+  }
+}

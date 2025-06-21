@@ -10,7 +10,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    z-index: 100000000;
 }
 
 .video {
@@ -24,7 +24,7 @@
     opacity: 0.5;
     border-radius: 50%;
     position: absolute;
-    bottom: 150px;
+    bottom: 15%;
 }
 
 .shadow::before {
@@ -35,4 +35,61 @@
     background: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
     filter: blur(5px);
     z-index: -1;
+}
+
+.loading_box {
+    text-align: center;
+    position: absolute;
+    bottom: 25%;
+    width: 100%;
+}
+
+.progress_bar {
+    width: 50%;
+    height: 15px;
+    background: #ddd;
+    border-radius: 5px;
+    margin: auto;
+    margin-bottom: 10px;
+    position: relative;
+    /* để percent nằm đúng nếu bạn di chuyển ra ngoài */
+}
+
+.progress_fill {
+    height: 100%;
+    width: 0;
+    background: repeating-linear-gradient(45deg,
+            #41c546,
+            #41c546 10px,
+            #5fd66b 10px,
+            #5fd66b 20px);
+    border-radius: 6px 0 0 6px;
+    animation: moveStripes 1s linear infinite;
+    transition: width 0.3s ease-in-out;
+    box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.3);
+    background-size: 40px 40px;
+    position: relative;
+}
+
+@keyframes moveStripes {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 40px 0;
+    }
+}
+
+/* Phần trăm nằm cuối thanh, đi theo tiến trình */
+.percent_label {
+    position: absolute;
+    right: 0;
+    /* đẩy ra khỏi thanh 1 tí */
+    top: -24px;
+    transform: translateX(50%);
+    font-size: 14px;
+    font-weight: bold;
+    color: #4CAF50;
+    white-space: nowrap;
 }

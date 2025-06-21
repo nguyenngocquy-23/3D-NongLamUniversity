@@ -42,22 +42,13 @@ export default function Introduce() {
 
     return () => clearTimeout(timer);
   }, [selectedIndex]);
+
   return (
-    <div id="introduce" className={styles.virtualTourContainer}>
+    <div id="introduce" className={styles.virtual_tour_container}>
       <div
-        className={styles.vtBackground}
+        className={styles.vt_background}
         style={{
-          filter: "blur(4px) brightness(0.7)",
-          pointerEvents: "none",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
           backgroundImage: `url(${images[selectedIndex].src})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          zIndex: 0,
         }}
       ></div>
 
@@ -67,15 +58,15 @@ export default function Introduce() {
             key={i}
             src={img.src}
             alt={img.title}
-            className={`${styles.carouselImage} ${
-              i === selectedIndex ? styles.activeImage : ""
+            className={`${styles.carousel_image} ${
+              i === selectedIndex ? styles.active_image : ""
             }`}
             onClick={() => setSelectedIndex(i)}
           />
         ))}
       </div>
 
-      <div className={styles.infoPanel}>
+      <div className={styles.info_panel}>
         <h2>{images[selectedIndex].title}</h2>
         <p>{images[selectedIndex].description}</p>
       </div>

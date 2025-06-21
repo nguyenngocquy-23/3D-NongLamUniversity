@@ -17,13 +17,13 @@ type CamControlsProps = {
   autoRotate: boolean;
   autoRotateSpeed: number | null;
   onAngleChange?: (angle: number) => void;
+  onAngleChangeForMinimap?: (angle: number) => void;
   cameraRadarRef: React.RefObject<number>;
-  currentPano: any;
 };
 
 const zoomLevels = [75, 60, 45, 30];
 
-const CamControls: React.FC<CamControlsProps> = ({
+const CamControlAdmins: React.FC<CamControlsProps> = ({
   targetPosition,
   sphereRef,
   cameraRef,
@@ -31,8 +31,8 @@ const CamControls: React.FC<CamControlsProps> = ({
   autoRotate,
   autoRotateSpeed,
   onAngleChange,
+  onAngleChangeForMinimap,
   cameraRadarRef,
-  currentPano,
 }) => {
   const { gl, camera } = useThree();
   const canvas = gl.domElement;
@@ -41,8 +41,21 @@ const CamControls: React.FC<CamControlsProps> = ({
   const targetLookAt = useRef(new THREE.Vector3());
   const dispatch = useDispatch<AppDispatch>();
 
+  let currentPanoId = useSelector(
+    (state: RootState) => state.panoramas.currentSelectId
+  );
+  let currentPano = useSelector(
+    (state: RootState) => state.panoramas.panoramaList
+  ).find((p) => p.id === currentPanoId);
+
+  // const defaultNode = useSelector(
+  //   (state: RootState) => state.data.defaultNode);
+  // if(!currentPano) {
+  //   currentPano = defaultNode;
+  // }
+
   useEffect(() => {
-    if (currentPano.status === 2) {
+    if (currentPano?.config.status === 2) {
       deltaRef.current = 0;
     }
   }, [targetPosition]);
@@ -166,12 +179,12 @@ const CamControls: React.FC<CamControlsProps> = ({
     if (!currentPano) return;
 
     const defaultYaw = getAngleFromXZ(
-      currentPano.positionX / DEFAULT_ORIGINAL_Z,
-      currentPano.positionZ / DEFAULT_ORIGINAL_Z
+      currentPano.config.positionX / DEFAULT_ORIGINAL_Z,
+      currentPano.config.positionZ / DEFAULT_ORIGINAL_Z
     );
 
     const targetAngle =
-      currentPano.status === 2 ? defaultYaw : cameraRadarRef.current; // Góc tổng thể từ cha
+      currentPano.config.status === 2 ? defaultYaw : cameraRadarRef.current; // Góc tổng thể từ cha
 
     // 👉 Tính vị trí để xoay camera đúng hướng
     const radius = 1;
@@ -185,7 +198,7 @@ const CamControls: React.FC<CamControlsProps> = ({
     baseAngleRef.current = targetAngle;
     rotationDeltaRef.current = 0;
 
-    if (currentPano.status === 2) {
+    if (currentPano.config.status === 2) {
       onAngleChange?.(0);
     } else {
       justSwitchedRef.current = true;
@@ -208,9 +221,9 @@ const CamControls: React.FC<CamControlsProps> = ({
 
     if (justSwitchedRef.current) {
       const deltaTemp = getSignedAngleDelta(baseAngleRef.current, currentAngle);
-
+ 
       // Nếu delta quá lớn sau khi chuyển node, camera chưa ổn → chờ tiếp
-      if (Math.abs(deltaTemp) > 179) return;
+      if (Math.abs(deltaTemp) > 179 ) return;
 
       baseAngleRef.current = currentAngle;
       justSwitchedRef.current = false;
@@ -235,4 +248,4 @@ const CamControls: React.FC<CamControlsProps> = ({
   );
 };
 
-export default CamControls;
+export default CamControlAdmins;

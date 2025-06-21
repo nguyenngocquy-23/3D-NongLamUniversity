@@ -193,7 +193,6 @@ const ConfigIcon = ({
       <div style={{ position: "relative" }}>
         <div className={styles.config_icon_option}>
           <span>Dạng: </span>
-
           <div className={styles.radio_container}>
             {type !== 2 && (
               <label className={styles.radio_item}>

@@ -1,8 +1,8 @@
 export const DOMAIN_CLIENT = "3dtour";
-// const DOMAIN = "https://3dtour.io.vn/app/api"; // product
-// export const AFTER_DOMAIN = "3dtour.io.vn/app"; // product
-export const AFTER_DOMAIN = "localhost:8080/app"; // dev
-const DOMAIN = "http://localhost:8080/app/api"; // dev
+const DOMAIN = "https://3dtour.io.vn/app/api"; // product
+export const AFTER_DOMAIN = "3dtour.io.vn/app"; // product
+// export const AFTER_DOMAIN = "localhost:8080/app"; // dev
+// const DOMAIN = "http://localhost:8080/app/api"; // dev
 export const DEFAULT_AVATAR =
   "https://res.cloudinary.com/dkoc6kbg1/image/upload/v1749780602/fxa5ft9aesxkfiskamne.jpg";
 
@@ -44,6 +44,7 @@ export const API_URLS = {
   ADMIN_GET_ALL_FIELDS: `${DOMAIN}/admin/field`,
 
   ADMIN_CREATE_NODES: `${DOMAIN}/v1/admin/node/insert`,
+  ADMIN_UPDATE_NODES: `${DOMAIN}/v1/admin/node/update`,
   ADMIN_LINK_NODES: `${DOMAIN}/v1/admin/node/linkNode`,
   ADMIN_CREATE_FIELDS: `${DOMAIN}/admin/field/create`,
   ADMIN_CREATE_SPACES: `${DOMAIN}/admin/field/create`,

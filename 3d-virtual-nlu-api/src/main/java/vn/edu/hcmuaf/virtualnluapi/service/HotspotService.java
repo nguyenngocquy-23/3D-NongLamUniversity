@@ -43,4 +43,20 @@ public class HotspotService {
     public List<HotspotMediaResponse> getMediaByNodeId(int nodeId) {
         return hotspotDao.getMediaByNodeId(nodeId);
     }
+
+    public int updateNavHotspots(List<HotspotNavCreateRequest> navHotspots, int id) {
+        return hotspotDao.updateNavHotspots(navHotspots, id);
+    }
+
+    public int updateInfoHotspots(List<HotspotInfoCreateRequest> infoHotspots, int id) {
+        return hotspotDao.updateInfoHotspots(infoHotspots, id);
+    }
+
+    public int updateMediaHotspots(List<HotspotMediaCreateRequest> mediaHotspots, int id) {
+        return hotspotDao.updateMediaHotspots(mediaHotspots, id);
+    }
+
+    public int updateModelHotspots(List<HotspotModelCreateRequest> modelHotspots, int id) {
+        return hotspotDao.updateModelHotspots(modelHotspots, id);
+    }
 }

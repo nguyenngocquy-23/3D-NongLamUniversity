@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import Chat from "../../features/Chat.tsx";
 import { useNavigate } from "react-router-dom";
-import { IoIosCloseCircle } from "react-icons/io";
+import { IoIosCloseCircle, IoIosCompass } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,7 +25,13 @@ import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 import { RADIUS_SPHERE } from "../../utils/Constants.ts";
 import CommentBox from "../../components/visitor/CommentBox.tsx";
 import MapLeaflet from "../../components/visitor/MapLeaflet.tsx";
-import { FaAngleLeft, FaMap, FaScreenpal, FaX } from "react-icons/fa6";
+import {
+  FaAngleLeft,
+  FaCompass,
+  FaMap,
+  FaScreenpal,
+  FaX,
+} from "react-icons/fa6";
 import { MdOpenInFull } from "react-icons/md";
 
 /**
@@ -40,6 +46,16 @@ const VirtualTour = () => {
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.data.status);
   const user = useSelector((state: RootState) => state.auth.user);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchMasterNodes());
@@ -77,23 +93,6 @@ const VirtualTour = () => {
     return (nodeToRender?.infoHotspots as HotspotInformation[]) || [];
   }, [nodeToRender]);
 
-  if (
-    !hotspotModels ||
-    !hotspotMedias ||
-    !hotspotNavigations ||
-    !hotspotInformations
-  ) {
-    return null;
-  }
-
-  // const defaultNode = sessionStorage.getItem("defaultNode");
-  // let defaultNode = null;
-  // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
-
-  if (!nodeToRender) {
-    return null;
-  }
-
   const [isRotation, setIsRotation] = useState(nodeToRender.autoRotate || true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
@@ -119,6 +118,12 @@ const VirtualTour = () => {
   const [isWaiting, setIsWaiting] = useState(true);
 
   /**
+   * State lưu trạng thái đóng mở hộp radar
+   * Radar sẽ hiển thị các điểm tham quan
+   */
+  const [isOpenRadar, setIsOpenRadar] = useState(false);
+
+  /**
    * State để mở hộp thông tin
    */
   const [isOpenInfo, setIsOpenInfo] = useState(true);
@@ -131,13 +136,13 @@ const VirtualTour = () => {
    */
   const mapRef = useRef<L.Map | null>(null);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsWaiting(false); // ẩn trang chờ
-    }, 5000);
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => {
+  //     setIsWaiting(false); // ẩn trang chờ
+  //   }, 5000);
 
-    return () => clearTimeout(timeout);
-  }, []);
+  //   return () => clearTimeout(timeout);
+  // }, []);
 
   const navigate = useNavigate();
   const sphereRef = useRef<THREE.Mesh | null>(null);
@@ -325,6 +330,31 @@ const VirtualTour = () => {
     }
   }, [fullMap, hoverMap]);
 
+  // const defaultNode = sessionStorage.getItem("defaultNode");
+  // let defaultNode = null;
+  // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
+
+  const [percent, setPercent] = useState(0);
+
+  useEffect(() => {
+    console.log("isLoading : : :", isWaiting);
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 10;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        // Đợi render xong mới tắt loading
+        requestAnimationFrame(() => {
+          setTimeout(() => setIsWaiting(false), 500);
+        });
+      }
+      setPercent(Math.floor(progress));
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, []);
+
   if (!icons || icons.length === 0) {
     return (
       <>
@@ -334,6 +364,19 @@ const VirtualTour = () => {
         </div>
       </>
     );
+  }
+
+  if (
+    !hotspotModels ||
+    !hotspotMedias ||
+    !hotspotNavigations ||
+    !hotspotInformations
+  ) {
+    return null;
+  }
+
+  if (!nodeToRender) {
+    return null;
   }
 
   return (
@@ -354,6 +397,9 @@ const VirtualTour = () => {
         hotspotModels={hotspotModels}
         hotspotMedias={hotspotMedias}
         isRotation={isRotation}
+        setTargetPosition={setTargetPosition}
+        isOpenRadar={isOpenRadar}
+        setIsOpenRadar={setIsOpenRadar}
       />
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>
@@ -366,20 +412,34 @@ const VirtualTour = () => {
       ) : (
         <LeftMenuTour isMenuVisible={isMenuVisible} />
       )}
+      {/* Nút mở radar */}
+      {!isOpenRadar && (
+        <button
+          className={styles.open_radar_button}
+          title="Mở la bàn"
+          onClick={() => setIsOpenRadar(true)}
+        >
+          <IoIosCompass />
+        </button>
+      )}
       {/* Hộp chat sửa wss */}
       <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />
       {/* Footer chứa các tính năng */}
-      <FooterTour
-        isRotation={isRotation}
-        setIsRotation={setIsRotation}
-        isMuted={isMuted}
-        isFullscreen={isFullscreen}
-        toggleInformation={toggleInformation}
-        toggleFullscreen={toggleFullscreen}
-        toggleMute={toggleMute}
-        setIsComment={setIsComment}
-        accessing={accessing}
-      />
+      {isMobile ? (
+        ""
+      ) : (
+        <FooterTour
+          isRotation={isRotation}
+          setIsRotation={setIsRotation}
+          isMuted={isMuted}
+          isFullscreen={isFullscreen}
+          toggleInformation={toggleInformation}
+          toggleFullscreen={toggleFullscreen}
+          toggleMute={toggleMute}
+          setIsComment={setIsComment}
+          accessing={accessing}
+        />
+      )}
       {/* Hộp thông tin */}
       <div className={styles.infoBox} onClick={toggleInformation}>
         Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
@@ -396,63 +456,67 @@ const VirtualTour = () => {
         ""
       )}
       {/* Bản đồ */}
-      <div
-        className={`${fullMap ? styles.full_map : styles.mapBox}`}
-        onMouseEnter={() => setHoverMap(true)}
-        onMouseLeave={() => {
-          setTimeout(() => {
-            setHoverMap(false);
-          }, 2000);
-        }}
-      >
-        {hideMap ? (
-          <button
-            className={styles.show_map_button}
-            onClick={() => setHideMap(false)}
-            title={"Mở bản đồ"}
-          >
-            <FaMap />
-          </button>
-        ) : (
-          <>
-            <MapLeaflet spaceId={nodeToRender.spaceId} mapRef={mapRef} />
-            {fullMap ? (
-              <button
-                className={styles.full_button}
-                onClick={() => setFullMap(false)}
-                title={"Thu nhỏ"}
-              >
-                <FaX />
-              </button>
-            ) : (
-              <>
+      {isMobile ? (
+        ""
+      ) : (
+        <div
+          className={`${fullMap ? styles.full_map : styles.mapBox}`}
+          onMouseEnter={() => setHoverMap(true)}
+          onMouseLeave={() => {
+            setTimeout(() => {
+              setHoverMap(false);
+            }, 2000);
+          }}
+        >
+          {hideMap ? (
+            <button
+              className={styles.show_map_button}
+              onClick={() => setHideMap(false)}
+              title={"Mở bản đồ"}
+            >
+              <FaMap />
+            </button>
+          ) : (
+            <>
+              <MapLeaflet spaceId={nodeToRender.spaceId} mapRef={mapRef} />
+              {fullMap ? (
                 <button
-                  className={styles.hide_button}
-                  onClick={() => {
-                    setHideMap(true);
-                  }}
-                  title={"Ẩn bản đồ"}
+                  className={styles.full_button}
+                  onClick={() => setFullMap(false)}
+                  title={"Thu nhỏ"}
                 >
-                  <FaAngleLeft />
+                  <FaX />
                 </button>
-                {hoverMap ? (
+              ) : (
+                <>
                   <button
-                    className={styles.full_button}
-                    onClick={() => setFullMap(true)}
-                    title={"Mở rộng"}
+                    className={styles.hide_button}
+                    onClick={() => {
+                      setHideMap(true);
+                    }}
+                    title={"Ẩn bản đồ"}
                   >
-                    <MdOpenInFull />
+                    <FaAngleLeft />
                   </button>
-                ) : (
-                  ""
-                )}
-              </>
-            )}
-          </>
-        )}
-      </div>
+                  {hoverMap ? (
+                    <button
+                      className={styles.full_button}
+                      onClick={() => setFullMap(true)}
+                      title={"Mở rộng"}
+                    >
+                      <MdOpenInFull />
+                    </button>
+                  ) : (
+                    ""
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
       /* Màn hình laoding */
-      {isWaiting ? <Waiting /> : ""}
+      {isWaiting ? <Waiting percent={percent} /> : ""}
     </div>
   );
 };

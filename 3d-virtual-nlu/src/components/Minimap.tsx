@@ -38,11 +38,12 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
   };
-
+  
   const dispatch = useDispatch();
-
+  
   const { panoramaList } = useSelector((state: RootState) => state.panoramas);
-
+  
+  // console.log("MiniMap currentPanorama:", panoramaList);
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
   const masterPanorama = panoramaList.find((h) => h.config.status === 2);
@@ -51,12 +52,25 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
    * - Đã có targetNodeId!
    */
   const hotspotFromMaster = useSelector(getFilteredHotspotNavigationOfMaster);
+  // 1 angle1 lưu default và 1 angle2 xoay khác truyền vào radar
+  // 2 angle đều duoc hiện ở camcontrol nhưng k set andle2 giá trị của angle1 để
+  // hướng mặc định của radar là 310-50 -> angle?
+  // angle1 dùng để lưu vào redux
+  // control thay đổi thì thay đổi angle2 và truyền vào radar -> tính start/end angle
+  // change camcontrol thì change angle2 -> angle2 dùng cho các node trên radar ( không qua tâm hướng mặc định của nó )
+  // khi chuyển node sẽ set lại ref angle radar
+  // nhận vào giá trị ban đầu, hướng lên, và khi đã có giá trị lần 2 thì các lần khác k cần
+  // chia làm 2 tham chiếu ở lớp cha phân biệt hướng mặc định và hướng xoay.
   const { startSvg, endSvg } = getArcAnglesThree(
     DEFAULT_ANGLE_THREE,
     DEFAULT_ANGLE_RADAR,
-    angleCurrent,
+    angleCurrent, 
     100
   );
+
+  // useEffect(() => {
+  //   console.log("angleCurrent...", angleCurrent);
+  // }, [angleCurrent]);
 
   /**
    *
@@ -294,6 +308,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
             />
 
             {hotspotFromMaster.map((item) => {
+              // console.log("Radar item:", item);
               const { x, y } = scalePosition(item.positionX, item.positionZ);
               return (
                 <img
