@@ -63,9 +63,9 @@ const TourCanvas = React.memo(
     useEffect(() => {
       if (defaultNode.status === 2) {
         const defaultHotspots = defaultNode.navHotspots || [];
-        const preloadHotspots = preloadNodesRedux.flatMap(
-          (node) => node.navHotspots || []
-        );
+        const preloadHotspots = preloadNodesRedux
+          .filter((node) => node.status != 2)
+          .flatMap((node) => node.navHotspots || []);
 
         // Gộp và loại bỏ trùng dựa trên targetNodeId
         const merged = [...defaultHotspots, ...preloadHotspots];
@@ -231,8 +231,9 @@ const TourCanvas = React.memo(
           camera.updateProjectionMatrix();
         },
         onComplete: () => {
-          // Quay về fov ban đầu
           handleSelectNode(Number(targetNodeId));
+
+          // Quay về fov ban đầu
           gsap.to(camera, {
             fov: originalFov,
             duration: 0.2,

@@ -1,12 +1,10 @@
-.virtualTourContainer {
-  /* position: relative; */
+.virtual_tour_container {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
   overflow: hidden;
   background-color: white;
-  /* background-color: #5cb338; */
 }
 
 .single {
@@ -20,8 +18,6 @@
   color: black;
   font-weight: bold;
   font-family: Arial, sans-serif;
-  /* transform: skewX(-15deg); */
-  text-shadow: 4px 4px 0 #444;
   text-shadow:
     1px 1px 0 #ccc,
     2px 2px 0 #bbb,
@@ -31,8 +27,25 @@
     6px 6px 5px rgba(0, 0, 0, 0.3);
 }
 
+.vt_background {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
 
-.vtBackground .titleContainer {
+.vt_background_image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.vt_image {
+  object-fit: cover;
+}
+
+.title_container {
   position: absolute;
   margin: auto;
   color: black;
@@ -43,27 +56,8 @@
   z-index: 3;
 }
 
-.vtBackground .title {}
+.title {}
 
-.vtBackground {
-  position: relative;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-}
-
-.vtBackgroundImage {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.vtImage {
-  object-fit: cover;
-}
-
-/* Tour.module.css */
 .h1 {
   margin-left: 50px;
   padding: 100px;
@@ -76,7 +70,7 @@
   padding-top: 30px;
 }
 
-@keyframes fadeIn {
+@keyframes fade_in {
   0% {
     opacity: 0;
     transform: scale(0);
@@ -99,7 +93,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  animation: fadeIn 1s ease;
+  animation: fade_in 1s ease;
   z-index: 1;
 }
 
@@ -108,23 +102,16 @@
   padding: 30px;
   display: flex;
   background-color: none;
-  /* border: 1px solid #ccc; */
   color: black;
 }
 
-.containCanvas {
+.contain_canvas {
   position: relative;
   margin: auto;
   width: 90%;
   height: 100%;
-  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
   overflow: hidden;
   z-index: 1;
-}
-
-.explore_button:hover {
-  transform: translate(-50%,-5px);
-  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.3);
 }
 
 .explore_button {
@@ -138,16 +125,21 @@
   cursor: pointer;
   border-radius: 20px;
   z-index: 10;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
+}
+
+.explore_button:hover {
+  transform: translate(-50%, -5px);
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.3);
 }
 
 .pause:hover,
 .play:hover,
 .close_btn:hover,
 .fullscreen_btn:hover,
-.searchBtn:hover,
-.playBtn:hover,
-.pauseBtn:hover,
+.search_btn:hover,
+.play_btn:hover,
+.pause_btn:hover,
 .info_btn:hover {
   cursor: pointer;
   opacity: 0.7;
@@ -195,8 +187,8 @@
 
 .fullscreen_btn,
 .info_btn,
-.playBtn,
-.pauseBtn {
+.play_btn,
+.pause_btn {
   z-index: 2;
   color: white;
   transform: scale(1);
@@ -205,7 +197,7 @@
   font-size: 25px;
 }
 
-.exploreText {
+.explore_text {
   margin-top: 45px;
   line-height: 5px;
   position: absolute;
@@ -216,4 +208,49 @@
   text-align: center;
   z-index: 1;
   transform: translate(-50%, -50%);
+}
+
+@media (max-width: 768px) {
+  .single {
+    font-size: 80px !important;
+    top: 30% !important;
+    text-align: center;
+    color: white;
+  }
+
+  .title_container {
+    bottom: 15%;
+    width: 90%;
+    padding: 0 10px;
+    color: white;
+  }
+
+  .title_container h2 {
+    font-size: 24px !important;
+  }
+
+  .title_container i {
+    font-size: 14px;
+  }
+
+  .explore_button {
+    bottom: 15%;
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .contain_canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+
+  .explore_button {
+    bottom: 30%;
+  }
+
+  .tour_canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
 }

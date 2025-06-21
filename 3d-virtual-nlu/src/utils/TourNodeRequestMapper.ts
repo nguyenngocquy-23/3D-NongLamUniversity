@@ -32,6 +32,27 @@ export interface NodeCreateRequest {
 }
 
 /**
+ * Định dạng theo BackendAPI.
+ */
+export interface NodeUpdateRequest {
+  id: number;
+  url: string;
+  name: string;
+  description: string;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  autoRotate: number;
+  speedRotate: number;
+  lightIntensity: number;
+  status: number;
+  navHotspots: HotspotNavCreateRequest[];
+  infoHotspots: HotspotInfoCreateRequest[];
+  mediaHotspots: HotspotMediaCreateRequest[];
+  modelHotspots: HotspotModelCreateRequest[];
+}
+
+/**
  * Dành cho việc liên kết các ảnh master với nhau trong space.
  * 1. Thay đổi hướng mặc định của node.
  * 2. Thêm các hotspot navigation di chuyển giữa các node.
@@ -154,6 +175,10 @@ export interface HotspotNavResponse {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   targetNodeId: string;
 }
 
@@ -169,6 +194,10 @@ export interface HotspotInfoResponse {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   title: string;
   content: string;
 }
@@ -184,6 +213,10 @@ export interface HotspotMediaResponse {
   yawY: number;
   rollZ: number;
   scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   mediaType: string;
   mediaUrl: string;
   caption: string;
@@ -201,6 +234,10 @@ export interface HotspotModelResponse {
   yawY: number;
   rollZ: number;
   scale: number;
+ color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
   modelUrl: string;
   name: string;
   description: string;

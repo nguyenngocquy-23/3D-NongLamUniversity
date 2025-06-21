@@ -18,6 +18,7 @@ const VideoMeshComponent = ({
   blockUpdate,
 }: VideoMeshProps) => {
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
+   const [isHovered, setIsHovered] = useState(false);
   const [texture, setTexture] = useState<
     THREE.VideoTexture | THREE.Texture | null
   >(null);
@@ -31,14 +32,6 @@ const VideoMeshComponent = ({
   }, [hotspotMedia.cornerPointList]);
   const [isPaused, setIsPaused] = useState(false);
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
-  useEffect(() => {
-    console.log(
-      "Current step changed:",
-      !texture &&
-        currentStep == 2 &&
-        hotspotMedia.mediaUrl?.includes("youtube.com/embed")
-    );
-  }, [currentStep]);
 
   const getCenterOfPoints = (points: [number, number, number][]) => {
     const center = [0, 0, 0];
@@ -84,14 +77,14 @@ const VideoMeshComponent = ({
   useEffect(() => {
     const isEmbedUrl =
       hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
-      hotspotMedia.mediaUrl?.includes("vimeo.com");
+      hotspotMedia.mediaUrl?.includes("giphy.com");
     console.log("------VideoMeshComponent mounted with mediaUrl:", isEmbedUrl);
   }, [hotspotMedia.mediaUrl]);
 
   useEffect(() => {
     const isEmbedUrl =
       hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
-      hotspotMedia.mediaUrl?.includes("vimeo.com");
+      hotspotMedia.mediaUrl?.includes("giphy.com/embed");
 
     if (
       cornerPointes.length === 4 &&
@@ -194,15 +187,18 @@ const VideoMeshComponent = ({
       side: THREE.DoubleSide,
       transparent:
         (!texture && currentStep == 2) ||
-        hotspotMedia.mediaUrl?.includes("youtube.com/embed")
+        hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
+        hotspotMedia.mediaUrl?.includes("giphy.com/embed")
           ? true
           : false,
       opacity:
         !texture &&
         currentStep == 2 &&
-        hotspotMedia.mediaUrl?.includes("youtube.com/embed")
+        (hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
+          hotspotMedia.mediaUrl?.includes("giphy.com/embed"))
           ? 0.3
-          : hotspotMedia.mediaUrl?.includes("youtube.com/embed")
+          : hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
+            hotspotMedia.mediaUrl?.includes("giphy.com/embed")
           ? 0
           : 1,
     });
@@ -249,6 +245,22 @@ const VideoMeshComponent = ({
 
   return (
     <>
+      {isHovered && (
+        <Html position={[center[0] - 20, center[1] - 10, center[2]]}>
+          <div
+            style={{
+              width: '200px',
+              background: "rgba(0,0,0,0.7)",
+              color: "white",
+              padding: "4px 8px",
+              borderRadius: "4px",
+              fontSize: "10px",
+            }}
+          >
+            {hotspotMedia.caption}
+          </div>
+        </Html>
+      )}
       <mesh
         geometry={geometry}
         material={material}
@@ -256,6 +268,14 @@ const VideoMeshComponent = ({
         castShadow
         receiveShadow
         visible={true}
+        onPointerEnter={(e) => {
+          e.stopPropagation();
+          setIsHovered(true);
+        }}
+        onPointerLeave={(e) => {
+          e.stopPropagation();
+          setIsHovered(false);
+        }}
         onPointerDown={(e) => {
           if (e.button !== 2) {
             setIsPaused((prev) => !prev);
@@ -267,7 +287,9 @@ const VideoMeshComponent = ({
           setIsOpenHotspotOption(true);
         }}
       />
-      {!texture && hotspotMedia.mediaUrl?.includes("youtube.com/embed") ? (
+      {!texture &&
+      (hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
+        hotspotMedia.mediaUrl?.includes("giphy.com/embed")) ? (
         <group ref={htmlGroupRef} position={[center[0], center[1], center[2]]}>
           <Html
             transform

@@ -25,7 +25,13 @@ import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 import { RADIUS_SPHERE } from "../../utils/Constants.ts";
 import CommentBox from "../../components/visitor/CommentBox.tsx";
 import MapLeaflet from "../../components/visitor/MapLeaflet.tsx";
-import { FaAngleLeft, FaCompass, FaMap, FaScreenpal, FaX } from "react-icons/fa6";
+import {
+  FaAngleLeft,
+  FaCompass,
+  FaMap,
+  FaScreenpal,
+  FaX,
+} from "react-icons/fa6";
 import { MdOpenInFull } from "react-icons/md";
 
 /**
@@ -40,6 +46,16 @@ const VirtualTour = () => {
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.data.status);
   const user = useSelector((state: RootState) => state.auth.user);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchMasterNodes());
@@ -321,7 +337,7 @@ const VirtualTour = () => {
   const [percent, setPercent] = useState(0);
 
   useEffect(() => {
-    console.log('isLoading : : :', isWaiting)
+    console.log("isLoading : : :", isWaiting);
     let progress = 0;
     const interval = setInterval(() => {
       progress += Math.random() * 10;
@@ -403,23 +419,27 @@ const VirtualTour = () => {
           title="Mở la bàn"
           onClick={() => setIsOpenRadar(true)}
         >
-          <IoIosCompass/>
+          <IoIosCompass />
         </button>
       )}
       {/* Hộp chat sửa wss */}
       <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />
       {/* Footer chứa các tính năng */}
-      <FooterTour
-        isRotation={isRotation}
-        setIsRotation={setIsRotation}
-        isMuted={isMuted}
-        isFullscreen={isFullscreen}
-        toggleInformation={toggleInformation}
-        toggleFullscreen={toggleFullscreen}
-        toggleMute={toggleMute}
-        setIsComment={setIsComment}
-        accessing={accessing}
-      />
+      {isMobile ? (
+        ""
+      ) : (
+        <FooterTour
+          isRotation={isRotation}
+          setIsRotation={setIsRotation}
+          isMuted={isMuted}
+          isFullscreen={isFullscreen}
+          toggleInformation={toggleInformation}
+          toggleFullscreen={toggleFullscreen}
+          toggleMute={toggleMute}
+          setIsComment={setIsComment}
+          accessing={accessing}
+        />
+      )}
       {/* Hộp thông tin */}
       <div className={styles.infoBox} onClick={toggleInformation}>
         Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
@@ -436,61 +456,65 @@ const VirtualTour = () => {
         ""
       )}
       {/* Bản đồ */}
-      <div
-        className={`${fullMap ? styles.full_map : styles.mapBox}`}
-        onMouseEnter={() => setHoverMap(true)}
-        onMouseLeave={() => {
-          setTimeout(() => {
-            setHoverMap(false);
-          }, 2000);
-        }}
-      >
-        {hideMap ? (
-          <button
-            className={styles.show_map_button}
-            onClick={() => setHideMap(false)}
-            title={"Mở bản đồ"}
-          >
-            <FaMap />
-          </button>
-        ) : (
-          <>
-            <MapLeaflet spaceId={nodeToRender.spaceId} mapRef={mapRef} />
-            {fullMap ? (
-              <button
-                className={styles.full_button}
-                onClick={() => setFullMap(false)}
-                title={"Thu nhỏ"}
-              >
-                <FaX />
-              </button>
-            ) : (
-              <>
+      {isMobile ? (
+        ""
+      ) : (
+        <div
+          className={`${fullMap ? styles.full_map : styles.mapBox}`}
+          onMouseEnter={() => setHoverMap(true)}
+          onMouseLeave={() => {
+            setTimeout(() => {
+              setHoverMap(false);
+            }, 2000);
+          }}
+        >
+          {hideMap ? (
+            <button
+              className={styles.show_map_button}
+              onClick={() => setHideMap(false)}
+              title={"Mở bản đồ"}
+            >
+              <FaMap />
+            </button>
+          ) : (
+            <>
+              <MapLeaflet spaceId={nodeToRender.spaceId} mapRef={mapRef} />
+              {fullMap ? (
                 <button
-                  className={styles.hide_button}
-                  onClick={() => {
-                    setHideMap(true);
-                  }}
-                  title={"Ẩn bản đồ"}
+                  className={styles.full_button}
+                  onClick={() => setFullMap(false)}
+                  title={"Thu nhỏ"}
                 >
-                  <FaAngleLeft />
+                  <FaX />
                 </button>
-                {hoverMap ? (
+              ) : (
+                <>
                   <button
-                    className={styles.full_button}
-                    onClick={() => setFullMap(true)}
-                    title={"Mở rộng"}
+                    className={styles.hide_button}
+                    onClick={() => {
+                      setHideMap(true);
+                    }}
+                    title={"Ẩn bản đồ"}
                   >
-                    <MdOpenInFull />
+                    <FaAngleLeft />
                   </button>
-                ) : (
-                  ""
-                )}
-              </>
-            )}
-          </>
-        )}
-      </div>
+                  {hoverMap ? (
+                    <button
+                      className={styles.full_button}
+                      onClick={() => setFullMap(true)}
+                      title={"Mở rộng"}
+                    >
+                      <MdOpenInFull />
+                    </button>
+                  ) : (
+                    ""
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
       /* Màn hình laoding */
       {isWaiting ? <Waiting percent={percent} /> : ""}
     </div>

@@ -827,7 +827,6 @@ const CreateTourStep2 = () => {
             hotspotId={currentHotspotId}
             setHotspotId={setCurrentHotspotId}
             onPropsChange={handleOnPropsChange}
-            setChangeCorner={setChangeCornerMedia}
             limitNav={true}
           />
         </div>

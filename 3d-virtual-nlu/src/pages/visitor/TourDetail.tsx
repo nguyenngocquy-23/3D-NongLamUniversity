@@ -447,37 +447,45 @@ const TourDetail = () => {
           />
           {isUpdateTour && (
             <>
-              {hotspotInformations.map((hotspot) => (
-                <GroundHotspotInfo
-                  key={hotspot.id}
-                  hotspotInfo={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
-              {hotspotNavigations.map((hotspot) => (
-                <GroundHotspot
-                  key={hotspot.id}
-                  onNavigate={(targetNodeId, cameraTargetPosition) =>
-                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                  }
-                  hotspotNavigation={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
-              {hotspotModels.map((hotspot) => (
-                <GroundHotspotModel
-                  key={hotspot.id}
-                  hotspotModel={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
-              {hotspotMedias.map((hotspot) => (
-                <VideoMeshComponent
-                  key={hotspot.id}
-                  hotspotMedia={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
+              {hotspotInformations
+                .filter((hotspot) => hotspot.nodeId == nodeId)
+                .map((hotspot) => (
+                  <GroundHotspotInfo
+                    key={hotspot.id}
+                    hotspotInfo={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
+              {hotspotNavigations
+                .filter((hotspot) => hotspot.nodeId == nodeId)
+                .map((hotspot) => (
+                  <GroundHotspot
+                    key={hotspot.id}
+                    onNavigate={(targetNodeId, cameraTargetPosition) =>
+                      handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                    }
+                    hotspotNavigation={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
+              {hotspotModels
+                .filter((hotspot) => hotspot.nodeId == nodeId)
+                .map((hotspot) => (
+                  <GroundHotspotModel
+                    key={hotspot.id}
+                    hotspotModel={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
+              {hotspotMedias
+                .filter((hotspot) => hotspot.nodeId == nodeId)
+                .map((hotspot) => (
+                  <VideoMeshComponent
+                    key={hotspot.id}
+                    hotspotMedia={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
             </>
           )}
         </Canvas>
@@ -630,7 +638,7 @@ const TourDetail = () => {
                 hotspotId={currentHotspotId}
                 setHotspotId={setCurrentHotspotId}
                 onPropsChange={handleOnPropsChange}
-                limitNav={true}
+                limitNav={false}
               />
             </div>
           </>
