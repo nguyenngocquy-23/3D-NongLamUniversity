@@ -69,7 +69,7 @@ const panoramaSlice = createSlice({
           autoRotate: 0,
           speedRotate: 0,
           lightIntensity: 1,
-          status: index === 0 ? (user.username == "admin" ? 2 : 3) : 1,
+          status: index === 0 ? (user.roleId == 2 ? 2 : 3) : 1,
         },
       }));
       state.panoramaList = panoramas;

@@ -27,13 +27,15 @@ const ConfigIcon = ({
   currentHotspotType: number | null;
   type?: number | null;
 }) => {
+  useEffect(() => {
+    console.log("....propHotspot....", propHotspot);
+  }, [propHotspot]);
   const [openListIcon, setOpenListIcon] = useState(false);
-  const [typeIcon, setTypeIcon] = useState(type ?? 1); // Default cho 2D
+  const [typeIcon, setTypeIcon] = useState(type ?? 1);
 
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
-  // Panorama hiện tại.
   const currentPanorama = panoramaList.find(
     (pano) => pano.id === currentSelectId
   );
@@ -138,19 +140,68 @@ const ConfigIcon = ({
 
   const dispatch = useDispatch();
 
+  // useEffect(() => {
+  //   console.log("---------------------ConfigIcon useEffect", propHotspot);
+  //   if (propHotspot == null) {
+  //     const props = handleInitialHotspotProps();
+  //     onPropsChange(props); // gọi hàm truyền lên component cha
+  //   } else {
+  //     const props = handleInitialHotspotProps();
+  //     console.log("+++++++++++++++++++++++ConfigIcon useEffect", props);
+  //     dispatch(
+  //       updateConfigHotspot({
+  //         hotspotId: propHotspot.id,
+  //         propHotspot: props,
+  //       })
+  //     );
+  //   }
+  // }, [
+  //   currentHotspotType,
+  //   currentPanorama,
+  //   scale,
+  //   opacity,
+  //   pitchX,
+  //   yawY,
+  //   rollZ,
+  //   positionX,
+  //   positionY,
+  //   positionZ,
+  //   color,
+  //   backgroundColor,
+  //   setAllowBackgroundColor,
+  //   iconId,
+  // ]);
+
+  // 3. Khi muốn cập nhật Redux (chỉ khi propHotspot != null) — THÊM useEffect MỚI!
+  useEffect(() => {
+    if (propHotspot != null) {
+      const props = handleInitialHotspotProps();
+      dispatch(
+        updateConfigHotspot({ hotspotId: propHotspot.id, propHotspot: props })
+      );
+    }
+  }, [
+    iconId,
+    scale,
+    opacity,
+    pitchX,
+    yawY,
+    rollZ,
+    positionX,
+    positionY,
+    positionZ,
+    color,
+    backgroundColor,
+    allowBackgroundColor,
+    currentHotspotType,
+    currentPanorama,
+  ]);
+
+  // Khi tạo hotspot mới (propHotspot == null), gửi props lên cha
   useEffect(() => {
     if (propHotspot == null) {
       const props = handleInitialHotspotProps();
-      onPropsChange(props); // gọi hàm truyền lên component cha
-    } else {
-      const props = handleInitialHotspotProps();
-      console.log();
-      dispatch(
-        updateConfigHotspot({
-          hotspotId: propHotspot.id,
-          propHotspot: props,
-        })
-      );
+      onPropsChange(props); // truyền props tạo mới
     }
   }, [
     currentHotspotType,
@@ -165,7 +216,7 @@ const ConfigIcon = ({
     positionZ,
     color,
     backgroundColor,
-    setAllowBackgroundColor,
+    allowBackgroundColor,
     iconId,
   ]);
 
@@ -185,6 +236,9 @@ const ConfigIcon = ({
       setBackgroundColor(propHotspot.backgroundColor ?? "#333333");
       setAllowBackgroundColor(propHotspot.allowBackgroundColor ?? false);
       setOpacity(propHotspot.opacity ?? 1);
+      setPositionX(propHotspot.positionX ?? 0);
+      setPositionY(propHotspot.positionY ?? 0);
+      setPositionZ(propHotspot.positionZ ?? 0);
     }
   }, [propHotspot]);
 

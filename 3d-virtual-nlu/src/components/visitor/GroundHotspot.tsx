@@ -43,11 +43,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   const panoramaList = useSelector(
     (state: RootState) => state.panoramas.panoramaList
   );
-  // console.log("panoramaList", panoramaList);
-  const preloadNode = useSelector(
-    (state: RootState) => state.data.preloadNodes
-  );
-  // console.log("preloadNode", preloadNode);
 
   /**
    * Đang thử nghiệm
@@ -202,7 +197,12 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
               maxWidth: "200px",
               background: "rgba(0,0,0,0.7)",
               color: "white",
-              padding: "4px 8px",
+              padding:
+                panoramaList.find(
+                  (pano) => pano.id == hotspotNavigation.targetNodeId
+                )?.config.name.length > 0
+                  ? "4px 8px"
+                  : "",
               borderRadius: "4px",
               fontSize: "10px",
               whiteSpace: "nowrap",
@@ -210,13 +210,11 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
               textOverflow: "ellipsis",
             }}
           >
-            {preloadNode.length == 0
-              ? panoramaList.find(
-                  (pano) => pano.id === hotspotNavigation.targetNodeId
-                ).config.name
-              : preloadNode.find(
-                  (pano) => pano.id === hotspotNavigation.targetNodeId
-                ).name}
+            {
+              panoramaList.find(
+                (pano) => pano.id == hotspotNavigation.targetNodeId
+              )?.config.name
+            }
           </div>
         </Html>
       )}
