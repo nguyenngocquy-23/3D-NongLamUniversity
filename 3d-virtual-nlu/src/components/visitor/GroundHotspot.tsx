@@ -210,13 +210,14 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
               textOverflow: "ellipsis",
             }}
           >
-            {preloadNode.length == 0
+            {/* Vấn đề xảy ra khi cấu hình liên kết node, khi đó 1 số hotspot navigation vẫn hiển thị nhưng nó sẽ không biết name của node id cha nó. */}
+            {/* {preloadNode.length == 0
               ? panoramaList.find(
                   (pano) => pano.id === hotspotNavigation.targetNodeId
                 ).config.name
               : preloadNode.find(
                   (pano) => pano.id === hotspotNavigation.targetNodeId
-                ).name}
+                ).name} */}
           </div>
         </Html>
       )}

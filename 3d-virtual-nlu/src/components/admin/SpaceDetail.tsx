@@ -5,7 +5,10 @@ import styles from "../../styles/spaceDetail.module.css";
 import { IoChevronBack } from "react-icons/io5";
 import axios from "axios";
 import { API_URLS } from "../../env";
-import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
+import {
+  isInteger,
+  TourNodeRequestMapper,
+} from "../../utils/TourNodeRequestMapper";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import {
@@ -56,15 +59,14 @@ const SpaceDetail = () => {
   );
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-
-  // TEST @@
   const cameraRadarRef = useRef<number>(0);
-
   const controlsRef = useRef<any>(null); //OrbitControls
 
   useEffect(() => {
     dispatch(goToStep(4)); //
   }, [dispatch]);
+
+  //=== LẤY DANH SÁCH CÁC TOUR CÓ TRONG 1 SPACE => REDUX.
   useEffect(() => {
     if (!spaceId) return;
 
@@ -96,8 +98,6 @@ const SpaceDetail = () => {
    */
   const handleSelect = async (spaceId: number, masterNodeId: number) => {
     if (!masterNodeId || masterNodeId === 0) return;
-
-    dispatch(selectPanorama(masterNodeId.toString()));
 
     try {
       const payload = {
@@ -469,6 +469,7 @@ const SpaceDetail = () => {
     }
   };
   const [isViewMode, setIsViewMode] = useState<Number>(1);
+
   return (
     <>
       <div className={styles.space_container}>
@@ -574,6 +575,7 @@ const SpaceDetail = () => {
                         }}
                         setCurrentHotspotId={setCurrentHotspotId}
                         hotspotNavigation={hotspot}
+                        blockUpdate={isInteger(hotspot.id)} //Nếu id dạng số => là của tour => không thể cập nhật.
                       />
                     ))}
 
@@ -674,7 +676,7 @@ const SpaceDetail = () => {
           ) : (
             <div className={styles.space_preview_tour}>
               <TrackingSpace
-                spaceId={spaceId}
+                masterId={spaceCurrent.masterNodeId}
                 panoramaList={panoramaList}
                 hotspotNavigations={hotspotNavigations}
               />

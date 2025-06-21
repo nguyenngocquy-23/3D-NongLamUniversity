@@ -51,7 +51,7 @@ const TourCanvas = React.memo(
   }) => {
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const cameraRadarRef = useRef<number>(0);
-    const controlsRef = useRef<any>(null); //OrbitControls
+    const controlsRef = useRef<any>(null);
     const dispatch = useDispatch();
 
     const preloadNodesRedux = useSelector(
@@ -225,14 +225,13 @@ const TourCanvas = React.memo(
       // Step 2: zoom đến vị trí đó
       gsap.to(camera, {
         fov: zoomTarget,
-        duration: 1,
+        duration: 2,
         ease: "power2.inOut",
         onUpdate: () => {
           camera.updateProjectionMatrix();
         },
         onComplete: () => {
           handleSelectNode(Number(targetNodeId));
-
           // Quay về fov ban đầu
           gsap.to(camera, {
             fov: originalFov,

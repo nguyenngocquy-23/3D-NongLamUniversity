@@ -79,9 +79,7 @@ const CreateTourStep2 = () => {
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  // TEST @@
   const cameraRadarRef = useRef<number>(0);
-
   const controlsRef = useRef<any>(null); //OrbitControls
 
   const [currentPoints, setCurrentPoints] = useState<
