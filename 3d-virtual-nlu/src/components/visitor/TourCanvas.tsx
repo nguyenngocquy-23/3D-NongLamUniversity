@@ -62,7 +62,7 @@ const TourCanvas = React.memo(
     useEffect(() => {
       if (defaultNode.status === 2) {
         const defaultHotspots = defaultNode.navHotspots || [];
-        const preloadHotspots = preloadNodesRedux.flatMap(
+        const preloadHotspots = preloadNodesRedux.filter((node) => node.status != 2).flatMap(
           (node) => node.navHotspots || []
         );
 
@@ -110,7 +110,7 @@ const TourCanvas = React.memo(
 
     const handleSelectNode = (id: number) => {
       setIsTextureReady(false);
-      const activeNode = preloadNodes.find((h) => h.id === id);
+      const activeNode = preloadNodesRedux.find((h) => h.id === id);
       dispatch(setDefaultNode(activeNode));
     };
 
@@ -129,68 +129,51 @@ const TourCanvas = React.memo(
       const control = controlsRef.current;
 
       const originalFov = camera.fov;
-      console.log(`Vij trí camera fov: ${originalFov}`);
-      const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-      const targetPano = preloadNodes.find((pano) => pano.id === targetNodeId);
-
+      const zoomTarget = 45;
       const [x, y, z] = hotspotTargetPosition;
 
+      // const targetVec = new THREE.Vector3(x, 0, z);
+
+      // // Step 1: cập nhật target của OrbitControls
+      // control.target.copy(targetVec);
+      // control.update();
       // === Bước 1:Xoay camera về vị trí (hotspot)
       lookAtHotspot([x, y, z]);
 
-      // === Bước 2: Zoom vào
-      console.log(
-        `[CreateTourStep2] Bắt đầu việc gọi vào handleSelectNode: ${
-          performance.now() / 1000
-        } giây`
-      );
-      handleSelectNode(Number(targetNodeId));
-
-      console.log(
-        `[CreateTourStep2] Bắt đầu việc gọi vào zoom: ${
-          performance.now() / 1000
-        } giây`
-      );
+      // Step 2: zoom đến vị trí đó
       gsap.to(camera, {
         fov: zoomTarget,
-        duration: 1.1,
+        duration: 1,
         ease: "power2.inOut",
         onUpdate: () => {
           camera.updateProjectionMatrix();
         },
         onComplete: () => {
-          console.log(
-            `[CreateTourStep2] Kết thúc việc zoom vào: ${
-              performance.now() / 1000
-            } giây`
-          );
-          const [px, py, pz] = [
-            targetPano?.positionX,
-            targetPano?.positionY,
-            targetPano?.positionZ,
-          ];
-          if (
-            typeof px === "number" &&
-            typeof py === "number" &&
-            typeof pz === "number"
-          ) {
-            camera.position.set(px, py, pz);
-          }
-          console.log(
-            `[CreateTourStep2] Bắt đầu set camera: ${
-              performance.now() / 1000
-            } giây`
-          );
+          handleSelectNode(Number(targetNodeId));
 
+          // Quay về fov ban đầu
           gsap.to(camera, {
             fov: originalFov,
-            duration: 0.3,
-            delay: 0.3,
+            duration: 0.2,
+            delay: 0.1,
             ease: "power2.inOut",
             onUpdate: () => {
               camera.updateProjectionMatrix();
             },
             onComplete: () => {
+              const [px, py, pz] = [
+                defaultNode.positionX,
+                defaultNode.positionY,
+                defaultNode.positionZ,
+              ];
+              if (
+                typeof px === "number" &&
+                typeof py === "number" &&
+                typeof pz === "number"
+              ) {
+                camera.position.set(px, py, pz);
+                setTargetPosition([px, py, pz]);
+              }
               camera.updateProjectionMatrix();
               control.update(); // đảm bảo OrbitControls cập nhật
             },

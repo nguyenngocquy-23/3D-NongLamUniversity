@@ -78,6 +78,8 @@ const TourDetail = () => {
   const { openTaskIndex, completedTaskIds, unlockedTaskIds, handleOpenTask } =
     useSequentialTasks(tasks.length);
 
+  const cameraRadarRef = useRef<number>(0);
+
   useEffect(() => {
     if (nodeId) {
       console.log("Fetching preload nodes for nodeId:", nodeId);
@@ -441,40 +443,50 @@ const TourDetail = () => {
             autoRotateSpeed={
               node || node.speedRotate == 0 ? 0.2 : node.speedRotate
             }
+            cameraRadarRef={cameraRadarRef}
+            currentPano={node}
           />
           {isUpdateTour && (
             <>
-              {hotspotInformations.map((hotspot) => (
-                <GroundHotspotInfo
-                  key={hotspot.id}
-                  hotspotInfo={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
-              {hotspotNavigations.map((hotspot) => (
-                <GroundHotspot
-                  key={hotspot.id}
-                  onNavigate={(targetNodeId, cameraTargetPosition) =>
-                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                  }
-                  hotspotNavigation={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
-              {hotspotModels.map((hotspot) => (
-                <GroundHotspotModel
-                  key={hotspot.id}
-                  hotspotModel={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
-              {hotspotMedias.map((hotspot) => (
-                <VideoMeshComponent
-                  key={hotspot.id}
-                  hotspotMedia={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
+              {hotspotInformations
+                .filter((hotspot) => hotspot.nodeId == nodeId)
+                .map((hotspot) => (
+                  <GroundHotspotInfo
+                    key={hotspot.id}
+                    hotspotInfo={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
+              {hotspotNavigations
+                .filter((hotspot) => hotspot.nodeId == nodeId)
+                .map((hotspot) => (
+                  <GroundHotspot
+                    key={hotspot.id}
+                    onNavigate={(targetNodeId, cameraTargetPosition) =>
+                      handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                    }
+                    hotspotNavigation={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
+              {hotspotModels
+                .filter((hotspot) => hotspot.nodeId == nodeId)
+                .map((hotspot) => (
+                  <GroundHotspotModel
+                    key={hotspot.id}
+                    hotspotModel={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
+              {hotspotMedias
+                .filter((hotspot) => hotspot.nodeId == nodeId)
+                .map((hotspot) => (
+                  <VideoMeshComponent
+                    key={hotspot.id}
+                    hotspotMedia={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
             </>
           )}
         </Canvas>
@@ -591,12 +603,11 @@ const TourDetail = () => {
               <RightMenuCreateTour
                 tasks={tasks}
                 openTaskIndex={openTaskIndex}
-                completedTaskIds={completedTaskIds}
-                unlockedTaskIds={unlockedTaskIds}
                 onTaskClick={handleOpenTask}
                 setPreOpenTask={setPreTaskIndex}
                 isUpdateTour={true}
                 handleUpdateTour={handleUpdateTour}
+                saveLinkNode={false}
               />
             </div>
             {/* tasks */}
@@ -628,6 +639,7 @@ const TourDetail = () => {
                 hotspotId={currentHotspotId}
                 setHotspotId={setCurrentHotspotId}
                 onPropsChange={handleOnPropsChange}
+                limitNav={false}
               />
             </div>
           </>

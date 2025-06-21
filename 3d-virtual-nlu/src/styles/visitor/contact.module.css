@@ -25,6 +25,10 @@
   font-weight: 500;
 }
 
+.input::placeholder,
+.textarea::placeholder {
+  color: #fff;
+}
 .input,
 .textarea {
   padding: 12px;
@@ -33,6 +37,7 @@
   border-radius: 8px;
   font-size: 16px;
   resize: vertical;
+  background-color: rgba(0,0,0,0.8);
 }
 
 .textarea {

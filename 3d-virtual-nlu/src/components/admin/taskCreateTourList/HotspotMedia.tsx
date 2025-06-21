@@ -29,7 +29,8 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
   const [mediaType, setMediaType] = useState("PICTURE");
   const [isEmbed, setIsEmbed] = useState(false);
   const [embedUrl, setEmbedUrl] = useState(
-    hotspotMedia.mediaUrl.includes("youtube") ? hotspotMedia.mediaUrl : ""
+    hotspotMedia.mediaUrl.includes("youtube") || hotspotMedia.mediaUrl.includes("giphy")
+ ? hotspotMedia.mediaUrl : ""
   ); 
   const cornerPointList = JSON.parse(hotspotMedia.cornerPointList || "[]") as [
     number,

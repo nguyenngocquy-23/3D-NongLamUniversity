@@ -15,7 +15,6 @@ interface UpdateHotspotProps {
   hotspotId: string | null;
   setHotspotId: (value: string | null) => void;
   onPropsChange: (value: BaseHotspot) => void;
-  setChangeCorner: (value: boolean) => void;
   limitNav: boolean;
 }
 
@@ -24,7 +23,6 @@ const UpdateHotspot = ({
   hotspotId,
   setHotspotId,
   onPropsChange,
-  setChangeCorner,
   limitNav,
 }: UpdateHotspotProps) => {
   const propHotspot = useSelector(

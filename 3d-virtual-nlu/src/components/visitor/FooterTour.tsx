@@ -38,7 +38,7 @@ const FooterTour = ({
   const user = userJson ? JSON.parse(userJson) : null;
   const navigate = useNavigate();
   return (
-    <div className={styles.footerTour}>
+    <div className={styles.footer_tour}>
       <i>Số lượng truy cập hiện tại: {user ? accessing : <Link to={"/login"}>Đăng nhập để xem</Link>}</i>
       <div className="contain_extension" style={{ display: "flex" }}>
         <FaComment

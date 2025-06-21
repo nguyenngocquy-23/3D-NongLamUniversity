@@ -45,6 +45,7 @@ import Swal from "sweetalert2";
 import { goToStep } from "../../redux/slices/StepSlice";
 import gsap from "gsap";
 import TrackingSpace from "../TrackingSpace";
+import CamControlAdmins from "./CamControlsAdmin";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
@@ -53,6 +54,14 @@ const SpaceDetail = () => {
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
+    const sphereRef = useRef<THREE.Mesh | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+
+  // TEST @@
+  const cameraRadarRef = useRef<number>(0);
+
+  const controlsRef = useRef<any>(null); //OrbitControls
+
 
   useEffect(() => {
     dispatch(goToStep(4)); //
@@ -88,6 +97,8 @@ const SpaceDetail = () => {
    */
   const handleSelect = async (spaceId: number, masterNodeId: number) => {
     if (!masterNodeId || masterNodeId === 0) return;
+
+    dispatch(selectPanorama(masterNodeId.toString()));
 
     try {
       const payload = {
@@ -139,13 +150,6 @@ const SpaceDetail = () => {
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
   >(null);
-  const sphereRef = useRef<THREE.Mesh | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-
-  // TEST @@
-  const cameraRadarRef = useRef<number>(null);
-
-  const controlsRef = useRef<any>(null); //OrbitControls
 
   const [isTextureReady, setIsTextureReady] = useState(false);
   const [cameraAngle, setCameraAngle] = useState(0);
@@ -542,7 +546,7 @@ const SpaceDetail = () => {
                   onTextureReady={() => setIsTextureReady(true)}
                 />
 
-                <CamControls
+                <CamControlAdmins
                   targetPosition={targetPosition}
                   sphereRef={sphereRef}
                   cameraRef={cameraRef}
@@ -550,6 +554,7 @@ const SpaceDetail = () => {
                   autoRotate={false}
                   autoRotateSpeed={0}
                   onAngleChange={setCameraAngle}
+                  cameraRadarRef={cameraRadarRef}
                 />
 
                 {isTextureReady &&
@@ -655,7 +660,6 @@ const SpaceDetail = () => {
                   hotspotId={currentHotspotId}
                   setHotspotId={setCurrentHotspotId}
                   onPropsChange={handleOnPropsChange}
-                  setChangeCorner={setChangeCornerMedia}
                   limitNav={false}
                 />
               </div>

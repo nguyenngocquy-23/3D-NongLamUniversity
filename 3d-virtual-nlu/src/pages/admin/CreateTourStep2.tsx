@@ -414,53 +414,20 @@ const CreateTourStep2 = () => {
     lookAtHotspot([x, y, z]);
 
     // === Bước 2: Zoom vào
-    console.log(
-      `[CreateTourStep2] Bắt đầu việc gọi vào handleSelectNode: ${
-        performance.now() / 1000
-      } giây`
-    );
-    handleSelectNode(targetNodeId);
 
-    console.log(
-      `[CreateTourStep2] Bắt đầu việc gọi vào zoom: ${
-        performance.now() / 1000
-      } giây`
-    );
     gsap.to(camera, {
       fov: zoomTarget,
-      duration: 1.1,
+      duration: 1.0,
       ease: "power2.inOut",
       onUpdate: () => {
         camera.updateProjectionMatrix();
       },
       onComplete: () => {
-        console.log(
-          `[CreateTourStep2] Kết thúc việc zoom vào: ${
-            performance.now() / 1000
-          } giây`
-        );
-        const [px, py, pz] = [
-          targetPano?.config.positionX,
-          targetPano?.config.positionY,
-          targetPano?.config.positionZ,
-        ];
-        if (
-          typeof px === "number" &&
-          typeof py === "number" &&
-          typeof pz === "number"
-        ) {
-          camera.position.set(px, py, pz);
-        }
-        console.log(
-          `[CreateTourStep2] Bắt đầu set camera: ${
-            performance.now() / 1000
-          } giây`
-        );
-
+        handleSelectNode(targetNodeId);
         gsap.to(camera, {
           fov: originalFov,
-          duration: 0.3,
-          delay: 0.3,
+          duration: 0.2,
+          delay: 0.1,
           ease: "power2.inOut",
           onUpdate: () => {
             camera.updateProjectionMatrix();
@@ -593,7 +560,7 @@ const CreateTourStep2 = () => {
           />
 
           {currentPanorama && (
-            <MiniMap 
+            <MiniMap
               currentPanorama={currentPanorama}
               angleCurrent={(cameraRadarRef.current + cameraAngle) % 360}
             />
@@ -742,7 +709,6 @@ const CreateTourStep2 = () => {
             hotspotId={currentHotspotId}
             setHotspotId={setCurrentHotspotId}
             onPropsChange={handleOnPropsChange}
-            setChangeCorner={setChangeCornerMedia}
             limitNav={true}
           />
         </div>
