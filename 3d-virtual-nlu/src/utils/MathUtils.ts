@@ -33,6 +33,15 @@ export const getAngleFromXZ = (x: number, z: number): number => {
   if (degrees < 0) degrees += 360; // giá trị radian có thể âm.
   return degrees;
 };
+
+/**
+ * Lấy lại giá trị angle dựa trên yawOffset từ redux.
+ */
+export const getAngleFromYawOffset = (yawOffset: number): number => {
+  const degrees = yawOffset * (180 / Math.PI);
+  return degrees;
+};
+
 /**
  *
  * @param angle : Góc được trả về từ Redux. Ở mặc định, là vị trí 0 độ.

@@ -50,33 +50,27 @@ const CreateTourStep2 = () => {
   /**
    * Xử lý toggle hiển thị menu - start
    */
+
+  const sphereRef = useRef<THREE.Mesh | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const cameraRadarRef = useRef<number>(null);
+  const controlsRef = useRef<any>(null); //OrbitControls
+
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
+  const [currentPoints, setCurrentPoints] = useState<
+    [number, number, number][]
+  >([]);
+  const [assignable, setAssignable] = useState(false);
+  const [validIcon, setValidIcon] = useState(true);
+  const [chooseCornerMediaPoint, setChooseCornerMediaPoint] = useState(false);
+  const [targetPosition, setTargetPosition] = useState<
+    [number, number, number] | null
+  >(null); //test
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
   };
-
-  /**
-   * Xử lý toggle hiển thị menu - end
-   */
-  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
-
-  const sphereRef = useRef<THREE.Mesh | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-
-  // TEST @@
-  const cameraRadarRef = useRef<number>(null);
-
-  const controlsRef = useRef<any>(null); //OrbitControls
-
-  const [currentPoints, setCurrentPoints] = useState<
-    [number, number, number][]
-  >([]);
-
-  const [assignable, setAssignable] = useState(false);
-  const [validIcon, setValidIcon] = useState(true);
-  const [chooseCornerMediaPoint, setChooseCornerMediaPoint] = useState(false);
-
   const handleMouseDown = () => {
     setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
   };
@@ -88,9 +82,6 @@ const CreateTourStep2 = () => {
   /**
    * Khởi tạo sphereRef: sphere ban đầu của hình cầu.
    */
-  const [targetPosition, setTargetPosition] = useState<
-    [number, number, number] | null
-  >(null); //test
 
   /**
    * TEST CHO VIỆC THÊM HOTSPOT TYPE.
@@ -348,7 +339,7 @@ const CreateTourStep2 = () => {
       case 2:
         return (
           <>
-            <Task2 cameraRef={cameraRef} />
+            <Task2 cameraRef={cameraRef} sphereRef={sphereRef} />
           </>
         );
       case 3:
@@ -410,22 +401,9 @@ const CreateTourStep2 = () => {
 
     const [x, y, z] = hotspotTargetPosition;
 
-    // === Bước 1:Xoay camera về vị trí (hotspot)
-    lookAtHotspot([x, y, z]);
-
     // === Bước 2: Zoom vào
-    console.log(
-      `[CreateTourStep2] Bắt đầu việc gọi vào handleSelectNode: ${
-        performance.now() / 1000
-      } giây`
-    );
     handleSelectNode(targetNodeId);
 
-    console.log(
-      `[CreateTourStep2] Bắt đầu việc gọi vào zoom: ${
-        performance.now() / 1000
-      } giây`
-    );
     gsap.to(camera, {
       fov: zoomTarget,
       duration: 1.1,
@@ -434,29 +412,6 @@ const CreateTourStep2 = () => {
         camera.updateProjectionMatrix();
       },
       onComplete: () => {
-        console.log(
-          `[CreateTourStep2] Kết thúc việc zoom vào: ${
-            performance.now() / 1000
-          } giây`
-        );
-        const [px, py, pz] = [
-          targetPano?.config.positionX,
-          targetPano?.config.positionY,
-          targetPano?.config.positionZ,
-        ];
-        if (
-          typeof px === "number" &&
-          typeof py === "number" &&
-          typeof pz === "number"
-        ) {
-          camera.position.set(px, py, pz);
-        }
-        console.log(
-          `[CreateTourStep2] Bắt đầu set camera: ${
-            performance.now() / 1000
-          } giây`
-        );
-
         gsap.to(camera, {
           fov: originalFov,
           duration: 0.3,
@@ -474,33 +429,33 @@ const CreateTourStep2 = () => {
     });
   };
 
-  const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
-    if (!cameraRef.current || !controlsRef.current) return;
+  // const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
+  //   if (!cameraRef.current || !controlsRef.current) return;
 
-    const controls = controlsRef.current;
+  //   const controls = controlsRef.current;
 
-    /**
-     * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
-     * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
-     */
-    const hotspotVec = new THREE.Vector3(
-      hotspotTargetPosition[0],
-      0,
-      hotspotTargetPosition[2]
-    );
-    const center = new THREE.Vector3(0, 0, 0);
+  //   /**
+  //    * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
+  //    * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
+  //    */
+  //   const hotspotVec = new THREE.Vector3(
+  //     hotspotTargetPosition[0],
+  //     0,
+  //     hotspotTargetPosition[2]
+  //   );
+  //   const center = new THREE.Vector3(0, 0, 0);
 
-    const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
+  //   const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
 
-    const spherical = new THREE.Spherical();
-    spherical.setFromVector3(dir);
+  //   const spherical = new THREE.Spherical();
+  //   spherical.setFromVector3(dir);
 
-    // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
-    controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
-    controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
+  //   // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
+  //   controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
+  //   controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
 
-    controls.update();
-  };
+  //   controls.update();
+  // };
 
   const handleBackStep2 = () => {
     Swal.fire({
@@ -553,6 +508,7 @@ const CreateTourStep2 = () => {
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
+            yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
             onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
             onTextureReady={() => setIsTextureReady(true)}
