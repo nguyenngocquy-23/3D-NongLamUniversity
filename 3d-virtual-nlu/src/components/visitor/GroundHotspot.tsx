@@ -169,10 +169,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       const box = new THREE.Box3().setFromObject(groupRef.current);
       const size = new THREE.Vector3();
       box.getSize(size);
-      console.log(
-        `Hotspot: ${hotspotNavigation.id} đang có scale ${hotspotNavigation.scale} `
-      );
-      console.log(size);
     }
   }, [clonedScene]);
 

@@ -576,7 +576,6 @@ export class TourNodeRequestMapper {
 
       // Info Hotspots
       node.infoHotspots?.forEach((h, idx) => {
-        console.log("Applying defaults to hotspot:", h);
         hotspotList.push({
             id: h.id,
             nodeId: h.nodeId,
