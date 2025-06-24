@@ -44,8 +44,6 @@ import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
-import { getAngleFromXZ } from "../../utils/MathUtils";
-import CamControlAdmins from "../../components/admin/CamControlsAdmin";
 import CamControls from "../../components/visitor/CamControls";
 
 export const tasks = [
