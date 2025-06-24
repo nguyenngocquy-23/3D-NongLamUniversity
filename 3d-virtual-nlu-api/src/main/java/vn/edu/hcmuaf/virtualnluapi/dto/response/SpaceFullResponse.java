@@ -17,7 +17,7 @@ public class SpaceFullResponse {
     int id;
     int fieldId;
     int masterNodeId;
-    String  fieldName, code, name, masterNodeName, description, url, location;
+    String fieldName, code, name, masterNodeName, description, url, location;
     byte status;
     Timestamp createdAt, updatedAt;
 }

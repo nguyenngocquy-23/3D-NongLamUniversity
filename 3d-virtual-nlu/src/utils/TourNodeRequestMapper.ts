@@ -553,10 +553,10 @@ export class TourNodeRequestMapper {
       });
 
       // Nav Hotspots
-      node.navHotspots?.forEach((h, idx) => {
+      node.navHotspots?.forEach((h) => {
         hotspotList.push({
-          id: h.id,
-          nodeId: h.nodeId,
+          id: String(h.id),
+          nodeId: String(h.nodeId),
           type: h.type,
           iconId: h.iconId,
           positionX: h.positionX,
@@ -570,16 +570,15 @@ export class TourNodeRequestMapper {
           allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
           opacity: h.opacity,
           scale: h.scale,
-          targetNodeId: h.targetNodeId,
+          targetNodeId: String(h.targetNodeId),
         } as HotspotNavigation);
       });
 
       // Info Hotspots
-      node.infoHotspots?.forEach((h, idx) => {
-        console.log("Applying defaults to hotspot:", h);
+      node.infoHotspots?.forEach((h) => {
         hotspotList.push({
-          id: h.id,
-          nodeId: h.nodeId,
+          id: String(h.id),
+          nodeId: String(h.nodeId),
           type: h.type,
           iconId: h.iconId,
           positionX: h.positionX,

@@ -5,13 +5,11 @@ import "@xyflow/react/dist/style.css";
 import TrackingSpaceItem from "./admin/TrackingSpaceItem";
 import { PanoramaItem } from "../redux/slices/PanoramaSlice";
 import { HotspotNavigation } from "../redux/slices/HotspotSlice";
-import { useSelector } from "react-redux";
-import { RootState } from "../redux/Store";
 
 type FlowProps = {
+  masterId?: string;
   panoramaList: PanoramaItem[];
   hotspotNavigations: HotspotNavigation[];
-  spaceId?: string;
 };
 
 const nodeTypes = {
@@ -19,65 +17,128 @@ const nodeTypes = {
 };
 
 const TrackingSpace: React.FC<FlowProps> = ({
+  masterId,
   panoramaList,
   hotspotNavigations,
-  spaceId,
 }) => {
-  /**
-   * REDUX
-   */
-  const currentSpace = useSelector((state: RootState) =>
-    state.data.spaces.find((h) => h.id === spaceId)
-  );
+  //============== REDUX ===============
 
-  const masterPanoramaInSpace = React.useMemo(() => {
-    return panoramaList.find((h) => h.id === currentSpace);
+  const defaultInSpace = React.useMemo(() => {
+    return panoramaList.find((h) => h.id == masterId);
   }, [panoramaList]);
 
+  const panoramaListExceptMasterNode = React.useMemo(() => {
+    return panoramaList.filter((h) => h.id !== defaultInSpace?.id);
+  }, [panoramaList, defaultInSpace]);
+
+  //============== REDUX ===============
+
   /**
-   * Props
+   * Method tính toán số lượng ảnh trong 1 tour.
    */
+  const numOfPanosInMaster = (nodeId: string): number => {
+    const panoIdSet = new Set(panoramaList.map((p) => p.id));
 
-  const masterPanoramaRegular = React.useMemo(() => {
-    return panoramaList.filter((h) => h.id !== masterPanoramaInSpace?.id);
-  }, [panoramaList, masterPanoramaInSpace]);
+    const hotspots = hotspotNavigations.filter(
+      (h) => h.nodeId === nodeId && !panoIdSet.has(h.targetNodeId)
+    );
+    return hotspots.length + 1;
+  };
 
   /**
-   * Thiết lập hiển thị điểm trong React Flow
+   * Method tính toán số lượng hotspot tới 1 panoramalist
+   *
    */
 
   const nodes = React.useMemo(() => {
-    if (!masterPanoramaInSpace) return [];
+    if (!defaultInSpace) return [];
     return [
       {
-        id: masterPanoramaInSpace.id,
+        id: defaultInSpace.id,
         type: "customItem",
-        position: { x: 0, y: 200 },
+        position: { x: 0, y: 54 },
         data: {
-          name: masterPanoramaInSpace.config.name,
-          img: masterPanoramaInSpace.url,
+          id: defaultInSpace.id,
+          name: defaultInSpace.config.name,
+          img: defaultInSpace.url,
+          numOfNodes: numOfPanosInMaster(defaultInSpace.id),
+          root: true,
         },
       },
-      ...masterPanoramaRegular.map((item, index) => ({
+      ...panoramaListExceptMasterNode.map((item, index) => ({
         id: item.id,
         type: "customItem",
-        position: { x: 200, y: index * 36 },
-        data: { name: item.config.name, img: item.url },
+        position: { x: 500, y: index * 100 },
+        data: {
+          id: item.id,
+          name: item.config.name,
+          img: item.url,
+          numOfNodes: numOfPanosInMaster(item.id),
+          root: false,
+        },
       })),
     ];
-  }, [masterPanoramaInSpace, masterPanoramaRegular]);
+  }, [defaultInSpace, panoramaListExceptMasterNode]);
 
   const edges = React.useMemo(() => {
-    return hotspotNavigations.map((item) => ({
-      id: item.id,
-      source: item.nodeId,
-      target: item.targetNodeId,
-      animated: true,
-      markerEnd: { type: MarkerType.Arrow, color: "#fff000", strokeWidth: 3 },
-      style: {
-        stroke: "#000",
-      },
-    }));
+    const result: any[] = [];
+    const handledPairs = new Set<string>();
+    const defaultId = defaultInSpace?.id;
+
+    hotspotNavigations.forEach((item) => {
+      const key = `${item.nodeId}-${item.targetNodeId}`;
+      const reverseKey = `${item.targetNodeId}-${item.nodeId}`;
+
+      // Nếu đã xử lý cặp ngược lại → bỏ qua
+      if (handledPairs.has(reverseKey)) return;
+
+      // Tìm hotspot ngược chiều (nếu có)
+      const reverseHotspot = hotspotNavigations.find(
+        (h) => h.nodeId === item.targetNodeId && h.targetNodeId === item.nodeId
+      );
+
+      const isBidirectional = !!reverseHotspot;
+
+      if (isBidirectional) {
+        result.push({
+          id: `${item.id}-${reverseHotspot.id}`,
+          source: item.nodeId,
+          target: item.targetNodeId,
+          style: {
+            stroke: "#00cc99",
+            strokeWidth: 2,
+          },
+          label: `[${item.id}] & [${reverseHotspot.id}]`,
+          labelStyle: {
+            fill: "#000",
+            fontSize: 6,
+          },
+        });
+
+        handledPairs.add(key);
+      } else {
+        result.push({
+          id: item.id,
+          source: item.nodeId,
+          target: item.targetNodeId,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: "#ff0033",
+          },
+          style: {
+            stroke: "#ff0033",
+            strokeWidth: 2,
+          },
+          label: `[${item.id}]`,
+          labelStyle: {
+            fill: "#000",
+            fontSize: 8,
+          },
+        });
+      }
+    });
+
+    return result;
   }, [hotspotNavigations]);
 
   return (
@@ -86,10 +147,6 @@ const TrackingSpace: React.FC<FlowProps> = ({
         nodes={nodes}
         edges={hotspotNavigations.length > 0 ? edges : []}
         nodeTypes={nodeTypes}
-        nodesDraggable={false}
-        nodesConnectable={false}
-        elementsSelectable={false}
-        selectionOnDrag={false}
         proOptions={{ hideAttribution: true }}
       >
         <Background />

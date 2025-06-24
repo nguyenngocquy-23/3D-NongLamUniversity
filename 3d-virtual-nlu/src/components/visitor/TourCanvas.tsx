@@ -112,7 +112,7 @@ const TourCanvas = React.memo(
 
       gsap.to(camera, {
         fov: zoomTarget,
-        duration: 1.0,
+        duration: 2,
         ease: "power2.inOut",
         onUpdate: () => {
           camera.updateProjectionMatrix();

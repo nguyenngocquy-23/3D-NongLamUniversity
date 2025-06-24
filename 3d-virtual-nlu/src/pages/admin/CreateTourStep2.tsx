@@ -85,6 +85,7 @@ const CreateTourStep2 = () => {
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
   };
+
   const handleMouseDown = () => {
     setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
   };

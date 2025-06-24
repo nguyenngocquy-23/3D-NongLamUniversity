@@ -17,7 +17,6 @@ type CamControlsProps = {
   autoRotate: boolean;
   autoRotateSpeed: number | null;
   onAngleChange?: (angle: number) => void;
-  onAngleChangeForMinimap?: (angle: number) => void;
   cameraRadarRef: React.RefObject<number>;
 };
 
@@ -31,7 +30,6 @@ const CamControlAdmins: React.FC<CamControlsProps> = ({
   autoRotate,
   autoRotateSpeed,
   onAngleChange,
-  onAngleChangeForMinimap,
   cameraRadarRef,
 }) => {
   const { gl, camera } = useThree();
@@ -221,9 +219,9 @@ const CamControlAdmins: React.FC<CamControlsProps> = ({
 
     if (justSwitchedRef.current) {
       const deltaTemp = getSignedAngleDelta(baseAngleRef.current, currentAngle);
- 
+
       // Nếu delta quá lớn sau khi chuyển node, camera chưa ổn → chờ tiếp
-      if (Math.abs(deltaTemp) > 179 ) return;
+      if (Math.abs(deltaTemp) > 179) return;
 
       baseAngleRef.current = currentAngle;
       justSwitchedRef.current = false;
