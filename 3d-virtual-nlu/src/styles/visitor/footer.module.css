@@ -15,8 +15,8 @@
   height: 100%;
 }
 
-.partnerLogo {
-  height: 80px;
+.partner_logo {
+  height: 50px;
   margin: 0 40px;
   object-fit: contain;
   flex-shrink: 0;

@@ -73,7 +73,7 @@ const Model = () => {
         </div>
         <div
           className={styles.avatar}
-          style={{ background: "url('/avatar.jpg')" }}
+          style={{ background: `url(${import.meta.env.BASE_URL}avatar.jpg)` }}
         >
           <b className={styles.username}>Người tạo: {} </b>
         </div>

@@ -23,7 +23,7 @@ const Home: React.FC = () => {
     <main className={styles.homeContainer}>
       <Banner />
 
-      <CampusMap />
+      {/* <CampusMap /> */}
 
       <Introduce />
 

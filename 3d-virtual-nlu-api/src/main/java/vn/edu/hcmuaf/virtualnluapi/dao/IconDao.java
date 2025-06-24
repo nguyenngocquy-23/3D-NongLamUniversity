@@ -24,7 +24,7 @@ public class IconDao {
     }
 
     public boolean createIcon(IconCreateRequest req) {
-        String sqlQuery = "INSERT INTO icons(name, url, isActive, type, thumbnail  createdAt) VALUES (:name, :url, :isActive, :createdAt, :type, :thumbnail)";
+        String sqlQuery = "INSERT INTO icons(name, url, isActive, type, thumbnail, createdAt) VALUES (:name, :url, :isActive, :createdAt, :type, :thumbnail)";
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("name", req.getName())
@@ -32,7 +32,7 @@ public class IconDao {
                     .bind("isActive", 1)
                     .bind("createdAt", Timestamp.valueOf(LocalDateTime.now()))
                     .bind("type", req.getType())
-                    .bind("type", req.getThumbnail())
+                    .bind("thumbnail", req.getThumbnail())
                     .execute();
             return rows == 1;
         });

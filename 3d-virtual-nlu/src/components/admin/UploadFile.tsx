@@ -431,10 +431,10 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
       {fileStatuses.length < maxFiles && (
         <button
-          className={`${className ? styles[className] : ""} ${styles.fileBtn}`}
+          className={`${className ? styles[className] : ""} ${styles.file_button}`}
           onClick={onChooseFile}
         >
-          <span className={styles.uploadIcon}>
+          <span className={styles.upload_icon}>
             <FaFile />
           </span>
           <span>Chọn tệp</span>

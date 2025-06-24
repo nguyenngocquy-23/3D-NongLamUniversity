@@ -30,7 +30,6 @@ public class HotspotDao {
 //
 //        });
 //    }
-
     public boolean insertHotspotNavigation(List<HotspotNavCreateRequest> req, String nodeId) {
         String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity) " + "VALUES(:nodeId, :type, :iconId, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity)";
         String sqlInsertNavigation = "INSERT INTO hotspot_navigations(hotspotId, targetNodeId) " + "VALUES(:hotspotId, :targetNodeId)";
@@ -156,9 +155,6 @@ public class HotspotDao {
     }
 
 
-
-
-
     public List<HotspotMediaResponse> getMediaByNodeId(int nodeId) {
         String sql = "SELECT h.id, h.nodeId,h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " +
                 "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" +
@@ -195,6 +191,216 @@ public class HotspotDao {
         String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity, m.modelUrl, m.name, m.description " + "FROM hotspots AS h JOIN hotspot_models " + "AS m ON h.id = m.hotspotId WHERE h.nodeId = :nodeId";
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotModelResponse.class).list();
+        });
+    }
+
+    public int updateNavHotspots(List<HotspotNavCreateRequest> navHotspots, int id) {
+        String sqlUpdateHotspot = "UPDATE hotspots SET "
+                + "type = :type, iconId = :iconId, positionX = :posX, positionY = :posY, positionZ = :posZ, "
+                + "pitchX = :pitchX, yawY = :yawY, rollZ = :rollZ, scale = :scale, "
+                + "color = :color, backgroundColor = :backgroundColor, "
+                + "allowBackgroundColor = :allowBackgroundColor, opacity = :opacity "
+                + "WHERE id = :id";
+
+        String sqlDeleteNavigation = "DELETE FROM hotspot_navigations WHERE hotspotId = :hotspotId";
+        String sqlInsertNavigation = "INSERT INTO hotspot_navigations(hotspotId, targetNodeId) VALUES(:hotspotId, :targetNodeId)";
+
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            // 1. Xoá hết navigation theo hotspotId
+            handle.createUpdate(sqlDeleteNavigation).bind("hotspotId", id).execute();
+
+            // 2. Chuẩn bị batch update và batch insert
+            PreparedBatch updateBatch = handle.prepareBatch(sqlUpdateHotspot);
+            PreparedBatch insertNavBatch = handle.prepareBatch(sqlInsertNavigation);
+
+            // 3. Duyệt danh sách hotspot navigation
+            for (HotspotNavCreateRequest navReq : navHotspots) {
+                updateBatch
+                        .bind("id", id)
+                        .bind("type", navReq.getType())
+                        .bind("iconId", navReq.getIconId())
+                        .bind("posX", navReq.getPositionX())
+                        .bind("posY", navReq.getPositionY())
+                        .bind("posZ", navReq.getPositionZ())
+                        .bind("pitchX", navReq.getPitchX())
+                        .bind("yawY", navReq.getYawY())
+                        .bind("rollZ", navReq.getRollZ())
+                        .bind("scale", navReq.getScale())
+                        .bind("color", navReq.getColor())
+                        .bind("backgroundColor", navReq.getBackgroundColor())
+                        .bind("allowBackgroundColor", navReq.getAllowBackgroundColor())
+                        .bind("opacity", navReq.getOpacity())
+                        .add();
+
+                insertNavBatch
+                        .bind("hotspotId", id)
+                        .bind("targetNodeId", Integer.valueOf(navReq.getTargetNodeId()))
+                        .add();
+            }
+
+            // 4. Thực thi batch
+            updateBatch.execute();
+            insertNavBatch.execute();
+
+            return 1;
+        });
+
+    }
+
+    public int updateInfoHotspots(List<HotspotInfoCreateRequest> infoHotspots, int id) {
+        String sqlUpdateHotspot = "UPDATE hotspots SET "
+                + "type = :type, iconId = :iconId, positionX = :posX, positionY = :posY, positionZ = :posZ, "
+                + "pitchX = :pitchX, yawY = :yawY, rollZ = :rollZ, scale = :scale, "
+                + "color = :color, backgroundColor = :backgroundColor, "
+                + "allowBackgroundColor = :allowBackgroundColor, opacity = :opacity "
+                + "WHERE id = :id";
+        String sqlDeleteInfo = "DELETE FROM hotspot_informations WHERE hotspotId = :hotspotId";
+        String sqlInsertInfo = "INSERT INTO hotspot_informations(hotspotId, title, content) VALUES(:hotspotId, :title, :content)";
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            // 1. Xoá hết thông tin theo hotspotId
+            handle.createUpdate(sqlDeleteInfo).bind("hotspotId", id).execute();
+
+            // 2. Chuẩn bị batch update và batch insert
+            PreparedBatch updateBatch = handle.prepareBatch(sqlUpdateHotspot);
+            PreparedBatch insertInfoBatch = handle.prepareBatch(sqlInsertInfo);
+
+            // 3. Duyệt danh sách hotspot information
+            for (HotspotInfoCreateRequest infoReq : infoHotspots) {
+                updateBatch
+                        .bind("id", id)
+                        .bind("type", infoReq.getType())
+                        .bind("iconId", infoReq.getIconId())
+                        .bind("posX", infoReq.getPositionX())
+                        .bind("posY", infoReq.getPositionY())
+                        .bind("posZ", infoReq.getPositionZ())
+                        .bind("pitchX", infoReq.getPitchX())
+                        .bind("yawY", infoReq.getYawY())
+                        .bind("rollZ", infoReq.getRollZ())
+                        .bind("scale", infoReq.getScale())
+                        .bind("color", infoReq.getColor())
+                        .bind("backgroundColor", infoReq.getBackgroundColor())
+                        .bind("allowBackgroundColor", infoReq.getAllowBackgroundColor())
+                        .bind("opacity", infoReq.getOpacity())
+                        .add();
+
+                insertInfoBatch
+                        .bind("hotspotId", id)
+                        .bind("title", infoReq.getTitle())
+                        .bind("content", infoReq.getContent())
+                        .add();
+            }
+
+            // 4. Thực thi batch
+            updateBatch.execute();
+            insertInfoBatch.execute();
+
+            return 1;
+        });
+
+    }
+
+    public int updateMediaHotspots(List<HotspotMediaCreateRequest> mediaHotspots, int id) {
+        String sqlUpdateHotspot = "UPDATE hotspots SET "
+                + "type = :type, iconId = :iconId, positionX = :posX, positionY = :posY, positionZ = :posZ, "
+                + "pitchX = :pitchX, yawY = :yawY, rollZ = :rollZ, scale = :scale, "
+                + "color = :color, backgroundColor = :backgroundColor, "
+                + "allowBackgroundColor = :allowBackgroundColor, opacity = :opacity "
+                + "WHERE id = :id";
+        String sqlDeleteMedia = "DELETE FROM hotspot_medias WHERE hotspotId = :hotspotId";
+        String sqlInsertMedia = "INSERT INTO hotspot_medias(hotspotId, mediaType, mediaUrl, caption, cornerPointList) VALUES(:hotspotId, :mediaType, :mediaUrl, :caption, :cornerPointList)";
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            // 1. Xoá hết thông tin theo hotspotId
+            handle.createUpdate(sqlDeleteMedia).bind("hotspotId", id).execute();
+
+            // 2. Chuẩn bị batch update và batch insert
+            PreparedBatch updateBatch = handle.prepareBatch(sqlUpdateHotspot);
+            PreparedBatch insertMediaBatch = handle.prepareBatch(sqlInsertMedia);
+
+            // 3. Duyệt danh sách hotspot information
+            for (HotspotMediaCreateRequest mediaReq : mediaHotspots) {
+                updateBatch
+                        .bind("id", id)
+                        .bind("type", mediaReq.getType())
+                        .bind("iconId", mediaReq.getIconId())
+                        .bind("posX", mediaReq.getPositionX())
+                        .bind("posY", mediaReq.getPositionY())
+                        .bind("posZ", mediaReq.getPositionZ())
+                        .bind("pitchX", mediaReq.getPitchX())
+                        .bind("yawY", mediaReq.getYawY())
+                        .bind("rollZ", mediaReq.getRollZ())
+                        .bind("scale", mediaReq.getScale())
+                        .bind("color", mediaReq.getColor())
+                        .bind("backgroundColor", mediaReq.getBackgroundColor())
+                        .bind("allowBackgroundColor", mediaReq.getAllowBackgroundColor())
+                        .bind("opacity", mediaReq.getOpacity())
+                        .add();
+
+                insertMediaBatch
+                        .bind("hotspotId", id)
+                        .bind("mediaType", mediaReq.getMediaType())
+                        .bind("mediaUrl", mediaReq.getMediaUrl())
+                        .bind("caption", mediaReq.getCaption())
+                        .bind("cornerPointList", mediaReq.getCornerPointList())
+                        .add();
+            }
+
+            // 4. Thực thi batch
+            updateBatch.execute();
+            insertMediaBatch.execute();
+
+            return 1;
+        });
+    }
+
+    public int updateModelHotspots(List<HotspotModelCreateRequest> modelHotspots, int id) {
+        String sqlUpdateHotspot = "UPDATE hotspots SET "
+                + "type = :type, iconId = :iconId, positionX = :posX, positionY = :posY, positionZ = :posZ, "
+                + "pitchX = :pitchX, yawY = :yawY, rollZ = :rollZ, scale = :scale, "
+                + "color = :color, backgroundColor = :backgroundColor, "
+                + "allowBackgroundColor = :allowBackgroundColor, opacity = :opacity "
+                + "WHERE id = :id";
+        String sqlDeleteModel = "DELETE FROM hotspot_models WHERE hotspotId = :hotspotId";
+        String sqlInsertModel = "INSERT INTO hotspot_models(hotspotId, modelUrl, name, description) VALUES(:hotspotId, :modelUrl, :name, :description)";
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            // 1. Xoá hết thông tin theo hotspotId
+            handle.createUpdate(sqlDeleteModel).bind("hotspotId", id).execute();
+
+            // 2. Chuẩn bị batch update và batch insert
+            PreparedBatch updateBatch = handle.prepareBatch(sqlUpdateHotspot);
+            PreparedBatch insertModelBatch = handle.prepareBatch(sqlInsertModel);
+
+            // 3. Duyệt danh sách hotspot information
+            for (HotspotModelCreateRequest modelReq : modelHotspots) {
+                updateBatch
+                        .bind("id", id)
+                        .bind("type", modelReq.getType())
+                        .bind("iconId", modelReq.getIconId())
+                        .bind("posX", modelReq.getPositionX())
+                        .bind("posY", modelReq.getPositionY())
+                        .bind("posZ", modelReq.getPositionZ())
+                        .bind("pitchX", modelReq.getPitchX())
+                        .bind("yawY", modelReq.getYawY())
+                        .bind("rollZ", modelReq.getRollZ())
+                        .bind("scale", modelReq.getScale())
+                        .bind("color", modelReq.getColor())
+                        .bind("backgroundColor", modelReq.getBackgroundColor())
+                        .bind("allowBackgroundColor", modelReq.getAllowBackgroundColor())
+                        .bind("opacity", modelReq.getOpacity())
+                        .add();
+
+                insertModelBatch
+                        .bind("hotspotId", id)
+                        .bind("modelUrl", modelReq.getModelUrl())
+                        .bind("name", modelReq.getName())
+                        .bind("description", modelReq.getDescription())
+                        .add();
+            }
+
+            // 4. Thực thi batch
+            updateBatch.execute();
+            insertModelBatch.execute();
+
+            return 1;
         });
     }
 

@@ -30,7 +30,7 @@ export interface PanoramaItem {
 }
 
 interface PanoramaState {
-  panoramaList: PanoramaItem[];
+  panoramaList: PanoramaItem[] | any[];
   currentAngleMaster: number;
   currentSelectId: string | null;
   spaceId: string | null;

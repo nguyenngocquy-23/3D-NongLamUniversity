@@ -1,4 +1,4 @@
-import { Sphere, Stats, shaderMaterial, useTexture } from "@react-three/drei";
+import { Sphere, shaderMaterial, useTexture } from "@react-three/drei";
 import { ThreeEvent, useFrame, extend } from "@react-three/fiber";
 import React, { JSX, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";

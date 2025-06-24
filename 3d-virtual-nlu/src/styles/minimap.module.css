@@ -86,6 +86,7 @@
   z-index: 20;
   color: #008339;
 }
+
 .node_success .node_tick {
   width: 100%;
   height: 100%;
@@ -102,9 +103,11 @@
   justify-content: center;
   align-items: center;
 }
+
 .master_node_icon_container:active {
   border: 1px solid #f2ff00;
 }
+
 .master_node_icon {
   color: #bd1919;
   font-size: 14px;
@@ -114,6 +117,7 @@
 .node_selected {
   border: 3px solid #f2ff00;
 }
+
 .minimap_preview_zoom {
   display: flex;
   flex-direction: column;
@@ -159,6 +163,7 @@
   clip-path: circle(50% at center);
   z-index: 10;
 }
+
 .master_node {
   position: absolute;
   top: 50%;
@@ -170,6 +175,7 @@
   clip-path: circle(50% at center);
   z-index: 10;
 }
+
 .slave_node_zoom {
   position: absolute;
 
@@ -189,6 +195,7 @@
   width: 30px;
   height: 30px;
 }
+
 /* .rotation_node {
   position: absolute;
   width: 100%;
@@ -200,6 +207,7 @@
   display: flex;
   gap: 10px;
 }
+
 .custom_select {
   appearance: none;
   /* ẩn mũi tên mặc định */
@@ -268,10 +276,11 @@
   transition: all 0.3s ease;
 }
 
-.input_container input[type="text"]:focus ~ .underline,
-.input_container input[type="text"]:valid ~ .underline {
+.input_container input[type="text"]:focus~.underline,
+.input_container input[type="text"]:valid~.underline {
   transform: scaleX(1);
 }
+
 .input_container .input_edit {
   position: absolute;
   top: 0;
@@ -279,6 +288,7 @@
   transform: translateY(50%);
   color: #bd1919;
 }
+
 .input_container .input_edit:hover {
   cursor: pointer;
   padding: 2px;
@@ -286,6 +296,7 @@
   background-color: #fff;
   transition: ease 0.2s all;
 }
+
 .tour_tracking {
   min-height: 250px;
   background-color: rgba(255, 255, 255, 0.199);
@@ -294,6 +305,7 @@
   padding: 12px;
   border: 2px solid #ffffff4b;
 }
+
 .zoomOutMap {
   position: absolute;
   bottom: 0;
@@ -303,4 +315,55 @@
 
 .tour_edit {
   flex: 1;
+}
+
+.minimap_html {
+  width: auto !important;
+  height: auto !important;
+  position: absolute;
+  z-index: 10;
+  transform: translate(-50%, -50%) !important;
+  top: calc(50% + 35vh) !important;
+  left: calc(50% + 50vw) !important;
+}
+
+.close_buttom:focus {
+  outline: none;
+  border: none;
+}
+
+@keyframes loopOn {
+  0% {
+    transform: translateX(-5px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(10px);
+    opacity: 0;
+  }
+}
+
+.close_buttom:hover svg {
+  animation: loopOn 0.8s ease-in-out infinite;
+
+}
+
+.close_buttom:hover {
+  opacity: 0.7;
+  transform: scale(1.2);
+}
+
+.close_buttom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 100%;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  color: white;
 }

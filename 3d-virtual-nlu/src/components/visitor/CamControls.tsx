@@ -1,4 +1,3 @@
-// export default CamControls;
 import { OrbitControls } from "@react-three/drei";
 import { useThree, useFrame } from "@react-three/fiber";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -17,7 +16,6 @@ type CamControlsProps = {
   autoRotate: boolean;
   autoRotateSpeed: number | null;
   onAngleChange?: (angle: number) => void;
-  onAngleChangeForMinimap?: (angle: number) => void;
 };
 
 const zoomLevels = [75, 60, 45, 30];
@@ -30,7 +28,6 @@ const CamControls: React.FC<CamControlsProps> = ({
   autoRotate,
   autoRotateSpeed,
   onAngleChange,
-  onAngleChangeForMinimap,
 }) => {
   const { gl, camera } = useThree();
   const canvas = gl.domElement;
@@ -144,11 +141,6 @@ const CamControls: React.FC<CamControlsProps> = ({
       // Luôn cập nhật Redux & callback chính
       onAngleChange?.(angleDeg);
       dispatch(updateCurrentAngleMaster(angleDeg));
-
-      // ✅ Chỉ update minimap khi người dùng rotate
-      if (isUserRotatingRef.current) {
-        onAngleChangeForMinimap?.(angleDeg);
-      }
     }
   });
 
