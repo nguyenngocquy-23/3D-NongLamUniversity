@@ -16,6 +16,6 @@ import java.util.List;
 
 public class NodeLinkRequest {
     String id;
-    double positionX, positionY, positionZ;
+    double yawOffset;
     List<HotspotNavCreateRequest> navHotspots;
 }

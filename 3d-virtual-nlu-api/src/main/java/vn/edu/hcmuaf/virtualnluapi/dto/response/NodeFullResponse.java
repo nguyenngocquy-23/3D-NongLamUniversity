@@ -22,6 +22,7 @@ public class NodeFullResponse {
     int spaceId, fieldId, userId;
     String url, name, description;
     double positionX, positionY, positionZ;
+    double yawOffset;
     byte status, autoRotate;
     double speedRotate, lightIntensity;
     Timestamp updatedAt;
