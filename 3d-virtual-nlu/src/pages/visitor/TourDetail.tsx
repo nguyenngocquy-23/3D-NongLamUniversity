@@ -431,6 +431,7 @@ const TourDetail = () => {
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={node.url}
+            yawOffsetCurrent={node.yawOffset}
             lightIntensity={1}
           />
           <CamControls
@@ -442,8 +443,6 @@ const TourDetail = () => {
             autoRotateSpeed={
               node || node.speedRotate == 0 ? 0.2 : node.speedRotate
             }
-            cameraRadarRef={cameraRadarRef}
-            currentPano={node}
           />
           {isUpdateTour && (
             <>

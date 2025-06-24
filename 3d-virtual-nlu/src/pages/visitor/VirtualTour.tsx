@@ -159,10 +159,6 @@ const VirtualTour = () => {
     height: window.innerHeight,
   });
   useEffect(() => {
-    console.log("sphereRef.current trong VirtualTour:", sphereRef.current);
-  }, [sphereRef.current]);
-  // const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null);
-  useEffect(() => {
     let resizeTimer: number;
 
     const handleResize = () => {

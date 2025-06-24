@@ -32,8 +32,6 @@ import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import { Environment } from "@react-three/drei";
 import UpdateCameraOnResize from "../UpdateCameraOnResize";
 import TourScene from "../visitor/TourScene";
-import MiniMap from "../Minimap";
-import CamControls from "../visitor/CamControls";
 import GroundHotspot from "../visitor/GroundHotspot";
 import GroundHotspotInfo from "../visitor/GroundHotspotInfo";
 import GroundHotspotModel from "../visitor/GroundHotspotModel";
@@ -45,7 +43,7 @@ import Swal from "sweetalert2";
 import { goToStep } from "../../redux/slices/StepSlice";
 import gsap from "gsap";
 import TrackingSpace from "../TrackingSpace";
-import CamControlAdmins from "./CamControlsAdmin";
+import CamControls from "../visitor/CamControls";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
@@ -272,7 +270,6 @@ const SpaceDetail = () => {
     controls.update();
   };
 
-  // const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   const tasks = [
@@ -538,19 +535,19 @@ const SpaceDetail = () => {
                   radius={RADIUS_SPHERE}
                   sphereRef={sphereRef}
                   textureCurrent={currentPanorama?.url ?? "/khoa.jpg"}
+                  yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
                   onPointerDown={handleScenePointerDown}
                   lightIntensity={1}
                   onTextureReady={() => setIsTextureReady(true)}
                 />
 
-                <CamControlAdmins
+                <CamControls
                   targetPosition={targetPosition}
                   sphereRef={sphereRef}
                   cameraRef={cameraRef}
                   controlsRef={controlsRef}
                   autoRotate={false}
                   autoRotateSpeed={0}
-                  cameraRadarRef={cameraRadarRef}
                   onAngleChange={setCameraAngle}
                 />
 

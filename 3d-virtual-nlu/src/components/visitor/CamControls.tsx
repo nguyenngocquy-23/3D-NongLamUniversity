@@ -82,7 +82,7 @@ const CamControls: React.FC<CamControlsProps> = ({
   );
 
   useEffect(() => {
-    canvas.addEventListener("wheel", handleMouseWheel);
+    canvas.addEventListener("wheel", handleMouseWheel, { passive: true });
     return () => {
       canvas.removeEventListener("wheel", handleMouseWheel);
     };

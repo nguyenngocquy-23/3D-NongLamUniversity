@@ -4,6 +4,7 @@ import React, { JSX, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import * as THREE from "three";
 import { RootState } from "../../redux/Store";
+import { radianToTexture } from "../../utils/MathUtils";
 
 /**
  *  Lớp này sử dụng cho việc :
@@ -102,6 +103,8 @@ const TourScene: React.FC<TourSceneProps> = ({
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<any>(null);
   const progressRef = useRef(0);
+  const prevTextureRef = useRef<string | null>(null);
+  const prevYawOffsetRef = useRef<number | null>(null);
 
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
@@ -128,10 +131,20 @@ const TourScene: React.FC<TourSceneProps> = ({
 
   useEffect(() => {
     const load = async () => {
+      const yawNew = radianToTexture(yawOffsetCurrent);
+
+      // Nếu texture không đổi, chỉ cần cập nhật yawOffset (không load lại texture hay crossfade)
+      if (textureCurrent === prevTextureRef.current) {
+        setYawOffsetList(([_, yaw2]) => [yawNew, yaw2]);
+        if (materialRef.current) {
+          materialRef.current.uYawOffset1 = yawNew;
+        }
+        return;
+      }
+
       try {
         const loader = new THREE.TextureLoader();
         const texNew = await loader.loadAsync(textureCurrent);
-        const yawNew = yawOffsetCurrent / (2 * Math.PI);
 
         if (!textures) {
           setTextures([texNew, null]);
@@ -139,27 +152,24 @@ const TourScene: React.FC<TourSceneProps> = ({
           onTextureReady?.();
         } else {
           const [prevTex] = textures;
-          const [prevYaw, _] = yawOffsetList;
+          const [prevYaw] = yawOffsetList;
 
           setTextures([prevTex, texNew]);
           setYawOffsetList([prevYaw, yawNew]);
           setProgress(0);
           progressRef.current = 0;
         }
-      } catch (err: any) {
+
+        // Cập nhật ref sau khi load xong
+        prevTextureRef.current = textureCurrent;
+        prevYawOffsetRef.current = yawOffsetCurrent;
+      } catch (err) {
         console.error(err);
       }
     };
+
     load();
   }, [textureCurrent, yawOffsetCurrent]);
-
-  useEffect(() => {
-    console.log(
-      `[DEBUG] yawOffsetCurrent cho panorama ${currentPanorama?.id}:`,
-      yawOffsetCurrent,
-      `(≈ ${((yawOffsetCurrent / (2 * Math.PI)) * 360).toFixed(2)}°)`
-    );
-  }, [yawOffsetCurrent, currentPanorama?.id]);
 
   /**
    * Texture thực hiện việc đổi.
@@ -206,7 +216,6 @@ const TourScene: React.FC<TourSceneProps> = ({
     if (!sphereRef.current) return;
     onPointerDown?.(e, e.point);
   };
-  // -------------TEST 23.6
 
   return (
     <>
