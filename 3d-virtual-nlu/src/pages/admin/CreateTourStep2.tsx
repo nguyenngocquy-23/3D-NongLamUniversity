@@ -503,6 +503,7 @@ const CreateTourStep2 = () => {
           <Environment preset="studio" background={false} />
           <axesHelper args={[10]} position={[0, -90, 0]} />
           <UpdateCameraOnResize />
+
           <TourScene
             nodeId={currentSelectId ?? ""}
             radius={RADIUS_SPHERE}

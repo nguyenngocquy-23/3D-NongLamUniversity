@@ -27,6 +27,8 @@
  * Note : atan2 sử dụng để xác định góc phần tư của Z,X. trong khi atan có thể bị nhầm trường hợp nếu z âm x dương hoặc z dương x âm.
  */
 
+import { PI2 } from "three/src/nodes/TSL.js";
+
 export const getAngleFromXZ = (x: number, z: number): number => {
   const radians = Math.atan2(x, z);
   let degrees = (radians * 180) / Math.PI;
@@ -143,4 +145,25 @@ export function limitNewPostionFor3D(
     y: clamp(y, -100, 100),
     z: clamp(z, -100, 100),
   };
+}
+
+const pi2 = Math.PI * 2;
+/**
+ * [0, 1] * 2PI => [0, 2PI].
+ * Hàm chuyển đổi độ xoay của texture sang radian.
+ */
+export function textureToRadian(textureVuv: number): number {
+  return textureVuv * pi2;
+}
+
+export function radianToTexture(radian: number): number {
+  return (radian % pi2) / pi2;
+}
+
+export function radianToDegree(radian: number): number {
+  return (radian * 180) / Math.PI;
+}
+
+export function degreeToRadian(degree: number): number {
+  return (degree % 360) * (Math.PI / 180);
 }

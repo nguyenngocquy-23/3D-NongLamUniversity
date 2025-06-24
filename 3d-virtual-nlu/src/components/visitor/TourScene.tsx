@@ -11,9 +11,10 @@ import { RootState } from "../../redux/Store";
  * + Tập trung cho việc hiển thị.
  *
  */
+
 const CrossFadeMaterial = shaderMaterial(
   {
-    //Uniform: Chứa 2 ảnh. Progres: 0 tức là toàn bộ là Texture1, 1: tức là toàn bộ là texture2.
+    //Uniform: Chứa 2 ảnh. Progress: 0 tức là toàn bộ là Texture1, 1: tức là toàn bộ là texture2.
     //YawOffset: giá trị cho việc xoay texture trên hình cầu theo trục Y.
     uTexture1: null as THREE.Texture | null,
     uTexture2: null as THREE.Texture | null,
@@ -43,7 +44,7 @@ const CrossFadeMaterial = shaderMaterial(
     varying vec2 vUv;
 
     void main() {
-      //Dịch uv theo yawOffset (Phần trăm 0.0 - 1.0)
+      //Dịch uv theo yawOffset (Phần trăm 0.0 - 1.0 <=> 0 - 2Pi.)
       vec2 uv1 = vec2(mod(vUv.x + uYawOffset1, 1.0 ), vUv.y);
       vec2 uv2 = vec2(mod(vUv.x + uYawOffset2, 1.0), vUv.y );
 
@@ -119,10 +120,6 @@ const TourScene: React.FC<TourSceneProps> = ({
 
   const [progress, setProgress] = useState(0);
 
-  const yawOffset = useMemo(() => {
-    return currentPanorama?.config.yawOffset ?? 0;
-  }, [currentPanorama]);
-
   useEffect(() => {
     if (sphereRef && meshRef.current) {
       sphereRef.current = meshRef.current;
@@ -154,7 +151,7 @@ const TourScene: React.FC<TourSceneProps> = ({
       }
     };
     load();
-  }, [textureCurrent]);
+  }, [textureCurrent, yawOffsetCurrent]);
 
   useEffect(() => {
     console.log(
@@ -180,20 +177,26 @@ const TourScene: React.FC<TourSceneProps> = ({
       setProgress(progressRef.current);
     }
 
+    if (materialRef.current) {
+      materialRef.current.uProgress = progressRef.current;
+      materialRef.current.uYawOffset1 = yawOffsetList[0];
+      materialRef.current.uYawOffset2 = yawOffsetList[1];
+    }
+
     if (progressRef.current >= 1 && textures[1]) {
       setTextures([textures[1], null]);
+      setYawOffsetList([yawOffsetList[1], 0]);
+      setProgress(0);
       if (materialRef.current) {
         materialRef.current.uTexture1 = textures[1];
-        materialRef.current.uTexture2 = null; // hoặc dùng emptyTexture
+        materialRef.current.uTexture2 = null;
         materialRef.current.uProgress = 0;
 
         materialRef.current.uYawOffset1 = yawOffsetList[1];
         materialRef.current.uYawOffset2 = yawOffsetList[1];
-
         onTextureReady?.();
       }
 
-      setProgress(0);
       progressRef.current = 0;
     }
   });
@@ -212,7 +215,6 @@ const TourScene: React.FC<TourSceneProps> = ({
         args={[radius, 128, 128]}
         scale={[-1, 1, 1]}
         onPointerDown={handlePointerDown}
-        // rotation={[0, visibleYawOffset, 0]}
       >
         <crossFadeMaterial
           ref={materialRef}

@@ -5,7 +5,11 @@ import { updatePanoConfig } from "../../../redux/slices/PanoramaSlice";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { DEFAULT_ORIGINAL_Z } from "../../../utils/Constants";
-import { getAngleFromXZ } from "../../../utils/MathUtils";
+import {
+  degreeToRadian,
+  getAngleFromXZ,
+  radianToDegree,
+} from "../../../utils/MathUtils";
 // Tuỳ chỉnh thông số kỹ thuật.
 
 type Task2Props = {
@@ -26,18 +30,17 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
     autoRotate = 0,
     speedRotate = 1,
     lightIntensity = 1,
-    positionX = 0,
-    positionZ = DEFAULT_ORIGINAL_Z,
   } = currentPanorama.config ?? {};
 
   const [angle, setAngle] = useState<number>(0);
 
+  /**
+   * Cập nhật angle mỗi khi đổi panorama
+   */
+
   useEffect(() => {
     if (currentPanorama?.config) {
-      const newAngle = getAngleFromXZ(
-        positionX / DEFAULT_ORIGINAL_Z,
-        positionZ / DEFAULT_ORIGINAL_Z
-      );
+      const newAngle = radianToDegree(currentPanorama.config.yawOffset);
       setAngle(newAngle);
     }
   }, [currentSelectId]);
@@ -56,20 +59,17 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
 
   // ✅ UI thay đổi góc nhìn
   const handleAngleChange = (value: number) => {
-    setAngle(value); // Cập nhật góc - trigger useMemo + useEffect
+    setAngle(value);
   };
 
   useEffect(() => {
-    const newYawOffset = (Math.PI * angle) / 180;
-    if (sphereRef?.current) {
-      sphereRef.current.rotation.y = newYawOffset;
-    }
+    const newYawOffset = degreeToRadian(angle);
+
     if (cameraRef?.current) {
       cameraRef.current.lookAt(0, 0, 0);
       cameraRef.current.updateProjectionMatrix();
     }
-    console.log("Angle : ", angle);
-    // Optional: update Redux (chỉ lưu lại)
+
     dispatch(
       updatePanoConfig({
         id: currentPanorama.id,
