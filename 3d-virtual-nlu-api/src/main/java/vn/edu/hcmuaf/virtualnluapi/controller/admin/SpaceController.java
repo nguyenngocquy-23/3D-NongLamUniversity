@@ -39,7 +39,6 @@ public class SpaceController {
         return ApiResponse.<List<SpaceResponse>>builder().statusCode(1000).message("Lay danh sach ten space thanh cong").data(result).build();
     }
 
-
     @GET
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
@@ -48,6 +47,16 @@ public class SpaceController {
         List<SpaceFullResponse> result = spaceService.getAllSpaces();
         return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Lay danh sach space thanh cong").data(result).build();
     }
+
+    @POST
+    @Path("/byId")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<SpaceFullResponse> getSpaceById(SpaceIdRequest request) {
+        SpaceFullResponse result = spaceService.getSpaceById(request);
+        return ApiResponse.<SpaceFullResponse>builder().statusCode(1000).message("Đã lấy được space!").data(result).build();
+    }
+
 
     @POST
     @Path("/changeStatus")

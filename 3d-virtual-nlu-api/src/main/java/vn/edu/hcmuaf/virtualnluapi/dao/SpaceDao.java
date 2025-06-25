@@ -52,13 +52,6 @@ public class SpaceDao {
         });
     }
 
-    /**
-     * TourIds là 1 mảng JSON chứa id của tất cả các nodes có status = 2 ~
-     * masternode đại diện cho 1 tour.
-     * + 0 đang tạm ngưng
-     * +2 đang hiển thị bình thường.
-     * + 3 đang chờ duyệt để hiển thị.
-     */
     public List<SpaceFullResponse> getAllSpaces() {
         String spaceSql = """
                 SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name as masterNodeName
@@ -76,6 +69,26 @@ public class SpaceDao {
 
         });
     }
+
+    public SpaceFullResponse getSpaceById(SpaceIdRequest request) {
+        String spaceSql = """
+                SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name as masterNodeName
+                , s.createdAt, s.updatedAt
+                FROM spaces s
+                JOIN fields f ON s.fieldId = f.id
+                JOIN nodes n ON s.masterNodeId = n.id
+                WHERE s.id = :id
+                """;
+
+        return ConnectionPool.getConnection().withHandle(handle -> {
+         return   handle.createQuery(spaceSql)
+                 .bind("id", request.getSpaceId())
+                    .mapToBean(SpaceFullResponse.class)
+                    .one();
+
+        });
+    }
+
 
 
     public boolean changeStatusSpace(StatusRequest req) {

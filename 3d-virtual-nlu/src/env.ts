@@ -38,6 +38,7 @@ export const API_URLS = {
   ADMIN_GET_ALL_NODES: `${DOMAIN}/v1/admin/node/all`,
   ADMIN_GET_MASTER_NODES_OF_SPACE: `${DOMAIN}/v1/admin/node/masterNodeList`,
   ADMIN_GET_ALL_SPACES: `${DOMAIN}/admin/space/all`,
+  ADMIN_GET_SPACE_BY_ID: `${DOMAIN}/admin/space/byId`,
   ADMIN_GET_SPACE_OF_FIELD: `${DOMAIN}/admin/space/byField`,
   ADMIN_GET_ALL_ICONS: `${DOMAIN}/v1/admin/icon`,
   ADMIN_GET_HOTSPOT_TYPES: `${DOMAIN}/admin/hotspotType`,

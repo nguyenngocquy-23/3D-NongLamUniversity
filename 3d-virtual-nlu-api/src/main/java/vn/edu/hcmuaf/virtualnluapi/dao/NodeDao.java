@@ -306,37 +306,38 @@ public class NodeDao {
             return true; // Tất cả bản ghi đã được cập nhật thành công
         });
     }
-    public boolean updateLinkNodeById(List<NodeLinkRequest> requestList) {
-        if (requestList == null || requestList.isEmpty()) {
-            return false;
-        }
 
-        String updateSql = """
-        UPDATE nodes
-        SET yawOffset = :yawOffset, 
-        WHERE id = :id
-    """;
 
-        try {
-            return ConnectionPool.getConnection().withHandle(handle -> {
-                for (NodeLinkRequest req : requestList) {
-                    if (req == null || req.getId() == null) continue;
 
-                    int rowsUpdated = handle.createUpdate(updateSql)
-                            .bind("yawOffset", req.getYawOffset())
-                            .bind("id", req.getId())
-                            .execute();
-
-                    if (rowsUpdated == 0) {
-                        System.err.println("Không update được node ID: " + req.getId());
-                        return false;
-                    }
-                }
-                return true;
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+//    public boolean updateLinkNodeById(List<NodeLinkRequest> requestList) {
+//        if (requestList == null || requestList.isEmpty()) {
+//            return false;
+//        }
+//
+//        String updateSql = """
+//        UPDATE nodes
+//        WHERE id = :id
+//    """;
+//
+//        try {
+//            return ConnectionPool.getConnection().withHandle(handle -> {
+//                for (NodeLinkRequest req : requestList) {
+//                    if (req == null || req.getId() == null) continue;
+//
+//                    int rowsUpdated = handle.createUpdate(updateSql)
+//                            .bind("id", req.getId())
+//                            .execute();
+//
+//                    if (rowsUpdated == 0) {
+//                        System.err.println("Không update được node ID: " + req.getId());
+//                        return false;
+//                    }
+//                }
+//                return true;
+//            });
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
 }

@@ -9,6 +9,7 @@
   display: flex;
   position: relative;
   justify-content: center;
+  align-content: center;
 }
 .space_header .space_icon_back {
   width: 1.5rem;
@@ -25,7 +26,7 @@
 }
 
 .space_title {
-  font-size: 1rem;
+  font-size: 2rem;
   font-weight: bold;
 }
 
@@ -37,8 +38,7 @@
 }
 
 .space_choose_master {
-  display: flex;
-  gap: 0.5rem;
+  font-size: 1rem;
 }
 
 .custom_select {
@@ -63,6 +63,8 @@
 .space_mode {
   display: flex;
   gap: 0.5rem;
+  position: absolute;
+  right: 0;
 }
 
 .space_mode .space_mode_item {
@@ -72,9 +74,12 @@
 
 .space_preview_tour {
   flex: 1;
+  display: flex;
+  flex-direction: row;
   border-radius: 0.5rem;
   position: relative;
   overflow: hidden;
+  gap: 0.5rem;
 }
 
 .space_right_menu {

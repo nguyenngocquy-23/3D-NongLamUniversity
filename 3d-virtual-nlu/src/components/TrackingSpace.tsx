@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { ReactFlow, MarkerType, Background, Controls } from "@xyflow/react";
-import styles from "../styles/trackingNode.module.css";
+import styles from "../styles/trackingSpace.module.css";
 import "@xyflow/react/dist/style.css";
 import TrackingSpaceItem from "./admin/TrackingSpaceItem";
 import { PanoramaItem } from "../redux/slices/PanoramaSlice";
@@ -36,6 +36,7 @@ const TrackingSpace: React.FC<FlowProps> = ({
   /**
    * Method tính toán số lượng ảnh trong 1 tour.
    */
+
   const numOfPanosInMaster = (nodeId: string): number => {
     const panoIdSet = new Set(panoramaList.map((p) => p.id));
 
@@ -105,7 +106,7 @@ const TrackingSpace: React.FC<FlowProps> = ({
           source: item.nodeId,
           target: item.targetNodeId,
           style: {
-            stroke: "#00cc99",
+            stroke: "#267026",
             strokeWidth: 2,
           },
           label: `[${item.id}] & [${reverseHotspot.id}]`,
@@ -148,10 +149,24 @@ const TrackingSpace: React.FC<FlowProps> = ({
         edges={hotspotNavigations.length > 0 ? edges : []}
         nodeTypes={nodeTypes}
         proOptions={{ hideAttribution: true }}
+        fitView={true}
       >
         <Background />
         <Controls />
       </ReactFlow>
+
+      <div className={styles.tracking_notes}>
+        <span className={styles.note_title}>Chú thích</span>
+        <div className={styles.note_content}>
+          <div className={styles.note_line}>
+            <div className={styles.line_preview_two}></div> : Đã liên kết 2
+            chiều.
+          </div>
+          <div className={styles.note_line}>
+            <div className={styles.line_preview_one}></div> : Liên kết 1 chiều.
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

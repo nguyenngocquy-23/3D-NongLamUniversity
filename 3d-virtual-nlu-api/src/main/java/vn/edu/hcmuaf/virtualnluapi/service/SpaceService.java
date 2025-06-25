@@ -31,6 +31,10 @@ public class SpaceService {
         return spaceDao.getAllSpaces();
     }
 
+    public SpaceFullResponse getSpaceById(SpaceIdRequest req) {
+        return spaceDao.getSpaceById(req);
+    }
+
     public boolean changeStatusSpace(StatusRequest req) {
         return spaceDao.changeStatusSpace(req);
     }

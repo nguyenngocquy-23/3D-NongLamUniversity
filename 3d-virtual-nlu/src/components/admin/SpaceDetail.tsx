@@ -57,8 +57,9 @@ const SpaceDetail = () => {
   );
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const cameraRadarRef = useRef<number>(0);
   const controlsRef = useRef<any>(null); //OrbitControls
+
+  const [currentSpace, setCurrentSpace] = useState<any>(null);
 
   useEffect(() => {
     dispatch(goToStep(4)); //
@@ -84,9 +85,28 @@ const SpaceDetail = () => {
       });
   }, [spaceId, dispatch]);
 
-  const spaceCurrent = useSelector((state: RootState) => {
+  const reduxSpace = useSelector((state: RootState) => {
     return state.data.spaces.find((s) => s.id === Number(spaceId));
   });
+
+  useEffect(() => {
+    if (!spaceId) return;
+
+    if (reduxSpace) {
+      setCurrentSpace(reduxSpace);
+    } else {
+      axios
+        .post(API_URLS.ADMIN_GET_SPACE_BY_ID, {
+          spaceId: Number(spaceId),
+        })
+        .then((response) => {
+          setCurrentSpace(response.data.data);
+        })
+        .catch((err) => {
+          console.error("Lỗi khi tải thông tin không gian !", err);
+        });
+    }
+  }, [spaceId, reduxSpace]);
 
   /**
    * Xử lý chọn node trung tâm
@@ -166,7 +186,6 @@ const SpaceDetail = () => {
     const control = controlsRef.current;
     const originalFov = camera.fov;
     const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-    const targetPano = panoramaList.find((pano) => pano.id === targetNodeId);
 
     const handleSelectNode = (id: string) => {
       setIsTextureReady(false);
@@ -180,19 +199,8 @@ const SpaceDetail = () => {
     // === Bước 1:Xoay camera về vị trí (hotspot)
     lookAtHotspot([x, y, z]);
 
-    // === Bước 2: Zoom vào
-    console.log(
-      `[CreateTourStep2] Bắt đầu việc gọi vào handleSelectNode: ${
-        performance.now() / 1000
-      } giây`
-    );
     handleSelectNode(targetNodeId);
 
-    console.log(
-      `[CreateTourStep2] Bắt đầu việc gọi vào zoom: ${
-        performance.now() / 1000
-      } giây`
-    );
     gsap.to(camera, {
       fov: zoomTarget,
       duration: 1.1,
@@ -201,29 +209,6 @@ const SpaceDetail = () => {
         camera.updateProjectionMatrix();
       },
       onComplete: () => {
-        console.log(
-          `[CreateTourStep2] Kết thúc việc zoom vào: ${
-            performance.now() / 1000
-          } giây`
-        );
-        const [px, py, pz] = [
-          targetPano?.config.positionX,
-          targetPano?.config.positionY,
-          targetPano?.config.positionZ,
-        ];
-        if (
-          typeof px === "number" &&
-          typeof py === "number" &&
-          typeof pz === "number"
-        ) {
-          camera.position.set(px, py, pz);
-        }
-        console.log(
-          `[CreateTourStep2] Bắt đầu set camera: ${
-            performance.now() / 1000
-          } giây`
-        );
-
         gsap.to(camera, {
           fov: originalFov,
           duration: 0.3,
@@ -272,10 +257,6 @@ const SpaceDetail = () => {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   const tasks = [
-    {
-      id: 2,
-      title: "Chỉnh hướng mặc định",
-    },
     {
       id: 3,
       title: "Nối điểm tương tác",
@@ -419,15 +400,6 @@ const SpaceDetail = () => {
       setCurrentHotspotType(1);
     }
   };
-  const [changeCornerMedia, setChangeCornerMedia] = useState(false);
-  const [cursor, setCursor] = useState("grab");
-  const handleMouseDown = () => {
-    setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
-  };
-
-  const handleMouseUp = () => {
-    setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
-  };
 
   const handleUpdateTourInSpace = async () => {
     if (panoramaList.length === 0) {
@@ -464,6 +436,7 @@ const SpaceDetail = () => {
   };
   const [isViewMode, setIsViewMode] = useState<Number>(1);
 
+  if (!currentSpace) return <p>Đang tải thông tin không gian...</p>;
   return (
     <>
       <div className={styles.space_container}>
@@ -472,45 +445,28 @@ const SpaceDetail = () => {
             className={styles.space_icon_back}
             onClick={() => navigate(-1)}
           />
-          <p className={styles.space_title}>{spaceId} </p>
+          <p className={styles.space_title}>{currentSpace.name} </p>
+          <div className={styles.space_mode}>
+            <button
+              className={styles.space_mode_item}
+              onClick={() => {
+                if (isViewMode !== 1) setIsViewMode(1);
+              }}
+            >
+              Tổng quát
+            </button>
+            <button
+              className={styles.space_mode_item}
+              onClick={() => {
+                if (isViewMode !== 2) setIsViewMode(2);
+              }}
+            >
+              Nối tour
+            </button>
+          </div>
         </div>
         <div className={styles.space_content}>
-          <div className={styles.space_choose_master}>
-            <span>Trung tâm</span>
-            <select
-              className={styles.custom_select}
-              onChange={(e) =>
-                handleSelect(Number(spaceId), parseInt(e.target.value, 10))
-              }
-            >
-              <option value="0">-- Chọn tour--</option>
-              {panoramaList.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.config.name}
-                </option>
-              ))}
-            </select>
-            <div className={styles.space_mode}>
-              <button
-                className={styles.space_mode_item}
-                onClick={() => {
-                  if (isViewMode !== 1) setIsViewMode(1);
-                }}
-              >
-                Xem trước
-              </button>
-              <button
-                className={styles.space_mode_item}
-                onClick={() => {
-                  if (isViewMode !== 2) setIsViewMode(2);
-                }}
-              >
-                Sơ đồ tour
-              </button>
-            </div>
-          </div>
-
-          {isViewMode === 1 ? (
+          {isViewMode === 2 ? (
             <div className={styles.space_preview_tour}>
               <Canvas
                 camera={{
@@ -520,9 +476,6 @@ const SpaceDetail = () => {
                   far: 1000,
                   position: [0, 0, DEFAULT_ORIGINAL_Z],
                 }}
-                style={{ cursor: cursor }}
-                onMouseDown={handleMouseDown}
-                onMouseUp={handleMouseUp}
                 onContextMenu={(e) => {
                   e.preventDefault();
                 }}
@@ -669,8 +622,24 @@ const SpaceDetail = () => {
             </div>
           ) : (
             <div className={styles.space_preview_tour}>
+              <div className={styles.space_choose_master}>
+                <span className={styles.space_infor_title}>Tour mặc định:</span>
+                <select
+                  className={styles.custom_select}
+                  onChange={(e) =>
+                    handleSelect(Number(spaceId), parseInt(e.target.value, 10))
+                  }
+                >
+                  <option value="0">-- Chọn tour--</option>
+                  {panoramaList.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.config.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <TrackingSpace
-                masterId={spaceCurrent.masterNodeId}
+                masterId={currentSpace.masterNodeId}
                 panoramaList={panoramaList}
                 hotspotNavigations={hotspotNavigations}
               />

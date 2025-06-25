@@ -301,26 +301,6 @@ const Space = () => {
 
             <div className={styles.space_edit_content}>
               <p className={styles.space_edit_label}>Thông tin</p>
-
-              {/* <div className={styles.space_choose_master}>
-                <span>Trung tâm:</span>
-                <select
-                  className={styles.custom_select}
-                  onChange={(e) =>
-                    handleSelect(selectedSpace.id, parseInt(e.target.value, 10))
-                  }
-
-                  // onChange={handleSelectSpace}
-                >
-                  <option value="0">-- Chọn tour --</option>
-                  {selectedSpace.tours &&
-                    selectedSpace.tours.map((tourId) => (
-                      <option key={tourId} value={tourId}>
-                        Tour {tourId}
-                      </option>
-                    ))}
-                </select>
-              </div> */}
               <div className={`${styles.space_information_item} `}>
                 <span>Trạng thái: </span>
                 <StatusToggle
