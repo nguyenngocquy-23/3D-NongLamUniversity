@@ -405,3 +405,9 @@
   background-position: right 10px center;
   background-size: 12px;
 }
+
+.space_pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

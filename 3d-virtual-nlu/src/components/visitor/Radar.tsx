@@ -24,7 +24,6 @@ const Radar: React.FC<RadarProps> = ({
   navigateList,
   setIsOpenRadar,
 }) => {
-  // console.log('panoramaList......', navigateList);
   const masterPanorama = panoramaList.find((h) => h.status === 2);
 
   const { startSvg, endSvg } = getArcAnglesThree(

@@ -44,8 +44,7 @@ import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
-import { getAngleFromXZ } from "../../utils/MathUtils";
-import CamControlAdmins from "../../components/admin/CamControlsAdmin";
+import CamControls from "../../components/visitor/CamControls";
 
 export const tasks = [
   {
@@ -66,31 +65,26 @@ const CreateTourStep2 = () => {
   /**
    * Xử lý toggle hiển thị menu - start
    */
+
+  const sphereRef = useRef<THREE.Mesh | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const cameraRadarRef = useRef<number>(null);
+  const controlsRef = useRef<any>(null); //OrbitControls
+
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
+  const [currentPoints, setCurrentPoints] = useState<
+    [number, number, number][]
+  >([]);
+  const [assignable, setAssignable] = useState(false);
+  const [validIcon, setValidIcon] = useState(true);
+  const [targetPosition, setTargetPosition] = useState<
+    [number, number, number] | null
+  >(null); //test
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
   };
-
-  /**
-   * Xử lý toggle hiển thị menu - end
-   */
-  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
-
-  const sphereRef = useRef<THREE.Mesh | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  // TEST @@
-  const cameraRadarRef = useRef<number>(0);
-
-  const controlsRef = useRef<any>(null); //OrbitControls
-
-  const [currentPoints, setCurrentPoints] = useState<
-    [number, number, number][]
-  >([]);
-
-  const [assignable, setAssignable] = useState(false);
-  const [validIcon, setValidIcon] = useState(true);
-  const [chooseCornerMediaPoint, setChooseCornerMediaPoint] = useState(false);
 
   const handleMouseDown = () => {
     setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
@@ -103,17 +97,8 @@ const CreateTourStep2 = () => {
   /**
    * Khởi tạo sphereRef: sphere ban đầu của hình cầu.
    */
-  const [targetPosition, setTargetPosition] = useState<
-    [number, number, number] | null
-  >(null); //test
 
-  /**
-   * TEST CHO VIỆC THÊM HOTSPOT TYPE.
-   * => Task3 trả về type.
-   */
   const [currentHotspotType, setCurrentHotspotType] = useState(1);
-
-  // Lấy dữ liệu được thiết lập sẵn dưới Redux lên.
 
   // ========= REDUX ================
 
@@ -141,7 +126,7 @@ const CreateTourStep2 = () => {
     )
   );
 
-  const { panoramaList, currentSelectId, currentAngleMaster } = useSelector(
+  const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
   const currentPanorama = panoramaList.find(
@@ -362,7 +347,7 @@ const CreateTourStep2 = () => {
       case 2:
         return (
           <>
-            <Task2 cameraRef={cameraRef} />
+            <Task2 cameraRef={cameraRef} sphereRef={sphereRef} />
           </>
         );
       case 3:
@@ -396,6 +381,7 @@ const CreateTourStep2 = () => {
    * @param targetNodeId : Id node đích cần di chuyển.
    * @param hotspotTargetPosition : Thay thế vị trí camera hướng đến tại vị trí hotspot mục tiêu.
    */
+
   const handleHotspotNavigate = (
     targetNodeId: string,
     hotspotTargetPosition: [number, number, number]
@@ -406,14 +392,12 @@ const CreateTourStep2 = () => {
     const control = controlsRef.current;
     const originalFov = camera.fov;
     const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-    const targetPano = panoramaList.find((pano) => pano.id === targetNodeId);
 
     const [x, y, z] = hotspotTargetPosition;
 
-    // === Bước 1:Xoay camera về vị trí (hotspot)
     lookAtHotspot([x, y, z]);
-
     // === Bước 2: Zoom vào
+    handleSelectNode(targetNodeId);
 
     gsap.to(camera, {
       fov: zoomTarget,
@@ -423,7 +407,6 @@ const CreateTourStep2 = () => {
         camera.updateProjectionMatrix();
       },
       onComplete: () => {
-        handleSelectNode(targetNodeId);
         gsap.to(camera, {
           fov: originalFov,
           duration: 0.2,
@@ -433,19 +416,6 @@ const CreateTourStep2 = () => {
             camera.updateProjectionMatrix();
           },
           onComplete: () => {
-            const [px, py, pz] = [
-              targetPano?.config.positionX,
-              targetPano?.config.positionY,
-              targetPano?.config.positionZ,
-            ];
-            if (
-              typeof px === "number" &&
-              typeof py === "number" &&
-              typeof pz === "number"
-            ) {
-              camera.position.set(px, py, pz);
-              setTargetPosition([px, py, pz]);
-            }
             camera.updateProjectionMatrix();
             control.update(); // đảm bảo OrbitControls cập nhật
           },
@@ -501,31 +471,6 @@ const CreateTourStep2 = () => {
 
   const [cameraAngle, setCameraAngle] = useState(0);
 
-  const prevPanoramaIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!currentPanorama) return;
-
-    const defaultYaw = getAngleFromXZ(
-      currentPanorama.config.positionX / DEFAULT_ORIGINAL_Z,
-      currentPanorama.config.positionZ / DEFAULT_ORIGINAL_Z
-    );
-
-    if (
-      prevPanoramaIdRef.current &&
-      currentPanorama.id !== prevPanoramaIdRef.current
-    ) {
-      // Nếu không phải node gốc → cộng thêm delta xoay
-      cameraRadarRef.current = (cameraRadarRef.current + cameraAngle) % 360;
-    }
-
-    if (currentPanorama.config.status === 2) {
-      cameraRadarRef.current = defaultYaw;
-    }
-
-    prevPanoramaIdRef.current = currentPanorama.id;
-  }, [currentPanorama?.id]);
-
   const [isTextureReady, setIsTextureReady] = useState(false);
 
   return (
@@ -549,11 +494,13 @@ const CreateTourStep2 = () => {
           <Environment preset="studio" background={false} />
           <axesHelper args={[10]} position={[0, -90, 0]} />
           <UpdateCameraOnResize />
+
           <TourScene
             nodeId={currentSelectId ?? ""}
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
+            yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
             onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
             onTextureReady={() => setIsTextureReady(true)}
@@ -562,11 +509,11 @@ const CreateTourStep2 = () => {
           {currentPanorama && (
             <MiniMap
               currentPanorama={currentPanorama}
-              angleCurrent={(cameraRadarRef.current + cameraAngle) % 360}
+              angleCurrent={cameraAngle}
             />
           )}
 
-          <CamControlAdmins
+          <CamControls
             targetPosition={targetPosition}
             sphereRef={sphereRef}
             cameraRef={cameraRef}
@@ -576,11 +523,6 @@ const CreateTourStep2 = () => {
             onAngleChange={(angle) => {
               setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
             }}
-            cameraRadarRef={cameraRadarRef}
-            // onAngleChangeForMinimap={(angle) => {
-            //   cameraRadarRef.current = angle;
-            // }}
-            // onAngleChangeForMinimap={setCameraAngleForMinimap}
           />
 
           {isTextureReady &&

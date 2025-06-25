@@ -5,7 +5,10 @@ import styles from "../../styles/spaceDetail.module.css";
 import { IoChevronBack } from "react-icons/io5";
 import axios from "axios";
 import { API_URLS } from "../../env";
-import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
+import {
+  isInteger,
+  TourNodeRequestMapper,
+} from "../../utils/TourNodeRequestMapper";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import {
@@ -25,15 +28,12 @@ import {
 import UpdateHotspot from "./taskCreateTourList/UpdateHotspot";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
-import { IoMdMenu } from "react-icons/io";
 import RightMenuCreateTour from "./RightMenuCT";
 import TaskContainerCT from "./TaskContainerCT";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import { Environment } from "@react-three/drei";
 import UpdateCameraOnResize from "../UpdateCameraOnResize";
 import TourScene from "../visitor/TourScene";
-import MiniMap from "../Minimap";
-import CamControls from "../visitor/CamControls";
 import GroundHotspot from "../visitor/GroundHotspot";
 import GroundHotspotInfo from "../visitor/GroundHotspotInfo";
 import GroundHotspotModel from "../visitor/GroundHotspotModel";
@@ -45,7 +45,8 @@ import Swal from "sweetalert2";
 import { goToStep } from "../../redux/slices/StepSlice";
 import gsap from "gsap";
 import TrackingSpace from "../TrackingSpace";
-import CamControlAdmins from "./CamControlsAdmin";
+import CamControls from "../visitor/CamControls";
+import { CiEdit } from "react-icons/ci";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
@@ -54,18 +55,17 @@ const SpaceDetail = () => {
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
-    const sphereRef = useRef<THREE.Mesh | null>(null);
+  const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-
-  // TEST @@
-  const cameraRadarRef = useRef<number>(0);
-
   const controlsRef = useRef<any>(null); //OrbitControls
 
+  const [currentSpace, setCurrentSpace] = useState<any>(null);
 
   useEffect(() => {
     dispatch(goToStep(4)); //
   }, [dispatch]);
+
+  //=== LẤY DANH SÁCH CÁC TOUR CÓ TRONG 1 SPACE => REDUX.
   useEffect(() => {
     if (!spaceId) return;
 
@@ -85,9 +85,28 @@ const SpaceDetail = () => {
       });
   }, [spaceId, dispatch]);
 
-  const spaceCurrent = useSelector((state: RootState) => {
+  const reduxSpace = useSelector((state: RootState) => {
     return state.data.spaces.find((s) => s.id === Number(spaceId));
   });
+
+  useEffect(() => {
+    if (!spaceId) return;
+
+    if (reduxSpace) {
+      setCurrentSpace(reduxSpace);
+    } else {
+      axios
+        .post(API_URLS.ADMIN_GET_SPACE_BY_ID, {
+          spaceId: Number(spaceId),
+        })
+        .then((response) => {
+          setCurrentSpace(response.data.data);
+        })
+        .catch((err) => {
+          console.error("Lỗi khi tải thông tin không gian !", err);
+        });
+    }
+  }, [spaceId, reduxSpace]);
 
   /**
    * Xử lý chọn node trung tâm
@@ -97,8 +116,6 @@ const SpaceDetail = () => {
    */
   const handleSelect = async (spaceId: number, masterNodeId: number) => {
     if (!masterNodeId || masterNodeId === 0) return;
-
-    dispatch(selectPanorama(masterNodeId.toString()));
 
     try {
       const payload = {
@@ -169,7 +186,6 @@ const SpaceDetail = () => {
     const control = controlsRef.current;
     const originalFov = camera.fov;
     const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-    const targetPano = panoramaList.find((pano) => pano.id === targetNodeId);
 
     const handleSelectNode = (id: string) => {
       setIsTextureReady(false);
@@ -183,19 +199,8 @@ const SpaceDetail = () => {
     // === Bước 1:Xoay camera về vị trí (hotspot)
     lookAtHotspot([x, y, z]);
 
-    // === Bước 2: Zoom vào
-    console.log(
-      `[CreateTourStep2] Bắt đầu việc gọi vào handleSelectNode: ${
-        performance.now() / 1000
-      } giây`
-    );
     handleSelectNode(targetNodeId);
 
-    console.log(
-      `[CreateTourStep2] Bắt đầu việc gọi vào zoom: ${
-        performance.now() / 1000
-      } giây`
-    );
     gsap.to(camera, {
       fov: zoomTarget,
       duration: 1.1,
@@ -204,29 +209,6 @@ const SpaceDetail = () => {
         camera.updateProjectionMatrix();
       },
       onComplete: () => {
-        console.log(
-          `[CreateTourStep2] Kết thúc việc zoom vào: ${
-            performance.now() / 1000
-          } giây`
-        );
-        const [px, py, pz] = [
-          targetPano?.config.positionX,
-          targetPano?.config.positionY,
-          targetPano?.config.positionZ,
-        ];
-        if (
-          typeof px === "number" &&
-          typeof py === "number" &&
-          typeof pz === "number"
-        ) {
-          camera.position.set(px, py, pz);
-        }
-        console.log(
-          `[CreateTourStep2] Bắt đầu set camera: ${
-            performance.now() / 1000
-          } giây`
-        );
-
         gsap.to(camera, {
           fov: originalFov,
           duration: 0.3,
@@ -272,14 +254,9 @@ const SpaceDetail = () => {
     controls.update();
   };
 
-  // const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   const tasks = [
-    {
-      id: 2,
-      title: "Chỉnh hướng mặc định",
-    },
     {
       id: 3,
       title: "Nối điểm tương tác",
@@ -423,15 +400,6 @@ const SpaceDetail = () => {
       setCurrentHotspotType(1);
     }
   };
-  const [changeCornerMedia, setChangeCornerMedia] = useState(false);
-  const [cursor, setCursor] = useState("grab");
-  const handleMouseDown = () => {
-    setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
-  };
-
-  const handleMouseUp = () => {
-    setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
-  };
 
   const handleUpdateTourInSpace = async () => {
     if (panoramaList.length === 0) {
@@ -452,10 +420,7 @@ const SpaceDetail = () => {
           icon: "success",
           title: "Thành công",
           text: "Lưu thành công",
-        }).then(() => {
-          // dispatch(nextStep());
-          // dispatch(fetchMasterNodes());
-        });
+        }).then(() => {});
       } else {
         Swal.fire({
           icon: "error",
@@ -470,6 +435,8 @@ const SpaceDetail = () => {
     }
   };
   const [isViewMode, setIsViewMode] = useState<Number>(1);
+
+  if (!currentSpace) return <p>Đang tải thông tin không gian...</p>;
   return (
     <>
       <div className={styles.space_container}>
@@ -478,45 +445,113 @@ const SpaceDetail = () => {
             className={styles.space_icon_back}
             onClick={() => navigate(-1)}
           />
-          <p className={styles.space_title}>{spaceId} </p>
+          <p className={styles.space_title}>{currentSpace.name} </p>
+          <div className={styles.space_mode}>
+            <button
+              className={styles.space_mode_item}
+              onClick={() => {
+                if (isViewMode !== 1) setIsViewMode(1);
+              }}
+            >
+              Tổng quan
+            </button>
+            <button
+              className={styles.space_mode_item}
+              onClick={() => {
+                if (isViewMode !== 2) setIsViewMode(2);
+              }}
+            >
+              Sơ đồ
+            </button>
+            <button
+              className={styles.space_mode_item}
+              onClick={() => {
+                if (isViewMode !== 3) setIsViewMode(3);
+              }}
+            >
+              Nối tour
+            </button>
+          </div>
         </div>
         <div className={styles.space_content}>
-          <div className={styles.space_choose_master}>
-            <span>Trung tâm</span>
-            <select
-              className={styles.custom_select}
-              onChange={(e) =>
-                handleSelect(Number(spaceId), parseInt(e.target.value, 10))
-              }
-            >
-              <option value="0">-- Chọn tour--</option>
-              {panoramaList.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.config.name}
-                </option>
-              ))}
-            </select>
-            <div className={styles.space_mode}>
-              <button
-                className={styles.space_mode_item}
-                onClick={() => {
-                  if (isViewMode !== 1) setIsViewMode(1);
-                }}
-              >
-                Xem trước
-              </button>
-              <button
-                className={styles.space_mode_item}
-                onClick={() => {
-                  if (isViewMode !== 2) setIsViewMode(2);
-                }}
-              >
-                Sơ đồ tour
-              </button>
-            </div>
-          </div>
-
           {isViewMode === 1 ? (
+            <div className={styles.space_preview_tour}>
+              <div className={styles.space_overview}>
+                <div className={styles.space_overview_left}>
+                  <img
+                    src={currentSpace.url}
+                    alt="anh-khong-gian"
+                    className={styles.space_img}
+                  />
+                  <span className={styles.space_img_custom}>
+                    <CiEdit />
+                  </span>
+                </div>
+
+                <div className={styles.space_overview_right}>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>Lĩnh vực: </div>
+                    <div className={styles.content_information}>
+                      {currentSpace.fieldName}
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>
+                      Tên không gian:{" "}
+                    </div>
+                    <div className={styles.content_information}>
+                      {currentSpace.name}
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>
+                      Mã không gian:{" "}
+                    </div>
+                    <div className={styles.content_information}>
+                      {currentSpace.code}
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>Mô tả: </div>
+                    <div className={styles.content_information}>
+                      {currentSpace.description}
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>Trạng thái: </div>
+                    <div className={styles.content_information}>
+                      {currentSpace.status}
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>
+                      Tour mặc định:{" "}
+                    </div>
+                    <div className={styles.content_information}>
+                      <select
+                        className={styles.custom_select}
+                        onChange={(e) =>
+                          handleSelect(
+                            Number(spaceId),
+                            parseInt(e.target.value, 10)
+                          )
+                        }
+                      >
+                        <option value={currentSpace.masterNodeId}>
+                          {currentSpace.masterNodeName}
+                        </option>
+                        {panoramaList.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.config.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : isViewMode === 2 ? (
             <div className={styles.space_preview_tour}>
               <Canvas
                 camera={{
@@ -526,9 +561,6 @@ const SpaceDetail = () => {
                   far: 1000,
                   position: [0, 0, DEFAULT_ORIGINAL_Z],
                 }}
-                style={{ cursor: cursor }}
-                onMouseDown={handleMouseDown}
-                onMouseUp={handleMouseUp}
                 onContextMenu={(e) => {
                   e.preventDefault();
                 }}
@@ -541,12 +573,13 @@ const SpaceDetail = () => {
                   radius={RADIUS_SPHERE}
                   sphereRef={sphereRef}
                   textureCurrent={currentPanorama?.url ?? "/khoa.jpg"}
+                  yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
                   onPointerDown={handleScenePointerDown}
                   lightIntensity={1}
                   onTextureReady={() => setIsTextureReady(true)}
                 />
 
-                <CamControlAdmins
+                <CamControls
                   targetPosition={targetPosition}
                   sphereRef={sphereRef}
                   cameraRef={cameraRef}
@@ -554,7 +587,6 @@ const SpaceDetail = () => {
                   autoRotate={false}
                   autoRotateSpeed={0}
                   onAngleChange={setCameraAngle}
-                  cameraRadarRef={cameraRadarRef}
                 />
 
                 {isTextureReady &&
@@ -575,6 +607,7 @@ const SpaceDetail = () => {
                         }}
                         setCurrentHotspotId={setCurrentHotspotId}
                         hotspotNavigation={hotspot}
+                        blockUpdate={isInteger(hotspot.id)} //Nếu id dạng số => là của tour => không thể cập nhật.
                       />
                     ))}
 
@@ -675,6 +708,7 @@ const SpaceDetail = () => {
           ) : (
             <div className={styles.space_preview_tour}>
               <TrackingSpace
+                masterId={currentSpace.masterNodeId}
                 panoramaList={panoramaList}
                 hotspotNavigations={hotspotNavigations}
               />

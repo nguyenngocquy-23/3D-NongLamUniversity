@@ -16,6 +16,7 @@ import java.util.List;
 public class SpaceFullResponse {
     int id;
     int fieldId;
+    int masterNodeId;
     String fieldName, code, name, masterNodeName, description, url, location;
     byte status;
     Timestamp createdAt, updatedAt;

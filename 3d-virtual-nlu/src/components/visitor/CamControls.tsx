@@ -4,10 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { useRaycaster } from "../../hooks/useRaycaster";
 import gsap from "gsap";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../redux/Store";
-import { getAngleFromXZ } from "../../utils/MathUtils";
-import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/Store";
+import { updateCurrentAngleMaster } from "../../redux/slices/PanoramaSlice";
 
 type CamControlsProps = {
   targetPosition?: [number, number, number] | null;
@@ -17,8 +16,6 @@ type CamControlsProps = {
   autoRotate: boolean;
   autoRotateSpeed: number | null;
   onAngleChange?: (angle: number) => void;
-  cameraRadarRef: React.RefObject<number>;
-  currentPano: any;
 };
 
 const zoomLevels = [75, 60, 45, 30];
@@ -31,8 +28,6 @@ const CamControls: React.FC<CamControlsProps> = ({
   autoRotate,
   autoRotateSpeed,
   onAngleChange,
-  cameraRadarRef,
-  currentPano,
 }) => {
   const { gl, camera } = useThree();
   const canvas = gl.domElement;
@@ -41,20 +36,10 @@ const CamControls: React.FC<CamControlsProps> = ({
   const targetLookAt = useRef(new THREE.Vector3());
   const dispatch = useDispatch<AppDispatch>();
 
-  useEffect(() => {
-    if (currentPano.status === 2) {
-      deltaRef.current = 0;
-    }
-  }, [targetPosition]);
-
+  const lastAzimuthalAngleRef = useRef<number | null>(null);
   const isUserRotatingRef = useRef(false);
-  const deltaRef = useRef(0);
 
-  const virtualCameraDirRef = useRef<THREE.Vector3 | null>(null); // Camera ảo
-  const lastRadarAngleRef = useRef<number>(0); // Hướng radar cuối cùng
-  const baseAngleRef = useRef<number>(0); // góc mặc định của node
-  const rotationDeltaRef = useRef<number>(0); // góc xoay cộng dồn
-
+  // Gán cameraRef nếu có
   useEffect(() => {
     if (cameraRef && camera instanceof THREE.PerspectiveCamera) {
       cameraRef.current = camera;
@@ -97,11 +82,23 @@ const CamControls: React.FC<CamControlsProps> = ({
   );
 
   useEffect(() => {
-    canvas.addEventListener("wheel", handleMouseWheel);
+    canvas.addEventListener("wheel", handleMouseWheel, { passive: true });
     return () => {
       canvas.removeEventListener("wheel", handleMouseWheel);
     };
   }, [handleMouseWheel]);
+
+  // Gán vị trí target
+  const currentCameraPosition = useRef(new THREE.Vector3());
+  const currentTargetPosition = useRef(new THREE.Vector3());
+
+  useEffect(() => {
+    if (!targetPosition) return;
+
+    const [x, _, z] = targetPosition;
+    currentTargetPosition.current.set(x, 0, z);
+    currentCameraPosition.current.copy(camera.position);
+  }, [targetPosition, camera]);
 
   // Lắng nghe sự kiện bắt đầu & kết thúc rotate
   useEffect(() => {
@@ -109,18 +106,8 @@ const CamControls: React.FC<CamControlsProps> = ({
     if (!controls) return;
 
     const handleStart = () => {
-      const dir = new THREE.Vector3();
-      camera.getWorldDirection(dir);
-
-      // ✅ CHỈ reset hướng ảo nếu đã từng tồn tại
-      if (virtualCameraDirRef.current) {
-        virtualCameraDirRef.current = dir.clone();
-
-        const angle = getAngleFromXZ(-dir.x, -dir.z);
-        lastRadarAngleRef.current = angle;
-      }
+      isUserRotatingRef.current = true;
     };
-
     const handleEnd = () => {
       isUserRotatingRef.current = false;
     };
@@ -134,92 +121,27 @@ const CamControls: React.FC<CamControlsProps> = ({
     };
   }, []);
 
-  useEffect(() => {
+  // Cập nhật góc
+  useFrame(() => {
     const controls = controlsRef.current;
     if (!controls) return;
 
-    const handleStart = () => {
-      isUserRotatingRef.current = true;
+    controls.update();
 
-      const dir = new THREE.Vector3();
-      camera.getWorldDirection(dir);
+    const azimuthal = controls.getAzimuthalAngle();
+    const angleDeg = (THREE.MathUtils.radToDeg(azimuthal) + 360) % 360;
 
-      virtualCameraDirRef.current = dir.clone();
-      lastRadarAngleRef.current = getAngleFromXZ(-dir.x, -dir.z);
-    };
+    const hasAngleChanged =
+      lastAzimuthalAngleRef.current === null ||
+      Math.abs(lastAzimuthalAngleRef.current - azimuthal) > 0.001;
 
-    controls.addEventListener("start", handleStart);
-    return () => {
-      controls.removeEventListener("start", handleStart);
-    };
-  }, []);
+    if (hasAngleChanged) {
+      lastAzimuthalAngleRef.current = azimuthal;
 
-  function getSignedAngleDelta(fromDeg: number, toDeg: number): number {
-    let delta = ((toDeg - fromDeg + 540) % 360) - 180;
-    return delta;
-  }
-
-  const justSwitchedRef = useRef(false);
-  const skipFrameCountRef = useRef(0);
-
-  useEffect(() => {
-    if (!currentPano) return;
-
-    const defaultYaw = getAngleFromXZ(
-      currentPano.positionX / DEFAULT_ORIGINAL_Z,
-      currentPano.positionZ / DEFAULT_ORIGINAL_Z
-    );
-
-    const targetAngle =
-      currentPano.status === 2 ? defaultYaw : cameraRadarRef.current; // Góc tổng thể từ cha
-
-    // 👉 Tính vị trí để xoay camera đúng hướng
-    const radius = 1;
-    const x = -Math.sin((targetAngle * Math.PI) / 180) * radius;
-    const z = -Math.cos((targetAngle * Math.PI) / 180) * radius;
-
-    camera.position.set(x, 0, z);
-    controlsRef.current?.target.set(0, 0, 0);
-    controlsRef.current?.update();
-
-    baseAngleRef.current = targetAngle;
-    rotationDeltaRef.current = 0;
-
-    if (currentPano.status === 2) {
-      onAngleChange?.(0);
-    } else {
-      justSwitchedRef.current = true;
-      skipFrameCountRef.current = 2;
+      // Luôn cập nhật Redux & callback chính
+      onAngleChange?.(angleDeg);
+      dispatch(updateCurrentAngleMaster(angleDeg));
     }
-  }, [currentPano?.id]);
-
-  useFrame(() => {
-    controlsRef.current?.target.set(0, 0, 0); // hoặc hướng về node chính giữa
-    controlsRef.current?.update(); // BẮT BUỘC
-    const dir = new THREE.Vector3();
-    camera.getWorldDirection(dir);
-    const currentAngle = getAngleFromXZ(-dir.x, -dir.z);
-
-    // ⛔ Skip vài frame đầu để camera ổn định hướng
-    if (skipFrameCountRef.current > 0) {
-      skipFrameCountRef.current--;
-      return;
-    }
-
-    if (justSwitchedRef.current) {
-      const deltaTemp = getSignedAngleDelta(baseAngleRef.current, currentAngle);
- 
-      // Nếu delta quá lớn sau khi chuyển node, camera chưa ổn → chờ tiếp
-      if (Math.abs(deltaTemp) > 179 ) return;
-
-      baseAngleRef.current = currentAngle;
-      justSwitchedRef.current = false;
-      onAngleChange?.(0);
-      return;
-    }
-
-    const delta = getSignedAngleDelta(baseAngleRef.current, currentAngle);
-    onAngleChange?.(delta);
   });
 
   return (
