@@ -238,6 +238,7 @@ const TourDetail = () => {
         panoramaList,
         hotspots.hotspotList
       );
+      // console.log("Payload to update tour: ", payload);
 
       // Step2: Gửi lên backend
       const response = await axios.post(API_URLS.ADMIN_UPDATE_NODES, payload);
@@ -245,7 +246,7 @@ const TourDetail = () => {
         Swal.fire({
           icon: "success",
           title: "Thành công",
-          text: "Xuất bản thành công",
+          text: "Cập nhật thành công",
         }).then(() => {
           // dispatch(nextStep());
           dispatch(fetchMasterNodes());
@@ -255,12 +256,12 @@ const TourDetail = () => {
           icon: "error",
           title: "Thất bại",
           text:
-            "Xuất bản thất bại: " +
+            "Cập nhật thất bại: " +
             (response.data?.message || "Không rõ lý do"),
         });
       }
     } catch (error) {
-      console.log("Lỗi khi xuất bản: ", error);
+      console.log("Lỗi khi cập nhật: ", error);
     }
   };
 
@@ -379,6 +380,7 @@ const TourDetail = () => {
     hotspotTargetPosition: [number, number, number]
   ) => {
     if (!cameraRef.current || !controlsRef.current) return;
+
     const camera = cameraRef.current;
     const control = controlsRef.current;
     const originalFov = camera.fov;

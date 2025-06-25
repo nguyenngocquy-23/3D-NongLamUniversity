@@ -348,7 +348,7 @@
     color: white;
     background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
-    z-index: 2;
+    z-index: 100000000;
     max-height: 80vh;
     overflow: hidden;
     overflow-y: auto;

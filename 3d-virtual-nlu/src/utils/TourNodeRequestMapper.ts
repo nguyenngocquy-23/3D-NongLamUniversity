@@ -375,16 +375,18 @@ export class TourNodeRequestMapper {
     hotspotList: HotspotItem[],
   ): NodeUpdateRequest[] {
     return panoramaList.map((pano) => {
-      const nodeIdTemp = pano.id; // id temp của từng pano 
+      const nodeId = pano.id;
       const hotspotsForNode = hotspotList.filter(
-        (h) => h.nodeId === nodeIdTemp
+        (h) => h.nodeId == nodeId
       );
+      console.log("panorama--------", nodeId);
+      console.log("hotspotsForNode", hotspotList);
 
       //List hotspot của từng panorama.
       const navHotspots: HotspotNavCreateRequest[] = hotspotsForNode
-        .filter((h): h is HotspotNavigation => h.type === 1)
+        .filter((h): h is HotspotNavigation => h.type == 1)
         .map((h) => ({
-          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          nodeId: h.nodeId,
           type: h.type,
           iconId: h.iconId,
           positionX: h.positionX,
@@ -398,13 +400,13 @@ export class TourNodeRequestMapper {
           allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
           opacity: h.opacity,
           scale: h.scale,
-          targetNodeId: h.targetNodeId, //
+          targetNodeId: h.targetNodeId,
         }));
 
       const infoHotspots: HotspotInfoCreateRequest[] = hotspotsForNode
-        .filter((h): h is HotspotInformation => h.type === 2)
+        .filter((h): h is HotspotInformation => h.type == 2)
         .map((h) => ({
-          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          nodeId: h.nodeId,
           type: h.type,
           iconId: h.iconId,
           positionX: h.positionX,
@@ -423,9 +425,9 @@ export class TourNodeRequestMapper {
         }));
 
       const mediaHotspots: HotspotMediaCreateRequest[] = hotspotsForNode
-        .filter((h): h is HotspotMedia => h.type === 3)
+        .filter((h): h is HotspotMedia => h.type == 3)
         .map((h) => ({
-          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          nodeId: h.nodeId,
           iconId: h.iconId,
           type: h.type,
           positionX: h.positionX,
@@ -446,9 +448,9 @@ export class TourNodeRequestMapper {
         }));
 
       const modelHotspots: HotspotModelCreateRequest[] = hotspotsForNode
-        .filter((h): h is HotspotModel => h.type === 4)
+        .filter((h): h is HotspotModel => h.type == 4)
         .map((h) => ({
-          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          nodeId: h.nodeId,    
           type: h.type,
           iconId: h.iconId,
           positionX: h.positionX,

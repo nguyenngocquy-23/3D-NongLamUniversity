@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ListIcon from "./ListIcon";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
@@ -141,7 +141,14 @@ const ConfigIcon = ({
   const dispatch = useDispatch();
 
   // 3. Khi muốn cập nhật Redux (chỉ khi propHotspot != null) — THÊM useEffect MỚI!
+  const hasMounted = useRef(false);
+
   useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return; // ⛔️ Bỏ qua lần đầu render
+    }
+
     if (propHotspot != null) {
       const props = handleInitialHotspotProps();
       dispatch(
@@ -161,7 +168,7 @@ const ConfigIcon = ({
     color,
     backgroundColor,
     allowBackgroundColor,
-    currentHotspotType,
+    // currentHotspotType,
     currentPanorama,
   ]);
 
@@ -172,7 +179,7 @@ const ConfigIcon = ({
       onPropsChange(props); // truyền props tạo mới
     }
   }, [
-    currentHotspotType,
+    // currentHotspotType,
     currentPanorama,
     scale,
     opacity,
@@ -295,6 +302,7 @@ const ConfigIcon = ({
                   <input
                     type="text"
                     name=""
+                    style={{color: `${color}`}}
                     id="color_text"
                     onChange={(e) => setColor(e.target.value)}
                     value={color}
@@ -318,6 +326,7 @@ const ConfigIcon = ({
                     type="text"
                     name=""
                     id="bkg_text"
+                    style={{color: `${backgroundColor}`}}
                     value={backgroundColor}
                     onChange={(e) => setBackgroundColor(e.target.value)}
                     placeholder="HEX, RGB or HSL"
