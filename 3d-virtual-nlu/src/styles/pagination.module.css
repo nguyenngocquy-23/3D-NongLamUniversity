@@ -1,0 +1,39 @@
+.pagination_container {
+  display: flex;
+  list-style-type: none;
+}
+
+.pagination_item {
+  padding: 0 0.5rem;
+  height: 2rem;
+  text-align: center;
+  margin: auto 4px;
+  color: rgba(0, 0, 0, 0.87);
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  align-items: center;
+  letter-spacing: 0.01071em;
+  border-radius: 50%;
+  line-height: 1.43;
+  font-size: 13px;
+  min-width: 32px;
+}
+
+.pagination_item:hover {
+  background-color: #ccc;
+  cursor: pointer;
+}
+
+.current_item {
+  background-color: #267026;
+  color: #fff;
+}
+
+.dots:hover {
+  background-color: transparent;
+  cursor: default;
+}
+.current_item:hover {
+  background-color: #267026;
+}

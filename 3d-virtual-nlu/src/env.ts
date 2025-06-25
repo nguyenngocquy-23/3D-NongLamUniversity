@@ -1,8 +1,8 @@
 export const DOMAIN_CLIENT = "3dtour";
-const DOMAIN = "https://3dtour.io.vn/app/api"; // product
-export const AFTER_DOMAIN = "3dtour.io.vn/app"; // product
-// export const AFTER_DOMAIN = "localhost:8080/app"; // dev
-// const DOMAIN = "http://localhost:8080/app/api"; // dev
+// const DOMAIN = "https://3dtour.io.vn/app/api"; // product
+// export const AFTER_DOMAIN = "3dtour.io.vn/app"; // product
+export const AFTER_DOMAIN = "localhost:8080/app"; // dev
+const DOMAIN = "http://localhost:8080/app/api"; // dev
 export const DEFAULT_AVATAR =
   "https://res.cloudinary.com/dkoc6kbg1/image/upload/v1749780602/fxa5ft9aesxkfiskamne.jpg";
 
@@ -38,6 +38,7 @@ export const API_URLS = {
   ADMIN_GET_ALL_NODES: `${DOMAIN}/v1/admin/node/all`,
   ADMIN_GET_MASTER_NODES_OF_SPACE: `${DOMAIN}/v1/admin/node/masterNodeList`,
   ADMIN_GET_ALL_SPACES: `${DOMAIN}/admin/space/all`,
+  ADMIN_GET_SPACE_BY_ID: `${DOMAIN}/admin/space/byId`,
   ADMIN_GET_SPACE_OF_FIELD: `${DOMAIN}/admin/space/byField`,
   ADMIN_GET_ALL_ICONS: `${DOMAIN}/v1/admin/icon`,
   ADMIN_GET_HOTSPOT_TYPES: `${DOMAIN}/admin/hotspotType`,
@@ -54,6 +55,7 @@ export const API_URLS = {
   ADMIN_CHANGE_FIELD_STATUS: `${DOMAIN}/admin/field/changeStatus`,
   ADMIN_CHANGE_SPACE_STATUS: `${DOMAIN}/admin/space/changeStatus`,
   ADMIN_CHANGE_MASTER_SPACE: `${DOMAIN}/admin/space/setMasterSpace`,
+  ADMIN_CHANGE_NAME_SPACE: `${DOMAIN}/admin/space/changeName`,
   ADMIN_CHANGE_MASTER_NODE_BY_ID: `${DOMAIN}/admin/space/setMasterNodeById`,
   ADMIN_CHANGE_NAME_FIELD: `${DOMAIN}/admin/field/changeName`,
   ADMIN_CHANGE_ICON_STATUS: `${DOMAIN}/admin/field/changeStatus`,

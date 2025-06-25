@@ -83,9 +83,7 @@ const UpdateHotspot = ({
           </>
         ) : (
           <>
-            <TypeMedia
-              hotspotMedia={propHotspot}
-            />
+            <TypeMedia hotspotMedia={propHotspot} />
           </>
         )}
       </div>

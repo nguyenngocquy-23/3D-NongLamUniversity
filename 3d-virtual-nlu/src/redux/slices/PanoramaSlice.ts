@@ -15,6 +15,7 @@ export interface PanoramaConfig {
   positionX: number;
   positionY: number;
   positionZ: number;
+  yawOffset: number;
   autoRotate: number;
   speedRotate: number;
   lightIntensity: number;
@@ -66,6 +67,7 @@ const panoramaSlice = createSlice({
           positionX: 0,
           positionY: 0,
           positionZ: DEFAULT_ORIGINAL_Z,
+          yawOffset: 0,
           autoRotate: 0,
           speedRotate: 0,
           lightIntensity: 1,
@@ -74,9 +76,9 @@ const panoramaSlice = createSlice({
       }));
       state.panoramaList = panoramas;
       state.currentSelectId = panoramas[0]?.id || null;
-      // state.currentSelectedPosition = 0;
     },
 
+    //Upload thêm panorama khi trong tour.
     addPanorama(state, action: PayloadAction<string>) {
       if (state.panoramaList.length < 5 && state.spaceId !== null) {
         const newPanorama: PanoramaItem = {
@@ -89,6 +91,7 @@ const panoramaSlice = createSlice({
             positionX: 0,
             positionY: 0,
             positionZ: DEFAULT_ORIGINAL_Z,
+            yawOffset: 0,
             autoRotate: 0,
             speedRotate: 0,
             lightIntensity: 1,

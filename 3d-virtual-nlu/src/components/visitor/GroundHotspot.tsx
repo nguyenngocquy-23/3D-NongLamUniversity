@@ -43,11 +43,9 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   const panoramaList = useSelector(
     (state: RootState) => state.panoramas.panoramaList
   );
-  // console.log("panoramaList", panoramaList);
   const preloadNode = useSelector(
     (state: RootState) => state.data.preloadNodes
   );
-  // console.log("preloadNode", preloadNode);
 
   /**
    * Đang thử nghiệm
@@ -169,17 +167,13 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     }
   }, [isHovered]);
 
-  useEffect(() => {
-    if (groupRef.current) {
-      const box = new THREE.Box3().setFromObject(groupRef.current);
-      const size = new THREE.Vector3();
-      box.getSize(size);
-      console.log(
-        `Hotspot: ${hotspotNavigation.id} đang có scale ${hotspotNavigation.scale} `
-      );
-      console.log(size);
-    }
-  }, [clonedScene]);
+  // useEffect(() => {
+  //   if (groupRef.current) {
+  //     const box = new THREE.Box3().setFromObject(groupRef.current);
+  //     const size = new THREE.Vector3();
+  //     box.getSize(size);
+  //   }
+  // }, [clonedScene]);
 
   /**
    * ICON 3D
@@ -210,13 +204,14 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
               textOverflow: "ellipsis",
             }}
           >
-            {preloadNode.length == 0
+            {/* Vấn đề xảy ra khi cấu hình liên kết node, khi đó 1 số hotspot navigation vẫn hiển thị nhưng nó sẽ không biết name của node id cha nó. */}
+            {/* {preloadNode.length == 0
               ? panoramaList.find(
                   (pano) => pano.id === hotspotNavigation.targetNodeId
                 ).config.name
               : preloadNode.find(
                   (pano) => pano.id === hotspotNavigation.targetNodeId
-                ).name}
+                ).name} */}
           </div>
         </Html>
       )}

@@ -9,6 +9,7 @@
   display: flex;
   position: relative;
   justify-content: center;
+  align-content: center;
 }
 .space_header .space_icon_back {
   width: 1.5rem;
@@ -25,7 +26,7 @@
 }
 
 .space_title {
-  font-size: 1rem;
+  font-size: 2rem;
   font-weight: bold;
 }
 
@@ -33,12 +34,62 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  height: calc(100% - 1rem - 0.75rem);
+  height: calc(100% - 2rem - 0.75rem);
 }
 
-.space_choose_master {
+.space_left_content {
+  width: 30%;
+  border-right: 1px solid #fff;
+  padding-right: 0.5rem;
+}
+
+.space_overview {
+  width: 100%;
   display: flex;
+  flex-direction: row;
   gap: 0.5rem;
+}
+.space_overview_left {
+  width: 200px;
+  height: 200px;
+  position: relative;
+}
+
+.space_overview_left .space_img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+.space_overview_right {
+  flex: 1;
+}
+.overview_information {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.label_information {
+  font-style: italic;
+}
+.space_img_custom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: #fff;
+  border-radius: 0.1rem;
+  transform: translate(-50%, -50%);
+}
+
+.space_choose_master_sl {
+  display: flex;
+  flex-direction: column;
 }
 
 .custom_select {
@@ -63,6 +114,8 @@
 .space_mode {
   display: flex;
   gap: 0.5rem;
+  position: absolute;
+  right: 0;
 }
 
 .space_mode .space_mode_item {
@@ -72,9 +125,12 @@
 
 .space_preview_tour {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   border-radius: 0.5rem;
   position: relative;
   overflow: hidden;
+  gap: 0.5rem;
 }
 
 .space_right_menu {
