@@ -90,7 +90,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
             <img src={user.avatar}/>
             <div className={styles.admin_info}>
               <Link to="/">
-                <h5>{user.username} !</h5>
+                <h5>{user.username}</h5>
               </Link>
             </div>
           </>

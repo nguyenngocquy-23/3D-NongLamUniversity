@@ -172,8 +172,7 @@ const panoramaSlice = createSlice({
     clearPanorama(state) {
       (state.panoramaList = []),
         (state.currentAngleMaster = 0),
-        (state.currentSelectId = null),
-        (state.spaceId = null);
+        (state.currentSelectId = null);
     },
   },
 });
