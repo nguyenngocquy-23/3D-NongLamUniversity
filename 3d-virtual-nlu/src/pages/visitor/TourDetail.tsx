@@ -238,7 +238,6 @@ const TourDetail = () => {
         panoramaList,
         hotspots.hotspotList
       );
-      // console.log("Payload to update tour: ", payload);
 
       // Step2: Gửi lên backend
       const response = await axios.post(API_URLS.ADMIN_UPDATE_NODES, payload);
@@ -248,7 +247,7 @@ const TourDetail = () => {
           title: "Thành công",
           text: "Cập nhật thành công",
         }).then(() => {
-          // dispatch(nextStep());
+          setIsUpdateTour(false);
           dispatch(fetchMasterNodes());
         });
       } else {

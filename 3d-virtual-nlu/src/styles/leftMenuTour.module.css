@@ -30,7 +30,11 @@
     align-items: center;
 }
 
-.header .inputSeach {
+.header .input_seach::placeholder {
+    color: white;
+    opacity: 0.7;
+}
+.header .input_seach {
     padding: 5px;
     font-size: 15px;
     width: 80%;

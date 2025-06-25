@@ -28,7 +28,7 @@ public class NodeService {
         return nodeDao.getAllNodes();
     }
 
-    public List<MasterNodeResponse> getAllMasterNodes() {
+    public List<NodeFullResponse> getAllMasterNodes() {
         return nodeDao.getAllMasterNodes();
     }
 

@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/leftMenuTour.module.css";
 import { FaSearch } from "react-icons/fa";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { fetchMasterNodes } from "../../redux/slices/DataSlice";
+import { fetchMasterNodes, setDefaultNode } from "../../redux/slices/DataSlice";
 import { useEffect, useState } from "react";
 
 interface LeftMenuProps {
@@ -11,6 +11,7 @@ interface LeftMenuProps {
 
 const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
   const listMasterNode = useSelector(
     (state: RootState) => state.data.masterNodes
   );
@@ -26,6 +27,12 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
     }
   }, [listMasterNode.length]);
 
+  const handleSelectNode = (id: number) => {
+    const activeNode = listMasterNode.find((h) => h.id === id);
+    console.log("Selected Node:", activeNode);
+    dispatch(setDefaultNode(activeNode));
+  };
+
   // Trong render:
   if (loading) {
     return <div>Đang tải dữ liệu...</div>;
@@ -35,10 +42,10 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
     <div className={`${styles.left_menu} ${isMenuVisible ? styles.show : ""}`}>
       <div className={styles.header}>
         <h2>NLU Tour</h2>
-        <div className={styles.searchBox}>
+        <div className={styles.search_box}>
           <input
             type="text"
-            className={styles.inputSeach}
+            className={styles.input_seach}
             placeholder="Tên không gian.."
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -53,6 +60,7 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
             style={{
               backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${node.url})`,
             }}
+            onClick={() => handleSelectNode(node.id)}
           >
             <span className={styles.nodeName}>{node.name}</span>
           </li>

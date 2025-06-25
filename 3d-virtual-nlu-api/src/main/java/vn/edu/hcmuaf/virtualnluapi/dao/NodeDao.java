@@ -66,14 +66,29 @@ public class NodeDao {
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
     }
 
-    public List<MasterNodeResponse> getAllMasterNodes() {
+    public List<NodeFullResponse> getAllMasterNodes() {
         String sql = """
-                SELECT n.id, n.name, n.url
-                FROM nodes n
-                WHERE n.status = 2
-                LIMIT 10 OFFSET 0
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                 n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.lightIntensity
+                 FROM nodes n
+                 JOIN spaces s ON n.spaceId = s.id
+                 JOIN fields f ON s.fieldId = f.id
+                 WHERE n.status = 2
+                 ORDER BY n.updatedAt DESC
+                 LIMIT 10 OFFSET 0
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(MasterNodeResponse.class).list());
+        List<NodeFullResponse> result = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
+        for (NodeFullResponse n : result) {
+            List<HotspotNavigationResponse> navigationResponses = hotspotDao.getNavigationByNodeId(n.getId());
+            List<HotspotInformationResponse> informationResponses = hotspotDao.getInformationByNodeId(n.getId());
+            List<HotspotMediaResponse> mediaResponses = hotspotDao.getMediaByNodeId(n.getId());
+            List<HotspotModelResponse> modelResponses = hotspotDao.getModelByNodeId(n.getId());
+            n.setNavHotspots(navigationResponses);
+            n.setInfoHotspots(informationResponses);
+            n.setMediaHotspots(mediaResponses);
+            n.setModelHotspots(modelResponses);
+        }
+        return result;
     }
 
 

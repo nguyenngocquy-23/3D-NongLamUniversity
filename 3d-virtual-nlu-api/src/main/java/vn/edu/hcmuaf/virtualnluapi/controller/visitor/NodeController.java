@@ -30,9 +30,9 @@ public class NodeController {
     @Path("/master")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<MasterNodeResponse>> getAllMasterNodes() {
-        List<MasterNodeResponse> result = nodeService.getAllMasterNodes();
-        return ApiResponse.<List<MasterNodeResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
+    public ApiResponse<List<NodeFullResponse>> getAllMasterNodes() {
+        List<NodeFullResponse> result = nodeService.getAllMasterNodes();
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 
     @POST
