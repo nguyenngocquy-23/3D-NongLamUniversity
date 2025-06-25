@@ -299,7 +299,7 @@ public class NodeDao {
                     return false; // Nếu có bất kỳ bản ghi nào không được cập nhật, trả về false
                 }
             }
-            return true; // Tất cả bản ghi đã được cập nhật thành công
+            return true;
         });
     }
     public boolean updateLinkNodeById(List<NodeLinkRequest> requestList) {
