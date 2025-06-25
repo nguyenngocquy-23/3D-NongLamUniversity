@@ -58,7 +58,7 @@ public class SpaceDao {
                 , s.createdAt, s.updatedAt
                 FROM spaces s
                 JOIN fields f ON s.fieldId = f.id
-                JOIN nodes n ON s.masterNodeId = n.id
+                LEFT JOIN nodes n ON s.masterNodeId = n.id
                 """;
 
         return ConnectionPool.getConnection().withHandle(handle -> {
@@ -90,8 +90,12 @@ public class SpaceDao {
     }
 
 
-
-    public boolean changeStatusSpace(StatusRequest req) {
+    /**
+     * Dành cho việc cập nhật trạng thái cho space chính trong không gian (hiển thị mặc định.
+     * @param req : id & status mới.
+     * @return
+     */
+    public boolean changeStatusSpaceMaster(StatusRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             // Bước 1: Cập nhật tất cả status = 2 về 1
             handle.createUpdate("UPDATE spaces SET status = 1 WHERE status = 2")
@@ -105,6 +109,38 @@ public class SpaceDao {
             return updated > 0; // chỉ cần 1 bản ghi được cập nhật là thành công
         });
     }
+
+
+    public boolean changeStatus(StatusRequest req) {
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int i = handle.createUpdate("UPDATE spaces SET status = :status, updatedAt = :updatedAt WHERE id = :id")
+                    .bind("status", req.getStatus() )
+                    .bind("id", req.getId())
+                    .bind("updatedAt", LocalDateTime.now())
+                    .execute();
+            return i > 0;
+        });
+    }
+
+    public boolean changeNameSpace(SpaceChangeNameRequest req) {
+        String updateSql = "UPDATE spaces SET name = :name, code = :code, updatedAt = :updatedAt WHERE id = :id";
+        return ConnectionPool.getConnection().inTransaction(
+                handle -> {
+                    int i = handle.createUpdate(updateSql)
+                            .bind("name", req.getName()
+                            )
+                            .bind("code", req.getCode())
+                            .bind("id", req.getSpaceId())
+                            .bind("updatedAt", LocalDateTime.now())
+                            .execute();
+                    if(i == 0) {
+                        throw new IllegalStateException("Không thể thay đổi, id có thể sai!");
+                    }
+                    return i > 0;
+                }
+        );
+    }
+
 
     public boolean setMasterNode(SpaceChangeMasterRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {

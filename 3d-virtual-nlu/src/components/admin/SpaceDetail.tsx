@@ -28,7 +28,6 @@ import {
 import UpdateHotspot from "./taskCreateTourList/UpdateHotspot";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
-import { IoMdMenu } from "react-icons/io";
 import RightMenuCreateTour from "./RightMenuCT";
 import TaskContainerCT from "./TaskContainerCT";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
@@ -47,6 +46,7 @@ import { goToStep } from "../../redux/slices/StepSlice";
 import gsap from "gsap";
 import TrackingSpace from "../TrackingSpace";
 import CamControls from "../visitor/CamControls";
+import { CiEdit } from "react-icons/ci";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
@@ -453,7 +453,7 @@ const SpaceDetail = () => {
                 if (isViewMode !== 1) setIsViewMode(1);
               }}
             >
-              Tổng quát
+              Tổng quan
             </button>
             <button
               className={styles.space_mode_item}
@@ -461,12 +461,97 @@ const SpaceDetail = () => {
                 if (isViewMode !== 2) setIsViewMode(2);
               }}
             >
+              Sơ đồ
+            </button>
+            <button
+              className={styles.space_mode_item}
+              onClick={() => {
+                if (isViewMode !== 3) setIsViewMode(3);
+              }}
+            >
               Nối tour
             </button>
           </div>
         </div>
         <div className={styles.space_content}>
-          {isViewMode === 2 ? (
+          {isViewMode === 1 ? (
+            <div className={styles.space_preview_tour}>
+              <div className={styles.space_overview}>
+                <div className={styles.space_overview_left}>
+                  <img
+                    src={currentSpace.url}
+                    alt="anh-khong-gian"
+                    className={styles.space_img}
+                  />
+                  <span className={styles.space_img_custom}>
+                    <CiEdit />
+                  </span>
+                </div>
+
+                <div className={styles.space_overview_right}>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>Lĩnh vực: </div>
+                    <div className={styles.content_information}>
+                      {currentSpace.fieldName}
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>
+                      Tên không gian:{" "}
+                    </div>
+                    <div className={styles.content_information}>
+                      {currentSpace.name}
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>
+                      Mã không gian:{" "}
+                    </div>
+                    <div className={styles.content_information}>
+                      {currentSpace.code}
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>Mô tả: </div>
+                    <div className={styles.content_information}>
+                      {currentSpace.description}
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>Trạng thái: </div>
+                    <div className={styles.content_information}>
+                      {currentSpace.status}
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <div className={styles.label_information}>
+                      Tour mặc định:{" "}
+                    </div>
+                    <div className={styles.content_information}>
+                      <select
+                        className={styles.custom_select}
+                        onChange={(e) =>
+                          handleSelect(
+                            Number(spaceId),
+                            parseInt(e.target.value, 10)
+                          )
+                        }
+                      >
+                        <option value={currentSpace.masterNodeId}>
+                          {currentSpace.masterNodeName}
+                        </option>
+                        {panoramaList.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.config.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : isViewMode === 2 ? (
             <div className={styles.space_preview_tour}>
               <Canvas
                 camera={{
@@ -622,22 +707,6 @@ const SpaceDetail = () => {
             </div>
           ) : (
             <div className={styles.space_preview_tour}>
-              <div className={styles.space_choose_master}>
-                <span className={styles.space_infor_title}>Tour mặc định:</span>
-                <select
-                  className={styles.custom_select}
-                  onChange={(e) =>
-                    handleSelect(Number(spaceId), parseInt(e.target.value, 10))
-                  }
-                >
-                  <option value="0">-- Chọn tour--</option>
-                  {panoramaList.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.config.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
               <TrackingSpace
                 masterId={currentSpace.masterNodeId}
                 panoramaList={panoramaList}

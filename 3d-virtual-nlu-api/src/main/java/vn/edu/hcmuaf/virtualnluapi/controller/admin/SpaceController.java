@@ -62,12 +62,12 @@ public class SpaceController {
     @Path("/changeStatus")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<Boolean> changeStatusField(StatusRequest req) {
+    public ApiResponse<Boolean> changeStatusSpace(StatusRequest req) {
         boolean result = spaceService.changeStatusSpace(req);
         if (result) {
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai field thanh cong").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai space thanh cong").data(result).build();
         } else {
-            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai field").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai space").data(result).build();
         }
     }
 
@@ -101,7 +101,7 @@ public class SpaceController {
     @Path("/setMasterSpace")
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> changeMasterSpace(StatusRequest req) {
-        boolean result = spaceService.changeStatusSpace(req);
+        boolean result = spaceService.changeStatusSpaceMaster(req);
         if (result) {
             return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai field thanh cong").data(result).build();
         } else {
@@ -118,6 +118,31 @@ public class SpaceController {
             return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai field thanh cong").data(result).build();
         } else {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai field").data(result).build();
+        }
+    }
+
+
+    /**
+     * Cập nhật tên lĩnh vực.
+     * +> True, không chỉ gửi true/false, cần cập nhật lại thời gian cập nhật lĩnh vực trên FE.
+     */
+    @POST
+    @Path("/changeName")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeNameField(SpaceChangeNameRequest req) {
+        try {
+            boolean result = spaceService.changeNameSpace(req);
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(1000)
+                    .message("Thay đổi tên field thành công")
+                    .data(result)
+                    .build();
+        } catch (IllegalStateException e) {
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(5000)
+                    .message("Lỗi thay đổi tên field: " + e.getMessage())
+                    .data(null)
+                    .build();
         }
     }
 
