@@ -171,16 +171,18 @@ input[type="range"] {
   border: none;
 }
 .color_icon_content input[type="text"] {
-  color: #524a4a;
+  /* color: #524a4a; */
   box-sizing: border-box;
   border: 1px solid #f1f1f1;
   height: 32px;
   box-shadow: 0 1px 1px 0 rgb(0 0 0 / 10%);
   display: flex;
-  font-size: 0.9 em;
+  font-size: 0.9rem;
+  font-weight: 700;
   border-radius: 0 8px 8px 0;
   border-left: 0;
   padding: 1em;
+  letter-spacing: 1.5px;
 }
 
 .allow_color_background {

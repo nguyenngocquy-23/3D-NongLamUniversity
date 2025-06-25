@@ -18,7 +18,7 @@ export default function Footer() {
 
   return (
     <>
-      <div className={styles.marqueeWrapper}>
+      {/* <div className={styles.marqueeWrapper}>
         <div className={styles.marqueeContent}>
           {duplicatedPartners.map((logo, index) => (
             <img
@@ -29,7 +29,7 @@ export default function Footer() {
             />
           ))}
         </div>
-      </div>
+      </div> */}
 
       <footer className={styles.footer}>
         <div className={styles.container}>

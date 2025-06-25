@@ -21,8 +21,8 @@ public class NodeUpdateRequest {
     byte autoRotate;
     double speedRotate, lightIntensity;
     byte status;
-    List<HotspotNavCreateRequest> navHotspots;
-    List<HotspotInfoCreateRequest> infoHotspots;
-    List<HotspotMediaCreateRequest>  mediaHotspots;
-    List<HotspotModelCreateRequest> modelHotspots;
+    List<HotspotNavUpdateRequest> navHotspots;
+    List<HotspotInfoUpdateRequest> infoHotspots;
+    List<HotspotMediaUpdateRequest>  mediaHotspots;
+    List<HotspotModelUpdateRequest> modelHotspots;
  }

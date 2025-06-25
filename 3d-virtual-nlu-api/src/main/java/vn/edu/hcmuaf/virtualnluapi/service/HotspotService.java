@@ -3,10 +3,7 @@ package vn.edu.hcmuaf.virtualnluapi.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import vn.edu.hcmuaf.virtualnluapi.dao.HotspotDao;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotInfoCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotMediaCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotModelCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.HotspotNavCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotMediaResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotModelResponse;
 
@@ -44,19 +41,19 @@ public class HotspotService {
         return hotspotDao.getMediaByNodeId(nodeId);
     }
 
-    public int updateNavHotspots(List<HotspotNavCreateRequest> navHotspots, int id) {
+    public int updateNavHotspots(List<HotspotNavUpdateRequest> navHotspots, int id) {
         return hotspotDao.updateNavHotspots(navHotspots, id);
     }
 
-    public int updateInfoHotspots(List<HotspotInfoCreateRequest> infoHotspots, int id) {
+    public int updateInfoHotspots(List<HotspotInfoUpdateRequest> infoHotspots, int id) {
         return hotspotDao.updateInfoHotspots(infoHotspots, id);
     }
 
-    public int updateMediaHotspots(List<HotspotMediaCreateRequest> mediaHotspots, int id) {
+    public int updateMediaHotspots(List<HotspotMediaUpdateRequest> mediaHotspots, int id) {
         return hotspotDao.updateMediaHotspots(mediaHotspots, id);
     }
 
-    public int updateModelHotspots(List<HotspotModelCreateRequest> modelHotspots, int id) {
+    public int updateModelHotspots(List<HotspotModelUpdateRequest> modelHotspots, int id) {
         return hotspotDao.updateModelHotspots(modelHotspots, id);
     }
 }

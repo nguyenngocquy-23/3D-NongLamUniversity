@@ -38,7 +38,7 @@ const UpdateHotspot = ({
    * Vấn đề phải đợi select đủ dữ liệu mới render
    * Tránh truyền null/ underfine khi chưa có dữ liệu
    */
-  if (!propHotspot) {
+  if (!propHotspot || propHotspot === undefined) {
     return null;
   }
   const currentType = propHotspot?.type; // State để lưu index của type đang mở
@@ -56,13 +56,16 @@ const UpdateHotspot = ({
       <div className={styles.task3}>
         {currentType != 3 ? (
           <>
-            <ConfigIcon
-              type={iconObj.type}
-              propHotspot={propHotspot}
-              isUpdate={isUpdate}
-              onPropsChange={onPropsChange}
-              currentHotspotType={currentType ?? null}
-            />
+            {propHotspot && propHotspot !== undefined && (
+              <ConfigIcon
+                type={iconObj.type}
+                propHotspot={propHotspot}
+                isUpdate={isUpdate}
+                onPropsChange={onPropsChange}
+                currentHotspotType={propHotspot.type ?? null}
+              />
+            )}
+
             {(() => {
               switch (currentType) {
                 case 1:

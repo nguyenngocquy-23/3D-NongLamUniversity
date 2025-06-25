@@ -166,15 +166,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       targetOpacity.current += 0.5;
     }
   }, [isHovered]);
-
-  // useEffect(() => {
-  //   if (groupRef.current) {
-  //     const box = new THREE.Box3().setFromObject(groupRef.current);
-  //     const size = new THREE.Vector3();
-  //     box.getSize(size);
-  //   }
-  // }, [clonedScene]);
-
   /**
    * ICON 3D
    */
@@ -196,7 +187,12 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
               maxWidth: "200px",
               background: "rgba(0,0,0,0.7)",
               color: "white",
-              padding: "4px 8px",
+              padding:
+                panoramaList.find(
+                  (pano) => pano.id == hotspotNavigation.targetNodeId
+                )?.config.name.length > 0
+                  ? "4px 8px"
+                  : "",
               borderRadius: "4px",
               fontSize: "10px",
               whiteSpace: "nowrap",
@@ -204,14 +200,11 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
               textOverflow: "ellipsis",
             }}
           >
-            {/* Vấn đề xảy ra khi cấu hình liên kết node, khi đó 1 số hotspot navigation vẫn hiển thị nhưng nó sẽ không biết name của node id cha nó. */}
-            {/* {preloadNode.length == 0
-              ? panoramaList.find(
-                  (pano) => pano.id === hotspotNavigation.targetNodeId
-                ).config.name
-              : preloadNode.find(
-                  (pano) => pano.id === hotspotNavigation.targetNodeId
-                ).name} */}
+            {
+              panoramaList.find(
+                (pano) => pano.id == hotspotNavigation.targetNodeId
+              )?.config.name
+            }
           </div>
         </Html>
       )}

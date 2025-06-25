@@ -1,5 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import styles from "../../styles/cardModel.module.css";
 import { useNavigate } from "react-router-dom";
 import * as THREE from "three";
@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { DoubleSide } from "three";
 import { Html, OrbitControls, useGLTF } from "@react-three/drei";
+import { RADIUS_SPHERE } from "../../utils/Constants";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
   setHoveredHotspot?: (hotspot: THREE.Mesh | null) => void;
@@ -43,6 +44,9 @@ const GroundHotspotModel = ({
 
   const targetOpacity = useRef(hotspotModel.opacity);
   const targetScale = useRef(hotspotModel.scale);
+  const isIcon3D = icon.type === 2;
+  const maxSizeRef = useRef(10 * hotspotModel.scale); // ĐANG SỬ DỤNG GIÁ TRỊ CỐ ĐỊNH CHO 3D HOTSPOT
+  const groupRef = useRef<THREE.Group>(null);
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
   // Xoay model liên tục mỗi frame
@@ -167,6 +171,61 @@ const GroundHotspotModel = ({
     (hotspotRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
   });
 
+  const gltf = isIcon3D ? useGLTF(icon.url) : null;
+
+  const clonedScene = useMemo(() => {
+    if (!isIcon3D || !gltf || Array.isArray(gltf) || !("scene" in gltf))
+      return null;
+
+    const scene = gltf.scene.clone(true);
+    scene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.geometry = mesh.geometry.clone();
+
+        if (mesh.material) {
+          mesh.material = (mesh.material as THREE.Material).clone();
+          if (mesh.material instanceof THREE.MeshStandardMaterial) {
+            // Tắt ánh sáng từ môi trường (ambient light, point light...)
+            // mesh.material.emissive.set("#347433"); // Chọn màu phát sáng cho hotspot
+            mesh.material.emissiveIntensity = 10; // Độ sáng tự phát
+            // mesh.material.color.set("#347433"); // Không có màu gốc (chỉ sáng bằng emissive)
+
+            // Tắt phản chiếu ánh sáng từ môi trường (nếu có)
+            mesh.material.envMap = null;
+            mesh.material.envMapIntensity = 0;
+
+            // Thêm nữa nếu muốn không chịu ảnh hưởng của ánh sáng khác
+            mesh.material.metalness = 0; // Tắt metalness nếu không muốn phản chiếu ánh sáng
+            mesh.material.roughness = 1; // Đảm bảo vật liệu không có độ nhám, tránh hiệu ứng sáng
+          }
+        }
+      }
+    });
+
+    return scene;
+  }, [isIcon3D, gltf]);
+
+  useFrame(() => {
+    if (clonedScene) {
+      clonedScene.rotation.y += 0.01;
+    }
+  });
+
+  useEffect(() => {
+    if (groupRef.current) {
+      const box = new THREE.Box3().setFromObject(groupRef.current);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+    }
+  }, [clonedScene]);
+
+  /**
+   * ICON 3D
+   */
+
+  const scaleFactor = (RADIUS_SPHERE - maxSizeRef.current) / 100;
+
   return (
     <>
       {isClicked ? (
@@ -223,46 +282,80 @@ const GroundHotspotModel = ({
       ) : (
         ""
       )}
-      <mesh
-        ref={hotspotRef}
-        position={[
-          hotspotModel.positionX,
-          hotspotModel.positionY,
-          hotspotModel.positionZ,
-        ]}
-        rotation={[
-          THREE.MathUtils.degToRad(hotspotModel.pitchX),
-          THREE.MathUtils.degToRad(hotspotModel.yawY),
-          THREE.MathUtils.degToRad(hotspotModel.rollZ),
-        ]}
-        onPointerOver={() => {
-          setIsHovered(true);
-          gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
-        }}
-        onPointerOut={() => {
-          setIsHovered(false);
-          gl.domElement.style.cursor = "default"; // 👈 đổi cursor
-        }}
-        onClick={() => {
-          setClicked((preState) => !preState);
-        }}
-        onContextMenu={(e) => {
-          e.nativeEvent.preventDefault(); // 👈 bắt buộc
-          setIsOpenHotspotOption(true);
-        }}
-      >
-        <planeGeometry args={[5, 5]} />
-        <meshBasicMaterial
-          map={texture}
-          transparent
-          // opacity={targetOpacity.current}
-          opacity={hotspotModel.opacity}
-          depthTest={false}
-          color={new THREE.Color(hotspotModel.color)}
-          side={DoubleSide}
-        />
-      </mesh>
-      {isOpenHotspotOption && currentStep == 2 && !blockUpdate? (
+      {isIcon3D && clonedScene ? (
+        <group
+          ref={groupRef}
+          scale={hotspotModel.scale}
+          position={[
+            hotspotModel.positionX * scaleFactor,
+            hotspotModel.positionY * scaleFactor,
+            hotspotModel.positionZ * scaleFactor,
+          ]}
+          rotation={[
+            THREE.MathUtils.degToRad(hotspotModel.pitchX),
+            THREE.MathUtils.degToRad(hotspotModel.yawY),
+            THREE.MathUtils.degToRad(hotspotModel.rollZ),
+          ]}
+          onPointerOver={() => {
+            setIsHovered(true);
+            gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
+          }}
+          onPointerOut={() => {
+            setIsHovered(false);
+            gl.domElement.style.cursor = "default";
+          }}
+          onContextMenu={() => {
+            setIsOpenHotspotOption((prev) => !prev);
+          }}
+          onClick={() => {
+            setClicked((preState) => !preState);
+          }}
+        >
+          <primitive object={clonedScene} />
+          <ambientLight color={"#fff"} intensity={0.3} />
+        </group>
+      ) : (
+        <mesh
+          ref={hotspotRef}
+          position={[
+            hotspotModel.positionX,
+            hotspotModel.positionY,
+            hotspotModel.positionZ,
+          ]}
+          rotation={[
+            THREE.MathUtils.degToRad(hotspotModel.pitchX),
+            THREE.MathUtils.degToRad(hotspotModel.yawY),
+            THREE.MathUtils.degToRad(hotspotModel.rollZ),
+          ]}
+          onPointerOver={() => {
+            setIsHovered(true);
+            gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
+          }}
+          onPointerOut={() => {
+            setIsHovered(false);
+            gl.domElement.style.cursor = "default"; // 👈 đổi cursor
+          }}
+          onClick={() => {
+            setClicked((preState) => !preState);
+          }}
+          onContextMenu={(e) => {
+            e.nativeEvent.preventDefault(); // 👈 bắt buộc
+            setIsOpenHotspotOption(true);
+          }}
+        >
+          <planeGeometry args={[5, 5]} />
+          <meshBasicMaterial
+            map={texture}
+            transparent
+            // opacity={targetOpacity.current}
+            opacity={hotspotModel.opacity}
+            depthTest={false}
+            color={new THREE.Color(hotspotModel.color)}
+            side={DoubleSide}
+          />
+        </mesh>
+      )}
+      {isOpenHotspotOption && currentStep == 2 && !blockUpdate ? (
         <OptionHotspot
           hotspotId={hotspotModel.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}

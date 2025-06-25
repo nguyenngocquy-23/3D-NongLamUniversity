@@ -69,14 +69,35 @@ public class NodeDao {
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
     }
 
-    public List<MasterNodeResponse> getAllMasterNodes() {
+    public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
         String sql = """
-                SELECT n.id, n.name, n.url
-                FROM nodes n
-                WHERE n.status = 2
-                LIMIT 10 OFFSET 0
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                 n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.lightIntensity
+                 FROM nodes n
+                 JOIN spaces s ON n.spaceId = s.id
+                 JOIN fields f ON s.fieldId = f.id
+                 WHERE n.status = 2
+                 ORDER BY n.updatedAt DESC
+                 LIMIT :limit OFFSET :page
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(MasterNodeResponse.class).list());
+        List<NodeFullResponse> result = ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("limit", request.getLimit())
+                        .bind("page", request.getPage() * request.getLimit())
+                        .mapToBean(NodeFullResponse.class)
+                        .list()
+        );
+        for (NodeFullResponse n : result) {
+            List<HotspotNavigationResponse> navigationResponses = hotspotDao.getNavigationByNodeId(n.getId());
+            List<HotspotInformationResponse> informationResponses = hotspotDao.getInformationByNodeId(n.getId());
+            List<HotspotMediaResponse> mediaResponses = hotspotDao.getMediaByNodeId(n.getId());
+            List<HotspotModelResponse> modelResponses = hotspotDao.getModelByNodeId(n.getId());
+            n.setNavHotspots(navigationResponses);
+            n.setInfoHotspots(informationResponses);
+            n.setMediaHotspots(mediaResponses);
+            n.setModelHotspots(modelResponses);
+        }
+        return result;
     }
 
 
@@ -303,41 +324,7 @@ public class NodeDao {
                     return false; // Nếu có bất kỳ bản ghi nào không được cập nhật, trả về false
                 }
             }
-            return true; // Tất cả bản ghi đã được cập nhật thành công
+            return true;
         });
     }
-
-
-
-//    public boolean updateLinkNodeById(List<NodeLinkRequest> requestList) {
-//        if (requestList == null || requestList.isEmpty()) {
-//            return false;
-//        }
-//
-//        String updateSql = """
-//        UPDATE nodes
-//        WHERE id = :id
-//    """;
-//
-//        try {
-//            return ConnectionPool.getConnection().withHandle(handle -> {
-//                for (NodeLinkRequest req : requestList) {
-//                    if (req == null || req.getId() == null) continue;
-//
-//                    int rowsUpdated = handle.createUpdate(updateSql)
-//                            .bind("id", req.getId())
-//                            .execute();
-//
-//                    if (rowsUpdated == 0) {
-//                        System.err.println("Không update được node ID: " + req.getId());
-//                        return false;
-//                    }
-//                }
-//                return true;
-//            });
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
 }

@@ -160,6 +160,11 @@ const hotspotSlice = createSlice({
         (h) => h.id === action.payload.hotspotId
       );
 
+      console.log(
+        "updateConfigHotspot action.payload.propHotspot: ",
+        action.payload.propHotspot
+      );
+
       if (index !== -1) {
         const { id, nodeId, ...propsWithoutId } = action.payload
           .propHotspot as any;

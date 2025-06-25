@@ -82,7 +82,6 @@ export interface HotspotNavCreateRequest {
   opacity: number;
   targetNodeId: string;
 }
-
 export interface HotspotInfoCreateRequest {
   nodeId: string;
   type: number;
@@ -122,6 +121,86 @@ export interface HotspotMediaCreateRequest {
   cornerPointList: string;
 }
 export interface HotspotModelCreateRequest {
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
+  modelUrl: string;
+  name: string;
+  description: string;
+  colorCode: string;
+}
+
+export interface HotspotNavUpdateRequest {
+  id: string;
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
+  targetNodeId: string;
+}
+export interface HotspotInfoUpdateRequest {
+  id: string;
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
+  title: string;
+  content: string;
+}
+export interface HotspotMediaUpdateRequest {
+  id: string;
+  nodeId: string;
+  type: number;
+  iconId: number;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  pitchX: number;
+  yawY: number;
+  rollZ: number;
+  scale: number;
+  color: string;
+  backgroundColor: string;
+  allowBackgroundColor: number;
+  opacity: number;
+  mediaType: string;
+  mediaUrl: string;
+  caption: string;
+  cornerPointList: string;
+}
+export interface HotspotModelUpdateRequest {
+  id: string;
   nodeId: string;
   type: number;
   iconId: number;
@@ -377,16 +456,17 @@ export class TourNodeRequestMapper {
     hotspotList: HotspotItem[]
   ): NodeUpdateRequest[] {
     return panoramaList.map((pano) => {
-      const nodeIdTemp = pano.id; // id temp của từng pano
+      const nodeId = pano.id;
       const hotspotsForNode = hotspotList.filter(
-        (h) => h.nodeId === nodeIdTemp
+        (h) => h.nodeId == nodeId
       );
 
       //List hotspot của từng panorama.
-      const navHotspots: HotspotNavCreateRequest[] = hotspotsForNode
-        .filter((h): h is HotspotNavigation => h.type === 1)
+      const navHotspots: HotspotNavUpdateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotNavigation => h.type == 1)
         .map((h) => ({
-          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          id: h.id,
+          nodeId: h.nodeId,
           type: h.type,
           iconId: h.iconId,
           positionX: h.positionX,
@@ -400,13 +480,14 @@ export class TourNodeRequestMapper {
           allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
           opacity: h.opacity,
           scale: h.scale,
-          targetNodeId: h.targetNodeId, //
+          targetNodeId: h.targetNodeId,
         }));
 
-      const infoHotspots: HotspotInfoCreateRequest[] = hotspotsForNode
-        .filter((h): h is HotspotInformation => h.type === 2)
+      const infoHotspots: HotspotInfoUpdateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotInformation => h.type == 2)
         .map((h) => ({
-          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          id: h.id,
+          nodeId: h.nodeId,
           type: h.type,
           iconId: h.iconId,
           positionX: h.positionX,
@@ -424,10 +505,11 @@ export class TourNodeRequestMapper {
           content: h.content,
         }));
 
-      const mediaHotspots: HotspotMediaCreateRequest[] = hotspotsForNode
-        .filter((h): h is HotspotMedia => h.type === 3)
+      const mediaHotspots: HotspotMediaUpdateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotMedia => h.type == 3)
         .map((h) => ({
-          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          id: h.id,
+          nodeId: h.nodeId,
           iconId: h.iconId,
           type: h.type,
           positionX: h.positionX,
@@ -447,10 +529,11 @@ export class TourNodeRequestMapper {
           cornerPointList: h.cornerPointList,
         }));
 
-      const modelHotspots: HotspotModelCreateRequest[] = hotspotsForNode
-        .filter((h): h is HotspotModel => h.type === 4)
+      const modelHotspots: HotspotModelUpdateRequest[] = hotspotsForNode
+        .filter((h): h is HotspotModel => h.type == 4)
         .map((h) => ({
-          nodeId: h.nodeId, // set lại sau khi lấy được id tự tăng.
+          id: h.id,
+          nodeId: h.nodeId,    
           type: h.type,
           iconId: h.iconId,
           positionX: h.positionX,
@@ -574,8 +657,7 @@ export class TourNodeRequestMapper {
         } as HotspotNavigation);
       });
 
-      // Info Hotspots
-      node.infoHotspots?.forEach((h) => {
+      node.infoHotspots?.forEach((h, idx) => {
         hotspotList.push({
           id: String(h.id),
           nodeId: String(h.nodeId),

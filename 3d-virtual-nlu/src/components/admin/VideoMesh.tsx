@@ -245,7 +245,7 @@ const VideoMeshComponent = ({
 
   return (
     <>
-      {isHovered && (
+      {isHovered && hotspotMedia.caption.length > 0 && (
         <Html position={[center[0] - 20, center[1] - 10, center[2]]}>
           <div
             style={{

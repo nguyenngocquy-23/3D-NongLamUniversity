@@ -16,6 +16,7 @@ import {
 } from "../../redux/slices/DataSlice.ts";
 import Waiting from "../../components/Waiting.tsx";
 import {
+  addHotspotsFromResponse,
   HotspotInformation,
   HotspotMedia,
   HotspotModel,
@@ -33,6 +34,8 @@ import {
   FaX,
 } from "react-icons/fa6";
 import { MdOpenInFull } from "react-icons/md";
+import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
+import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -58,7 +61,7 @@ const VirtualTour = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchMasterNodes());
+    // dispatch(fetchMasterNodes());
     dispatch(fetchIcons());
     dispatch(fetchDefaultNodes());
   }, [dispatch]);
@@ -333,7 +336,6 @@ const VirtualTour = () => {
   const [percent, setPercent] = useState(0);
 
   useEffect(() => {
-    console.log("isLoading : : :", isWaiting);
     let progress = 0;
     const interval = setInterval(() => {
       progress += Math.random() * 10;
@@ -350,6 +352,21 @@ const VirtualTour = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  const preloadNodes = useSelector(
+    (state: RootState) => state.data.preloadNodes
+  );
+
+  useEffect(() => {
+    if (preloadNodes) {
+      const nodes = [nodeToRender, ...preloadNodes];
+      const { panoramaList, hotspotList } =
+        TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
+
+      dispatch(addPanoramasFromResponse(panoramaList));
+      dispatch(addHotspotsFromResponse(hotspotList));
+    }
+  }, [preloadNodes, nodeToRender, dispatch]);
 
   if (!icons || icons.length === 0) {
     return (
@@ -456,13 +473,14 @@ const VirtualTour = () => {
         ""
       ) : (
         <div
-          className={`${fullMap ? styles.full_map : styles.mapBox}`}
+          className={`${fullMap ? styles.full_map : styles.map_box}`}
           onMouseEnter={() => setHoverMap(true)}
           onMouseLeave={() => {
             setTimeout(() => {
               setHoverMap(false);
             }, 2000);
           }}
+          style={{ width: hideMap ? "10px" : "" }}
         >
           {hideMap ? (
             <button

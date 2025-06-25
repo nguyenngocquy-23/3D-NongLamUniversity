@@ -632,14 +632,18 @@ const CreateTourStep2 = () => {
               : ""
           }`}
         >
-          <TaskContainerCT
-            id={preTaskIndex}
-            name={tasks.find((t) => t.id === preTaskIndex)?.title || ""}
-          >
-            {preTaskIndex
-              ? getTaskContentById(openTaskIndex ?? preTaskIndex)
-              : ""}
-          </TaskContainerCT>
+          {openTaskIndex !== null && currentHotspotId === null ? (
+            <TaskContainerCT
+              id={preTaskIndex}
+              name={tasks.find((t) => t.id === preTaskIndex)?.title || ""}
+            >
+              {preTaskIndex
+                ? getTaskContentById(openTaskIndex ?? preTaskIndex)
+                : ""}
+            </TaskContainerCT>
+          ) : (
+            ""
+          )}
         </div>
         {/* Hộp chỉnh sửa hotspot */}
         <div
