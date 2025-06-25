@@ -66,7 +66,7 @@ public class NodeDao {
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
     }
 
-    public List<NodeFullResponse> getAllMasterNodes() {
+    public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
                  n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.lightIntensity
@@ -75,9 +75,15 @@ public class NodeDao {
                  JOIN fields f ON s.fieldId = f.id
                  WHERE n.status = 2
                  ORDER BY n.updatedAt DESC
-                 LIMIT 10 OFFSET 0
+                 LIMIT :limit OFFSET :page
                 """;
-        List<NodeFullResponse> result = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
+        List<NodeFullResponse> result = ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("limit", request.getLimit())
+                        .bind("page", request.getPage() * request.getLimit())
+                        .mapToBean(NodeFullResponse.class)
+                        .list()
+        );
         for (NodeFullResponse n : result) {
             List<HotspotNavigationResponse> navigationResponses = hotspotDao.getNavigationByNodeId(n.getId());
             List<HotspotInformationResponse> informationResponses = hotspotDao.getInformationByNodeId(n.getId());
@@ -317,18 +323,19 @@ public class NodeDao {
             return true;
         });
     }
+
     public boolean updateLinkNodeById(List<NodeLinkRequest> requestList) {
         if (requestList == null || requestList.isEmpty()) {
             return false;
         }
 
         String updateSql = """
-        UPDATE nodes
-        SET positionX = :positionX, 
-            positionY = :positionY, 
-            positionZ = :positionZ 
-        WHERE id = :id
-    """;
+                    UPDATE nodes
+                    SET positionX = :positionX, 
+                        positionY = :positionY, 
+                        positionZ = :positionZ 
+                    WHERE id = :id
+                """;
 
         try {
             return ConnectionPool.getConnection().withHandle(handle -> {

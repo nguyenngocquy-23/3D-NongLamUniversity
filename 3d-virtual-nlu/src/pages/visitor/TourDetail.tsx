@@ -248,7 +248,7 @@ const TourDetail = () => {
           text: "Cập nhật thành công",
         }).then(() => {
           setIsUpdateTour(false);
-          dispatch(fetchMasterNodes());
+          // dispatch(fetchMasterNodes());
         });
       } else {
         Swal.fire({

@@ -61,7 +61,7 @@ const VirtualTour = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchMasterNodes());
+    // dispatch(fetchMasterNodes());
     dispatch(fetchIcons());
     dispatch(fetchDefaultNodes());
   }, [dispatch]);
@@ -477,13 +477,14 @@ const VirtualTour = () => {
         ""
       ) : (
         <div
-          className={`${fullMap ? styles.full_map : styles.mapBox}`}
+          className={`${fullMap ? styles.full_map : styles.map_box}`}
           onMouseEnter={() => setHoverMap(true)}
           onMouseLeave={() => {
             setTimeout(() => {
               setHoverMap(false);
             }, 2000);
           }}
+          style={{ width: hideMap ? "10px" : "" }}
         >
           {hideMap ? (
             <button

@@ -3,14 +3,13 @@ import styles from "../../styles/leftMenuTour.module.css";
 import { FaSearch } from "react-icons/fa";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { fetchMasterNodes, setDefaultNode } from "../../redux/slices/DataSlice";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface LeftMenuProps {
   isMenuVisible: boolean;
 }
 
 const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
-  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch<AppDispatch>();
   const listMasterNode = useSelector(
     (state: RootState) => state.data.masterNodes
@@ -21,22 +20,51 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
     node.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const limit = 6;
+
+  const scrollRef = useRef<HTMLUListElement>(null);
+  const scrollPositionRef = useRef<number>(0);
+
+  const loadNodes = async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+    const response = await dispatch(fetchMasterNodes({ page, limit })).unwrap();
+    if (response.length < limit) setHasMore(false);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    if (listMasterNode.length > 0) {
-      setLoading(false);
+    loadNodes();
+  }, [page]);
+
+  const handleScroll = () => {
+    const list = scrollRef.current;
+    if (!list || !hasMore || loading) return;
+
+    scrollPositionRef.current = list.scrollTop;
+
+    const { scrollTop, scrollHeight, clientHeight } = list;
+    if (scrollTop + clientHeight >= scrollHeight - 50) {
+      setPage((prev) => prev + 1); // tăng page sẽ gọi useEffect → loadNodes
     }
+  };
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    const timeout = setTimeout(() => {
+      scrollRef.current!.scrollTop = scrollPositionRef.current;
+    }, 50);
+    return () => clearTimeout(timeout);
   }, [listMasterNode.length]);
 
   const handleSelectNode = (id: number) => {
     const activeNode = listMasterNode.find((h) => h.id === id);
-    console.log("Selected Node:", activeNode);
     dispatch(setDefaultNode(activeNode));
   };
-
-  // Trong render:
-  if (loading) {
-    return <div>Đang tải dữ liệu...</div>;
-  }
 
   return (
     <div className={`${styles.left_menu} ${isMenuVisible ? styles.show : ""}`}>
@@ -52,7 +80,12 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
           <FaSearch className={styles.searchBtn} />
         </div>
       </div>
-      <ul className={styles.master_container}>
+      <ul
+        ref={scrollRef}
+        onScroll={handleScroll}
+        style={{ height: "80vh", overflowY: "auto" }}
+        className={styles.master_container}
+      >
         {filteredNodes.map((node) => (
           <li
             key={node.id}
@@ -65,6 +98,8 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
             <span className={styles.nodeName}>{node.name}</span>
           </li>
         ))}
+        {loading && <li className={styles.loading}>Đang tải...</li>}
+        {/* {!hasMore && <li className={styles.end}>Đã hết dữ liệu</li>} */}
       </ul>
     </div>
   );

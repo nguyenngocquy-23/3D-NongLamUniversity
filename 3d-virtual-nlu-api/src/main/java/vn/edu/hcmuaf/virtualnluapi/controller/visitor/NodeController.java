@@ -1,14 +1,12 @@
 package vn.edu.hcmuaf.virtualnluapi.controller.visitor;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
 
@@ -30,8 +28,8 @@ public class NodeController {
     @Path("/master")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<NodeFullResponse>> getAllMasterNodes() {
-        List<NodeFullResponse> result = nodeService.getAllMasterNodes();
+    public ApiResponse<List<NodeFullResponse>> getAllMasterNodes(PageRequest request) {
+        List<NodeFullResponse> result = nodeService.getAllMasterNodes(request);
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 
@@ -101,8 +99,6 @@ public class NodeController {
 //    public ApiResponse<List<NodeFullResponse>> getNodesByIds(NodeIdListRequest req) {
 //        List<NodeFullResponse> nodes = nodeService.getNode
 //    }
-
-
 
 
     @POST

@@ -28,8 +28,8 @@ public class NodeService {
         return nodeDao.getAllNodes();
     }
 
-    public List<NodeFullResponse> getAllMasterNodes() {
-        return nodeDao.getAllMasterNodes();
+    public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
+        return nodeDao.getAllMasterNodes(request);
     }
 
     public NodeFullResponse getDefaultNode() {
