@@ -43,6 +43,9 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   const panoramaList = useSelector(
     (state: RootState) => state.panoramas.panoramaList
   );
+  const preloadNode = useSelector(
+    (state: RootState) => state.data.preloadNodes
+  );
 
   /**
    * Đang thử nghiệm
@@ -163,15 +166,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       targetOpacity.current += 0.5;
     }
   }, [isHovered]);
-
-  useEffect(() => {
-    if (groupRef.current) {
-      const box = new THREE.Box3().setFromObject(groupRef.current);
-      const size = new THREE.Vector3();
-      box.getSize(size);
-    }
-  }, [clonedScene]);
-
   /**
    * ICON 3D
    */

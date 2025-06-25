@@ -19,6 +19,7 @@ public class NodeCreateRequest {
     int spaceId, userId;
     String url, name, description;
     double positionX, positionY, positionZ;
+    double yawOffset;
     byte autoRotate;
     double speedRotate, lightIntensity;
     byte status;

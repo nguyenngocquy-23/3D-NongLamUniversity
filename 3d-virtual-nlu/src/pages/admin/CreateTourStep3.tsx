@@ -7,7 +7,6 @@ import axios from "axios";
 import { Canvas } from "@react-three/fiber";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
-import CamControls from "../../components/visitor/CamControls";
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
@@ -30,41 +29,18 @@ import gsap from "gsap";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 import { API_URLS } from "../../env";
 import { Environment } from "@react-three/drei";
-import CamControlAdmins from "../../components/admin/CamControlsAdmin";
+import MiniMap from "../../components/Minimap";
+import CamControls from "../../components/visitor/CamControls";
 
 const CreateTourStep3: React.FC = () => {
+  const sphereRef = useRef<THREE.Mesh | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<any>(null); //OrbitControls
+
+  const dispatch = useDispatch<AppDispatch>();
   const panoramas = useSelector((state: RootState) => state.panoramas);
   const hotspots = useSelector((state: RootState) => state.hotspots);
   const userId = useSelector((state: RootState) => state.auth.user.id);
-  const navigate = useNavigate();
-
-  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
-
-  const currentStep = useSelector((state: RootState) => state.step.currentStep);
-
-  const sphereRef = useRef<THREE.Mesh | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-
-  const cameraRadarRef = useRef<number>(0);
-  const controlsRef = useRef<any>(null); //OrbitControls
-
-  const [currentPoints, setCurrentPoints] = useState<
-    [number, number, number][]
-  >([]);
-  const [targetPosition, setTargetPosition] = useState<
-      [number, number, number] | null
-    >(null); //test
-
-  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
-
-  const handleMouseDown = () => {
-    setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
-  };
-
-  const handleMouseUp = () => {
-    setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
-  };
-
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
@@ -72,29 +48,7 @@ const CreateTourStep3: React.FC = () => {
   const currentPanorama = panoramaList.find(
     (pano) => pano.id === currentSelectId
   );
-
-  /**
-   * Lấy URL panorama hiện tại - hoặc dùng mặc định.
-   */
-  const currentPanoramaUrl = currentPanorama?.url ?? "/khoa.jpg";
-
-  const {
-    positionX = 0,
-    positionY = 0,
-    positionZ = 0,
-    lightIntensity = 1,
-    autoRotate = 0,
-    speedRotate = 0,
-  } = currentPanorama?.config ?? {};
-
-  const cameraPosition: [number, number, number] = [
-    positionX,
-    positionY,
-    positionZ,
-  ];
-
-  const dispatch = useDispatch<AppDispatch>();
-
+  const currentStep = useSelector((state: RootState) => state.step.currentStep);
   const hotspotNavigations = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
       (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
@@ -117,12 +71,57 @@ const CreateTourStep3: React.FC = () => {
     )
   );
 
+  const navigate = useNavigate();
+  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
+  const [currentPoints, setCurrentPoints] = useState<
+    [number, number, number][]
+  >([]);
+  const [targetPosition, setTargetPosition] = useState<
+    [number, number, number] | null
+  >(null); //test
+
+  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
+
+  const handleMouseDown = () => {
+    setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
+  };
+
+  const handleMouseUp = () => {
+    setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
+  };
+
+  /**
+   * Lấy URL panorama hiện tại - hoặc dùng mặc định.
+   */
+  const currentPanoramaUrl = currentPanorama?.url ?? "/khoa.jpg";
+
+  const {
+    positionX = 0,
+    positionY = 0,
+    positionZ = 0,
+    lightIntensity = 1,
+    autoRotate = 0,
+    speedRotate = 0,
+  } = currentPanorama?.config ?? {};
+
+  const cameraPosition: [number, number, number] = [
+    positionX,
+    positionY,
+    positionZ,
+  ];
+
   if (!hotspotNavigations && !hotspotInfos && !hotspotModels && !hotspotMedias)
     return;
 
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
   };
+
+  /**
+   *
+   * @param targetNodeId : Id node đích cần di chuyển.
+   * @param hotspotTargetPosition : Thay thế vị trí camera hướng đến tại vị trí hotspot mục tiêu.
+   */
 
   const handleHotspotNavigate = (
     targetNodeId: string,
@@ -134,14 +133,12 @@ const CreateTourStep3: React.FC = () => {
     const control = controlsRef.current;
     const originalFov = camera.fov;
     const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-    const targetPano = panoramaList.find((pano) => pano.id === targetNodeId);
 
     const [x, y, z] = hotspotTargetPosition;
 
-    // === Bước 1:Xoay camera về vị trí (hotspot)
     lookAtHotspot([x, y, z]);
-
     // === Bước 2: Zoom vào
+    handleSelectNode(targetNodeId);
 
     gsap.to(camera, {
       fov: zoomTarget,
@@ -151,7 +148,6 @@ const CreateTourStep3: React.FC = () => {
         camera.updateProjectionMatrix();
       },
       onComplete: () => {
-        handleSelectNode(targetNodeId);
         gsap.to(camera, {
           fov: originalFov,
           duration: 0.2,
@@ -161,19 +157,6 @@ const CreateTourStep3: React.FC = () => {
             camera.updateProjectionMatrix();
           },
           onComplete: () => {
-            const [px, py, pz] = [
-              targetPano?.config.positionX,
-              targetPano?.config.positionY,
-              targetPano?.config.positionZ,
-            ];
-            if (
-              typeof px === "number" &&
-              typeof py === "number" &&
-              typeof pz === "number"
-            ) {
-              camera.position.set(px, py, pz);
-              setTargetPosition([px, py, pz]);
-            }
             camera.updateProjectionMatrix();
             control.update(); // đảm bảo OrbitControls cập nhật
           },
@@ -288,15 +271,15 @@ const CreateTourStep3: React.FC = () => {
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
+            yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
             lightIntensity={lightIntensity}
           />
-          <CamControlAdmins
+          <CamControls
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
             autoRotate={autoRotate === 1 ? true : false}
             autoRotateSpeed={speedRotate}
-            cameraRadarRef={cameraRadarRef}
           />
           {hotspotNavigations
             .filter((hotspot) => hotspot.nodeId === currentSelectId)
@@ -344,12 +327,12 @@ const CreateTourStep3: React.FC = () => {
               return null;
             })}
 
-          {/* {currentPanorama && (
+          {currentPanorama && (
             <MiniMap
               currentPanorama={currentPanorama}
               angleCurrent={cameraAngle}
             />
-          )} */}
+          )}
         </Canvas>
         {/* Header chứa back */}
         <div className={styles.header_tour} style={{ height: "50px" }}>

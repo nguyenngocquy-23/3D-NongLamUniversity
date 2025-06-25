@@ -23,7 +23,7 @@ import { IoIosCloseCircle, IoIosWarning, IoMdExit } from "react-icons/io";
 import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 import axios from "axios";
 import { validateName } from "../../utils/ValidateInputName";
-import { format } from "date-fns"
+import { format } from "date-fns";
 
 interface Field {
   id: number;
@@ -133,18 +133,12 @@ const Field = () => {
       let response;
 
       if (req.id === 0) {
-        response = await axios.post(
-          API_URLS.ADMIN_CREATE_FIELDS,
-          req
-        );
+        response = await axios.post(API_URLS.ADMIN_CREATE_FIELDS, req);
         setSelectedField(emptyField);
         setInputFieldName("");
         setFieldCode("");
       } else {
-        response = await axios.post(
-          API_URLS.ADMIN_CHANGE_NAME_FIELD,
-          req
-        );
+        response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_FIELD, req);
       }
 
       /**
@@ -164,6 +158,8 @@ const Field = () => {
     setIsEditing(false);
   };
 
+  /**
+   *  */
   useEffect(() => {
     setStatusField((selectedField?.status ?? 0) > 0);
     setInputFieldName(selectedField?.name || "");
@@ -296,6 +292,7 @@ const Field = () => {
                 id={selectedField.id}
                 status={selectedField.status}
                 apiUrl={API_URLS.ADMIN_CHANGE_FIELD_STATUS}
+                type="field"
               />
             </div>
 

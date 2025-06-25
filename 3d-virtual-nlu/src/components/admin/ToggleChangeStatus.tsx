@@ -2,22 +2,23 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../redux/Store";
-import { fetchFields } from "../../redux/slices/DataSlice";
+import { fetchFields, fetchSpaces } from "../../redux/slices/DataSlice";
 import styles from "../../styles/toggleChangeStatus.module.css";
 
 type StatusToggleProps = {
   id: number;
   status: number;
   apiUrl: string; // URL để gọi PUT hoặc POST cập nhật status
+  type: string;
 };
 
-const StatusToggle: React.FC<StatusToggleProps> = ({ id, status, apiUrl }) => {
+const StatusToggle: React.FC<StatusToggleProps> = ({
+  id,
+  status,
+  apiUrl,
+  type,
+}) => {
   const [loading, setLoading] = useState(false);
-
-  // const [toggle, setToggle] = useState(status);
-  // useEffect(() => {
-  //   setToggle(status);
-  // }, [status]);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -29,7 +30,18 @@ const StatusToggle: React.FC<StatusToggleProps> = ({ id, status, apiUrl }) => {
 
     try {
       await axios.post(apiUrl, { id, status: newToggle });
-      dispatch(fetchFields());
+      switch (type) {
+        case "field":
+          dispatch(fetchFields());
+          break;
+
+        case "space":
+          dispatch(fetchSpaces());
+          break;
+
+        default:
+          break;
+      }
     } catch (err) {
       console.error("Cập nhật trạng thái thất bại:", err);
       alert("Không thể cập nhật trạng thái!");
@@ -51,7 +63,6 @@ const StatusToggle: React.FC<StatusToggleProps> = ({ id, status, apiUrl }) => {
           opacity: loading ? 0.6 : 1,
         }}
       />
-      {/* <div>{loading ? "Đang gửi..." : toggle === 1 ? "Tắt" : "Bật"}</div> */}
     </div>
   );
 };

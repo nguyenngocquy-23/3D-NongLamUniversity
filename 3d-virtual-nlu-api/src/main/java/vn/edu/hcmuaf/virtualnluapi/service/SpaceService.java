@@ -31,9 +31,23 @@ public class SpaceService {
         return spaceDao.getAllSpaces();
     }
 
-    public boolean changeStatusSpace(StatusRequest req) {
-        return spaceDao.changeStatusSpace(req);
+    public SpaceFullResponse getSpaceById(SpaceIdRequest req) {
+        return spaceDao.getSpaceById(req);
     }
+
+    public boolean changeStatusSpaceMaster(StatusRequest req) {
+        return spaceDao.changeStatusSpaceMaster(req);
+    }
+
+    public boolean changeStatusSpace(StatusRequest req) {
+        return spaceDao.changeStatus(req);
+    }
+
+
+    public boolean changeNameSpace(SpaceChangeNameRequest req) {
+        return spaceDao.changeNameSpace(req);
+    }
+
 
     public boolean setMasterNode(SpaceChangeMasterRequest req) {
         return spaceDao.setMasterNode(req);
@@ -46,4 +60,7 @@ public class SpaceService {
     public boolean removeLocation(SpaceIdRequest request) {
         return spaceDao.removeLocation(request);
     }
+
+
+
 }

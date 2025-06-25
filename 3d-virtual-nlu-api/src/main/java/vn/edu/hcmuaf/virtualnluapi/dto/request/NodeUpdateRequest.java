@@ -17,6 +17,7 @@ public class NodeUpdateRequest {
     int id;
     String url, name, description;
     double positionX, positionY, positionZ;
+    double yawOffset;
     byte autoRotate;
     double speedRotate, lightIntensity;
     byte status;

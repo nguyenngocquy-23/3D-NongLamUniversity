@@ -23,7 +23,13 @@ const SpaceCard: React.FC<SpaceCardProps> = ({ space }) => {
       <div className={styles.space_content}>
         <span className={styles.space_id}>#{space.id}</span>
         <span className={styles.space_field_label}>{space.fieldName}</span>
-        <span className={styles.space_title}>{space.name}</span>
+        <span
+          className={
+            space.status === 2 ? styles.space_title_master : styles.space_title
+          }
+        >
+          {space.name}
+        </span>
         <span className={styles.space_start_node}>
           <FaPlayCircle />
           {space.masterNodeName}

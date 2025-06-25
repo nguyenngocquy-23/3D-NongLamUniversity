@@ -1,7 +1,10 @@
-import { Sphere, Stats, shaderMaterial, useTexture } from "@react-three/drei";
+import { Sphere, shaderMaterial, useTexture } from "@react-three/drei";
 import { ThreeEvent, useFrame, extend } from "@react-three/fiber";
 import React, { JSX, useEffect, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import * as THREE from "three";
+import { RootState } from "../../redux/Store";
+import { radianToTexture } from "../../utils/MathUtils";
 
 /**
  *  Lớp này sử dụng cho việc :
@@ -9,17 +12,22 @@ import * as THREE from "three";
  * + Tập trung cho việc hiển thị.
  *
  */
+
 const CrossFadeMaterial = shaderMaterial(
   {
-    //Uniform: Chứa 2 ảnh. Progres: 0 tức là toàn bộ là Texture1, 1: tức là toàn bộ là texture2.
+    //Uniform: Chứa 2 ảnh. Progress: 0 tức là toàn bộ là Texture1, 1: tức là toàn bộ là texture2.
+    //YawOffset: giá trị cho việc xoay texture trên hình cầu theo trục Y.
     uTexture1: null as THREE.Texture | null,
     uTexture2: null as THREE.Texture | null,
     uProgress: 0,
+    uYawOffset1: 0,
+    uYawOffset2: 0,
     uAmbientLight: new THREE.Color(0xffffff),
   },
   //Vertex Shader .gsgl
   `
     varying vec2 vUv;
+    uniform float uYawOffset;
     void main() {
       vUv = uv;
       gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);;
@@ -30,21 +38,27 @@ const CrossFadeMaterial = shaderMaterial(
     uniform sampler2D uTexture1;
     uniform sampler2D uTexture2;
     uniform float uProgress;
+    uniform float uYawOffset1;
+    uniform float uYawOffset2;
     uniform vec3 uAmbientLight;
 
     varying vec2 vUv;
 
     void main() {
-      vec4 tex1 = texture2D(uTexture1, vUv);
-      vec4 tex2 = texture2D(uTexture2, vUv);
+      //Dịch uv theo yawOffset (Phần trăm 0.0 - 1.0 <=> 0 - 2Pi.)
+      vec2 uv1 = vec2(mod(vUv.x + uYawOffset1, 1.0 ), vUv.y);
+      vec2 uv2 = vec2(mod(vUv.x + uYawOffset2, 1.0), vUv.y );
+
+      vec4 tex1 = texture2D(uTexture1, uv1);
+      vec4 tex2 = texture2D(uTexture2, uv2);
       vec4 baseColor = mix(tex1, tex2, uProgress);
 
       vec3 light = uAmbientLight;
       vec3 finalColor= baseColor.rgb * light;
       gl_FragColor = vec4(finalColor, baseColor.a);
-    
+
     }
-    
+
     `
 );
 extend({ CrossFadeMaterial });
@@ -55,6 +69,8 @@ declare module "@react-three/fiber" {
       uTexture1?: THREE.Texture | null;
       uTexture2?: THREE.Texture | null;
       uProgress?: number;
+      uYawOffset1?: number;
+      uYawOffset2?: number;
       uAmbientLight?: THREE.Color;
     };
   }
@@ -64,6 +80,7 @@ interface TourSceneProps {
   radius: number;
   sphereRef: React.RefObject<THREE.Mesh | null>;
   textureCurrent: string;
+  yawOffsetCurrent: number;
   lightIntensity: number;
   /**
    * Input: Nhận sự kiện click chuột từ CreateTourStep2
@@ -78,67 +95,81 @@ const TourScene: React.FC<TourSceneProps> = ({
   radius,
   sphereRef,
   textureCurrent,
+  yawOffsetCurrent,
   lightIntensity,
   onPointerDown,
   onTextureReady,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<any>(null);
+  const progressRef = useRef(0);
+  const prevTextureRef = useRef<string | null>(null);
+  const prevYawOffsetRef = useRef<number | null>(null);
 
-  // const [prevTextureUrl, setPrevTextureUrl] = useState(textureCurrent);
+  const { panoramaList, currentSelectId } = useSelector(
+    (state: RootState) => state.panoramas
+  );
+  const currentPanorama = panoramaList.find(
+    (pano) => pano.id === currentSelectId
+  );
 
   const [textures, setTextures] = useState<
     [THREE.Texture | null, THREE.Texture | null] | null
   >(null);
 
-  const progressRef = useRef(0);
+  const [yawOffsetList, setYawOffsetList] = useState<[number | 0, number | 0]>([
+    0, 0,
+  ]);
+
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     if (sphereRef && meshRef.current) {
       sphereRef.current = meshRef.current;
-      // console.log("sphereRef đã được gán: ", sphereRef.current);
     }
   }, [sphereRef]);
 
-  /**
-   * Thời gian load texture.
-   *
-   *
-   *
-   *
-   *
-   *
-   * Thời gian chuẩn = thời gian load texture + thời gian chuyển đổi ảnh.
-   */
-
   useEffect(() => {
     const load = async () => {
-      const startTime = performance.now();
+      const yawNew = radianToTexture(yawOffsetCurrent);
+
+      // Nếu texture không đổi, chỉ cần cập nhật yawOffset (không load lại texture hay crossfade)
+      if (textureCurrent === prevTextureRef.current) {
+        setYawOffsetList(([_, yaw2]) => [yawNew, yaw2]);
+        if (materialRef.current) {
+          materialRef.current.uYawOffset1 = yawNew;
+        }
+        return;
+      }
+
       try {
         const loader = new THREE.TextureLoader();
         const texNew = await loader.loadAsync(textureCurrent);
-        const loadTime = performance.now() - startTime;
-        console.log(`Thời gian tải texture: ${loadTime / 1000} giây`);
 
         if (!textures) {
           setTextures([texNew, null]);
+          setYawOffsetList([yawNew, 0]);
           onTextureReady?.();
         } else {
           const [prevTex] = textures;
+          const [prevYaw] = yawOffsetList;
+
           setTextures([prevTex, texNew]);
+          setYawOffsetList([prevYaw, yawNew]);
           setProgress(0);
           progressRef.current = 0;
-          console.log(
-            `Bắt đầu chuyển đổi texture: ${performance.now() / 1000} giây`
-          );
         }
-      } catch (err: any) {
+
+        // Cập nhật ref sau khi load xong
+        prevTextureRef.current = textureCurrent;
+        prevYawOffsetRef.current = yawOffsetCurrent;
+      } catch (err) {
         console.error(err);
       }
     };
+
     load();
-  }, [textureCurrent]);
+  }, [textureCurrent, yawOffsetCurrent]);
 
   /**
    * Texture thực hiện việc đổi.
@@ -156,22 +187,26 @@ const TourScene: React.FC<TourSceneProps> = ({
       setProgress(progressRef.current);
     }
 
+    if (materialRef.current) {
+      materialRef.current.uProgress = progressRef.current;
+      materialRef.current.uYawOffset1 = yawOffsetList[0];
+      materialRef.current.uYawOffset2 = yawOffsetList[1];
+    }
+
     if (progressRef.current >= 1 && textures[1]) {
       setTextures([textures[1], null]);
-      console.log(
-        `Kết thúc thời gian chuyển đổi texture: ${
-          performance.now() / 1000
-        } giây.`
-      );
+      setYawOffsetList([yawOffsetList[1], 0]);
+      setProgress(0);
       if (materialRef.current) {
         materialRef.current.uTexture1 = textures[1];
-        materialRef.current.uTexture2 = null; // hoặc dùng emptyTexture
+        materialRef.current.uTexture2 = null;
         materialRef.current.uProgress = 0;
 
+        materialRef.current.uYawOffset1 = yawOffsetList[1];
+        materialRef.current.uYawOffset2 = yawOffsetList[1];
         onTextureReady?.();
       }
 
-      setProgress(0);
       progressRef.current = 0;
     }
   });
@@ -185,7 +220,7 @@ const TourScene: React.FC<TourSceneProps> = ({
   return (
     <>
       <Sphere
-        ref={meshRef}
+        ref={sphereRef}
         args={[radius, 128, 128]}
         scale={[-1, 1, 1]}
         onPointerDown={handlePointerDown}
@@ -197,6 +232,8 @@ const TourScene: React.FC<TourSceneProps> = ({
           uProgress={progress}
           side={THREE.BackSide}
           uAmbientLight={new THREE.Color().setScalar(lightIntensity)} // ánh sáng môi trường
+          uYawOffset1={yawOffsetList[0]}
+          uYawOffset2={yawOffsetList[1]}
         />
       </Sphere>
     </>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../../styles/managerSpace.module.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +20,8 @@ import { GrConfigure } from "react-icons/gr";
 import { FiMapPin } from "react-icons/fi";
 import { API_URLS } from "../../env";
 import { goToStep } from "../../redux/slices/StepSlice";
+import { TfiNewWindow } from "react-icons/tfi";
+import Pagination from "../../components/Pagination";
 
 interface Space {
   id: number;
@@ -34,7 +36,11 @@ interface Space {
   createdAt: number | null;
   updatedAt: number | null;
 }
-interface SpaceCreateRequest extends Pick<Space, "id" | "name" | "code"> {}
+
+type SpaceCreateRequest = {
+  spaceId: Space["id"];
+} & Pick<Space, "name" | "code">;
+
 const emptySpace: Space = {
   id: 0, // ID giả để phân biệt với các field thật
   name: null,
@@ -54,30 +60,28 @@ const Space = () => {
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
   const currentUser = useSelector((state: RootState) => state.auth.user);
-  const fields = useSelector((state: RootState) => state.data.fields) || [];
   const spaces = useSelector((state: RootState) => state.data.spaces) || [];
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
 
   const [searchData, setSearchData] = useState<Space[]>([]);
-  const [openModel, setOpenModel] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [fieldCode, setFieldCode] = useState(selectedSpace?.code);
   const dispatch = useDispatch<AppDispatch>();
   const spaceCodeList = spaces.map((space) => space.code);
+
   const handleEditInput = () => {
     if (!isEditing) setIsEditing(true);
   };
+  const [inputSpaceName, setInputSpaceName] = useState<string | null>(
+    selectedSpace?.name || null
+  );
+  const [nameCode, setNameCode] = useState(selectedSpace?.code);
 
   useEffect(() => {
-    setInputFieldName(selectedSpace?.name || "");
-    setFieldCode(selectedSpace?.code || "");
+    setInputSpaceName(selectedSpace?.name || "");
+    setNameCode(selectedSpace?.code || "");
     setIsEditing(false);
     setError("");
   }, [selectedSpace]);
-
-  const [inputFieldName, setInputFieldName] = useState<string | null>(
-    selectedSpace?.name || null
-  );
 
   useEffect(() => {
     if (
@@ -106,7 +110,7 @@ const Space = () => {
     setSearchData(newData);
   };
 
-  const handleChangeFieldName = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeSpaceName = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     const spaceCodeNew = RemoveVietnameseTones(value);
     if (spaceCodeList.includes(spaceCodeNew)) {
@@ -114,8 +118,8 @@ const Space = () => {
     } else {
       setError("");
     }
-    setInputFieldName(value);
-    setFieldCode(spaceCodeNew);
+    setInputSpaceName(value);
+    setNameCode(spaceCodeNew);
   };
 
   /**
@@ -124,6 +128,7 @@ const Space = () => {
   const handleRename = async (req: SpaceCreateRequest) => {
     try {
       const nameCheck = validateName(req.name);
+
       if (!nameCheck.valid) {
         setError(nameCheck.error);
         return;
@@ -131,13 +136,13 @@ const Space = () => {
 
       let response;
 
-      if (req.id === 0) {
+      if (req.spaceId === 0) {
         response = await axios.post(API_URLS.ADMIN_CREATE_SPACES, req);
         setSelectedSpace(emptySpace);
-        setInputFieldName("");
-        setFieldCode("");
+        setInputSpaceName("");
+        setNameCode("");
       } else {
-        response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_FIELD, req);
+        response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_SPACE, req);
       }
 
       /**
@@ -205,6 +210,13 @@ const Space = () => {
     }
   };
 
+  let pageSize = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const currentSpaceListData = useMemo(() => {
+    const firstPageIndex = (currentPage - 1) * pageSize;
+    const lastPageIndex = firstPageIndex + pageSize;
+    return spaces.slice(firstPageIndex, lastPageIndex);
+  }, [currentPage]);
   return (
     <div className={styles.container}>
       <div className={styles.space_view_mode}>
@@ -257,7 +269,7 @@ const Space = () => {
           </div>
 
           <div className={styles.space_list}>
-            {spaces.map((space) => {
+            {currentSpaceListData.map((space) => {
               return (
                 <div
                   key={space.id}
@@ -268,6 +280,16 @@ const Space = () => {
                 </div>
               );
             })}
+          </div>
+
+          <div className={styles.space_pagination}>
+            <Pagination
+              onPageChange={(page) => setCurrentPage(page)}
+              totalCount={spaces.length}
+              siblingCount={1}
+              currentPage={currentPage}
+              pageSize={pageSize}
+            />
           </div>
         </div>
         {/* Chỉnh sửa thông tin chung */}
@@ -281,57 +303,35 @@ const Space = () => {
               <SpaceCard
                 space={{ ...selectedSpace, name: selectedSpace.name ?? "" }}
               />
-              <div className={styles.space_feautures_inner}>
-                <span className={styles.space_feature_inner_item}>
-                  <RiEdit2Line /> Ảnh đại diện.
-                </span>
-                <Link
-                  to={`./${selectedSpace.id}`}
-                  className={styles.space_feature_inner_item}
-                  onClick={() => dispatch(goToStep(2))}
-                >
-                  <GrConfigure /> Không gian con.
-                </Link>
 
-                <span className={styles.space_feature_inner_item}>
-                  <FiMapPin /> Gắn nhãn bản đồ.
-                </span>
+              <div className={styles.space_feautures_inner}>
+                <div className={`${styles.space_information_item} `}>
+                  <Link
+                    to={`./${selectedSpace.id}`}
+                    className={styles.space_feature_detail}
+                    onClick={() => dispatch(goToStep(4))}
+                  >
+                    Thông tin chi tiết
+                    <TfiNewWindow />
+                  </Link>
+                </div>
+                <div className={`${styles.space_information_item} `}>
+                  <span>Trạng thái: </span>
+                  <StatusToggle
+                    id={selectedSpace.id}
+                    status={selectedSpace.status}
+                    apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
+                    type="space"
+                  />
+                </div>
               </div>
             </div>
 
             <div className={styles.space_edit_content}>
-              <p className={styles.space_edit_label}>Thông tin</p>
-
-              {/* <div className={styles.space_choose_master}>
-                <span>Trung tâm:</span>
-                <select
-                  className={styles.custom_select}
-                  onChange={(e) =>
-                    handleSelect(selectedSpace.id, parseInt(e.target.value, 10))
-                  }
-
-                  // onChange={handleSelectSpace}
-                >
-                  <option value="0">-- Chọn tour --</option>
-                  {selectedSpace.tours &&
-                    selectedSpace.tours.map((tourId) => (
-                      <option key={tourId} value={tourId}>
-                        Tour {tourId}
-                      </option>
-                    ))}
-                </select>
-              </div> */}
-              <div className={`${styles.space_information_item} `}>
-                <span>Trạng thái: </span>
-                <StatusToggle
-                  id={selectedSpace.id}
-                  status={selectedSpace.status}
-                  apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
-                />
-              </div>
+              <p className={styles.space_edit_label}>Thông tin cơ bản</p>
 
               <div className={`${styles.space_information_item} `}>
-                <span>Tên lĩnh vực : </span>
+                <span>Tên không gian : </span>
 
                 <div className={styles.space_input_name_container}>
                   <input
@@ -339,8 +339,8 @@ const Space = () => {
                     id="input"
                     required
                     readOnly={!isEditing}
-                    value={inputFieldName ?? ""}
-                    onChange={handleChangeFieldName}
+                    value={inputSpaceName ?? ""}
+                    onChange={handleChangeSpaceName}
                   />
 
                   {!isEditing ? (
@@ -356,9 +356,9 @@ const Space = () => {
                       onClick={() => {
                         selectedSpace.id !== 0 &&
                           handleRename({
-                            id: selectedSpace.id,
-                            name: inputFieldName ?? "",
-                            code: fieldCode ?? "",
+                            spaceId: selectedSpace.id,
+                            name: inputSpaceName ?? "",
+                            code: nameCode ?? "",
                           });
                       }}
                     />
@@ -372,10 +372,9 @@ const Space = () => {
               </div>
 
               <div className={`${styles.space_information_item} `}>
-                <span>Mã lĩnh vực: </span>
-                <span className={styles.space_code}>{fieldCode}</span>
+                <span>Mã không gian: </span>
+                <span className={styles.space_code}>{nameCode}</span>
               </div>
-
               <div className={`${styles.space_information_item} `}>
                 <span>Ngày khởi tạo: </span>
                 <span className={styles.space_space_list}>
@@ -427,9 +426,9 @@ const Space = () => {
                   disabled={!!error}
                   onClick={() =>
                     handleRename({
-                      id: selectedSpace.id,
-                      name: inputFieldName ?? "",
-                      code: fieldCode ?? "",
+                      spaceId: selectedSpace.id,
+                      name: inputSpaceName ?? "",
+                      code: nameCode ?? "",
                     })
                   }
                 >
