@@ -12,9 +12,9 @@ type SoundEffectProps = {
 
 const SoundEffect: React.FC<SoundEffectProps> = ({
   url,
-  distance = 2,
+  distance = 40,
   loop = false,
-  volume = 50,
+  volume = 1,
   setPlayFunction,
 }) => {
   const soundRef = useRef<THREE.PositionalAudio>(null);

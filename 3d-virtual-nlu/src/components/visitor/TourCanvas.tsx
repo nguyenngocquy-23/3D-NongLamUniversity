@@ -15,7 +15,6 @@ import { setDefaultNode } from "../../redux/slices/DataSlice";
 import gsap from "gsap";
 import { Environment } from "@react-three/drei";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
-import { getAngleFromXZ } from "../../utils/MathUtils";
 import Radar from "./Radar";
 const TourCanvas = React.memo(
   ({

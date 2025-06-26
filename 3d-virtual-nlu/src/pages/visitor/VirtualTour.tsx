@@ -96,7 +96,9 @@ const VirtualTour = () => {
     return (nodeToRender?.infoHotspots as HotspotInformation[]) || [];
   }, [nodeToRender]);
 
-  const [isRotation, setIsRotation] = useState(nodeToRender.autoRotate || true);
+  const [isRotation, setIsRotation] = useState(
+    nodeToRender.autoRotate || false
+  );
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
 

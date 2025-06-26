@@ -244,7 +244,10 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
           }}
         >
           <primitive object={clonedScene}></primitive>
-          <SoundEffect url="whoss.mp3" setPlayFunction={setPlaySound} />
+          <SoundEffect
+            url="https://res.cloudinary.com/dkoc6kbg1/video/upload/v1750922657/usxngr98lreae7ochjdx.mp3"
+            setPlayFunction={setPlaySound}
+          />
 
           <ambientLight color={"#fff"} intensity={0.3} />
         </group>
@@ -299,7 +302,10 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             emissiveIntensity={isHovered ? 2 : 0}
             side={THREE.DoubleSide}
           />
-          <SoundEffect url="walking.mp3" setPlayFunction={setPlaySound} />
+          <SoundEffect
+            url="https://res.cloudinary.com/dkoc6kbg1/video/upload/v1750922657/usxngr98lreae7ochjdx.mp3"
+            setPlayFunction={setPlaySound}
+          />
         </mesh>
       )}
 
