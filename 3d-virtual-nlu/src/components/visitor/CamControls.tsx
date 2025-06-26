@@ -43,6 +43,15 @@ const CamControls: React.FC<CamControlsProps> = ({
   useEffect(() => {
     if (cameraRef && camera instanceof THREE.PerspectiveCamera) {
       cameraRef.current = camera;
+
+      //Gắn
+      const listener = new THREE.AudioListener();
+      camera.add(listener);
+
+      //Dọn dẹp khi unmount
+      return () => {
+        camera.remove(listener);
+      };
     }
   }, [cameraRef, camera]);
 

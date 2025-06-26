@@ -1,4 +1,4 @@
-import { Html, useGLTF } from "@react-three/drei";
+import { Html, PositionalAudio, useGLTF } from "@react-three/drei";
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,6 +7,7 @@ import { RootState } from "../../redux/Store";
 import { HotspotNavigation } from "../../redux/slices/HotspotSlice";
 import OptionHotspot from "../admin/taskCreateTourList/OptionHotspot";
 import { RADIUS_SPHERE } from "../../utils/Constants";
+import SoundEffect from "../admin/taskCreateTourList/SoundEffect";
 
 type GroundHotspotProps = {
   onNavigate: (
@@ -24,22 +25,18 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
   setCurrentHotspotId,
   blockUpdate,
 }) => {
-  const hotspotRef = useRef<THREE.Mesh>(null);
-  const currentStep = useSelector((state: RootState) => state.step.currentStep);
-
-  const { icons } = useSelector((state: RootState) => state.data);
-
-  const icon = icons.find((i) => i.id == hotspotNavigation.iconId);
-
-  const [texture, setTexture] = useState<THREE.Texture | null>(null);
-
-  const [isHovered, setIsHovered] = useState(false);
   const { gl } = useThree();
-  const targetOpacity = useRef(hotspotNavigation.opacity);
-  const targetScale = useRef(hotspotNavigation.scale);
-  const isIcon3D = icon.type === 2;
+  //USEREF
+  const hotspotRef = useRef<THREE.Mesh>(null);
   const maxSizeRef = useRef(10 * hotspotNavigation.scale); // ĐANG SỬ DỤNG GIÁ TRỊ CỐ ĐỊNH CHO 3D HOTSPOT
   const groupRef = useRef<THREE.Group>(null);
+  const targetOpacity = useRef(hotspotNavigation.opacity);
+  const targetScale = useRef(hotspotNavigation.scale);
+
+  //REDUX
+  const currentStep = useSelector((state: RootState) => state.step.currentStep);
+  const { icons } = useSelector((state: RootState) => state.data);
+  const icon = icons.find((i) => i.id == hotspotNavigation.iconId);
   const panoramaList = useSelector(
     (state: RootState) => state.panoramas.panoramaList
   );
@@ -47,11 +44,17 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     (state: RootState) => state.data.preloadNodes
   );
 
+  //STATE
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
+  const isIcon3D = icon.type === 2;
+  const [playSound, setPlaySound] = useState<() => void>(() => () => {});
+
   /**
    * Đang thử nghiệm
    */
   // const [isClicked, setIsClicked] = useState(false);
-  const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
 
   /**
    * ICON 2D
@@ -166,10 +169,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       targetOpacity.current += 0.5;
     }
   }, [isHovered]);
-  /**
-   * ICON 3D
-   */
-
   const scaleFactor = (RADIUS_SPHERE - maxSizeRef.current) / 100;
 
   return (
@@ -244,7 +243,9 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             }
           }}
         >
-          <primitive object={clonedScene} />
+          <primitive object={clonedScene}></primitive>
+          <SoundEffect url="whoss.mp3" setPlayFunction={setPlaySound} />
+
           <ambientLight color={"#fff"} intensity={0.3} />
         </group>
       ) : (
@@ -298,6 +299,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             emissiveIntensity={isHovered ? 2 : 0}
             side={THREE.DoubleSide}
           />
+          <SoundEffect url="walking.mp3" setPlayFunction={setPlaySound} />
         </mesh>
       )}
 

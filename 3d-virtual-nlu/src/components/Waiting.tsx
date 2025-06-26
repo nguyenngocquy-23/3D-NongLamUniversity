@@ -18,10 +18,9 @@ const Waiting = ({ percent }: { percent: number }) => {
             className={styles.progress_fill}
             style={{ width: `${percent}%` }}
           >
-            <div className={styles.percent_label }>{percent}%</div>
+            <div className={styles.percent_label}>{percent}%</div>
           </div>
         </div>
-        {/* <div className={styles.percent}>{percent}%</div> */}
       </div>
     </div>
   );
