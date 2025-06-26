@@ -132,7 +132,6 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> updateLinkNode(List<NodeLinkRequest> reqs) {
-//         boolean result = nodeService.updateLinkNodeById(reqs);
         boolean result = true;
         for(NodeLinkRequest req : reqs) {
             try {

@@ -45,9 +45,10 @@ const CrossFadeMaterial = shaderMaterial(
     varying vec2 vUv;
 
     void main() {
+    float epsilon = 0.01;
       //Dịch uv theo yawOffset (Phần trăm 0.0 - 1.0 <=> 0 - 2Pi.)
-      vec2 uv1 = vec2(mod(vUv.x + uYawOffset1, 1.0 ), vUv.y);
-      vec2 uv2 = vec2(mod(vUv.x + uYawOffset2, 1.0), vUv.y );
+      vec2 uv1 = vec2(mod(vUv.x + uYawOffset1 + epsilon, 1.0 ), vUv.y);
+      vec2 uv2 = vec2(mod(vUv.x + uYawOffset2 + epsilon, 1.0), vUv.y );
 
       vec4 tex1 = texture2D(uTexture1, uv1);
       vec4 tex2 = texture2D(uTexture2, uv2);
@@ -145,6 +146,7 @@ const TourScene: React.FC<TourSceneProps> = ({
       try {
         const loader = new THREE.TextureLoader();
         const texNew = await loader.loadAsync(textureCurrent);
+        texNew.wrapS = THREE.RepeatWrapping;
 
         if (!textures) {
           setTextures([texNew, null]);

@@ -88,7 +88,15 @@ const TourDetail = () => {
       handleFetchNode(nodeId || "");
     }
   }, [nodeId]);
+  const { panoramaList, currentSelectId } = useSelector(
+    (state: RootState) => state.panoramas
+  );
 
+  useEffect(() => {
+    if (node) {
+      dispatch(fetchPreloadNodes(Number.parseInt(node.id)));
+    }
+  }, [node]);
   const preloadNodes = useSelector(
     (state: RootState) => state.data.preloadNodes
   );
