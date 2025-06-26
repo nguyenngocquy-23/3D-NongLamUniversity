@@ -44,7 +44,10 @@ export interface HotspotModel extends BaseHotspot {
 
 interface HotspotPositions {
   nodeId: string;
-  hotspotPositions: [number, number, number][];
+  hotspotPositions: {
+    id: string;
+    position: [number, number, number];
+  }[];
 }
 
 export type HotspotItem =
@@ -166,12 +169,49 @@ const hotspotSlice = createSlice({
       );
 
       if (index !== -1) {
-        const { id, nodeId, ...propsWithoutId } = action.payload
-          .propHotspot as any;
+        const {
+          id,
+          nodeId,
+          positionX,
+          positionY,
+          positionZ,
+          ...propsWithoutId
+        } = action.payload.propHotspot as any;
         state.hotspotList[index] = {
           ...state.hotspotList[index],
           ...propsWithoutId,
+          ...(positionX !== undefined && { positionX }),
+          ...(positionY !== undefined && { positionY }),
+          ...(positionZ !== undefined && { positionZ }),
         };
+        // Nếu có ít nhất 1 trong 3 positionX/Y/Z thì cập nhật lại position
+        if (
+          positionX !== undefined ||
+          positionY !== undefined ||
+          positionZ !== undefined
+        ) {
+          const node = state.hotspotPositions.find(
+            (n) => n.nodeId === (nodeId ?? state.hotspotList[index].nodeId)
+          );
+
+          if (node) {
+            const hotspotIndex = node.hotspotPositions.findIndex(
+              (h) => h.id === action.payload.hotspotId
+            );
+
+            if (hotspotIndex !== -1) {
+              node.hotspotPositions[hotspotIndex] = {
+                ...node.hotspotPositions[hotspotIndex],
+                position: {
+                  ...node.hotspotPositions[hotspotIndex].position,
+                  ...(positionX !== undefined && { x: positionX }),
+                  ...(positionY !== undefined && { y: positionY }),
+                  ...(positionZ !== undefined && { z: positionZ }),
+                },
+              };
+            }
+          }
+        }
       }
     },
 
@@ -265,8 +305,7 @@ const hotspotSlice = createSlice({
           hotspot.cornerPointList = JSON.stringify(cornerPointList);
         }
       }
-    }
-    ,
+    },
     updateCornerHotspotMedia: (
       state,
       action: PayloadAction<{
@@ -304,8 +343,7 @@ const hotspotSlice = createSlice({
           .map((node) => ({
             ...node,
             hotspotPositions: node.hotspotPositions.filter(
-              ([x, y, z]) =>
-                !(x === positionX && y === positionY && z === positionZ)
+              (h) => !(h.id == hotspot.id)
             ),
           }))
           // Xóa luôn node nếu mảng vị trí rỗng sau filter
@@ -320,7 +358,7 @@ const hotspotSlice = createSlice({
       state,
       action: PayloadAction<{
         nodeId: string;
-        hotspotPosition: [number, number, number];
+        hotspotPosition: any;
       }>
     ) => {
       const { nodeId, hotspotPosition } = action.payload;
@@ -333,7 +371,12 @@ const hotspotSlice = createSlice({
         // Nếu nodeId chưa tồn tại => thêm mới
         state.hotspotPositions.push({
           nodeId,
-          hotspotPositions: [hotspotPosition],
+          hotspotPositions: [
+            {
+              id: hotspotPosition.hotspotId,
+              position: hotspotPosition.position,
+            },
+          ],
         });
       } else {
         // Nếu đã có nodeId => chỉ thêm vào danh sách vị trí
@@ -348,7 +391,10 @@ const hotspotSlice = createSlice({
       state.hotspotPositions = hotspots.map((h) => ({
         nodeId: h.nodeId,
         hotspotPositions: [
-          [h.positionX ?? 0, h.positionY ?? 0, h.positionZ ?? 0],
+          {
+            id: h.id,
+            position: [h.positionX, h.positionY, h.positionZ],
+          },
         ],
       }));
     },

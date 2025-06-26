@@ -88,6 +88,15 @@ const TourDetail = () => {
       handleFetchNode(nodeId || "");
     }
   }, [nodeId]);
+  const { panoramaList, currentSelectId } = useSelector(
+    (state: RootState) => state.panoramas
+  );
+
+  useEffect(() => {
+    if (node) {
+      dispatch(fetchPreloadNodes(Number.parseInt(node.id)));
+    }
+  }, [node]);
 
   const preloadNodes = useSelector(
     (state: RootState) => state.data.preloadNodes
@@ -469,7 +478,7 @@ const TourDetail = () => {
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={node.url}
-            yawOffsetCurrent={node.yawOffset}
+            yawOffsetCurrent={node.yawOffset ?? 0}
             lightIntensity={1}
           />
           <CamControls

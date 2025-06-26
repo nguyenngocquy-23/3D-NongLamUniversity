@@ -247,6 +247,10 @@ const dataSlice = createSlice({
         state.fields[index].code = action.payload.code;
       }
     },
+
+    resetNodes: (state) => {
+      state.masterNodes = []; // hoặc danh sách bạn đang dùng
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -396,6 +400,6 @@ const dataSlice = createSlice({
       });
   },
 });
-export const { attachLocation, removeLocation, setDefaultNode } =
+export const { attachLocation, removeLocation, setDefaultNode, resetNodes } =
   dataSlice.actions;
 export default dataSlice.reducer;
