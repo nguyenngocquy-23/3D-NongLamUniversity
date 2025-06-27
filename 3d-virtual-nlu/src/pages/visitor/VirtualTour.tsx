@@ -11,7 +11,6 @@ import { AppDispatch, RootState } from "../../redux/Store.ts";
 import {
   fetchDefaultNodes,
   fetchIcons,
-  fetchMasterNodes,
   fetchPreloadNodes,
 } from "../../redux/slices/DataSlice.ts";
 import Waiting from "../../components/Waiting.tsx";
@@ -61,7 +60,6 @@ const VirtualTour = () => {
   }, []);
 
   useEffect(() => {
-    // dispatch(fetchMasterNodes());
     dispatch(fetchIcons());
     dispatch(fetchDefaultNodes());
   }, [dispatch]);

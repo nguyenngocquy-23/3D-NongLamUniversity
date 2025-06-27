@@ -92,6 +92,7 @@ const ManagerIcon = () => {
           id={row.id}
           status={row.isActive}
           apiUrl="http://localhost:8080/api/admin/field/changeStatus"
+          type="icon"
         />
       ),
       sortable: true,

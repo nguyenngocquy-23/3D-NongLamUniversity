@@ -217,6 +217,7 @@ const Space = () => {
     const lastPageIndex = firstPageIndex + pageSize;
     return spaces.slice(firstPageIndex, lastPageIndex);
   }, [currentPage]);
+
   return (
     <div className={styles.container}>
       <div className={styles.space_view_mode}>

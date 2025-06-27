@@ -66,10 +66,11 @@ export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
 // Fetch master nodes
 export const fetchMasterNodes = createAsyncThunk(
   "data/fetchMasterNodes",
-  async ({page, limit}: {page: number, limit: number}) => {
-    const response = await axios.post(API_URLS.GET_MASTER_NODES,
-      { page, limit }
-    );
+  async ({ page, limit }: { page: number; limit: number }) => {
+    const response = await axios.post(API_URLS.GET_MASTER_NODES, {
+      page,
+      limit,
+    });
     return response.data.data;
   }
 );

@@ -24,11 +24,11 @@ const ManageNode: React.FC = () => {
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
     []
   );
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
   const [isToggle, setIsToggle] = useState(false);
 
+  const dispatch = useDispatch<AppDispatch>();
   const fields = useSelector((state: RootState) => state.data.fields);
   const spaces = useSelector((state: RootState) => state.data.spaces);
 
@@ -53,7 +53,7 @@ const ManageNode: React.FC = () => {
   );
 
   return (
-    <div className={stylesUser.container}>
+    <div className={styles.container}>
       <div className={stylesBar.navigateBar}>
         <FaAngleLeft />
         <h2 className={stylesBar.h2}>Danh sách tour</h2>

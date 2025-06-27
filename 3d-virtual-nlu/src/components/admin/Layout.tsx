@@ -61,6 +61,7 @@ const Layout = () => {
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(true);
+  const [isHideHeader, setIsHideHeader] = useState(false);
 
   useEffect(() => {
     if (
