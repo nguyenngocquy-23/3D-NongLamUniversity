@@ -299,9 +299,10 @@ public class NodeDao {
                 WHERE id = :id
                 """;
 
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        int totalNodeUpdated = ConnectionPool.getConnection().inTransaction(handle -> {
+            int count = 0;
             for (NodeUpdateRequest req : reqs) {
-                int rowsUpdated = handle.createUpdate(sql)
+                count += handle.createUpdate(sql)
                         .bind("url", req.getUrl())
                         .bind("name", req.getName())
                         .bind("description", req.getDescription())
@@ -316,15 +317,24 @@ public class NodeDao {
                         .bind("updatedAt", LocalDateTime.now())
                         .bind("id", req.getId())
                         .execute();
-                int navUpdate = hotspotService.updateNavHotspots(req.getNavHotspots(), req.getId());
-                int infoUpdate = hotspotService.updateInfoHotspots(req.getInfoHotspots(), req.getId());
-                int mediaUpdate = hotspotService.updateMediaHotspots(req.getMediaHotspots(), req.getId());
-                int modelUpdate = hotspotService.updateModelHotspots(req.getModelHotspots(), req.getId());
-                if (rowsUpdated + navUpdate + infoUpdate + mediaUpdate + modelUpdate == 0) {
-                    return false; // Nếu có bất kỳ bản ghi nào không được cập nhật, trả về false
-                }
             }
-            return true;
+            return count;
         });
+
+        // Sau khi cập nhật nodes xong → cập nhật hotspots
+        for (NodeUpdateRequest req : reqs) {
+            int navUpdate = hotspotService.updateNavHotspots(req.getNavHotspots(), req.getId());
+            int infoUpdate = hotspotService.updateInfoHotspots(req.getInfoHotspots(), req.getId());
+            int mediaUpdate = hotspotService.updateMediaHotspots(req.getMediaHotspots(), req.getId());
+            int modelUpdate = hotspotService.updateModelHotspots(req.getModelHotspots(), req.getId());
+
+            int totalHotspotUpdated = navUpdate + infoUpdate + mediaUpdate + modelUpdate;
+
+            // Nếu node không được update và các hotspot không thay đổi → fail
+            if (totalNodeUpdated == 0 && totalHotspotUpdated == 0) {
+                return false;
+            }
+        }
+        return true;
     }
 }

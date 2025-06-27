@@ -48,10 +48,10 @@ export interface NodeUpdateRequest {
   speedRotate: number;
   lightIntensity: number;
   status: number;
-  navHotspots: HotspotNavCreateRequest[];
-  infoHotspots: HotspotInfoCreateRequest[];
-  mediaHotspots: HotspotMediaCreateRequest[];
-  modelHotspots: HotspotModelCreateRequest[];
+  navHotspots: HotspotNavUpdateRequest[];
+  infoHotspots: HotspotInfoUpdateRequest[];
+  mediaHotspots: HotspotMediaUpdateRequest[];
+  modelHotspots: HotspotModelUpdateRequest[];
 }
 
 /**

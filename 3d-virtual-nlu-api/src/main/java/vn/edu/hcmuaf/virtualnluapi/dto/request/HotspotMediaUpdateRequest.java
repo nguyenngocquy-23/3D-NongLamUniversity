@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults (level = AccessLevel.PRIVATE)
 public class HotspotMediaUpdateRequest {
-    int id;
+    String id;
     String nodeId;
     byte type;
     int iconId;
