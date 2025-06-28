@@ -100,6 +100,7 @@ const Header: React.FC = () => {
             offset={-60}
             smooth={true}
             duration={800}
+            onClick={() => setMobileNavOpen(false)}
           >
             Sơ đồ trường
           </ScrollLink>
@@ -109,6 +110,7 @@ const Header: React.FC = () => {
             className={style.navLink}
             smooth={true}
             duration={800}
+            onClick={() => setMobileNavOpen(false)}
           >
             Giới thiệu
           </ScrollLink>
@@ -118,6 +120,7 @@ const Header: React.FC = () => {
             className={style.navLink}
             smooth={true}
             duration={800}
+            onClick={() => setMobileNavOpen(false)}
           >
             Khám phá tour ảo
           </ScrollLink>
@@ -128,6 +131,7 @@ const Header: React.FC = () => {
             smooth={true}
             offset={-40}
             duration={800}
+            onClick={() => setMobileNavOpen(false)}
           >
             Liên hệ
           </ScrollLink>

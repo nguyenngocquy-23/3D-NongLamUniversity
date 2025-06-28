@@ -29,6 +29,8 @@ import {
   FaAngleLeft,
   FaCompass,
   FaMap,
+  FaPause,
+  FaPlay,
   FaScreenpal,
   FaX,
 } from "react-icons/fa6";
@@ -251,6 +253,18 @@ const VirtualTour = () => {
           newUtterance.lang = "vi-VN"; // Chọn ngôn ngữ (ở đây là tiếng Việt)
           newUtterance.pitch = 1; // Điều chỉnh độ cao của giọng nói
           newUtterance.rate = 1; // Điều chỉnh tốc độ đọc
+          newUtterance.lang = "vi-VN";
+
+          const voices = window.speechSynthesis.getVoices();
+          const vietnameseVoice = voices.find((v) => v.lang === "vi-VN");
+
+          if (vietnameseVoice) {
+            newUtterance.voice = vietnameseVoice;
+          } else {
+            console.warn(
+              "⚠️ Không tìm thấy giọng tiếng Việt. Trình duyệt có thể không hỗ trợ."
+            );
+          }
 
           // Kiểm tra trạng thái âm thanh
           if (isMuted) {
@@ -438,7 +452,28 @@ const VirtualTour = () => {
       <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />
       {/* Footer chứa các tính năng */}
       {isMobile ? (
-        ""
+        <>
+          <button
+            className={styles.pause_button}
+            style={{ display: isRotation ? "block" : "none" }}
+            onClick={() => {
+              console.log("Pause rotation");
+              setIsRotation(false);
+            }}
+            >
+            <FaPause />
+          </button>
+          <button
+            className={styles.play_button}
+            style={{ display: isRotation ? "none" : "block" }}
+            onClick={() => {
+              console.log("play rotation");
+              setIsRotation(true);
+            }}
+          >
+            <FaPlay />
+          </button>
+        </>
       ) : (
         <FooterTour
           isRotation={isRotation}
