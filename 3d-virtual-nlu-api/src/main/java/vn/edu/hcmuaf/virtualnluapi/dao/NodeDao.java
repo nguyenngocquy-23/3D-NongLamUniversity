@@ -133,6 +133,7 @@ public class NodeDao {
      * Lấy ra danh sách targetNodeId dựa vào hotspot navigation.
      * => Lấy ra danh sách node full response dựa vào đó.
      */
+
     public List<NodeFullResponse> getListPreloadNodeByNode(int nodeId) {
         /**
          * Truy xuất sql cho danh sách targetNodeId dựa vào hotspot navigation..
@@ -158,8 +159,38 @@ public class NodeDao {
 
         }
         return preloadNodes;
+
     }
 
+
+    public List<NodeFullResponse> getListNodeByMasterId(int nodeId) {
+        /**
+         * Truy xuất sql cho danh sách targetNodeId dựa vào hotspot navigation..
+         */
+        String getTargetNodeIdSQL = " SELECT hn.targetNodeId FROM hotspots h JOIN hotspot_navigations hn ON h.id = hn.hotspotId" +
+                " WHERE h.nodeId = :nodeId AND h.type = 1";
+
+        List<Integer> targetNodeIds = ConnectionPool.getConnection().withHandle(
+                handle -> handle.createQuery(getTargetNodeIdSQL)
+                        .bind("nodeId", nodeId)
+                        .mapTo(Integer.class)
+                        .list()
+        );
+
+        if (targetNodeIds == null || targetNodeIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<NodeFullResponse> listNodesOfTour = new ArrayList<>();
+        NodeFullResponse mainNode = getFullNodeByNodeId(nodeId);
+        listNodesOfTour.add(mainNode);
+
+        for (Integer i : targetNodeIds) {
+            NodeFullResponse node = getFullNodeByNodeId(i);
+            if (node != null) listNodesOfTour.add(node);
+        }
+        return listNodesOfTour;
+    }
     /**
      * Trả về Full Response cho 1 node dựa vào Ids.
      */

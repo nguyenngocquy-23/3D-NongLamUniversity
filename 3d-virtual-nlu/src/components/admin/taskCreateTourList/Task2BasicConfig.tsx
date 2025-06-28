@@ -4,12 +4,7 @@ import { RootState } from "../../../redux/Store";
 import { updatePanoConfig } from "../../../redux/slices/PanoramaSlice";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { DEFAULT_ORIGINAL_Z } from "../../../utils/Constants";
-import {
-  degreeToRadian,
-  getAngleFromXZ,
-  radianToDegree,
-} from "../../../utils/MathUtils";
+import { degreeToRadian, radianToDegree } from "../../../utils/MathUtils";
 // Tuỳ chỉnh thông số kỹ thuật.
 
 type Task2Props = {

@@ -82,6 +82,37 @@ public class NodeController {
     }
 
     @POST
+    @Path("/nodeListByMasterId")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getNodeListByMasterId(NodeIdRequest node) {
+        try {
+            List<NodeFullResponse> result = nodeService.getNodeListByMasterId(node.getNodeId());
+
+            return ApiResponse.<List<NodeFullResponse>>builder()
+                    .statusCode(1000)
+                    .message("Lấy danh sách node thành công")
+                    .data(result)
+                    .build();
+
+        } catch (NumberFormatException e) {
+            return ApiResponse.<List<NodeFullResponse>>builder()
+                    .statusCode(1001)
+                    .message("ID node không hợp lệ: " + node.getNodeId())
+                    .data(null)
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.<List<NodeFullResponse>>builder()
+                    .statusCode(1002)
+                    .message("Đã xảy ra lỗi nội bộ: " + e.getMessage())
+                    .data(null)
+                    .build();
+        }
+    }
+
+    @POST
     @Path("/byId")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)

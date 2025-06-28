@@ -8,7 +8,7 @@ import Dashboard from "./pages/admin/Dashboard.tsx";
 import User from "./pages/admin/User.tsx";
 import Layout from "./components/admin/Layout.tsx";
 import CreateTour from "./features/CreateTour.tsx";
-import ManagerTour from "./pages/admin/BoardFeatureTour.tsx";
+import ManagerTour from "./pages/admin/ManagerTour.tsx";
 import CreateTourStep2 from "./pages/admin/CreateTourStep2.tsx";
 import CreateTourStep3 from "./pages/admin/CreateTourStep3.tsx";
 import CreateTourStep4 from "./pages/admin/CreateTourStep4.tsx";
@@ -16,7 +16,7 @@ import PageNotFound from "./pages/Page404.tsx";
 import VirtualTour from "./pages/visitor/VirtualTour.tsx";
 import Field from "./pages/admin/ManagerField.tsx";
 import Space from "./pages/admin/ManagerSpace.tsx";
-import ManageNode from "./pages/admin/ManagerTour.tsx";
+import ManageNode from "./components/admin/ManagerTourDetail.tsx";
 import UpdateNode from "./features/UpdateTour.tsx";
 import Model from "./components/admin/Model.tsx";
 import ManagerIcon from "./pages/admin/ManagerIcon.tsx";
@@ -29,6 +29,7 @@ import VisitorTours from "./pages/visitor/Tours.tsx";
 import TourDetail from "./pages/visitor/TourDetail.tsx";
 import AttachMap from "./pages/admin/AttachMap.tsx";
 import SpaceDetail from "./components/admin/SpaceDetail.tsx";
+import ManagerTourDetail from "./components/admin/ManagerTourDetail.tsx";
 
 function RouterConfig() {
   return (
@@ -51,6 +52,7 @@ function RouterConfig() {
       <Route path="/admin/" element={<Layout />}>
         <Route index element={<Dashboard />} />
         <Route path="tours" element={<ManagerTour />} />
+        <Route path="tours/:nodeId" element={<ManagerTourDetail />} />
         <Route path="users" element={<User />} />
         <Route path="fields" element={<Field />} />
         <Route path="spaces" element={<Space />} />

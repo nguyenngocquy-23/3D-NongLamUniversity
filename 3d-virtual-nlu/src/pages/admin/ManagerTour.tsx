@@ -1,98 +1,126 @@
-import React, { useRef, useState, useMemo } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { FaUpload, FaPlus, FaMicrophone } from "react-icons/fa6";
 import styles from "../../styles/managerTour.module.css";
-import stylesBar from "../../styles/common/navigateBar.module.css";
-import stylesUser from "../../styles/user.module.css";
-import * as THREE from "three";
-import { FaAngleDown, FaAngleLeft, FaAngleUp } from "react-icons/fa6";
-import { OrbitControls } from "@react-three/drei";
-import { OrbitControls as OrbitControlsImpl } from "three-stdlib";
-import { useLocation, useNavigate } from "react-router-dom";
+import { IoSearch } from "react-icons/io5";
+import { TiFilter } from "react-icons/ti";
+import { FaSortAmountDown } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../redux/Store.tsx";
-import { NodeItem } from "../../components/admin/NodeItem.tsx";
-import SearchBar from "../../features/SearchBar.tsx";
+import { AppDispatch, RootState } from "../../redux/Store";
+import { useMemo, useState } from "react";
+import { NodeItem } from "../../components/admin/NodeItem";
+import {
+  HotspotInformation,
+  HotspotMedia,
+  HotspotModel,
+  HotspotNavigation,
+} from "../../redux/slices/HotspotSlice";
 
-const ManageNode: React.FC = () => {
-  const [activeStep, setActiveStep] = useState(1);
-  const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
-  const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
+export interface NodeObject {
+  id: number;
+  spaceId: number;
+  fieldId: number;
+  userId: number;
+  url: string;
+  name: string;
+  description: string;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  yawOffset: number;
+  status: number;
+  autoRotate: number;
+  speedRotate: number;
+  lightIntensity: number;
+  updatedAt: number;
+  navHotspots: HotspotNavigation[];
+  infoHotspots: HotspotInformation[];
+  mediaHotspots: HotspotMedia[];
+  modelHotspots: HotspotModel[];
+}
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [panoramaURL, setPanoramaURL] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectSpace, setSelectSpace] = useState("");
-  const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
-    []
-  );
+const ManagerTour = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isToggle, setIsToggle] = useState(false);
-
-  const dispatch = useDispatch<AppDispatch>();
-  const fields = useSelector((state: RootState) => state.data.fields);
-  const spaces = useSelector((state: RootState) => state.data.spaces);
-
-  const toggleFeature = () => {
-    setIsToggle((preState) => !preState);
-  };
-
   const nodes = useSelector((state: RootState) => state.data.nodes);
+
+  //Custom phân trang client-side.
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  let pageSize = 10; // Số lượng bản ghi trên 1 page.
+
+  const currentListNodeData = useMemo(() => {
+    const firstPageIndex = (currentPage - 1) * pageSize;
+    const lastPageIndex = firstPageIndex + pageSize;
+    return nodes.slice(firstPageIndex, lastPageIndex);
+  }, [currentPage]);
 
   // Chon space
   const handleSelectNode = (node: any) => {
-    navigate("/admin/updateTour", { state: node });
+    navigate(`${location.pathname}/${node.id}`, { state: node });
   };
-
-  //search
-  const [searchTerm, setSearchTerm] = useState("");
-  const filteredNodes = nodes.filter(
-    (node) => node.name.toLowerCase().includes(searchTerm.toLowerCase())
-    //  ||
-    //   node.spaceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    //   node.fieldName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className={styles.container}>
-      <div className={stylesBar.navigateBar}>
-        <FaAngleLeft />
-        <h2 className={stylesBar.h2}>Danh sách tour</h2>
-        <SearchBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          placeholder="Tìm theo tên không gian..."
-        />
-      </div>
-      <div className={styles.title} onClick={toggleFeature}>
-        <b>Tên không gian</b>
-        {isToggle ? (
-          <FaAngleUp className={styles.iconDown} />
-        ) : (
-          <FaAngleDown className={styles.iconDown} />
-        )}
-      </div>
-      <div className={styles.list_tour}>
-        <div className={styles.list_tour_main}>
-          {filteredNodes.map((node) => (
-            <NodeItem
-              key={node.id}
-              {...node}
-              id={node.id}
-              userId={node.userId}
-              status={node.status}
-              name={node.name}
-              fieldName={fields.find((f) => f.id == node.fieldId).name}
-              spaceName={spaces.find((s) => s.id == node.spaceId).name}
-              description={node.description}
-              updatedAt={node.updatedAt}
-              url={node.url}
-              onclick={() => handleSelectNode(node)}
-            />
-          ))}
+      <div className={styles.tour_features}>
+        <div className={`${styles.tour_search_box} ${styles.tour_box}`}>
+          <input
+            type="text"
+            name="field"
+            id="input"
+            placeholder="Tìm kiếm tour mới..."
+            className={styles.tour_search_input}
+          />
+          <label htmlFor="input" className={styles.label_for_search}>
+            <IoSearch className={styles.search_icon} />
+          </label>
+          <div className={styles.border}></div>
+          <button className={styles.mic_search}>
+            <FaMicrophone className={styles.mic_icon} />
+          </button>
         </div>
+
+        <div className={`${styles.tour_filter_box} ${styles.tour_box}`}>
+          <TiFilter className={styles.filter_icon} />
+          <button className={styles.filter_popup}>Lọc</button>
+        </div>
+
+        <div className={`${styles.tour_sort_box} ${styles.tour_box}`}>
+          <FaSortAmountDown className={styles.sort_icon} />
+          <button className={styles.filter_popup}>Tên</button>
+        </div>
+
+        <Link
+          to="/admin/createTour"
+          className={`${styles.tour_add} ${styles.tour_box}`}
+        >
+          Thêm tour mới
+        </Link>
       </div>
+      <hr className={styles.break} />
+
+      <div className={styles.tour_quantity}>Kết quả: {nodes.length} tour.</div>
+
+      <div className={styles.tour_list}>
+        {currentListNodeData.map((node) => (
+          <NodeItem
+            key={node.id}
+            node={node}
+            onclick={() => handleSelectNode(node)}
+          />
+        ))}
+      </div>
+
+      {/* <div className={styles.field_pagination}>
+        <Pagination
+          onPageChange={(page) => setCurrentPage(page)}
+          totalCount={fields.length}
+          siblingCount={1}
+          currentPage={currentPage}
+          pageSize={pageSize}
+        />
+      </div> */}
     </div>
   );
 };
 
-export default ManageNode;
+export default ManagerTour;

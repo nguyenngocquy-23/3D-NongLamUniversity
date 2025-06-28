@@ -127,7 +127,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
             <Link to="/admin/fields">
               <li
                 className={
-                  location.pathname === "/3dtour/admin/fields"
+                  location.pathname.includes("/admin/fields")
                     ? styles.click
                     : ""
                 }
@@ -138,7 +138,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
             <Link to="/admin/spaces">
               <li
                 className={
-                  location.pathname === "/3dtour/admin/spaces"
+                  location.pathname.includes("/admin/spaces")
                     ? styles.click
                     : ""
                 }
@@ -149,12 +149,10 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
             <Link to="/admin/tours">
               <li
                 className={
-                  location.pathname === "/3dtour/admin/tours"
-                    ? styles.click
-                    : ""
+                  location.pathname.includes("/admin/tours") ? styles.click : ""
                 }
               >
-                {location.pathname}
+                Tour
               </li>
             </Link>
           </ul>

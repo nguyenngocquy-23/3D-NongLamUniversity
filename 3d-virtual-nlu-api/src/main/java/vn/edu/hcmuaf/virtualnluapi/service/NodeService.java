@@ -40,6 +40,11 @@ public class NodeService {
         return nodeDao.getListPreloadNodeByNode(nodeId);
     }
 
+    public List<NodeFullResponse> getNodeListByMasterId(int nodeId) {
+        return nodeDao.getListNodeByMasterId(nodeId);
+    }
+
+
     public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {
         try {
             return nodeDao.getNodeByUser(request);

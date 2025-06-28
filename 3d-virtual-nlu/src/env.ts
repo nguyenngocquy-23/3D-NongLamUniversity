@@ -25,6 +25,7 @@ export const API_URLS = {
 
   GET_MASTER_NODES: `${DOMAIN}/node/master`,
   GET_PRELOAD_NODES: `${DOMAIN}/node/preloadNodeList`,
+  GET_FULL_TOUR: `${DOMAIN}/node/nodeListByMasterId`,
   GET_DEFAULT_NODE: `${DOMAIN}/node/default`,
   PRIVATE_NODE_OF_USER: `${DOMAIN}/node/privateByUser`,
   NODE_OF_USER: `${DOMAIN}/node/byUser`,

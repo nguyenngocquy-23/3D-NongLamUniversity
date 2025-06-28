@@ -21,6 +21,7 @@ import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import TourScene from "../../components/visitor/TourScene";
 import gsap from "gsap";
+import { AnimatePresence, motion } from "framer-motion";
 
 import {
   addHotspotPosition,
@@ -605,59 +606,74 @@ const CreateTourStep2 = () => {
           </div>
         </div>
         {/* Hiển thị menu bên phải.*/}
-        <div
-          className={`${styles.rightMenu} ${isMenuVisible ? styles.show : ""}`}
-        >
-          <div className={styles.rightTitle}>
-            <FaAngleRight
-              className={styles.close_menu_btn}
-              onClick={handleOpenMenu}
-            />
-            <h2>Cấu hình</h2>
-          </div>
-
-          <RightMenuCreateTour
-            tasks={tasks}
-            openTaskIndex={openTaskIndex}
-            onTaskClick={handleOpenTask}
-            setPreOpenTask={setPreTaskIndex}
-            saveLinkNode={false}
-          />
-        </div>
-        {/* tasks */}
-        <div
-          className={`${styles.task_container} ${
-            isMenuVisible && openTaskIndex !== null && currentHotspotId === null
-              ? styles.show
-              : ""
-          }`}
-        >
-          {openTaskIndex !== null && currentHotspotId === null ? (
-            <TaskContainerCT
-              id={preTaskIndex}
-              name={tasks.find((t) => t.id === preTaskIndex)?.title || ""}
+        <AnimatePresence>
+          {isMenuVisible && (
+            <motion.div
+              initial={{ x: 300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 300, opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className={`${styles.rightMenu} `}
             >
-              {preTaskIndex
-                ? getTaskContentById(openTaskIndex ?? preTaskIndex)
-                : ""}
-            </TaskContainerCT>
-          ) : (
-            ""
+              <div className={styles.rightTitle}>
+                <FaAngleRight
+                  className={styles.close_menu_btn}
+                  onClick={handleOpenMenu}
+                />
+                <h2>Cấu hình</h2>
+              </div>
+
+              <RightMenuCreateTour
+                tasks={tasks}
+                openTaskIndex={openTaskIndex}
+                onTaskClick={handleOpenTask}
+                setPreOpenTask={setPreTaskIndex}
+                saveLinkNode={false}
+              />
+            </motion.div>
           )}
-        </div>
-        {/* Hộp chỉnh sửa hotspot */}
-        <div
-          className={`${styles.update_hotspot_container} ${
-            currentHotspotId != null ? styles.show : ""
-          }`}
-        >
-          <UpdateHotspot
-            hotspotId={currentHotspotId}
-            setHotspotId={setCurrentHotspotId}
-            onPropsChange={handleOnPropsChange}
-            limitNav={true}
-          />
-        </div>
+        </AnimatePresence>
+        <AnimatePresence>
+          {isMenuVisible &&
+            openTaskIndex !== null &&
+            currentHotspotId === null && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className={`${styles.task_container}`}
+              >
+                <TaskContainerCT
+                  id={preTaskIndex}
+                  name={tasks.find((t) => t.id === preTaskIndex)?.title || ""}
+                >
+                  {preTaskIndex
+                    ? getTaskContentById(openTaskIndex ?? preTaskIndex)
+                    : ""}
+                </TaskContainerCT>
+              </motion.div>
+            )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {currentHotspotId !== null && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className={`${styles.update_hotspot_container} `}
+            >
+              <UpdateHotspot
+                hotspotId={currentHotspotId}
+                setHotspotId={setCurrentHotspotId}
+                onPropsChange={handleOnPropsChange}
+                limitNav={true}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Hướng dẫn sử dụng */}
         <button className={styles.guide_button} title="Hướng dẫn">
           <FaBook />

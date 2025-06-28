@@ -6,7 +6,6 @@ import { AppDispatch, RootState } from "../../redux/Store.ts";
 import { fetchFields } from "../../redux/slices/DataSlice.ts";
 import axios from "axios";
 import UploadFile from "./UploadFile.tsx";
-import TrackingNode from "./minimap/TrackingNode.tsx";
 import { API_URLS } from "../../env.ts";
 
 const BoardUploader = () => {
@@ -32,10 +31,9 @@ const BoardUploader = () => {
     }
 
     try {
-      const response = await axios.post(
-        API_URLS.ADMIN_GET_SPACE_OF_FIELD,
-        { fieldId: fieldId }
-      );
+      const response = await axios.post(API_URLS.ADMIN_GET_SPACE_OF_FIELD, {
+        fieldId: fieldId,
+      });
       const listSpace = response.data.data;
       setListSpace(listSpace);
       dispatch(setSpaceId("0"));

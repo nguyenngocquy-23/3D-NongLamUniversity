@@ -61,7 +61,7 @@ const Layout = () => {
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(true);
-  const [isHideHeader, setIsHideHeader] = useState(false);
+  const [isOpenSideBar, setIsOpenSideBar] = useState(false);
 
   useEffect(() => {
     if (
@@ -78,11 +78,11 @@ const Layout = () => {
     <div className={styles.container}>
       {/* Sidebar */}
       {!isOptionFullScreen && currentUser && (
-        <Sidebar isOpenSidebar={true} currentUser={currentUser} />
+        <Sidebar isOpenSidebar={isOpenSideBar} currentUser={currentUser} />
       )}
       {/* Main Content */}
       <main className={styles.main_contain}>
-        {!isOptionFullScreen && (
+        {!isOptionFullScreen && isOpenSideBar && (
           <header className={styles.header}>
             <h2>Tổng quan</h2>
           </header>

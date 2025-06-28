@@ -80,6 +80,7 @@ const TourDetail = () => {
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
   >(null); //test
+
   const { openTaskIndex, completedTaskIds, unlockedTaskIds, handleOpenTask } =
     useSequentialTasks(tasks.length);
 
