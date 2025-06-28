@@ -522,7 +522,7 @@ const TourDetail = () => {
       addHotspotPosition({
         nodeId: currentSelectId ? currentSelectId : "",
         hotspotPosition: {
-          hotspotId: updatedProps.id,
+          id: updatedProps.id,
           position: [point.x, point.y, point.z],
         },
       })
@@ -662,7 +662,7 @@ const TourDetail = () => {
             <>
               {isTextureReady &&
                 hotspotInformations
-                  .filter((hotspot) => hotspot.nodeId == node.id)
+                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
                   .map((hotspot) => (
                     <GroundHotspotInfo
                       key={hotspot.id}
@@ -672,7 +672,7 @@ const TourDetail = () => {
                   ))}
               {isTextureReady &&
                 hotspotNavigations
-                  .filter((hotspot) => hotspot.nodeId == node.id)
+                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
                   .map((hotspot) => (
                     <GroundHotspot
                       key={hotspot.id}
@@ -688,7 +688,7 @@ const TourDetail = () => {
                   ))}
               {isTextureReady &&
                 hotspotModels
-                  .filter((hotspot) => hotspot.nodeId == node.id)
+                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
                   .map((hotspot) => (
                     <GroundHotspotModel
                       key={hotspot.id}
@@ -698,7 +698,7 @@ const TourDetail = () => {
                   ))}
               {isTextureReady &&
                 hotspotMedias
-                  .filter((hotspot) => hotspot.nodeId == node.id)
+                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
                   .map((hotspot) => (
                     <VideoMeshComponent
                       key={hotspot.id}

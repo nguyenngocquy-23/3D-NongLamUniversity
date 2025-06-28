@@ -7,6 +7,7 @@ export interface BaseHotspot {
   id: string;
   nodeId: string;
   iconId: number;
+  status: number;
   positionX: number;
   positionY: number;
   positionZ: number;
@@ -72,39 +73,43 @@ const hotspotSlice = createSlice({
   reducers: {
     addNavigationHotspot: (
       state,
-      action: PayloadAction<Omit<HotspotNavigation, "id">>
+      action: PayloadAction<HotspotNavigation>
+      // action: PayloadAction<Omit<HotspotNavigation, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload,
-        id: nanoid(),
+        ...action.payload
       });
+      // id: nanoid(),
     },
     addInformationHotspot: (
       state,
-      action: PayloadAction<Omit<HotspotInformation, "id">>
+      action: PayloadAction<HotspotInformation>
+      // action: PayloadAction<Omit<HotspotInformation, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload,
-        id: nanoid(),
+        ...action.payload
       });
+      // id: nanoid(),
     },
     addMediaHotspot: (
       state,
-      action: PayloadAction<Omit<HotspotMedia, "id">>
+      action: PayloadAction<HotspotMedia>
+      // action: PayloadAction<Omit<HotspotMedia, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload,
-        id: nanoid(),
+        ...action.payload
       });
+      // id: nanoid(),
     },
     addModelHotspot: (
       state,
-      action: PayloadAction<Omit<HotspotModel, "id">>
+      action: PayloadAction<HotspotModel>
+      // action: PayloadAction<Omit<HotspotModel, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload,
-        id: nanoid(),
+        ...action.payload
       });
+      // id: nanoid(),
     },
     deleteHotspot: (state, action: PayloadAction<string>) => {
       state.hotspotList = state.hotspotList.filter(
@@ -163,11 +168,6 @@ const hotspotSlice = createSlice({
         (h) => h.id === action.payload.hotspotId
       );
 
-      console.log(
-        "updateConfigHotspot action.payload.propHotspot: ",
-        action.payload.propHotspot
-      );
-
       if (index !== -1) {
         const {
           id,
@@ -191,24 +191,36 @@ const hotspotSlice = createSlice({
           positionZ !== undefined
         ) {
           const node = state.hotspotPositions.find(
-            (n) => n.nodeId === (nodeId ?? state.hotspotList[index].nodeId)
+            (n) => n.nodeId == (nodeId ?? state.hotspotList[index].nodeId)
           );
-
+          
           if (node) {
             const hotspotIndex = node.hotspotPositions.findIndex(
-              (h) => h.id === action.payload.hotspotId
+              (h) => h.id == action.payload.hotspotId
             );
+            if (hotspotIndex != -1) {
+              const oldHotspot = node.hotspotPositions[hotspotIndex];
 
-            if (hotspotIndex !== -1) {
-              node.hotspotPositions[hotspotIndex] = {
-                ...node.hotspotPositions[hotspotIndex],
-                position: {
-                  ...node.hotspotPositions[hotspotIndex].position,
-                  ...(positionX !== undefined && { x: positionX }),
-                  ...(positionY !== undefined && { y: positionY }),
-                  ...(positionZ !== undefined && { z: positionZ }),
-                },
+              const updatedPosition = {
+                ...oldHotspot.position,
+                ...(positionX !== undefined && { positionX }),
+                ...(positionY !== undefined && { positionY }),
+                ...(positionZ !== undefined && { positionZ }),
               };
+
+              console.log(
+                "✅ Updated hotspot: ",
+                updatedPosition
+              );
+              node.hotspotPositions[hotspotIndex] = {
+                ...oldHotspot,
+                position: updatedPosition,
+              };
+              console.log(
+                "✅ abcdaklsdfhads///: ",
+                node.hotspotPositions[hotspotIndex]
+              );
+
             }
           }
         }
@@ -328,6 +340,36 @@ const hotspotSlice = createSlice({
 
     removeHotspot: (state, action: PayloadAction<{ hotspotId: string }>) => {
       const index = state.hotspotList.findIndex(
+        (h) => h.id == action.payload.hotspotId
+      );
+      if (index !== -1) {
+        const hotspot = state.hotspotList.find(
+          (h) => h.id == action.payload.hotspotId
+        );
+        console.log("removeHotspot hotspot: ", action.payload.hotspotId);
+        if (!hotspot) return; // Nếu không tìm thấy thì thoát
+
+        // Duyệt từng nodeId trong hotspotPositions
+        state.hotspotPositions = state.hotspotPositions
+          .map((node) => ({
+            ...node,
+            hotspotPositions: node.hotspotPositions
+              .filter((h) => !(h.id == hotspot.id))
+              .filter((h) => h.position[0] != hotspot.positionX),
+          }))
+          // Xóa luôn node nếu mảng vị trí rỗng sau filter
+          .filter((node) => node.hotspotPositions.length > 0);
+        state.hotspotList = state.hotspotList.filter(
+          (h) => h.id != action.payload.hotspotId
+        );
+      }
+    },
+
+    updateHotspotStatus: (
+      state,
+      action: PayloadAction<{ hotspotId: string }>
+    ) => {
+      const index = state.hotspotList.findIndex(
         (h) => h.id === action.payload.hotspotId
       );
       if (index !== -1) {
@@ -348,9 +390,7 @@ const hotspotSlice = createSlice({
           }))
           // Xóa luôn node nếu mảng vị trí rỗng sau filter
           .filter((node) => node.hotspotPositions.length > 0);
-        state.hotspotList = state.hotspotList.filter(
-          (h) => h.id !== action.payload.hotspotId
-        );
+        hotspot.status = 0; // Cập nhật trạng thái hotspot thành 0
       }
     },
 
@@ -364,7 +404,7 @@ const hotspotSlice = createSlice({
       const { nodeId, hotspotPosition } = action.payload;
 
       const index = state.hotspotPositions.findIndex(
-        (h) => h.nodeId === nodeId
+        (h) => h.nodeId == nodeId
       );
 
       if (index === -1) {
@@ -373,14 +413,16 @@ const hotspotSlice = createSlice({
           nodeId,
           hotspotPositions: [
             {
-              id: hotspotPosition.hotspotId,
+              id: hotspotPosition.id,
               position: hotspotPosition.position,
             },
           ],
         });
       } else {
-        // Nếu đã có nodeId => chỉ thêm vào danh sách vị trí
-        state.hotspotPositions[index].hotspotPositions.push(hotspotPosition);
+        state.hotspotPositions[index].hotspotPositions.push({
+          id: hotspotPosition.id,
+          position: hotspotPosition.position,
+        });
       }
     },
 
@@ -419,6 +461,7 @@ export const {
   updateCornerPoint,
   updateCornerHotspotMedia,
   removeHotspot,
+  updateHotspotStatus,
   addHotspotPosition,
   addHotspotsFromResponse,
 } = hotspotSlice.actions;
