@@ -65,7 +65,6 @@ const TourDetail = () => {
   const user = userJson ? JSON.parse(userJson) : null;
   const navigate = useNavigate();
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const cameraRadarRef = useRef<number>(0);
   const controlsRef = useRef<any>(null); //OrbitControls
   /**
    * Logic create tour step 2 of admin

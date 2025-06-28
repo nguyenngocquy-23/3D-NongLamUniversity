@@ -10,7 +10,6 @@ import {
 } from "../redux/slices/PanoramaSlice";
 import { RiEdit2Line } from "react-icons/ri";
 import { MdZoomInMap, MdZoomOutMap } from "react-icons/md";
-import { getAngleFromXZ, getArcAnglesThree } from "../utils/MathUtils";
 import {
   DEFAULT_ANGLE_RADAR,
   DEFAULT_ANGLE_THREE,
@@ -30,12 +29,18 @@ import { clearHotspotNavigation } from "../redux/slices/HotspotSlice";
 import { FaSave } from "react-icons/fa";
 import ImageSelect from "./SelectPanorama";
 import { AnimatePresence, motion } from "framer-motion";
+import { TbTournament } from "react-icons/tb";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
   angleCurrent: number;
+  currentTour?: string;
 };
-const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
+const MiniMap: React.FC<MiniMapProps> = ({
+  currentPanorama,
+  angleCurrent,
+  currentTour,
+}) => {
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
   };
@@ -274,13 +279,38 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                       <TiTick className={styles.node_tick} />
                     </div>
                   )}
-
-                  {item.config.status === 2 && (
-                    <div className={styles.master_node_icon_container}>
-                      <GiQueenCrown className={styles.master_node_icon} />
-                    </div>
+                  {item.config.status === 2 ? (
+                    currentTour ? (
+                      item.id !== currentTour ? (
+                        <div className={styles.master_node_icon_container}>
+                          <TbTournament className={styles.master_node_icon} />
+                        </div>
+                      ) : (
+                        <div className={styles.master_node_icon_container}>
+                          <GiQueenCrown className={styles.master_node_icon} />
+                        </div>
+                      )
+                    ) : (
+                      <div className={styles.master_node_icon_container}>
+                        <GiQueenCrown className={styles.master_node_icon} />
+                      </div>
+                    )
+                  ) : (
+                    ""
                   )}
 
+                  {/* {currentTour
+                    ? item.config.status === 2 &&
+                      item.id !== currentTour && (
+                        <div className={styles.master_node_icon_container}>
+                          <GiQueenCrown className={styles.master_node_icon} />
+                        </div>
+                      )
+                    : item.config.status === 2 && (
+                        <div className={styles.master_node_icon_container}>
+                          <GiQueenCrown className={styles.master_node_icon} />
+                        </div>
+                      )} */}
                   <span className={styles.node_name}>{item.config.name}</span>
                 </div>
               </div>

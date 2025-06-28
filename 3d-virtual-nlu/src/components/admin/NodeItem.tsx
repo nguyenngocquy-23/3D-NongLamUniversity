@@ -16,7 +16,11 @@ export const NodeItem = ({ onclick, node }: NodeItemProps) => {
   return (
     <div className={styles.node_wrapper} onClick={onclick}>
       <div className={styles.node_content_left}>
-        <img src={node.url} alt="thumbnail-node" />
+        <img
+          src={node.url}
+          alt="thumbnail-node"
+          aria-placeholder="backgroundNL.jpg"
+        />
       </div>
 
       <div className={styles.node_content_right}>

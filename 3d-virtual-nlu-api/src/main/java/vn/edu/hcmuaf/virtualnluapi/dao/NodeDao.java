@@ -162,14 +162,30 @@ public class NodeDao {
 
     }
 
+    /**
+     * NodeByMasterId:Lấy ra danh sách các node có chung (đơn vị là tour khởi tạo).
+     * @param nodeId : master node của 1 tour.
+     * @return
+     * + Thông tin hoàn chỉnh của master node kèm theo các node con.
+     * + Thông tin hotspot. => Lấy kèm thêm node có targetNode là hotspot nhưng nó là không gian khác nên chỉ hiển thị không thể click
+     *
+     */
 
     public List<NodeFullResponse> getListNodeByMasterId(int nodeId) {
         /**
          * Truy xuất sql cho danh sách targetNodeId dựa vào hotspot navigation..
          */
-        String getTargetNodeIdSQL = " SELECT hn.targetNodeId FROM hotspots h JOIN hotspot_navigations hn ON h.id = hn.hotspotId" +
-                " WHERE h.nodeId = :nodeId AND h.type = 1";
+        String getTargetNodeIdSQL = """
+              SELECT hn.targetNodeId FROM hotspots h JOIN hotspot_navigations hn ON h.id = hn.hotspotId 
+                WHERE h.nodeId = :nodeId AND h.type = 1
+                """;
 
+        String getNodeStatusSQL = """
+                SELECT id, status FROM nodes WHERE id IN (<ids>)
+                
+                """;
+
+        //Danh sách targetNodeId.
         List<Integer> targetNodeIds = ConnectionPool.getConnection().withHandle(
                 handle -> handle.createQuery(getTargetNodeIdSQL)
                         .bind("nodeId", nodeId)
@@ -181,13 +197,26 @@ public class NodeDao {
             return new ArrayList<>();
         }
 
+        List<NodeStatusResponse> nodesWithStatus = ConnectionPool.getConnection().withHandle(
+                handle -> handle.createQuery(getNodeStatusSQL).bindList("ids", targetNodeIds)
+                        .map((rs, ctx) -> new NodeStatusResponse(rs.getInt("id"),
+                                rs.getByte("status")
+                        )).list()
+        );
+
         List<NodeFullResponse> listNodesOfTour = new ArrayList<>();
         NodeFullResponse mainNode = getFullNodeByNodeId(nodeId);
         listNodesOfTour.add(mainNode);
 
-        for (Integer i : targetNodeIds) {
-            NodeFullResponse node = getFullNodeByNodeId(i);
-            if (node != null) listNodesOfTour.add(node);
+        for(NodeStatusResponse item : nodesWithStatus) {
+            if(item.getStatus() == 1) {
+                NodeFullResponse node = getFullNodeByNodeId(item.getId());
+                if(node !=null) listNodesOfTour.add(node);
+            } else if (item.getStatus() == 2) {
+                NodeFullResponse node = getCustomNodeByNodeId(item.getId());
+                if(node != null) listNodesOfTour.add(node);
+            }
+
         }
         return listNodesOfTour;
     }
@@ -218,6 +247,26 @@ public class NodeDao {
         nodeFullResponse.setModelHotspots(modelHotspots);
         return nodeFullResponse;
     }
+
+    /**
+     * Không lấy danh sách hotspot con. Tất cả Rỗng.
+     */
+    public NodeFullResponse getCustomNodeByNodeId(int nodeId) {
+        String sql = """
+                SELECT id, spaceId, url , name, updatedAt, userId, description, status, positionX, positionY, positionZ, yawOffset,
+                 autoRotate, speedRotate, lightIntensity
+                FROM nodes 
+                WHERE id = :nodeId
+                """;
+        NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+                .bind("nodeId", nodeId)
+                .mapToBean(NodeFullResponse.class).one());
+        if (nodeFullResponse == null) {
+            return null;
+        }
+        return nodeFullResponse;
+    }
+
 
     public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {
         String sql = """

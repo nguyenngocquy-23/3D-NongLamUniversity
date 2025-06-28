@@ -638,9 +638,9 @@ const CreateTourStep2 = () => {
             openTaskIndex !== null &&
             currentHotspotId === null && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                initial={{ y: 800, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 800, opacity: 0 }}
                 transition={{ duration: 0.5 }}
                 className={`${styles.task_container}`}
               >
@@ -658,9 +658,9 @@ const CreateTourStep2 = () => {
         <AnimatePresence>
           {currentHotspotId !== null && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ y: 800, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 800, opacity: 0 }}
               transition={{ duration: 0.5 }}
               className={`${styles.update_hotspot_container} `}
             >
