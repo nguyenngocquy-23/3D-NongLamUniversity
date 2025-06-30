@@ -201,26 +201,16 @@ const hotspotSlice = createSlice({
             if (hotspotIndex != -1) {
               const oldHotspot = node.hotspotPositions[hotspotIndex];
 
-              const updatedPosition = {
-                ...oldHotspot.position,
-                ...(positionX !== undefined && { positionX }),
-                ...(positionY !== undefined && { positionY }),
-                ...(positionZ !== undefined && { positionZ }),
-              };
+              const updatedPosition: [number, number, number] = [
+                positionX !== undefined ? positionX : oldHotspot.position[0],
+                positionY !== undefined ? positionY : oldHotspot.position[1],
+                positionZ !== undefined ? positionZ : oldHotspot.position[2],
+              ];
 
-              console.log(
-                "✅ Updated hotspot: ",
-                updatedPosition
-              );
               node.hotspotPositions[hotspotIndex] = {
                 ...oldHotspot,
                 position: updatedPosition,
               };
-              console.log(
-                "✅ abcdaklsdfhads///: ",
-                node.hotspotPositions[hotspotIndex]
-              );
-
             }
           }
         }
