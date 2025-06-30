@@ -14,6 +14,7 @@ import { NodeItem } from "./NodeItem.tsx";
 import SearchBar from "../../features/SearchBar.tsx";
 import axios from "axios";
 import { API_URLS } from "../../env.ts";
+import { Perf } from "r3f-perf";
 import {
   addPanorama,
   addPanoramasFromResponse,
@@ -44,7 +45,6 @@ import GroundHotspotInfo from "../visitor/GroundHotspotInfo.tsx";
 import GroundHotspotModel from "../visitor/GroundHotspotModel.tsx";
 import VideoMeshComponent from "./VideoMesh.tsx";
 import RightMenuCreateTour from "./RightMenuCT.tsx";
-import { formatTimeAgo } from "../../utils/formatDateTime.ts";
 import UpdateHotspot from "./taskCreateTourList/UpdateHotspot.tsx";
 import TaskContainerCT from "./TaskContainerCT.tsx";
 import { IoMdMenu } from "react-icons/io";
@@ -54,8 +54,15 @@ import Swal from "sweetalert2";
 import Task1 from "./taskCreateTourList/Task1DisplayInfo.tsx";
 import Task2 from "./taskCreateTourList/Task2BasicConfig.tsx";
 import Task3 from "./taskCreateTourList/Task3AddHotspot.tsx";
+import gsap from "gsap";
 import { AnimatePresence, motion } from "framer-motion";
 import MiniMap from "../Minimap.tsx";
+import {
+  getFilteredHotspotInformationInList,
+  getFilteredHotspotMediaInList,
+  getFilteredHotspotModelInList,
+  getFilteredHotspotNavigationInList,
+} from "../../redux/slices/Selectors.ts";
 
 const ManagerTourDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -102,27 +109,11 @@ const ManagerTourDetail: React.FC = () => {
 
   const hotspots = useSelector((state: RootState) => state.hotspots);
 
-  const hotspotNavigations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
-    )
-  );
-  const hotspotInformations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
-    )
-  );
-  const hotspotModels = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotModel => hotspot.type === 4
-    )
-  );
+  const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
+  const hotspotInformations = useSelector(getFilteredHotspotInformationInList);
+  const hotspotModels = useSelector(getFilteredHotspotModelInList);
 
-  const hotspotMedias = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-    )
-  );
+  const hotspotMedias = useSelector(getFilteredHotspotMediaInList);
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
   >(null);
@@ -390,6 +381,7 @@ const ManagerTourDetail: React.FC = () => {
               }}
               className={styles.tourCanvas}
             >
+              <Perf />
               <UpdateCameraOnResize />
               <Environment preset="studio" background={false} />
               <axesHelper args={[10]} position={[0, -90, 0]} />
@@ -399,6 +391,7 @@ const ManagerTourDetail: React.FC = () => {
                 textureCurrent={currentNode.url}
                 yawOffsetCurrent={currentNode.config.yawOffset}
                 lightIntensity={1}
+                onTextureReady={() => setIsTextureReady(true)}
               />
               <CamControls
                 controlsRef={controlsRef}
@@ -421,45 +414,52 @@ const ManagerTourDetail: React.FC = () => {
                 currentTour={nodeId}
               />
 
-              {hotspotInformations
-                .filter((hotspot) => hotspot.nodeId == currentNode.id)
-                .map((hotspot) => (
-                  <GroundHotspotInfo
-                    key={hotspot.id}
-                    hotspotInfo={hotspot}
-                    setCurrentHotspotId={setCurrentHotspotId}
-                  />
-                ))}
-              {hotspotNavigations
-                .filter((hotspot) => hotspot.nodeId == currentNode.id)
-                .map((hotspot) => (
-                  <GroundHotspot
-                    key={hotspot.id}
-                    onNavigate={(targetNodeId, cameraTargetPosition) =>
-                      handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                    }
-                    hotspotNavigation={hotspot}
-                    setCurrentHotspotId={setCurrentHotspotId}
-                  />
-                ))}
-              {hotspotModels
-                .filter((hotspot) => hotspot.nodeId == currentNode.id)
-                .map((hotspot) => (
-                  <GroundHotspotModel
-                    key={hotspot.id}
-                    hotspotModel={hotspot}
-                    setCurrentHotspotId={setCurrentHotspotId}
-                  />
-                ))}
-              {hotspotMedias
-                .filter((hotspot) => hotspot.nodeId == currentNode.id)
-                .map((hotspot) => (
-                  <VideoMeshComponent
-                    key={hotspot.id}
-                    hotspotMedia={hotspot}
-                    setCurrentHotspotId={setCurrentHotspotId}
-                  />
-                ))}
+              {isTextureReady &&
+                hotspotInformations
+                  .filter((hotspot) => hotspot.nodeId == currentNode.id)
+                  .map((hotspot) => (
+                    <GroundHotspotInfo
+                      key={hotspot.id}
+                      hotspotInfo={hotspot}
+                      setCurrentHotspotId={setCurrentHotspotId}
+                    />
+                  ))}
+              {isTextureReady &&
+                hotspotNavigations
+                  .filter((hotspot) => hotspot.nodeId == currentNode.id)
+                  .map((hotspot) => (
+                    <GroundHotspot
+                      key={hotspot.id}
+                      onNavigate={(targetNodeId, cameraTargetPosition) =>
+                        handleHotspotNavigate(
+                          targetNodeId,
+                          cameraTargetPosition
+                        )
+                      }
+                      hotspotNavigation={hotspot}
+                      setCurrentHotspotId={setCurrentHotspotId}
+                    />
+                  ))}
+              {isTextureReady &&
+                hotspotModels
+                  .filter((hotspot) => hotspot.nodeId == currentNode.id)
+                  .map((hotspot) => (
+                    <GroundHotspotModel
+                      key={hotspot.id}
+                      hotspotModel={hotspot}
+                      setCurrentHotspotId={setCurrentHotspotId}
+                    />
+                  ))}
+              {isTextureReady &&
+                hotspotMedias
+                  .filter((hotspot) => hotspot.nodeId == currentNode.id)
+                  .map((hotspot) => (
+                    <VideoMeshComponent
+                      key={hotspot.id}
+                      hotspotMedia={hotspot}
+                      setCurrentHotspotId={setCurrentHotspotId}
+                    />
+                  ))}
             </Canvas>
 
             <div className={styles.toggle_right_menu}>

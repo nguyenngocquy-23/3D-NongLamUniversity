@@ -157,6 +157,11 @@ const CreateTourStep2 = () => {
     lightIntensity = 1,
     autoRotate = 0,
     speedRotate = 0,
+    brightness = 0,
+    contrast = 1,
+    saturation = 1.2,
+    grayscale = 0,
+    exposure = 1,
   } = currentPanorama?.config ?? {};
 
   const cameraPosition: [number, number, number] = [
@@ -504,6 +509,11 @@ const CreateTourStep2 = () => {
             yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
             onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
+            brightness={brightness}
+            contrast={contrast}
+            saturation={saturation}
+            grayscale={grayscale}
+            exposure={exposure}
             onTextureReady={() => setIsTextureReady(true)}
           />
 

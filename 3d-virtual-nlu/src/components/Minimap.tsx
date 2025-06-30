@@ -10,6 +10,7 @@ import {
 } from "../redux/slices/PanoramaSlice";
 import { RiEdit2Line } from "react-icons/ri";
 import { MdZoomInMap, MdZoomOutMap } from "react-icons/md";
+import { getAngleFromXZ, getArcAnglesThree } from "../utils/MathUtils";
 import {
   DEFAULT_ANGLE_RADAR,
   DEFAULT_ANGLE_THREE,

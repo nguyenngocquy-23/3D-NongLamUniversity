@@ -23,6 +23,11 @@ const CrossFadeMaterial = shaderMaterial(
     uYawOffset1: 0,
     uYawOffset2: 0,
     uAmbientLight: new THREE.Color(0xffffff),
+    uBrightness: 0,
+    uContrast: 1,
+    uSaturation: 1,
+    uGrayscale: 0,
+    uExposure: 1,
   },
   //Vertex Shader .gsgl
   `
@@ -42,19 +47,35 @@ const CrossFadeMaterial = shaderMaterial(
     uniform float uYawOffset2;
     uniform vec3 uAmbientLight;
 
+    uniform float uBrightness; //[-1.0 , 1.0] 
+    uniform float uContrast; //[0.5, 2] 
+    uniform float uSaturation; //[0.0 , 2.0] 
+    uniform float uGrayscale; //[0 , 1.0] 
+    uniform float uExposure; //[0 , 2.0] 
+
     varying vec2 vUv;
 
     void main() {
       //Dịch uv theo yawOffset (Phần trăm 0.0 - 1.0 <=> 0 - 2Pi.)
-       vec2 uv1 = vec2(mod(vUv.x + uYawOffset1 , 1.0 ), vUv.y);
+      vec2 uv1 = vec2(mod(vUv.x + uYawOffset1 , 1.0 ), vUv.y);
       vec2 uv2 = vec2(mod(vUv.x + uYawOffset2 , 1.0), vUv.y );
       
       vec4 tex1 = texture2D(uTexture1, uv1);
       vec4 tex2 = texture2D(uTexture2, uv2);
       vec4 baseColor = mix(tex1, tex2, uProgress);
 
+      vec3 color = baseColor.rgb;
+      //Image effect
+      color *= uExposure;
+      color += uBrightness;
+      color = (color - 0.5) * uContrast + 0.5;
+      vec3 gray = vec3(dot(color, vec3(0.299, 0.587, 0.114)));
+      color = mix(color, gray, uGrayscale);
+      float avg = (color.r + color.g + color.b) / 3.0;
+      color = mix(vec3(avg), color, uSaturation);
+
       vec3 light = uAmbientLight;
-      vec3 finalColor= baseColor.rgb * light;
+      vec3 finalColor= color * light;
       gl_FragColor = vec4(finalColor, baseColor.a);
 
     }
@@ -72,6 +93,11 @@ declare module "@react-three/fiber" {
       uYawOffset1?: number;
       uYawOffset2?: number;
       uAmbientLight?: THREE.Color;
+      uBrightness?: number;
+      uContrast?: number;
+      uSaturation?: number;
+      uGrayscale?: number;
+      uExposure?: number;
     };
   }
 }
@@ -82,6 +108,11 @@ interface TourSceneProps {
   textureCurrent: string;
   yawOffsetCurrent: number;
   lightIntensity: number;
+  brightness?: number;
+  contrast?: number;
+  saturation?: number;
+  grayscale?: number;
+  exposure?: number;
   /**
    * Input: Nhận sự kiện click chuột từ CreateTourStep2
    * Output: Trả về giá trị raycast x,y,z.
@@ -97,6 +128,11 @@ const TourScene: React.FC<TourSceneProps> = ({
   textureCurrent,
   yawOffsetCurrent,
   lightIntensity,
+  brightness,
+  contrast,
+  saturation,
+  grayscale,
+  exposure,
   onPointerDown,
   onTextureReady,
 }) => {
@@ -234,6 +270,12 @@ const TourScene: React.FC<TourSceneProps> = ({
           uAmbientLight={new THREE.Color().setScalar(lightIntensity)} // ánh sáng môi trường
           uYawOffset1={yawOffsetList[0]}
           uYawOffset2={yawOffsetList[1]}
+          // ✨ Các hiệu ứng mới
+          uBrightness={brightness ?? 0}
+          uContrast={contrast ?? 1}
+          uSaturation={saturation ?? 1}
+          uGrayscale={grayscale ?? 0}
+          uExposure={exposure ?? 1}
         />
       </Sphere>
     </>

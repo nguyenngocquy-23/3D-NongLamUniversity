@@ -5,6 +5,11 @@ import { updatePanoConfig } from "../../../redux/slices/PanoramaSlice";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { degreeToRadian, radianToDegree } from "../../../utils/MathUtils";
+import { CiBrightnessDown } from "react-icons/ci";
+import { IoIosContrast } from "react-icons/io";
+import { MdExposure } from "react-icons/md";
+import { TbBrightness } from "react-icons/tb";
+import { IoColorFilter } from "react-icons/io5";
 // Tuỳ chỉnh thông số kỹ thuật.
 
 type Task2Props = {
@@ -28,6 +33,7 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
   } = currentPanorama.config ?? {};
 
   const [angle, setAngle] = useState<number>(0);
+  const [unlockDefault, setUnlockDefault] = useState<boolean>(false);
 
   /**
    * Cập nhật angle mỗi khi đổi panorama
@@ -78,32 +84,176 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
   return (
     <div className={styles.task2}>
       <div className={styles.contain_input}>
-        <label className={styles.label}>Hướng nhìn mặc định:</label>
-        <input
-          type="range"
-          min="0"
-          max="360"
-          step="1"
-          value={angle}
-          className={styles.name_input}
-          placeholder="Hướng nhìn"
-          onChange={(e) => handleAngleChange(Number(e.target.value))}
-        />
+        <span>Hướng mặc định/Default:</span>
+        <div
+          className={`${styles.contain_input_content} ${
+            unlockDefault ? styles.contain_blur : ""
+          }`}
+        >
+          <div className={styles.contain_label}>{angle}</div>
+          <div className={styles.contain_edit}>
+            <input
+              disabled={unlockDefault}
+              type="range"
+              min="0"
+              max="360"
+              step="1"
+              value={angle}
+              className={styles.name_input}
+              placeholder="Hướng nhìn"
+              onChange={(e) => handleAngleChange(Number(e.target.value))}
+            />
+            <progress max="360" value={angle}></progress>
+          </div>
+        </div>
+        <div className={styles.contain_safe}>
+          <label className={styles.switch}>
+            <input
+              type="checkbox"
+              checked={unlockDefault}
+              onChange={() => setUnlockDefault(!unlockDefault)}
+            />
+            <span>
+              <em></em>
+              <strong></strong>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div className={styles.contain_input}>
+        <div className={styles.contain_input_title}>
+          <span>Vùng sáng:</span>
+        </div>
+        <div className={styles.contain_input_content}>
+          <div className={styles.contain_label}>{lightIntensity}</div>
+          <div className={styles.contain_edit}>
+            <input
+              type="range"
+              min="1"
+              max="8"
+              step="0.1"
+              value={lightIntensity}
+              onChange={(e) =>
+                handleChangeNumber("lightIntensity", parseFloat(e.target.value))
+              }
+            />
+            <progress max="3" value={lightIntensity}></progress>
+          </div>
+        </div>
       </div>
       <div className={styles.contain_input}>
-        <label className={styles.label}>Ánh sáng:</label>
-        <input
-          type="range"
-          min="0"
-          max="7"
-          step="0.1"
-          value={lightIntensity}
-          onChange={(e) =>
-            handleChangeNumber("lightIntensity", parseFloat(e.target.value))
-          }
-        />
+        <div className={styles.contain_input_title}>
+          <CiBrightnessDown />
+          <span>Ánh sáng/Brightness:</span>
+        </div>
+        <div className={styles.contain_input_content}>
+          <div className={styles.contain_label}>2</div>
+          <div className={styles.contain_edit}>
+            <input
+              type="range"
+              name="opacity"
+              id="opacity"
+              min={0}
+              max={1}
+              step={0.1}
+              value={2}
+              onChange={(e) => {}}
+            />
+            <progress max="3" value={2}></progress>
+          </div>
+        </div>
       </div>
       <div className={styles.contain_input}>
+        <div className={styles.contain_input_title}>
+          <IoIosContrast />
+          <span>Tương phản/Contrast:</span>
+        </div>
+        <div className={styles.contain_input_content}>
+          <div className={styles.contain_label}>2</div>
+          <div className={styles.contain_edit}>
+            <input
+              type="range"
+              name="opacity"
+              id="opacity"
+              min={0}
+              max={1}
+              step={0.1}
+              value={2}
+              onChange={(e) => {}}
+            />
+            <progress max="3" value={2}></progress>
+          </div>
+        </div>
+      </div>
+      <div className={styles.contain_input}>
+        <div className={styles.contain_input_title}>
+          <IoColorFilter />
+          <span>Độ bão hoà/Saturation:</span>
+        </div>
+        <div className={styles.contain_input_content}>
+          <div className={styles.contain_label}>2</div>
+          <div className={styles.contain_edit}>
+            <input
+              type="range"
+              name="opacity"
+              id="opacity"
+              min={0}
+              max={1}
+              step={0.1}
+              value={2}
+              onChange={(e) => {}}
+            />
+            <progress max="3" value={2}></progress>
+          </div>
+        </div>
+      </div>
+      <div className={styles.contain_input}>
+        <div className={styles.contain_input_title}>
+          <TbBrightness />
+          <span>Trắng đen/Grayscale:</span>
+        </div>
+        <div className={styles.contain_input_content}>
+          <div className={styles.contain_label}>2</div>
+          <div className={styles.contain_edit}>
+            <input
+              type="range"
+              name="opacity"
+              id="opacity"
+              min={0}
+              max={1}
+              step={0.1}
+              value={2}
+              onChange={(e) => {}}
+            />
+            <progress max="3" value={0.5}></progress>
+          </div>
+        </div>
+      </div>
+      <div className={styles.contain_input}>
+        <div className={styles.contain_input_title}>
+          <MdExposure />
+          <span>Phơi sáng/Exposure:</span>
+        </div>
+        <div className={styles.contain_input_content}>
+          <div className={styles.contain_label}>2</div>
+          <div className={styles.contain_edit}>
+            <input
+              type="range"
+              name="opacity"
+              id="opacity"
+              min={0}
+              max={1}
+              step={0.1}
+              value={2}
+              onChange={(e) => {}}
+            />
+            <progress max="3" value={2}></progress>
+          </div>
+        </div>
+      </div>
+
+      {/* <div className={styles.contain_input}>
         <label className={styles.label}>Tự động xoay:</label>
         <input
           type="checkbox"
@@ -127,7 +277,7 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
             }
           />
         </div>
-      )}
+      )} */}
     </div>
   );
 };
