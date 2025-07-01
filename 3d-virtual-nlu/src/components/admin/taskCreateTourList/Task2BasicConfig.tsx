@@ -10,14 +10,16 @@ import { IoIosContrast } from "react-icons/io";
 import { MdExposure } from "react-icons/md";
 import { TbBrightness } from "react-icons/tb";
 import { IoColorFilter } from "react-icons/io5";
+import { FaLock, FaLockOpen } from "react-icons/fa6";
+import { DEFAULT_ORIGINAL_Z } from "../../../utils/Constants";
 // Tuỳ chỉnh thông số kỹ thuật.
 
 type Task2Props = {
   cameraRef?: React.RefObject<THREE.PerspectiveCamera | null>;
-  sphereRef?: React.RefObject<THREE.Mesh | null>;
+  controlsRef?: React.RefObject<any>;
 };
 
-const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
+const Task2 = ({ cameraRef, controlsRef }: Task2Props) => {
   const dispatch = useDispatch();
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
@@ -27,8 +29,11 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
   if (!currentPanorama) return null;
 
   const {
-    autoRotate = 0,
-    speedRotate = 1,
+    brightness = 0,
+    contrast = 1,
+    saturation = 1,
+    grayscale = 0,
+    exposure = 1,
     lightIntensity = 1,
   } = currentPanorama.config ?? {};
 
@@ -47,7 +52,13 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
   }, [currentSelectId]);
 
   const handleChangeNumber = (
-    field: "autoRotate" | "speedRotate" | "lightIntensity",
+    field:
+      | "lightIntensity"
+      | "brightness"
+      | "contrast"
+      | "saturation"
+      | "grayscale"
+      | "exposure",
     value: number
   ) => {
     dispatch(
@@ -81,19 +92,55 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
     );
   }, [angle]);
 
+  const setDefaultDirection = () => {
+    if (cameraRef?.current && controlsRef?.current) {
+      cameraRef.current.position.set(0, 0, DEFAULT_ORIGINAL_Z);
+      cameraRef.current.updateMatrixWorld();
+      controlsRef.current.update();
+    }
+  };
+
   return (
     <div className={styles.task2}>
       <div className={styles.contain_input}>
-        <span>Hướng mặc định/Default:</span>
+        <div className={styles.contain_input_title}>
+          <span>Hướng mặc định/Default:</span>
+          <div className={styles.contain_safe}>
+            {unlockDefault ? (
+              <div className={styles.lock}>
+                <span
+                  className={styles.lock_btn}
+                  onClick={() => {
+                    setUnlockDefault(!unlockDefault);
+                  }}
+                >
+                  <FaLockOpen />
+                </span>
+              </div>
+            ) : (
+              <div className={styles.lock}>
+                <span
+                  className={styles.lock_btn}
+                  onClick={() => {
+                    setDefaultDirection();
+                    setUnlockDefault(!unlockDefault);
+                  }}
+                >
+                  <FaLock />
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
         <div
           className={`${styles.contain_input_content} ${
-            unlockDefault ? styles.contain_blur : ""
+            unlockDefault ? "" : styles.contain_blur
           }`}
         >
           <div className={styles.contain_label}>{angle}</div>
           <div className={styles.contain_edit}>
             <input
-              disabled={unlockDefault}
+              disabled={!unlockDefault}
               type="range"
               min="0"
               max="360"
@@ -106,19 +153,6 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
             <progress max="360" value={angle}></progress>
           </div>
         </div>
-        <div className={styles.contain_safe}>
-          <label className={styles.switch}>
-            <input
-              type="checkbox"
-              checked={unlockDefault}
-              onChange={() => setUnlockDefault(!unlockDefault)}
-            />
-            <span>
-              <em></em>
-              <strong></strong>
-            </span>
-          </label>
-        </div>
       </div>
 
       <div className={styles.contain_input}>
@@ -130,15 +164,15 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
           <div className={styles.contain_edit}>
             <input
               type="range"
-              min="1"
-              max="8"
+              min="0.5"
+              max="6"
               step="0.1"
               value={lightIntensity}
               onChange={(e) =>
                 handleChangeNumber("lightIntensity", parseFloat(e.target.value))
               }
             />
-            <progress max="3" value={lightIntensity}></progress>
+            <progress max="6.5" value={lightIntensity}></progress>
           </div>
         </div>
       </div>
@@ -148,19 +182,21 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
           <span>Ánh sáng/Brightness:</span>
         </div>
         <div className={styles.contain_input_content}>
-          <div className={styles.contain_label}>2</div>
+          <div className={styles.contain_label}>{brightness}</div>
           <div className={styles.contain_edit}>
             <input
               type="range"
-              name="opacity"
-              id="opacity"
-              min={0}
-              max={1}
+              name="brightness"
+              id="brightness"
+              min={-0.5}
+              max={0.5}
               step={0.1}
-              value={2}
-              onChange={(e) => {}}
+              value={brightness}
+              onChange={(e) => {
+                handleChangeNumber("brightness", parseFloat(e.target.value));
+              }}
             />
-            <progress max="3" value={2}></progress>
+            <progress max="1" value={brightness + 0.5}></progress>
           </div>
         </div>
       </div>
@@ -170,19 +206,21 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
           <span>Tương phản/Contrast:</span>
         </div>
         <div className={styles.contain_input_content}>
-          <div className={styles.contain_label}>2</div>
+          <div className={styles.contain_label}>{contrast}</div>
           <div className={styles.contain_edit}>
             <input
               type="range"
-              name="opacity"
-              id="opacity"
-              min={0}
-              max={1}
+              name="contrast"
+              id="contrast"
+              min={0.5}
+              max={2}
               step={0.1}
-              value={2}
-              onChange={(e) => {}}
+              value={contrast}
+              onChange={(e) => {
+                handleChangeNumber("contrast", parseFloat(e.target.value));
+              }}
             />
-            <progress max="3" value={2}></progress>
+            <progress max="1.5" value={contrast - 0.5}></progress>
           </div>
         </div>
       </div>
@@ -192,19 +230,21 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
           <span>Độ bão hoà/Saturation:</span>
         </div>
         <div className={styles.contain_input_content}>
-          <div className={styles.contain_label}>2</div>
+          <div className={styles.contain_label}>{saturation}</div>
           <div className={styles.contain_edit}>
             <input
               type="range"
-              name="opacity"
-              id="opacity"
+              name="saturation"
+              id="saturation"
               min={0}
-              max={1}
+              max={2}
               step={0.1}
-              value={2}
-              onChange={(e) => {}}
+              value={saturation}
+              onChange={(e) => {
+                handleChangeNumber("saturation", parseFloat(e.target.value));
+              }}
             />
-            <progress max="3" value={2}></progress>
+            <progress max="2" value={saturation}></progress>
           </div>
         </div>
       </div>
@@ -214,19 +254,21 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
           <span>Trắng đen/Grayscale:</span>
         </div>
         <div className={styles.contain_input_content}>
-          <div className={styles.contain_label}>2</div>
+          <div className={styles.contain_label}>{grayscale}</div>
           <div className={styles.contain_edit}>
             <input
               type="range"
-              name="opacity"
-              id="opacity"
+              name="grayscale"
+              id="grayscale"
               min={0}
               max={1}
               step={0.1}
-              value={2}
-              onChange={(e) => {}}
+              value={grayscale}
+              onChange={(e) => {
+                handleChangeNumber("grayscale", parseFloat(e.target.value));
+              }}
             />
-            <progress max="3" value={0.5}></progress>
+            <progress max="1" value={grayscale}></progress>
           </div>
         </div>
       </div>
@@ -236,19 +278,21 @@ const Task2 = ({ cameraRef, sphereRef }: Task2Props) => {
           <span>Phơi sáng/Exposure:</span>
         </div>
         <div className={styles.contain_input_content}>
-          <div className={styles.contain_label}>2</div>
+          <div className={styles.contain_label}>{exposure}</div>
           <div className={styles.contain_edit}>
             <input
               type="range"
-              name="opacity"
-              id="opacity"
+              name="exposure"
+              id="exposure"
               min={0}
-              max={1}
+              max={2}
               step={0.1}
-              value={2}
-              onChange={(e) => {}}
+              value={exposure}
+              onChange={(e) => {
+                handleChangeNumber("exposure", parseFloat(e.target.value));
+              }}
             />
-            <progress max="3" value={2}></progress>
+            <progress max="2" value={exposure}></progress>
           </div>
         </div>
       </div>

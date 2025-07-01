@@ -22,8 +22,11 @@ export interface NodeCreateRequest {
   positionY: number;
   positionZ: number;
   yawOffset: number;
-  autoRotate: number;
-  speedRotate: number;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  grayscale: number;
+  exposure: number;
   lightIntensity: number;
   status: number;
   navHotspots: HotspotNavCreateRequest[];
@@ -44,8 +47,11 @@ export interface NodeUpdateRequest {
   positionY: number;
   positionZ: number;
   yawOffset: number;
-  autoRotate: number;
-  speedRotate: number;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  grayscale: number;
+  exposure: number;
   lightIntensity: number;
   status: number;
   navHotspots: HotspotNavCreateRequest[];
@@ -232,8 +238,11 @@ export interface NodeResponse {
   positionY: number;
   positionZ: number;
   yawOffset: number;
-  autoRotate: number;
-  speedRotate: number;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  grayscale: number;
+  exposure: number;
   lightIntensity: number;
   status: number;
   navHotspots: HotspotNavResponse[];
@@ -438,8 +447,11 @@ export class TourNodeRequestMapper {
         positionY: pano.config.positionY,
         positionZ: pano.config.positionZ,
         yawOffset: pano.config.yawOffset,
-        autoRotate: pano.config.autoRotate,
-        speedRotate: pano.config.speedRotate,
+        brightness: pano.config.brightness,
+        contrast: pano.config.contrast,
+        saturation: pano.config.saturation,
+        grayscale: pano.config.grayscale,
+        exposure: pano.config.exposure,
         lightIntensity: pano.config.lightIntensity,
         status: pano.config.status,
         navHotspots,
@@ -560,8 +572,11 @@ export class TourNodeRequestMapper {
         positionY: pano.config.positionY,
         positionZ: pano.config.positionZ,
         yawOffset: pano.config.yawOffset,
-        autoRotate: pano.config.autoRotate,
-        speedRotate: pano.config.speedRotate,
+        brightness: pano.config.brightness,
+        contrast: pano.config.contrast,
+        saturation: pano.config.saturation,
+        grayscale: pano.config.grayscale,
+        exposure: pano.config.exposure,
         lightIntensity: pano.config.lightIntensity,
         status: pano.config.status,
         navHotspots,
@@ -624,8 +639,11 @@ export class TourNodeRequestMapper {
           positionY: node.positionY,
           positionZ: node.positionZ,
           yawOffset: node.yawOffset,
-          autoRotate: node.autoRotate,
-          speedRotate: node.speedRotate,
+          brightness: node.brightness,
+          contrast: node.contrast,
+          saturation: node.saturation,
+          grayscale: node.grayscale,
+          exposure: node.exposure,
           lightIntensity: node.lightIntensity,
           status: node.status,
         },

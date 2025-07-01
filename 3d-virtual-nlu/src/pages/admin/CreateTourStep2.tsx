@@ -36,6 +36,12 @@ import {
   HotspotModel,
   HotspotNavigation,
 } from "../../redux/slices/HotspotSlice";
+import {
+  getFilteredHotspotInformationInList,
+  getFilteredHotspotMediaInList,
+  getFilteredHotspotModelInList,
+  getFilteredHotspotNavigationInList,
+} from "../../redux/slices/Selectors.ts";
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
 import UpdateHotspot from "../../components/admin/taskCreateTourList/UpdateHotspot";
@@ -69,7 +75,6 @@ const CreateTourStep2 = () => {
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const cameraRadarRef = useRef<number>(null);
   const controlsRef = useRef<any>(null); //OrbitControls
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
@@ -81,7 +86,7 @@ const CreateTourStep2 = () => {
   const [validIcon, setValidIcon] = useState(true);
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
-  >(null); //test
+  >(null); 
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
@@ -105,27 +110,11 @@ const CreateTourStep2 = () => {
 
   const dispatch = useDispatch();
 
-  const hotspotNavigations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
-    )
-  );
-  const hotspotInfos = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
-    )
-  );
-  const hotspotModels = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotModel => hotspot.type === 4
-    )
-  );
+  const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
+  const hotspotInfos = useSelector(getFilteredHotspotInformationInList);
+  const hotspotModels = useSelector(getFilteredHotspotModelInList);
 
-  const hotspotMedias = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-    )
-  );
+  const hotspotMedias = useSelector(getFilteredHotspotMediaInList);
 
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
@@ -353,7 +342,7 @@ const CreateTourStep2 = () => {
       case 2:
         return (
           <>
-            <Task2 cameraRef={cameraRef} sphereRef={sphereRef} />
+            <Task2 cameraRef={cameraRef} controlsRef={controlsRef} />
           </>
         );
       case 3:

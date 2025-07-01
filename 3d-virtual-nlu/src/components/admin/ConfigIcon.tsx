@@ -146,7 +146,7 @@ const ConfigIcon = ({
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
-      return; // ⛔️ Bỏ qua lần đầu render
+      return;
     }
 
     if (propHotspot != null) {
@@ -302,7 +302,7 @@ const ConfigIcon = ({
                   <input
                     type="text"
                     name=""
-                    style={{color: `${color}`}}
+                    style={{ color: `${color}` }}
                     id="color_text"
                     onChange={(e) => setColor(e.target.value)}
                     value={color}
@@ -326,7 +326,7 @@ const ConfigIcon = ({
                     type="text"
                     name=""
                     id="bkg_text"
-                    style={{color: `${backgroundColor}`}}
+                    style={{ color: `${backgroundColor}` }}
                     value={backgroundColor}
                     onChange={(e) => setBackgroundColor(e.target.value)}
                     placeholder="HEX, RGB or HSL"

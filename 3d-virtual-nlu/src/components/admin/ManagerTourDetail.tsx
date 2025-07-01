@@ -26,10 +26,6 @@ import {
   addHotspotsFromResponse,
   BaseHotspot,
   clearHotspot,
-  HotspotInformation,
-  HotspotMedia,
-  HotspotModel,
-  HotspotNavigation,
 } from "../../redux/slices/HotspotSlice.ts";
 import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
 import { IoChevronBack } from "react-icons/io5";
