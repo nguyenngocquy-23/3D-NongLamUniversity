@@ -69,6 +69,24 @@ public class NodeDao {
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
     }
 
+    public int countAllNodes() {
+        String sql = "SELECT COUNT(*) FROM nodes";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
+
+    public int countApprovingNodes() {
+        String sql = "SELECT COUNT(*) FROM nodes WHERE status = 3 or status = 4";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
+
     public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
@@ -99,7 +117,6 @@ public class NodeDao {
         }
         return result;
     }
-
 
     public NodeFullResponse getDefaultNode() {
         String sql = """

@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
 import {
+  fetchDashboard,
   fetchFields,
   fetchHotspotTypes,
   fetchIcons,
@@ -40,6 +41,7 @@ const Layout = () => {
   }, []);
 
   useEffect(() => {
+    dispatch(fetchDashboard());
     dispatch(fetchFields());
     dispatch(fetchSpaces());
     dispatch(fetchHotspotTypes());

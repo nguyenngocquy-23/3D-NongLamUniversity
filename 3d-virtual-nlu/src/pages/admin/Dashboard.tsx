@@ -1,3 +1,4 @@
+import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/dashboard.module.css";
 import {
   FaEye,
@@ -8,55 +9,60 @@ import {
   FaExclamationTriangle,
   FaUserPlus,
 } from "react-icons/fa";
+import { AppDispatch, RootState } from "../../redux/Store";
+import { useEffect } from "react";
 
 const Dashboard = () => {
+  const data = useSelector((state: RootState) => state.data.dashboard);
+  if (!data) return <div>Đang tải dữ liệu thống kê...</div>;
+
   const stats = [
     {
       title: "Lượt truy cập",
       icon: <FaEye />,
-      value: 23894,
+      value: data.numCurrentAccess,
       color: "#4caf50",
       size: "large", // Quan trọng
     },
     {
       title: "Số tour tham quan",
       icon: <FaMapMarkedAlt />,
-      value: 152,
+      value: data.numTour,
       color: "#2196f3",
       size: "medium",
     },
     {
       title: "Người đăng ký (tháng)",
       icon: <FaUserPlus />,
-      value: 127,
+      value: data.numRegister,
       color: "#9c27b0",
       size: "medium",
     },
     {
       title: "Lượt xem không đăng ký",
       icon: <FaUsers />,
-      value: 893,
+      value: data.numFreeAccess,
       color: "#ff9800",
       size: "small",
     },
     {
       title: "Số bình luận",
       icon: <FaRegCommentDots />,
-      value: 53,
+      value: data.numComment,
       color: "#3f51b5",
       size: "small",
     },
     {
       title: "Tour chưa duyệt",
       icon: <FaTimesCircle />,
-      value: 7,
+      value: data.numTourWaitingApprovel,
       color: "#f44336",
       size: "small",
     },
     {
       title: "Tour bị báo cáo",
       icon: <FaExclamationTriangle />,
-      value: 4,
+      value: data.numReport,
       color: "#e91e63",
       size: "small",
     },

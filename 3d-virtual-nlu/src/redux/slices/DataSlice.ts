@@ -19,6 +19,7 @@ interface DataState {
   icons: any[];
   commentOfNode: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
+  dashboard: any;
 }
 
 const initialState: DataState = {
@@ -37,6 +38,7 @@ const initialState: DataState = {
   icons: [],
   commentOfNode: [],
   status: "idle",
+  dashboard: null,
 };
 
 // Fetch users
@@ -121,6 +123,16 @@ export const fetchCommentOfNode = createAsyncThunk(
     }
   }
 );
+
+// Fetch dashboard
+export const fetchDashboard = createAsyncThunk("data/fetchDashboard", async () => {
+  const userJson = sessionStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : null;
+  const response = await axios.post(API_URLS.ADMIN_GET_DASHBOARD, {
+    userId: user.id,
+  });
+  return response.data.data;
+});
 
 // Fetch field
 export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
@@ -254,6 +266,17 @@ const dataSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchDashboard.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchDashboard.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.dashboard = action.payload;
+      })
+      .addCase(fetchDashboard.rejected, (state) => {
+        state.status = "failed";
+      })
+      
       .addCase(fetchUsers.pending, (state) => {
         state.status = "loading";
       })
