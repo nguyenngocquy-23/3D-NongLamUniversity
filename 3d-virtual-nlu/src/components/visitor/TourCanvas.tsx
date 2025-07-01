@@ -31,6 +31,7 @@ const TourCanvas = React.memo(
     setTargetPosition,
     isOpenRadar,
     setIsOpenRadar,
+    texturesRef,
   }: {
     windowSize: { width: number; height: number };
     cursor: string;
@@ -46,6 +47,7 @@ const TourCanvas = React.memo(
     setTargetPosition: (position: [number, number, number]) => void;
     isOpenRadar: boolean;
     setIsOpenRadar: (val: boolean) => void;
+    texturesRef: React.RefObject<Record<string, THREE.Texture>>;
   }) => {
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const controlsRef = useRef<any>(null); //OrbitControls
@@ -180,6 +182,7 @@ const TourCanvas = React.memo(
         <TourScene
           radius={radius}
           sphereRef={sphereRef}
+          texturesRef={texturesRef}
           textureCurrent={defaultNode.url ?? "/khoa.jpg"}
           yawOffsetCurrent={defaultNode.yawOffset ?? 0}
           lightIntensity={defaultNode.lightIntensity}

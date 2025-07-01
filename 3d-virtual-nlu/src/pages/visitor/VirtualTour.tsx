@@ -35,6 +35,12 @@ import {
 import { MdOpenInFull } from "react-icons/md";
 import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
 import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
+import axios from "axios";
+import { API_URLS } from "../../env.ts";
+export interface ImagePreload {
+  id: number;
+  url: string;
+}
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -48,7 +54,22 @@ const VirtualTour = () => {
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.data.status);
   const user = useSelector((state: RootState) => state.auth.user);
+  const reduxDefaultNode = useSelector(
+    (state: RootState) => state.data.defaultNode
+  );
+
+  const icons = useSelector((state: RootState) => state.data.icons);
+  // Fallback: lấy từ localStorage nếu Redux chưa có dữ liệu
+  const nodeToRender = useMemo(() => {
+    if (reduxDefaultNode) return reduxDefaultNode;
+    const stored = localStorage.getItem("defaultNode");
+    return stored ? JSON.parse(stored) : null;
+  }, [reduxDefaultNode]);
+
   const [isMobile, setIsMobile] = useState(false);
+
+  const [imageList, setImageList] = useState<ImagePreload[]>([]);
+  const texturesRef = useRef<Record<string, THREE.Texture>>({});
 
   useEffect(() => {
     const handleResize = () => {
@@ -63,17 +84,6 @@ const VirtualTour = () => {
     dispatch(fetchIcons());
     dispatch(fetchDefaultNodes());
   }, [dispatch]);
-  const reduxDefaultNode = useSelector(
-    (state: RootState) => state.data.defaultNode
-  );
-
-  const icons = useSelector((state: RootState) => state.data.icons);
-  // Fallback: lấy từ localStorage nếu Redux chưa có dữ liệu
-  const nodeToRender = useMemo(() => {
-    if (reduxDefaultNode) return reduxDefaultNode;
-    const stored = localStorage.getItem("defaultNode");
-    return stored ? JSON.parse(stored) : null;
-  }, [reduxDefaultNode]);
 
   useEffect(() => {
     dispatch(fetchPreloadNodes(nodeToRender.id));
@@ -138,14 +148,6 @@ const VirtualTour = () => {
    * Ref để cập nhật giá trị kích thước của map
    */
   const mapRef = useRef<L.Map | null>(null);
-
-  // useEffect(() => {
-  //   const timeout = setTimeout(() => {
-  //     setIsWaiting(false); // ẩn trang chờ
-  //   }, 5000);
-
-  //   return () => clearTimeout(timeout);
-  // }, []);
 
   const navigate = useNavigate();
   const sphereRef = useRef<THREE.Mesh | null>(null);
@@ -335,23 +337,23 @@ const VirtualTour = () => {
 
   const [percent, setPercent] = useState(0);
 
-  useEffect(() => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 10;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        // Đợi render xong mới tắt loading
-        requestAnimationFrame(() => {
-          setTimeout(() => setIsWaiting(false), 500);
-        });
-      }
-      setPercent(Math.floor(progress));
-    }, 200);
+  // useEffect(() => {
+  //   let progress = 0;
+  //   const interval = setInterval(() => {
+  //     progress += Math.random() * 10;
+  //     if (progress >= 100) {
+  //       progress = 100;
+  //       clearInterval(interval);
+  //       // Đợi render xong mới tắt loading
+  //       requestAnimationFrame(() => {
+  //         setTimeout(() => setIsWaiting(false), 500);
+  //       });
+  //     }
+  //     setPercent(Math.floor(progress));
+  //   }, 200);
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const preloadNodes = useSelector(
     (state: RootState) => state.data.preloadNodes
@@ -367,6 +369,43 @@ const VirtualTour = () => {
       dispatch(addHotspotsFromResponse(hotspotList));
     }
   }, [preloadNodes, nodeToRender, dispatch]);
+
+  useEffect(() => {
+    axios.post(API_URLS.ADMIN_GET_ALL_NODE_IMAGES).then((response) => {
+      const data = response.data.data || [];
+      setImageList(data);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (imageList.length === 0) return;
+    const urlList = imageList.map((img) => img.url);
+    const loader = new THREE.TextureLoader();
+    const textures: Record<string, THREE.Texture> = {};
+
+    let loaded = 0;
+    const total = urlList.length;
+
+    urlList.forEach((url) => {
+      loader.load(
+        url,
+        (texture) => {
+          texture.wrapS = THREE.RepeatWrapping;
+          textures[url] = texture;
+
+          loaded++;
+          //chờ progress.
+          if (loaded == total) {
+            console.log("✅ TOÀN BỘ ẢNH ĐÃ PRELOAD:", textures);
+            texturesRef.current = textures;
+            setIsWaiting(false);
+          }
+        },
+        undefined,
+        (err) => console.error(`Failed to load ${url}`, err)
+      );
+    });
+  }, [imageList]);
 
   if (!icons || icons.length === 0) {
     return (
@@ -398,22 +437,28 @@ const VirtualTour = () => {
       onPointerMove={handleMouseEnterMenu}
       onPointerDown={handleCloseMenu}
     >
-      <TourCanvas
-        windowSize={windowSize}
-        cursor={cursor}
-        sphereRef={sphereRef}
-        radius={RADIUS_SPHERE}
-        defaultNode={nodeToRender}
-        targetPosition={targetPosition ?? null}
-        hotspotNavigations={hotspotNavigations}
-        hotspotInformations={hotspotInformations}
-        hotspotModels={hotspotModels}
-        hotspotMedias={hotspotMedias}
-        isRotation={isRotation}
-        setTargetPosition={setTargetPosition}
-        isOpenRadar={isOpenRadar}
-        setIsOpenRadar={setIsOpenRadar}
-      />
+      {isWaiting ? (
+        <Waiting percent={percent} />
+      ) : (
+        <TourCanvas
+          windowSize={windowSize}
+          cursor={cursor}
+          sphereRef={sphereRef}
+          radius={RADIUS_SPHERE}
+          defaultNode={nodeToRender}
+          targetPosition={targetPosition ?? null}
+          hotspotNavigations={hotspotNavigations}
+          hotspotInformations={hotspotInformations}
+          hotspotModels={hotspotModels}
+          hotspotMedias={hotspotMedias}
+          isRotation={isRotation}
+          setTargetPosition={setTargetPosition}
+          isOpenRadar={isOpenRadar}
+          setIsOpenRadar={setIsOpenRadar}
+          texturesRef={texturesRef}
+        />
+      )}
+
       {/* Header chứa logo + close */}
       <div className={styles.headerTour}>
         <h2>NLU360</h2>
@@ -529,8 +574,6 @@ const VirtualTour = () => {
           )}
         </div>
       )}
-      /* Màn hình laoding */
-      {isWaiting ? <Waiting percent={percent} /> : ""}
     </div>
   );
 };

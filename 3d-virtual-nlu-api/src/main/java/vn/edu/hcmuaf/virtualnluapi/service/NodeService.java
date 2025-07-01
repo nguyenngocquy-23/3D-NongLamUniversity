@@ -10,6 +10,8 @@ import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeImageResponse;
+
 import java.util.List;
 
 @ApplicationScoped
@@ -107,8 +109,9 @@ public class NodeService {
             return false;
         }
     }
-  
-//    public boolean updateLinkNodeById(List<NodeLinkRequest> request) {
-//        return nodeDao.updateLinkNodeById(request);
-//    }
+
+    public List<NodeImageResponse> getAllNodeImgs() {
+        return nodeDao.getAllNodeImgs();
+        
+    }
 }

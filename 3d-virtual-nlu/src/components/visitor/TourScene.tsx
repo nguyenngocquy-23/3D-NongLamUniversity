@@ -120,6 +120,7 @@ interface TourSceneProps {
   onPointerDown?: (e: ThreeEvent<PointerEvent>, point: THREE.Vector3) => void;
   nodeId?: string;
   onTextureReady?: () => void;
+  texturesRef?: React.RefObject<Record<string, THREE.Texture>>;
 }
 
 const TourScene: React.FC<TourSceneProps> = ({
@@ -135,6 +136,7 @@ const TourScene: React.FC<TourSceneProps> = ({
   exposure,
   onPointerDown,
   onTextureReady,
+  texturesRef,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<any>(null);
@@ -179,9 +181,32 @@ const TourScene: React.FC<TourSceneProps> = ({
       }
 
       try {
-        const loader = new THREE.TextureLoader();
-        const texNew = await loader.loadAsync(textureCurrent);
-        texNew.wrapS = THREE.RepeatWrapping;
+        // if (texturesRef) {
+        //   const texNew = texturesRef.current[textureCurrent];
+        // } else {
+        //   const loader = new THREE.TextureLoader();
+        //   const texNew = await loader.loadAsync(textureCurrent);
+        //   texNew.wrapS = THREE.RepeatWrapping;
+        // }
+        // if (!texNew) {
+        //   console.warn("Texture not preloaded:", textureCurrent);
+        //   return;
+        // }
+        let texNew: THREE.Texture | undefined;
+        if (texturesRef && texturesRef.current) {
+          texNew = texturesRef.current[textureCurrent];
+        } else {
+          const loader = new THREE.TextureLoader();
+          texNew = await loader.loadAsync(textureCurrent);
+          texNew.wrapS = THREE.RepeatWrapping;
+        }
+        if (!texNew) {
+          console.warn("Texture not preloaded:", textureCurrent);
+          return;
+        }
+
+        // TEST ========
+
         if (!textures) {
           setTextures([texNew, null]);
           setYawOffsetList([yawNew, 0]);

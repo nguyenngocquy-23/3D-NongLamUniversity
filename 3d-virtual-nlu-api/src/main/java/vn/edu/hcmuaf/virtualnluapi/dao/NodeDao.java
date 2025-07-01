@@ -408,4 +408,12 @@ public class NodeDao {
             return true;
         });
     }
+    public List<NodeImageResponse> getAllNodeImgs() {
+        String sql = """
+                SELECT id, url FROM nodes WHERE status IN (1,2,3)
+                """;
+        return ConnectionPool.getConnection().withHandle(
+                handle -> handle.createQuery(sql).mapToBean(NodeImageResponse.class).list());
+
+    }
 }

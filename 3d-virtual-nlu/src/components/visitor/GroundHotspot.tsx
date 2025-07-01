@@ -244,6 +244,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
           }}
         >
           <primitive object={clonedScene}></primitive>
+
           <SoundEffect
             url="https://res.cloudinary.com/dkoc6kbg1/video/upload/v1750922657/usxngr98lreae7ochjdx.mp3"
             setPlayFunction={setPlaySound}
