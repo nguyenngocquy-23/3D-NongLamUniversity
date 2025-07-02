@@ -86,7 +86,7 @@ const CreateTourStep2 = () => {
   const [validIcon, setValidIcon] = useState(true);
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
-  >(null); 
+  >(null);
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);

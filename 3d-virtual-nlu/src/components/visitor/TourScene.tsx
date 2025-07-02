@@ -120,7 +120,9 @@ interface TourSceneProps {
   onPointerDown?: (e: ThreeEvent<PointerEvent>, point: THREE.Vector3) => void;
   nodeId?: string;
   onTextureReady?: () => void;
-  texturesRef?: React.RefObject<Record<string, THREE.Texture>>;
+  imageRef?: React.RefObject<
+    Record<string, { img: HTMLImageElement; objectUrl: string }>
+  >;
 }
 
 const TourScene: React.FC<TourSceneProps> = ({
@@ -136,7 +138,7 @@ const TourScene: React.FC<TourSceneProps> = ({
   exposure,
   onPointerDown,
   onTextureReady,
-  texturesRef,
+  imageRef,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<any>(null);
@@ -181,25 +183,19 @@ const TourScene: React.FC<TourSceneProps> = ({
       }
 
       try {
-        // if (texturesRef) {
-        //   const texNew = texturesRef.current[textureCurrent];
-        // } else {
-        //   const loader = new THREE.TextureLoader();
-        //   const texNew = await loader.loadAsync(textureCurrent);
-        //   texNew.wrapS = THREE.RepeatWrapping;
-        // }
-        // if (!texNew) {
-        //   console.warn("Texture not preloaded:", textureCurrent);
-        //   return;
-        // }
         let texNew: THREE.Texture | undefined;
-        if (texturesRef && texturesRef.current) {
-          texNew = texturesRef.current[textureCurrent];
+
+        if (imageRef && imageRef.current && imageRef.current[textureCurrent]) {
+          const preloadedImage = imageRef.current[textureCurrent];
+          texNew = new THREE.Texture(preloadedImage.img);
+          texNew.needsUpdate = true;
         } else {
           const loader = new THREE.TextureLoader();
           texNew = await loader.loadAsync(textureCurrent);
-          texNew.wrapS = THREE.RepeatWrapping;
         }
+        texNew.wrapS = THREE.RepeatWrapping;
+        texNew.wrapT = THREE.RepeatWrapping;
+
         if (!texNew) {
           console.warn("Texture not preloaded:", textureCurrent);
           return;
@@ -295,7 +291,6 @@ const TourScene: React.FC<TourSceneProps> = ({
           uAmbientLight={new THREE.Color().setScalar(lightIntensity)} // ánh sáng môi trường
           uYawOffset1={yawOffsetList[0]}
           uYawOffset2={yawOffsetList[1]}
-          // ✨ Các hiệu ứng mới
           uBrightness={brightness ?? 0}
           uContrast={contrast ?? 1}
           uSaturation={saturation ?? 1}

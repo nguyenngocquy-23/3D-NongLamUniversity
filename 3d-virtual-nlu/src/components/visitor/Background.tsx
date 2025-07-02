@@ -39,13 +39,13 @@ const Background: React.FC = () => {
       <div className={styles.overlay}></div>
 
       <div className={styles.vignette}>
-        <video autoPlay loop muted playsInline className={styles.video}>
+        {/* <video autoPlay loop muted playsInline className={styles.video}>
           <source
             src={`${import.meta.env.BASE_URL}background.mp4`}
             type="video/mp4"
           />
           Trình duyệt của bạn không hỗ trợ video.
-        </video>
+        </video> */}
       </div>
     </main>
   );

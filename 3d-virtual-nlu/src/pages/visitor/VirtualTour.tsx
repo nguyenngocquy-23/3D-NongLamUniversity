@@ -69,7 +69,10 @@ const VirtualTour = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const [imageList, setImageList] = useState<ImagePreload[]>([]);
-  const texturesRef = useRef<Record<string, THREE.Texture>>({});
+
+  const imageRef = useRef<
+    Record<string, { img: HTMLImageElement; objectUrl: string }>
+  >({});
 
   useEffect(() => {
     const handleResize = () => {
@@ -306,7 +309,7 @@ const VirtualTour = () => {
   const handleCloseMenu = (event: any) => {
     const mouse = event.clientX;
 
-    const threshold = 200; // width cua menu
+    const threshold = 200;
     if (mouse > threshold) {
       setIsMenuVisible(false);
     }
@@ -379,31 +382,70 @@ const VirtualTour = () => {
 
   useEffect(() => {
     if (imageList.length === 0) return;
-    const urlList = imageList.map((img) => img.url);
-    const loader = new THREE.TextureLoader();
-    const textures: Record<string, THREE.Texture> = {};
 
+    const imgCache: Record<
+      string,
+      { img: HTMLImageElement; objectUrl: string }
+    > = {};
+
+    // const urlList = imageList.map((img) => img.url);
+    // const loader = new THREE.TextureLoader();
+    // const textures: Record<string, THREE.Texture> = {};
+    // const imgCache = {};
     let loaded = 0;
-    const total = urlList.length;
+    const total = imageList.length;
 
-    urlList.forEach((url) => {
-      loader.load(
-        url,
-        (texture) => {
-          texture.wrapS = THREE.RepeatWrapping;
-          textures[url] = texture;
+    //Lấy ảnh low version.
+    const getLowResURL = (url: string) => {
+      return url.replace("/upload", "/upload/q_10,f_auto,fl_progressive/");
+    };
 
+    imageList.forEach(async (imgObj) => {
+      try {
+        const lowResURL = getLowResURL(imgObj.url);
+
+        const response = await fetch(lowResURL, { mode: "cors" });
+
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = objectUrl;
+
+        img.onload = () => {
+          imgCache[imgObj.url] = { img, objectUrl };
           loaded++;
-          //chờ progress.
-          if (loaded == total) {
-            console.log("✅ TOÀN BỘ ẢNH ĐÃ PRELOAD:", textures);
-            texturesRef.current = textures;
+
+          const percent = Math.floor((loaded / total) * 100);
+          setPercent(percent);
+
+          if (loaded === total) {
+            imageRef.current = imgCache;
+            setIsWaiting(false); //Xác nhận đã tải xong ảnh.
+          }
+        };
+
+        img.onerror = (err) => {
+          console.warn("❌ Không load được ảnh blob:", imgObj.url, err);
+          loaded++;
+          const percent = Math.floor((loaded / total) * 100);
+          setPercent(percent);
+          if (loaded === total) {
+            imageRef.current = imgCache;
             setIsWaiting(false);
           }
-        },
-        undefined,
-        (err) => console.error(`Failed to load ${url}`, err)
-      );
+        };
+      } catch (err) {
+        console.warn("❌ Lỗi tải ảnh:", imgObj.url, err);
+        loaded++;
+        const percent = Math.floor((loaded / total) * 100);
+        setPercent(percent);
+        if (loaded === total) {
+          imageRef.current = imgCache;
+          setIsWaiting(false);
+        }
+      }
     });
   }, [imageList]);
 
@@ -455,11 +497,10 @@ const VirtualTour = () => {
           setTargetPosition={setTargetPosition}
           isOpenRadar={isOpenRadar}
           setIsOpenRadar={setIsOpenRadar}
-          texturesRef={texturesRef}
+          imageRef={imageRef}
         />
       )}
 
-      {/* Header chứa logo + close */}
       <div className={styles.headerTour}>
         <h2>NLU360</h2>
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
@@ -468,7 +509,7 @@ const VirtualTour = () => {
       {fullMap || hoverMap ? (
         ""
       ) : (
-        <LeftMenuTour isMenuVisible={isMenuVisible} />
+        <LeftMenuTour isMenuVisible={isMenuVisible} imageRef={imageRef} />
       )}
       {/* Nút mở radar */}
       {!isOpenRadar && (
@@ -498,12 +539,10 @@ const VirtualTour = () => {
           accessing={accessing}
         />
       )}
-      {/* Hộp thông tin */}
       <div className={styles.infoBox} onClick={toggleInformation}>
         Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
         Lâm Thành phố Hồ Chí Minh
       </div>
-      {/* Hộp Bình luận */}
       {isComment && user ? (
         <CommentBox
           userId={user.id}
