@@ -169,6 +169,65 @@ const TourScene: React.FC<TourSceneProps> = ({
     }
   }, [sphereRef]);
 
+  // useEffect(() => {
+  //   const load = async () => {
+  //     const yawNew = radianToTexture(yawOffsetCurrent);
+
+  //     // Nếu texture không đổi, chỉ cần cập nhật yawOffset (không load lại texture hay crossfade)
+  //     if (textureCurrent === prevTextureRef.current) {
+  //       setYawOffsetList(([_, yaw2]) => [yawNew, yaw2]);
+  //       if (materialRef.current) {
+  //         materialRef.current.uYawOffset1 = yawNew;
+  //       }
+  //       return;
+  //     }
+
+  //     try {
+  //       let texNew: THREE.Texture | undefined;
+
+  //       if (imageRef && imageRef.current && imageRef.current[textureCurrent]) {
+  //         const preloadedImage = imageRef.current[textureCurrent];
+  //         texNew = new THREE.Texture(preloadedImage.img);
+  //         texNew.needsUpdate = true;
+  //       } else {
+  //         const loader = new THREE.TextureLoader();
+  //         texNew = await loader.loadAsync(textureCurrent);
+  //       }
+  //       texNew.wrapS = THREE.RepeatWrapping;
+  //       texNew.wrapT = THREE.RepeatWrapping;
+
+  //       if (!texNew) {
+  //         console.warn("Texture not preloaded:", textureCurrent);
+  //         return;
+  //       }
+
+  //       // TEST ========
+
+  //       if (!textures) {
+  //         setTextures([texNew, null]);
+  //         setYawOffsetList([yawNew, 0]);
+  //         onTextureReady?.();
+  //       } else {
+  //         const [prevTex] = textures;
+  //         const [prevYaw] = yawOffsetList;
+
+  //         setTextures([prevTex, texNew]);
+  //         setYawOffsetList([prevYaw, yawNew]);
+  //         setProgress(0);
+  //         progressRef.current = 0;
+  //       }
+
+  //       // Cập nhật ref sau khi load xong
+  //       prevTextureRef.current = textureCurrent;
+  //       prevYawOffsetRef.current = yawOffsetCurrent;
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   };
+
+  //   load();
+  // }, [textureCurrent, yawOffsetCurrent]);
+
   useEffect(() => {
     const load = async () => {
       const yawNew = radianToTexture(yawOffsetCurrent);
@@ -183,25 +242,8 @@ const TourScene: React.FC<TourSceneProps> = ({
       }
 
       try {
-        let texNew: THREE.Texture | undefined;
-
-        if (imageRef && imageRef.current && imageRef.current[textureCurrent]) {
-          const preloadedImage = imageRef.current[textureCurrent];
-          texNew = new THREE.Texture(preloadedImage.img);
-          texNew.needsUpdate = true;
-        } else {
-          const loader = new THREE.TextureLoader();
-          texNew = await loader.loadAsync(textureCurrent);
-        }
-        texNew.wrapS = THREE.RepeatWrapping;
-        texNew.wrapT = THREE.RepeatWrapping;
-
-        if (!texNew) {
-          console.warn("Texture not preloaded:", textureCurrent);
-          return;
-        }
-
-        // TEST ========
+        const loader = new THREE.TextureLoader();
+        const texNew = await loader.loadAsync(textureCurrent);
 
         if (!textures) {
           setTextures([texNew, null]);
@@ -251,6 +293,11 @@ const TourScene: React.FC<TourSceneProps> = ({
     }
 
     if (progressRef.current >= 1 && textures[1]) {
+      //Xoá texture cũ ra khỏi GPU
+      if (textures[0]) {
+        textures[0].dispose();
+      }
+
       setTextures([textures[1], null]);
       setYawOffsetList([yawOffsetList[1], 0]);
       setProgress(0);
@@ -278,7 +325,7 @@ const TourScene: React.FC<TourSceneProps> = ({
     <>
       <Sphere
         ref={sphereRef}
-        args={[radius, 128, 128]}
+        args={[radius, 32, 32]}
         scale={[-1, 1, 1]}
         onPointerDown={handlePointerDown}
       >

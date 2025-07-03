@@ -6,13 +6,13 @@ import { fetchMasterNodes, setDefaultNode } from "../../redux/slices/DataSlice";
 import { RefObject, useEffect, useRef, useState } from "react";
 
 interface LeftMenuProps {
-  isMenuVisible: boolean;
+  // isMenuVisible: boolean;
   imageRef: React.RefObject<
     Record<string, { img: HTMLImageElement; objectUrl: string }>
   >;
 }
 
-const LeftMenuTour = ({ isMenuVisible, imageRef }: LeftMenuProps) => {
+const LeftMenuTour = ({ imageRef }: LeftMenuProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const listMasterNode = useSelector(
     (state: RootState) => state.data.masterNodes
@@ -70,7 +70,7 @@ const LeftMenuTour = ({ isMenuVisible, imageRef }: LeftMenuProps) => {
   };
 
   return (
-    <div className={`${styles.left_menu} ${isMenuVisible ? styles.show : ""}`}>
+    <div className={`${styles.left_menu}`}>
       <div className={styles.header}>
         <h2>NLU Tour</h2>
         <div className={styles.search_box}>

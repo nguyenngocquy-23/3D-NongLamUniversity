@@ -464,7 +464,6 @@ const TourDetail = () => {
         <Canvas
           camera={{
             fov: 75,
-            // aspect: windowSize.width / windowSize.height,
             near: 0.1,
             far: 1000,
             position: [0, 0, 0.0000001],

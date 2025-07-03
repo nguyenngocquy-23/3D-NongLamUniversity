@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/visitor/introduce.module.css";
+import { useDeviceInfo } from "../../contexts/DeviceInfoContext";
 
 const images = [
   {
@@ -35,6 +36,7 @@ const images = [
 
 export default function Introduce() {
   const [selectedIndex, setSelectedIndex] = useState(2); // mặc định ảnh giữa
+  const { pixelRatio, isMobile, ram, cpuCores, userLang } = useDeviceInfo();
   useEffect(() => {
     const timer = setTimeout(() => {
       setSelectedIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -69,6 +71,14 @@ export default function Introduce() {
       <div className={styles.info_panel}>
         <h2>{images[selectedIndex].title}</h2>
         <p>{images[selectedIndex].description}</p>
+        <div>
+          {" "}
+          `Pixel Ratio: {pixelRatio}
+          Điện thoại: {isMobile ? "Điện thoại" : "Máy tính"}
+          Ram : {ram}
+          CPU: {cpuCores}
+          Ngôn ngữ {userLang}`,
+        </div>
       </div>
     </div>
   );

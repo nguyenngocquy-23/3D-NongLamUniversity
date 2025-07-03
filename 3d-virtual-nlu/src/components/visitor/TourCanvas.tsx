@@ -16,6 +16,7 @@ import gsap from "gsap";
 import { Environment } from "@react-three/drei";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 import Radar from "./Radar";
+import { Perf } from "r3f-perf";
 const TourCanvas = React.memo(
   ({
     windowSize,
@@ -180,6 +181,7 @@ const TourCanvas = React.memo(
         className={styles.tourCanvas}
       >
         <Environment preset="studio" background={false} />
+        <Perf />
         <UpdateCameraOnResize />
         <TourScene
           radius={radius}

@@ -25,18 +25,13 @@ import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 import { RADIUS_SPHERE } from "../../utils/Constants.ts";
 import CommentBox from "../../components/visitor/CommentBox.tsx";
 import MapLeaflet from "../../components/visitor/MapLeaflet.tsx";
-import {
-  FaAngleLeft,
-  FaCompass,
-  FaMap,
-  FaScreenpal,
-  FaX,
-} from "react-icons/fa6";
+import { FaAngleLeft, FaMap, FaX } from "react-icons/fa6";
 import { MdOpenInFull } from "react-icons/md";
 import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
 import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
 import axios from "axios";
 import { API_URLS } from "../../env.ts";
+import { AnimatePresence, motion } from "framer-motion";
 export interface ImagePreload {
   id: number;
   url: string;
@@ -59,6 +54,7 @@ const VirtualTour = () => {
   );
 
   const icons = useSelector((state: RootState) => state.data.icons);
+
   // Fallback: lấy từ localStorage nếu Redux chưa có dữ liệu
   const nodeToRender = useMemo(() => {
     if (reduxDefaultNode) return reduxDefaultNode;
@@ -70,7 +66,18 @@ const VirtualTour = () => {
 
   const [imageList, setImageList] = useState<ImagePreload[]>([]);
 
+  /**
+   * Giữ ảnh trong ImageRef + highImgRef.
+   * 1. Ảnh ở chế độ low => Tải lần đầu. Vào tour.
+   * 2. Thay dần ảnh ở chế độ cao vào trong lúc người dùng tương tác trong tour.
+   *
+   *
+   */
   const imageRef = useRef<
+    Record<string, { img: HTMLImageElement; objectUrl: string }>
+  >({});
+
+  const highImgRef = useRef<
     Record<string, { img: HTMLImageElement; objectUrl: string }>
   >({});
 
@@ -123,7 +130,7 @@ const VirtualTour = () => {
 
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
     null
-  ); // Giữ lại đối tượng
+  );
 
   const [accessing, setAccessing] = useState(0);
 
@@ -287,14 +294,6 @@ const VirtualTour = () => {
     }
   };
 
-  const handleMouseDown = () => {
-    setCursor((prev) => (prev !== "grabbing" ? "grabbing" : prev));
-  };
-
-  const handleMouseUp = () => {
-    setCursor((prev) => (prev !== "grab" ? "grab" : prev));
-  };
-
   const handleMouseEnterMenu = (event: any) => {
     const mouseX = event.clientX;
     const mouseY = event.clientY;
@@ -397,12 +396,13 @@ const VirtualTour = () => {
 
     //Lấy ảnh low version.
     const getLowResURL = (url: string) => {
-      return url.replace("/upload", "/upload/q_10,f_auto,fl_progressive/");
+      return url.replace("/upload", "/upload/f_webp/q_auto/");
     };
 
     imageList.forEach(async (imgObj) => {
       try {
         const lowResURL = getLowResURL(imgObj.url);
+        // const lowResURL = imgObj.url;
 
         const response = await fetch(lowResURL, { mode: "cors" });
 
@@ -505,13 +505,24 @@ const VirtualTour = () => {
         <h2>NLU360</h2>
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
-      {/* Menu bên trái */}
-      {fullMap || hoverMap ? (
+
+      {/* {fullMap || hoverMap ? (
         ""
       ) : (
         <LeftMenuTour isMenuVisible={isMenuVisible} imageRef={imageRef} />
-      )}
-      {/* Nút mở radar */}
+      )} */}
+
+      <AnimatePresence>
+        <motion.div
+          initial={{ y: 800, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 800, opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className={`${styles.update_hotspot_container} `}
+        ></motion.div>
+      </AnimatePresence>
+      {isMenuVisible && <LeftMenuTour imageRef={imageRef} />}
+
       {!isOpenRadar && (
         <button
           className={styles.open_radar_button}
@@ -521,6 +532,7 @@ const VirtualTour = () => {
           <IoIosCompass />
         </button>
       )}
+
       {/* Hộp chat sửa wss */}
       <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />
       {/* Footer chứa các tính năng */}
