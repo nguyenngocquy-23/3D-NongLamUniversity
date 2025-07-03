@@ -17,6 +17,7 @@ import { Environment } from "@react-three/drei";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 import { getAngleFromXZ } from "../../utils/MathUtils";
 import Radar from "./Radar";
+import { Perf } from "r3f-perf";
 const TourCanvas = React.memo(
   ({
     windowSize,
@@ -186,6 +187,7 @@ const TourCanvas = React.memo(
           lightIntensity={defaultNode.lightIntensity}
           onTextureReady={() => setIsTextureReady(true)}
         />
+        <Perf />
         {isOpenRadar && defaultNode && (
           <Radar
             currentPanorama={defaultNode}
