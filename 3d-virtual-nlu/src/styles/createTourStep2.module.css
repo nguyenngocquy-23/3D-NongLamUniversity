@@ -23,7 +23,6 @@
   z-index: 10;
   animation: fadeIn 1.5s ease-in-out;
   overflow: hidden;
-  border-radius: 10px;
   /* border-radius: 10px; */
   /* margin-bottom: 20px; */
 }
@@ -38,6 +37,20 @@
   justify-content: center;
   align-items: center;
   margin-top: 5px;
+}
+
+.config_tour {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  min-height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 1rem;
 }
 
 .show_menu:hover,
@@ -296,4 +309,44 @@ back_btn:hover {
     position: absolute;
     bottom: 0.5rem;
     left: 0.5rem;
+}
+
+/* create auto tour */
+.node_list {
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  transform: translateX(-50%);
+  max-width: 80%;
+  height: auto;
+  overflow: hidden;
+  overflow-x: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.node_item {
+  width: 100px;
+  height: 60px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  opacity: 0.8;
+}
+
+.node_item:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.node_image {
+  width: 100px;
+  height: 60px;
+  border-radius: 5px;
 }

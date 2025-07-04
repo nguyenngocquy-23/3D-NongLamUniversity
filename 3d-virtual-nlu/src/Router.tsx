@@ -29,6 +29,7 @@ import VisitorTours from "./pages/visitor/Tours.tsx";
 import TourDetail from "./pages/visitor/TourDetail.tsx";
 import AttachMap from "./pages/admin/AttachMap.tsx";
 import SpaceDetail from "./components/admin/SpaceDetail.tsx";
+import CreateAutoTour from "./features/CreateAutoTour.tsx";
 
 function RouterConfig() {
   return (
@@ -57,6 +58,7 @@ function RouterConfig() {
         <Route path="spaces/:spaceId" element={<SpaceDetail />} />
         <Route path="icons" element={<ManagerIcon />} />
         <Route path="createTour" element={<CreateTour />} />
+        <Route path="createAutoTour" element={<CreateAutoTour />} />
         <Route path="createTour/2" element={<CreateTourStep2 />} />
         <Route path="createTour/3" element={<CreateTourStep3 />} />
         <Route path="createTour/4" element={<CreateTourStep4 />} />
