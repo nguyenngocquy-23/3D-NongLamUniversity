@@ -82,13 +82,24 @@ const Layout = () => {
         <Sidebar isOpenSidebar={true} currentUser={currentUser} />
       )}
       {/* Main Content */}
-      <main className={styles.main_contain}>
+      <main
+        className={styles.main_contain}
+        style={{
+          margin: isOptionFullScreen ? "0" : "0 0.5rem 0.5rem 0",
+          borderRadius: isOptionFullScreen ? "0" : "10px",
+        }}
+      >
         {!isOptionFullScreen && (
           <header className={styles.header}>
             <h2>Tổng quan</h2>
           </header>
         )}
-        <section className={styles.content}>
+        <section
+          className={styles.content}
+          style={{
+            borderRadius: isOptionFullScreen ? "0" : "10px",
+          }}
+        >
           <Outlet />
         </section>
       </main>

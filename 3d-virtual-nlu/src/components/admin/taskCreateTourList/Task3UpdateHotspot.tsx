@@ -102,6 +102,7 @@ const TaskUpdate3 = ({
          */
         <ConfigMedia
           setAssignable={setAssignable}
+          assignable={isAssignable}
           onPropsChange={onPropsChange}
           currentHotspotType={openTypeIndex}
           setCurrentHotspotType={setCurrentHotspotType}
