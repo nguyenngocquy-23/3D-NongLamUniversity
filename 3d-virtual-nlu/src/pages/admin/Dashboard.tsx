@@ -22,7 +22,7 @@ const Dashboard = () => {
       icon: <FaEye />,
       value: data.numCurrentAccess,
       color: "#4caf50",
-      size: "large", // Quan trọng
+      size: "large",
     },
     {
       title: "Số tour tham quan",

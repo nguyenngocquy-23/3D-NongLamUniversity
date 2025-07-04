@@ -29,8 +29,16 @@ export interface PanoramaItem {
   config: PanoramaConfig;
 }
 
+export interface AutoPanoramaItem {
+  id: string;
+  url: string;
+  config: PanoramaConfig;
+  duration: number;
+}
+
 interface PanoramaState {
   panoramaList: PanoramaItem[] | any[];
+  autoPanoramaList: AutoPanoramaItem[] | any[];
   currentAngleMaster: number;
   currentSelectId: string | null;
   spaceId: string | null;
@@ -38,6 +46,7 @@ interface PanoramaState {
 
 const initialState: PanoramaState = {
   panoramaList: [],
+  autoPanoramaList: [],
   currentAngleMaster: 0,
   currentSelectId: null,
   spaceId: null,
@@ -75,6 +84,33 @@ const panoramaSlice = createSlice({
         },
       }));
       state.panoramaList = panoramas;
+      state.currentSelectId = panoramas[0]?.id || null;
+    },
+    
+    setAutoPanoramas(
+      state,
+      action: PayloadAction<Array<{ originalFileName: string; url: string }>>
+    ) {
+      const userJson = sessionStorage.getItem("user");
+      const user = userJson ? JSON.parse(userJson) : null;
+      const panoramas = action.payload.map((item, index) => ({
+        id: nanoid(),
+        url: item.url,
+        config: {
+          name: item.originalFileName,
+          description: "",
+          positionX: 0,
+          positionY: 0,
+          positionZ: DEFAULT_ORIGINAL_Z,
+          yawOffset: 0,
+          autoRotate: 0,
+          speedRotate: 0,
+          lightIntensity: 1,
+          status: index === 0 ? (user.roleId == 2 ? 2 : 3) : 1,
+        },
+        duration: 5,
+      }));
+      state.autoPanoramaList = panoramas;
       state.currentSelectId = panoramas[0]?.id || null;
     },
 
@@ -142,6 +178,26 @@ const panoramaSlice = createSlice({
         };
       }
     },
+    
+    updateAutoPanoConfig(
+      state,
+      action: PayloadAction<{ id: string; config: Partial<PanoramaConfig>; duration : number }>
+    ) {
+      const { id, config, duration } = action.payload;
+      const pano = state.autoPanoramaList.find((p) => p.id === id);
+      console.log("updateAutoPanoConfig", pano);
+      if (pano) {
+        pano.config = {
+          ...pano.config,
+          ...config,
+        };
+        pano.duration = {
+          ...pano.duration,
+          duration,
+        };
+      }
+    },
+
     renameMasterAndUpdateSlaves(
       state,
       action: PayloadAction<{ id: string; newName: string }>
@@ -183,11 +239,13 @@ const panoramaSlice = createSlice({
 export const {
   setSpaceId,
   setPanoramas,
+  setAutoPanoramas,
   addPanorama,
   addPanoramasFromResponse,
   selectPanorama,
   setMasterPanorama,
   updatePanoConfig,
+  updateAutoPanoConfig,
   renameMasterAndUpdateSlaves,
   updateCurrentAngleMaster,
   clearPanorama,

@@ -232,7 +232,7 @@ const CreateTourStep3: React.FC = () => {
           text: "Xuất bản thành công",
         }).then(() => {
           dispatch(nextStep());
-          dispatch(fetchMasterNodes());
+          // dispatch(fetchMasterNodes());
         });
       } else {
         Swal.fire({
