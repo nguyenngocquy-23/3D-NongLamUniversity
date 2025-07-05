@@ -104,6 +104,14 @@ public class NodeController {
         }
     }
 
+    @POST
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> updateNode(SearchRequest request) {
+        List<NodeFullResponse> result = nodeService.search(request.getSearchKey());
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Tim kiem thanh cong").data(result).build();
+    }
 
     @POST
     @Path("/masterNodeList")
@@ -115,17 +123,15 @@ public class NodeController {
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 
-
     @POST
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<NodeFullResponse>> getAllNodes() {
-        List<NodeFullResponse> result = nodeService.getAllNodes();
+    public ApiResponse<List<NodeFullResponse>> getAllNodes(PageRequest request) {
+        List<NodeFullResponse> result = nodeService.getAllNodes(request);
 
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
-
 
     @POST
     @Path("/linkNode")
@@ -150,9 +156,7 @@ public class NodeController {
         } else {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Lỗi cập nhật").data(result).build();
         }
-
     }
-
 
     /**
      * Method dùng để thay thế realId trong Dabatabase cho:
@@ -177,6 +181,4 @@ public class NodeController {
             }
         }
     }
-
-
 }

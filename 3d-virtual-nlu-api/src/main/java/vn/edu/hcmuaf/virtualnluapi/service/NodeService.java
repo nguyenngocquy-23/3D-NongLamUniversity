@@ -24,8 +24,8 @@ public class NodeService {
         return nodeDao.insertNode(reqs);
     }
 
-    public List<NodeFullResponse> getAllNodes() {
-        return nodeDao.getAllNodes();
+    public List<NodeFullResponse> getAllNodes(PageRequest request) {
+        return nodeDao.getAllNodes(request);
     }
 
     public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
@@ -102,7 +102,16 @@ public class NodeService {
             return false;
         }
     }
-  
+
+    public List<NodeFullResponse> search(String searchKey) {
+        try {
+            return nodeDao.search(searchKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 //    public boolean updateLinkNodeById(List<NodeLinkRequest> request) {
 //        return nodeDao.updateLinkNodeById(request);
 //    }

@@ -22,8 +22,8 @@ public class NodeDao {
 
     public List<NodeIdMapResponse> insertNode(List<NodeCreateRequest> reqs) {
         String sql = """
-                INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, yawOffset, lightIntensity, autoRotate, speedRotate, status, numView) 
-                VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :yawOffset, :lightIntensity, :autoRotate, :speedRotate, :status, :numView)""";
+                INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, yawOffset, lightIntensity, status, numView) 
+                VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :yawOffset, :lightIntensity, :status, :numView)""";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
 
@@ -42,8 +42,6 @@ public class NodeDao {
                         .bind("positionZ", req.getPositionZ())
                         .bind("yawOffset", req.getYawOffset())
                         .bind("lightIntensity", req.getLightIntensity())
-                        .bind("autoRotate", req.getAutoRotate())
-                        .bind("speedRotate", req.getSpeedRotate())
                         .bind("status", req.getStatus())
                         .bind("numView", 0)
                         .executeAndReturnGeneratedKeys("id")
@@ -56,17 +54,17 @@ public class NodeDao {
         });
     }
 
-    public List<NodeFullResponse> getAllNodes() {
+    public List<NodeFullResponse> getAllNodes(PageRequest request) {
         String sql = """
                  SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                 n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                 n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
                  ORDER BY n.updatedAt DESC
-                 LIMIT 10 OFFSET 0
+                 LIMIT :limit OFFSET :offset
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("limit", request.getLimit()).bind("offset", request.getPage() * request.getLimit()).mapToBean(NodeFullResponse.class).list());
     }
 
     public int countAllNodes() {
@@ -90,7 +88,7 @@ public class NodeDao {
     public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                 n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.lightIntensity
+                 n.status, n.positionX, n.positionY, n.positionZ, n.lightIntensity
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
@@ -121,7 +119,7 @@ public class NodeDao {
     public NodeFullResponse getDefaultNode() {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -182,7 +180,7 @@ public class NodeDao {
     public NodeFullResponse getFullNodeByNodeId(int nodeId) {
         String sql = """
                 SELECT id, spaceId, url , name, updatedAt, userId, description, status, positionX, positionY, positionZ, yawOffset,
-                 autoRotate, speedRotate, lightIntensity
+                lightIntensity
                 FROM nodes 
                 WHERE id = :nodeId
                 """;
@@ -207,7 +205,7 @@ public class NodeDao {
     public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -222,7 +220,7 @@ public class NodeDao {
     public NodeFullResponse getNodeById(NodeIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -268,7 +266,7 @@ public class NodeDao {
     public List<NodeFullResponse> getPrivateNodeByUser(UserIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
+                n.status, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -283,7 +281,7 @@ public class NodeDao {
     public List<NodeFullResponse> getMasterNodeListBySpaceId(SpaceIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
+                n.status, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -311,7 +309,7 @@ public class NodeDao {
     public boolean updateNodes(List<NodeUpdateRequest> reqs) {
         String sql = """
                 UPDATE nodes SET url = :url, name = :name, description = :description, positionX = :positionX,
-                positionY = :positionY, positionZ = :positionZ, yawOffset = :yawOffset, autoRotate = :autoRotate, speedRotate = :speedRotate,
+                positionY = :positionY, positionZ = :positionZ, yawOffset = :yawOffset,
                 lightIntensity = :lightIntensity, status = :status, updatedAt = :updatedAt
                 WHERE id = :id
                 """;
@@ -327,8 +325,6 @@ public class NodeDao {
                         .bind("positionY", req.getPositionY())
                         .bind("positionZ", req.getPositionZ())
                         .bind("yawOffset", req.getYawOffset())
-                        .bind("autoRotate", req.getAutoRotate())
-                        .bind("speedRotate", req.getSpeedRotate())
                         .bind("lightIntensity", req.getLightIntensity())
                         .bind("status", req.getStatus())
                         .bind("updatedAt", LocalDateTime.now())
@@ -353,5 +349,18 @@ public class NodeDao {
             }
         }
         return true;
+    }
+
+    public List<NodeFullResponse> search(String searchKey) {
+        String sql = """
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                 n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                 FROM nodes n
+                 JOIN spaces s ON n.spaceId = s.id
+                 JOIN fields f ON s.fieldId = f.id
+                 WHERE LOWER(n.name) LIKE :searchKey
+                 ORDER BY n.updatedAt DESC
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("searchKey", "%" + searchKey.toLowerCase() + "%").mapToBean(NodeFullResponse.class).list());
     }
 }
