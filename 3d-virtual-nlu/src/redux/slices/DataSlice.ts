@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { API_URLS } from "../../env";
 import { safeParseJsonArray } from "../../utils/ParseJsonArray";
+import { perPage } from "../../utils/Constants";
 
 interface DataState {
   users: any[];
@@ -61,7 +62,12 @@ export const fetchUsers = createAsyncThunk(
 
 // Fetch nodes
 export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
-  const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES);
+  const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES,
+    {
+      page: 0,
+      limit: perPage,
+    }
+  );
   return response.data.data;
 });
 
