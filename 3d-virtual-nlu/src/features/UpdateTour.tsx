@@ -9,23 +9,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../redux/Store.tsx";
 
-interface ControlsProps {
-  enableZoom?: boolean;
-}
-
-const Controls: React.FC = () => {
-  const controlsRef = useRef<OrbitControlsImpl>(null);
-
-  return (
-    <OrbitControls
-      ref={controlsRef}
-      enableZoom={false}
-      autoRotate={true}
-      autoRotateSpeed={0.5}
-    />
-  );
-};
-
 interface NodeProps {
   url: string;
   radius: number;
@@ -114,7 +97,6 @@ const UpdateNode: React.FC = () => {
   const tourData = location.state;
 
   const handleClose = () => {
-    console.log("close manage tour");
     navigate("/admin/manageTour");
   };
 
@@ -142,8 +124,6 @@ const UpdateNode: React.FC = () => {
         />
         <OrbitControls
           rotateSpeed={0.5}
-          autoRotate={tourData.autoRotate}
-          autoRotateSpeed={tourData.speedRotate}
         />
       </Canvas>
       <div className={styles.header_tour}>

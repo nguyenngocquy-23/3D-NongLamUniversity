@@ -28,7 +28,7 @@ import { fetchMasterNodes } from "../../redux/slices/DataSlice";
 import gsap from "gsap";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 import { API_URLS } from "../../env";
-import { Environment } from "@react-three/drei";
+import { Environment, OrbitControls } from "@react-three/drei";
 import MiniMap from "../../components/Minimap";
 import CamControls from "../../components/visitor/CamControls";
 import { useAutoTour } from "../../hooks/useAutoTour";
@@ -78,7 +78,7 @@ const CreateAutoTourStep3: React.FC = () => {
     lightIntensity = 1,
     autoRotate = 0,
     speedRotate = 1,
-  } = currentPanorama?.config ?? {};
+  } = currentPanorama ?? {};
 
   const cameraPosition: [number, number, number] = [
     positionX,
@@ -99,7 +99,6 @@ const CreateAutoTourStep3: React.FC = () => {
     targetNodeId: string,
     hotspotTargetPosition: [number, number, number]
   ) => {
-    console.log("Running tour step:", targetNodeId, hotspotTargetPosition);
     if (!cameraRef.current || !controlsRef.current) return;
 
     const camera = cameraRef.current;
@@ -198,7 +197,7 @@ const CreateAutoTourStep3: React.FC = () => {
   const hasMounted = useRef(false);
 
   const readText = () => {
-    const textInfo = currentPanorama?.config.description;
+    const textInfo = currentPanorama?.description;
 
     if (!textInfo) {
       return;
@@ -335,7 +334,7 @@ const CreateAutoTourStep3: React.FC = () => {
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
-            yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
+            yawOffsetCurrent={currentPanorama?.yawOffset ?? 0}
             lightIntensity={lightIntensity}
           />
           <CamControls
@@ -343,7 +342,7 @@ const CreateAutoTourStep3: React.FC = () => {
             cameraRef={cameraRef}
             controlsRef={controlsRef}
             autoRotate={true}
-            autoRotateSpeed={0.2}
+            autoRotateSpeed={0.5}
           />
         </Canvas>
         {/* Header chứa back */}

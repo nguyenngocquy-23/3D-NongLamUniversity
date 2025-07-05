@@ -398,9 +398,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
       return;
     }
 
-    if (className === "upload_auto_panos") {
-      dispatch(setAutoPanoramas(allSuccessful));
-    } else if (className === "upload_panos") {
+    if (className === "upload_panos") {
       dispatch(setPanoramas(allSuccessful));
     }
     dispatch(nextStep());

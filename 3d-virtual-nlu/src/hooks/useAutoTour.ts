@@ -15,7 +15,7 @@ export const useAutoTour = (handleHotspotNavigate: Function, panoramaList:any[])
       const currentNode = panoramaList[index];
       if (!currentNode) return;
 
-      handleHotspotNavigate(currentNode.id, [currentNode.config.positionX, currentNode.config.positionY, currentNode.config.positionZ]);
+      handleHotspotNavigate(currentNode.id, [currentNode.positionX, currentNode.positionY, currentNode.positionZ]);
 
       // Sau duration giây → chuyển tiếp
       timeoutRef.current = setTimeout(() => {

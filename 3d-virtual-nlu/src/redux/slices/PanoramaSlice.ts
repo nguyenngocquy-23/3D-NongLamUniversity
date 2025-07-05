@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction, nanoid } from "@reduxjs/toolkit";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
+import { useSelector } from "react-redux";
+import { RootState } from "../Store";
 
 export interface PanoramaConfig {
   /**
@@ -87,31 +89,20 @@ const panoramaSlice = createSlice({
       state.currentSelectId = panoramas[0]?.id || null;
     },
     
-    setAutoPanoramas(
-      state,
-      action: PayloadAction<Array<{ originalFileName: string; url: string }>>
-    ) {
-      const userJson = sessionStorage.getItem("user");
-      const user = userJson ? JSON.parse(userJson) : null;
-      const panoramas = action.payload.map((item, index) => ({
-        id: nanoid(),
-        url: item.url,
-        config: {
-          name: item.originalFileName,
-          description: "",
-          positionX: 0,
-          positionY: 0,
-          positionZ: DEFAULT_ORIGINAL_Z,
-          yawOffset: 0,
-          autoRotate: 0,
-          speedRotate: 0,
-          lightIntensity: 1,
-          status: index === 0 ? (user.roleId == 2 ? 2 : 3) : 1,
-        },
-        duration: 5,
-      }));
-      state.autoPanoramaList = panoramas;
-      state.currentSelectId = panoramas[0]?.id || null;
+    addAutoPanorama(state, action: PayloadAction<{  node: any }>) {
+      const existing = state.autoPanoramaList.find(p => p.originalNodeId === action.payload.node.id);
+      if (!existing) {
+        state.autoPanoramaList.push({
+          ...action.payload.node,
+          duration: 5,
+          originalNodeId: action.payload.node.id,
+        });
+      }
+      state.currentSelectId = state.autoPanoramaList[0]?.id || null;
+    },
+
+    removeAutoPanorama(state, action: PayloadAction<string>) {
+      state.autoPanoramaList = state.autoPanoramaList.filter(p => p.originalNodeId !== action.payload);
     },
 
     //Upload thêm panorama khi trong tour.
@@ -229,7 +220,8 @@ const panoramaSlice = createSlice({
     //   }
     // },
     clearPanorama(state) {
-      (state.panoramaList = []),
+        (state.panoramaList = []),
+        (state.autoPanoramaList = []),
         (state.currentAngleMaster = 0),
         (state.currentSelectId = null);
     },
@@ -239,7 +231,8 @@ const panoramaSlice = createSlice({
 export const {
   setSpaceId,
   setPanoramas,
-  setAutoPanoramas,
+  addAutoPanorama,
+  removeAutoPanorama,
   addPanorama,
   addPanoramasFromResponse,
   selectPanorama,

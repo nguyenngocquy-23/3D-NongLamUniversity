@@ -126,15 +126,15 @@ const CreateAutoTourStep2 = () => {
   /**
    * Lấy URL panorama hiện tại - hoặc dùng mặc định.
    */
-  const currentPanoramaUrl = currentPanorama?.url ?? "/khoa.jpg";
+  const currentPanoramaUrl = currentPanorama?.url ??  `${import.meta.env.BASE_URL}khoa.jpg`;
 
   const {
     positionX = 0,
     positionY = 0,
     positionZ = DEFAULT_ORIGINAL_Z,
     lightIntensity = 1,
-    autoRotate = 0,
-    speedRotate = 0,
+    autoRotate = 1,
+    speedRotate = 0.3,
   } = currentPanorama?.config ?? {};
 
   const cameraPosition: [number, number, number] = [
@@ -441,7 +441,7 @@ const CreateAutoTourStep2 = () => {
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
-            yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
+            yawOffsetCurrent={currentPanorama?.yawOffset ?? 0}
             onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
             onTextureReady={() => setIsTextureReady(true)}
@@ -459,11 +459,8 @@ const CreateAutoTourStep2 = () => {
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
-            autoRotate={autoRotate === 1 ? true : false}
+            autoRotate={autoRotate}
             autoRotateSpeed={speedRotate}
-            onAngleChange={(angle) => {
-              setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
-            }}
           />
 
           {isTextureReady &&
@@ -565,7 +562,7 @@ const CreateAutoTourStep2 = () => {
                 setOpenConfigTour(pano.id);
                 handleSelectNode(pano.id);
               }}
-              title={pano.config.name}
+              title={pano.name}
             >
               <img
                 src={pano.url}

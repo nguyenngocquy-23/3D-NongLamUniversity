@@ -9,6 +9,7 @@ import { AppDispatch } from "../redux/Store.ts";
 import UploadFile from "../components/admin/UploadFile.tsx";
 import CreateAutoTourStep2 from "../pages/admin/CreateAutoTourStep2.tsx";
 import CreateAutoTourStep3 from "../pages/admin/CreateAutoTourStep3.tsx";
+import BoardSelectNode from "../components/admin/BoardSelectNode.tsx";
 
 /**
  * Sử dụng Stepper cho việc tạo tour tự động.
@@ -23,7 +24,7 @@ import CreateAutoTourStep3 from "../pages/admin/CreateAutoTourStep3.tsx";
 export const CREATE_TOUR_STEPS = [
   {
     name: "Khởi tạo",
-    Component: () => <UploadFile className={"upload_auto_panos"} />,
+    Component: () => <BoardSelectNode />,
   },
   {
     name: "Tuỳ chỉnh không gian",

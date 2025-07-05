@@ -26,6 +26,7 @@ const Layout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [title, setTitle] = useState("Tổng quan");
 
   useEffect(() => {
     console.log("currentUser:", currentUser);
@@ -79,7 +80,7 @@ const Layout = () => {
     <div className={styles.container}>
       {/* Sidebar */}
       {!isOptionFullScreen && currentUser && (
-        <Sidebar isOpenSidebar={true} currentUser={currentUser} />
+        <Sidebar isOpenSidebar={true} currentUser={currentUser} setTitle={setTitle} />
       )}
       {/* Main Content */}
       <main
@@ -91,7 +92,7 @@ const Layout = () => {
       >
         {!isOptionFullScreen && (
           <header className={styles.header}>
-            <h2>Tổng quan</h2>
+            <h2>{title}</h2>
           </header>
         )}
         <section
