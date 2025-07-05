@@ -134,7 +134,7 @@ const CreateAutoTourStep2 = () => {
     positionZ = DEFAULT_ORIGINAL_Z,
     lightIntensity = 1,
     autoRotate = 1,
-    speedRotate = 0.3,
+    speedRotate = 0.2,
   } = currentPanorama?.config ?? {};
 
   const cameraPosition: [number, number, number] = [

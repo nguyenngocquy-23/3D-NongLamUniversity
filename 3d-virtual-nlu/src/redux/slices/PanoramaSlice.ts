@@ -172,20 +172,12 @@ const panoramaSlice = createSlice({
     
     updateAutoPanoConfig(
       state,
-      action: PayloadAction<{ id: string; config: Partial<PanoramaConfig>; duration : number }>
+      action: PayloadAction<{ id: string; duration : number }>
     ) {
-      const { id, config, duration } = action.payload;
+      const { id, duration } = action.payload;
       const pano = state.autoPanoramaList.find((p) => p.id === id);
-      console.log("updateAutoPanoConfig", pano);
       if (pano) {
-        pano.config = {
-          ...pano.config,
-          ...config,
-        };
-        pano.duration = {
-          ...pano.duration,
-          duration,
-        };
+        pano.duration = duration;
       }
     },
 

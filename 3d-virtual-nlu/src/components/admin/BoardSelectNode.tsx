@@ -15,6 +15,7 @@ import {
   addAutoPanorama,
   removeAutoPanorama,
 } from "../../redux/slices/PanoramaSlice.ts";
+import Swal from "sweetalert2";
 
 const BoardSelectNode = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -84,17 +85,13 @@ const BoardSelectNode = () => {
   }, [currentPage]);
 
   const nextStep2 = () => {
-    // if (nodeSelected.length === 0) {
-    //   Swal.fire({
-    //     icon: "warning",
-    //     title: "Chưa chọn node",
-    //     text: "Vui lòng chọn node trước khi tiếp tục",
-    //     confirmButtonText: "OK",
-    //   });
-    //   return;
-    // }
     if (selectedNodes.length === 0) {
-      alert("Vui lòng chọn ít nhất một node trước khi tiếp tục.");
+      Swal.fire({
+        icon: "warning",
+        title: "Chưa chọn node",
+        text: "Vui lòng chọn node trước khi tiếp tục",
+        confirmButtonText: "OK",
+      });
       return;
     }
 

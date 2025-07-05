@@ -76,8 +76,8 @@ const CreateAutoTourStep3: React.FC = () => {
     positionY = 0,
     positionZ = 0,
     lightIntensity = 1,
-    autoRotate = 0,
-    speedRotate = 1,
+    autoRotate = 1,
+    speedRotate = 0.3,
   } = currentPanorama ?? {};
 
   const cameraPosition: [number, number, number] = [
@@ -259,6 +259,7 @@ const CreateAutoTourStep3: React.FC = () => {
 
     waitForVoices((voices) => {
       speak(voices);
+      hasMounted.current = false;
     });
   };
 
@@ -341,8 +342,8 @@ const CreateAutoTourStep3: React.FC = () => {
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
-            autoRotate={true}
-            autoRotateSpeed={0.5}
+            autoRotate={autoRotate}
+            autoRotateSpeed={speedRotate}
           />
         </Canvas>
         {/* Header chứa back */}

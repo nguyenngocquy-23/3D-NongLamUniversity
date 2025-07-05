@@ -51,14 +51,10 @@ const ConfigAutoTour = ({
     dispatch(
       updateAutoPanoConfig({
         id: currentPanorama.id,
-        config: {
-          name,
-          description,
-        },
         duration: duration,
       })
     );
-  }, [name, description, duration]);
+  }, [duration]);
 
   return (
     <div className={styles.config_container}>
@@ -94,7 +90,7 @@ const ConfigAutoTour = ({
             className={styles.input}
             type="number"
             min={5}
-            max={10}
+            max={30}
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
           />
