@@ -112,7 +112,12 @@ public class NodeService {
         }
     }
 
-//    public boolean updateLinkNodeById(List<NodeLinkRequest> request) {
-//        return nodeDao.updateLinkNodeById(request);
-//    }
+    public boolean createAutoTour(AutoTourCreateRequest request) {
+        try {
+            return nodeDao.createAutoTour(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

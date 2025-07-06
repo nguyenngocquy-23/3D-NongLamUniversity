@@ -272,44 +272,54 @@ const CreateAutoTourStep3: React.FC = () => {
     readText();
   }, [currentPanorama]);
 
-  // const handlePublishTour = async () => {
-  //   const { panoramaList, spaceId } = panoramas;
+  const handlePublishAutoTour = async () => {
+    const { autoPanoramaList } = panoramas;
+    const tourName = `${autoPanoramaList[0]?.name || ""} - ${
+      autoPanoramaList[autoPanoramaList.length - 1]?.name || ""
+    }`;
 
-  //   if (!spaceId || panoramaList.length === 0) {
-  //     alert("spaceId bị null hay panorama không chứa giá trị..");
-  //     return;
-  //   }
-  //   try {
-  //     //Step1: Mapping dữ liệu Redux với Request bên backend.
-  //     const payload = TourNodeRequestMapper.mapOneNodeCreateRequest(
-  //       panoramaList,
-  //       hotspots.hotspotList,
-  //       userId
-  //     );
+    // Tạo mảng indexNode
+    const indexNodeArray = autoPanoramaList.map((p) => ({
+      nodeId: p.id,
+      duration: p.duration,
+    }));
 
-  //     // Step2: Gửi lên backend
-  //     const response = await axios.post(API_URLS.ADMIN_CREATE_NODES, payload);
-  //     if (response.data?.statusCode === 1000) {
-  //       Swal.fire({
-  //         icon: "success",
-  //         title: "Thành công",
-  //         text: "Xuất bản thành công",
-  //       }).then(() => {
-  //         dispatch(nextStep());
-  //       });
-  //     } else {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: "Thất bại",
-  //         text:
-  //           "Xuất bản thất bại: " +
-  //           (response.data?.message || "Không rõ lý do"),
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.log("Lỗi khi xuất bản: ", error);
-  //   }
-  // };
+    // Chuyển thành chuỗi JSON
+    const indexNode = JSON.stringify(indexNodeArray);
+
+    console.log(tourName); // Panorama A - Panorama C
+    console.log(indexNode);
+    if (autoPanoramaList.length === 0) {
+      alert("spaceId bị null hay panorama không chứa giá trị..");
+      return;
+    }
+    try {
+      const response = await axios.post(API_URLS.ADMIN_CREATE_AUTO_TOUR, {
+        userId: userId,
+        name: tourName,
+        indexNode: indexNode,
+      });
+      if (response.data?.statusCode === 1000) {
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Xuất bản thành công",
+        }).then(() => {
+          dispatch(nextStep());
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Thất bại",
+          text:
+            "Xuất bản thất bại: " +
+            (response.data?.message || "Không rõ lý do"),
+        });
+      }
+    } catch (error) {
+      console.log("Lỗi khi xuất bản: ", error);
+    }
+  };
 
   const [cameraAngle, setCameraAngle] = useState(0);
 
@@ -361,7 +371,7 @@ const CreateAutoTourStep3: React.FC = () => {
         </div>
         <button
           className={styles.publish_tour_button}
-          // onClick={handlePublishTour}
+          onClick={handlePublishAutoTour}
         >
           Xuất bản
         </button>

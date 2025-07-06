@@ -363,4 +363,30 @@ public class NodeDao {
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("searchKey", "%" + searchKey.toLowerCase() + "%").mapToBean(NodeFullResponse.class).list());
     }
+
+    public boolean createAutoTour(AutoTourCreateRequest request) {
+        String sql = """
+                INSERT INTO auto_tours (userId, name, indexNode, status, createdAt, updatedAt)
+                VALUES (:userId, :name, :indexNode, :status, :createdAt, :updatedAt)
+                """;
+
+        try {
+            Boolean result = ConnectionPool.getConnection().inTransaction(handle -> {
+                int inserted = handle.createUpdate(sql)
+                        .bind("userId", request.getUserId())
+                        .bind("name", request.getName())
+                        .bind("indexNode", request.getIndexNode())
+                        .bind("status", 1)
+                        .bind("createdAt", LocalDateTime.now())
+                        .bind("updatedAt", LocalDateTime.now())
+                        .execute();
+                return inserted > 0;
+            });
+
+            return Boolean.TRUE.equals(result); // Tránh NullPointer
+        } catch (Exception e) {
+            e.printStackTrace(); // Log lỗi chi tiết nếu cần
+            return false;
+        }
+    }
 }

@@ -74,6 +74,19 @@ public class NodeController {
     }
 
     @POST
+    @Path("/createAutoTour")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> createAutoTour(AutoTourCreateRequest request) {
+        boolean result = nodeService.createAutoTour(request);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Tao node thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi tao node").data(result).build();
+        }
+    }
+
+    @POST
     @Path("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)

@@ -46,6 +46,7 @@ export const API_URLS = {
   ADMIN_GET_ALL_FIELDS: `${DOMAIN}/admin/field`,
 
   ADMIN_CREATE_NODES: `${DOMAIN}/v1/admin/node/insert`,
+  ADMIN_CREATE_AUTO_TOUR: `${DOMAIN}/v1/admin/node/createAutoTour`,
   ADMIN_UPDATE_NODES: `${DOMAIN}/v1/admin/node/update`,
   ADMIN_LINK_NODES: `${DOMAIN}/v1/admin/node/linkNode`,
   ADMIN_CREATE_FIELDS: `${DOMAIN}/admin/field/create`,
