@@ -1,0 +1,97 @@
+import { useNavigate } from "react-router-dom";
+import styles from "../../styles/visitor/autoTour.module.css";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import {
+  fetchAutoNode,
+  fetchNodeOfUser,
+  fetchPrivateNodeOfUser,
+} from "../../redux/slices/DataSlice";
+import { AppDispatch, RootState } from "../../redux/Store";
+import { IoSearch } from "react-icons/io5";
+import { FaAngleLeft } from "react-icons/fa6";
+
+const ManageAutoTour = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    dispatch(fetchAutoNode());
+  }, [dispatch]);
+
+  const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
+  const [searchData, setSearchData] = useState(autoNodes);
+  
+  useEffect(() => {
+    if (autoNodes && autoNodes.length > 0) {
+      setSearchData(autoNodes);
+    }
+  }, [autoNodes]);
+
+  const handleDetail = (nodeId: number) => {
+    const node = autoNodes.find((node) => node.id === nodeId);
+    if (!node) {
+      console.error("Node not found");
+      return;
+    }
+    const indexNode = JSON.parse(node.indexNode) as { id: number, duration: number }[];
+
+    // navigate(`/autoTour/${nodeId}`);
+  };
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const searchTerm = event.target.value.toLowerCase();
+    const newData = autoNodes.filter((row) => {
+      return row.name.toLowerCase().includes(searchTerm);
+    });
+    setSearchData(newData);
+  };
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <span
+          className={styles.back_btn}
+          onClick={() => {
+            navigate("/");
+          }}
+        >
+          <FaAngleLeft />
+        </span>
+        <div className={styles.search_box}>
+          <label htmlFor="input" className={styles.label}>
+            <IoSearch className={styles.search_icon} />
+          </label>
+          <input
+            type="text"
+            name="field"
+            id="input"
+            placeholder="Tìm kiếm tour..."
+            className={styles.search_input}
+            onChange={handleSearch}
+          />
+        </div>
+        <span className={styles.title}>TOUR TỰ ĐỘNG</span>
+      </div>
+      <div className={styles.tour_container}>
+        {searchData.length > 0 ? (
+          searchData.map((node) => (
+            <div
+              key={node.id}
+              className={styles.tour}
+              onClick={() => handleDetail(node.id)}
+              style={{ background: `url(${node.url})` }}
+            >
+              <div className={styles.blur} />
+              <span className={styles.name}>{node.name}</span>
+            </div>
+          ))
+        ) : (
+          <div style={{ color: "black" }}>Danh sách trống...</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ManageAutoTour;

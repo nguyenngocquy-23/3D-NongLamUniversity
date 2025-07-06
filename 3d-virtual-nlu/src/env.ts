@@ -37,6 +37,7 @@ export const API_URLS = {
 
   ADMIN_GET_DASHBOARD: `${DOMAIN}/admin/dashboard`,
   ADMIN_GET_ALL_NODES: `${DOMAIN}/v1/admin/node/all`,
+  ADMIN_GET_AUTO_TOURS: `${DOMAIN}/v1/admin/node/getAutoTour`,
   ADMIN_GET_MASTER_NODES_OF_SPACE: `${DOMAIN}/v1/admin/node/masterNodeList`,
   ADMIN_GET_ALL_SPACES: `${DOMAIN}/admin/space/all`,
   ADMIN_GET_SPACE_BY_ID: `${DOMAIN}/admin/space/byId`,

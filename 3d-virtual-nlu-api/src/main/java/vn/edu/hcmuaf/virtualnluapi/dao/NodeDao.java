@@ -389,4 +389,18 @@ public class NodeDao {
             return false;
         }
     }
+
+    public List<AutoTourResponse> getAutoTour(PageRequest request) {
+        String sql = """
+                SELECT at.id, at.name, at.indexNode, at.status, at.updatedAt
+                FROM auto_tours at
+                ORDER BY at.updatedAt DESC
+                LIMIT :limit OFFSET :offset
+                """;
+
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+                .bind("limit", request.getLimit())
+                .bind("offset", request.getPage() * request.getLimit())
+                .mapToBean(AutoTourResponse.class).list());
+    }
 }

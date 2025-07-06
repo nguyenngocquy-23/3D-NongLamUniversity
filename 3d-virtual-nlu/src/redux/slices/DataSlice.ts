@@ -10,6 +10,7 @@ interface DataState {
   fields: any[];
   spaces: any[];
   nodes: any[];
+  autoNodes: any[];
   hotspotTypes: any[];
   masterNodes: any[];
   preloadNodes: any[];
@@ -29,6 +30,7 @@ const initialState: DataState = {
   fields: [],
   spaces: [],
   nodes: [],
+  autoNodes: [],
   hotspotTypes: [],
   masterNodes: [],
   nodeOfUser: [],
@@ -98,6 +100,20 @@ export const fetchNodeOfUser = createAsyncThunk(
     const response = await axios.post(API_URLS.NODE_OF_USER, {
       userId: userId,
     });
+    return response.data.data;
+  }
+);
+
+// Fetch auto tour
+export const fetchAutoNode = createAsyncThunk(
+  "data/fetchAutoNode",
+  async () => {
+    const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS,
+      {
+        page: 0,
+        limit: perPage,
+      }
+    );
     return response.data.data;
   }
 );
@@ -302,6 +318,17 @@ const dataSlice = createSlice({
         state.nodes = action.payload;
       })
       .addCase(fetchNodes.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchAutoNode.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchAutoNode.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.autoNodes = action.payload;
+      })
+      .addCase(fetchAutoNode.rejected, (state) => {
         state.status = "failed";
       })
 

@@ -37,6 +37,7 @@ const ConfigAutoTour = ({
   useEffect(() => {
     setName(currentPanorama?.name ?? "");
     setDescription(currentPanorama?.description ?? "");
+    setDuration(currentPanorama?.duration ?? "");
   }, [currentPanorama]);
 
   const [name, setName] = useState(currentPanorama?.name ?? "");

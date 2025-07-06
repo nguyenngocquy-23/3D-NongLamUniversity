@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.AutoTourResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
@@ -144,6 +145,15 @@ public class NodeController {
         List<NodeFullResponse> result = nodeService.getAllNodes(request);
 
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/getAutoTour")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<AutoTourResponse>> getAutoTour(PageRequest request) {
+        List<AutoTourResponse> result = nodeService.getAutoTour(request);
+        return ApiResponse.<List<AutoTourResponse>>builder().statusCode(1000).message("Lay danh sach tour tu dong thanh cong").data(result).build();
     }
 
     @POST

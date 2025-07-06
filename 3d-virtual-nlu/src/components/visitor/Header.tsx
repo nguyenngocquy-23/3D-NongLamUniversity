@@ -42,6 +42,26 @@ const Header: React.FC = () => {
       });
     }
   };
+  
+  const handleAutoTour = (e: React.MouseEvent) => {
+    e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
+    if (currentUser) {
+      navigate("/autoTour");
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Bạn chưa đăng nhập",
+        text: "Vui lòng đăng nhập để tiếp tục.",
+        showCancelButton: true,
+        cancelButtonText: "Hủy",
+        confirmButtonText: "Đăng nhập",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login");
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     const links = document.querySelectorAll(`.${style.navLink}`);
@@ -124,6 +144,14 @@ const Header: React.FC = () => {
           >
             Khám phá tour ảo
           </ScrollLink>
+
+          <span
+            onClick={handleAutoTour}
+            className={style.navLink}
+            style={{ cursor: "pointer" }}
+          >
+            Tour tự động
+          </span>
 
           <ScrollLink
             to="contact"

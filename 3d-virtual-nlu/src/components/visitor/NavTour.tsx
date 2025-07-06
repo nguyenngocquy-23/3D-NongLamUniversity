@@ -42,7 +42,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
     >
       {isOpen ? (
         <span
-          className={styles.backBtn}
+          className={styles.back_btn}
           onClick={() => {
             navigate("/");
           }}
