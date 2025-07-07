@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import * as THREE from "three";
 import { RootState } from "../../redux/Store";
 import { radianToTexture } from "../../utils/MathUtils";
+import { ImageCacheMap } from "../../pages/visitor/VirtualTour";
 
 /**
  *  Lớp này sử dụng cho việc :
@@ -32,7 +33,6 @@ const CrossFadeMaterial = shaderMaterial(
   //Vertex Shader .gsgl
   `
     varying vec2 vUv;
-    uniform float uYawOffset;
     void main() {
       vUv = uv;
       gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);;
@@ -120,9 +120,8 @@ interface TourSceneProps {
   onPointerDown?: (e: ThreeEvent<PointerEvent>, point: THREE.Vector3) => void;
   nodeId?: string;
   onTextureReady?: () => void;
-  imageRef?: React.RefObject<
-    Record<string, { img: HTMLImageElement; objectUrl: string }>
-  >;
+  imageRef?: React.RefObject<ImageCacheMap>;
+  imageVersion?: number;
 }
 
 const TourScene: React.FC<TourSceneProps> = ({
@@ -138,7 +137,9 @@ const TourScene: React.FC<TourSceneProps> = ({
   exposure,
   onPointerDown,
   onTextureReady,
+  nodeId,
   imageRef,
+  imageVersion,
 }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<any>(null);
@@ -161,76 +162,23 @@ const TourScene: React.FC<TourSceneProps> = ({
     0, 0,
   ]);
 
-  const [progress, setProgress] = useState(0);
-
   useEffect(() => {
     if (sphereRef && meshRef.current) {
       sphereRef.current = meshRef.current;
     }
   }, [sphereRef]);
 
-  // useEffect(() => {
-  //   const load = async () => {
-  //     const yawNew = radianToTexture(yawOffsetCurrent);
-
-  //     // Nếu texture không đổi, chỉ cần cập nhật yawOffset (không load lại texture hay crossfade)
-  //     if (textureCurrent === prevTextureRef.current) {
-  //       setYawOffsetList(([_, yaw2]) => [yawNew, yaw2]);
-  //       if (materialRef.current) {
-  //         materialRef.current.uYawOffset1 = yawNew;
-  //       }
-  //       return;
-  //     }
-
-  //     try {
-  //       let texNew: THREE.Texture | undefined;
-
-  //       if (imageRef && imageRef.current && imageRef.current[textureCurrent]) {
-  //         const preloadedImage = imageRef.current[textureCurrent];
-  //         texNew = new THREE.Texture(preloadedImage.img);
-  //         texNew.needsUpdate = true;
-  //       } else {
-  //         const loader = new THREE.TextureLoader();
-  //         texNew = await loader.loadAsync(textureCurrent);
-  //       }
-  //       texNew.wrapS = THREE.RepeatWrapping;
-  //       texNew.wrapT = THREE.RepeatWrapping;
-
-  //       if (!texNew) {
-  //         console.warn("Texture not preloaded:", textureCurrent);
-  //         return;
-  //       }
-
-  //       // TEST ========
-
-  //       if (!textures) {
-  //         setTextures([texNew, null]);
-  //         setYawOffsetList([yawNew, 0]);
-  //         onTextureReady?.();
-  //       } else {
-  //         const [prevTex] = textures;
-  //         const [prevYaw] = yawOffsetList;
-
-  //         setTextures([prevTex, texNew]);
-  //         setYawOffsetList([prevYaw, yawNew]);
-  //         setProgress(0);
-  //         progressRef.current = 0;
-  //       }
-
-  //       // Cập nhật ref sau khi load xong
-  //       prevTextureRef.current = textureCurrent;
-  //       prevYawOffsetRef.current = yawOffsetCurrent;
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   };
-
-  //   load();
-  // }, [textureCurrent, yawOffsetCurrent]);
-
   useEffect(() => {
     const load = async () => {
       const yawNew = radianToTexture(yawOffsetCurrent);
+      const cacheKey = nodeId ?? textureCurrent;
+      const cachedEntry = imageRef?.current?.[cacheKey];
+
+      const currentImage = textures?.[0]?.image;
+      const newImage = cachedEntry?.img;
+
+      const urlChanged = textureCurrent !== prevTextureRef.current;
+      const imgUpdated = newImage && currentImage !== newImage;
 
       // Nếu texture không đổi, chỉ cần cập nhật yawOffset (không load lại texture hay crossfade)
       if (textureCurrent === prevTextureRef.current) {
@@ -242,8 +190,22 @@ const TourScene: React.FC<TourSceneProps> = ({
       }
 
       try {
-        const loader = new THREE.TextureLoader();
-        const texNew = await loader.loadAsync(textureCurrent);
+        let texNew: THREE.Texture | undefined;
+
+        if (cachedEntry) {
+          texNew = new THREE.Texture(cachedEntry.img);
+          texNew.needsUpdate = true;
+        } else {
+          const loader = new THREE.TextureLoader();
+          texNew = await loader.loadAsync(textureCurrent);
+        }
+        texNew.wrapS = THREE.RepeatWrapping;
+        texNew.wrapT = THREE.RepeatWrapping;
+
+        if (!texNew) {
+          console.warn("Texture not preloaded:", cacheKey);
+          return;
+        }
 
         if (!textures) {
           setTextures([texNew, null]);
@@ -255,7 +217,6 @@ const TourScene: React.FC<TourSceneProps> = ({
 
           setTextures([prevTex, texNew]);
           setYawOffsetList([prevYaw, yawNew]);
-          setProgress(0);
           progressRef.current = 0;
         }
 
@@ -268,7 +229,7 @@ const TourScene: React.FC<TourSceneProps> = ({
     };
 
     load();
-  }, [textureCurrent, yawOffsetCurrent]);
+  }, [textureCurrent, yawOffsetCurrent, nodeId]);
 
   /**
    * Texture thực hiện việc đổi.
@@ -283,7 +244,6 @@ const TourScene: React.FC<TourSceneProps> = ({
 
     if (progressRef.current < 1) {
       progressRef.current = Math.min(progressRef.current + delta * 0.5, 1);
-      setProgress(progressRef.current);
     }
 
     if (materialRef.current) {
@@ -300,7 +260,6 @@ const TourScene: React.FC<TourSceneProps> = ({
 
       setTextures([textures[1], null]);
       setYawOffsetList([yawOffsetList[1], 0]);
-      setProgress(0);
       if (materialRef.current) {
         materialRef.current.uTexture1 = textures[1];
         materialRef.current.uTexture2 = null;
@@ -325,7 +284,7 @@ const TourScene: React.FC<TourSceneProps> = ({
     <>
       <Sphere
         ref={sphereRef}
-        args={[radius, 32, 32]}
+        args={[radius, 128, 128]}
         scale={[-1, 1, 1]}
         onPointerDown={handlePointerDown}
       >
@@ -333,7 +292,7 @@ const TourScene: React.FC<TourSceneProps> = ({
           ref={materialRef}
           uTexture1={textures?.[0] || null}
           uTexture2={textures?.[1] || null}
-          uProgress={progress}
+          uProgress={progressRef.current}
           side={THREE.BackSide}
           uAmbientLight={new THREE.Color().setScalar(lightIntensity)} // ánh sáng môi trường
           uYawOffset1={yawOffsetList[0]}

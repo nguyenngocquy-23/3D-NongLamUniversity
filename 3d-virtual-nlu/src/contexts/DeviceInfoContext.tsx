@@ -1,5 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
+/**
+ *  Mobile + Ram 4GB : 2k.
+ * Laptom Ram 8GB + CPU 4 cores: 4K
+ * Ram 16GB, CPU > 8cores, pixelRatio cao : 8K.
+ *
+ *
+ *
+ */
+
 type DeviceInfo = {
   pixelRatio: number;
   isMobile: boolean;

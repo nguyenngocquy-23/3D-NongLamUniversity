@@ -26,6 +26,7 @@ const LeftMenuTour = ({ imageRef }: LeftMenuProps) => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+
   const limit = 6;
 
   const scrollRef = useRef<HTMLUListElement>(null);

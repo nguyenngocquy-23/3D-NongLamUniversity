@@ -32,11 +32,23 @@ import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
 import axios from "axios";
 import { API_URLS } from "../../env.ts";
 import { AnimatePresence, motion } from "framer-motion";
-export interface ImagePreload {
-  id: number;
-  url: string;
-}
+import {
+  buildImageUrlWithQuality,
+  ImageQuality,
+} from "../../utils/getCloudinaryURL.ts";
+import { vectorComponents } from "three/webgpu";
 
+export type ImageCacheEntry = {
+  img: HTMLImageElement;
+  objectUrl: string;
+  quality: ImageQuality;
+  lastUsed: number; //time to live
+};
+
+/**
+ * string: id của node hiện tại
+ */
+export type ImageCacheMap = Record<string, ImageCacheEntry>;
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
  * => Nhận vào 1 texture url (Test)
@@ -46,6 +58,8 @@ export interface ImagePreload {
  * 2. Hiển thị màn hình cho phép người dùng di chuyển tại giao diện.
  */
 const VirtualTour = () => {
+  const imageRef = useRef<ImageCacheMap>({});
+
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.data.status);
   const user = useSelector((state: RootState) => state.auth.user);
@@ -63,23 +77,7 @@ const VirtualTour = () => {
   }, [reduxDefaultNode]);
 
   const [isMobile, setIsMobile] = useState(false);
-
-  const [imageList, setImageList] = useState<ImagePreload[]>([]);
-
-  /**
-   * Giữ ảnh trong ImageRef + highImgRef.
-   * 1. Ảnh ở chế độ low => Tải lần đầu. Vào tour.
-   * 2. Thay dần ảnh ở chế độ cao vào trong lúc người dùng tương tác trong tour.
-   *
-   *
-   */
-  const imageRef = useRef<
-    Record<string, { img: HTMLImageElement; objectUrl: string }>
-  >({});
-
-  const highImgRef = useRef<
-    Record<string, { img: HTMLImageElement; objectUrl: string }>
-  >({});
+  const [imageVersion, setImageVersion] = useState<number>(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -98,6 +96,7 @@ const VirtualTour = () => {
   useEffect(() => {
     dispatch(fetchPreloadNodes(nodeToRender.id));
   }, [nodeToRender]);
+
   const hotspotModels = useMemo(() => {
     return (nodeToRender?.modelHotspots as HotspotModel[]) || [];
   }, [nodeToRender]);
@@ -161,9 +160,6 @@ const VirtualTour = () => {
 
   const navigate = useNavigate();
   const sphereRef = useRef<THREE.Mesh | null>(null);
-  const [sphereCenter, setSphereCenter] = useState<[number, number, number]>([
-    0, 0, 0,
-  ]);
 
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
@@ -372,40 +368,22 @@ const VirtualTour = () => {
     }
   }, [preloadNodes, nodeToRender, dispatch]);
 
-  useEffect(() => {
-    axios.post(API_URLS.ADMIN_GET_ALL_NODE_IMAGES).then((response) => {
-      const data = response.data.data || [];
-      setImageList(data);
-    });
-  }, []);
+  /**
+   *  CACHE ẢNH PHÍA CLIENT
+   *
+   */
 
   useEffect(() => {
-    if (imageList.length === 0) return;
+    if (!nodeToRender) return;
+    const { id, url } = nodeToRender;
 
-    const imgCache: Record<
-      string,
-      { img: HTMLImageElement; objectUrl: string }
-    > = {};
+    const existing = imageRef.current[id];
+    if (existing && existing.quality === "8K") return; //Nếu tồn tại rồi & 8K => Tức là đã từng hiển thị thì không tải nữa.
 
-    // const urlList = imageList.map((img) => img.url);
-    // const loader = new THREE.TextureLoader();
-    // const textures: Record<string, THREE.Texture> = {};
-    // const imgCache = {};
-    let loaded = 0;
-    const total = imageList.length;
-
-    //Lấy ảnh low version.
-    const getLowResURL = (url: string) => {
-      return url.replace("/upload", "/upload/f_webp/q_auto/");
-    };
-
-    imageList.forEach(async (imgObj) => {
+    const loadHighRes = async () => {
       try {
-        const lowResURL = getLowResURL(imgObj.url);
-        // const lowResURL = imgObj.url;
-
-        const response = await fetch(lowResURL, { mode: "cors" });
-
+        const highResURL = buildImageUrlWithQuality(url, "8K");
+        const response = await fetch(highResURL, { mode: "cors" });
         const blob = await response.blob();
         const objectUrl = URL.createObjectURL(blob);
 
@@ -414,40 +392,67 @@ const VirtualTour = () => {
         img.src = objectUrl;
 
         img.onload = () => {
-          imgCache[imgObj.url] = { img, objectUrl };
-          loaded++;
+          imageRef.current[id] = {
+            img,
+            objectUrl,
+            quality: "8K",
+            lastUsed: Date.now(),
+          };
 
-          const percent = Math.floor((loaded / total) * 100);
-          setPercent(percent);
-
-          if (loaded === total) {
-            imageRef.current = imgCache;
-            setIsWaiting(false); //Xác nhận đã tải xong ảnh.
+          if (nodeToRender.id === id) {
+            setImageVersion((v) => v + 1);
           }
         };
+      } catch (err) {
+        console.warn("Không load được ảnh 360 cho nodeToRender", id, err);
+      }
+    };
 
-        img.onerror = (err) => {
-          console.warn("❌ Không load được ảnh blob:", imgObj.url, err);
+    loadHighRes();
+  }, [nodeToRender]);
+
+  useEffect(() => {
+    if (!preloadNodes || preloadNodes.length === 0) return;
+
+    let loaded = 0;
+    const total = preloadNodes.length;
+
+    preloadNodes.forEach(async (node) => {
+      const existing = imageRef.current[node.id];
+
+      if (existing) return; //Có rồi thì không tải nữa.
+
+      try {
+        const lowResURL = buildImageUrlWithQuality(node.url, "2K");
+
+        const response = await fetch(lowResURL, { mode: "cors" });
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = objectUrl;
+
+        img.onload = () => {
           loaded++;
-          const percent = Math.floor((loaded / total) * 100);
-          setPercent(percent);
+          imageRef.current[node.id] = {
+            img,
+            objectUrl,
+            quality: "2K",
+            lastUsed: Date.now(),
+          };
+
+          setPercent(Math.floor((loaded / total) * 100));
           if (loaded === total) {
-            imageRef.current = imgCache;
+            // imageRef.current = imgCache;
             setIsWaiting(false);
           }
         };
       } catch (err) {
-        console.warn("❌ Lỗi tải ảnh:", imgObj.url, err);
-        loaded++;
-        const percent = Math.floor((loaded / total) * 100);
-        setPercent(percent);
-        if (loaded === total) {
-          imageRef.current = imgCache;
-          setIsWaiting(false);
-        }
+        console.warn("Lỗi không thể tải reload:", node.url, err);
       }
     });
-  }, [imageList]);
+  }, [preloadNodes]);
 
   if (!icons || icons.length === 0) {
     return (
@@ -498,6 +503,7 @@ const VirtualTour = () => {
           isOpenRadar={isOpenRadar}
           setIsOpenRadar={setIsOpenRadar}
           imageRef={imageRef}
+          imageVersion={imageVersion}
         />
       )}
 
