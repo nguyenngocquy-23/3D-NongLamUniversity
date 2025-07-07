@@ -73,7 +73,8 @@
   cursor: pointer;
   transition: opacity 0.3s ease;
 }
-
+.close_button:hover,
+.feed_back_button:hover,
 .navLink:hover {
   opacity: 0.8;
 }
@@ -104,4 +105,45 @@
     text-align: left;
     /* Nếu bạn cũng muốn đoạn copyright căn trái */
   }
+}
+
+.feed_back_button:focus{
+  outline: none;
+  border: none;
+}
+.feed_back_button{
+  background-color: transparent;
+}
+.form_overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form_container {
+  width: 90%;
+  height: 80vh;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.close_button {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+  z-index: 10000;
 }
