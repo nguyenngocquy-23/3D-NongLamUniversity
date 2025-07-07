@@ -98,7 +98,7 @@ const VirtualTour = () => {
     return (nodeToRender?.infoHotspots as HotspotInformation[]) || [];
   }, [nodeToRender]);
 
-  const [isRotation, setIsRotation] = useState(nodeToRender.autoRotate || true);
+  const [isRotation, setIsRotation] = useState(true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
 
@@ -220,7 +220,7 @@ const VirtualTour = () => {
   };
 
   const toggleInformation = () => {
-    const divInfo = document.querySelector<HTMLElement>(`.${styles.infoBox}`);
+    const divInfo = document.querySelector<HTMLElement>(`.${styles.info_box}`);
     if (!divInfo) return;
 
     if (isOpenInfo) {
@@ -239,7 +239,7 @@ const VirtualTour = () => {
 
   // Hàm để đọc văn bản
   const readText = () => {
-    const textInfo = document.querySelector(`.${styles.infoBox}`)?.textContent;
+    const textInfo = document.querySelector(`.${styles.info_box}`)?.textContent;
 
     if (!textInfo) {
       return;
@@ -415,7 +415,7 @@ const VirtualTour = () => {
   if (!icons || icons.length === 0) {
     return (
       <>
-        <div className={styles.infoBox} style={{ display: "none" }}>
+        <div className={styles.info_box} style={{ display: "none" }}>
           {nodeToRender.description ??
             "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
         </div>
@@ -517,7 +517,7 @@ const VirtualTour = () => {
         />
       )}
       {/* Hộp thông tin */}
-      <div className={styles.infoBox} onClick={toggleInformation}>
+      <div className={styles.info_box} onClick={toggleInformation}>
         {nodeToRender.description ??
           "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
       </div>

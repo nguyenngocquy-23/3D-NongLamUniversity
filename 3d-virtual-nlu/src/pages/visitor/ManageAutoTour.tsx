@@ -10,6 +10,9 @@ import {
 import { AppDispatch, RootState } from "../../redux/Store";
 import { IoSearch } from "react-icons/io5";
 import { FaAngleLeft } from "react-icons/fa6";
+import axios from "axios";
+import { API_URLS } from "../../env";
+import { addAutoPanorama } from "../../redux/slices/PanoramaSlice";
 
 const ManageAutoTour = () => {
   const navigate = useNavigate();
@@ -21,22 +24,38 @@ const ManageAutoTour = () => {
 
   const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
   const [searchData, setSearchData] = useState(autoNodes);
-  
+
   useEffect(() => {
     if (autoNodes && autoNodes.length > 0) {
       setSearchData(autoNodes);
     }
   }, [autoNodes]);
 
-  const handleDetail = (nodeId: number) => {
+  const handleDetail = async (nodeId: number) => {
     const node = autoNodes.find((node) => node.id === nodeId);
     if (!node) {
       console.error("Node not found");
       return;
     }
-    const indexNode = JSON.parse(node.indexNode) as { id: number, duration: number }[];
-
-    // navigate(`/autoTour/${nodeId}`);
+    const indexNode = JSON.parse(node.indexNode) as {
+      nodeId: number;
+      duration: number;
+    }[];
+    console.log("indexNode", indexNode);
+    for (const item of indexNode) {
+      const node = await axios.post(API_URLS.NODE_BY_ID, {
+        nodeId: item.nodeId,
+      });
+      dispatch(
+        addAutoPanorama({
+          node: {
+            ...node.data.data,
+          },
+          duration: item.duration, // ghi đè duration từ indexNode
+        })
+      );
+    }
+    navigate(`/autoTourDetail/${nodeId}`);
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {

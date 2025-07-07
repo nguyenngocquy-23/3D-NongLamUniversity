@@ -1,86 +1,140 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { useNavigate } from "react-router-dom";
-import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Canvas } from "@react-three/fiber";
-import VideoMeshComponent from "../../components/admin/VideoMesh";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
-import GroundHotspot from "../../components/visitor/GroundHotspot";
-import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
-import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import TourScene from "../../components/visitor/TourScene";
 import styles from "../../styles/createTourStep2.module.css";
-import {
-  HotspotNavigation,
-  HotspotInformation,
-  HotspotModel,
-  HotspotMedia,
-} from "../../redux/slices/HotspotSlice";
 import * as THREE from "three";
-import { FaAngleLeft } from "react-icons/fa6";
-import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import Swal from "sweetalert2";
 import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 import { nextStep, prevStep } from "../../redux/slices/StepSlice";
-import { fetchMasterNodes } from "../../redux/slices/DataSlice";
 import gsap from "gsap";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 import { API_URLS } from "../../env";
 import { Environment } from "@react-three/drei";
-import MiniMap from "../../components/Minimap";
 import CamControls from "../../components/visitor/CamControls";
+import { useAutoTour } from "../../hooks/useAutoTour";
+import { IoIosCloseCircle } from "react-icons/io";
+import { FaAngleDoubleRight } from "react-icons/fa";
+import FooterTour from "../../components/visitor/FooterTour";
+import CommentBox from "../../components/visitor/CommentBox";
 
-const CreateTourStep3: React.FC = () => {
+const VirtualAutoTour: React.FC = () => {
+  const userJson = sessionStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : null;
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const controlsRef = useRef<any>(null); //OrbitControls
+  const controlsRef = useRef<any>(null);
+
+  const { tourId } = useParams();
 
   const dispatch = useDispatch<AppDispatch>();
-  const panoramas = useSelector((state: RootState) => state.panoramas);
-  const hotspots = useSelector((state: RootState) => state.hotspots);
-  const userId = useSelector((state: RootState) => state.auth.user.id);
-  const { panoramaList, currentSelectId } = useSelector(
+  const { autoPanoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
+  const { autoNodes } = useSelector((state: RootState) => state.data);
+  const autoTour = autoNodes.find((tour) => tour.id == tourId);
   // Panorama hiện tại.
-  const currentPanorama = panoramaList.find(
+  const currentPanorama = autoPanoramaList.find(
     (pano) => pano.id === currentSelectId
   );
-  const currentStep = useSelector((state: RootState) => state.step.currentStep);
-  const hotspotNavigations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
-    )
-  );
-  const hotspotInfos = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
-    )
-  );
-  const hotspotModels = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotModel => hotspot.type === 4
-    )
-  );
-
-  const hotspotMedias = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-    )
-  );
-
   const navigate = useNavigate();
-  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
-  const [currentPoints, setCurrentPoints] = useState<
-    [number, number, number][]
-  >([]);
-  const [targetPosition, setTargetPosition] = useState<
-    [number, number, number] | null
-  >(null); //test
 
-  const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null); //test
+  const [isRotation, setIsRotation] = useState(true);
+  const [openNodeList, setOpenNodeList] = useState(true);
+
+  const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
+
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+
+  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
+
+  const [isMuted, setIsMuted] = useState(false); // Trạng thái âm thanh
+
+  const [isComment, setIsComment] = useState(false); // Trạng thái âm thanh
+
+  const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
+    null
+  ); // Giữ lại đối tượng
+
+  const [accessing, setAccessing] = useState(0);
+  const [isOpenInfo, setIsOpenInfo] = useState(true);
+
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+  useEffect(() => {
+    let resizeTimer: number;
+
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        setWindowSize({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      }, 200);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const requestFullscreen = (element: any) => {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.mozRequestFullScreen) {
+      // Firefox
+      element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) {
+      // Chrome, Safari và Opera
+      element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+      // IE/Edge
+      element.msRequestFullscreen();
+    }
+  };
+
+  const exitFullscreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  };
+
+  const toggleFullscreen = () => {
+    const containerCanvas = document.querySelector(`.${styles.previewTour}`);
+    if (!containerCanvas) return;
+    if (!isFullscreen) {
+      requestFullscreen(containerCanvas); // Chuyển canvas sang fullscreen
+      setIsFullscreen(true);
+    } else {
+      exitFullscreen(); // Thoát fullscreen
+      setIsFullscreen(false);
+    }
+  };
+
+  const toggleInformation = () => {
+    const divInfo = document.querySelector<HTMLElement>(`.${styles.info_box}`);
+    if (!divInfo) return;
+
+    if (isOpenInfo) {
+      divInfo.style.display = "none";
+      divInfo.style.bottom = "-100px";
+    } else {
+      divInfo.style.display = "block";
+      divInfo.style.bottom = "50px";
+    }
+    setIsOpenInfo(!isOpenInfo);
+  };
+
+  // Hàm bật/tắt âm thanh
+  const toggleMute = () => {
+    setIsMuted((preState) => !preState);
+  };
 
   const handleMouseDown = () => {
     setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
@@ -100,19 +154,15 @@ const CreateTourStep3: React.FC = () => {
     positionY = 0,
     positionZ = 0,
     lightIntensity = 1,
-    autoRotate = 0,
-    speedRotate = 0,
-  } = currentPanorama?.config ?? {};
+    autoRotate = 1,
+    speedRotate = 0.3,
+  } = currentPanorama ?? {};
 
   const cameraPosition: [number, number, number] = [
     positionX,
     positionY,
     positionZ,
   ];
-
-  if (!hotspotNavigations && !hotspotInfos && !hotspotModels && !hotspotMedias)
-    return;
-
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
   };
@@ -136,7 +186,7 @@ const CreateTourStep3: React.FC = () => {
 
     const [x, y, z] = hotspotTargetPosition;
 
-    lookAtHotspot([x, y, z]);
+    // lookAtHotspot([x, y, z]);
     // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);
 
@@ -165,33 +215,22 @@ const CreateTourStep3: React.FC = () => {
     });
   };
 
-  const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
-    if (!cameraRef.current || !controlsRef.current) return;
-
-    const controls = controlsRef.current;
-
-    /**
-     * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
-     * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
-     */
-    const hotspotVec = new THREE.Vector3(
-      hotspotTargetPosition[0],
-      0,
-      hotspotTargetPosition[2]
-    );
-    const center = new THREE.Vector3(0, 0, 0);
-
-    const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
-
-    const spherical = new THREE.Spherical();
-    spherical.setFromVector3(dir);
-
-    // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
-    controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
-    controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
-
-    controls.update();
+  const handleClose = () => {
+    navigate(-1);
   };
+
+  const { startAutoTour, skipToNext, stopAutoTour } = useAutoTour(
+    handleHotspotNavigate,
+    autoPanoramaList
+  );
+
+  useEffect(() => {
+    startAutoTour();
+
+    return () => {
+      stopAutoTour();
+    };
+  }, []);
 
   const handleBackStep3 = () => {
     Swal.fire({
@@ -208,50 +247,91 @@ const CreateTourStep3: React.FC = () => {
     });
   };
 
-  const handlePublishTour = async () => {
-    const { panoramaList, spaceId } = panoramas;
+  // Gọi hàm để đọc văn bản khi thay đổi trạng thái âm thanh
+  const hasMounted = useRef(false);
 
-    if (!spaceId || panoramaList.length === 0) {
-      alert("spaceId bị null hay panorama không chứa giá trị..");
+  const readText = () => {
+    const textInfo = currentPanorama?.description;
+
+    if (!textInfo) {
       return;
     }
-    try {
-      //Step1: Mapping dữ liệu Redux với Request bên backend.
-      const payload = TourNodeRequestMapper.mapOneNodeCreateRequest(
-        panoramaList,
-        hotspots.hotspotList,
-        userId
-      );
 
-      // Step2: Gửi lên backend
-      const response = await axios.post(API_URLS.ADMIN_CREATE_NODES, payload);
-      if (response.data?.statusCode === 1000) {
-        Swal.fire({
-          icon: "success",
-          title: "Thành công",
-          text: "Xuất bản thành công",
-        }).then(() => {
-          dispatch(nextStep());
-          // dispatch(fetchMasterNodes());
-        });
+    if (!("speechSynthesis" in window)) {
+      return;
+    }
+
+    const speak = (voiceList: any) => {
+      const newUtterance = new SpeechSynthesisUtterance(textInfo);
+      newUtterance.pitch = 1;
+      newUtterance.rate = 1;
+      newUtterance.lang = "vi-VN";
+
+      const vietnameseVoice =
+        voiceList.find(
+          (v: any) =>
+            v.lang === "vi-VN" && v.name.toLowerCase().includes("google")
+        ) || voiceList.find((v: any) => v.lang === "vi-VN");
+
+      if (vietnameseVoice) {
+        newUtterance.voice = vietnameseVoice;
       } else {
         Swal.fire({
-          icon: "error",
-          title: "Thất bại",
-          text:
-            "Xuất bản thất bại: " +
-            (response.data?.message || "Không rõ lý do"),
+          icon: "warning",
+          title: "⚠️ Không tìm thấy giọng tiếng Việt",
+          text: "Vui lòng cài đặt giọng tiếng Việt cho trình duyệt.",
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
         });
       }
-    } catch (error) {
-      console.log("Lỗi khi xuất bản: ", error);
-    }
+
+      newUtterance.volume = isMuted ? 0 : 1;
+
+      setUtterance(newUtterance);
+      speechSynthesis.speak(newUtterance);
+    };
+
+    const waitForVoices = (
+      callback: (voices: SpeechSynthesisVoice[]) => void
+    ) => {
+      const voices = speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        callback(voices);
+      } else {
+        const interval = setInterval(() => {
+          const voicesNow = speechSynthesis.getVoices();
+          if (voicesNow.length > 0) {
+            clearInterval(interval);
+            callback(voicesNow);
+          }
+        }, 100);
+      }
+    };
+
+    waitForVoices((voices) => {
+      speak(voices);
+      hasMounted.current = false;
+    });
   };
 
-  const [cameraAngle, setCameraAngle] = useState(0);
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return; // bỏ qua lần mount đầu tiên (Strict Mode sẽ gọi 2 lần)
+    }
+
+    readText();
+  }, [currentPanorama]);
+
   return (
     <>
-      <div className={styles.previewTour}>
+      <div
+        className={styles.previewTour}
+        style={{ height: "100vh", width: "100vw" }}
+      >
         <Canvas
           camera={{
             fov: 75,
@@ -271,91 +351,82 @@ const CreateTourStep3: React.FC = () => {
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
-            yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
+            yawOffsetCurrent={currentPanorama?.yawOffset ?? 0}
             lightIntensity={lightIntensity}
           />
           <CamControls
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
-            autoRotate={autoRotate === 1 ? true : false}
+            autoRotate={isRotation}
             autoRotateSpeed={speedRotate}
           />
-          {hotspotNavigations
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <GroundHotspot
-                key={hotspot.id}
-                onNavigate={(targetNodeId, cameraTargetPosition) =>
-                  handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                }
-                hotspotNavigation={hotspot}
-              />
-            ))}
-          {hotspotInfos
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} />
-            ))}
-          {hotspotModels
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <GroundHotspotModel
-                key={hotspot.id}
-                setHoveredHotspot={setHoveredHotspot}
-                hotspotModel={hotspot}
-              />
-            ))}
-
-          {hotspotMedias
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <VideoMeshComponent key={hotspot.id} hotspotMedia={hotspot} />
-            ))}
-          {currentPoints.length > 1 &&
-            currentPoints.map((point, i) => {
-              if (i < currentPoints.length - 1)
-                return (
-                  <line
-                    key={i}
-                    points={`${point[0]},${point[1]} ${
-                      currentPoints[i + 1][0]
-                    },${currentPoints[i + 1][1]}`}
-                    color="cyan"
-                  />
-                );
-              return null;
-            })}
-
-          {currentPanorama && (
-            <MiniMap
-              currentPanorama={currentPanorama}
-              angleCurrent={cameraAngle}
-            />
-          )}
         </Canvas>
+        <FooterTour
+          isRotation={isRotation}
+          setIsRotation={setIsRotation}
+          isMuted={isMuted}
+          isFullscreen={isFullscreen}
+          toggleInformation={toggleInformation}
+          toggleFullscreen={toggleFullscreen}
+          toggleMute={toggleMute}
+          setIsComment={setIsComment}
+          accessing={accessing}
+          setOpenNodeList={setOpenNodeList}
+        />
         {/* Header chứa back */}
-        <div className={styles.header_tour} style={{ height: "50px" }}>
-          <div className={styles.header_tour_left}>
-            <FaAngleLeft
-              className={styles.back_btn}
-              onClick={() => {
-                handleBackStep3();
-              }}
-            />
-            <span>{CREATE_TOUR_STEPS[currentStep - 1].name}</span>
-          </div>
-          <span className={styles.number_step}>{currentStep}</span>
+        <div className={styles.header_tour}>
+          <h2>{autoTour.name || ""}</h2>
+          <IoIosCloseCircle
+            className={styles.close_btn}
+            onClick={handleClose}
+          />
         </div>
-        <button
-          className={styles.publish_tour_button}
-          onClick={handlePublishTour}
-        >
-          Xuất bản
+        {isComment && user ? (
+          <CommentBox
+            userId={user.id}
+            nodeId={currentPanorama.id}
+            setIsComment={setIsComment}
+          />
+        ) : (
+          ""
+        )}
+        {/* Hộp thông tin */}
+        <div className={styles.info_box} onClick={toggleInformation}>
+          {currentPanorama.description == ""
+            ? "Trống"
+            : currentPanorama.description}
+        </div>
+        {/* Hộp node */}
+        {openNodeList && (
+          <div className={styles.node_list}>
+            {autoPanoramaList.map((pano) => (
+              <div
+                key={pano.id}
+                className={`${styles.node_item} ${
+                  currentSelectId === pano.id ? styles.active : ""
+                }`}
+                onClick={() => {
+                  handleSelectNode(pano.id);
+                }}
+                title={pano.name}
+              >
+                <img
+                  src={pano.url}
+                  alt={pano.name}
+                  className={styles.node_image}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+        <button className={styles.skip_button} onClick={skipToNext}>
+          <FaAngleDoubleRight className={styles.arrow} /> Đi tiếp{" "}
+          <FaAngleDoubleRight className={styles.arrow} />
         </button>
       </div>
     </>
   );
 };
 
-export default CreateTourStep3;
+export default VirtualAutoTour;

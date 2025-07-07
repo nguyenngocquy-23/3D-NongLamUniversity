@@ -89,12 +89,12 @@ const panoramaSlice = createSlice({
       state.currentSelectId = panoramas[0]?.id || null;
     },
     
-    addAutoPanorama(state, action: PayloadAction<{  node: any }>) {
+    addAutoPanorama(state, action: PayloadAction<{  node: any; duration?: number }>) {
       const existing = state.autoPanoramaList.find(p => p.originalNodeId === action.payload.node.id);
       if (!existing) {
         state.autoPanoramaList.push({
           ...action.payload.node,
-          duration: 5,
+          duration: action.payload.duration || 5,
           originalNodeId: action.payload.node.id,
         });
       }

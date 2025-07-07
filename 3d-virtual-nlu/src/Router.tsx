@@ -31,6 +31,7 @@ import AttachMap from "./pages/admin/AttachMap.tsx";
 import SpaceDetail from "./components/admin/SpaceDetail.tsx";
 import CreateAutoTour from "./features/CreateAutoTour.tsx";
 import ManageAutoTour from "./pages/visitor/ManageAutoTour.tsx";
+import VirtualAutoTour from "./pages/visitor/VirtualAutoTour.tsx";
 
 function RouterConfig() {
   return (
@@ -43,6 +44,7 @@ function RouterConfig() {
       <Route path="/virtualTour" element={<VirtualTour />} />
       <Route path="/model" element={<Model />} />
       <Route path="/autoTour" element={<ManageAutoTour />} />
+      <Route path="/autoTourDetail/:tourId" element={<VirtualAutoTour />} />
       <Route path="/manage/" element={<VisitorManage />}>
         <Route index element={<VisitorDashBoard />} />
         <Route path="createTour" element={<VisitorCreateTour />} />
