@@ -24,11 +24,13 @@ export const API_URLS = {
   UPLOAD_CLOUD: `${DOMAIN}/v1/admin/cloud/upload`,
 
   GET_MASTER_NODES: `${DOMAIN}/node/master`,
+  INCREASE_NODE_VIEW: `${DOMAIN}/node/increaseView`,
   GET_PRELOAD_NODES: `${DOMAIN}/node/preloadNodeList`,
   GET_DEFAULT_NODE: `${DOMAIN}/node/default`,
   PRIVATE_NODE_OF_USER: `${DOMAIN}/node/privateByUser`,
   NODE_OF_USER: `${DOMAIN}/node/byUser`,
   NODE_BY_ID: `${DOMAIN}/node/byId`,
+  NUM_VIEW_OF_USER: `${DOMAIN}/node/getNumOfUser`,
   COMMENT_OF_NODE: `${DOMAIN}/comment/getOfNode`,
   NUM_COMMENT_OF_USER: `${DOMAIN}/comment/getNumOfUser`,
   SEND_COMMENT: `${DOMAIN}/comment/send`,

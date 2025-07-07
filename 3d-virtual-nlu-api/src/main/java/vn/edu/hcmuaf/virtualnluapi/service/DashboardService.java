@@ -24,7 +24,7 @@ public class DashboardService {
     private NodeDao nodeDao;
 
     public DashboardResponse statistical() {
-        int numCurrentAccess = userDao.countAll();
+        int numCurrentAccess = nodeDao.countAllView();
 //        int numFreeAccess = userDao.countFreeAccess();
 //        int numRegister = userDao.countRegisterUser();
 

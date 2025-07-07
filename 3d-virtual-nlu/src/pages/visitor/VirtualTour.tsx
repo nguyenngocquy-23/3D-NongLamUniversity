@@ -38,6 +38,7 @@ import { MdOpenInFull } from "react-icons/md";
 import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
 import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
 import Swal from "sweetalert2";
+import useTrackTourView from "../../hooks/useTrackTourView.ts";
 
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -78,6 +79,8 @@ const VirtualTour = () => {
     const stored = localStorage.getItem("defaultNode");
     return stored ? JSON.parse(stored) : null;
   }, [reduxDefaultNode]);
+
+  useTrackTourView(nodeToRender.id);
 
   useEffect(() => {
     dispatch(fetchPreloadNodes(nodeToRender.id));
@@ -343,7 +346,7 @@ const VirtualTour = () => {
 
     readText();
   }, [nodeToRender]);
-  
+
   useEffect(() => {
     if (utterance) {
       speechSynthesis.cancel(); // Dừng tất cả

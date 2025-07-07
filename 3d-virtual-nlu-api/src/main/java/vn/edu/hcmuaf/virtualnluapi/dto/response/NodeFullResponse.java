@@ -25,6 +25,7 @@ public class NodeFullResponse {
     double yawOffset;
     byte status;
     double lightIntensity;
+    int numView;
     Timestamp updatedAt;
     List<HotspotNavigationResponse> navHotspots;
     List<HotspotInformationResponse> infoHotspots;

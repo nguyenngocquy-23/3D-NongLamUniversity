@@ -2,6 +2,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jdbi.v3.core.statement.PreparedBatch;
 import vn.edu.hcmuaf.virtualnluapi.connection.Connection;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
@@ -220,7 +221,7 @@ public class NodeDao {
     public NodeFullResponse getNodeById(NodeIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity, n.numView
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -402,5 +403,45 @@ public class NodeDao {
                 .bind("limit", request.getLimit())
                 .bind("offset", request.getPage() * request.getLimit())
                 .mapToBean(AutoTourResponse.class).list());
+    }
+
+    public boolean increaseView(List<NodeViewRequest> requests) {
+        String sql = """
+                    UPDATE nodes
+                    SET numView = numView + :numView
+                    WHERE id = :id
+                """;
+
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            PreparedBatch batch = handle.prepareBatch(sql);
+
+            for (NodeViewRequest req : requests) {
+                batch.bind("id", req.getNodeId())
+                        .bind("numView", req.getNumView())
+                        .add();
+            }
+
+            int[] results = batch.execute();
+            return results.length == requests.size(); // đảm bảo đủ lượt update
+        });
+    }
+
+    public int getNumOfUser(UserIdRequest request) {
+        String sql = "SELECT SUM(numView) FROM nodes WHERE userId = :userId";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("userId", request.getUserId())
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
+
+    public int countAllView() {
+        String sql = "SELECT SUM(numView) FROM nodes";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
     }
 }

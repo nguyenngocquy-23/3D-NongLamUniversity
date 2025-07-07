@@ -11,6 +11,7 @@ import vn.edu.hcmuaf.virtualnluapi.dto.response.AutoTourResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
+
 import java.util.List;
 
 @ApplicationScoped
@@ -68,7 +69,7 @@ public class NodeService {
         }
     }
 
-    public boolean remoev(NodeIdRequest request) {
+    public boolean remove(NodeIdRequest request) {
         try {
             return nodeDao.removeNode(request);
         } catch (Exception e) {
@@ -85,7 +86,8 @@ public class NodeService {
             return null;
         }
     }
-    public List<NodeFullResponse> getMasterNodeListBySpaceId (SpaceIdRequest request) {
+
+    public List<NodeFullResponse> getMasterNodeListBySpaceId(SpaceIdRequest request) {
         try {
             return nodeDao.getMasterNodeListBySpaceId(request);
         } catch (Exception e) {
@@ -128,6 +130,24 @@ public class NodeService {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public boolean increaseView(List<NodeViewRequest> request) {
+        try {
+            return nodeDao.increaseView(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public int getNumOfUser(UserIdRequest request) {
+        try {
+            return nodeDao.getNumOfUser(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
         }
     }
 }

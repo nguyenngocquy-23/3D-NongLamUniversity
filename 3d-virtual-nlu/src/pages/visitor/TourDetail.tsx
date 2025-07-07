@@ -214,6 +214,7 @@ const TourDetail = () => {
         nodeId: nodeId,
       });
       if (response.data) {
+        console.log("Node data fetched successfully:", response.data.data);
         setNode(response.data.data);
       }
     } catch (err: any) {
@@ -740,7 +741,7 @@ const TourDetail = () => {
                 <span className={styles.des}>Số bình luận</span>
               </div>
               <div className={styles.sub_info}>
-                <span className={styles.name}>1000</span>
+                <span className={styles.name}>{node.numView}</span>
                 <span className={styles.des}>Số lượt truy cập</span>
               </div>
             </div>

@@ -46,6 +46,7 @@ const VisitorDashBoard = () => {
   const nodes = useSelector((state: RootState) => state.data.nodeOfUser);
 
   const [totalComments, setTotalComments] = useState<number | null>(null);
+  const [totalViews, setTotalViews] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchTotalComments = async () => {
@@ -59,7 +60,19 @@ const VisitorDashBoard = () => {
       }
     };
 
+    const fetchTotalViews = async () => {
+      try {
+        const response = await axios.post(API_URLS.NUM_VIEW_OF_USER, {
+          userId: user.id,
+        });
+        setTotalViews(response.data.data); // hoặc response.data nếu trả về số trực tiếp
+      } catch (error) {
+        console.error("Lỗi khi lấy tổng số view:", error);
+      }
+    };
+
     fetchTotalComments();
+    fetchTotalViews();
   }, [user.id]);
 
   const handleFileChange = async (e: any) => {
@@ -347,7 +360,7 @@ const VisitorDashBoard = () => {
         <div className={styles.category}>
           <FaEye />
           <span className={styles.title}>Số lượt xem</span>
-          <span>2.000</span>
+          <span>{totalComments !== null ? totalComments : "Đang tải..."}</span>
         </div>
         <div className={styles.category}>
           <FaRegCommentDots />
