@@ -593,7 +593,7 @@ const VirtualTour = () => {
         </div>
       )}
       /* Màn hình laoding */
-      {/* {isWaiting ? <Waiting percent={percent} /> : ""} */}
+      {isWaiting ? <Waiting percent={percent} /> : ""}
     </div>
   );
 };
