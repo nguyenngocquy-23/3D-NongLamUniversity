@@ -13,16 +13,27 @@ import { FaAngleLeft } from "react-icons/fa6";
 import axios from "axios";
 import { API_URLS } from "../../env";
 import { addAutoPanorama } from "../../redux/slices/PanoramaSlice";
+import { useDebounce } from "../../hooks/useDebounce";
 
 const ManageAutoTour = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500); // custom hook
+
+  const [currentPage, setCurrentPage] = useState(0);
+
+  // For example
+  const [totalNode, setTotalNode] = useState(0);
+  const perPage = 6;
+  const totalPages = Math.ceil(totalNode / perPage);
 
   useEffect(() => {
     dispatch(fetchAutoNode());
   }, [dispatch]);
 
   const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
+  const [autoNodeList, setAutoNodeList] = useState<any[]>(autoNodes || []);
   const [searchData, setSearchData] = useState(autoNodes);
 
   useEffect(() => {
@@ -30,6 +41,20 @@ const ManageAutoTour = () => {
       setSearchData(autoNodes);
     }
   }, [autoNodes]);
+
+  useEffect(() => {
+    const handleSearch = async () => {
+      if (!debouncedSearch) return;
+      const response = await axios.post(
+        `${API_URLS.BASE}/v1/admin/node/search`,
+        {
+          searchKey: debouncedSearch,
+        }
+      );
+      setAutoNodeList(response.data.data);
+    };
+    handleSearch();
+  }, [debouncedSearch]);
 
   const handleDetail = async (nodeId: number) => {
     const node = autoNodes.find((node) => node.id === nodeId);
@@ -95,18 +120,37 @@ const ManageAutoTour = () => {
       <div className={styles.tour_container}>
         {searchData.length > 0 ? (
           searchData.map((node) => (
-            <div
-              key={node.id}
-              className={styles.tour}
-              onClick={() => handleDetail(node.id)}
-              style={{ background: `url(${node.url})` }}
-            >
-              <div className={styles.blur} />
-              <span className={styles.name}>{node.name}</span>
-            </div>
+            <>
+              <div
+                key={node.id}
+                className={styles.tour}
+                onClick={() => handleDetail(node.id)}
+                style={{ background: `url(${node.thumbNail})` }}
+              >
+                <div className={styles.blur} />
+                <span className={styles.name}>{node.name}</span>
+              </div>
+            </>
           ))
         ) : (
           <div style={{ color: "black" }}>Danh sách trống...</div>
+        )}
+        {search.length === 0 && (
+          <div className={styles.pagination}>
+            {[...Array(totalPages)].map((_, index) => {
+              return (
+                <button
+                  key={index}
+                  className={`${styles.page_btn} ${
+                    currentPage === index ? styles.active : ""
+                  }`}
+                  onClick={() => setCurrentPage(index)}
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>

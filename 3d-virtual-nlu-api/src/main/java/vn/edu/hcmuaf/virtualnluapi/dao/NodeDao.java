@@ -1,5 +1,7 @@
 package vn.edu.hcmuaf.virtualnluapi.dao;
 
+import com.nimbusds.jose.shaded.gson.Gson;
+import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jdbi.v3.core.statement.PreparedBatch;
@@ -12,6 +14,7 @@ import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class NodeDao {
@@ -399,10 +402,38 @@ public class NodeDao {
                 LIMIT :limit OFFSET :offset
                 """;
 
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
-                .bind("limit", request.getLimit())
-                .bind("offset", request.getPage() * request.getLimit())
-                .mapToBean(AutoTourResponse.class).list());
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            List<AutoTourResponse> result = handle.createQuery(sql)
+                    .bind("limit", request.getLimit())
+                    .bind("offset", request.getPage() * request.getLimit())
+                    .mapToBean(AutoTourResponse.class)
+                    .list();
+
+            // Gọi service lấy URL theo nodeId đầu tiên trong indexNode
+            for (AutoTourResponse item : result) {
+                try {
+                    Gson gson = new Gson();
+                    List<Map<String, Object>> indexList = gson.fromJson(
+                            item.getIndexNode(),
+                            new TypeToken<List<Map<String, Object>>>() {
+                            }.getType()
+                    );
+
+                    if (!indexList.isEmpty()) {
+                        Number nodeIdNum = (Number) indexList.get(0).get("nodeId");
+                        int firstNodeId = nodeIdNum.intValue(); // Ép kiểu đúng
+
+                        String url = getNodeById(NodeIdRequest.builder().nodeId(firstNodeId).build()).getUrl();
+
+                        item.setThumbNail(url);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return result;
+        });
     }
 
     public boolean increaseView(List<NodeViewRequest> requests) {

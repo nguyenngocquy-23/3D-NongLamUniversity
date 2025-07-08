@@ -36,6 +36,8 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
+    overflow: auto;
+    scrollbar-width: none;
 }
 
 .tour {
@@ -158,4 +160,34 @@
 .back_btn:focus {
     outline: none;
     border: none;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page_btn {
+    padding: 8px 12px;
+    margin: 0 4px;
+    border: none;
+    background-color: #eee;
+    cursor: pointer;
+    color: black;
+}
+
+.page_btn:focus {
+    outline: none;
+    border: none;
+}
+
+.page_btn:hover {
+    background-color: #ddd;
+}
+
+.active {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
 }

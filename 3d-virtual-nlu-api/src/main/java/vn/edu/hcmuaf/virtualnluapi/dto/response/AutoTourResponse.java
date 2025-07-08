@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class AutoTourResponse {
     int id;
-    String name, indexNode;
+    String name, thumbNail, indexNode;
     byte status;
     Timestamp updatedAt;
 }

@@ -168,7 +168,8 @@ const Model = () => {
           style={{ background: `url(${import.meta.env.BASE_URL}avatar.jpg)` }}
         >
           <b className={styles.username}>
-            Người tạo: {!hotspotModel ? "" : hotspotModel.usernameAuthor}{" "}
+            Người tạo:{" "}
+            <span style={{color: 'white', marginLeft: '0.5rem' ,fontSize: '20px', fontStyle: 'italic'}}>{!hotspotModel ? "" : hotspotModel.usernameAuthor} </span>
           </b>
         </div>
       </div>
