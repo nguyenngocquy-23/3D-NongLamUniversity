@@ -6,3 +6,4 @@ export const DEFAULT_ANGLE_THREE = 0;
 export const DEFAULT_ANGLE_RADAR = 270;
 export const MAX_QUANTITY_PANORAMA = 5; //Số lượng tối đa trong 1 tour.
 export const AROUND_MAP = 0.04;
+export const perPage = 10;

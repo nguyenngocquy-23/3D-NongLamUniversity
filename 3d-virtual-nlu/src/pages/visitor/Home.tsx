@@ -20,7 +20,7 @@ const Home: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <main className={styles.homeContainer}>
+    <main className={styles.home_container}>
       <Banner />
 
       {/* <CampusMap /> */}
@@ -31,9 +31,10 @@ const Home: React.FC = () => {
 
       <Contact />
 
-      <Footer/>
+      <Footer />
 
       <ScrollOnTop />
+
     </main>
   );
 };

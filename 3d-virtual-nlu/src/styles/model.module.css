@@ -129,3 +129,36 @@
     position: absolute;
     bottom: -40px;
 }
+
+.share_container{
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    z-index: 1;
+}
+
+.share_button:focus {
+    border: none;
+    outline: none;
+}
+.share_button:hover {
+    background-color: #3A3F43;
+}
+.share_button {
+    border: none;
+    outline: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #1A1E21;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}

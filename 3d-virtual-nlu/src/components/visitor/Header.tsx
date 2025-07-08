@@ -42,6 +42,26 @@ const Header: React.FC = () => {
       });
     }
   };
+  
+  const handleAutoTour = (e: React.MouseEvent) => {
+    e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
+    if (currentUser) {
+      navigate("/autoTour");
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Bạn chưa đăng nhập",
+        text: "Vui lòng đăng nhập để tiếp tục.",
+        showCancelButton: true,
+        cancelButtonText: "Hủy",
+        confirmButtonText: "Đăng nhập",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login");
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     const links = document.querySelectorAll(`.${style.navLink}`);
@@ -100,6 +120,7 @@ const Header: React.FC = () => {
             offset={-60}
             smooth={true}
             duration={800}
+            onClick={() => setMobileNavOpen(false)}
           >
             Sơ đồ trường
           </ScrollLink>
@@ -109,6 +130,7 @@ const Header: React.FC = () => {
             className={style.navLink}
             smooth={true}
             duration={800}
+            onClick={() => setMobileNavOpen(false)}
           >
             Giới thiệu
           </ScrollLink>
@@ -118,9 +140,18 @@ const Header: React.FC = () => {
             className={style.navLink}
             smooth={true}
             duration={800}
+            onClick={() => setMobileNavOpen(false)}
           >
             Khám phá tour ảo
           </ScrollLink>
+
+          <span
+            onClick={handleAutoTour}
+            className={style.navLink}
+            style={{ cursor: "pointer" }}
+          >
+            Tour tự động
+          </span>
 
           <ScrollLink
             to="contact"
@@ -128,6 +159,7 @@ const Header: React.FC = () => {
             smooth={true}
             offset={-40}
             duration={800}
+            onClick={() => setMobileNavOpen(false)}
           >
             Liên hệ
           </ScrollLink>

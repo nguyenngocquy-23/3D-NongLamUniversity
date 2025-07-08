@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FaHome } from "react-icons/fa";
 import {
   FaAngleDown,
@@ -28,10 +28,13 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
   const [caption, setCaption] = useState("");
   const [mediaType, setMediaType] = useState("PICTURE");
   const [isEmbed, setIsEmbed] = useState(false);
+  const [scale, setScale] = useState(1);
   const [embedUrl, setEmbedUrl] = useState(
-    hotspotMedia.mediaUrl.includes("youtube") || hotspotMedia.mediaUrl.includes("giphy")
- ? hotspotMedia.mediaUrl : ""
-  ); 
+    hotspotMedia.mediaUrl.includes("youtube") ||
+      hotspotMedia.mediaUrl.includes("giphy")
+      ? hotspotMedia.mediaUrl
+      : ""
+  );
   const cornerPointList = JSON.parse(hotspotMedia.cornerPointList || "[]") as [
     number,
     number,
@@ -96,6 +99,53 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
       return true;
     }
     return false;
+  };
+  
+  const originalCornerPoints = useRef<number[][]>([]);
+
+  useEffect(() => {
+    if (cornerPointList.length === 4) {
+      originalCornerPoints.current = [...cornerPointList];
+    }
+  }, [hotspotMedia.id, cornerPointList]);
+
+  const handleScale = (scale: number) => {
+    const pointsToScale = originalCornerPoints.current || cornerPointList;
+    const scaledPoints = pointsToScale.map(([x, y, z]) => {
+      const dx = x - hotspotMedia.positionX;
+      const dy = y - hotspotMedia.positionY;
+      const dz = z - hotspotMedia.positionZ;
+
+      const newX = hotspotMedia.positionX + dx * scale;
+      const newY = hotspotMedia.positionY + dy * scale;
+      const newZ = hotspotMedia.positionZ + dz * scale;
+
+      const distanceSq = newX * newX + newY * newY + newZ * newZ;
+      if (distanceSq > RADIUS_MINIMAP_TOUR * RADIUS_MINIMAP_TOUR) {
+        console.log("Vượt quá giới hạn cho phép, không thể thay đổi góc này!");
+        return null;
+      }
+
+      return [newX, newY, newZ];
+    });
+
+    if (scaledPoints.some((p) => p === null)) return;
+
+    scaledPoints.forEach((point, index) => {
+      dispatch(
+        updateCornerPoint({
+          hotspotId: hotspotMedia.id,
+          index,
+          point: point as [number, number, number],
+        })
+      );
+    });
+  };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newScale = parseFloat(e.target.value);
+    setScale(newScale);
+    handleScale(newScale);
   };
 
   const displayOrder = [0, 1, 3, 2]; // vị trí gốc của các đỉnh
@@ -165,6 +215,26 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
                 </div>
               );
             })}
+          </div>
+        </div>
+        <div className={styles.row_container}>
+          <label className={styles.label}>Độ to:</label>
+          <div
+            className={styles.scale_icon_content}
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            <div className={styles.label_scale}>{scale}</div>
+            <div className={styles.edit_icon_scale}>
+              <input
+                type="range"
+                min={0.6}
+                max={2}
+                step={0.05}
+                value={scale}
+                onChange={onChange}
+              />
+              <progress max="2" value={scale}></progress>
+            </div>
           </div>
         </div>
         <div className={styles.row_container}>
