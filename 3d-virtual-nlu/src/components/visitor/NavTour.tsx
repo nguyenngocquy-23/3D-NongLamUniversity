@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { FaAngleLeft, FaCaretDown, FaCaretUp } from "react-icons/fa6";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "../../styles/visitor/navTour.module.css";
+import { useDispatch } from "react-redux";
+import { clearPanorama } from "../../redux/slices/PanoramaSlice";
+import { resetStep } from "../../redux/slices/StepSlice";
 
 type NavTourProps = {
   setIsOpenNav: (val: any) => void;
@@ -18,6 +21,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isNav, setIsNav] = useState(1);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (location.pathname === "/manage") {
@@ -25,6 +29,8 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
     } else if (location.pathname === "/manage/tours") {
       setIsNav(2);
     } else if (location.pathname === "/manage/createTour") {
+      dispatch(clearPanorama());
+      dispatch(resetStep());
       setIsNav(3);
     } else if (location.pathname === "/manage/profile") {
       setIsNav(4);
@@ -42,7 +48,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
     >
       {isOpen ? (
         <span
-          className={styles.backBtn}
+          className={styles.back_btn}
           onClick={() => {
             navigate("/");
           }}
@@ -77,7 +83,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
               <span>Tạo tour mới</span>
             </li>
           </Link>
-          <Link to={"/manage/createTour"} onClick={() => setIsNav(4)}>
+          <Link to={""}>t
             <li className={`${styles.title} ${isNav == 4 ? styles.show : ""}`}>
               <span>Tạo tour tự động</span>
             </li>

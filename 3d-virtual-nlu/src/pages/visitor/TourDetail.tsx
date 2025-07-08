@@ -2,7 +2,7 @@ import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import TourScene from "../../components/visitor/TourScene";
 import styles from "../../styles/visitor/tourDetail.module.css";
 import { RADIUS_SPHERE } from "../../utils/Constants";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { FaAngleRight, FaAngleUp, FaComment, FaEye } from "react-icons/fa6";
@@ -31,6 +31,11 @@ import {
   HotspotInformation,
   BaseHotspot,
   addHotspotsFromResponse,
+  addHotspotPosition,
+  addInformationHotspot,
+  addMediaHotspot,
+  addModelHotspot,
+  addNavigationHotspot,
 } from "../../redux/slices/HotspotSlice";
 import CamControls from "../../components/visitor/CamControls";
 import { goToStep } from "../../redux/slices/StepSlice";
@@ -83,11 +88,29 @@ const TourDetail = () => {
   const { openTaskIndex, completedTaskIds, unlockedTaskIds, handleOpenTask } =
     useSequentialTasks(tasks.length);
 
+  const hotspotPosition = useSelector(
+    (state: RootState) => state.hotspots.hotspotPositions
+  );
+  const [validIcon, setValidIcon] = useState(true);
+  const [currentPoints, setCurrentPoints] = useState<
+    [number, number, number][]
+  >([]);
+  const [isTextureReady, setIsTextureReady] = useState(false);
+
   useEffect(() => {
     if (nodeId) {
       handleFetchNode(nodeId || "");
     }
   }, [nodeId]);
+  const { panoramaList, currentSelectId } = useSelector(
+    (state: RootState) => state.panoramas
+  );
+
+  useEffect(() => {
+    if (node) {
+      dispatch(fetchPreloadNodes(Number.parseInt(node.id)));
+    }
+  }, [node]);
 
   const preloadNodes = useSelector(
     (state: RootState) => state.data.preloadNodes
@@ -191,6 +214,7 @@ const TourDetail = () => {
         nodeId: nodeId,
       });
       if (response.data) {
+        console.log("Node data fetched successfully:", response.data.data);
         setNode(response.data.data);
       }
     } catch (err: any) {
@@ -257,10 +281,6 @@ const TourDetail = () => {
   useEffect(() => {
     dispatch(fetchCommentOfNode(parseInt(nodeId || "", 10)));
   }, [dispatch]);
-
-  if (!node || !comments) {
-    return null;
-  }
 
   const handleChangeStatus = async (node: any) => {
     if (node.status == 2) {
@@ -364,6 +384,157 @@ const TourDetail = () => {
     setCurrentHotspotId(null);
   };
 
+  const handleScenePointerDown = (
+    e: ThreeEvent<PointerEvent>,
+    point: THREE.Vector3
+  ) => {
+    if (!currentHotspotType || !assignable) {
+      return;
+    }
+    const limit = (basicProps?.scale || 1) * 5 + 5;
+    const minX = point.x - limit;
+    const maxX = point.x + limit;
+    const minY = point.y - limit;
+    const maxY = point.y + limit;
+    const minZ = point.z - limit;
+    const maxZ = point.z + limit;
+
+    const isNear = hotspotPosition
+      .filter((h) => h.nodeId === currentSelectId)
+      .some((h) =>
+        h.hotspotPositions.some(
+          (hotspot) =>
+            hotspot.position[0] > minX &&
+            hotspot.position[0] < maxX &&
+            hotspot.position[1] > minY &&
+            hotspot.position[1] < maxY &&
+            hotspot.position[2] > minZ &&
+            hotspot.position[2] < maxZ
+        )
+      );
+    if (isNear) {
+      Swal.fire({
+        title: "Cảnh báo",
+        text: "Các hotspot không được nằm gần nhau",
+        icon: "warning",
+        showCancelButton: false,
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
+      return;
+    }
+    if (!validIcon) {
+      Swal.fire({
+        title: "Cảnh báo",
+        text: "Vui lòng chọn Icon trước khi click",
+        icon: "warning",
+        showCancelButton: false,
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    const newPoints = [...currentPoints, [point.x, point.y, point.z]] as [
+      number,
+      number,
+      number
+    ][];
+
+    // Với hotspot loại 3: thu thập 4 điểm và dispatch khi đủ
+    if (currentHotspotType === 3) {
+      setCurrentPoints(newPoints);
+
+      if (newPoints.length === 4) {
+        const updatedProps: BaseHotspot = {
+          ...(basicProps as Required<BaseHotspot>),
+          positionX: point.x,
+          positionY: point.y,
+          positionZ: point.z,
+        };
+
+        dispatch(
+          addMediaHotspot({
+            ...updatedProps,
+            type: 3,
+            mediaType: "",
+            mediaUrl: "",
+            caption: "",
+            cornerPointList: JSON.stringify(newPoints),
+          })
+        );
+
+        setAssignable(false);
+        setCurrentHotspotType(1);
+        setCurrentPoints([]);
+      }
+      return;
+    }
+
+    // Với hotspot loại 1, 2, 4
+    const updatedProps: BaseHotspot = {
+      ...(basicProps as Required<BaseHotspot>),
+      positionX: point.x,
+      positionY: point.y,
+      positionZ: point.z,
+    };
+
+    switch (currentHotspotType) {
+      case 1:
+        dispatch(
+          addNavigationHotspot({
+            ...updatedProps,
+            type: 1,
+            targetNodeId: "",
+          })
+        );
+        break;
+
+      case 2:
+        dispatch(
+          addInformationHotspot({
+            ...updatedProps,
+            type: 2,
+            title: "",
+            content: "",
+          })
+        );
+        break;
+
+      case 4:
+        dispatch(
+          addModelHotspot({
+            ...updatedProps,
+            type: 4,
+            modelUrl: "",
+            name: "",
+            description: "",
+            autoRotate: 0,
+            colorCode: "",
+          })
+        );
+        break;
+    }
+    dispatch(
+      addHotspotPosition({
+        nodeId: currentSelectId ? currentSelectId : "",
+        hotspotPosition: {
+          id: updatedProps.id,
+          position: [point.x, point.y, point.z],
+        },
+      })
+    );
+
+    if ([1, 2, 4].includes(currentHotspotType)) {
+      setAssignable(false);
+      setCurrentHotspotType(1);
+    }
+  };
+
   const handleHotspotNavigate = (
     targetNodeId: string,
     hotspotTargetPosition: [number, number, number]
@@ -450,6 +621,10 @@ const TourDetail = () => {
     controls.update();
   };
 
+  if (!node || !comments) {
+    return null;
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.canvas_container}>
@@ -469,7 +644,9 @@ const TourDetail = () => {
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             textureCurrent={node.url}
-            yawOffsetCurrent={node.yawOffset}
+            yawOffsetCurrent={node.yawOffset ?? 0}
+            onPointerDown={handleScenePointerDown}
+            onTextureReady={() => setIsTextureReady(true)}
             lightIntensity={1}
           />
           <CamControls
@@ -484,45 +661,52 @@ const TourDetail = () => {
           />
           {isUpdateTour && (
             <>
-              {hotspotInformations
-                .filter((hotspot) => hotspot.nodeId == node.id)
-                .map((hotspot) => (
-                  <GroundHotspotInfo
-                    key={hotspot.id}
-                    hotspotInfo={hotspot}
-                    setCurrentHotspotId={setCurrentHotspotId}
-                  />
-                ))}
-              {hotspotNavigations
-                .filter((hotspot) => hotspot.nodeId == node.id)
-                .map((hotspot) => (
-                  <GroundHotspot
-                    key={hotspot.id}
-                    onNavigate={(targetNodeId, cameraTargetPosition) =>
-                      handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                    }
-                    hotspotNavigation={hotspot}
-                    setCurrentHotspotId={setCurrentHotspotId}
-                  />
-                ))}
-              {hotspotModels
-                .filter((hotspot) => hotspot.nodeId == node.id)
-                .map((hotspot) => (
-                  <GroundHotspotModel
-                    key={hotspot.id}
-                    hotspotModel={hotspot}
-                    setCurrentHotspotId={setCurrentHotspotId}
-                  />
-                ))}
-              {hotspotMedias
-                .filter((hotspot) => hotspot.nodeId == node.id)
-                .map((hotspot) => (
-                  <VideoMeshComponent
-                    key={hotspot.id}
-                    hotspotMedia={hotspot}
-                    setCurrentHotspotId={setCurrentHotspotId}
-                  />
-                ))}
+              {isTextureReady &&
+                hotspotInformations
+                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
+                  .map((hotspot) => (
+                    <GroundHotspotInfo
+                      key={hotspot.id}
+                      hotspotInfo={hotspot}
+                      setCurrentHotspotId={setCurrentHotspotId}
+                    />
+                  ))}
+              {isTextureReady &&
+                hotspotNavigations
+                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
+                  .map((hotspot) => (
+                    <GroundHotspot
+                      key={hotspot.id}
+                      onNavigate={(targetNodeId, cameraTargetPosition) =>
+                        handleHotspotNavigate(
+                          targetNodeId,
+                          cameraTargetPosition
+                        )
+                      }
+                      hotspotNavigation={hotspot}
+                      setCurrentHotspotId={setCurrentHotspotId}
+                    />
+                  ))}
+              {isTextureReady &&
+                hotspotModels
+                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
+                  .map((hotspot) => (
+                    <GroundHotspotModel
+                      key={hotspot.id}
+                      hotspotModel={hotspot}
+                      setCurrentHotspotId={setCurrentHotspotId}
+                    />
+                  ))}
+              {isTextureReady &&
+                hotspotMedias
+                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
+                  .map((hotspot) => (
+                    <VideoMeshComponent
+                      key={hotspot.id}
+                      hotspotMedia={hotspot}
+                      setCurrentHotspotId={setCurrentHotspotId}
+                    />
+                  ))}
             </>
           )}
         </Canvas>
@@ -557,7 +741,7 @@ const TourDetail = () => {
                 <span className={styles.des}>Số bình luận</span>
               </div>
               <div className={styles.sub_info}>
-                <span className={styles.name}>1000</span>
+                <span className={styles.name}>{node.numView}</span>
                 <span className={styles.des}>Số lượt truy cập</span>
               </div>
             </div>
@@ -579,6 +763,7 @@ const TourDetail = () => {
             </div>
           </div>
         )}
+        {/* Hộp bình luận */}
         <div
           className={`${styles.commentContainer} ${
             isOpenComment ? styles.show : ""

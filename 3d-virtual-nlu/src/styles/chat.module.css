@@ -47,24 +47,25 @@
 }
 
 .chatContent::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+    width: 8px;
+    height: 8px;
 }
 
 /* Track – nền sau */
 .chatContent::-webkit-scrollbar-track {
-  background-color: white;
+    background-color: white;
 }
 
 /* Thumb – phần trượt */
 .chatContent::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00fff0 0%, #00d2ff 50%, #007cf0 100%);
-  border-radius: 15px;
+    background: linear-gradient(180deg, #00fff0 0%, #00d2ff 50%, #007cf0 100%);
+    border-radius: 15px;
 }
+
 /* Hover – đổi màu nhẹ */
 .chatContent::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #00d2ff, #3a47d5);
-  box-shadow: inset 0 0 1px #3a47d5;
+    background: linear-gradient(180deg, #00d2ff, #3a47d5);
+    box-shadow: inset 0 0 1px #3a47d5;
 }
 
 .chatBox {
@@ -80,7 +81,7 @@
     transition: all .3s ease-out;
     box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.4);
     transform: translate(10px, 50px);
-} 
+}
 
 .chatBox.openBox {
     transform: translate(0);
@@ -127,7 +128,7 @@
     font-size: 15px;
 }
 
-.avatar{
+.avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -184,7 +185,7 @@
     transition: all .3s ease-in;
 }
 
-.login_button{
+.login_button {
     width: 90%;
     padding: 10px;
     position: absolute;
@@ -196,6 +197,7 @@
 
 .chat_icon:hover {
     opacity: 0.7;
+    transform: scale(1.05);
 }
 
 .chat_icon {
@@ -205,6 +207,7 @@
     right: 0;
     width: 40px;
     height: 40px;
+    opacity: 1;
     border-radius: 50%;
     padding: 10px;
     background-color: #1e84e4;
@@ -213,7 +216,7 @@
     align-items: center;
     font-size: 30px;
     font-weight: 900;
-    transition: opacity .2s ease-in-out;
+    transition: all .2s ease;
 }
 
 .decor1,

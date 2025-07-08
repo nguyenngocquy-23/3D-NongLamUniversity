@@ -29,6 +29,9 @@ import VisitorTours from "./pages/visitor/Tours.tsx";
 import TourDetail from "./pages/visitor/TourDetail.tsx";
 import AttachMap from "./pages/admin/AttachMap.tsx";
 import SpaceDetail from "./components/admin/SpaceDetail.tsx";
+import CreateAutoTour from "./features/CreateAutoTour.tsx";
+import ManageAutoTour from "./pages/visitor/ManageAutoTour.tsx";
+import VirtualAutoTour from "./pages/visitor/VirtualAutoTour.tsx";
 
 function RouterConfig() {
   return (
@@ -39,7 +42,9 @@ function RouterConfig() {
       <Route path="/verify" element={<Verify />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/virtualTour" element={<VirtualTour />} />
-      <Route path="/model" element={<Model />} />
+      <Route path="/model/:hotspotModelId" element={<Model />} />
+      <Route path="/autoTour" element={<ManageAutoTour />} />
+      <Route path="/autoTourDetail/:tourId" element={<VirtualAutoTour />} />
       <Route path="/manage/" element={<VisitorManage />}>
         <Route index element={<VisitorDashBoard />} />
         <Route path="createTour" element={<VisitorCreateTour />} />
@@ -57,6 +62,7 @@ function RouterConfig() {
         <Route path="spaces/:spaceId" element={<SpaceDetail />} />
         <Route path="icons" element={<ManagerIcon />} />
         <Route path="createTour" element={<CreateTour />} />
+        <Route path="createAutoTour" element={<CreateAutoTour />} />
         <Route path="createTour/2" element={<CreateTourStep2 />} />
         <Route path="createTour/3" element={<CreateTourStep3 />} />
         <Route path="createTour/4" element={<CreateTourStep4 />} />

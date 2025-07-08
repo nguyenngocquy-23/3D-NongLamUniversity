@@ -23,8 +23,9 @@ public class NodeFullResponse {
     String url, name, description;
     double positionX, positionY, positionZ;
     double yawOffset;
-    byte status, autoRotate;
-    double speedRotate, lightIntensity;
+    byte status;
+    double lightIntensity;
+    int numView;
     Timestamp updatedAt;
     List<HotspotNavigationResponse> navHotspots;
     List<HotspotInformationResponse> infoHotspots;

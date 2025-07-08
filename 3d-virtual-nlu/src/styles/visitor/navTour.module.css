@@ -99,7 +99,7 @@
     color: #555;
 }
 
-.backBtn {
+.back_btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -113,12 +113,12 @@
     transition: all .3s ease;
 }
 
-.backBtn:hover {
+.back_btn:hover {
     transform: scale(1.05);
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-.backBtn:focus {
+.back_btn:focus {
     outline: none;
     border: none;
 }

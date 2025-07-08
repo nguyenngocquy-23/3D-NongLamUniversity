@@ -5,7 +5,13 @@ import {
   IoMdVolumeHigh,
   IoMdVolumeOff,
 } from "react-icons/io";
-import { FaComment, FaLanguage, FaPause, FaPlay } from "react-icons/fa6";
+import {
+  FaComment,
+  FaLanguage,
+  FaLayerGroup,
+  FaPause,
+  FaPlay,
+} from "react-icons/fa6";
 import { FaInfoCircle } from "react-icons/fa";
 import { MdFullscreen, MdFullscreenExit } from "react-icons/md";
 import Swal from "sweetalert2";
@@ -21,6 +27,7 @@ interface FooterTourProps {
   toggleFullscreen: () => void;
   setIsComment: (val: boolean) => void;
   accessing: any;
+  setOpenNodeList?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const FooterTour = ({
@@ -33,14 +40,25 @@ const FooterTour = ({
   toggleFullscreen,
   setIsComment,
   accessing,
+  setOpenNodeList,
 }: FooterTourProps) => {
   const userJson = sessionStorage.getItem("user");
   const user = userJson ? JSON.parse(userJson) : null;
   const navigate = useNavigate();
   return (
     <div className={styles.footer_tour}>
-      <i>Số lượng truy cập hiện tại: {user ? accessing : <Link to={"/login"}>Đăng nhập để xem</Link>}</i>
+      <i>
+        Số lượng truy cập hiện tại:{" "}
+        {user ? accessing : <Link to={"/login"}>Đăng nhập để xem</Link>}
+      </i>
       <div className="contain_extension" style={{ display: "flex" }}>
+        {setOpenNodeList && (
+          <FaLayerGroup
+            className={styles.info_btn}
+            onClick={() => setOpenNodeList((prev) => !prev)}
+            title="Danh sách các node"
+          />
+        )}
         <FaComment
           className={styles.info_btn}
           onClick={() => {
@@ -56,6 +74,7 @@ const FooterTour = ({
                   }
                 });
           }}
+          title="Bình luận"
         />
         <FaPause
           className={styles.pauseBtn}
@@ -63,6 +82,7 @@ const FooterTour = ({
           onClick={() => {
             setIsRotation(false);
           }}
+          title="Tạm dừng xoay"
         />
         <FaPlay
           className={styles.playBtn}
@@ -70,23 +90,29 @@ const FooterTour = ({
           onClick={() => {
             setIsRotation(true);
           }}
+          title="Tiếp tục xoay"
         />
         <FaLanguage className={styles.info_btn} onClick={toggleInformation} />
         {isMuted ? (
-          <IoMdVolumeOff className={styles.info_btn} onClick={toggleMute} />
+          <IoMdVolumeOff className={styles.info_btn} onClick={toggleMute}
+          title="Tắt tiếng" />
         ) : (
-          <IoMdVolumeHigh className={styles.info_btn} onClick={toggleMute} />
+          <IoMdVolumeHigh className={styles.info_btn} onClick={toggleMute} 
+          title="Bật tiếng" />
         )}
-        <FaInfoCircle className={styles.info_btn} onClick={toggleInformation} />
+        <FaInfoCircle className={styles.info_btn} onClick={toggleInformation} 
+        title="Mô tả" />
         {isFullscreen ? (
           <MdFullscreenExit
             className={styles.fullscreen_btn}
             onClick={toggleFullscreen}
+            title="Thoát"
           />
         ) : (
           <MdFullscreen
             className={styles.fullscreen_btn}
             onClick={toggleFullscreen}
+            title="Toàn màn hình"
           />
         )}
       </div>

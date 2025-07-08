@@ -75,12 +75,6 @@ const Task3 = ({
     return 1;
   };
 
-  useEffect(() => {
-    if (currentHotspotData) {
-      console.log("🔍 currentHotspotData cập nhật:", currentHotspotData);
-    }
-  }, [currentHotspotData]);
-
   return (
     <div className={styles.task3}>
       <select
@@ -141,6 +135,7 @@ const Task3 = ({
          */
         <ConfigMedia
           setAssignable={setAssignable}
+          assignable={isAssignable}
           onPropsChange={handleCombinedPropsChange}
           currentHotspotType={openTypeIndex}
           setCurrentHotspotType={setCurrentHotspotType}

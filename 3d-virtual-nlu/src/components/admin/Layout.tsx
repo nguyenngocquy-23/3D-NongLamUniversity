@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
 import {
+  fetchDashboard,
   fetchFields,
   fetchHotspotTypes,
   fetchIcons,
@@ -25,6 +26,7 @@ const Layout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [title, setTitle] = useState("Tổng quan");
 
   useEffect(() => {
     console.log("currentUser:", currentUser);
@@ -40,6 +42,7 @@ const Layout = () => {
   }, []);
 
   useEffect(() => {
+    dispatch(fetchDashboard());
     dispatch(fetchFields());
     dispatch(fetchSpaces());
     dispatch(fetchHotspotTypes());
@@ -77,16 +80,27 @@ const Layout = () => {
     <div className={styles.container}>
       {/* Sidebar */}
       {!isOptionFullScreen && currentUser && (
-        <Sidebar isOpenSidebar={true} currentUser={currentUser} />
+        <Sidebar isOpenSidebar={true} currentUser={currentUser} setTitle={setTitle} />
       )}
       {/* Main Content */}
-      <main className={styles.main_contain}>
+      <main
+        className={styles.main_contain}
+        style={{
+          margin: isOptionFullScreen ? "0" : "0 0.5rem 0.5rem 0",
+          borderRadius: isOptionFullScreen ? "0" : "10px",
+        }}
+      >
         {!isOptionFullScreen && (
           <header className={styles.header}>
-            <h2>Tổng quan</h2>
+            <h2>{title}</h2>
           </header>
         )}
-        <section className={styles.content}>
+        <section
+          className={styles.content}
+          style={{
+            borderRadius: isOptionFullScreen ? "0" : "10px",
+          }}
+        >
           <Outlet />
         </section>
       </main>

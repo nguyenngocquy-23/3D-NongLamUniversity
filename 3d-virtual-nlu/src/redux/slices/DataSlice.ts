@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { API_URLS } from "../../env";
 import { safeParseJsonArray } from "../../utils/ParseJsonArray";
+import { perPage } from "../../utils/Constants";
 
 interface DataState {
   users: any[];
@@ -9,6 +10,7 @@ interface DataState {
   fields: any[];
   spaces: any[];
   nodes: any[];
+  autoNodes: any[];
   hotspotTypes: any[];
   masterNodes: any[];
   preloadNodes: any[];
@@ -19,6 +21,7 @@ interface DataState {
   icons: any[];
   commentOfNode: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
+  dashboard: any;
 }
 
 const initialState: DataState = {
@@ -27,6 +30,7 @@ const initialState: DataState = {
   fields: [],
   spaces: [],
   nodes: [],
+  autoNodes: [],
   hotspotTypes: [],
   masterNodes: [],
   nodeOfUser: [],
@@ -37,6 +41,7 @@ const initialState: DataState = {
   icons: [],
   commentOfNode: [],
   status: "idle",
+  dashboard: null,
 };
 
 // Fetch users
@@ -59,7 +64,12 @@ export const fetchUsers = createAsyncThunk(
 
 // Fetch nodes
 export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
-  const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES);
+  const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES,
+    {
+      page: 0,
+      limit: perPage,
+    }
+  );
   return response.data.data;
 });
 
@@ -94,6 +104,20 @@ export const fetchNodeOfUser = createAsyncThunk(
   }
 );
 
+// Fetch auto tour
+export const fetchAutoNode = createAsyncThunk(
+  "data/fetchAutoNode",
+  async () => {
+    const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS,
+      {
+        page: 0,
+        limit: perPage,
+      }
+    );
+    return response.data.data;
+  }
+);
+
 // Fetch private nodes of user
 export const fetchPrivateNodeOfUser = createAsyncThunk(
   "data/fetchPrivateNodeOfUser",
@@ -121,6 +145,16 @@ export const fetchCommentOfNode = createAsyncThunk(
     }
   }
 );
+
+// Fetch dashboard
+export const fetchDashboard = createAsyncThunk("data/fetchDashboard", async () => {
+  const userJson = sessionStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : null;
+  const response = await axios.post(API_URLS.ADMIN_GET_DASHBOARD, {
+    userId: user.id,
+  });
+  return response.data.data;
+});
 
 // Fetch field
 export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
@@ -247,9 +281,24 @@ const dataSlice = createSlice({
         state.fields[index].code = action.payload.code;
       }
     },
+
+    resetNodes: (state) => {
+      state.masterNodes = []; // hoặc danh sách bạn đang dùng
+    },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchDashboard.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchDashboard.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.dashboard = action.payload;
+      })
+      .addCase(fetchDashboard.rejected, (state) => {
+        state.status = "failed";
+      })
+      
       .addCase(fetchUsers.pending, (state) => {
         state.status = "loading";
       })
@@ -269,6 +318,17 @@ const dataSlice = createSlice({
         state.nodes = action.payload;
       })
       .addCase(fetchNodes.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchAutoNode.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchAutoNode.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.autoNodes = action.payload;
+      })
+      .addCase(fetchAutoNode.rejected, (state) => {
         state.status = "failed";
       })
 
@@ -396,6 +456,6 @@ const dataSlice = createSlice({
       });
   },
 });
-export const { attachLocation, removeLocation, setDefaultNode } =
+export const { attachLocation, removeLocation, setDefaultNode, resetNodes } =
   dataSlice.actions;
 export default dataSlice.reducer;

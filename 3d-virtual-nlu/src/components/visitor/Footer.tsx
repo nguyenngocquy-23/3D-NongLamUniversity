@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styles from "../../styles/visitor/footer.module.css";
 import { Link as ScrollLink } from "react-scroll";
 
@@ -15,7 +16,9 @@ export default function Footer() {
 
   // Lặp để tạo hiệu ứng trượt liên tục
   const duplicatedPartners = [...partners, ...partners];
+  const [openForm, setOpenForm] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(true);
   return (
     <>
       {/* <div className={styles.marqueeWrapper}>
@@ -30,6 +33,24 @@ export default function Footer() {
           ))}
         </div>
       </div> */}
+      {openForm && (
+        <div className={styles.form_overlay}>
+          <button
+            className={styles.close_button}
+            onClick={() => setOpenForm(false)}
+          >
+            ✕
+          </button>
+          {isLoading ?? (
+            <p className={styles.loading_text}>Đang tải biểu mẫu…</p>
+          )}
+          <iframe
+            src="https://docs.google.com/forms/d/e/1FAIpQLScElOrAKgZkPc-kUJ3_WagD0lFFktzmNOoLEMLFLqFyZJ7wSQ/viewform?embedded=true"
+            className={styles.form_container}
+            onLoad={() => setIsLoading(false)}
+          />
+        </div>
+      )}
 
       <footer className={styles.footer}>
         <div className={styles.container}>
@@ -64,6 +85,12 @@ export default function Footer() {
             >
               Liên hệ
             </ScrollLink>
+            <button
+              className={styles.feed_back_button}
+              onClick={() => setOpenForm(true)}
+            >
+              Khảo sát & đánh giá
+            </button>
           </div>
         </div>
       </footer>

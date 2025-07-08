@@ -7,9 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.AutoTourResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
+
 import java.util.List;
 
 @ApplicationScoped
@@ -24,8 +26,8 @@ public class NodeService {
         return nodeDao.insertNode(reqs);
     }
 
-    public List<NodeFullResponse> getAllNodes() {
-        return nodeDao.getAllNodes();
+    public List<NodeFullResponse> getAllNodes(PageRequest request) {
+        return nodeDao.getAllNodes(request);
     }
 
     public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
@@ -67,7 +69,7 @@ public class NodeService {
         }
     }
 
-    public boolean remoev(NodeIdRequest request) {
+    public boolean remove(NodeIdRequest request) {
         try {
             return nodeDao.removeNode(request);
         } catch (Exception e) {
@@ -84,7 +86,8 @@ public class NodeService {
             return null;
         }
     }
-    public List<NodeFullResponse> getMasterNodeListBySpaceId (SpaceIdRequest request) {
+
+    public List<NodeFullResponse> getMasterNodeListBySpaceId(SpaceIdRequest request) {
         try {
             return nodeDao.getMasterNodeListBySpaceId(request);
         } catch (Exception e) {
@@ -102,8 +105,49 @@ public class NodeService {
             return false;
         }
     }
-  
-//    public boolean updateLinkNodeById(List<NodeLinkRequest> request) {
-//        return nodeDao.updateLinkNodeById(request);
-//    }
+
+    public List<NodeFullResponse> search(String searchKey) {
+        try {
+            return nodeDao.search(searchKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean createAutoTour(AutoTourCreateRequest request) {
+        try {
+            return nodeDao.createAutoTour(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<AutoTourResponse> getAutoTour(PageRequest request) {
+        try {
+            return nodeDao.getAutoTour(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean increaseView(List<NodeViewRequest> request) {
+        try {
+            return nodeDao.increaseView(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public int getNumOfUser(UserIdRequest request) {
+        try {
+            return nodeDao.getNumOfUser(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

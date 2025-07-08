@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styles from "../../styles/visitor/dashboard.module.css";
-import { FaChartColumn, FaEye, FaEyeSlash } from "react-icons/fa6";
+import { FaChartColumn, FaEye, FaEyeSlash, FaHourglassHalf, FaRegCommentDots } from "react-icons/fa6";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
@@ -12,6 +12,7 @@ import {
   fetchCommentOfNode,
   fetchNodeOfUser,
 } from "../../redux/slices/DataSlice";
+import { FaMapMarkedAlt, FaShareAlt } from "react-icons/fa";
 
 interface CloudinaryUploadResp {
   originalFileName?: string;
@@ -45,6 +46,7 @@ const VisitorDashBoard = () => {
   const nodes = useSelector((state: RootState) => state.data.nodeOfUser);
 
   const [totalComments, setTotalComments] = useState<number | null>(null);
+  const [totalViews, setTotalViews] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchTotalComments = async () => {
@@ -58,7 +60,19 @@ const VisitorDashBoard = () => {
       }
     };
 
+    const fetchTotalViews = async () => {
+      try {
+        const response = await axios.post(API_URLS.NUM_VIEW_OF_USER, {
+          userId: user.id,
+        });
+        setTotalViews(response.data.data); // hoặc response.data nếu trả về số trực tiếp
+      } catch (error) {
+        console.error("Lỗi khi lấy tổng số view:", error);
+      }
+    };
+
     fetchTotalComments();
+    fetchTotalViews();
   }, [user.id]);
 
   const handleFileChange = async (e: any) => {
@@ -339,28 +353,28 @@ const VisitorDashBoard = () => {
       </div>
       <div className={styles.dashboard}>
         <div className={styles.category}>
-          <FaChartColumn />
+          <FaMapMarkedAlt />
           <span className={styles.title}>Số tour</span>
           <span>{nodes.length}</span>
         </div>
         <div className={styles.category}>
-          <FaChartColumn />
+          <FaEye />
           <span className={styles.title}>Số lượt xem</span>
-          <span>2.000</span>
+          <span>{totalViews !== null ? totalViews : "Đang tải..."}</span>
         </div>
         <div className={styles.category}>
-          <FaChartColumn />
+          <FaRegCommentDots />
           <span className={styles.title}>Số bình luận</span>
           <span>{totalComments !== null ? totalComments : "Đang tải..."}</span>
         </div>
         <div className={styles.category}>
-          <FaChartColumn />
+          <FaShareAlt />
           <span className={styles.title}>Số lượt chia sẻ</span>
           <span>20</span>
         </div>
         <div className={styles.category}>
-          <FaChartColumn />
-          <span className={styles.title}>Đang được phê duyệt</span>
+          <FaHourglassHalf />
+          <span className={styles.title}>Đang đợi phê duyệt</span>
           <span>1</span>
         </div>
       </div>

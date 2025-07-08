@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class Node {
     int id, spaceId;
     String url, name, description;
-    double positionX,positionY,positionZ, yawOffset, lightIntensity, speedRotate;
-    byte status, autoRotate;
+    double positionX,positionY,positionZ, yawOffset, lightIntensity;
+    byte status;
     Timestamp createdAt, updatedAt;
 }

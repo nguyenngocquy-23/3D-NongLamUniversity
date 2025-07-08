@@ -3,7 +3,7 @@ import { FaCloudUploadAlt } from "react-icons/fa";
 import { MdDeleteForever, MdFileDownloadDone } from "react-icons/md";
 import styles from "../../styles/uploadFile.module.css";
 import axios, { AxiosError } from "axios";
-import { clearPanorama, setPanoramas } from "../../redux/slices/PanoramaSlice";
+import { clearPanorama, setAutoPanoramas, setPanoramas } from "../../redux/slices/PanoramaSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { FaFile } from "react-icons/fa6";
 import Swal from "sweetalert2";
@@ -385,7 +385,10 @@ const UploadFile: React.FC<UploadFileProps> = ({
         url: f.uploadedUrl!,
       }));
 
-    if (spaceId === "0" || spaceId == null) {
+    if (
+      spaceId === "0" ||
+      (spaceId == null && className !== "upload_auto_panos")
+    ) {
       Swal.fire({
         icon: "warning",
         title: "Chưa chọn không gian",
@@ -395,7 +398,9 @@ const UploadFile: React.FC<UploadFileProps> = ({
       return;
     }
 
-    dispatch(setPanoramas(allSuccessful));
+    if (className === "upload_panos") {
+      dispatch(setPanoramas(allSuccessful));
+    }
     dispatch(nextStep());
   };
 
@@ -431,7 +436,9 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
       {fileStatuses.length < maxFiles && (
         <button
-          className={`${className ? styles[className] : ""} ${styles.file_button}`}
+          className={`${className ? styles[className] : ""} ${
+            styles.file_button
+          }`}
           onClick={onChooseFile}
         >
           <span className={styles.upload_icon}>
@@ -497,7 +504,8 @@ const UploadFile: React.FC<UploadFileProps> = ({
               </div>
             ))}
           </div>
-          {className === "upload_panos" && (
+          {(className === "upload_panos" ||
+            className === "upload_auto_panos") && (
             <div className={styles.container_btn}>
               <span className={styles.upload_btn} onClick={handleUpload}>
                 {uploadStatus === "done" ? (

@@ -8,7 +8,11 @@ const ManagerTour = () => {
       <div className={styles.features}>
         <Link to="/admin/createTour" className={styles.feature}>
           <FaPlus className={styles.iconFeature} />
-          <h2>Tạo tour mới</h2>
+          <h2>Tạo tour đơn</h2>
+        </Link>
+        <Link to="/admin/createAutoTour" className={styles.feature}>
+          <FaPlus className={styles.iconFeature} />
+          <h2>Tạo tour tự động</h2>
         </Link>
         <Link to="/admin/manageTour" className={styles.feature}>
           <FaUpload className={styles.iconFeature} />

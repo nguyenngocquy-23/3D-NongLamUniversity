@@ -84,4 +84,13 @@ public class CommentDao {
                     .one();
         });
     }
+
+    public int countAllComments() {
+        String sql = "SELECT COUNT(*) FROM comments";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
 }
