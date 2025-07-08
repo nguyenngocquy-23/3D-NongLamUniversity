@@ -86,7 +86,6 @@ const TourCanvas = React.memo(
     }, [defaultNode, preloadNodesRedux, preloadNavigatesRef]);
 
     const [cameraAngle, setCameraAngle] = useState(0);
-
     const handleSelectNode = (id: number) => {
       setIsTextureReady(false);
       const activeNode = preloadNodesRedux.find((h) => h.id === id);

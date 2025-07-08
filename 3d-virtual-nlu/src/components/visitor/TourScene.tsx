@@ -96,7 +96,6 @@ const CrossFadeMaterial = shaderMaterial(
     vec3 finalColor = baseColor.rgb * uAmbientLight;
     gl_FragColor = vec4(finalColor, baseColor.a);
   }
-
     `
 );
 extend({ CrossFadeMaterial });
@@ -197,7 +196,10 @@ const TourScene: React.FC<TourSceneProps> = ({
       const yawNew = radianToTexture(yawOffsetCurrent);
 
       /**
-       * Có truyền nodeId => Nó là lớp VirtualTour.
+       * Nếu sử dụng nodeId: Phần hiển thị của VirtualTour.
+       * Xoay mặc định: nodeId giữ nguyên (không được truyền vào)/ Texture không đổi url
+       * Upgrade: nodeId sẽ giữ nguyên/ Texture sẽ đổi url.
+       * Chuyển node: nodeId sẽ đổi / Texture cũng đổi url.
        */
       const cacheKey = String(nodeId ?? textureCurrent);
       const cachedEntry = imageRef?.current?.[cacheKey];
@@ -218,8 +220,13 @@ const TourScene: React.FC<TourSceneProps> = ({
         upgradedTex.wrapS = THREE.RepeatWrapping;
         upgradedTex.wrapT = THREE.RepeatWrapping;
 
-        setUpgradeTexture(upgradedTex); // state chứa upgradeTex
-        upgradeProgressRef.current = 0; // reset tiến trình upgrade
+        // setUpgradeTexture(upgradedTex); // state chứa upgradeTex
+        // upgradeProgressRef.current = 0; // reset tiến trình upgrade
+        // return;
+
+        setTextures([textures?.[0] ?? null, upgradedTex]);
+        setYawOffsetList(([yaw1]) => [yaw1, yaw1]); // Giữ yawOffset như cũ
+        progressRef.current = 0;
         return;
       }
       // Nếu texture không đổi, chỉ cần cập nhật yawOffset (không load lại texture hay crossfade)

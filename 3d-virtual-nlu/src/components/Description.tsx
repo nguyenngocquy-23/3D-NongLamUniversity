@@ -27,9 +27,17 @@ const Description: React.FC<DescriptionProps> = ({
       modules: {
         toolbar: [
           ["bold", "italic", "underline"],
+          ["blockquote"],
+          [{ script: "sub" }, { script: "super" }],
           [{ header: 1 }, { header: 2 }],
+          [{ indent: "-1" }, { indent: "+1" }],
+          [{ direction: "rtl" }],
           [{ list: "ordered" }, { list: "bullet" }],
-          ["link", "image", "video"],
+          [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+          [{ font: [] }],
+          [{ align: [] }],
+          ["link"],
+          // ["link", "image", "video"],
           ["clean"],
         ],
       },

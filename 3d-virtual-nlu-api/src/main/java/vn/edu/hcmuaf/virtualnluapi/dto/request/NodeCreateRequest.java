@@ -20,8 +20,7 @@ public class NodeCreateRequest {
     String url, name, description;
     double positionX, positionY, positionZ;
     double yawOffset;
-    byte autoRotate;
-    double speedRotate, lightIntensity;
+    double lightIntensity, brightness, contrast, saturation, grayscale, exposure;
     byte status;
     List<HotspotNavCreateRequest> navHotspots;
     List<HotspotInfoCreateRequest> infoHotspots;

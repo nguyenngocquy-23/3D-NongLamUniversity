@@ -22,8 +22,8 @@ public class NodeDao {
 
     public List<NodeIdMapResponse> insertNode(List<NodeCreateRequest> reqs) {
         String sql = """
-                INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, yawOffset, lightIntensity, autoRotate, speedRotate, status, numView) 
-                VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :yawOffset, :lightIntensity, :autoRotate, :speedRotate, :status, :numView)""";
+                INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, yawOffset, lightIntensity, brightness, contrast, saturation, grayscale, exposure, status, numView) 
+                VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :yawOffset, :lightIntensity, :brightness, :contrast, :saturation, :grayscale, :exposure, :status, :numView)""";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
 
@@ -42,8 +42,11 @@ public class NodeDao {
                         .bind("positionZ", req.getPositionZ())
                         .bind("yawOffset", req.getYawOffset())
                         .bind("lightIntensity", req.getLightIntensity())
-                        .bind("autoRotate", req.getAutoRotate())
-                        .bind("speedRotate", req.getSpeedRotate())
+                        .bind("brightness", req.getBrightness())
+                        .bind("contrast", req.getContrast())
+                        .bind("saturation", req.getSaturation())
+                        .bind("grayscale", req.getGrayscale())
+                        .bind("exposure", req.getExposure())
                         .bind("status", req.getStatus())
                         .bind("numView", 0)
                         .executeAndReturnGeneratedKeys("id")
@@ -59,7 +62,7 @@ public class NodeDao {
     public List<NodeFullResponse> getAllNodes() {
         String sql = """
                  SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                 n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                 n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
@@ -73,7 +76,7 @@ public class NodeDao {
     public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                 n.status, n.autoRotate, n.speedRotate, n.yawOffset, n.positionX, n.positionY, n.positionZ, n.lightIntensity
+                 n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.yawOffset, n.positionX, n.positionY, n.positionZ, n.lightIntensity
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
@@ -226,7 +229,7 @@ public class NodeDao {
     public NodeFullResponse getFullNodeByNodeId(int nodeId) {
         String sql = """
                 SELECT id, spaceId, url , name, updatedAt, userId, description, status, positionX, positionY, positionZ, yawOffset,
-                 autoRotate, speedRotate, lightIntensity
+                  brightness, contrast, saturation, grayscale, exposure, lightIntensity
                 FROM nodes 
                 WHERE id = :nodeId
                 """;
@@ -254,7 +257,7 @@ public class NodeDao {
     public NodeFullResponse getCustomNodeByNodeId(int nodeId) {
         String sql = """
                 SELECT id, spaceId, url , name, updatedAt, userId, description, status, positionX, positionY, positionZ, yawOffset,
-                 autoRotate, speedRotate, lightIntensity
+                   brightness, contrast, saturation, grayscale, exposure, lightIntensity
                 FROM nodes 
                 WHERE id = :nodeId
                 """;
@@ -271,7 +274,7 @@ public class NodeDao {
     public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -286,7 +289,7 @@ public class NodeDao {
     public NodeFullResponse getNodeById(NodeIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -332,7 +335,7 @@ public class NodeDao {
     public List<NodeFullResponse> getPrivateNodeByUser(UserIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
+                n.status,  n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -347,7 +350,7 @@ public class NodeDao {
     public List<NodeFullResponse> getMasterNodeListBySpaceId(SpaceIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -375,7 +378,8 @@ public class NodeDao {
     public boolean updateNodes(List<NodeUpdateRequest> reqs) {
         String sql = """
                 UPDATE nodes SET url = :url, name = :name, description = :description, positionX = :positionX,
-                positionY = :positionY, positionZ = :positionZ, yawOffset = :yawOffset, autoRotate = :autoRotate, speedRotate = :speedRotate,
+                positionY = :positionY, positionZ = :positionZ, yawOffset = :yawOffset, brightness = :brightness, contrast = :contrast,
+                saturation = :saturation, grayscale = :grayscale, exposure = :exposure,
                 lightIntensity = :lightIntensity, status = :status, updatedAt = :updatedAt
                 WHERE id = :id
                 """;
@@ -390,8 +394,11 @@ public class NodeDao {
                         .bind("positionY", req.getPositionY())
                         .bind("positionZ", req.getPositionZ())
                         .bind("yawOffset", req.getYawOffset())
-                        .bind("autoRotate", req.getAutoRotate())
-                        .bind("speedRotate", req.getSpeedRotate())
+                        .bind("brightness", req.getBrightness())
+                        .bind("contrast", req.getContrast())
+                        .bind("saturation", req.getSaturation())
+                        .bind("grayscale", req.getGrayscale())
+                        .bind("exposure", req.getExposure())
                         .bind("lightIntensity", req.getLightIntensity())
                         .bind("status", req.getStatus())
                         .bind("updatedAt", LocalDateTime.now())
@@ -416,4 +423,5 @@ public class NodeDao {
                 handle -> handle.createQuery(sql).mapToBean(NodeImageResponse.class).list());
 
     }
+
 }

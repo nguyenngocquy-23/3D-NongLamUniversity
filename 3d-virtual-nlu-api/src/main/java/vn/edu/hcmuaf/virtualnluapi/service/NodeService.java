@@ -114,4 +114,8 @@ public class NodeService {
         return nodeDao.getAllNodeImgs();
         
     }
+
+//    public List<NodeImageResponse> getPreloadNodeImgs(int id){
+//        return nodeDao.getPreloadNodeImgs(id);
+//    }
 }

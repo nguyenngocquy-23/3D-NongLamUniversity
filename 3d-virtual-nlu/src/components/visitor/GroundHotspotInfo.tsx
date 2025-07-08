@@ -192,16 +192,16 @@ const GroundHotspotInfo = ({
         >
           <Html distanceFactor={40} transform>
             <div className={styles.container}>
-              <div className={styles.centerPane}>
+              <div className={styles.center_pane}>
                 {hotspotInfo.title.trim() == "" &&
                 hotspotInfo.content.trim() == "" ? (
-                  <div className={styles.description}>Trống</div>
+                  <div className={styles.description}></div>
                 ) : (
                   <>
-                    <div className={styles.title}>{hotspotInfo.title}</div>
-                    <div className={styles.description}>
-                      {hotspotInfo.content}
-                    </div>
+                    <div
+                      className={styles.description}
+                      dangerouslySetInnerHTML={{ __html: hotspotInfo.content }}
+                    />
                   </>
                 )}
               </div>
