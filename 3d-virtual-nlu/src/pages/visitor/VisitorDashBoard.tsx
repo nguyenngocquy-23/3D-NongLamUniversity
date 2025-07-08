@@ -360,7 +360,7 @@ const VisitorDashBoard = () => {
         <div className={styles.category}>
           <FaEye />
           <span className={styles.title}>Số lượt xem</span>
-          <span>{totalComments !== null ? totalComments : "Đang tải..."}</span>
+          <span>{totalViews !== null ? totalViews : "Đang tải..."}</span>
         </div>
         <div className={styles.category}>
           <FaRegCommentDots />
@@ -374,7 +374,7 @@ const VisitorDashBoard = () => {
         </div>
         <div className={styles.category}>
           <FaHourglassHalf />
-          <span className={styles.title}>Đang được phê duyệt</span>
+          <span className={styles.title}>Đang đợi phê duyệt</span>
           <span>1</span>
         </div>
       </div>

@@ -288,4 +288,19 @@ public class HotspotDao {
         });
     }
 
+    public HotspotModelResponse getModelById(int hotspotId) {
+        String sql = """
+                SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ,
+                h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity,
+                m.modelUrl, m.name, m.description, u.username as usernameAuthor
+                FROM hotspots AS h\s
+                JOIN hotspot_models AS m ON h.id = m.hotspotId
+                JOIN nodes as n ON n.id = h.nodeId
+                JOIN users as u ON n.userId = u.id
+                WHERE h.id = :hotspotId
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql).bind("hotspotId", hotspotId).mapToBean(HotspotModelResponse.class).findOne().orElse(null);
+        });
+    }
 }

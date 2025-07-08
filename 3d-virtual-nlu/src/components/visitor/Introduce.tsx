@@ -20,10 +20,10 @@ const images = [
     description: "Giảng đường có diện tích lớn nhất trường.",
   },
   {
-    src: `${import.meta.env.BASE_URL}khoacntt.jpg`,
-    title: "Khoa Công nghệ thông tin",
+    src: `${import.meta.env.BASE_URL}backgroundNL.jpg`,
+    title: "Khuôn viên trước tòa Thiên Lý",
     description:
-      "Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.",
+      "Nơi diễn ra các hoạt động ngoài trời của trường, như lễ tốt nghiệp, các buổi giao lưu văn nghệ.",
   },
   {
     src: `${import.meta.env.BASE_URL}thuvienthunk.jpg`,

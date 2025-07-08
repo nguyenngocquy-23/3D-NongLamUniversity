@@ -18,6 +18,7 @@ export default function Footer() {
   const duplicatedPartners = [...partners, ...partners];
   const [openForm, setOpenForm] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(true);
   return (
     <>
       {/* <div className={styles.marqueeWrapper}>
@@ -40,13 +41,14 @@ export default function Footer() {
           >
             ✕
           </button>
-
+          {isLoading ?? (
+            <p className={styles.loading_text}>Đang tải biểu mẫu…</p>
+          )}
           <iframe
             src="https://docs.google.com/forms/d/e/1FAIpQLScElOrAKgZkPc-kUJ3_WagD0lFFktzmNOoLEMLFLqFyZJ7wSQ/viewform?embedded=true"
             className={styles.form_container}
-          >
-            Đang tải biểu mẫu…
-          </iframe>
+            onLoad={() => setIsLoading(false)}
+          />
         </div>
       )}
 

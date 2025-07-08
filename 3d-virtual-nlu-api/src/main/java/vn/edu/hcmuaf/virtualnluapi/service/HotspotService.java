@@ -56,4 +56,13 @@ public class HotspotService {
     public int updateModelHotspots(List<HotspotModelUpdateRequest> modelHotspots, int id) {
         return hotspotDao.updateModelHotspots(modelHotspots, id);
     }
+
+    public HotspotModelResponse getModelById(int hotspotId) {
+        try {
+            return hotspotDao.getModelById(hotspotId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

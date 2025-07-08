@@ -42,7 +42,7 @@ function RouterConfig() {
       <Route path="/verify" element={<Verify />} />
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/virtualTour" element={<VirtualTour />} />
-      <Route path="/model" element={<Model />} />
+      <Route path="/model/:hotspotModelId" element={<Model />} />
       <Route path="/autoTour" element={<ManageAutoTour />} />
       <Route path="/autoTourDetail/:tourId" element={<VirtualAutoTour />} />
       <Route path="/manage/" element={<VisitorManage />}>
