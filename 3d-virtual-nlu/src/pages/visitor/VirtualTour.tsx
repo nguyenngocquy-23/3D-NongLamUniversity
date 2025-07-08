@@ -29,8 +29,6 @@ import { FaAngleLeft, FaMap, FaX } from "react-icons/fa6";
 import { MdOpenInFull } from "react-icons/md";
 import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
 import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
-import axios from "axios";
-import { API_URLS } from "../../env.ts";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   buildImageUrlWithQuality,
@@ -400,7 +398,10 @@ const VirtualTour = () => {
           };
 
           if (nodeToRender.id === id) {
-            setImageVersion((v) => v + 1);
+            setTimeout(() => {
+              setImageVersion((v) => v + 1);
+              console.log("Giá trị imageVersion: VirtualTour", imageVersion);
+            }, 3000); // Delay 100ms
           }
         };
       } catch (err) {
