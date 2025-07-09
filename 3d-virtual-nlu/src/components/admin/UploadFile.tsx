@@ -11,8 +11,8 @@ import { RiLoader2Fill } from "react-icons/ri";
 import { nextStep } from "../../redux/slices/StepSlice";
 import { RootState } from "../../redux/Store";
 import { API_URLS } from "../../env";
-import { ImageCacheMap } from "../../pages/visitor/VirtualTour";
 import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL";
+import { ImageCacheMap, useImageCache } from "../../contexts/ImageCacheContext";
 
 /**
  * UploadFile sẽ nhận vào các kiểu props:
@@ -52,7 +52,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
 
-  const imageRef = useRef<ImageCacheMap>({});
+  const imageRef = useImageCache(); // Lấy image từ ram.
 
   const [progress, setProgress] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -381,6 +381,11 @@ const UploadFile: React.FC<UploadFileProps> = ({
             };
             img.onerror = reject;
           });
+
+          console.log(
+            "Tổng số ảnh trong imageRef:",
+            Object.keys(imageRef.current).length
+          );
         } catch (err) {
           console.warn("Không tải được ảnh 360 trong nextStep2:", url, err);
         }

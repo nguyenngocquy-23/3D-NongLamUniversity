@@ -45,19 +45,9 @@ import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
 import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
 import Swal from "sweetalert2";
 import useTrackTourView from "../../hooks/useTrackTourView.ts";
+import { ImageCacheMap } from "../../contexts/ImageCacheContext.tsx";
 
-export type ImageCacheEntry = {
-  img: HTMLImageElement;
-  objectUrl: string;
-  quality: ImageQuality;
-  lastUsed: number; //time to live
-};
-
-/**
- * string: id của node hiện tại
- */
-export type ImageCacheMap = Record<string, ImageCacheEntry>;
-/**
+/*
  * Nhằm mục đích tái sử dụng Virtual Tour.
  * => Nhận vào 1 texture url (Test)
  * Chúng ta sẽ cần nhận vào 1 danh sách thông tin url để hiển thị
@@ -539,28 +529,25 @@ const VirtualTour = () => {
       onPointerMove={handleMouseEnterMenu}
       onPointerDown={handleCloseMenu}
     >
-      {isWaiting ? (
-        <Waiting percent={percent} />
-      ) : (
-        <TourCanvas
-          windowSize={windowSize}
-          cursor={cursor}
-          sphereRef={sphereRef}
-          radius={RADIUS_SPHERE}
-          defaultNode={nodeToRender}
-          targetPosition={targetPosition ?? null}
-          hotspotNavigations={hotspotNavigations}
-          hotspotInformations={hotspotInformations}
-          hotspotModels={hotspotModels}
-          hotspotMedias={hotspotMedias}
-          isRotation={isRotation}
-          setTargetPosition={setTargetPosition}
-          isOpenRadar={isOpenRadar}
-          setIsOpenRadar={setIsOpenRadar}
-          imageRef={imageRef}
-          imageVersion={imageVersion}
-        />
-      )}
+      {isWaiting ? <Waiting percent={percent} /> : ""}
+      <TourCanvas
+        windowSize={windowSize}
+        cursor={cursor}
+        sphereRef={sphereRef}
+        radius={RADIUS_SPHERE}
+        defaultNode={nodeToRender}
+        targetPosition={targetPosition ?? null}
+        hotspotNavigations={hotspotNavigations}
+        hotspotInformations={hotspotInformations}
+        hotspotModels={hotspotModels}
+        hotspotMedias={hotspotMedias}
+        isRotation={isRotation}
+        setTargetPosition={setTargetPosition}
+        isOpenRadar={isOpenRadar}
+        setIsOpenRadar={setIsOpenRadar}
+        imageRef={imageRef}
+        imageVersion={imageVersion}
+      />
 
       <div className={styles.headerTour}>
         <h2>NLU360</h2>

@@ -1,5 +1,6 @@
 import "./App.css";
 import { DeviceInfoProvider } from "./contexts/DeviceInfoContext";
+import { ImageCacheProvider } from "./contexts/ImageCacheContext";
 import { DOMAIN_CLIENT } from "./env";
 import useSyncTourViews from "./hooks/useSyncTourView";
 import RouterConfig from "./Router";
@@ -10,11 +11,13 @@ function App() {
   useSyncTourViews();
   return (
     <DeviceInfoProvider>
-      <Router basename={DOMAIN_CLIENT}>
-        <>
-          <RouterConfig />
-        </>
-      </Router>
+      <ImageCacheProvider>
+        <Router basename={DOMAIN_CLIENT}>
+          <>
+            <RouterConfig />
+          </>
+        </Router>
+      </ImageCacheProvider>
     </DeviceInfoProvider>
   );
 }

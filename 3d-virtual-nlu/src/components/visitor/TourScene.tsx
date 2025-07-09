@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import * as THREE from "three";
 import { RootState } from "../../redux/Store";
 import { radianToTexture } from "../../utils/MathUtils";
-import { ImageCacheMap } from "../../pages/visitor/VirtualTour";
+import { ImageCacheMap } from "../../contexts/ImageCacheContext";
 
 /**
  *  Lớp này sử dụng cho việc :

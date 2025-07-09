@@ -16,7 +16,7 @@ import { Environment } from "@react-three/drei";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 import Radar from "./Radar";
 import { Perf } from "r3f-perf";
-import { ImageCacheMap } from "../../pages/visitor/VirtualTour";
+import { ImageCacheMap } from "../../contexts/ImageCacheContext";
 const TourCanvas = React.memo(
   ({
     windowSize,

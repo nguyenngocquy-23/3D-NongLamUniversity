@@ -205,14 +205,7 @@ public class NodeController {
         }
     }
 
-    @POST
-    @Path("/getNodeImg")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<NodeImageResponse>> getAllNodeImgs() {
-        List<NodeImageResponse> result =  nodeService.getAllNodeImgs();
-        return ApiResponse.<List<NodeImageResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
-    }
+
 
     /**
      * Tải ảnh và nạp vào ram:

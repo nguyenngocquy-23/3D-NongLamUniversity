@@ -31,6 +31,7 @@ import { FaSave } from "react-icons/fa";
 import ImageSelect from "./SelectPanorama";
 import { AnimatePresence, motion } from "framer-motion";
 import { TbTournament } from "react-icons/tb";
+import { useImageCache } from "../contexts/ImageCacheContext";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
@@ -45,6 +46,8 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
   };
+
+  const imageRef = useImageCache();
 
   const dispatch = useDispatch();
 
@@ -129,7 +132,9 @@ const MiniMap: React.FC<MiniMapProps> = ({
    */
   const panoramaTargetUrl = (id: string) => {
     const panoramaTarget = panoramaList.find((pano) => pano.id === id);
-    return panoramaTarget?.url;
+    return (
+      imageRef.current[panoramaTarget?.url].objectUrl || panoramaTarget?.url
+    );
   };
 
   /**
@@ -239,7 +244,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const options = panoramaList.map((p) => ({
     value: p.id,
     label: p.config.name,
-    imageUrl: p.url,
+    imageUrl: imageRef.current[p.url]?.objectUrl || p.url,
   }));
   return (
     <Html
@@ -271,7 +276,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
                   onClick={() => handleSelectNode(item.id)}
                 >
                   <img
-                    src={item.url}
+                    src={imageRef.current[item.url]?.objectUrl || item.url}
                     alt={item.config.name}
                     className={styles.thumbnail_node}
                   />
@@ -332,7 +337,10 @@ const MiniMap: React.FC<MiniMapProps> = ({
             }
           >
             <img
-              src={masterPanorama?.url}
+              src={
+                imageRef.current[masterPanorama.url]?.objectUrl ||
+                masterPanorama?.url
+              }
               alt="panorama_master"
               className={
                 isExpanded ? styles.master_node_zoom : styles.master_node
@@ -446,6 +454,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
                 <TrackingNode
                   panoramaList={panoramaList}
                   hotspotNavigations={hotspotNavigations}
+                  imageRef={imageRef}
                 />
               </div>
             </div>

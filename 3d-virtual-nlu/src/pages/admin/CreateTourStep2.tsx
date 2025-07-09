@@ -52,6 +52,7 @@ import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import CamControls from "../../components/visitor/CamControls";
+import { useImageCache } from "../../contexts/ImageCacheContext.tsx";
 
 export const tasks = [
   {
@@ -76,6 +77,8 @@ const CreateTourStep2 = () => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<any>(null); //OrbitControls
+
+  const imageRef = useImageCache(); // Lấy ảnh từ cache trong ram.
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
@@ -137,7 +140,10 @@ const CreateTourStep2 = () => {
   /**
    * Lấy URL panorama hiện tại - hoặc dùng mặc định.
    */
-  const currentPanoramaUrl = currentPanorama?.url ?? "/khoa.jpg";
+  const currentPanoramaUrl =
+    imageRef.current[currentPanorama?.url ?? ""]?.objectUrl ??
+    currentPanorama?.url ??
+    "/khoa.jpg";
 
   const {
     positionX = 0,
@@ -497,6 +503,7 @@ const CreateTourStep2 = () => {
             nodeId={currentSelectId ?? ""}
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
+            imageRef={imageRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
             onPointerDown={handleScenePointerDown}
