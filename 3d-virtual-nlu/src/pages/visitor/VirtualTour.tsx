@@ -45,7 +45,7 @@ import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
 import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
 import Swal from "sweetalert2";
 import useTrackTourView from "../../hooks/useTrackTourView.ts";
-import { ImageCacheMap } from "../../contexts/ImageCacheContext.tsx";
+import { useImageCache } from "../../contexts/ImageCacheContext.tsx";
 
 /*
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -56,7 +56,7 @@ import { ImageCacheMap } from "../../contexts/ImageCacheContext.tsx";
  * 2. Hiển thị màn hình cho phép người dùng di chuyển tại giao diện.
  */
 const VirtualTour = () => {
-  const imageRef = useRef<ImageCacheMap>({});
+  const imageRef = useImageCache(); //Sử dụng trong context phục vụ cho việc cache lần đầu.
 
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.data.status);
