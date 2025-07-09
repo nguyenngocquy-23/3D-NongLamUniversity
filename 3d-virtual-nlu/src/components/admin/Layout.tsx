@@ -89,7 +89,7 @@ const Layout = () => {
       )}
       {/* Main Content */}
       <main className={styles.main_contain}>
-        {!isOptionFullScreen && isOpenSideBar && (
+        {!isOptionFullScreen && (
           <header className={styles.header}>
             <h2>{title}</h2>
           </header>
