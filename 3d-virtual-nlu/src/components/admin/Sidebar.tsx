@@ -25,7 +25,11 @@ type SideBarProps = {
   setTitle: (title: string) => void;
 };
 
-const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser, setTitle }) => {
+const Sidebar: React.FC<SideBarProps> = ({
+  isOpenSidebar,
+  currentUser,
+  setTitle,
+}) => {
   const [isOpen, setIsOpen] = useState(true);
   const toggleSideBar = () => {
     setIsOpen((prev) => !prev);
@@ -50,7 +54,10 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser, setTitle 
       <div className={styles.side_bar_admin}>
         {isOpen && (
           <>
-            <img src={`${import.meta.env.BASE_URL}avatar.jpg`} alt="avatar-admin" />
+            <img
+              src={`${import.meta.env.BASE_URL}avatar.jpg`}
+              alt="avatar-admin"
+            />
             <div className={styles.admin_info}>
               <Link to="/">
                 <h5>Chào bạn, {currentUser.username} !</h5>
@@ -124,7 +131,9 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser, setTitle 
             <Link to="/admin/fields" onClick={() => setTitle("Lĩnh vực")}>
               <li
                 className={
-                  location.pathname === "/3dtour/admin/fields" ? styles.click : ""
+                  location.pathname === "/3dtour/admin/fields"
+                    ? styles.click
+                    : ""
                 }
               >
                 <span>Lĩnh vực</span>
@@ -133,7 +142,9 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser, setTitle 
             <Link to="/admin/spaces" onClick={() => setTitle("Không gian")}>
               <li
                 className={
-                  location.pathname === "/3dtour/admin/spaces" ? styles.click : ""
+                  location.pathname === "/3dtour/admin/spaces"
+                    ? styles.click
+                    : ""
                 }
               >
                 <span>Không gian</span>
@@ -142,7 +153,10 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser, setTitle 
             <Link to="/admin/tours" onClick={() => setTitle("Quản lý tour")}>
               <li
                 className={
-                  location.pathname.includes("ours") || location.pathname.includes("Tour") ? styles.click : ""
+                  location.pathname.includes("ours") ||
+                  location.pathname.includes("Tour")
+                    ? styles.click
+                    : ""
                 }
               >
                 Quản lý tour
@@ -150,7 +164,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser, setTitle 
             </Link>
           </ul>
         )}
-        
+
         <li
           className={` ${isOpen ? styles.visit : styles.collapse_nav_item} ${
             styles.expand_nav_item
