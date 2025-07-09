@@ -29,6 +29,7 @@ const TaskUpdate1 = () => {
           type="text"
           className={styles.name_input}
           placeholder="Tên không gian"
+          disabled
           value={name}
           onChange={(e) => handleChange("name", e.target.value)}
         />

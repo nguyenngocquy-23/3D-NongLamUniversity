@@ -131,7 +131,7 @@ const Sidebar: React.FC<SideBarProps> = ({
             <Link to="/admin/fields" onClick={() => setTitle("Lĩnh vực")}>
               <li
                 className={
-                  location.pathname === "/3dtour/admin/fields"
+                  location.pathname.includes("/admin/fields")
                     ? styles.click
                     : ""
                 }
@@ -142,7 +142,7 @@ const Sidebar: React.FC<SideBarProps> = ({
             <Link to="/admin/spaces" onClick={() => setTitle("Không gian")}>
               <li
                 className={
-                  location.pathname === "/3dtour/admin/spaces"
+                  location.pathname.includes("/admin/spaces")
                     ? styles.click
                     : ""
                 }
@@ -159,13 +159,13 @@ const Sidebar: React.FC<SideBarProps> = ({
                     : ""
                 }
               >
-                Quản lý tour
+                Tour
               </li>
             </Link>
           </ul>
         )}
 
-        <li
+        {/* <li
           className={` ${isOpen ? styles.visit : styles.collapse_nav_item} ${
             styles.expand_nav_item
           }
@@ -184,9 +184,9 @@ const Sidebar: React.FC<SideBarProps> = ({
           ) : (
             <MdKeyboardArrowDown className={styles.open_sub_visit} />
           )}
-        </li>
+        </li> */}
 
-        {isOpen && showSubMenu && (
+        {/* {isOpen && showSubMenu && (
           <ul
             className={`${styles.sub_menu} 
           ${showSubMenu && styles.active_nav_item_ul}
@@ -211,7 +211,7 @@ const Sidebar: React.FC<SideBarProps> = ({
               </li>
             </Link>
           </ul>
-        )}
+        )} */}
 
         <Link to="/admin/users" onClick={() => setTitle("Tài khoản")}>
           <li

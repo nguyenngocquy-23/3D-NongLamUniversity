@@ -17,7 +17,8 @@ public class NodeUpdateRequest {
     int id;
     String url, name, description;
     double positionX, positionY, positionZ;
-    double yawOffset, lightIntensity;
+    double yawOffset;
+    double lightIntensity, brightness, contrast, saturation, grayscale, exposure;
     byte status;
     List<HotspotNavUpdateRequest> navHotspots;
     List<HotspotInfoUpdateRequest> infoHotspots;

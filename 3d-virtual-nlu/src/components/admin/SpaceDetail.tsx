@@ -57,7 +57,7 @@ const SpaceDetail = () => {
   );
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const controlsRef = useRef<any>(null); //OrbitControls
+  const controlsRef = useRef<any>(null);
 
   const [currentSpace, setCurrentSpace] = useState<any>(null);
 
@@ -650,10 +650,7 @@ const SpaceDetail = () => {
                 }`}
               >
                 <div className={styles.rightTitle}>
-                  <FaAngleRight
-                    className={styles.close_menu_btn}
-                    // onClick={handleOpenMenu}
-                  />
+                  <FaAngleRight className={styles.close_menu_btn} />
                   <h2>Cấu hình</h2>
                 </div>
 

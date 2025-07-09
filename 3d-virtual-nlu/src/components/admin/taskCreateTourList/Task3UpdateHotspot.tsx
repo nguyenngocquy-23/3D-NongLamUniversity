@@ -8,7 +8,6 @@ import {
 } from "../../../redux/slices/HotspotSlice";
 import ConfigIcon from "../ConfigIcon";
 import ConfigMedia from "../ConfigMedia";
-import { PanoramaItem } from "../../../redux/slices/PanoramaSlice";
 import { getFilteredHotspotNavigationById } from "../../../redux/slices/Selectors";
 
 interface Task3Props {
@@ -88,7 +87,7 @@ const TaskUpdate3 = ({
                 setCurrentHotspotType(openTypeIndex);
               }}
               style={{
-                padding: '0.5rem 1rem'
+                padding: "0.5rem 1rem",
               }}
             >
               {isAssignable ? "Hủy" : "Chọn vị trí"}

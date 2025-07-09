@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/managerField.module.css";
@@ -24,6 +24,7 @@ import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 import axios from "axios";
 import { validateName } from "../../utils/ValidateInputName";
 import { format } from "date-fns";
+import Pagination from "../../components/Pagination";
 
 interface Field {
   id: number;
@@ -58,7 +59,16 @@ const Field = () => {
   const [selectedField, setSelectedField] = useState<Field | null>(null);
 
   const [searchData, setSearchData] = useState<Field[]>([]);
-  const [openModel, setOpenModel] = useState(false);
+
+  //Custom phân trang client-side.
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  let pageSize = 10; // Số lượng bản ghi trên 1 page.
+
+  const currentFieldListData = useMemo(() => {
+    const firstPageIndex = (currentPage - 1) * pageSize;
+    const lastPageIndex = firstPageIndex + pageSize;
+    return fields.slice(firstPageIndex, lastPageIndex);
+  }, [currentPage]);
 
   const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
@@ -239,7 +249,7 @@ const Field = () => {
         </div>
 
         <div className={styles.field_list}>
-          {fields.map((field) => {
+          {currentFieldListData.map((field) => {
             const listSpace = spaces.filter((s) => s.fieldId === field.id);
             return (
               <div
@@ -251,6 +261,16 @@ const Field = () => {
               </div>
             );
           })}
+        </div>
+
+        <div className={styles.field_pagination}>
+          <Pagination
+            onPageChange={(page) => setCurrentPage(page)}
+            totalCount={fields.length}
+            siblingCount={1}
+            currentPage={currentPage}
+            pageSize={pageSize}
+          />
         </div>
       </div>
 

@@ -83,7 +83,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
               <span>Tạo tour mới</span>
             </li>
           </Link>
-          <Link to={""}>t
+          <Link to={""}>
             <li className={`${styles.title} ${isNav == 4 ? styles.show : ""}`}>
               <span>Tạo tour tự động</span>
             </li>

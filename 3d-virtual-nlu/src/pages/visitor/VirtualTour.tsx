@@ -25,6 +25,12 @@ import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 import { RADIUS_SPHERE } from "../../utils/Constants.ts";
 import CommentBox from "../../components/visitor/CommentBox.tsx";
 import MapLeaflet from "../../components/visitor/MapLeaflet.tsx";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  buildImageUrlWithQuality,
+  ImageQuality,
+} from "../../utils/getCloudinaryURL.ts";
+import { vectorComponents } from "three/webgpu";
 import {
   FaAngleLeft,
   FaCompass,
@@ -40,6 +46,17 @@ import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
 import Swal from "sweetalert2";
 import useTrackTourView from "../../hooks/useTrackTourView.ts";
 
+export type ImageCacheEntry = {
+  img: HTMLImageElement;
+  objectUrl: string;
+  quality: ImageQuality;
+  lastUsed: number; //time to live
+};
+
+/**
+ * string: id của node hiện tại
+ */
+export type ImageCacheMap = Record<string, ImageCacheEntry>;
 /**
  * Nhằm mục đích tái sử dụng Virtual Tour.
  * => Nhận vào 1 texture url (Test)
@@ -49,10 +66,26 @@ import useTrackTourView from "../../hooks/useTrackTourView.ts";
  * 2. Hiển thị màn hình cho phép người dùng di chuyển tại giao diện.
  */
 const VirtualTour = () => {
+  const imageRef = useRef<ImageCacheMap>({});
+
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.data.status);
   const user = useSelector((state: RootState) => state.auth.user);
+  const reduxDefaultNode = useSelector(
+    (state: RootState) => state.data.defaultNode
+  );
+
+  const icons = useSelector((state: RootState) => state.data.icons);
+
+  // Fallback: lấy từ localStorage nếu Redux chưa có dữ liệu
+  const nodeToRender = useMemo(() => {
+    if (reduxDefaultNode) return reduxDefaultNode;
+    const stored = localStorage.getItem("defaultNode");
+    return stored ? JSON.parse(stored) : null;
+  }, [reduxDefaultNode]);
+
   const [isMobile, setIsMobile] = useState(false);
+  const [imageVersion, setImageVersion] = useState<number>(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -64,27 +97,16 @@ const VirtualTour = () => {
   }, []);
 
   useEffect(() => {
-    // dispatch(fetchMasterNodes());
     dispatch(fetchIcons());
     dispatch(fetchDefaultNodes());
   }, [dispatch]);
-  const reduxDefaultNode = useSelector(
-    (state: RootState) => state.data.defaultNode
-  );
-
-  const icons = useSelector((state: RootState) => state.data.icons);
-  // Fallback: lấy từ localStorage nếu Redux chưa có dữ liệu
-  const nodeToRender = useMemo(() => {
-    if (reduxDefaultNode) return reduxDefaultNode;
-    const stored = localStorage.getItem("defaultNode");
-    return stored ? JSON.parse(stored) : null;
-  }, [reduxDefaultNode]);
 
   useTrackTourView(nodeToRender.id);
 
   useEffect(() => {
     dispatch(fetchPreloadNodes(nodeToRender.id));
   }, [nodeToRender]);
+
   const hotspotModels = useMemo(() => {
     return (nodeToRender?.modelHotspots as HotspotModel[]) || [];
   }, [nodeToRender]);
@@ -115,7 +137,7 @@ const VirtualTour = () => {
 
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
     null
-  ); // Giữ lại đối tượng
+  );
 
   const [accessing, setAccessing] = useState(0);
 
@@ -144,19 +166,8 @@ const VirtualTour = () => {
    */
   const mapRef = useRef<L.Map | null>(null);
 
-  // useEffect(() => {
-  //   const timeout = setTimeout(() => {
-  //     setIsWaiting(false); // ẩn trang chờ
-  //   }, 5000);
-
-  //   return () => clearTimeout(timeout);
-  // }, []);
-
   const navigate = useNavigate();
   const sphereRef = useRef<THREE.Mesh | null>(null);
-  const [sphereCenter, setSphereCenter] = useState<[number, number, number]>([
-    0, 0, 0,
-  ]);
 
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
@@ -307,14 +318,6 @@ const VirtualTour = () => {
     });
   };
 
-  const handleMouseDown = () => {
-    setCursor((prev) => (prev !== "grabbing" ? "grabbing" : prev));
-  };
-
-  const handleMouseUp = () => {
-    setCursor((prev) => (prev !== "grab" ? "grab" : prev));
-  };
-
   const handleMouseEnterMenu = (event: any) => {
     const mouseX = event.clientX;
     const mouseY = event.clientY;
@@ -329,7 +332,7 @@ const VirtualTour = () => {
   const handleCloseMenu = (event: any) => {
     const mouse = event.clientX;
 
-    const threshold = 200; // width cua menu
+    const threshold = 200;
     if (mouse > threshold) {
       setIsMenuVisible(false);
     }
@@ -376,30 +379,6 @@ const VirtualTour = () => {
     }
   }, [fullMap, hoverMap]);
 
-  // const defaultNode = sessionStorage.getItem("defaultNode");
-  // let defaultNode = null;
-  // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
-
-  const [percent, setPercent] = useState(0);
-
-  useEffect(() => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 10;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        // Đợi render xong mới tắt loading
-        requestAnimationFrame(() => {
-          setTimeout(() => setIsWaiting(false), 500);
-        });
-      }
-      setPercent(Math.floor(progress));
-    }, 200);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const preloadNodes = useSelector(
     (state: RootState) => state.data.preloadNodes
   );
@@ -414,6 +393,142 @@ const VirtualTour = () => {
       dispatch(addHotspotsFromResponse(hotspotList));
     }
   }, [preloadNodes, nodeToRender, dispatch]);
+
+  /**
+   *
+   *
+   *  CACHE ẢNH PHÍA CLIENT
+   *
+   */
+
+  useEffect(() => {
+    if (!nodeToRender) return;
+    const { id, url } = nodeToRender;
+
+    const existing = imageRef.current[id];
+    if (existing && existing.quality === "8K") return; //Nếu tồn tại rồi & 8K => Tức là đã từng hiển thị thì không tải nữa.
+
+    const loadHighRes = async () => {
+      try {
+        const highResURL = buildImageUrlWithQuality(url, "8K");
+        const response = await fetch(highResURL, { mode: "cors" });
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = objectUrl;
+
+        img.onload = () => {
+          imageRef.current[id] = {
+            img,
+            objectUrl,
+            quality: "8K",
+            lastUsed: Date.now(),
+          };
+
+          if (nodeToRender.id === id) {
+            setTimeout(() => {
+              setImageVersion((v) => v + 1);
+              console.log("Giá trị imageVersion: VirtualTour", imageVersion);
+            }, 3000); // Delay 100ms
+          }
+        };
+      } catch (err) {
+        console.warn("Không load được ảnh 360 cho nodeToRender", id, err);
+      }
+    };
+
+    loadHighRes();
+  }, [nodeToRender]);
+
+  const [percent, setPercent] = useState(0);
+  const [isLoadingDone, setIsLoadingDone] = useState(false);
+
+  useEffect(() => {
+    if(!preloadNodes || !nodeToRender || !hotspotModels || !hotspotMedias || !hotspotNavigations || !hotspotInformations) {
+      setIsLoadingDone(false);
+      return;
+    }else{
+      setIsLoadingDone(true);
+    }
+  }, [preloadNodes, nodeToRender, hotspotModels, hotspotMedias, hotspotNavigations, hotspotInformations, imageRef]);
+
+  useEffect(() => {
+  let progress = 0;
+
+  const interval = setInterval(() => {
+    if (!isLoadingDone) {
+      // Loading giả lập, chỉ cho đến 90%
+      if (progress < 90) {
+        progress += Math.random() * 5; // tăng chậm lại để mượt
+        if (progress > 90) progress = 90;
+        setPercent(Math.floor(progress));
+      }
+    } else {
+      // Task thật xong, tăng nốt phần còn lại đến 100%
+      if (progress < 100) {
+        progress += Math.random() * 10;
+        if (progress > 100) progress = 100;
+        setPercent(Math.floor(progress));
+      }
+
+      // Nếu đã 100% thì clear interval
+      if (progress >= 100) {
+        clearInterval(interval);
+        requestAnimationFrame(() => {
+          setTimeout(() => setIsWaiting(false), 500);
+        });
+      }
+    }
+  }, 200);
+
+  return () => clearInterval(interval);
+}, [isLoadingDone]);
+
+
+  useEffect(() => {
+    if (!preloadNodes || preloadNodes.length === 0) return;
+
+    let loaded = 0;
+    const total = preloadNodes.length;
+
+    preloadNodes.forEach(async (node) => {
+      const existing = imageRef.current[node.id];
+
+      if (existing) return; //Có rồi thì không tải nữa.
+
+      try {
+        const lowResURL = buildImageUrlWithQuality(node.url, "2K");
+
+        const response = await fetch(lowResURL, { mode: "cors" });
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = objectUrl;
+
+        img.onload = () => {
+          loaded++;
+          imageRef.current[node.id] = {
+            img,
+            objectUrl,
+            quality: "2K",
+            lastUsed: Date.now(),
+          };
+
+          // setPercent(Math.floor((loaded / total) * 100));
+          // if (loaded === total) {
+          //   // imageRef.current = imgCache;
+          //   setIsWaiting(false);
+          // }
+        };
+      } catch (err) {
+        console.warn("Lỗi không thể tải reload:", node.url, err);
+      }
+    });
+  }, [preloadNodes]);
 
   if (!icons || icons.length === 0) {
     return (
@@ -460,19 +575,30 @@ const VirtualTour = () => {
         setTargetPosition={setTargetPosition}
         isOpenRadar={isOpenRadar}
         setIsOpenRadar={setIsOpenRadar}
+        imageRef={imageRef}
+        imageVersion={imageVersion}
       />
-      {/* Header chứa logo + close */}
       <div className={styles.headerTour}>
         <h2>NLU360</h2>
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
-      {/* Menu bên trái */}
       {fullMap || hoverMap ? (
         ""
       ) : (
-        <LeftMenuTour isMenuVisible={isMenuVisible} />
+        <LeftMenuTour isMenuVisible={isMenuVisible} imageRef={imageRef} />
       )}
-      {/* Nút mở radar */}
+      <AnimatePresence>
+        <motion.div
+          initial={{ y: 800, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 800, opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className={`${styles.update_hotspot_container} `}
+        ></motion.div>
+      </AnimatePresence>
+      {isMenuVisible && (
+        <LeftMenuTour isMenuVisible={isMenuVisible} imageRef={imageRef} />
+      )}
       {!isOpenRadar && (
         <button
           className={styles.open_radar_button}
@@ -524,7 +650,6 @@ const VirtualTour = () => {
         {nodeToRender.description ??
           "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
       </div>
-      {/* Hộp Bình luận */}
       {isComment && user ? (
         <CommentBox
           userId={user.id}

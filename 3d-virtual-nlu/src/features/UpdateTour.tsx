@@ -72,9 +72,6 @@ const Scene = ({ cameraPosition }: SceneProps) => {
 };
 
 const UpdateNode: React.FC = () => {
-  const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
-  const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
-
   const dispatch = useDispatch<AppDispatch>(); // hotspot
   const sphereRef = useRef<THREE.Mesh | null>(null);
 
@@ -109,12 +106,12 @@ const UpdateNode: React.FC = () => {
           aspect: window.innerWidth / window.innerHeight,
         }}
       >
-        <Node
+        {/* <Node
           url={tourData.url ?? "/khoa.jpg"}
           radius={radius}
           sphereRef={sphereRef}
           lightIntensity={tourData.lightIntensity}
-        />
+        /> */}
         <Scene
           cameraPosition={[
             tourData.positionX,
@@ -122,9 +119,7 @@ const UpdateNode: React.FC = () => {
             tourData.positionZ,
           ]}
         />
-        <OrbitControls
-          rotateSpeed={0.5}
-        />
+        <OrbitControls rotateSpeed={0.5} />
       </Canvas>
       <div className={styles.header_tour}>
         <div className={styles.step_title}>

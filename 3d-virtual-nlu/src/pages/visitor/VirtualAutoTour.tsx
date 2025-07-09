@@ -180,39 +180,10 @@ const VirtualAutoTour: React.FC = () => {
     if (!cameraRef.current || !controlsRef.current) return;
 
     const camera = cameraRef.current;
-    const control = controlsRef.current;
-    const originalFov = camera.fov;
-    const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
 
     const [x, y, z] = hotspotTargetPosition;
 
-    // lookAtHotspot([x, y, z]);
-    // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);
-
-    gsap.to(camera, {
-      fov: zoomTarget,
-      duration: 1.0,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        camera.updateProjectionMatrix();
-      },
-      onComplete: () => {
-        gsap.to(camera, {
-          fov: originalFov,
-          duration: 0.2,
-          delay: 0.1,
-          ease: "power2.inOut",
-          onUpdate: () => {
-            camera.updateProjectionMatrix();
-          },
-          onComplete: () => {
-            camera.updateProjectionMatrix();
-            control.update(); // đảm bảo OrbitControls cập nhật
-          },
-        });
-      },
-    });
   };
 
   const handleClose = () => {

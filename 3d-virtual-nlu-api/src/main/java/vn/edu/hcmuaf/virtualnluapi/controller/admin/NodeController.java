@@ -11,6 +11,7 @@ import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.AutoTourResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeImageResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
 import vn.edu.hcmuaf.virtualnluapi.service.NodeService;
 
@@ -161,7 +162,6 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> updateLinkNode(List<NodeLinkRequest> reqs) {
-//         boolean result = nodeService.updateLinkNodeById(reqs);
         boolean result = true;
         for(NodeLinkRequest req : reqs) {
             try {
@@ -204,4 +204,21 @@ public class NodeController {
             }
         }
     }
+
+    /**
+     * Tải ảnh và nạp vào ram:
+     * 1. Tải ảnh của node default.
+     * 2. Tải ảnh các node preload liên quan.
+     *
+     *
+     */
+//    @POST
+//    @Path("/getPreloadNodeImg")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    public ApiResponse<List<NodeImageResponse>> getPreloadImgs(NodeIdRequest request) {
+//        List<NodeImageResponse> result = nodeService.getPreloadNodeImgs(request.getNodeId());
+//        return ApiResponse.<List<NodeImageResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
+//    }
+
 }

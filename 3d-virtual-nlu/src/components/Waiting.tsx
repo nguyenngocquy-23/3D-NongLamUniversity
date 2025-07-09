@@ -29,7 +29,6 @@ const Waiting = ({ percent }: { percent: number }) => {
             <div className={styles.percent_label}>{percent}%</div>
           </div>
         </div>
-        {/* <div className={styles.percent}>{percent}%</div> */}
       </div>
     </div>
   );

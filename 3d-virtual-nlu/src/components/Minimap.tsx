@@ -29,20 +29,27 @@ import {
 import { clearHotspotNavigation } from "../redux/slices/HotspotSlice";
 import { FaSave } from "react-icons/fa";
 import ImageSelect from "./SelectPanorama";
+import { AnimatePresence, motion } from "framer-motion";
+import { TbTournament } from "react-icons/tb";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
   angleCurrent: number;
+  currentTour?: string;
 };
-const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
+const MiniMap: React.FC<MiniMapProps> = ({
+  currentPanorama,
+  angleCurrent,
+  currentTour,
+}) => {
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
   };
-  
+
   const dispatch = useDispatch();
-  
+
   const { panoramaList } = useSelector((state: RootState) => state.panoramas);
-  
+
   // console.log("MiniMap currentPanorama:", panoramaList);
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
@@ -64,7 +71,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
   const { startSvg, endSvg } = getArcAnglesThree(
     DEFAULT_ANGLE_THREE,
     DEFAULT_ANGLE_RADAR,
-    angleCurrent, 
+    angleCurrent,
     100
   );
 
@@ -252,7 +259,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
         }}
       >
         {!isExpanded && (
-          <div className={styles.minimap_header}>
+          <motion.div layoutId="minimap" className={styles.minimap_header}>
             <MdZoomOutMap onClick={handleZoomMap} />
             <RiEdit2Line />
             {panoramaList.map((item) => (
@@ -273,18 +280,43 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                       <TiTick className={styles.node_tick} />
                     </div>
                   )}
-
-                  {item.config.status === 2 && (
-                    <div className={styles.master_node_icon_container}>
-                      <GiQueenCrown className={styles.master_node_icon} />
-                    </div>
+                  {item.config.status === 2 ? (
+                    currentTour ? (
+                      item.id !== currentTour ? (
+                        <div className={styles.master_node_icon_container}>
+                          <TbTournament className={styles.master_node_icon} />
+                        </div>
+                      ) : (
+                        <div className={styles.master_node_icon_container}>
+                          <GiQueenCrown className={styles.master_node_icon} />
+                        </div>
+                      )
+                    ) : (
+                      <div className={styles.master_node_icon_container}>
+                        <GiQueenCrown className={styles.master_node_icon} />
+                      </div>
+                    )
+                  ) : (
+                    ""
                   )}
 
+                  {/* {currentTour
+                    ? item.config.status === 2 &&
+                      item.id !== currentTour && (
+                        <div className={styles.master_node_icon_container}>
+                          <GiQueenCrown className={styles.master_node_icon} />
+                        </div>
+                      )
+                    : item.config.status === 2 && (
+                        <div className={styles.master_node_icon_container}>
+                          <GiQueenCrown className={styles.master_node_icon} />
+                        </div>
+                      )} */}
                   <span className={styles.node_name}>{item.config.name}</span>
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         <div className={styles.minimap_preview_zoom}>
@@ -308,7 +340,6 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
             />
 
             {hotspotFromMaster.map((item) => {
-              // console.log("Radar item:", item);
               const { x, y } = scalePosition(item.positionX, item.positionZ);
               return (
                 <img

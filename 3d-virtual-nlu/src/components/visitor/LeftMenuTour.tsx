@@ -2,18 +2,21 @@ import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/leftMenuTour.module.css";
 import { FaSearch } from "react-icons/fa";
 import { AppDispatch, RootState } from "../../redux/Store";
+import { RefObject, useEffect, useRef, useState } from "react";
 import {
   fetchMasterNodes,
   resetNodes,
   setDefaultNode,
 } from "../../redux/slices/DataSlice";
-import { useEffect, useRef, useState } from "react";
 
 interface LeftMenuProps {
   isMenuVisible: boolean;
+  imageRef: React.RefObject<
+    Record<string, { img: HTMLImageElement; objectUrl: string }>
+  >;
 }
 
-const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
+const LeftMenuTour = ({ isMenuVisible, imageRef }: LeftMenuProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const listMasterNode = useSelector(
     (state: RootState) => state.data.masterNodes
@@ -27,6 +30,7 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
   const [page, setPage] = useState(-1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+
   const limit = 6;
 
   const scrollRef = useRef<HTMLUListElement>(null);
@@ -46,7 +50,7 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
     if (isMenuVisible) {
       dispatch(resetNodes());
       setPage(0);
-    }else{
+    } else {
       setPage(-1);
     }
   }, [isMenuVisible]);
@@ -84,7 +88,7 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
   };
 
   return (
-    <div className={`${styles.left_menu} ${isMenuVisible ? styles.show : ""}`}>
+    <div className={`${styles.left_menu}`}>
       <div className={styles.header}>
         <h2>NLU Tour</h2>
         <div className={styles.search_box}>
@@ -103,20 +107,28 @@ const LeftMenuTour = ({ isMenuVisible }: LeftMenuProps) => {
         style={{ height: "80vh", overflowY: "auto" }}
         className={styles.master_container}
       >
-        {filteredNodes.map((node) => (
-          <li
-            key={node.id}
-            className={styles.node}
-            style={{
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${node.url})`,
-            }}
-            onClick={() => handleSelectNode(node.id)}
-          >
-            <span className={styles.nodeName}>{node.name}</span>
-          </li>
-        ))}
+        {filteredNodes.map((node) => {
+          const cachedImage = imageRef.current[node.url];
+
+          if (!cachedImage) {
+            return null;
+          }
+          const objectUrl = cachedImage.objectUrl;
+
+          return (
+            <li
+              key={node.id}
+              className={styles.node}
+              style={{
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${objectUrl})`,
+              }}
+              onClick={() => handleSelectNode(node.id)}
+            >
+              <span className={styles.nodeName}>{node.name}</span>
+            </li>
+          );
+        })}
         {loading && <li className={styles.loading}>Đang tải...</li>}
-        {/* {!hasMore && <li className={styles.end}>Đã hết dữ liệu</li>} */}
       </ul>
     </div>
   );

@@ -1,6 +1,6 @@
 import { Html } from "@react-three/drei";
 import styles from "../../styles/minimap.module.css";
-import React, { useEffect, useState } from "react";
+import React, { RefObject, useEffect, useState } from "react";
 import {
   DEFAULT_ANGLE_THREE,
   DEFAULT_ANGLE_RADAR,
@@ -16,6 +16,9 @@ type RadarProps = {
   panoramaList: any[];
   navigateList: any[];
   setIsOpenRadar: (val: boolean) => void;
+  imageRef: React.RefObject<
+    Record<string, { img: HTMLImageElement; objectUrl: string }>
+  >;
 };
 const Radar: React.FC<RadarProps> = ({
   currentPanorama,
@@ -23,6 +26,7 @@ const Radar: React.FC<RadarProps> = ({
   panoramaList,
   navigateList,
   setIsOpenRadar,
+  imageRef,
 }) => {
   const masterPanorama = panoramaList.find((h) => h.status === 2);
 
@@ -132,18 +136,25 @@ const Radar: React.FC<RadarProps> = ({
         >
           <div className={styles.minimap_preview_zoom}>
             <div className={styles.minimap_content}>
-              <img
-                src={masterPanorama?.url}
-                alt="panorama_master"
-                className={styles.master_node}
-              />
+              {masterPanorama?.url &&
+                imageRef.current[masterPanorama.url]?.objectUrl && (
+                  <img
+                    src={imageRef.current[masterPanorama.url].objectUrl}
+                    alt="panorama_master"
+                    className={styles.master_node}
+                  />
+                )}
 
               {navigateList.map((item) => {
+                const targetUrl = panoramaTargetUrl(item.targetNodeId);
+                const cached = imageRef.current[targetUrl];
+                if (!cached) return null;
+
                 const { x, y } = scalePosition(item.positionX, item.positionZ);
                 return (
                   <img
                     key={item.id}
-                    src={panoramaTargetUrl(item.targetNodeId)}
+                    src={cached.objectUrl}
                     alt="node"
                     className={styles.slave_node}
                     style={{

@@ -18,9 +18,12 @@ export interface PanoramaConfig {
   positionY: number;
   positionZ: number;
   yawOffset: number;
-  autoRotate: number;
-  speedRotate: number;
   lightIntensity: number;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  grayscale: number;
+  exposure: number;
   status: number;
 }
 
@@ -82,6 +85,11 @@ const panoramaSlice = createSlice({
           autoRotate: 0,
           speedRotate: 0,
           lightIntensity: 1,
+          brightness: 0,
+          contrast: 1,
+          saturation: 1,
+          grayscale: 0,
+          exposure: 1,
           status: index === 0 ? (user.roleId == 2 ? 2 : 3) : 1,
         },
       }));
@@ -119,8 +127,11 @@ const panoramaSlice = createSlice({
             positionY: 0,
             positionZ: DEFAULT_ORIGINAL_Z,
             yawOffset: 0,
-            autoRotate: 0,
-            speedRotate: 0,
+            brightness: 0,
+            contrast: 1,
+            saturation: 1,
+            grayscale: 0,
+            exposure: 1,
             lightIntensity: 1,
             status: 1,
           },

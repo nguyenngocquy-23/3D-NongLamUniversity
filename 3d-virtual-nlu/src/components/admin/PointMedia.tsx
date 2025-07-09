@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useDispatch } from "react-redux";
-import { updateCornerHotspotMedia } from "../../redux/slices/HotspotSlice";
 
 type PointMediaProps = {
   hotspotId: string;
