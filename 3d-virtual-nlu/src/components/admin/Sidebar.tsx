@@ -22,9 +22,14 @@ import { logoutUser } from "../../redux/slices/AuthSlice";
 type SideBarProps = {
   isOpenSidebar: boolean;
   currentUser: any;
+  setTitle: (title: string) => void;
 };
 
-const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
+const Sidebar: React.FC<SideBarProps> = ({
+  isOpenSidebar,
+  currentUser,
+  setTitle,
+}) => {
   const [isOpen, setIsOpen] = useState(true);
   const toggleSideBar = () => {
     setIsOpen((prev) => !prev);
@@ -71,12 +76,11 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
           marginTop: isOpen ? undefined : "30px",
         }}
       >
-        <Link to="/admin">
+        <Link to="/admin" onClick={() => setTitle("Tổng quan")}>
           <li
             className={`
             ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
             ${location.pathname === "/admin" ? styles.click : ""}
-            
             `}
           >
             <MdDashboard />
@@ -84,7 +88,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
           </li>
         </Link>
 
-        <Link to="/admin/icons">
+        <Link to="/admin/icons" onClick={() => setTitle("Biểu tượng")}>
           <li
             className={`
               ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
@@ -124,7 +128,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
           ${showSubMenu && styles.active_nav_item_ul}
           `}
           >
-            <Link to="/admin/fields">
+            <Link to="/admin/fields" onClick={() => setTitle("Lĩnh vực")}>
               <li
                 className={
                   location.pathname.includes("/admin/fields")
@@ -135,7 +139,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
                 <span>Lĩnh vực</span>
               </li>
             </Link>
-            <Link to="/admin/spaces">
+            <Link to="/admin/spaces" onClick={() => setTitle("Không gian")}>
               <li
                 className={
                   location.pathname.includes("/admin/spaces")
@@ -146,10 +150,13 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
                 <span>Không gian</span>
               </li>
             </Link>
-            <Link to="/admin/tours">
+            <Link to="/admin/tours" onClick={() => setTitle("Quản lý tour")}>
               <li
                 className={
-                  location.pathname.includes("/admin/tours") ? styles.click : ""
+                  location.pathname.includes("ours") ||
+                  location.pathname.includes("Tour")
+                    ? styles.click
+                    : ""
                 }
               >
                 Tour
@@ -206,7 +213,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
           </ul>
         )} */}
 
-        <Link to="/admin/users">
+        <Link to="/admin/users" onClick={() => setTitle("Tài khoản")}>
           <li
             className={`
               ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
@@ -219,7 +226,7 @@ const Sidebar: React.FC<SideBarProps> = ({ isOpenSidebar, currentUser }) => {
           </li>
         </Link>
 
-        <Link to="/admin/attachMap">
+        <Link to="/admin/attachMap" onClick={() => setTitle("Gán nhãn bản đồ")}>
           <li
             className={`
               ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}

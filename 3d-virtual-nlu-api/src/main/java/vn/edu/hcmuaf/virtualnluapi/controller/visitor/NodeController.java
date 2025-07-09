@@ -5,10 +5,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
@@ -153,7 +150,25 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> remove(NodeIdRequest request) {
-        boolean result = nodeService.remoev(request);
+        boolean result = nodeService.remove(request);
         return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat trang thai thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/increaseView")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> increaseView(List<NodeViewRequest> request) {
+        boolean result = nodeService.increaseView(request);
+        return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat luot truy cap thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/getNumOfUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Integer> getNumOfUser(UserIdRequest request) {
+        int result = nodeService.getNumOfUser(request);
+        return ApiResponse.<Integer>builder().statusCode(1000).message("Cap nhat luot truy cap thanh cong").data(result).build();
     }
 }

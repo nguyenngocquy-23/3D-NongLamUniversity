@@ -200,13 +200,13 @@ const CreateTourStep2 = () => {
       .filter((h) => h.nodeId === currentSelectId)
       .some((h) =>
         h.hotspotPositions.some(
-          (positions) =>
-            positions[0] > minX &&
-            positions[0] < maxX &&
-            positions[1] > minY &&
-            positions[1] < maxY &&
-            positions[2] > minZ &&
-            positions[2] < maxZ
+          (hotspot) =>
+            hotspot.position[0] > minX &&
+            hotspot.position[0] < maxX &&
+            hotspot.position[1] > minY &&
+            hotspot.position[1] < maxY &&
+            hotspot.position[2] > minZ &&
+            hotspot.position[2] < maxZ
         )
       );
     if (isNear) {
@@ -319,7 +319,10 @@ const CreateTourStep2 = () => {
     dispatch(
       addHotspotPosition({
         nodeId: currentSelectId ? currentSelectId : "",
-        hotspotPosition: [point.x, point.y, point.z],
+        hotspotPosition: {
+          hotspotId: updatedProps.id,
+          position: [point.x, point.y, point.z],
+        },
       })
     );
 

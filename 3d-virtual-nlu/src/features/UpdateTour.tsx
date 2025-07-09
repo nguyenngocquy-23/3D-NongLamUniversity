@@ -9,6 +9,68 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../redux/Store.tsx";
 
+interface NodeProps {
+  url: string;
+  radius: number;
+  sphereRef: React.RefObject<THREE.Mesh | null>;
+  lightIntensity: number;
+}
+
+const Node: React.FC<NodeProps> = ({
+  url,
+  radius,
+  sphereRef,
+  lightIntensity,
+}) => {
+  const texture = useTexture(url);
+  // const texture = new THREE.TextureLoader().load(url);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.repeat.x = -1;
+
+  return (
+    <mesh
+      ref={(el) => {
+        if (el && sphereRef) {
+          sphereRef.current = el;
+          console.log("sphereRef được gán trong Node:", sphereRef.current);
+        }
+      }}
+    >
+      <ambientLight intensity={lightIntensity} color="#ffffff" />
+      <pointLight
+        position={[100, 100, 100]}
+        color="#ffcc00"
+        castShadow
+        intensity={lightIntensity}
+      />
+      <directionalLight
+        position={[5, 5, 5]}
+        intensity={lightIntensity}
+        color="#ffffff"
+        castShadow
+      />
+      <sphereGeometry args={[radius, 128, 128]} />
+      <meshStandardMaterial map={texture} side={THREE.BackSide} /> // sử dụng
+      standard để phản chiếu ánh sáng, basic thì không
+    </mesh>
+  );
+};
+
+interface SceneProps {
+  cameraPosition: [number, number, number];
+}
+
+const Scene = ({ cameraPosition }: SceneProps) => {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    camera.position.set(...cameraPosition);
+    camera.updateProjectionMatrix(); // Cập nhật lại camera
+  }, [cameraPosition]); // Chạy mỗi khi cameraPosition thay đổi
+
+  return null;
+};
+
 const UpdateNode: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>(); // hotspot
   const sphereRef = useRef<THREE.Mesh | null>(null);
@@ -57,11 +119,7 @@ const UpdateNode: React.FC = () => {
             tourData.positionZ,
           ]}
         />
-        <OrbitControls
-          rotateSpeed={0.5}
-          autoRotate={tourData.autoRotate}
-          autoRotateSpeed={tourData.speedRotate}
-        />
+        <OrbitControls rotateSpeed={0.5} />
       </Canvas>
       <div className={styles.header_tour}>
         <div className={styles.step_title}>

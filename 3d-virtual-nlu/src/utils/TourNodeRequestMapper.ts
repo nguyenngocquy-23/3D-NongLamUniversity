@@ -54,10 +54,10 @@ export interface NodeUpdateRequest {
   exposure: number;
   lightIntensity: number;
   status: number;
-  navHotspots: HotspotNavCreateRequest[];
-  infoHotspots: HotspotInfoCreateRequest[];
-  mediaHotspots: HotspotMediaCreateRequest[];
-  modelHotspots: HotspotModelCreateRequest[];
+  navHotspots: HotspotNavUpdateRequest[];
+  infoHotspots: HotspotInfoUpdateRequest[];
+  mediaHotspots: HotspotMediaUpdateRequest[];
+  modelHotspots: HotspotModelUpdateRequest[];
 }
 
 /**
@@ -151,6 +151,7 @@ export interface HotspotNavUpdateRequest {
   nodeId: string;
   type: number;
   iconId: number;
+  status: number;
   positionX: number;
   positionY: number;
   positionZ: number;
@@ -169,6 +170,7 @@ export interface HotspotInfoUpdateRequest {
   nodeId: string;
   type: number;
   iconId: number;
+  status: number;
   positionX: number;
   positionY: number;
   positionZ: number;
@@ -188,6 +190,7 @@ export interface HotspotMediaUpdateRequest {
   nodeId: string;
   type: number;
   iconId: number;
+  status: number;
   positionX: number;
   positionY: number;
   positionZ: number;
@@ -209,6 +212,7 @@ export interface HotspotModelUpdateRequest {
   nodeId: string;
   type: number;
   iconId: number;
+  status: number;
   positionX: number;
   positionY: number;
   positionZ: number;
@@ -256,6 +260,7 @@ export interface HotspotNavResponse {
   nodeId: string;
   type: number;
   iconId: number;
+  status: number;
   positionX: number;
   positionY: number;
   positionZ: number;
@@ -274,7 +279,8 @@ export interface HotspotInfoResponse {
   id: string;
   nodeId: string;
   type: number;
-  iconId: number;
+  iconId: number;  
+  status: number;
   positionX: number;
   positionY: number;
   positionZ: number;
@@ -294,6 +300,7 @@ export interface HotspotMediaResponse {
   nodeId: string;
   type: number;
   iconId: number;
+  status: number;
   positionX: number;
   positionY: number;
   positionZ: number;
@@ -314,7 +321,8 @@ export interface HotspotModelResponse {
   id: string;
   nodeId: string;
   type: number;
-  iconId: number;
+  iconId: number;  
+  status: number;
   positionX: number;
   positionY: number;
   positionZ: number;
@@ -478,6 +486,7 @@ export class TourNodeRequestMapper {
           nodeId: h.nodeId,
           type: h.type,
           iconId: h.iconId,
+          status: h.status,
           positionX: h.positionX,
           positionY: h.positionY,
           positionZ: h.positionZ,
@@ -499,6 +508,7 @@ export class TourNodeRequestMapper {
           nodeId: h.nodeId,
           type: h.type,
           iconId: h.iconId,
+          status: h.status,
           positionX: h.positionX,
           positionY: h.positionY,
           positionZ: h.positionZ,
@@ -520,6 +530,7 @@ export class TourNodeRequestMapper {
           id: h.id,
           nodeId: h.nodeId,
           iconId: h.iconId,
+          status: h.status,
           type: h.type,
           positionX: h.positionX,
           positionY: h.positionY,
@@ -545,6 +556,7 @@ export class TourNodeRequestMapper {
           nodeId: h.nodeId,
           type: h.type,
           iconId: h.iconId,
+          status: h.status,
           positionX: h.positionX,
           positionY: h.positionY,
           positionZ: h.positionZ,
@@ -656,6 +668,7 @@ export class TourNodeRequestMapper {
           nodeId: String(h.nodeId),
           type: h.type,
           iconId: h.iconId,
+          status: h.status,
           positionX: h.positionX,
           positionY: h.positionY,
           positionZ: h.positionZ,
@@ -677,6 +690,7 @@ export class TourNodeRequestMapper {
           nodeId: String(h.nodeId),
           type: h.type,
           iconId: h.iconId,
+          status: h.status,
           positionX: h.positionX,
           positionY: h.positionY,
           positionZ: h.positionZ,
@@ -700,6 +714,7 @@ export class TourNodeRequestMapper {
           nodeId: h.nodeId,
           type: h.type,
           iconId: h.iconId,
+          status: h.status,
           positionX: h.positionX,
           positionY: h.positionY,
           positionZ: h.positionZ,
@@ -725,6 +740,7 @@ export class TourNodeRequestMapper {
           nodeId: h.nodeId,
           type: h.type,
           iconId: h.iconId,
+          status: h.status,
           positionX: h.positionX,
           positionY: h.positionY,
           positionZ: h.positionZ,

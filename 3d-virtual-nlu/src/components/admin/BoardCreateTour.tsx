@@ -27,6 +27,7 @@ const BoardUploader = () => {
 
     if (!fieldId) {
       setListSpace([]); // Nếu chọn "-- Chọn lĩnh vực --", reset danh sách spaces
+      dispatch(setSpaceId("0"));
       return;
     }
 

@@ -264,7 +264,7 @@ const GroundHotspotModel = ({
                             modelUrl: hotspotModel.modelUrl,
                           },
                         })
-                      : navigate("/model", {
+                      : navigate(`/model/${hotspotModel.id}`, {
                           state: {
                             title: hotspotModel.name,
                             description: hotspotModel.description,

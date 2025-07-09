@@ -12,7 +12,6 @@ import * as THREE from "three";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { setDefaultNode } from "../../redux/slices/DataSlice";
-import gsap from "gsap";
 import { Environment } from "@react-three/drei";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 import Radar from "./Radar";
@@ -107,7 +106,6 @@ const TourCanvas = React.memo(
 
       const [x, y, z] = hotspotTargetPosition;
 
-      // lookAtHotspot([x, y, z]);
       // === Bước 2: Zoom vào
       handleSelectNode(Number(targetNodeId));
     };
@@ -139,6 +137,7 @@ const TourCanvas = React.memo(
           onTextureReady={() => setIsTextureReady(true)}
           imageVersion={imageVersion}
         />
+        <Perf />
         {isOpenRadar && defaultNode && (
           <Radar
             currentPanorama={defaultNode}

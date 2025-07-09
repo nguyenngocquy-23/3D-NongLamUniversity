@@ -14,6 +14,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import { FaArrowRotateLeft } from "react-icons/fa6";
 import { getAxisRange } from "../../utils/MathUtils";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
+import { nanoid } from "@reduxjs/toolkit";
 
 const ConfigIcon = ({
   propHotspot,
@@ -115,7 +116,7 @@ const ConfigIcon = ({
 
   const handleInitialHotspotProps = (): BaseHotspot => {
     return {
-      id: propHotspot?.id ?? "temp",
+      id: propHotspot?.id ?? nanoid(),
       nodeId: currentPanorama?.id ?? "",
       iconId:
         iconId !== 0 && propHotspot !== null
@@ -123,6 +124,7 @@ const ConfigIcon = ({
           : typeIcon === 1
           ? hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId
           : null,
+      status: 1,
       positionX: positionX,
       positionY: positionY,
       positionZ: positionZ,

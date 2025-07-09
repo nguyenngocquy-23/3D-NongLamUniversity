@@ -326,8 +326,6 @@ const UploadFile: React.FC<UploadFileProps> = ({
    * Tải panorama success vào RAM và dùng cho việc cache khi làm.
    */
 
-  const savePanoramaUrlToRAM = () => {};
-
   /**
    * Chuyển sang step mới:
    * 1. Đưa các panorama success vào redux.
@@ -341,7 +339,10 @@ const UploadFile: React.FC<UploadFileProps> = ({
         url: f.uploadedUrl!,
       }));
 
-    if (spaceId === "0" || spaceId == null) {
+    if (
+      spaceId === "0" ||
+      (spaceId == null && className !== "upload_auto_panos")
+    ) {
       Swal.fire({
         icon: "warning",
         title: "Chưa chọn không gian",
@@ -388,7 +389,10 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
     setLoading(false);
 
-    dispatch(setPanoramas(allSuccessful));
+    // dispatch(setPanoramas(allSuccessful));
+    if (className === "upload_panos") {
+      dispatch(setPanoramas(allSuccessful));
+    }
     dispatch(nextStep());
   };
   return (
@@ -491,7 +495,8 @@ const UploadFile: React.FC<UploadFileProps> = ({
               </div>
             ))}
           </div>
-          {className === "upload_panos" && (
+          {(className === "upload_panos" ||
+            className === "upload_auto_panos") && (
             <div className={styles.container_btn}>
               <span className={styles.upload_btn} onClick={handleUpload}>
                 {uploadStatus === "done" ? (

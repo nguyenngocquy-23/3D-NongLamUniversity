@@ -100,9 +100,7 @@ const VisitorTours = () => {
             </div>
           ))
         ) : (
-          <div style={{color:'black'}}>
-            Danh sách trống...
-          </div>
+          <div style={{ color: "black" }}>Danh sách trống...</div>
         )}
       </div>
     </div>

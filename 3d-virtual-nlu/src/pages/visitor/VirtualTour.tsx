@@ -25,16 +25,26 @@ import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 import { RADIUS_SPHERE } from "../../utils/Constants.ts";
 import CommentBox from "../../components/visitor/CommentBox.tsx";
 import MapLeaflet from "../../components/visitor/MapLeaflet.tsx";
-import { FaAngleLeft, FaMap, FaX } from "react-icons/fa6";
-import { MdOpenInFull } from "react-icons/md";
-import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
-import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   buildImageUrlWithQuality,
   ImageQuality,
 } from "../../utils/getCloudinaryURL.ts";
 import { vectorComponents } from "three/webgpu";
+import {
+  FaAngleLeft,
+  FaCompass,
+  FaMap,
+  FaPause,
+  FaPlay,
+  FaScreenpal,
+  FaX,
+} from "react-icons/fa6";
+import { MdOpenInFull } from "react-icons/md";
+import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
+import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
+import Swal from "sweetalert2";
+import useTrackTourView from "../../hooks/useTrackTourView.ts";
 
 export type ImageCacheEntry = {
   img: HTMLImageElement;
@@ -91,6 +101,8 @@ const VirtualTour = () => {
     dispatch(fetchDefaultNodes());
   }, [dispatch]);
 
+  useTrackTourView(nodeToRender.id);
+
   useEffect(() => {
     dispatch(fetchPreloadNodes(nodeToRender.id));
   }, [nodeToRender]);
@@ -111,9 +123,7 @@ const VirtualTour = () => {
     return (nodeToRender?.infoHotspots as HotspotInformation[]) || [];
   }, [nodeToRender]);
 
-  const [isRotation, setIsRotation] = useState(
-    nodeToRender.autoRotate || false
-  );
+  const [isRotation, setIsRotation] = useState(true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
 
@@ -213,7 +223,6 @@ const VirtualTour = () => {
     // const canvas = canvasRef.current;
     // if(!canvas) return;
     const containerCanvas = document.querySelector(`.${styles.tourContainer}`);
-    console.log(containerCanvas);
     if (!containerCanvas) return;
     if (!isFullscreen) {
       requestFullscreen(containerCanvas); // Chuyển canvas sang fullscreen
@@ -225,7 +234,7 @@ const VirtualTour = () => {
   };
 
   const toggleInformation = () => {
-    const divInfo = document.querySelector<HTMLElement>(`.${styles.infoBox}`);
+    const divInfo = document.querySelector<HTMLElement>(`.${styles.info_box}`);
     if (!divInfo) return;
 
     if (isOpenInfo) {
@@ -244,48 +253,69 @@ const VirtualTour = () => {
 
   // Hàm để đọc văn bản
   const readText = () => {
-    const textInfo = document.querySelector(`.${styles.infoBox}`)?.textContent;
-    console.log(textInfo);
+    const textInfo = document.querySelector(`.${styles.info_box}`)?.textContent;
 
-    // Kiểm tra xem API SpeechSynthesis có sẵn không
-    if ("speechSynthesis" in window) {
-      // Kiểm tra nếu textInfo có giá trị trước khi đọc
-      if (textInfo) {
-        // Nếu không có utterance hiện tại, tạo một đối tượng mới
-        if (!utterance) {
-          const newUtterance = new SpeechSynthesisUtterance(textInfo);
-          // Bạn có thể tùy chỉnh các thuộc tính của lời nói
-          newUtterance.lang = "vi-VN"; // Chọn ngôn ngữ (ở đây là tiếng Việt)
-          newUtterance.pitch = 1; // Điều chỉnh độ cao của giọng nói
-          newUtterance.rate = 1; // Điều chỉnh tốc độ đọc
-
-          // Kiểm tra trạng thái âm thanh
-          if (isMuted) {
-            newUtterance.volume = 0; // Tắt âm thanh
-          } else {
-            newUtterance.volume = 1; // Bật âm thanh
-          }
-
-          // Lưu đối tượng utterance vào state
-          setUtterance(newUtterance);
-
-          // Khởi tạo việc đọc văn bản
-          speechSynthesis.speak(newUtterance);
-        } else {
-          // Nếu âm thanh bị tắt, tạm dừng việc phát âm thanh
-          if (isMuted) {
-            speechSynthesis.pause();
-          } else {
-            // Nếu âm thanh bật, tiếp tục phát âm thanh từ điểm dừng
-            speechSynthesis.resume();
-          }
-        }
-      } else {
-        console.error("Không tìm thấy văn bản để đọc.");
-      }
-    } else {
-      console.error("Speech synthesis API is not supported in this browser.");
+    if (!textInfo) {
+      return;
     }
+
+    if (!("speechSynthesis" in window)) {
+      return;
+    }
+
+    const speak = (voiceList: any) => {
+      const newUtterance = new SpeechSynthesisUtterance(textInfo);
+      newUtterance.pitch = 1;
+      newUtterance.rate = 1;
+      newUtterance.lang = "vi-VN";
+
+      const vietnameseVoice =
+        voiceList.find(
+          (v: any) =>
+            v.lang === "vi-VN" && v.name.toLowerCase().includes("google")
+        ) || voiceList.find((v: any) => v.lang === "vi-VN");
+
+      if (vietnameseVoice) {
+        newUtterance.voice = vietnameseVoice;
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "⚠️ Không tìm thấy giọng tiếng Việt",
+          text: "Vui lòng cài đặt giọng tiếng Việt cho trình duyệt.",
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+      }
+
+      newUtterance.volume = isMuted ? 0 : 1;
+
+      setUtterance(newUtterance);
+      speechSynthesis.speak(newUtterance);
+    };
+
+    const waitForVoices = (
+      callback: (voices: SpeechSynthesisVoice[]) => void
+    ) => {
+      const voices = speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        callback(voices);
+      } else {
+        const interval = setInterval(() => {
+          const voicesNow = speechSynthesis.getVoices();
+          if (voicesNow.length > 0) {
+            clearInterval(interval);
+            callback(voicesNow);
+          }
+        }, 100);
+      }
+    };
+
+    waitForVoices((voices) => {
+      speak(voices);
+    });
   };
 
   const handleMouseEnterMenu = (event: any) => {
@@ -309,8 +339,30 @@ const VirtualTour = () => {
   };
 
   // Gọi hàm để đọc văn bản khi thay đổi trạng thái âm thanh
+  const hasMounted = useRef(false);
+
   useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return; // bỏ qua lần mount đầu tiên (Strict Mode sẽ gọi 2 lần)
+    }
+
     readText();
+  }, [nodeToRender]);
+
+  useEffect(() => {
+    if (utterance) {
+      speechSynthesis.cancel(); // Dừng tất cả
+      const newUtterance = new SpeechSynthesisUtterance(utterance.text);
+      newUtterance.voice = utterance.voice;
+      newUtterance.lang = utterance.lang;
+      newUtterance.pitch = utterance.pitch;
+      newUtterance.rate = utterance.rate;
+      newUtterance.volume = isMuted ? 0 : 1;
+
+      setUtterance(newUtterance);
+      speechSynthesis.speak(newUtterance);
+    }
   }, [isMuted]);
 
   useEffect(() => {
@@ -460,9 +512,9 @@ const VirtualTour = () => {
   if (!icons || icons.length === 0) {
     return (
       <>
-        <div className={styles.infoBox} style={{ display: "none" }}>
-          Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
-          Lâm Thành phố Hồ Chí Minh
+        <div className={styles.info_box} style={{ display: "none" }}>
+          {nodeToRender.description ??
+            "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
         </div>
       </>
     );
@@ -530,7 +582,9 @@ const VirtualTour = () => {
           className={`${styles.update_hotspot_container} `}
         ></motion.div>
       </AnimatePresence>
-      {isMenuVisible && <LeftMenuTour imageRef={imageRef} />}
+      {isMenuVisible && (
+        <LeftMenuTour isMenuVisible={isMenuVisible} imageRef={imageRef} />
+      )}
 
       {!isOpenRadar && (
         <button
@@ -546,7 +600,26 @@ const VirtualTour = () => {
       <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />
       {/* Footer chứa các tính năng */}
       {isMobile ? (
-        ""
+        <>
+          <button
+            className={styles.pause_button}
+            style={{ display: isRotation ? "block" : "none" }}
+            onClick={() => {
+              setIsRotation(false);
+            }}
+          >
+            <FaPause />
+          </button>
+          <button
+            className={styles.play_button}
+            style={{ display: isRotation ? "none" : "block" }}
+            onClick={() => {
+              setIsRotation(true);
+            }}
+          >
+            <FaPlay />
+          </button>
+        </>
       ) : (
         <FooterTour
           isRotation={isRotation}
@@ -560,9 +633,10 @@ const VirtualTour = () => {
           accessing={accessing}
         />
       )}
-      <div className={styles.infoBox} onClick={toggleInformation}>
-        Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
-        Lâm Thành phố Hồ Chí Minh
+      {/* Hộp thông tin */}
+      <div className={styles.info_box} onClick={toggleInformation}>
+        {nodeToRender.description ??
+          "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
       </div>
       {isComment && user ? (
         <CommentBox

@@ -1,7 +1,10 @@
 package vn.edu.hcmuaf.virtualnluapi.dao;
 
+import com.nimbusds.jose.shaded.gson.Gson;
+import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jdbi.v3.core.statement.PreparedBatch;
 import vn.edu.hcmuaf.virtualnluapi.connection.Connection;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
@@ -11,6 +14,7 @@ import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class NodeDao {
@@ -59,7 +63,7 @@ public class NodeDao {
         });
     }
 
-    public List<NodeFullResponse> getAllNodes() {
+    public List<NodeFullResponse> getAllNodes(PageRequest request) {
         String sql = """
                  SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
                  n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
@@ -68,9 +72,27 @@ public class NodeDao {
                  JOIN fields f ON s.fieldId = f.id
                  WHERE n.status IN (2,3)
                  ORDER BY n.updatedAt DESC
-                 LIMIT 10 OFFSET 0
+                 LIMIT :limit OFFSET :offset
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("limit", request.getLimit()).bind("offset", request.getPage() * request.getLimit()).mapToBean(NodeFullResponse.class).list());
+    }
+
+    public int countAllNodes() {
+        String sql = "SELECT COUNT(*) FROM nodes";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
+
+    public int countApprovingNodes() {
+        String sql = "SELECT COUNT(*) FROM nodes WHERE status = 3 or status = 4";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
     }
 
     public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
@@ -104,11 +126,10 @@ public class NodeDao {
         return result;
     }
 
-
     public NodeFullResponse getDefaultNode() {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.autoRotate, n.speedRotate, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -384,9 +405,10 @@ public class NodeDao {
                 WHERE id = :id
                 """;
 
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        int totalNodeUpdated = ConnectionPool.getConnection().inTransaction(handle -> {
+            int count = 0;
             for (NodeUpdateRequest req : reqs) {
-                int rowsUpdated = handle.createUpdate(sql)
+                count += handle.createUpdate(sql)
                         .bind("url", req.getUrl())
                         .bind("name", req.getName())
                         .bind("description", req.getDescription())
@@ -404,24 +426,145 @@ public class NodeDao {
                         .bind("updatedAt", LocalDateTime.now())
                         .bind("id", req.getId())
                         .execute();
-                int navUpdate = hotspotService.updateNavHotspots(req.getNavHotspots(), req.getId());
-                int infoUpdate = hotspotService.updateInfoHotspots(req.getInfoHotspots(), req.getId());
-                int mediaUpdate = hotspotService.updateMediaHotspots(req.getMediaHotspots(), req.getId());
-                int modelUpdate = hotspotService.updateModelHotspots(req.getModelHotspots(), req.getId());
-                if (rowsUpdated + navUpdate + infoUpdate + mediaUpdate + modelUpdate == 0) {
-                    return false; // Nếu có bất kỳ bản ghi nào không được cập nhật, trả về false
+            }
+            return count;
+        });
+
+        // Sau khi cập nhật nodes xong → cập nhật hotspots
+        for (NodeUpdateRequest req : reqs) {
+            int navUpdate = hotspotService.updateNavHotspots(req.getNavHotspots(), req.getId());
+            int infoUpdate = hotspotService.updateInfoHotspots(req.getInfoHotspots(), req.getId());
+            int mediaUpdate = hotspotService.updateMediaHotspots(req.getMediaHotspots(), req.getId());
+            int modelUpdate = hotspotService.updateModelHotspots(req.getModelHotspots(), req.getId());
+
+            int totalHotspotUpdated = navUpdate + infoUpdate + mediaUpdate + modelUpdate;
+
+            // Nếu node không được update và các hotspot không thay đổi → fail
+            if (totalNodeUpdated == 0 && totalHotspotUpdated == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public List<NodeFullResponse> search(String searchKey) {
+        String sql = """
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                 n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                 FROM nodes n
+                 JOIN spaces s ON n.spaceId = s.id
+                 JOIN fields f ON s.fieldId = f.id
+                 WHERE LOWER(n.name) LIKE :searchKey
+                 ORDER BY n.updatedAt DESC
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("searchKey", "%" + searchKey.toLowerCase() + "%").mapToBean(NodeFullResponse.class).list());
+    }
+
+    public boolean createAutoTour(AutoTourCreateRequest request) {
+        String sql = """
+                INSERT INTO auto_tours (userId, name, indexNode, status, createdAt, updatedAt)
+                VALUES (:userId, :name, :indexNode, :status, :createdAt, :updatedAt)
+                """;
+
+        try {
+            Boolean result = ConnectionPool.getConnection().inTransaction(handle -> {
+                int inserted = handle.createUpdate(sql)
+                        .bind("userId", request.getUserId())
+                        .bind("name", request.getName())
+                        .bind("indexNode", request.getIndexNode())
+                        .bind("status", 1)
+                        .bind("createdAt", LocalDateTime.now())
+                        .bind("updatedAt", LocalDateTime.now())
+                        .execute();
+                return inserted > 0;
+            });
+
+            return Boolean.TRUE.equals(result); // Tránh NullPointer
+        } catch (Exception e) {
+            e.printStackTrace(); // Log lỗi chi tiết nếu cần
+            return false;
+        }
+    }
+
+    public List<AutoTourResponse> getAutoTour(PageRequest request) {
+        String sql = """
+                SELECT at.id, at.name, at.indexNode, at.status, at.updatedAt
+                FROM auto_tours at
+                ORDER BY at.updatedAt DESC
+                LIMIT :limit OFFSET :offset
+                """;
+
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            List<AutoTourResponse> result = handle.createQuery(sql)
+                    .bind("limit", request.getLimit())
+                    .bind("offset", request.getPage() * request.getLimit())
+                    .mapToBean(AutoTourResponse.class)
+                    .list();
+
+            // Gọi service lấy URL theo nodeId đầu tiên trong indexNode
+            for (AutoTourResponse item : result) {
+                try {
+                    Gson gson = new Gson();
+                    List<Map<String, Object>> indexList = gson.fromJson(
+                            item.getIndexNode(),
+                            new TypeToken<List<Map<String, Object>>>() {
+                            }.getType()
+                    );
+
+                    if (!indexList.isEmpty()) {
+                        Number nodeIdNum = (Number) indexList.get(0).get("nodeId");
+                        int firstNodeId = nodeIdNum.intValue(); // Ép kiểu đúng
+
+                        String url = getNodeById(NodeIdRequest.builder().nodeId(firstNodeId).build()).getUrl();
+
+                        item.setThumbNail(url);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-            return true;
+
+            return result;
         });
     }
-    public List<NodeImageResponse> getAllNodeImgs() {
-        String sql = """
-                SELECT id, url FROM nodes WHERE status IN (1,2,3)
-                """;
-        return ConnectionPool.getConnection().withHandle(
-                handle -> handle.createQuery(sql).mapToBean(NodeImageResponse.class).list());
 
+    public boolean increaseView(List<NodeViewRequest> requests) {
+        String sql = """
+                    UPDATE nodes
+                    SET numView = numView + :numView
+                    WHERE id = :id
+                """;
+
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            PreparedBatch batch = handle.prepareBatch(sql);
+
+            for (NodeViewRequest req : requests) {
+                batch.bind("id", req.getNodeId())
+                        .bind("numView", req.getNumView())
+                        .add();
+            }
+
+            int[] results = batch.execute();
+            return results.length == requests.size(); // đảm bảo đủ lượt update
+        });
     }
 
+    public int getNumOfUser(UserIdRequest request) {
+        String sql = "SELECT SUM(numView) FROM nodes WHERE userId = :userId";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("userId", request.getUserId())
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
+
+    public int countAllView() {
+        String sql = "SELECT SUM(numView) FROM nodes";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
 }

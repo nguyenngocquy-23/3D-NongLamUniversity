@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction, nanoid } from "@reduxjs/toolkit";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
+import { useSelector } from "react-redux";
+import { RootState } from "../Store";
 
 export interface PanoramaConfig {
   /**
@@ -32,8 +34,16 @@ export interface PanoramaItem {
   config: PanoramaConfig;
 }
 
+export interface AutoPanoramaItem {
+  id: string;
+  url: string;
+  config: PanoramaConfig;
+  duration: number;
+}
+
 interface PanoramaState {
   panoramaList: PanoramaItem[] | any[];
+  autoPanoramaList: AutoPanoramaItem[] | any[];
   currentAngleMaster: number;
   currentSelectId: string | null;
   spaceId: string | null;
@@ -41,6 +51,7 @@ interface PanoramaState {
 
 const initialState: PanoramaState = {
   panoramaList: [],
+  autoPanoramaList: [],
   currentAngleMaster: 0,
   currentSelectId: null,
   spaceId: null,
@@ -84,6 +95,22 @@ const panoramaSlice = createSlice({
       }));
       state.panoramaList = panoramas;
       state.currentSelectId = panoramas[0]?.id || null;
+    },
+    
+    addAutoPanorama(state, action: PayloadAction<{  node: any; duration?: number }>) {
+      const existing = state.autoPanoramaList.find(p => p.originalNodeId === action.payload.node.id);
+      if (!existing) {
+        state.autoPanoramaList.push({
+          ...action.payload.node,
+          duration: action.payload.duration || 5,
+          originalNodeId: action.payload.node.id,
+        });
+      }
+      state.currentSelectId = state.autoPanoramaList[0]?.id || null;
+    },
+
+    removeAutoPanorama(state, action: PayloadAction<string>) {
+      state.autoPanoramaList = state.autoPanoramaList.filter(p => p.originalNodeId !== action.payload);
     },
 
     //Upload thêm panorama khi trong tour.
@@ -153,6 +180,18 @@ const panoramaSlice = createSlice({
         };
       }
     },
+    
+    updateAutoPanoConfig(
+      state,
+      action: PayloadAction<{ id: string; duration : number }>
+    ) {
+      const { id, duration } = action.payload;
+      const pano = state.autoPanoramaList.find((p) => p.id === id);
+      if (pano) {
+        pano.duration = duration;
+      }
+    },
+
     renameMasterAndUpdateSlaves(
       state,
       action: PayloadAction<{ id: string; newName: string }>
@@ -184,10 +223,10 @@ const panoramaSlice = createSlice({
     //   }
     // },
     clearPanorama(state) {
-      (state.panoramaList = []),
+        (state.panoramaList = []),
+        (state.autoPanoramaList = []),
         (state.currentAngleMaster = 0),
-        (state.currentSelectId = null),
-        (state.spaceId = null);
+        (state.currentSelectId = null);
     },
   },
 });
@@ -195,11 +234,14 @@ const panoramaSlice = createSlice({
 export const {
   setSpaceId,
   setPanoramas,
+  addAutoPanorama,
+  removeAutoPanorama,
   addPanorama,
   addPanoramasFromResponse,
   selectPanorama,
   setMasterPanorama,
   updatePanoConfig,
+  updateAutoPanoConfig,
   renameMasterAndUpdateSlaves,
   updateCurrentAngleMaster,
   clearPanorama,

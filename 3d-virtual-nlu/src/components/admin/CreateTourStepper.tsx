@@ -115,6 +115,7 @@ const CreateTourStepper: React.FC<CreateTourStepperProps> = ({
           </div>
         </>
       )}
+
       <div className={styles.stepContent}>
         <ActiveComponent />
         {isLoading ? <Waiting percent={percent} /> : ""}

@@ -14,6 +14,7 @@ public class HotspotInformationResponse {
     int nodeId;
     byte type;
     int iconId;
+    byte status;
     double positionX, positionY, positionZ;
     double pitchX, yawY, rollZ;
     float scale;

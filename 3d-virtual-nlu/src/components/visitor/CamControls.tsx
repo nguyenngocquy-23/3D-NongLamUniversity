@@ -159,8 +159,8 @@ const CamControls: React.FC<CamControlsProps> = ({
       enablePan={false}
       enableDamping={true}
       dampingFactor={0.3}
-      autoRotate={autoRotate}
-      autoRotateSpeed={autoRotateSpeed === null ? 0 : autoRotateSpeed}
+      autoRotate={autoRotate ?? false}
+      autoRotateSpeed={autoRotateSpeed ?? 0}
       rotateSpeed={-0.15}
     />
   );

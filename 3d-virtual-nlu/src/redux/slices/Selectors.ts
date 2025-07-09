@@ -65,7 +65,7 @@ export const getFilteredHotspotNavigationOfMaster = createSelector(
   [getFilteredHotspotNavigations, masterNode],
   (list, node) => {
     if (!node) return [];
-    return list.filter((h) => h.nodeId === node.id);
+    return list.filter((h) => h.nodeId == node.id);
   }
 );
 
@@ -74,7 +74,7 @@ export const getFilteredHotspotNavigationOfMaster = createSelector(
  */
 export const getFilteredHotspotNavigationById = (nodeId: string) =>
   createSelector([getFilteredHotspotNavigations], (list) =>
-    list.filter((h) => h.nodeId === nodeId || h.targetNodeId === nodeId)
+    list.filter((h) => h.nodeId == nodeId || h.targetNodeId == nodeId)
   );
 
 /**
@@ -103,9 +103,9 @@ export const getListTargetNodeFromUpdateHotspotNavigation = (
   return createSelector(
     [selectHotspotList, panoramaList],
     (hotspots, panoramas) => {
-      const hotspot = hotspots.find((h) => h.id === hotsotId);
+      const hotspot = hotspots.find((h) => h.id == hotsotId);
       if (!hotspot) return undefined;
-      const panorama = panoramas.find((p) => p.id === hotspot.nodeId);
+      const panorama = panoramas.find((p) => p.id == hotspot.nodeId);
       if (!panorama) return undefined;
       return getFilteredListPanoramaByStatus(panorama.config.status).resultFunc(
         panoramas

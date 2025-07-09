@@ -135,6 +135,7 @@ const Task3 = ({
          */
         <ConfigMedia
           setAssignable={setAssignable}
+          assignable={isAssignable}
           onPropsChange={handleCombinedPropsChange}
           currentHotspotType={openTypeIndex}
           setCurrentHotspotType={setCurrentHotspotType}

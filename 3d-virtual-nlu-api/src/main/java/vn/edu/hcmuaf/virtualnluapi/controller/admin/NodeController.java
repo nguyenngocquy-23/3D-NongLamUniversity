@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.AutoTourResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeImageResponse;
@@ -75,6 +76,19 @@ public class NodeController {
     }
 
     @POST
+    @Path("/createAutoTour")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> createAutoTour(AutoTourCreateRequest request) {
+        boolean result = nodeService.createAutoTour(request);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Tao node thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi tao node").data(result).build();
+        }
+    }
+
+    @POST
     @Path("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -105,6 +119,14 @@ public class NodeController {
         }
     }
 
+    @POST
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> updateNode(SearchRequest request) {
+        List<NodeFullResponse> result = nodeService.search(request.getSearchKey());
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Tim kiem thanh cong").data(result).build();
+    }
 
     @POST
     @Path("/masterNodeList")
@@ -116,17 +138,24 @@ public class NodeController {
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 
-
     @POST
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<NodeFullResponse>> getAllNodes() {
-        List<NodeFullResponse> result = nodeService.getAllNodes();
+    public ApiResponse<List<NodeFullResponse>> getAllNodes(PageRequest request) {
+        List<NodeFullResponse> result = nodeService.getAllNodes(request);
 
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 
+    @POST
+    @Path("/getAutoTour")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<AutoTourResponse>> getAutoTour(PageRequest request) {
+        List<AutoTourResponse> result = nodeService.getAutoTour(request);
+        return ApiResponse.<List<AutoTourResponse>>builder().statusCode(1000).message("Lay danh sach tour tu dong thanh cong").data(result).build();
+    }
 
     @POST
     @Path("/linkNode")
@@ -150,9 +179,7 @@ public class NodeController {
         } else {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Lỗi cập nhật").data(result).build();
         }
-
     }
-
 
     /**
      * Method dùng để thay thế realId trong Dabatabase cho:

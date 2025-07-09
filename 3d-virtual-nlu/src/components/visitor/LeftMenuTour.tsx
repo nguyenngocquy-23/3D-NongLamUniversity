@@ -2,17 +2,21 @@ import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/leftMenuTour.module.css";
 import { FaSearch } from "react-icons/fa";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { fetchMasterNodes, setDefaultNode } from "../../redux/slices/DataSlice";
 import { RefObject, useEffect, useRef, useState } from "react";
+import {
+  fetchMasterNodes,
+  resetNodes,
+  setDefaultNode,
+} from "../../redux/slices/DataSlice";
 
 interface LeftMenuProps {
-  // isMenuVisible: boolean;
+  isMenuVisible: boolean;
   imageRef: React.RefObject<
     Record<string, { img: HTMLImageElement; objectUrl: string }>
   >;
 }
 
-const LeftMenuTour = ({ imageRef }: LeftMenuProps) => {
+const LeftMenuTour = ({ isMenuVisible, imageRef }: LeftMenuProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const listMasterNode = useSelector(
     (state: RootState) => state.data.masterNodes
@@ -23,7 +27,7 @@ const LeftMenuTour = ({ imageRef }: LeftMenuProps) => {
     node.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(-1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -33,6 +37,7 @@ const LeftMenuTour = ({ imageRef }: LeftMenuProps) => {
   const scrollPositionRef = useRef<number>(0);
 
   const loadNodes = async () => {
+    console.log("Loading nodes for page:", page, loading, hasMore);
     if (loading || !hasMore) return;
 
     setLoading(true);
@@ -42,7 +47,19 @@ const LeftMenuTour = ({ imageRef }: LeftMenuProps) => {
   };
 
   useEffect(() => {
-    loadNodes();
+    if (isMenuVisible) {
+      dispatch(resetNodes());
+      setPage(0);
+    } else {
+      setPage(-1);
+    }
+  }, [isMenuVisible]);
+
+  useEffect(() => {
+    if (isMenuVisible) {
+      console.log("Fetching nodes for page:", page);
+      loadNodes();
+    }
   }, [page]);
 
   const handleScroll = () => {
