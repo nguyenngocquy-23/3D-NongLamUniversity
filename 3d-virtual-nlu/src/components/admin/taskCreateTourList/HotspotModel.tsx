@@ -6,6 +6,7 @@ import UploadFile from "../UploadFile";
 import styles from "../../../styles/tasklistCT/task3.module.css";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
+import ModelPreviewWithSnapshot from "./PreviewModelWithSnapshot";
 
 interface TypeModelProps {
   isOpenTypeModel?: boolean;
@@ -27,6 +28,7 @@ const TypeModel = ({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const dispatch = useDispatch();
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
 
   useEffect(() => {
     setModelUrl(hotspotModel.modelUrl);
@@ -39,6 +41,7 @@ const TypeModel = ({
       updateHotspotModel({
         hotspotId: hotspotModel.id,
         modelUrl,
+        thumbnailUrl,
         name,
         description,
       })
@@ -47,6 +50,9 @@ const TypeModel = ({
 
   const handleUploadedFile = (url: string) => {
     setModelUrl(url);
+  };
+  const handleThumbnailSaved = (url: string) => {
+    setThumbnailUrl(url);
   };
 
   return (
@@ -79,6 +85,12 @@ const TypeModel = ({
             onUploaded={handleUploadedFile}
           />
         </div>
+        {modelUrl && (
+          <ModelPreviewWithSnapshot
+            modelUrl={modelUrl}
+            onThumbnailSaved={handleThumbnailSaved}
+          />
+        )}
         <div style={{ display: "flex" }}>
           <label className={styles.label}>Tên mô hình:</label>
           <input

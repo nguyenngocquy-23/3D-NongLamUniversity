@@ -72,7 +72,7 @@ public class HotspotDao {
      */
     public boolean insertHotspotModel(List<HotspotModelCreateRequest> req, String nodeId) {
         String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, status, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity, createdAt, updatedAt) " + "VALUES(:nodeId, :type, :iconId, :status, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity, :createdAt, :updatedAt)";
-        String sqlInsertNavigation = "INSERT INTO hotspot_models(hotspotId, modelUrl, name, description) " + "VALUES(:hotspotId, :modelUrl, :name, :description)";
+        String sqlInsertNavigation = "INSERT INTO hotspot_models(hotspotId, modelUrl, thumbnailUrl, name, description, numDownload) " + "VALUES(:hotspotId, :modelUrl, :name, :description, 0)";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
 
@@ -89,7 +89,7 @@ public class HotspotDao {
 
             PreparedBatch navigationBatch = handle.prepareBatch(sqlInsertNavigation);
             for (int i = 0; i < generateIds.size(); i++) {
-                navigationBatch.bind("hotspotId", generateIds.get(i)).bind("modelUrl", req.get(i).getModelUrl()).bind("name", req.get(i).getName()).bind("description", req.get(i).getDescription()).add();
+                navigationBatch.bind("hotspotId", generateIds.get(i)).bind("modelUrl", req.get(i).getModelUrl()).bind("thumbnailUrl", req.get(i).getThumbnailUrl()).bind("name", req.get(i).getName()).bind("description", req.get(i).getDescription()).add();
             }
             navigationBatch.execute();
             return true;
@@ -146,7 +146,7 @@ public class HotspotDao {
 
 
     public List<HotspotModelResponse> getModelByNodeId(int nodeId) {
-        String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity, m.modelUrl, m.name, m.description " + "FROM hotspots AS h JOIN hotspot_models " + "AS m ON h.id = m.hotspotId WHERE h.nodeId = :nodeId and h.status = 1";
+        String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity, m.modelUrl, m.thumbnailUrl, m.name, m.description, m.numDownload " + "FROM hotspots AS h JOIN hotspot_models " + "AS m ON h.id = m.hotspotId WHERE h.nodeId = :nodeId and h.status = 1";
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotModelResponse.class).list();
         });
@@ -256,7 +256,7 @@ public class HotspotDao {
 
     public int updateModelHotspots(List<HotspotModelUpdateRequest> modelHotspots, int nodeId) {
         String sqlUpdateHotspot = "UPDATE hotspots SET " + "type = :type, iconId = :iconId, status = :status, positionX = :posX, positionY = :posY, positionZ = :posZ, " + "pitchX = :pitchX, yawY = :yawY, rollZ = :rollZ, scale = :scale, " + "color = :color, backgroundColor = :backgroundColor, " + "allowBackgroundColor = :allowBackgroundColor, opacity = :opacity " + "WHERE id = :id";
-        String sqlUpdateModel = "UPDATE hotspot_models SET modelUrl = :modelUrl, name = :name, description = :description WHERE hotspotId = :hotspotId";
+        String sqlUpdateModel = "UPDATE hotspot_models SET modelUrl = :modelUrl, thumbnailUrl := thumbnailUrl, name = :name, description = :description WHERE hotspotId = :hotspotId";
         List<HotspotModelCreateRequest> modelCreateRequests = new ArrayList<>();
         return ConnectionPool.getConnection().inTransaction(handle -> {
             PreparedBatch updateBaseBatch = handle.prepareBatch(sqlUpdateHotspot);
@@ -268,10 +268,10 @@ public class HotspotDao {
                     Integer.parseInt(modelReq.getId());
                     updateBaseBatch.bind("id", modelReq.getId()).bind("type", modelReq.getType()).bind("iconId", modelReq.getIconId()).bind("status", modelReq.getStatus()).bind("posX", modelReq.getPositionX()).bind("posY", modelReq.getPositionY()).bind("posZ", modelReq.getPositionZ()).bind("pitchX", modelReq.getPitchX()).bind("yawY", modelReq.getYawY()).bind("rollZ", modelReq.getRollZ()).bind("scale", modelReq.getScale()).bind("color", modelReq.getColor()).bind("backgroundColor", modelReq.getBackgroundColor()).bind("allowBackgroundColor", modelReq.getAllowBackgroundColor()).bind("opacity", modelReq.getOpacity()).add();
 
-                    updateModelBatch.bind("hotspotId", modelReq.getId()).bind("modelUrl", modelReq.getModelUrl()).bind("name", modelReq.getName()).bind("description", modelReq.getDescription()).add();
+                    updateModelBatch.bind("hotspotId", modelReq.getId()).bind("modelUrl", modelReq.getModelUrl()).bind("thumbnailUrl", modelReq.getThumbnailUrl()).bind("name", modelReq.getName()).bind("description", modelReq.getDescription()).add();
 
                 } catch (Exception e) {
-                    modelCreateRequests.add(HotspotModelCreateRequest.builder().nodeId(modelReq.getNodeId()).type(modelReq.getType()).iconId(modelReq.getIconId()).positionX(modelReq.getPositionX()).positionY(modelReq.getPositionY()).positionZ(modelReq.getPositionZ()).pitchX(modelReq.getPitchX()).yawY(modelReq.getYawY()).rollZ(modelReq.getRollZ()).scale(modelReq.getScale()).color(modelReq.getColor()).backgroundColor(modelReq.getBackgroundColor()).allowBackgroundColor(modelReq.getAllowBackgroundColor()).opacity(modelReq.getOpacity()).modelUrl(modelReq.getModelUrl()).name(modelReq.getName()).description(modelReq.getDescription()).build());
+                    modelCreateRequests.add(HotspotModelCreateRequest.builder().nodeId(modelReq.getNodeId()).type(modelReq.getType()).iconId(modelReq.getIconId()).positionX(modelReq.getPositionX()).positionY(modelReq.getPositionY()).positionZ(modelReq.getPositionZ()).pitchX(modelReq.getPitchX()).yawY(modelReq.getYawY()).rollZ(modelReq.getRollZ()).scale(modelReq.getScale()).color(modelReq.getColor()).backgroundColor(modelReq.getBackgroundColor()).allowBackgroundColor(modelReq.getAllowBackgroundColor()).opacity(modelReq.getOpacity()).modelUrl(modelReq.getModelUrl()).thumbnailUrl(modelReq.getThumbnailUrl()).name(modelReq.getName()).description(modelReq.getDescription()).build());
                 }
             }
             int[] updateResults = updateBaseBatch.execute();
@@ -292,8 +292,8 @@ public class HotspotDao {
         String sql = """
                 SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ,
                 h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity,
-                m.modelUrl, m.name, m.description, u.username as usernameAuthor
-                FROM hotspots AS h\s
+                m.modelUrl, m.thumbnailUrl, m.name, m.description, u.username as usernameAuthor, m.numDownload, h.updatedAt
+                FROM hotspots AS h
                 JOIN hotspot_models AS m ON h.id = m.hotspotId
                 JOIN nodes as n ON n.id = h.nodeId
                 JOIN users as u ON n.userId = u.id
@@ -301,6 +301,36 @@ public class HotspotDao {
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql).bind("hotspotId", hotspotId).mapToBean(HotspotModelResponse.class).findOne().orElse(null);
+        });
+    }
+
+    public List<HotspotModelResponse> getAllModel(PageRequest reqs) {
+        String sql = """
+                SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ,
+                h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity,
+                m.modelUrl, m.thumbnailUrl, m.name, m.description, u.username as usernameAuthor, m.numDownload, h.updatedAt
+                FROM hotspots AS h
+                JOIN hotspot_models AS m ON h.id = m.hotspotId
+                JOIN nodes as n ON n.id = h.nodeId
+                JOIN users as u ON n.userId = u.id
+                WHERE n.status = 1
+                ORDER BY n.updatedAt DESC
+                LIMIT :limit OFFSET :offset
+                """;
+
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .bind("limit", reqs.getLimit())
+                    .bind("offset", reqs.getPage() * reqs.getLimit())
+                    .mapToBean(HotspotModelResponse.class).list();
+        });
+    }
+
+    public boolean countDownloadModel(HotspotIdRequest reqs) {
+        String sql = "UPDATE hotspot_models SET numDownload = numDownload + 1 WHERE hotspotId = :hotspotId";
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int updatedRows = handle.createUpdate(sql).bind("hotspotId", reqs.getHotspotId()).execute();
+            return updatedRows > 0;
         });
     }
 }

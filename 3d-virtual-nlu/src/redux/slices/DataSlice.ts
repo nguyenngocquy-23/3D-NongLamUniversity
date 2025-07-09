@@ -11,6 +11,7 @@ interface DataState {
   spaces: any[];
   nodes: any[];
   autoNodes: any[];
+  models: any[];
   hotspotTypes: any[];
   masterNodes: any[];
   preloadNodes: any[];
@@ -31,6 +32,7 @@ const initialState: DataState = {
   spaces: [],
   nodes: [],
   autoNodes: [],
+  models: [],
   hotspotTypes: [],
   masterNodes: [],
   nodeOfUser: [],
@@ -113,6 +115,20 @@ export const fetchAutoNode = createAsyncThunk(
       {
         page: 0,
         limit: perPage,
+      }
+    );
+    return response.data.data;
+  }
+);
+
+// Fetch model
+export const fetchModel = createAsyncThunk(
+  "data/fetchModel",
+  async ({limit, page}:{limit: number, page: number}) => {
+    const response = await axios.post(API_URLS.GET_ALL_MODEL,
+      {
+        page: page,
+        limit: limit,
       }
     );
     return response.data.data;
@@ -330,6 +346,17 @@ const dataSlice = createSlice({
         state.autoNodes = action.payload;
       })
       .addCase(fetchAutoNode.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchModel.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchModel.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.models = action.payload;
+      })
+      .addCase(fetchModel.rejected, (state) => {
         state.status = "failed";
       })
 

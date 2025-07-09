@@ -26,12 +26,12 @@ type UploadFileProps = {
   index?: number;
 };
 
-interface CloudinaryUploadResp {
+export interface CloudinaryUploadResp {
   originalFileName?: string;
   url?: string;
 }
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   statusCode: number;
   message: string;
   data: T;

@@ -62,6 +62,26 @@ const Header: React.FC = () => {
       });
     }
   };
+  
+  const handleModel = (e: React.MouseEvent) => {
+    e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
+    if (currentUser) {
+      navigate("/manageModel");
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Bạn chưa đăng nhập",
+        text: "Vui lòng đăng nhập để tiếp tục.",
+        showCancelButton: true,
+        cancelButtonText: "Hủy",
+        confirmButtonText: "Đăng nhập",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login");
+        }
+      });
+    }
+  };
 
   useEffect(() => {
     const links = document.querySelectorAll(`.${style.navLink}`);
@@ -151,6 +171,14 @@ const Header: React.FC = () => {
             style={{ cursor: "pointer" }}
           >
             Tour tự động
+          </span>
+
+          <span
+            onClick={handleModel}
+            className={style.navLink}
+            style={{ cursor: "pointer" }}
+          >
+            Mô hình 3D
           </span>
 
           <ScrollLink

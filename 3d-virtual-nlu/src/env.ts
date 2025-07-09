@@ -24,6 +24,8 @@ export const API_URLS = {
   UPLOAD_CLOUD: `${DOMAIN}/v1/admin/cloud/upload`,
 
   GET_MASTER_NODES: `${DOMAIN}/node/master`,
+  GET_ALL_MODEL: `${DOMAIN}/v1/admin/hotspot/getAllModel`,
+  INCREASE_NUM_DOWNLOAD_MODEL: `${DOMAIN}/v1/admin/hotspot/countDownloadModel`,
   INCREASE_NODE_VIEW: `${DOMAIN}/node/increaseView`,
   GET_PRELOAD_NODES: `${DOMAIN}/node/preloadNodeList`,
   GET_FULL_TOUR: `${DOMAIN}/node/nodeListByMasterId`,

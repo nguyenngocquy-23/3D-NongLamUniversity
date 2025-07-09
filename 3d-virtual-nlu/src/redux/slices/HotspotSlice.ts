@@ -37,6 +37,7 @@ export interface HotspotMedia extends BaseHotspot {
 }
 export interface HotspotModel extends BaseHotspot {
   modelUrl: string;
+  thumbnailUrl: string;
   name: string;
   description: string;
   autoRotate: number; //0 = false, 1= true.
@@ -242,6 +243,7 @@ const hotspotSlice = createSlice({
       action: PayloadAction<{
         hotspotId: string;
         modelUrl: string;
+        thumbnailUrl: string;
         name: string;
         description: string;
       }>
@@ -253,6 +255,7 @@ const hotspotSlice = createSlice({
         const hotspot = state.hotspotList[index];
         if (hotspot.type === 4) {
           (hotspot as HotspotModel).modelUrl = action.payload.modelUrl;
+          (hotspot as HotspotModel).thumbnailUrl = action.payload.thumbnailUrl;
           (hotspot as HotspotModel).name = action.payload.name;
           (hotspot as HotspotModel).description = action.payload.description;
         }

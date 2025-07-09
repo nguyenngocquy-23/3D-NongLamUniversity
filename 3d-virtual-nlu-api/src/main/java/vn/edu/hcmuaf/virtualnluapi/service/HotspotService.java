@@ -65,4 +65,22 @@ public class HotspotService {
             return null;
         }
     }
+
+    public List<HotspotModelResponse> getAllModel(PageRequest reqs) {
+        try {
+            return hotspotDao.getAllModel(reqs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean countDownloadModel(HotspotIdRequest reqs) {
+        try {
+            return hotspotDao.countDownloadModel(reqs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

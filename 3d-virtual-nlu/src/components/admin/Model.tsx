@@ -28,6 +28,7 @@ const Node: React.FC<NodeProps> = ({ modelUrl }) => {
   // const texture = useTexture("/floor.png");
 
   useEffect(() => {
+    if (!modelUrl) return;
     const loader = new GLTFLoader();
     console.error("Load GLB:");
     loader.load(
@@ -43,7 +44,7 @@ const Node: React.FC<NodeProps> = ({ modelUrl }) => {
         console.error("❌ Lỗi load GLB:", error);
       }
     );
-  }, []);
+  }, [modelUrl]);
 
   return (
     <group
@@ -69,11 +70,6 @@ const Model = () => {
   const [hotspotModel, setHotspotModel] = useState<any>(null);
 
   useEffect(() => {
-    console.log("Response data:");
-    console.log(
-      "Response data:",
-      Number.parseInt(hotspotModelId as string, 10)
-    );
     const id = Number.parseInt(hotspotModelId as string, 10);
     console.log("Response data:", id);
 
@@ -91,7 +87,7 @@ const Model = () => {
     fetchModel();
   }, [hotspotModelId]);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     const link = document.createElement("a");
     link.href = modelUrl;
     link.download = `${
@@ -101,17 +97,35 @@ const Model = () => {
     link.click();
     document.body.removeChild(link);
 
-    Swal.fire({
-      title: "Tải xuống thành công",
-      text: `Mô hình ${
-        !hotspotModel ? (!title ? "Mô hình 3D" : title) : hotspotModel.name
-      } đã được tải xuống.`,
-      icon: "success",
-      timer: 4000,
-      showConfirmButton: false,
-      position: "top-end",
-      toast: true,
-    });
+    try {
+      const response = await axios.post(API_URLS.INCREASE_NUM_DOWNLOAD_MODEL, {
+        hotspotId: hotspotModelId,
+      });
+      if (response.data.data) {
+        Swal.fire({
+          title: "Tải xuống thành công",
+          text: `Mô hình ${
+            !hotspotModel ? (!title ? "Mô hình 3D" : title) : hotspotModel.name
+          } đã được tải xuống.`,
+          icon: "success",
+          timer: 4000,
+          showConfirmButton: false,
+          position: "top-end",
+          toast: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error increasing download count:", error);
+      Swal.fire({
+        title: "Gặp sự cố khi tải xuống",
+        text: "Vui lòng kiểm tra lại file tải xuống.",
+        icon: "error",
+        timer: 4000,
+        showConfirmButton: false,
+        position: "top-end",
+        toast: true,
+      });
+    }
   };
 
   const handleShare = async () => {
@@ -169,7 +183,16 @@ const Model = () => {
         >
           <b className={styles.username}>
             Người tạo:{" "}
-            <span style={{color: 'white', marginLeft: '0.5rem' ,fontSize: '20px', fontStyle: 'italic'}}>{!hotspotModel ? "" : hotspotModel.usernameAuthor} </span>
+            <span
+              style={{
+                color: "white",
+                marginLeft: "0.5rem",
+                fontSize: "20px",
+                fontStyle: "italic",
+              }}
+            >
+              {!hotspotModel ? "" : hotspotModel.usernameAuthor}{" "}
+            </span>
           </b>
         </div>
       </div>

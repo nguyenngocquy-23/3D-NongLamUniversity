@@ -141,6 +141,7 @@ export interface HotspotModelCreateRequest {
   allowBackgroundColor: number;
   opacity: number;
   modelUrl: string;
+  thumbnailUrl: string;
   name: string;
   description: string;
   colorCode: string;
@@ -225,6 +226,7 @@ export interface HotspotModelUpdateRequest {
   allowBackgroundColor: number;
   opacity: number;
   modelUrl: string;
+  thumbnailUrl: string;
   name: string;
   description: string;
   colorCode: string;
@@ -335,6 +337,7 @@ export interface HotspotModelResponse {
   allowBackgroundColor: number;
   opacity: number;
   modelUrl: string;
+  thumbnailUrl: string;
   name: string;
   description: string;
   colorCode: string;
@@ -437,6 +440,7 @@ export class TourNodeRequestMapper {
           opacity: h.opacity,
           scale: h.scale,
           modelUrl: h.modelUrl,
+          thumbnailUrl: h.thumbnailUrl,
           name: h.name,
           description: h.description,
           autoRotate: h.autoRotate,
@@ -569,6 +573,7 @@ export class TourNodeRequestMapper {
           opacity: h.opacity,
           scale: h.scale,
           modelUrl: h.modelUrl,
+          thumbnailUrl: h.thumbnailUrl,
           name: h.name,
           description: h.description,
           autoRotate: h.autoRotate,
@@ -753,6 +758,7 @@ export class TourNodeRequestMapper {
           allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
           opacity: h.opacity,
           modelUrl: h.modelUrl,
+          thumbnailUrl: h.thumbnailUrl,
           name: h.name,
           description: h.description,
           colorCode: h.colorCode,

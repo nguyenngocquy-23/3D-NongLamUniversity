@@ -33,4 +33,32 @@ public class HotspotController {
             return ApiResponse.<HotspotModelResponse>builder().statusCode(5000).message("get hotspot model failed! Please check.").data(result).build();
         }
     }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/getAllModel")
+    public ApiResponse<List<HotspotModelResponse>> getAllModel(PageRequest reqs) {
+        List<HotspotModelResponse> result = hotspotService.getAllModel(reqs);
+
+        if (result != null) {
+            return ApiResponse.<List<HotspotModelResponse>>builder().statusCode(1000).message("get hotspot model successful.").data(result).build();
+        } else{
+            return ApiResponse.<List<HotspotModelResponse>>builder().statusCode(5000).message("get hotspot model failed! Please check.").data(result).build();
+        }
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/countDownloadModel")
+    public ApiResponse<Boolean> countDownloadModel(HotspotIdRequest reqs) {
+        boolean result = hotspotService.countDownloadModel(reqs);
+
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("count number download model successful.").data(result).build();
+        } else{
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("count number download model failed! Please check.").data(result).build();
+        }
+    }
 }

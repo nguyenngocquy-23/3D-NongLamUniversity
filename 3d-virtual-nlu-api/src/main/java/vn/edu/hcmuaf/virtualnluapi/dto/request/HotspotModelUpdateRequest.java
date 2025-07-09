@@ -21,7 +21,7 @@ public class HotspotModelUpdateRequest {
     String color, backgroundColor;
     byte allowBackgroundColor;
     float opacity;
-    String modelUrl, name, description;
+    String modelUrl, thumbnailUrl, name, description;
     byte autoRotate;
     String colorCode;
 }

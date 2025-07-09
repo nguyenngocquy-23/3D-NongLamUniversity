@@ -33,6 +33,7 @@ import ManagerTourDetail from "./components/admin/ManagerTourDetail.tsx";
 import CreateAutoTour from "./features/CreateAutoTour.tsx";
 import ManageAutoTour from "./pages/visitor/ManageAutoTour.tsx";
 import VirtualAutoTour from "./pages/visitor/VirtualAutoTour.tsx";
+import ManageModel from "./pages/visitor/ManageModel.tsx";
 
 function RouterConfig() {
   return (
@@ -45,6 +46,7 @@ function RouterConfig() {
       <Route path="/virtualTour" element={<VirtualTour />} />
       <Route path="/model/:hotspotModelId" element={<Model />} />
       <Route path="/autoTour" element={<ManageAutoTour />} />
+      <Route path="/manageModel" element={<ManageModel />} />
       <Route path="/autoTourDetail/:tourId" element={<VirtualAutoTour />} />
       <Route path="/manage/" element={<VisitorManage />}>
         <Route index element={<VisitorDashBoard />} />
