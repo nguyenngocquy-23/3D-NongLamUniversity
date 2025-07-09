@@ -21,6 +21,7 @@ import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import TourScene from "../../components/visitor/TourScene";
 import gsap from "gsap";
+import { AnimatePresence, motion } from "framer-motion";
 
 import {
   addHotspotPosition,
@@ -35,6 +36,12 @@ import {
   HotspotModel,
   HotspotNavigation,
 } from "../../redux/slices/HotspotSlice";
+import {
+  getFilteredHotspotInformationInList,
+  getFilteredHotspotMediaInList,
+  getFilteredHotspotModelInList,
+  getFilteredHotspotNavigationInList,
+} from "../../redux/slices/Selectors.ts";
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
 import UpdateHotspot from "../../components/admin/taskCreateTourList/UpdateHotspot";
@@ -68,7 +75,6 @@ const CreateTourStep2 = () => {
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const cameraRadarRef = useRef<number>(null);
   const controlsRef = useRef<any>(null); //OrbitControls
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
@@ -80,7 +86,7 @@ const CreateTourStep2 = () => {
   const [validIcon, setValidIcon] = useState(true);
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
-  >(null); //test
+  >(null);
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
@@ -104,27 +110,11 @@ const CreateTourStep2 = () => {
 
   const dispatch = useDispatch();
 
-  const hotspotNavigations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
-    )
-  );
-  const hotspotInfos = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
-    )
-  );
-  const hotspotModels = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotModel => hotspot.type === 4
-    )
-  );
+  const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
+  const hotspotInfos = useSelector(getFilteredHotspotInformationInList);
+  const hotspotModels = useSelector(getFilteredHotspotModelInList);
 
-  const hotspotMedias = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-    )
-  );
+  const hotspotMedias = useSelector(getFilteredHotspotMediaInList);
 
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
@@ -156,6 +146,11 @@ const CreateTourStep2 = () => {
     lightIntensity = 1,
     autoRotate = 0,
     speedRotate = 0,
+    brightness = 0,
+    contrast = 1,
+    saturation = 1.2,
+    grayscale = 0,
+    exposure = 1,
   } = currentPanorama?.config ?? {};
 
   const cameraPosition: [number, number, number] = [
@@ -350,7 +345,7 @@ const CreateTourStep2 = () => {
       case 2:
         return (
           <>
-            <Task2 cameraRef={cameraRef} sphereRef={sphereRef} />
+            <Task2 cameraRef={cameraRef} controlsRef={controlsRef} />
           </>
         );
       case 3:
@@ -506,6 +501,11 @@ const CreateTourStep2 = () => {
             yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
             onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
+            brightness={brightness}
+            contrast={contrast}
+            saturation={saturation}
+            grayscale={grayscale}
+            exposure={exposure}
             onTextureReady={() => setIsTextureReady(true)}
           />
 
@@ -608,59 +608,74 @@ const CreateTourStep2 = () => {
           </div>
         </div>
         {/* Hiển thị menu bên phải.*/}
-        <div
-          className={`${styles.rightMenu} ${isMenuVisible ? styles.show : ""}`}
-        >
-          <div className={styles.rightTitle}>
-            <FaAngleRight
-              className={styles.close_menu_btn}
-              onClick={handleOpenMenu}
-            />
-            <h2>Cấu hình</h2>
-          </div>
-
-          <RightMenuCreateTour
-            tasks={tasks}
-            openTaskIndex={openTaskIndex}
-            onTaskClick={handleOpenTask}
-            setPreOpenTask={setPreTaskIndex}
-            saveLinkNode={false}
-          />
-        </div>
-        {/* tasks */}
-        <div
-          className={`${styles.task_container} ${
-            isMenuVisible && openTaskIndex !== null && currentHotspotId === null
-              ? styles.show
-              : ""
-          }`}
-        >
-          {openTaskIndex !== null && currentHotspotId === null ? (
-            <TaskContainerCT
-              id={preTaskIndex}
-              name={tasks.find((t) => t.id === preTaskIndex)?.title || ""}
+        <AnimatePresence>
+          {isMenuVisible && (
+            <motion.div
+              initial={{ x: 300, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 300, opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className={`${styles.rightMenu} `}
             >
-              {preTaskIndex
-                ? getTaskContentById(openTaskIndex ?? preTaskIndex)
-                : ""}
-            </TaskContainerCT>
-          ) : (
-            ""
+              <div className={styles.rightTitle}>
+                <FaAngleRight
+                  className={styles.close_menu_btn}
+                  onClick={handleOpenMenu}
+                />
+                <h2>Cấu hình</h2>
+              </div>
+
+              <RightMenuCreateTour
+                tasks={tasks}
+                openTaskIndex={openTaskIndex}
+                onTaskClick={handleOpenTask}
+                setPreOpenTask={setPreTaskIndex}
+                saveLinkNode={false}
+              />
+            </motion.div>
           )}
-        </div>
-        {/* Hộp chỉnh sửa hotspot */}
-        <div
-          className={`${styles.update_hotspot_container} ${
-            currentHotspotId != null ? styles.show : ""
-          }`}
-        >
-          <UpdateHotspot
-            hotspotId={currentHotspotId}
-            setHotspotId={setCurrentHotspotId}
-            onPropsChange={handleOnPropsChange}
-            limitNav={true}
-          />
-        </div>
+        </AnimatePresence>
+        <AnimatePresence>
+          {isMenuVisible &&
+            openTaskIndex !== null &&
+            currentHotspotId === null && (
+              <motion.div
+                initial={{ y: 800, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 800, opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className={`${styles.task_container}`}
+              >
+                <TaskContainerCT
+                  id={preTaskIndex}
+                  name={tasks.find((t) => t.id === preTaskIndex)?.title || ""}
+                >
+                  {preTaskIndex
+                    ? getTaskContentById(openTaskIndex ?? preTaskIndex)
+                    : ""}
+                </TaskContainerCT>
+              </motion.div>
+            )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {currentHotspotId !== null && (
+            <motion.div
+              initial={{ y: 800, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 800, opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className={`${styles.update_hotspot_container} `}
+            >
+              <UpdateHotspot
+                hotspotId={currentHotspotId}
+                setHotspotId={setCurrentHotspotId}
+                onPropsChange={handleOnPropsChange}
+                limitNav={true}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Hướng dẫn sử dụng */}
         <button className={styles.guide_button} title="Hướng dẫn">
           <FaBook />

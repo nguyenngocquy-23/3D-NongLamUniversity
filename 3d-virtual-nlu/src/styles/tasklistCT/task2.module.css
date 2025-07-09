@@ -1,12 +1,138 @@
 .contain_input {
-    display: flex;
-    margin-top: 10px;
-    width: 100%;
-    margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-bottom: 1px solid #fff;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.contain_input_title {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 50%;
+  font-weight: 500;
+}
+.contain_input_content {
+  display: flex;
+  align-items: center;
+  height: 40px;
 }
 
-.label {
-    display: inline-block;
-    width: 150px;
-    margin-right: 20px;
+.contain_input_content input[type="color"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: transparent;
+  width: 40px;
+  height: 100%;
+  border: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 150ms ease;
+}
+.contain_input_content input[type="color"]::-webkit-color-swatch {
+  padding: 0;
+  margin: 0;
+  border-radius: 8px 0 0 8px;
+  border: none;
+}
+
+.contain_input_content input[type="color"]::-moz-color-swatch {
+  padding: 0;
+  margin: 0;
+  border-radius: 8px 0 0 8px;
+  border: none;
+}
+.contain_input_content input[type="text"] {
+  /* color: #524a4a; */
+  box-sizing: border-box;
+  border: 1px solid #f1f1f1;
+  height: 32px;
+  box-shadow: 0 1px 1px 0 rgb(0 0 0 / 10%);
+  display: flex;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 0 8px 8px 0;
+  border-left: 0;
+  padding: 1em;
+  letter-spacing: 1.5px;
+}
+
+.contain_label {
+  font-size: 12px;
+  background-color: #00000028;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px 0 0 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.contain_edit {
+  position: relative;
+  width: 200px;
+  height: 2rem;
+  background-color: #ffffff4e;
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.contain_edit input[type="range"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(5%, 50%);
+  width: 90%;
+  -webkit-appearance: none;
+  height: 1rem;
+  appearance: none;
+  background-color: transparent;
+  z-index: 3;
+}
+.contain_edit input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  background-color: #524a4a;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  /* transition: transform 2ms ease; */
+  cursor: pointer;
+}
+.contain_edit progress {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 8px;
+  width: 90%;
+  height: 1rem;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(5%, 50%);
+  transition: background-color 0.3s ease;
+}
+.contain_edit progress::-webkit-progress-bar {
+  background-color: #ffffff46;
+}
+.contain_edit progress::-webkit-progress-value {
+  background-color: #000000;
+}
+
+/* Dành cho lock trên hướng mặc định */
+.contain_safe {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: rgb(254, 254, 15);
+}
+.contain_blur {
+  filter: blur(1px);
 }

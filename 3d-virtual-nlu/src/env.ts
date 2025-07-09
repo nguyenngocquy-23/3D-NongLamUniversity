@@ -26,6 +26,7 @@ export const API_URLS = {
   GET_MASTER_NODES: `${DOMAIN}/node/master`,
   INCREASE_NODE_VIEW: `${DOMAIN}/node/increaseView`,
   GET_PRELOAD_NODES: `${DOMAIN}/node/preloadNodeList`,
+  GET_FULL_TOUR: `${DOMAIN}/node/nodeListByMasterId`,
   GET_DEFAULT_NODE: `${DOMAIN}/node/default`,
   PRIVATE_NODE_OF_USER: `${DOMAIN}/node/privateByUser`,
   NODE_OF_USER: `${DOMAIN}/node/byUser`,
@@ -48,6 +49,7 @@ export const API_URLS = {
   ADMIN_GET_ALL_ICONS: `${DOMAIN}/v1/admin/icon`,
   ADMIN_GET_HOTSPOT_TYPES: `${DOMAIN}/admin/hotspotType`,
   ADMIN_GET_ALL_FIELDS: `${DOMAIN}/admin/field`,
+  ADMIN_GET_ALL_NODE_IMAGES: `${DOMAIN}/v1/admin/node/getNodeImg`,
 
   ADMIN_CREATE_NODES: `${DOMAIN}/v1/admin/node/insert`,
   ADMIN_CREATE_AUTO_TOUR: `${DOMAIN}/v1/admin/node/createAutoTour`,

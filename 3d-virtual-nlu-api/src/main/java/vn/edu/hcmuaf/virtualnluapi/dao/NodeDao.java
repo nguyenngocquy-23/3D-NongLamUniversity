@@ -26,8 +26,8 @@ public class NodeDao {
 
     public List<NodeIdMapResponse> insertNode(List<NodeCreateRequest> reqs) {
         String sql = """
-                INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, yawOffset, lightIntensity, status, numView) 
-                VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :yawOffset, :lightIntensity, :status, :numView)""";
+                INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, yawOffset, lightIntensity, brightness, contrast, saturation, grayscale, exposure, status, numView) 
+                VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :yawOffset, :lightIntensity, :brightness, :contrast, :saturation, :grayscale, :exposure, :status, :numView)""";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
 
@@ -46,6 +46,11 @@ public class NodeDao {
                         .bind("positionZ", req.getPositionZ())
                         .bind("yawOffset", req.getYawOffset())
                         .bind("lightIntensity", req.getLightIntensity())
+                        .bind("brightness", req.getBrightness())
+                        .bind("contrast", req.getContrast())
+                        .bind("saturation", req.getSaturation())
+                        .bind("grayscale", req.getGrayscale())
+                        .bind("exposure", req.getExposure())
                         .bind("status", req.getStatus())
                         .bind("numView", 0)
                         .executeAndReturnGeneratedKeys("id")
@@ -61,10 +66,11 @@ public class NodeDao {
     public List<NodeFullResponse> getAllNodes(PageRequest request) {
         String sql = """
                  SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                 n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                 n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
+                 WHERE n.status IN (2,3)
                  ORDER BY n.updatedAt DESC
                  LIMIT :limit OFFSET :offset
                 """;
@@ -92,7 +98,7 @@ public class NodeDao {
     public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                 n.status, n.positionX, n.positionY, n.positionZ, n.lightIntensity
+                 n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.yawOffset, n.positionX, n.positionY, n.positionZ, n.lightIntensity
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
@@ -151,6 +157,7 @@ public class NodeDao {
      * Lấy ra danh sách targetNodeId dựa vào hotspot navigation.
      * => Lấy ra danh sách node full response dựa vào đó.
      */
+
     public List<NodeFullResponse> getListPreloadNodeByNode(int nodeId) {
         /**
          * Truy xuất sql cho danh sách targetNodeId dựa vào hotspot navigation..
@@ -176,15 +183,74 @@ public class NodeDao {
 
         }
         return preloadNodes;
+
     }
 
+    /**
+     * NodeByMasterId:Lấy ra danh sách các node có chung (đơn vị là tour khởi tạo).
+     * @param nodeId : master node của 1 tour.
+     * @return
+     * + Thông tin hoàn chỉnh của master node kèm theo các node con.
+     * + Thông tin hotspot. => Lấy kèm thêm node có targetNode là hotspot nhưng nó là không gian khác nên chỉ hiển thị không thể click
+     *
+     */
+
+    public List<NodeFullResponse> getListNodeByMasterId(int nodeId) {
+        /**
+         * Truy xuất sql cho danh sách targetNodeId dựa vào hotspot navigation..
+         */
+        String getTargetNodeIdSQL = """
+              SELECT hn.targetNodeId FROM hotspots h JOIN hotspot_navigations hn ON h.id = hn.hotspotId 
+                WHERE h.nodeId = :nodeId AND h.type = 1
+                """;
+
+        String getNodeStatusSQL = """
+                SELECT id, status FROM nodes WHERE id IN (<ids>)
+                
+                """;
+
+        //Danh sách targetNodeId.
+        List<Integer> targetNodeIds = ConnectionPool.getConnection().withHandle(
+                handle -> handle.createQuery(getTargetNodeIdSQL)
+                        .bind("nodeId", nodeId)
+                        .mapTo(Integer.class)
+                        .list()
+        );
+
+        if (targetNodeIds == null || targetNodeIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<NodeStatusResponse> nodesWithStatus = ConnectionPool.getConnection().withHandle(
+                handle -> handle.createQuery(getNodeStatusSQL).bindList("ids", targetNodeIds)
+                        .map((rs, ctx) -> new NodeStatusResponse(rs.getInt("id"),
+                                rs.getByte("status")
+                        )).list()
+        );
+
+        List<NodeFullResponse> listNodesOfTour = new ArrayList<>();
+        NodeFullResponse mainNode = getFullNodeByNodeId(nodeId);
+        listNodesOfTour.add(mainNode);
+
+        for(NodeStatusResponse item : nodesWithStatus) {
+            if(item.getStatus() == 1) {
+                NodeFullResponse node = getFullNodeByNodeId(item.getId());
+                if(node !=null) listNodesOfTour.add(node);
+            } else if (item.getStatus() == 2) {
+                NodeFullResponse node = getCustomNodeByNodeId(item.getId());
+                if(node != null) listNodesOfTour.add(node);
+            }
+
+        }
+        return listNodesOfTour;
+    }
     /**
      * Trả về Full Response cho 1 node dựa vào Ids.
      */
     public NodeFullResponse getFullNodeByNodeId(int nodeId) {
         String sql = """
                 SELECT id, spaceId, url , name, updatedAt, userId, description, status, positionX, positionY, positionZ, yawOffset,
-                lightIntensity
+                  brightness, contrast, saturation, grayscale, exposure, lightIntensity
                 FROM nodes 
                 WHERE id = :nodeId
                 """;
@@ -206,10 +272,30 @@ public class NodeDao {
         return nodeFullResponse;
     }
 
+    /**
+     * Không lấy danh sách hotspot con. Tất cả Rỗng.
+     */
+    public NodeFullResponse getCustomNodeByNodeId(int nodeId) {
+        String sql = """
+                SELECT id, spaceId, url , name, updatedAt, userId, description, status, positionX, positionY, positionZ, yawOffset,
+                   brightness, contrast, saturation, grayscale, exposure, lightIntensity
+                FROM nodes 
+                WHERE id = :nodeId
+                """;
+        NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+                .bind("nodeId", nodeId)
+                .mapToBean(NodeFullResponse.class).one());
+        if (nodeFullResponse == null) {
+            return null;
+        }
+        return nodeFullResponse;
+    }
+
+
     public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -224,7 +310,7 @@ public class NodeDao {
     public NodeFullResponse getNodeById(NodeIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity, n.numView
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -270,7 +356,7 @@ public class NodeDao {
     public List<NodeFullResponse> getPrivateNodeByUser(UserIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
+                n.status,  n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -285,7 +371,7 @@ public class NodeDao {
     public List<NodeFullResponse> getMasterNodeListBySpaceId(SpaceIdRequest request) {
         String sql = """
                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ, n.yawOffset, n.lightIntensity
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
@@ -313,7 +399,8 @@ public class NodeDao {
     public boolean updateNodes(List<NodeUpdateRequest> reqs) {
         String sql = """
                 UPDATE nodes SET url = :url, name = :name, description = :description, positionX = :positionX,
-                positionY = :positionY, positionZ = :positionZ, yawOffset = :yawOffset,
+                positionY = :positionY, positionZ = :positionZ, yawOffset = :yawOffset, brightness = :brightness, contrast = :contrast,
+                saturation = :saturation, grayscale = :grayscale, exposure = :exposure,
                 lightIntensity = :lightIntensity, status = :status, updatedAt = :updatedAt
                 WHERE id = :id
                 """;
@@ -329,6 +416,11 @@ public class NodeDao {
                         .bind("positionY", req.getPositionY())
                         .bind("positionZ", req.getPositionZ())
                         .bind("yawOffset", req.getYawOffset())
+                        .bind("brightness", req.getBrightness())
+                        .bind("contrast", req.getContrast())
+                        .bind("saturation", req.getSaturation())
+                        .bind("grayscale", req.getGrayscale())
+                        .bind("exposure", req.getExposure())
                         .bind("lightIntensity", req.getLightIntensity())
                         .bind("status", req.getStatus())
                         .bind("updatedAt", LocalDateTime.now())

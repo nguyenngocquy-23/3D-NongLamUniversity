@@ -64,6 +64,7 @@ const Layout = () => {
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(true);
+  const [isOpenSideBar, setIsOpenSideBar] = useState(false);
 
   useEffect(() => {
     if (
@@ -80,17 +81,15 @@ const Layout = () => {
     <div className={styles.container}>
       {/* Sidebar */}
       {!isOptionFullScreen && currentUser && (
-        <Sidebar isOpenSidebar={true} currentUser={currentUser} setTitle={setTitle} />
+        <Sidebar
+          isOpenSidebar={isOpenSideBar}
+          currentUser={currentUser}
+          setTitle={setTitle}
+        />
       )}
       {/* Main Content */}
-      <main
-        className={styles.main_contain}
-        style={{
-          margin: isOptionFullScreen ? "0" : "0 0.5rem 0.5rem 0",
-          borderRadius: isOptionFullScreen ? "0" : "10px",
-        }}
-      >
-        {!isOptionFullScreen && (
+      <main className={styles.main_contain}>
+        {!isOptionFullScreen && isOpenSideBar && (
           <header className={styles.header}>
             <h2>{title}</h2>
           </header>

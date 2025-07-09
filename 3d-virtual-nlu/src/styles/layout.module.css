@@ -37,6 +37,7 @@
 
 .content {
   flex-grow: 1;
+  margin-top: 0.5rem;
   background: #f5f5f5;
   /* border-radius: 8px; */
   height: calc(100% - 2rem - 36px);

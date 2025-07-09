@@ -93,14 +93,13 @@ const Space = () => {
     }
   }, [currentUser, navigate]);
 
-  // Cập nhật searchData mỗi khi users thay đổi
-  useEffect(() => {
-    console.log(spaces);
-    if (spaces.length > 0) {
-      setSearchData(spaces); // Chỉ cập nhật khi users có dữ liệu
-    }
-    setLoading(false); // Kết thúc trạng thái tải
-  }, [spaces]);
+  // // Cập nhật searchData mỗi khi users thay đổi
+  // useEffect(() => {
+  //   if (spaces.length > 0) {
+  //     setSearchData(spaces); // Chỉ cập nhật khi users có dữ liệu
+  //   }
+  //   setLoading(false); // Kết thúc trạng thái tải
+  // }, [spaces]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value.toLowerCase();
@@ -217,6 +216,7 @@ const Space = () => {
     const lastPageIndex = firstPageIndex + pageSize;
     return spaces.slice(firstPageIndex, lastPageIndex);
   }, [currentPage]);
+
   return (
     <div className={styles.container}>
       <div className={styles.space_view_mode}>

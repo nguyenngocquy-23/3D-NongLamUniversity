@@ -70,7 +70,6 @@ const TourDetail = () => {
   const user = userJson ? JSON.parse(userJson) : null;
   const navigate = useNavigate();
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const cameraRadarRef = useRef<number>(0);
   const controlsRef = useRef<any>(null); //OrbitControls
   /**
    * Logic create tour step 2 of admin
@@ -85,6 +84,7 @@ const TourDetail = () => {
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
   >(null); //test
+
   const { openTaskIndex, completedTaskIds, unlockedTaskIds, handleOpenTask } =
     useSequentialTasks(tasks.length);
 
@@ -111,7 +111,6 @@ const TourDetail = () => {
       dispatch(fetchPreloadNodes(Number.parseInt(node.id)));
     }
   }, [node]);
-
   const preloadNodes = useSelector(
     (state: RootState) => state.data.preloadNodes
   );
@@ -631,7 +630,6 @@ const TourDetail = () => {
         <Canvas
           camera={{
             fov: 75,
-            // aspect: windowSize.width / windowSize.height,
             near: 0.1,
             far: 1000,
             position: [0, 0, 0.0000001],
@@ -663,7 +661,10 @@ const TourDetail = () => {
             <>
               {isTextureReady &&
                 hotspotInformations
-                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
+                  .filter(
+                    (hotspot) =>
+                      hotspot.nodeId == node.id && hotspot.status == 1
+                  )
                   .map((hotspot) => (
                     <GroundHotspotInfo
                       key={hotspot.id}
@@ -673,7 +674,10 @@ const TourDetail = () => {
                   ))}
               {isTextureReady &&
                 hotspotNavigations
-                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
+                  .filter(
+                    (hotspot) =>
+                      hotspot.nodeId == node.id && hotspot.status == 1
+                  )
                   .map((hotspot) => (
                     <GroundHotspot
                       key={hotspot.id}
@@ -689,7 +693,10 @@ const TourDetail = () => {
                   ))}
               {isTextureReady &&
                 hotspotModels
-                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
+                  .filter(
+                    (hotspot) =>
+                      hotspot.nodeId == node.id && hotspot.status == 1
+                  )
                   .map((hotspot) => (
                     <GroundHotspotModel
                       key={hotspot.id}
@@ -699,7 +706,10 @@ const TourDetail = () => {
                   ))}
               {isTextureReady &&
                 hotspotMedias
-                  .filter((hotspot) => hotspot.nodeId == node.id && hotspot.status == 1)
+                  .filter(
+                    (hotspot) =>
+                      hotspot.nodeId == node.id && hotspot.status == 1
+                  )
                   .map((hotspot) => (
                     <VideoMeshComponent
                       key={hotspot.id}

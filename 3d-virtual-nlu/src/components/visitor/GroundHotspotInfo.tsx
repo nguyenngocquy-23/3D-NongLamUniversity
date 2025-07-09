@@ -7,7 +7,7 @@ import { HotspotInformation } from "../../redux/slices/HotspotSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { DoubleSide } from "three";
-import { Html, useGLTF } from "@react-three/drei";
+import { Html, Text, useGLTF } from "@react-three/drei";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
@@ -192,16 +192,16 @@ const GroundHotspotInfo = ({
         >
           <Html distanceFactor={40} transform>
             <div className={styles.container}>
-              <div className={styles.centerPane}>
+              <div className={styles.center_pane}>
                 {hotspotInfo.title.trim() == "" &&
                 hotspotInfo.content.trim() == "" ? (
-                  <div className={styles.description}>Trống</div>
+                  <div className={styles.description}></div>
                 ) : (
                   <>
-                    <div className={styles.title}>{hotspotInfo.title}</div>
-                    <div className={styles.description}>
-                      {hotspotInfo.content}
-                    </div>
+                    <div
+                      className={styles.description}
+                      dangerouslySetInnerHTML={{ __html: hotspotInfo.content }}
+                    />
                   </>
                 )}
               </div>
@@ -209,7 +209,37 @@ const GroundHotspotInfo = ({
           </Html>
         </group>
       ) : (
-        ""
+        <group
+          ref={htmlGroupRef}
+          position={[
+            hotspotInfo.positionX,
+            hotspotInfo.positionY + 15,
+            hotspotInfo.positionZ,
+          ]}
+        >
+          <Text
+            fontSize={2.5}
+            color="#ffd700"
+            anchorX="center"
+            anchorY="bottom"
+            maxWidth={40}
+            lineHeight={1.2}
+            position={[0, 2, 0]} // Đẩy title lên một chút
+          >
+            {hotspotInfo.title}
+          </Text>
+          <Text
+            fontSize={1.5}
+            color="white"
+            anchorX="center"
+            anchorY="top"
+            maxWidth={40}
+            lineHeight={1.4}
+            position={[0, -0.5, 0]} // Đặt description bên dưới
+          >
+            {hotspotInfo.content}
+          </Text>
+        </group>
       )}
 
       {isIcon3D && clonedScene ? (

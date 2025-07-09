@@ -22,8 +22,11 @@ export interface NodeCreateRequest {
   positionY: number;
   positionZ: number;
   yawOffset: number;
-  autoRotate: number;
-  speedRotate: number;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  grayscale: number;
+  exposure: number;
   lightIntensity: number;
   status: number;
   navHotspots: HotspotNavCreateRequest[];
@@ -44,8 +47,11 @@ export interface NodeUpdateRequest {
   positionY: number;
   positionZ: number;
   yawOffset: number;
-  autoRotate: number;
-  speedRotate: number;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  grayscale: number;
+  exposure: number;
   lightIntensity: number;
   status: number;
   navHotspots: HotspotNavUpdateRequest[];
@@ -61,7 +67,6 @@ export interface NodeUpdateRequest {
  */
 export interface NodeLinkRequest {
   id: string;
-  yawOffset: number;
   navHotspots: HotspotNavCreateRequest[];
 }
 
@@ -237,8 +242,11 @@ export interface NodeResponse {
   positionY: number;
   positionZ: number;
   yawOffset: number;
-  autoRotate: number;
-  speedRotate: number;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  grayscale: number;
+  exposure: number;
   lightIntensity: number;
   status: number;
   navHotspots: HotspotNavResponse[];
@@ -447,8 +455,11 @@ export class TourNodeRequestMapper {
         positionY: pano.config.positionY,
         positionZ: pano.config.positionZ,
         yawOffset: pano.config.yawOffset,
-        autoRotate: pano.config.autoRotate,
-        speedRotate: pano.config.speedRotate,
+        brightness: pano.config.brightness,
+        contrast: pano.config.contrast,
+        saturation: pano.config.saturation,
+        grayscale: pano.config.grayscale,
+        exposure: pano.config.exposure,
         lightIntensity: pano.config.lightIntensity,
         status: pano.config.status,
         navHotspots,
@@ -465,9 +476,7 @@ export class TourNodeRequestMapper {
   ): NodeUpdateRequest[] {
     return panoramaList.map((pano) => {
       const nodeId = pano.id;
-      const hotspotsForNode = hotspotList.filter(
-        (h) => h.nodeId == nodeId
-      );
+      const hotspotsForNode = hotspotList.filter((h) => h.nodeId == nodeId);
 
       //List hotspot của từng panorama.
       const navHotspots: HotspotNavUpdateRequest[] = hotspotsForNode
@@ -544,7 +553,7 @@ export class TourNodeRequestMapper {
         .filter((h): h is HotspotModel => h.type == 4)
         .map((h) => ({
           id: h.id,
-          nodeId: h.nodeId,    
+          nodeId: h.nodeId,
           type: h.type,
           iconId: h.iconId,
           status: h.status,
@@ -575,8 +584,11 @@ export class TourNodeRequestMapper {
         positionY: pano.config.positionY,
         positionZ: pano.config.positionZ,
         yawOffset: pano.config.yawOffset,
-        autoRotate: pano.config.autoRotate,
-        speedRotate: pano.config.speedRotate,
+        brightness: pano.config.brightness,
+        contrast: pano.config.contrast,
+        saturation: pano.config.saturation,
+        grayscale: pano.config.grayscale,
+        exposure: pano.config.exposure,
         lightIntensity: pano.config.lightIntensity,
         status: pano.config.status,
         navHotspots,
@@ -615,7 +627,6 @@ export class TourNodeRequestMapper {
         }));
       return {
         id: pano.id,
-        yawOffset: pano.config.yawOffset,
         navHotspots: navHotspots,
       };
     });
@@ -640,8 +651,11 @@ export class TourNodeRequestMapper {
           positionY: node.positionY,
           positionZ: node.positionZ,
           yawOffset: node.yawOffset,
-          autoRotate: node.autoRotate,
-          speedRotate: node.speedRotate,
+          brightness: node.brightness,
+          contrast: node.contrast,
+          saturation: node.saturation,
+          grayscale: node.grayscale,
+          exposure: node.exposure,
           lightIntensity: node.lightIntensity,
           status: node.status,
         },

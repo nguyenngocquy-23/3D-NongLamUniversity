@@ -265,3 +265,9 @@
   background-color: #267026;
   padding: 0.5rem;
 }
+
+.field_pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

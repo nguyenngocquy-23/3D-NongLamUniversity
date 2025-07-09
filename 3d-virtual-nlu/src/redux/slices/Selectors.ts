@@ -1,12 +1,46 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../Store";
-import { HotspotNavigation } from "./HotspotSlice";
+import {
+  HotspotInformation,
+  HotspotMedia,
+  HotspotModel,
+  HotspotNavigation,
+} from "./HotspotSlice";
 
 const selectHotspotList = (state: RootState) => state.hotspots.hotspotList;
 const spaceList = (state: RootState) => state.data.spaces;
 const panoramaList = (state: RootState) => state.panoramas.panoramaList;
 const masterNode = (state: RootState) =>
   state.panoramas.panoramaList.find((p) => p.config.status === 2);
+
+/**
+ * Lấy ra hotspot theo phân loại
+ */
+
+export const getFilteredHotspotNavigationInList = createSelector(
+  [selectHotspotList],
+  (hotspotList): HotspotNavigation[] => {
+    return hotspotList.filter((h): h is HotspotNavigation => h.type === 1);
+  }
+);
+export const getFilteredHotspotInformationInList = createSelector(
+  [selectHotspotList],
+  (hotspotList): HotspotInformation[] => {
+    return hotspotList.filter((h): h is HotspotInformation => h.type === 2);
+  }
+);
+export const getFilteredHotspotMediaInList = createSelector(
+  [selectHotspotList],
+  (hotspotList): HotspotMedia[] => {
+    return hotspotList.filter((h): h is HotspotMedia => h.type === 3);
+  }
+);
+export const getFilteredHotspotModelInList = createSelector(
+  [selectHotspotList],
+  (hotspotList): HotspotModel[] => {
+    return hotspotList.filter((h): h is HotspotModel => h.type === 4);
+  }
+);
 
 /**
  * Lấy ra danh sách hospot navigation có targetNodeId..

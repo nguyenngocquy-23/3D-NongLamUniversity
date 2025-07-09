@@ -5,6 +5,7 @@ import {
 } from "../../../redux/slices/HotspotSlice";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
+import Description from "../../Description";
 interface TypeInfomationProps {
   isOpenTypeInfomation?: boolean;
   setAssignable?: (value: boolean) => void;
@@ -42,31 +43,21 @@ const TypeInfomation = ({
         isOpenTypeInfomation ? styles.open_type_infomation : ""
       }`}
     >
-      <div style={{ display: "flex" }}>
-        <label className={styles.label}>Tiêu đề:</label>
-        <input
-          type="text"
-          name=""
-          id=""
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-          }}
-        />
-      </div>
-      <div style={{ display: "flex" }}>
+      <div>
         <label className={styles.label}>Nội dung:</label>
-        <textarea
-          name=""
-          id=""
+        <Description
           value={content}
-          onChange={(e) => {
-            setContent(e.target.value);
+          onChange={(html) => {
+            setContent(html);
           }}
         />
       </div>
-      <button onClick={() => handleUpdateInfo()}
-        style={{padding: '0.5rem 1rem'}}>Cập nhật</button>
+      <button
+        onClick={() => handleUpdateInfo()}
+        style={{ padding: "0.5rem 1rem" }}
+      >
+        Cập nhật
+      </button>
     </div>
   );
 };

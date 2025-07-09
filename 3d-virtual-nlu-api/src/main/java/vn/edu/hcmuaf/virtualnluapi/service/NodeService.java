@@ -11,6 +11,7 @@ import vn.edu.hcmuaf.virtualnluapi.dto.response.AutoTourResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeImageResponse;
 
 import java.util.List;
 
@@ -41,6 +42,11 @@ public class NodeService {
     public List<NodeFullResponse> getListPreloadNodeByNode(int nodeId) {
         return nodeDao.getListPreloadNodeByNode(nodeId);
     }
+
+    public List<NodeFullResponse> getNodeListByMasterId(int nodeId) {
+        return nodeDao.getListNodeByMasterId(nodeId);
+    }
+
 
     public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {
         try {
@@ -150,4 +156,5 @@ public class NodeService {
             return -1;
         }
     }
+
 }

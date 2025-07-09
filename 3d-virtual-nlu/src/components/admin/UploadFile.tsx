@@ -3,7 +3,7 @@ import { FaCloudUploadAlt } from "react-icons/fa";
 import { MdDeleteForever, MdFileDownloadDone } from "react-icons/md";
 import styles from "../../styles/uploadFile.module.css";
 import axios, { AxiosError } from "axios";
-import { clearPanorama, setAutoPanoramas, setPanoramas } from "../../redux/slices/PanoramaSlice";
+import { clearPanorama, setPanoramas } from "../../redux/slices/PanoramaSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { FaFile } from "react-icons/fa6";
 import Swal from "sweetalert2";
@@ -11,6 +11,8 @@ import { RiLoader2Fill } from "react-icons/ri";
 import { nextStep } from "../../redux/slices/StepSlice";
 import { RootState } from "../../redux/Store";
 import { API_URLS } from "../../env";
+import { ImageCacheMap } from "../../pages/visitor/VirtualTour";
+import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL";
 
 /**
  * UploadFile sẽ nhận vào các kiểu props:
@@ -50,10 +52,13 @@ const UploadFile: React.FC<UploadFileProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
 
+  const imageRef = useRef<ImageCacheMap>({});
+
   const [progress, setProgress] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
   const [uploadStatus, setUploadStatus] = useState<
     "select" | "uploading" | "done"
-  >("select"); //select | uploading | done
+  >("select");
 
   /**
    * Sử dụng để cập nhật trạng thái cho từng file khi được tải lên Cloudinary.
@@ -189,61 +194,6 @@ const UploadFile: React.FC<UploadFileProps> = ({
     setFileStatuses(updatedStatuses);
   };
 
-  // const promises = selectedFile.map((file) => {
-  //   return new Promise<void>((resolve, reject) => {
-  //     if (file.type === "image/svg+xml") {
-  //       // Đọc file SVG
-  //       const reader = new FileReader();
-  //       reader.onload = () => {
-  //         const svgContent = reader.result;
-
-  //         // Kiểm tra null trước khi sử dụng svgContent
-  //         if (typeof svgContent === "string") {
-  //           const parser = new DOMParser();
-  //           const svgDoc = parser.parseFromString(
-  //             svgContent,
-  //             "image/svg+xml"
-  //           );
-
-  //           // Thêm fill="currentColor" vào các phần tử path, circle, rect
-  //           svgDoc.querySelectorAll("path").forEach((path) => {
-  //             if (!path.getAttribute("fill")) {
-  //               path.setAttribute("fill", "currentColor");
-  //             }
-  //           });
-
-  //           svgDoc.querySelectorAll("circle").forEach((circle) => {
-  //             if (!circle.getAttribute("fill")) {
-  //               circle.setAttribute("fill", "currentColor");
-  //             }
-  //           });
-
-  //           // Lấy nội dung SVG đã chỉnh sửa
-  //           const updatedSvg = svgDoc.documentElement.outerHTML;
-
-  //           // Chuyển nội dung SVG đã chỉnh sửa thành Blob
-  //           const blob = new Blob([updatedSvg], { type: "image/svg+xml" });
-
-  //           // Thêm tệp Blob đã chỉnh sửa vào FormData
-  //           formData.append("file", blob, file.name);
-  //           resolve(); // Đánh dấu hoàn thành
-  //         } else {
-  //           console.error("Nội dung SVG không phải là chuỗi hợp lệ.");
-  //           reject("Nội dung SVG không hợp lệ");
-  //         }
-  //       };
-  //       reader.onerror = () => {
-  //         reject("Lỗi đọc file");
-  //       };
-  //       reader.readAsText(file);
-  //     } else {
-  //       // Nếu không phải là SVG, thêm trực tiếp vào FormData
-  //       formData.append("file", file);
-  //       resolve(); // Đánh dấu hoàn thành cho file không phải SVG
-  //     }
-  //   });
-  // });
-
   // await Promise.all(promises);
   // const MAX_SIZE_MB =
   const handleUpload = async (): Promise<void> => {
@@ -373,11 +323,15 @@ const UploadFile: React.FC<UploadFileProps> = ({
   }
 
   /**
+   * Tải panorama success vào RAM và dùng cho việc cache khi làm.
+   */
+
+  /**
    * Chuyển sang step mới:
    * 1. Đưa các panorama success vào redux.
    * 2. set nextStep để chuyển bước mới.
    */
-  const nextStep2 = () => {
+  const nextStep2 = async () => {
     const allSuccessful = fileStatuses
       .filter((f) => f.status === "success" && f.uploadedUrl)
       .map((f) => ({
@@ -398,12 +352,49 @@ const UploadFile: React.FC<UploadFileProps> = ({
       return;
     }
 
+    setLoading(true);
+
+    await Promise.all(
+      allSuccessful.map(async ({ url, originalFileName }) => {
+        const existing = imageRef.current[url];
+        if (existing && existing.quality === "8K") return;
+
+        try {
+          const highResURL = buildImageUrlWithQuality(url, "8K");
+          const response = await fetch(highResURL, { mode: "cors" });
+          const blob = await response.blob();
+          const objectUrl = URL.createObjectURL(blob);
+
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.src = objectUrl;
+
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => {
+              imageRef.current[url] = {
+                img,
+                objectUrl,
+                quality: "8K",
+                lastUsed: Date.now(),
+              };
+              resolve();
+            };
+            img.onerror = reject;
+          });
+        } catch (err) {
+          console.warn("Không tải được ảnh 360 trong nextStep2:", url, err);
+        }
+      })
+    );
+
+    setLoading(false);
+
+    // dispatch(setPanoramas(allSuccessful));
     if (className === "upload_panos") {
       dispatch(setPanoramas(allSuccessful));
     }
     dispatch(nextStep());
   };
-
   return (
     <div className={`${styles.uploadWrapper}`}>
       <input

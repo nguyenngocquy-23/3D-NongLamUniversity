@@ -148,7 +148,7 @@ const ConfigIcon = ({
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
-      return; // ⛔️ Bỏ qua lần đầu render
+      return;
     }
 
     if (propHotspot != null) {
