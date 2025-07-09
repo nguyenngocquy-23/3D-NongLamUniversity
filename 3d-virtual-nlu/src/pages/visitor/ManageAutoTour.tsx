@@ -120,17 +120,16 @@ const ManageAutoTour = () => {
       <div className={styles.tour_container}>
         {searchData.length > 0 ? (
           searchData.map((node) => (
-            <>
               <div
                 key={node.id}
                 className={styles.tour}
                 onClick={() => handleDetail(node.id)}
+                title={node.name}
                 style={{ background: `url(${node.thumbNail})` }}
               >
                 <div className={styles.blur} />
                 <span className={styles.name}>{node.name}</span>
               </div>
-            </>
           ))
         ) : (
           <div style={{ color: "black" }}>Danh sách trống...</div>

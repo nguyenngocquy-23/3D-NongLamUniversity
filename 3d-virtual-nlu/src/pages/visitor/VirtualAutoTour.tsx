@@ -42,6 +42,15 @@ const VirtualAutoTour: React.FC = () => {
     (pano) => pano.id === currentSelectId
   );
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const [isRotation, setIsRotation] = useState(true);
   const [openNodeList, setOpenNodeList] = useState(true);
@@ -333,21 +342,27 @@ const VirtualAutoTour: React.FC = () => {
             autoRotateSpeed={speedRotate}
           />
         </Canvas>
-        <FooterTour
-          isRotation={isRotation}
-          setIsRotation={setIsRotation}
-          isMuted={isMuted}
-          isFullscreen={isFullscreen}
-          toggleInformation={toggleInformation}
-          toggleFullscreen={toggleFullscreen}
-          toggleMute={toggleMute}
-          setIsComment={setIsComment}
-          accessing={accessing}
-          setOpenNodeList={setOpenNodeList}
-        />
+        {!isMobile && (
+          <FooterTour
+            isRotation={isRotation}
+            setIsRotation={setIsRotation}
+            isMuted={isMuted}
+            isFullscreen={isFullscreen}
+            toggleInformation={toggleInformation}
+            toggleFullscreen={toggleFullscreen}
+            toggleMute={toggleMute}
+            setIsComment={setIsComment}
+            accessing={accessing}
+            setOpenNodeList={setOpenNodeList}
+          />
+        )}
         {/* Header chứa back */}
         <div className={styles.header_tour}>
-          <h2>{autoTour.name || ""}</h2>
+          {isMobile ? (
+            <h4>{autoTour.name || ""}</h4>
+          ) : (
+            <h2>{autoTour.name || ""}</h2>
+          )}
           <IoIosCloseCircle
             className={styles.close_btn}
             onClick={handleClose}
@@ -370,7 +385,7 @@ const VirtualAutoTour: React.FC = () => {
         </div>
         {/* Hộp node */}
         {openNodeList && (
-          <div className={styles.node_list}>
+          <div className={styles.node_list} style={{bottom: isMobile ? "1rem" : ""}}>
             {autoPanoramaList.map((pano) => (
               <div
                 key={pano.id}
@@ -391,7 +406,7 @@ const VirtualAutoTour: React.FC = () => {
             ))}
           </div>
         )}
-        <button className={styles.skip_button} onClick={skipToNext}>
+        <button className={styles.skip_button} style={{bottom: isMobile ? "8rem" : ""}} onClick={skipToNext}>
           <FaAngleDoubleRight className={styles.arrow} /> Đi tiếp{" "}
           <FaAngleDoubleRight className={styles.arrow} />
         </button>
