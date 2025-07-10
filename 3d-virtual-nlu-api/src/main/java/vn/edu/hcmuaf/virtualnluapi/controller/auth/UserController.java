@@ -49,6 +49,19 @@ public class UserController {
     }
 
     @POST
+    @Path(("/toggleLockStatus"))
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> toggleLockStatus(UserIdRequest request) {
+        boolean result = userService.toggleLockStatus(request);
+        return ApiResponse.<Boolean>builder()
+                .statusCode(result ? 1000 : 5000)
+                .message(result ? "change status successfully" : "Failed to change status")
+                .data(result)
+                .build();
+    }
+
+    @POST
     @Path(("/forgotPassword"))
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)

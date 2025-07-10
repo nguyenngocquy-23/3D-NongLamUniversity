@@ -78,6 +78,22 @@ public class HotspotController {
     }
 
     @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/getNumDownloadModel")
+    public ApiResponse<Integer> getNumDownloadModel(UserIdRequest reqs) {
+        int result = hotspotService.getNumDownloadModel
+                (reqs);
+
+
+        if (result > 0) {
+            return ApiResponse.<Integer>builder().statusCode(1000).message("count number download model successful.").data(result).build();
+        } else{
+            return ApiResponse.<Integer>builder().statusCode(5000).message("count number download model failed! Please check.").data(result).build();
+        }
+    }
+
+    @POST
     @Path("/searchModel")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)

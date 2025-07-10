@@ -101,4 +101,13 @@ public class HotspotService {
             return -1;
         }
     }
+
+    public int getNumDownloadModel(UserIdRequest reqs) {
+        try {
+            return hotspotDao.getNumDownloadModel(reqs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

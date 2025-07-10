@@ -361,4 +361,11 @@ public class HotspotDao {
             return handle.createQuery(sql).mapTo(Integer.class).findOne().orElse(0);
         });
     }
+
+    public int getNumDownloadModel(UserIdRequest reqs) {
+        String sql = "SELECT SUM(m.numDownload) FROM hotspot_models AS m JOIN hotspots AS h ON m.hotspotId = h.id JOIN nodes AS n ON h.nodeId = n.id WHERE n.userId = :userId";
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql).bind("userId", reqs.getUserId()).mapTo(Integer.class).findOne().orElse(0);
+        });
+    }
 }

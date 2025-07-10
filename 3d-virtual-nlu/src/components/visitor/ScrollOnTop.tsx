@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styles from '../../styles/scrollOnTop.module.css'
+import styles from "../../styles/scrollOnTop.module.css";
 import { FaAngleUp } from "react-icons/fa6";
 
 const ScrollOnTop = () => {
@@ -32,7 +32,7 @@ const ScrollOnTop = () => {
       aria-label="Scroll to top"
       title="Về đầu trang"
     >
-      <FaAngleUp/>
+      <FaAngleUp />
     </button>
   ) : null;
 };

@@ -115,7 +115,7 @@
   display: grid;
   max-height: 420px;
   margin: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   justify-items: center;
   gap: 1rem;
   overflow: auto;

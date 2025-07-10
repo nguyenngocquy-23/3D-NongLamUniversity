@@ -122,7 +122,7 @@ public class NodeController {
     @Path("/byUser")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<NodeFullResponse>> getNodeByUser(UserIdRequest request) {
+    public ApiResponse<List<NodeFullResponse>> getNodeByUser(UserIdRequest request, PageRequest pageRequest) {
         List<NodeFullResponse> result = nodeService.getNodeByUser(request);
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node theo nguoi tao thanh cong").data(result).build();
     }

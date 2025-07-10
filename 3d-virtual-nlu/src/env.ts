@@ -36,6 +36,7 @@ export const API_URLS = {
   NUM_VIEW_OF_USER: `${DOMAIN}/node/getNumOfUser`,
   COMMENT_OF_NODE: `${DOMAIN}/comment/getOfNode`,
   NUM_COMMENT_OF_USER: `${DOMAIN}/comment/getNumOfUser`,
+  NUM_DOWNLOAD_MODEL_OF_USER: `${DOMAIN}/v1/admin/hotspot/getNumDownloadModel`,
   SEND_COMMENT: `${DOMAIN}/comment/send`,
   EDIT_COMMENT: `${DOMAIN}/comment/update`,
   REMOVE_COMMENT: `${DOMAIN}/comment/remove`,

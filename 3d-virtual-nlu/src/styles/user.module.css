@@ -1,10 +1,12 @@
 .container {
+    width: 100%;
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     position: relative;
 }
-.container h2{
+
+.container h2 {
     text-align: center;
     font-size: 24px;
     margin-bottom: 30px;
@@ -18,7 +20,8 @@
     margin-top: 20px;
 }
 
-.table th, .table td {
+.table th,
+.table td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
@@ -27,6 +30,7 @@
 .table th {
     background-color: #f2f2f2;
 }
+
 .dataTable {
     width: 100%;
     border-collapse: collapse;
@@ -38,4 +42,35 @@
     display: block !important;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
+}
+
+.status_button:focus {
+    outline: none;
+}
+
+.status_button:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.status_button {
+    padding: 0.5rem;
+}
+
+.search_input::placeholder {
+    color: black;
+}
+.search_input:focus {
+    outline: none;
+}
+.search_input {
+    position: absolute;
+    top: 0.5rem;
+    left: 10px;
+    width: 20%;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid #ccc;
+    background-color: white;
+    color: black;
 }

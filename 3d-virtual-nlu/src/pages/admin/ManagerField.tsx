@@ -25,6 +25,7 @@ import axios from "axios";
 import { validateName } from "../../utils/ValidateInputName";
 import { format } from "date-fns";
 import Pagination from "../../components/Pagination";
+import { useDebounce } from "../../hooks/useDebounce";
 
 interface Field {
   id: number;
@@ -63,6 +64,30 @@ const Field = () => {
   //Custom phân trang client-side.
   const [currentPage, setCurrentPage] = useState<number>(1);
   let pageSize = 10; // Số lượng bản ghi trên 1 page.
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500); // custom hook
+
+  // const [currentPage, setCurrentPage] = useState(0);
+
+  // For example
+  const [totalNode, setTotalNode] = useState(0);
+  const perPage = 10;
+  const totalPages = Math.ceil(totalNode / perPage);
+
+  useEffect(() => {
+    const handleSearch = async () => {
+      if (!debouncedSearch) return;
+      const response = await axios.post(
+        `${API_URLS.BASE}/v1/admin/node/search`,
+        {
+          searchKey: debouncedSearch,
+        }
+      );
+      // setNodeList(response.data.data);
+    };
+    handleSearch();
+  }, [debouncedSearch]);
 
   const currentFieldListData = useMemo(() => {
     const firstPageIndex = (currentPage - 1) * pageSize;
@@ -242,11 +267,6 @@ const Field = () => {
             Thêm lĩnh vực
           </button>
         </div>
-        <hr className={styles.break} />
-
-        <div className={styles.field_quantity}>
-          Kết quả: {fields.length} lĩnh vực.
-        </div>
 
         <div className={styles.field_list}>
           {currentFieldListData.map((field) => {
@@ -261,6 +281,27 @@ const Field = () => {
               </div>
             );
           })}
+        </div>
+
+        {search.length === 0 && (
+          <div className={styles.pagination}>
+            {[...Array(totalPages)].map((_, index) => {
+              return (
+                <button
+                  key={index}
+                  className={`${styles.page_btn} ${
+                    currentPage === index ? styles.active : ""
+                  }`}
+                  onClick={() => setCurrentPage(index)}
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <div className={styles.field_quantity}>
+          Kết quả: {fields.length} lĩnh vực.
         </div>
 
         <div className={styles.field_pagination}>
