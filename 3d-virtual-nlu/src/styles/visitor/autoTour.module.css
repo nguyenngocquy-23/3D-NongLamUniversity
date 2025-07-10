@@ -29,15 +29,18 @@
 }
 
 .tour_container {
-    width: 100%;
-    margin: 0.5rem auto;
+    flex: 1 1;
+    overflow: auto;
+    scrollbar-width: none;
     padding: 1rem;
+}
+
+.content {
+    width: 100%;
     border-radius: 10px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
-    overflow: auto;
-    scrollbar-width: none;
 }
 
 .tour {
@@ -217,7 +220,7 @@
         transform: translateX(10px);
     }
 
-    .tour_container {
+    .content {
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
     }

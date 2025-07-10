@@ -73,6 +73,7 @@ const TypeNavigation = ({
               );
             }
           }}
+          className={styles.custom_select}
         >
           <option value="">Chọn panorama</option>
           {limitNav

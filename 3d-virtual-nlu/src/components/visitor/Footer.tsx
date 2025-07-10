@@ -26,8 +26,10 @@ export default function Footer() {
       const windowHeight = window.innerHeight; // chiều cao màn hình
       const fullHeight = document.documentElement.scrollHeight; // tổng chiều cao trang
 
-      if (scrollTop + windowHeight >= fullHeight) {
+      const checkOpenForm = sessionStorage.getItem("openForm");
+      if (scrollTop + windowHeight >= fullHeight && !checkOpenForm) {
         setOpenForm(true);
+        sessionStorage.setItem("openForm", "true");
       }
     };
 

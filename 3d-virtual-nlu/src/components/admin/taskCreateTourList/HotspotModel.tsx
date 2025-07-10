@@ -62,14 +62,6 @@ const TypeModel = ({
       }`}
     >
       <div style={{ height: "75%", overflowY: "auto" }}>
-        <p>
-          <span style={{ color: "pink" }}> {hotspotModel?.positionX} </span>
-          <span style={{ color: "yellow" }}> {hotspotModel?.positionY} </span>
-          <span style={{ color: "lightblue" }}>
-            {" "}
-            {hotspotModel?.positionZ}{" "}
-          </span>
-        </p>
         <div
           style={{
             position: "relative",
@@ -91,9 +83,10 @@ const TypeModel = ({
             onThumbnailSaved={handleThumbnailSaved}
           />
         )}
-        <div style={{ display: "flex" }}>
+        <div className={styles.row_config} style={{ display: "flex" }}>
           <label className={styles.label}>Tên mô hình:</label>
           <input
+            className={styles.model_name_input}
             type="text"
             name=""
             id=""
@@ -103,9 +96,10 @@ const TypeModel = ({
             }}
           />
         </div>
-        <div style={{ display: "flex" }}>
+        <div className={styles.row_config} style={{ display: "flex" }}>
           <label className={styles.label}>Mô tả:</label>
           <textarea
+            className={styles.model_description_input}
             name=""
             id=""
             value={description}
