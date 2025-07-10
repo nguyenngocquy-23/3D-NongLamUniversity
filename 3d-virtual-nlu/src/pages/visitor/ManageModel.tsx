@@ -35,36 +35,55 @@ const ManageModel = () => {
   }, [dispatch]);
 
   const models = useSelector((state: RootState) => state.data.models);
-  const [autoNodeList, setAutoNodeList] = useState<any[]>(models || []);
-  const [searchData, setSearchData] = useState(models);
+  const [modelList, setModelList] = useState<any[]>(models || []);
 
   useEffect(() => {
     if (models && models.length > 0) {
-      setSearchData(models);
+      setModelList(models);
     }
+    const handleFetchTotalModel = async () => {
+      try {
+        const response = await axios.post(API_URLS.GET_NUM_TOTAL_MODEL);
+        if (response.data.data) {
+          setTotalModel(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching total models:", error);
+      }
+    };
+    handleFetchTotalModel();
   }, [models]);
+
+  useEffect(() => {
+    if (search === "") {
+      setModelList(models);
+    }
+  }, [search]);
 
   useEffect(() => {
     const handleSearch = async () => {
       if (!debouncedSearch) return;
       const response = await axios.post(
-        `${API_URLS.BASE}/v1/admin/node/search`,
+        `${API_URLS.BASE}/v1/admin/hotspot/searchModel`,
         {
           searchKey: debouncedSearch,
         }
       );
-      setAutoNodeList(response.data.data);
+      setModelList(response.data.data);
     };
     handleSearch();
   }, [debouncedSearch]);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = event.target.value.toLowerCase();
-    const newData = models.filter((row) => {
-      return row.name.toLowerCase().includes(searchTerm);
-    });
-    setSearchData(newData);
-  };
+  useEffect(() => {
+    const handleChangePage = async () => {
+      const response = await axios.post(API_URLS.GET_ALL_MODEL, {
+        page: currentPage,
+        limit: perPage,
+      });
+      setModelList(response.data.data);
+    };
+    handleChangePage();
+  }, [currentPage]);
 
   const handleDetail = (modelId: number) => {
     navigate(`/model/${modelId}`);
@@ -91,32 +110,34 @@ const ManageModel = () => {
             id="input"
             placeholder="Tìm kiếm mô hình..."
             className={styles.search_input}
-            onChange={handleSearch}
+            onChange={(event) => setSearch(event.target.value)}
           />
         </div>
         <span className={styles.title}>MÔ HÌNH 3D</span>
       </div>
       <div className={styles.model_container}>
-        {searchData.length > 0 ? (
-          searchData.map((model) => (
-            <div
-              key={model.id}
-              className={styles.tour}
-              onClick={() => handleDetail(model.id)}
-              title={model.name}
-              style={{ background: `url(${model.thumbnailUrl})` }}
-            >
-              <div className={styles.blur} />
-              <span className={styles.name}>{model.name}</span>
-              <div className={styles.info}>
-                <p>🕒 {formatTimestampToDate(model.updatedAt)}</p>
-                <p>⬇ {model.numDownload} lượt tải</p>
+        <div className={styles.content}>
+          {modelList.length > 0 ? (
+            modelList.map((model) => (
+              <div
+                key={model.id}
+                className={styles.model}
+                onClick={() => handleDetail(model.id)}
+                title={model.name}
+                style={{ background: `url(${model.thumbnailUrl})` }}
+              >
+                <div className={styles.blur} />
+                <span className={styles.name}>{model.name}</span>
+                <div className={styles.info}>
+                  <p>🕒 {formatTimestampToDate(model.updatedAt)}</p>
+                  <p>⬇ {model.numDownload} lượt tải</p>
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <div style={{ color: "black" }}>Danh sách trống...</div>
-        )}
+            ))
+          ) : (
+            <div style={{ color: "black" }}>Danh sách trống...</div>
+          )}
+        </div>
         {search.length === 0 && (
           <div className={styles.pagination}>
             {[...Array(totalPages)].map((_, index) => {

@@ -83,4 +83,22 @@ public class HotspotService {
             return false;
         }
     }
+
+    public List<HotspotModelResponse> searchModel(String searchKey) {
+        try {
+            return hotspotDao.searchModel(searchKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public int getNumTotalModel() {
+        try {
+            return hotspotDao.getNumTotalModel();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

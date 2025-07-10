@@ -32,11 +32,11 @@
     71% {
         transform: translateY(0);
     }
-    
+
     80% {
         transform: translateY(-15px);
     }
-    
+
     88% {
         transform: translateY(0);
     }
@@ -50,7 +50,7 @@
     }
 }
 
-.canvas{
+.canvas {
     /* background: radial-gradient(rgba(255, 255, 255, 1), rgba(0, 0, 0, 1)); */
     background: #242B33;
     position: absolute !important;
@@ -63,7 +63,7 @@
 .option {
     position: relative;
     width: 20%;
-    height: 100% ;
+    height: 100%;
     background-color: #1A1E21;
 }
 
@@ -97,7 +97,7 @@
     background-color: transparent;
 }
 
-.model_info{
+.model_info {
     position: absolute;
     top: 20%;
     left: 50%;
@@ -106,11 +106,12 @@
     z-index: 2;
 }
 
-.name{
+.name {
     font-size: 50px;
     font-weight: 800;
 }
-.avatar{
+
+.avatar {
     width: 150px;
     height: 150px;
     transform: translateX(-75px);
@@ -125,12 +126,12 @@
     background-size: contain !important;
 }
 
-.username{
+.username {
     position: absolute;
     bottom: -40px;
 }
 
-.share_container{
+.share_container {
     position: absolute;
     bottom: 2rem;
     right: 2rem;
@@ -146,9 +147,11 @@
     border: none;
     outline: none;
 }
+
 .share_button:hover {
     background-color: #3A3F43;
 }
+
 .share_button {
     border: none;
     outline: none;
@@ -161,4 +164,101 @@
     align-items: center;
     justify-content: center;
     transition: background-color 0.3s ease;
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    .canvas {
+        position: relative !important;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        flex: 1;
+    }
+
+    .option {
+        width: 100%;
+        height: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .option_button:hover {
+        width: auto;
+        opacity: 0.7;
+    }
+    .option_button {
+        width: auto;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .icon {
+        position: static;
+        transform: none;
+        margin-right: 0.5rem;
+    }
+
+    .name_option {
+        margin-left: 0;
+    }
+
+    .model_info p{
+        display: none;
+    }
+    .model_info {
+        position: static;
+        width: 100%;
+        height: auto;
+        text-align: left;
+    }
+
+    .name {
+        font-size: 1.5rem;
+        word-break: break-word;
+    }
+
+    .description {
+        font-size: 1rem;
+    }
+
+    .avatar {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none;
+        background: none !important;
+        border: none !important;
+    }
+
+    .username {
+        position: static;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .share_container {
+        position: absolute;
+        flex-direction: row;
+        justify-content: center;
+        gap: 1rem;
+        bottom: 1rem;
+    }
+
+    .share_button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .share_icon {
+        font-size: 1.2rem;
+    }
 }

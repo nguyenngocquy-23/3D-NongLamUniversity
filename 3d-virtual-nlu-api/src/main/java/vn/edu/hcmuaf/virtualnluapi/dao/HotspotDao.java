@@ -313,7 +313,7 @@ public class HotspotDao {
                 JOIN hotspot_models AS m ON h.id = m.hotspotId
                 JOIN nodes as n ON n.id = h.nodeId
                 JOIN users as u ON n.userId = u.id
-                WHERE n.status = 1
+                WHERE h.status = 1
                 ORDER BY n.updatedAt DESC
                 LIMIT :limit OFFSET :offset
                 """;
@@ -331,6 +331,34 @@ public class HotspotDao {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int updatedRows = handle.createUpdate(sql).bind("hotspotId", reqs.getHotspotId()).execute();
             return updatedRows > 0;
+        });
+    }
+
+    public List<HotspotModelResponse> searchModel(String searchKey) {
+        String sql = """
+                SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ,
+                h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity,
+                m.modelUrl, m.thumbnailUrl, m.name, m.description, u.username as usernameAuthor, m.numDownload, h.updatedAt
+                FROM hotspots AS h
+                JOIN hotspot_models AS m ON h.id = m.hotspotId
+                JOIN nodes as n ON n.id = h.nodeId
+                JOIN users as u ON n.userId = u.id
+                WHERE n.status = 1 AND m.name LIKE :searchKey
+                ORDER BY n.updatedAt DESC
+                LIMIT 10 OFFSET 0
+                """;
+
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .bind("searchKey", "%" + searchKey + "%")
+                    .mapToBean(HotspotModelResponse.class).list();
+        });
+    }
+
+    public int getNumTotalModel() {
+        String sql = "SELECT COUNT(*) FROM hotspots AS h JOIN hotspot_models AS m ON h.id = m.hotspotId WHERE h.status = 1";
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql).mapTo(Integer.class).findOne().orElse(0);
         });
     }
 }

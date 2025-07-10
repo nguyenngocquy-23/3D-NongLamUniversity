@@ -218,7 +218,7 @@ const Model = () => {
         camera={{
           fov: 75,
           position: [0, 4, 6],
-          aspect: (window.innerWidth / window.innerHeight) * 0.8,
+          // aspect: (window.innerWidth / window.innerHeight) * 0.8,
         }}
       >
         <Node modelUrl={!hotspotModel ? modelUrl : hotspotModel.modelUrl} />

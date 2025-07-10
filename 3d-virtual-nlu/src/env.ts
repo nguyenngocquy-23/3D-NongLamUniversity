@@ -41,6 +41,7 @@ export const API_URLS = {
   REMOVE_COMMENT: `${DOMAIN}/comment/remove`,
 
   GET_MODEL: `${DOMAIN}/v1/admin/hotspot/getModel`,
+  GET_NUM_TOTAL_MODEL: `${DOMAIN}/v1/admin/hotspot/getNumTotalModel`,
   ADMIN_GET_DASHBOARD: `${DOMAIN}/admin/dashboard`,
   ADMIN_GET_ALL_NODES: `${DOMAIN}/v1/admin/node/all`,
   ADMIN_GET_AUTO_TOURS: `${DOMAIN}/v1/admin/node/getAutoTour`,

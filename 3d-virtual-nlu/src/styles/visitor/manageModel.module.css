@@ -28,20 +28,22 @@
     font-weight: 800;
 }
 
-.model_container {
+.model_container{
     flex: 1 1;
-    width: 100%;
-    margin: 0.5rem auto;
+    overflow: auto;
+    scrollbar-width: none;
     padding: 1rem;
+}
+
+.content {
+    width: 100%;
     border-radius: 10px;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 1.5rem;
-    overflow: auto;
-    scrollbar-width: none;
 }
 
-.tour {
+.model {
     position: relative;
     background: linear-gradient(to bottom, #fff, rgba(255, 2, 2, 0));
     border-radius: 1rem;
@@ -57,16 +59,16 @@
     background-repeat: no-repeat !important;
 }
 
-.tour:hover {
+.model:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
-.tour:hover::before {
+.model:hover::before {
     background: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0));
 }
 
-.tour::before {
+.model::before {
     content: "";
     position: absolute;
     top: 0;
@@ -78,7 +80,7 @@
 }
 
 
-.tour:hover .info {
+.model:hover .info {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
@@ -190,6 +192,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0.5rem auto;
 }
 
 .page_btn {
@@ -241,12 +244,12 @@
         transform: translateX(10px);
     }
 
-    .tour_container {
+    .content {
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
     }
 
-    .tour {
+    .model {
         width: 100%;
         height: auto;
         aspect-ratio: 4 / 3;
