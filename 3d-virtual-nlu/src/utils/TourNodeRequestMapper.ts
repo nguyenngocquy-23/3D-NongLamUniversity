@@ -273,13 +273,14 @@ export interface HotspotNavResponse {
   allowBackgroundColor: number;
   opacity: number;
   targetNodeId: string;
+  iconType: number;
 }
 
 export interface HotspotInfoResponse {
   id: string;
   nodeId: string;
   type: number;
-  iconId: number;  
+  iconId: number;
   status: number;
   positionX: number;
   positionY: number;
@@ -294,6 +295,7 @@ export interface HotspotInfoResponse {
   opacity: number;
   title: string;
   content: string;
+  iconType: number;
 }
 export interface HotspotMediaResponse {
   id: string;
@@ -321,7 +323,7 @@ export interface HotspotModelResponse {
   id: string;
   nodeId: string;
   type: number;
-  iconId: number;  
+  iconId: number;
   status: number;
   positionX: number;
   positionY: number;
@@ -338,6 +340,7 @@ export interface HotspotModelResponse {
   name: string;
   description: string;
   colorCode: string;
+  iconType: number;
 }
 
 export class TourNodeRequestMapper {
@@ -681,6 +684,7 @@ export class TourNodeRequestMapper {
           opacity: h.opacity,
           scale: h.scale,
           targetNodeId: String(h.targetNodeId),
+          iconType: h.iconType,
         } as HotspotNavigation);
       });
 
@@ -704,6 +708,7 @@ export class TourNodeRequestMapper {
           opacity: h.opacity,
           title: h.title,
           content: h.content,
+          iconType: h.iconType,
         } as HotspotInformation);
       });
 
@@ -756,6 +761,7 @@ export class TourNodeRequestMapper {
           name: h.name,
           description: h.description,
           colorCode: h.colorCode,
+          iconType: h.iconType,
         } as HotspotModel);
       });
     }

@@ -20,6 +20,7 @@ export interface BaseHotspot {
   backgroundColor: string;
   allowBackgroundColor: boolean;
   opacity: number;
+  iconType: number;
 }
 
 export interface HotspotNavigation extends BaseHotspot {
@@ -77,7 +78,7 @@ const hotspotSlice = createSlice({
       // action: PayloadAction<Omit<HotspotNavigation, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload
+        ...action.payload,
       });
       // id: nanoid(),
     },
@@ -87,7 +88,7 @@ const hotspotSlice = createSlice({
       // action: PayloadAction<Omit<HotspotInformation, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload
+        ...action.payload,
       });
       // id: nanoid(),
     },
@@ -97,7 +98,7 @@ const hotspotSlice = createSlice({
       // action: PayloadAction<Omit<HotspotMedia, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload
+        ...action.payload,
       });
       // id: nanoid(),
     },
@@ -107,7 +108,7 @@ const hotspotSlice = createSlice({
       // action: PayloadAction<Omit<HotspotModel, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload
+        ...action.payload,
       });
       // id: nanoid(),
     },
@@ -193,7 +194,7 @@ const hotspotSlice = createSlice({
           const node = state.hotspotPositions.find(
             (n) => n.nodeId == (nodeId ?? state.hotspotList[index].nodeId)
           );
-          
+
           if (node) {
             const hotspotIndex = node.hotspotPositions.findIndex(
               (h) => h.id == action.payload.hotspotId
@@ -393,9 +394,7 @@ const hotspotSlice = createSlice({
     ) => {
       const { nodeId, hotspotPosition } = action.payload;
 
-      const index = state.hotspotPositions.findIndex(
-        (h) => h.nodeId == nodeId
-      );
+      const index = state.hotspotPositions.findIndex((h) => h.nodeId == nodeId);
 
       if (index === -1) {
         // Nếu nodeId chưa tồn tại => thêm mới

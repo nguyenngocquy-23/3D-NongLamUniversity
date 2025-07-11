@@ -64,12 +64,10 @@ export const fetchUsers = createAsyncThunk(
 
 // Fetch nodes
 export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
-  const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES,
-    {
-      page: 0,
-      limit: perPage,
-    }
-  );
+  const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES, {
+    page: 0,
+    limit: perPage,
+  });
   return response.data.data;
 });
 
@@ -109,12 +107,10 @@ export const fetchNodeOfUser = createAsyncThunk(
 export const fetchAutoNode = createAsyncThunk(
   "data/fetchAutoNode",
   async () => {
-    const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS,
-      {
-        page: 0,
-        limit: perPage,
-      }
-    );
+    const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
+      page: 0,
+      limit: perPage,
+    });
     return response.data.data;
   }
 );
@@ -148,14 +144,17 @@ export const fetchCommentOfNode = createAsyncThunk(
 );
 
 // Fetch dashboard
-export const fetchDashboard = createAsyncThunk("data/fetchDashboard", async () => {
-  const userJson = sessionStorage.getItem("user");
-  const user = userJson ? JSON.parse(userJson) : null;
-  const response = await axios.post(API_URLS.ADMIN_GET_DASHBOARD, {
-    userId: user.id,
-  });
-  return response.data.data;
-});
+export const fetchDashboard = createAsyncThunk(
+  "data/fetchDashboard",
+  async () => {
+    const userJson = sessionStorage.getItem("user");
+    const user = userJson ? JSON.parse(userJson) : null;
+    const response = await axios.post(API_URLS.ADMIN_GET_DASHBOARD, {
+      userId: user.id,
+    });
+    return response.data.data;
+  }
+);
 
 // Fetch field
 export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
@@ -299,7 +298,7 @@ const dataSlice = createSlice({
       .addCase(fetchDashboard.rejected, (state) => {
         state.status = "failed";
       })
-      
+
       .addCase(fetchUsers.pending, (state) => {
         state.status = "loading";
       })

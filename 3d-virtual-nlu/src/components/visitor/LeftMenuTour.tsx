@@ -8,15 +8,27 @@ import {
   resetNodes,
   setDefaultNode,
 } from "../../redux/slices/DataSlice";
+import { transformUrlToThumbnail } from "../../utils/getCloudinaryURL";
+import { GoPin } from "react-icons/go";
+import { BiPin, BiSolidPin } from "react-icons/bi";
 
 interface LeftMenuProps {
-  isMenuVisible: boolean;
   imageRef: React.RefObject<
     Record<string, { img: HTMLImageElement; objectUrl: string }>
   >;
+  setIsMenuVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  isMenuVisible: boolean;
+  setIsMenuPin: React.Dispatch<React.SetStateAction<boolean>>;
+  isMenuPin: boolean;
 }
 
-const LeftMenuTour = ({ isMenuVisible, imageRef }: LeftMenuProps) => {
+const LeftMenuTour = ({
+  imageRef,
+  setIsMenuVisible,
+  isMenuVisible,
+  isMenuPin,
+  setIsMenuPin,
+}: LeftMenuProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const listMasterNode = useSelector(
     (state: RootState) => state.data.masterNodes
@@ -27,11 +39,11 @@ const LeftMenuTour = ({ isMenuVisible, imageRef }: LeftMenuProps) => {
     node.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const [page, setPage] = useState(-1);
+  const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const limit = 6;
+  const limit = 7;
 
   const scrollRef = useRef<HTMLUListElement>(null);
   const scrollPositionRef = useRef<number>(0);
@@ -56,10 +68,10 @@ const LeftMenuTour = ({ isMenuVisible, imageRef }: LeftMenuProps) => {
   }, [isMenuVisible]);
 
   useEffect(() => {
-    if (isMenuVisible) {
-      console.log("Fetching nodes for page:", page);
-      loadNodes();
-    }
+    // if (isMenuVisible) {
+    console.log("Fetching nodes for page:", page);
+    loadNodes();
+    // }
   }, [page]);
 
   const handleScroll = () => {
@@ -100,27 +112,30 @@ const LeftMenuTour = ({ isMenuVisible, imageRef }: LeftMenuProps) => {
           />
           <FaSearch className={styles.searchBtn} />
         </div>
+
+        <div
+          className={styles.pin_header}
+          onClick={() => setIsMenuPin((prev) => !prev)}
+        >
+          {isMenuPin ? <BiSolidPin /> : <BiPin />}
+        </div>
       </div>
       <ul
         ref={scrollRef}
         onScroll={handleScroll}
-        style={{ height: "80vh", overflowY: "auto" }}
         className={styles.master_container}
       >
         {filteredNodes.map((node) => {
-          const cachedImage = imageRef.current[node.url];
-
-          if (!cachedImage) {
-            return null;
-          }
-          const objectUrl = cachedImage.objectUrl;
+          const imgUrl = transformUrlToThumbnail(node.url);
 
           return (
             <li
               key={node.id}
               className={styles.node}
               style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${objectUrl})`,
+                backgroundImage: `url(${
+                  imageRef.current[node.id]?.objectUrl || imgUrl
+                })`,
               }}
               onClick={() => handleSelectNode(node.id)}
             >

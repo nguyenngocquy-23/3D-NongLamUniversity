@@ -23,4 +23,5 @@ public class HotspotModelResponse {
     float opacity;
     String modelUrl, name, description;
     String usernameAuthor;
+    int iconType;
 }

@@ -131,14 +131,31 @@ public class HotspotDao {
     }
 
     public List<HotspotNavigationResponse> getNavigationByNodeId(int nodeId) {
-        String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" + ", n.targetNodeId " + "FROM hotspots AS h JOIN hotspot_navigations AS n ON h.id = n.hotspotId WHERE h.nodeId = :nodeId and h.status = 1";
+        String sql = """
+        SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ,
+        h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor,
+        h.opacity ,n.targetNodeId , i.type as iconType
+        FROM hotspots AS h 
+        JOIN hotspot_navigations AS n ON h.id = n.hotspotId 
+        JOIN icons i ON h.iconId = i.id
+        WHERE h.nodeId = :nodeId and h.status = 1 
+        
+        """;
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotNavigationResponse.class).list();
         });
     }
 
     public List<HotspotInformationResponse> getInformationByNodeId(int nodeId) {
-        String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" + ", i.title, i.content " + "FROM hotspots AS h JOIN hotspot_informations AS i ON h.id = i.hotspotId WHERE h.nodeId = :nodeId and h.status = 1";
+        String sql =
+                """
+                        SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, 
+                        h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity
+                        , i.title, i.content , ic.type as iconType
+                        FROM hotspots AS h JOIN hotspot_informations AS i ON h.id = i.hotspotId
+                        JOIN icons ic ON h.iconId = ic.id
+                         WHERE h.nodeId = :nodeId and h.status = 1
+                        """;
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotInformationResponse.class).list();
         });
@@ -146,7 +163,15 @@ public class HotspotDao {
 
 
     public List<HotspotModelResponse> getModelByNodeId(int nodeId) {
-        String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity, m.modelUrl, m.name, m.description " + "FROM hotspots AS h JOIN hotspot_models " + "AS m ON h.id = m.hotspotId WHERE h.nodeId = :nodeId and h.status = 1";
+        String sql =
+        """
+               SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, h.pitchX, h.yawY, 
+               h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity, m.modelUrl, m.name, m.description ,
+               i.type as iconType
+               FROM hotspots AS h JOIN hotspot_models AS m ON h.id = m.hotspotId 
+               JOIN icons i ON h.iconId = i.id
+               WHERE h.nodeId = :nodeId and h.status = 1 
+                """;
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotModelResponse.class).list();
         });

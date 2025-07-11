@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import React, { Ref, useEffect, useRef, useState } from "react";
+import React, { Ref, Suspense, useEffect, useRef, useState } from "react";
 import VideoMeshComponent from "../admin/VideoMesh";
 import UpdateCameraOnResize from "../UpdateCameraOnResize";
 import CamControls from "./CamControls";

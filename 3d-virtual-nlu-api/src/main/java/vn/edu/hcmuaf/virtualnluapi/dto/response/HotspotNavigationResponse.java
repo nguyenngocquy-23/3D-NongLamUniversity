@@ -22,4 +22,5 @@ public class HotspotNavigationResponse {
     byte allowBackgroundColor;
     float opacity;
     int targetNodeId;
+    int iconType;
 }

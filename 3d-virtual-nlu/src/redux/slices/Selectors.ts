@@ -10,6 +10,7 @@ import {
 const selectHotspotList = (state: RootState) => state.hotspots.hotspotList;
 const spaceList = (state: RootState) => state.data.spaces;
 const panoramaList = (state: RootState) => state.panoramas.panoramaList;
+const iconList = (state: RootState) => state.data.icons;
 const masterNode = (state: RootState) =>
   state.panoramas.panoramaList.find((p) => p.config.status === 2);
 
