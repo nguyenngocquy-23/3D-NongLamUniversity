@@ -22,6 +22,8 @@ import { API_URLS } from "../../env";
 import { goToStep } from "../../redux/slices/StepSlice";
 import { TfiNewWindow } from "react-icons/tfi";
 import Pagination from "../../components/Pagination";
+import { useDebounce } from "../../hooks/useDebounce";
+import { perPage } from "../../utils/Constants";
 
 interface Space {
   id: number;
@@ -63,18 +65,68 @@ const Space = () => {
   const spaces = useSelector((state: RootState) => state.data.spaces) || [];
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
 
-  const [searchData, setSearchData] = useState<Space[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const spaceCodeList = spaces.map((space) => space.code);
 
-  const handleEditInput = () => {
-    if (!isEditing) setIsEditing(true);
-  };
   const [inputSpaceName, setInputSpaceName] = useState<string | null>(
     selectedSpace?.name || null
   );
   const [nameCode, setNameCode] = useState(selectedSpace?.code);
+  const dashboard = useSelector((state: RootState) => state.data.dashboard);
+  const [spaceList, setSpaceList] = useState<any[]>(spaces || []);
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500); // custom hook
+
+  const [currentPage, setCurrentPage] = useState(0);
+
+  const [totalSpace, setTotalSpace] = useState(0);
+  const totalPages = Math.ceil(totalSpace / perPage);
+
+  useEffect(() => {
+    const handleSearch = async () => {
+      if (!debouncedSearch) return;
+      const response = await axios.post(`${API_URLS.SEARCH_SPACES}`, {
+        searchKey: debouncedSearch,
+      });
+      setSpaceList(response.data.data);
+    };
+    handleSearch();
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (spaces && spaces.length > 0) {
+      setSpaceList(spaces);
+    }
+  }, [spaces]);
+
+  useEffect(() => {
+    if (dashboard) {
+      setTotalSpace(dashboard.numSpace);
+    }
+  }, [dashboard]);
+
+  useEffect(() => {
+    if (search === "") {
+      setSpaceList(spaces);
+    }
+  }, [search]);
+
+  useEffect(() => {
+    const handleChangePage = async () => {
+      const response = await axios.post(API_URLS.ADMIN_GET_ALL_SPACES, {
+        page: currentPage,
+        limit: perPage,
+      });
+      setSpaceList(response.data.data);
+    };
+    handleChangePage();
+  }, [currentPage]);
+
+  const handleEditInput = () => {
+    if (!isEditing) setIsEditing(true);
+  };
 
   useEffect(() => {
     setInputSpaceName(selectedSpace?.name || "");
@@ -92,22 +144,6 @@ const Space = () => {
       navigate("/unauthorized");
     }
   }, [currentUser, navigate]);
-
-  // // Cập nhật searchData mỗi khi users thay đổi
-  // useEffect(() => {
-  //   if (spaces.length > 0) {
-  //     setSearchData(spaces); // Chỉ cập nhật khi users có dữ liệu
-  //   }
-  //   setLoading(false); // Kết thúc trạng thái tải
-  // }, [spaces]);
-
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = event.target.value.toLowerCase();
-    const newData = spaces.filter((row) => {
-      return row.name.toLowerCase().includes(searchTerm);
-    });
-    setSearchData(newData);
-  };
 
   const handleChangeSpaceName = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -150,7 +186,7 @@ const Space = () => {
        */
 
       if (response.data.statusCode === 1000 || response.status === 200) {
-        dispatch(fetchSpaces());
+        dispatch(fetchSpaces({ limit: perPage, page: 0 }));
         setError("");
       } else {
         setError(response.data.message || "Lỗi không xác định");
@@ -209,22 +245,8 @@ const Space = () => {
     }
   };
 
-  let pageSize = 10;
-  const [currentPage, setCurrentPage] = useState(1);
-  const currentSpaceListData = useMemo(() => {
-    const firstPageIndex = (currentPage - 1) * pageSize;
-    const lastPageIndex = firstPageIndex + pageSize;
-    return spaces.slice(firstPageIndex, lastPageIndex);
-  }, [currentPage]);
-
   return (
     <div className={styles.container}>
-      <div className={styles.space_view_mode}>
-        <button className={styles.space_switch_view_btn}>Dạng lưới</button>
-        <button className={styles.space_switch_view_btn}>Dạng bản đồ</button>
-      </div>
-
-      <hr className={styles.break} />
       <div className={styles.space_main_content}>
         <div className={styles.space_list_content}>
           <div className={styles.space_features}>
@@ -235,6 +257,7 @@ const Space = () => {
                 id="input"
                 placeholder="Tìm kiếm không gian..."
                 className={styles.space_search_input}
+                onChange={(e) => setSearch(e.target.value)}
               />
               <label htmlFor="input" className={styles.label_for_search}>
                 <IoSearch className={styles.search_icon} />
@@ -262,14 +285,9 @@ const Space = () => {
               Thêm không gian
             </button>
           </div>
-          <hr className={styles.space_break} />
-
-          <div className={styles.space_quantity}>
-            Kết quả: {spaces.length} không gian.
-          </div>
 
           <div className={styles.space_list}>
-            {currentSpaceListData.map((space) => {
+            {spaceList.map((space) => {
               return (
                 <div
                   key={space.id}
@@ -281,15 +299,27 @@ const Space = () => {
               );
             })}
           </div>
-
-          <div className={styles.space_pagination}>
-            <Pagination
-              onPageChange={(page) => setCurrentPage(page)}
-              totalCount={spaces.length}
-              siblingCount={1}
-              currentPage={currentPage}
-              pageSize={pageSize}
-            />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div className={styles.space_quantity}>
+              Kết quả: {search == "" ? totalSpace : spaceList.length} không gian.
+            </div>
+            {search.length === 0 && (
+              <div className={styles.pagination}>
+                {[...Array(totalPages)].map((_, index) => {
+                  return (
+                    <button
+                      key={index}
+                      className={`${styles.page_btn} ${
+                        currentPage === index ? styles.active : ""
+                      }`}
+                      onClick={() => setCurrentPage(index)}
+                    >
+                      {index + 1}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
         {/* Chỉnh sửa thông tin chung */}
