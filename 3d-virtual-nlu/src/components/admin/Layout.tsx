@@ -18,6 +18,7 @@ import {
 } from "../../redux/slices/DataSlice";
 import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 import Sidebar from "./Sidebar";
+import { perPage } from "../../utils/Constants";
 
 const Layout = () => {
   const currentUserJson = sessionStorage.getItem("user");
@@ -43,8 +44,8 @@ const Layout = () => {
 
   useEffect(() => {
     dispatch(fetchDashboard());
-    dispatch(fetchFields());
-    dispatch(fetchSpaces());
+    dispatch(fetchFields({ limit: perPage, page: 0}));
+    dispatch(fetchSpaces({ limit: perPage, page: 0 }));
     dispatch(fetchHotspotTypes());
     dispatch(fetchNodes());
     dispatch(fetchIcons());
