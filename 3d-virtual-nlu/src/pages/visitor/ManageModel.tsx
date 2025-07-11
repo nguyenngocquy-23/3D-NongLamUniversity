@@ -16,6 +16,7 @@ import { API_URLS } from "../../env";
 import { addAutoPanorama } from "../../redux/slices/PanoramaSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 import { formatTimestampToDate } from "../../utils/formatTimestamp";
+import { perPage } from "../../utils/Constants";
 
 const ManageModel = () => {
   const navigate = useNavigate();
@@ -27,7 +28,6 @@ const ManageModel = () => {
 
   // For example
   const [totalModel, setTotalModel] = useState(0);
-  const perPage = 10;
   const totalPages = Math.ceil(totalModel / perPage);
 
   useEffect(() => {

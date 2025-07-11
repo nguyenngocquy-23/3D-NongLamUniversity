@@ -42,45 +42,15 @@ const Header: React.FC = () => {
       });
     }
   };
-  
+
   const handleAutoTour = (e: React.MouseEvent) => {
     e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
-    if (currentUser) {
-      navigate("/autoTour");
-    } else {
-      Swal.fire({
-        icon: "warning",
-        title: "Bạn chưa đăng nhập",
-        text: "Vui lòng đăng nhập để tiếp tục.",
-        showCancelButton: true,
-        cancelButtonText: "Hủy",
-        confirmButtonText: "Đăng nhập",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          navigate("/login");
-        }
-      });
-    }
+    navigate("/autoTour");
   };
-  
+
   const handleModel = (e: React.MouseEvent) => {
     e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
-    if (currentUser) {
-      navigate("/manageModel");
-    } else {
-      Swal.fire({
-        icon: "warning",
-        title: "Bạn chưa đăng nhập",
-        text: "Vui lòng đăng nhập để tiếp tục.",
-        showCancelButton: true,
-        cancelButtonText: "Hủy",
-        confirmButtonText: "Đăng nhập",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          navigate("/login");
-        }
-      });
-    }
+    navigate("/manageModel");
   };
 
   useEffect(() => {

@@ -24,6 +24,7 @@ export default function Contact() {
           id="email"
           value={email}
           className={styles.input}
+          placeholder="Email liên hệ"
           onChange={(e) => setEmail(e.target.value)}
           required
         />

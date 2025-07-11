@@ -378,7 +378,7 @@ const VisitorDashBoard = () => {
       <div className={styles.dashboard}>
         <div className={styles.category}>
           <FaMapMarkedAlt />
-          <span className={styles.title}>Số tour</span>
+          <span className={styles.title}>Số tour hoạt động</span>
           <span>{nodes.length}</span>
         </div>
         <div className={styles.category}>
