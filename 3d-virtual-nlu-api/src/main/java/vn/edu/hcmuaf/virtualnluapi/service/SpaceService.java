@@ -27,8 +27,8 @@ public class SpaceService {
         return spaceDao.getSpaceByFieldId(req);
     }
 
-    public List<SpaceFullResponse> getAllSpaces() {
-        return spaceDao.getAllSpaces();
+    public List<SpaceFullResponse> getAllSpaces(PageRequest request) {
+        return spaceDao.getAllSpaces(request);
     }
 
     public SpaceFullResponse getSpaceById(SpaceIdRequest req) {
@@ -62,5 +62,12 @@ public class SpaceService {
     }
 
 
-
+    public List<SpaceFullResponse> search(String searchKey) {
+        try {
+            return spaceDao.search(searchKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
+    }
 }

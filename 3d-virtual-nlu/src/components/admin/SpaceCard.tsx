@@ -19,7 +19,7 @@ const SpaceCard: React.FC<SpaceCardProps> = ({ space }) => {
           backgroundPosition: "center",
           backgroundSize: "cover",
         }}
-      ></div>
+      />
       <div className={styles.space_content}>
         <span className={styles.space_id}>#{space.id}</span>
         <span className={styles.space_field_label}>{space.fieldName}</span>
