@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction, nanoid } from "@reduxjs/toolkit";
+import { rgbaColor } from "../../utils/TransformRgbaColor";
 
 //Test trước, sau đó dùng API để lấy.
 export type HotspotType = 1 | 2 | 3 | 4;
@@ -27,8 +28,10 @@ export interface HotspotNavigation extends BaseHotspot {
   targetNodeId: string;
 }
 export interface HotspotInformation extends BaseHotspot {
-  title: string;
   content: string;
+  backgroundColorContent: rgbaColor; //JSON string representing bkgColor
+  borderColorContent: string;
+  borderSizeContent: string;
 }
 export interface HotspotMedia extends BaseHotspot {
   mediaType: string; //image or video
@@ -85,12 +88,10 @@ const hotspotSlice = createSlice({
     addInformationHotspot: (
       state,
       action: PayloadAction<HotspotInformation>
-      // action: PayloadAction<Omit<HotspotInformation, "id">>
     ) => {
       state.hotspotList.push({
         ...action.payload,
       });
-      // id: nanoid(),
     },
     addMediaHotspot: (
       state,
@@ -218,12 +219,14 @@ const hotspotSlice = createSlice({
       }
     },
 
-    updateHotspotInfomation: (
+    updateHotspotInformation: (
       state,
       action: PayloadAction<{
         hotspotId: string;
-        title: string;
         content: string;
+        backgroundColorContent: rgbaColor;
+        borderColorContent: string;
+        borderSizeContent: string;
       }>
     ) => {
       const index = state.hotspotList.findIndex(
@@ -232,8 +235,13 @@ const hotspotSlice = createSlice({
       if (index !== -1) {
         const hotspot = state.hotspotList[index];
         if (hotspot.type === 2) {
-          (hotspot as HotspotInformation).title = action.payload.title;
           (hotspot as HotspotInformation).content = action.payload.content;
+          (hotspot as HotspotInformation).backgroundColorContent =
+            action.payload.backgroundColorContent;
+          (hotspot as HotspotInformation).borderColorContent =
+            action.payload.borderColorContent;
+          (hotspot as HotspotInformation).borderSizeContent =
+            action.payload.borderSizeContent;
         }
       }
     },
@@ -444,7 +452,7 @@ export const {
   updateIconId,
   updateNavigationHotspotTarget,
   updateConfigHotspot,
-  updateHotspotInfomation,
+  updateHotspotInformation,
   updateHotspotModel,
   updateHotspotMedia,
   updateCornerPoint,

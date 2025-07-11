@@ -6,11 +6,10 @@
   border-radius: 0.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   width: max-content;
-  /* max-height: 250px; */
   height: fit-content;
   color: black;
   transform: scaleX(-1);
-  border: 1px solid #fff;
+  position: relative;
 }
 
 .leftPane {
@@ -29,7 +28,6 @@
 }
 
 .description {
-  color: rgb(255, 255, 255);
   font-size: 1rem;
   height: 60%;
   overflow-y: auto;
@@ -42,7 +40,6 @@
   text-align: center;
   height: fit-content;
   overflow-y: auto;
-  background-color: #00000052;
   width: 100%;
   border-radius: 0.5rem;
 }
@@ -55,4 +52,18 @@
   /* margin-left: 25%;
   margin-top: 10px; */
   font-size: 12px;
+}
+
+.exit_btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #fff;
+  background-color: #ff0000;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

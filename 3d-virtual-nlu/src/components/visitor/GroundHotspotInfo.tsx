@@ -12,6 +12,8 @@ import { RADIUS_SPHERE } from "../../utils/Constants";
 import FallbackHotspot from "../FallbackHotspot";
 import { useModelCache } from "../../contexts/ImageCacheContext";
 import Hotspot3D from "./Hotspot3D";
+import { rgbaToString } from "../../utils/TransformRgbaColor";
+import { MdTransitEnterexit } from "react-icons/md";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
   hotspotInfo: HotspotInformation;
@@ -213,10 +215,26 @@ const GroundHotspotInfo = ({
           ]}
         >
           <Html distanceFactor={40} transform>
-            <div className={styles.container}>
-              <div className={styles.center_pane}>
-                {hotspotInfo.title.trim() == "" &&
-                hotspotInfo.content.trim() == "" ? (
+            <div
+              className={styles.container}
+              style={{
+                border: `${5}px solid ${hotspotInfo.borderColorContent} `,
+              }}
+            >
+              <div
+                className={styles.center_pane}
+                style={{
+                  backgroundColor: rgbaToString(
+                    hotspotInfo.backgroundColorContent
+                  ),
+
+                  border:
+                    Number(hotspotInfo.borderSizeContent) > 0.2
+                      ? `${hotspotInfo.borderSizeContent}px solid ${hotspotInfo.borderColorContent}`
+                      : undefined,
+                }}
+              >
+                {hotspotInfo.content.trim() == "" ? (
                   <div className={styles.description}></div>
                 ) : (
                   <>
@@ -227,41 +245,19 @@ const GroundHotspotInfo = ({
                   </>
                 )}
               </div>
+              <span
+                className={styles.exit_btn}
+                onClick={() => {
+                  () => setClicked((prev) => !prev);
+                }}
+              >
+                <MdTransitEnterexit />
+              </span>
             </div>
           </Html>
         </group>
       ) : (
-        <group
-          ref={htmlGroupRef}
-          position={[
-            hotspotInfo.positionX,
-            hotspotInfo.positionY + 15,
-            hotspotInfo.positionZ,
-          ]}
-        >
-          <Text
-            fontSize={2.5}
-            color="#ffd700"
-            anchorX="center"
-            anchorY="bottom"
-            maxWidth={40}
-            lineHeight={1.2}
-            position={[0, 2, 0]} // Đẩy title lên một chút
-          >
-            {hotspotInfo.title}
-          </Text>
-          <Text
-            fontSize={1.5}
-            color="white"
-            anchorX="center"
-            anchorY="top"
-            maxWidth={40}
-            lineHeight={1.4}
-            position={[0, -0.5, 0]} // Đặt description bên dưới
-          >
-            {hotspotInfo.content}
-          </Text>
-        </group>
+        ""
       )}
 
       {isIcon3D && clonedScene ? (

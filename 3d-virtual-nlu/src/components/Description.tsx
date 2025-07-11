@@ -36,8 +36,8 @@ const Description: React.FC<DescriptionProps> = ({
           [{ color: [] }, { background: [] }], // dropdown with defaults from theme
           [{ font: [] }],
           [{ align: [] }],
-          ["link"],
-          // ["link", "image", "video"],
+          // ["link"],
+          ["link", "image", "video"],
           ["clean"],
         ],
       },

@@ -302,8 +302,10 @@ const CreateTourStep2 = () => {
           addInformationHotspot({
             ...updatedProps,
             type: 2,
-            title: "",
             content: "",
+            backgroundColorContent: {},
+            borderColorContent: "",
+            borderSizeContent: "",
           })
         );
         break;
@@ -607,13 +609,14 @@ const CreateTourStep2 = () => {
             <span>{CREATE_TOUR_STEPS[currentStep - 1].name}</span>
           </div>
           <span className={styles.number_step}>{currentStep}</span>
-          <div className={styles.toggleRightMenu}>
+          <div className={styles.toggle_right_menu}>
             <IoMdMenu
               className={styles.show_menu}
               onClick={() => handleOpenMenu()}
             />
           </div>
         </div>
+
         {/* Hiển thị menu bên phải.*/}
         <AnimatePresence>
           {isMenuVisible && (

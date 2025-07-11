@@ -90,7 +90,6 @@ const UpdateHotspot = ({
           </>
         )}
       </div>
-      {/* </div> */}
     </div>
   );
 };

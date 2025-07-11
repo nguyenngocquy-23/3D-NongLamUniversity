@@ -14,7 +14,7 @@ ul .taskRow {
   font-weight: 700;
   padding: 16px;
   border-radius: 6px;
-  backdrop-filter: blur(7px);
+  backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;

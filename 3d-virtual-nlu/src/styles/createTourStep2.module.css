@@ -58,16 +58,11 @@
   cursor: pointer;
   opacity: 0.7;
   transform: scale(1.2);
-  color: rgba(0, 0, 0, 0.5);
+  /* color: rgba(0, 0, 0, 0.5); */
 }
 
 .back_btn {
   font-size: 20px;
-}
-
-.show_menu {
-  font-size: 30px;
-  margin: 10px;
 }
 
 .back_btn,
@@ -183,9 +178,17 @@ back_btn:hover {
   align-items: center;
 }
 
-.toggleRightMenu {
+.toggle_right_menu {
+  background-color: #333333;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
   position: absolute;
+  transform: translateX(-50%);
   right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .done_button {
