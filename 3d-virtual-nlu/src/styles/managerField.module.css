@@ -31,6 +31,7 @@
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
   font-size: 0.9rem;
 }
+
 .field_search_box {
   padding-left: 1rem;
 }
@@ -43,19 +44,24 @@
   font-size: 0.9rem;
   caret-color: #267026;
   background-color: #fff;
+  color: black;
 }
+
 .field_search_box .label_for_search {
   cursor: text;
   padding: 0px 12px;
 }
+
 .search_icon {
   width: 13px;
 }
+
 .border {
   height: 40%;
   width: 1.3px;
   background-color: rgb(223, 223, 223);
 }
+
 .mic_search {
   padding: 0px 15px 0px 12px;
   border: none;
@@ -68,6 +74,7 @@
 .mic_icon {
   width: 12px;
 }
+
 .mic_search:hover {
   background-color: rgb(230, 255, 230);
   transition-duration: 0.3s;
@@ -79,14 +86,17 @@
   padding: 1rem;
   color: #000;
 }
+
 .field_box:hover {
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
 }
+
 .field_box button {
   background-color: transparent;
   border: none;
   color: #000;
 }
+
 .field_sort_box {
   color: #000;
   padding: 1rem;
@@ -105,10 +115,12 @@
   background-color: #267026;
   margin: 0 1rem 1rem 1rem;
 }
+
 .field_quantity {
   color: #848484;
   font-style: italic;
   margin: 1rem;
+  position: absolute;
 }
 
 .field_list {
@@ -118,7 +130,7 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   justify-items: center;
   gap: 1rem;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .field_edit_by_id {
@@ -140,10 +152,12 @@
   font-size: 30px;
   color: #bd1919;
 }
+
 .close_btn:hover {
   cursor: pointer;
   opacity: 0.7;
 }
+
 .field_edit_content {
   font-size: 1rem;
   margin: 0.5rem 0;
@@ -151,6 +165,7 @@
   flex-direction: column;
   gap: 0.8rem;
 }
+
 .field_edit_label {
   text-align: center;
 }
@@ -188,10 +203,11 @@
   transition: all 0.3s ease;
 }
 
-.field_input_name_container input[type="text"]:focus ~ .underline,
-.field_input_name_container input[type="text"]:valid ~ .underline {
+.field_input_name_container input[type="text"]:focus~.underline,
+.field_input_name_container input[type="text"]:valid~.underline {
   transform: scaleX(1);
 }
+
 .field_input_name_container .field_input_name_edit {
   position: absolute;
   top: 0;
@@ -199,6 +215,7 @@
   transform: translateY(50%);
   color: #267026;
 }
+
 .field_input_name_container .field_input_name_edit:hover {
   cursor: pointer;
   padding: 2px;
@@ -206,6 +223,7 @@
   background-color: #fff;
   transition: ease 0.2s all;
 }
+
 .field_input_name_container .field_input_name_warning {
   position: absolute;
   top: 0;
@@ -235,8 +253,7 @@
   font-weight: bold;
 }
 
-.field_navigation_list_space:hover {
-}
+.field_navigation_list_space:hover {}
 
 .field_navigation_add_space {
   font-size: 0.8rem;
@@ -270,4 +287,35 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.page_btn {
+  padding: 8px 12px;
+  margin: 0 4px;
+  border: none;
+  background-color: #eee;
+  cursor: pointer;
+  color: black;
+}
+
+.page_btn:focus {
+  outline: none;
+  border: none;
+}
+
+.page_btn:hover {
+  background-color: #ddd;
+}
+
+.active {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
 }

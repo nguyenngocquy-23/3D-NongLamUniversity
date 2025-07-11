@@ -26,6 +26,7 @@ import { validateName } from "../../utils/ValidateInputName";
 import { format } from "date-fns";
 import Pagination from "../../components/Pagination";
 import { useDebounce } from "../../hooks/useDebounce";
+import { perPage } from "../../utils/Constants";
 
 interface Field {
   id: number;
@@ -56,44 +57,47 @@ const Field = () => {
 
   const fields = useSelector((state: RootState) => state.data.fields) || [];
   const spaces = useSelector((state: RootState) => state.data.spaces) || [];
+  const dashboard = useSelector((state: RootState) => state.data.dashboard);
 
   const [selectedField, setSelectedField] = useState<Field | null>(null);
-
-  const [searchData, setSearchData] = useState<Field[]>([]);
-
-  //Custom phân trang client-side.
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  let pageSize = 10; // Số lượng bản ghi trên 1 page.
+  const [fieldList, setFieldList] = useState<any[]>(fields || []);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
 
-  // const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
 
-  // For example
-  const [totalNode, setTotalNode] = useState(0);
-  const perPage = 10;
-  const totalPages = Math.ceil(totalNode / perPage);
+  const [totalField, setTotalField] = useState(0);
+  const totalPages = Math.ceil(totalField / perPage);
 
   useEffect(() => {
     const handleSearch = async () => {
       if (!debouncedSearch) return;
-      const response = await axios.post(
-        `${API_URLS.BASE}/v1/admin/node/search`,
-        {
-          searchKey: debouncedSearch,
-        }
-      );
-      // setNodeList(response.data.data);
+      const response = await axios.post(`${API_URLS.SEARCH_FIELDS}`, {
+        searchKey: debouncedSearch,
+      });
+      setFieldList(response.data.data);
     };
     handleSearch();
   }, [debouncedSearch]);
 
-  const currentFieldListData = useMemo(() => {
-    const firstPageIndex = (currentPage - 1) * pageSize;
-    const lastPageIndex = firstPageIndex + pageSize;
-    return fields.slice(firstPageIndex, lastPageIndex);
-  }, [currentPage]);
+  useEffect(() => {
+    if (fields && fields.length > 0) {
+      setFieldList(fields);
+    }
+  }, [fields]);
+
+  useEffect(() => {
+    if (dashboard) {
+      setTotalField(dashboard.numField);
+    }
+  }, [dashboard]);
+
+  useEffect(() => {
+    if (search === "") {
+      setFieldList(fields);
+    }
+  }, [search]);
 
   const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
@@ -109,10 +113,21 @@ const Field = () => {
     }
   }, [currentUser, navigate, dispatch]);
 
+  useEffect(() => {
+    const handleChangePage = async () => {
+      const response = await axios.post(API_URLS.ADMIN_GET_ALL_FIELDS, {
+        page: currentPage,
+        limit: perPage,
+      });
+      setFieldList(response.data.data);
+    };
+    handleChangePage();
+  }, [currentPage]);
+
   // Cập nhật searchData mỗi khi users thay đổi
   useEffect(() => {
     if (fields.length > 0) {
-      setSearchData(fields); // Chỉ cập nhật khi users có dữ liệu
+      setFieldList(fields); // Chỉ cập nhật khi users có dữ liệu
     }
     setLoading(false); // Kết thúc trạng thái tải
 
@@ -126,20 +141,9 @@ const Field = () => {
     }
   }, [fields, spaces]);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = event.target.value.toLowerCase();
-    const newData = fields.filter((row) => {
-      return (
-        row.name.toLowerCase().includes(searchTerm),
-        row.code.toLowerCase().includes(searchTerm)
-      );
-    });
-    setSearchData(newData);
-  };
   /**
    * Chỉnh sửa lĩnh vực
    */
-
   const [isEditing, setIsEditing] = useState(false);
 
   const [statusField, setStatusField] = useState(
@@ -182,7 +186,7 @@ const Field = () => {
        */
 
       if (response.data.statusCode === 1000 || response.status === 200) {
-        dispatch(fetchFields());
+        dispatch(fetchFields({ limit: perPage, page: 0 }));
         setError("");
       } else {
         setError(response.data.message || "Lỗi không xác định");
@@ -238,6 +242,7 @@ const Field = () => {
               id="input"
               placeholder="Tìm kiếm lĩnh vực..."
               className={styles.field_search_input}
+              onChange={(e) => setSearch(e.target.value)}
             />
             <label htmlFor="input" className={styles.label_for_search}>
               <IoSearch className={styles.search_icon} />
@@ -269,7 +274,7 @@ const Field = () => {
         </div>
 
         <div className={styles.field_list}>
-          {currentFieldListData.map((field) => {
+          {fieldList.map((field) => {
             const listSpace = spaces.filter((s) => s.fieldId === field.id);
             return (
               <div
@@ -283,35 +288,27 @@ const Field = () => {
           })}
         </div>
 
-        {search.length === 0 && (
-          <div className={styles.pagination}>
-            {[...Array(totalPages)].map((_, index) => {
-              return (
-                <button
-                  key={index}
-                  className={`${styles.page_btn} ${
-                    currentPage === index ? styles.active : ""
-                  }`}
-                  onClick={() => setCurrentPage(index)}
-                >
-                  {index + 1}
-                </button>
-              );
-            })}
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div className={styles.field_quantity}>
+            Kết quả: {search == "" ? totalField : fieldList.length} lĩnh vực.
           </div>
-        )}
-        <div className={styles.field_quantity}>
-          Kết quả: {fields.length} lĩnh vực.
-        </div>
-
-        <div className={styles.field_pagination}>
-          <Pagination
-            onPageChange={(page) => setCurrentPage(page)}
-            totalCount={fields.length}
-            siblingCount={1}
-            currentPage={currentPage}
-            pageSize={pageSize}
-          />
+          {search.length === 0 && (
+            <div className={styles.pagination}>
+              {[...Array(totalPages)].map((_, index) => {
+                return (
+                  <button
+                    key={index}
+                    className={`${styles.page_btn} ${
+                      currentPage === index ? styles.active : ""
+                    }`}
+                    onClick={() => setCurrentPage(index)}
+                  >
+                    {index + 1}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 

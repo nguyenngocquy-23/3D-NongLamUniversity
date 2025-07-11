@@ -40,6 +40,10 @@ export const API_URLS = {
   SEND_COMMENT: `${DOMAIN}/comment/send`,
   EDIT_COMMENT: `${DOMAIN}/comment/update`,
   REMOVE_COMMENT: `${DOMAIN}/comment/remove`,
+  
+  SEARCH_FIELDS: `${DOMAIN}/admin/field/search`,
+  SEARCH_SPACES: `${DOMAIN}/admin/space/search`,
+  SEARCH_NODES: `${DOMAIN}/v1/admin/node/search`,
 
   GET_MODEL: `${DOMAIN}/v1/admin/hotspot/getModel`,
   GET_NUM_TOTAL_MODEL: `${DOMAIN}/v1/admin/hotspot/getNumTotalModel`,
