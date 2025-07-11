@@ -212,21 +212,6 @@ const VirtualAutoTour: React.FC = () => {
     };
   }, []);
 
-  const handleBackStep3 = () => {
-    Swal.fire({
-      icon: "info",
-      title: "Tiếp tục chỉnh sửa ở bước 2",
-      timer: 2000,
-      showConfirmButton: false,
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    }).then(() => {
-      dispatch(prevStep());
-    });
-  };
-
   // Gọi hàm để đọc văn bản khi thay đổi trạng thái âm thanh
   const hasMounted = useRef(false);
 
@@ -306,6 +291,37 @@ const VirtualAutoTour: React.FC = () => {
     readText();
   }, [currentPanorama]);
 
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [volume, setVolume] = useState(0.3); // ban đầu là 30%
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+      audioRef.current.play().catch((e) => {
+        console.warn("Autoplay bị chặn:", e);
+      });
+    }
+  }, [autoTour, volume]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp") {
+        setVolume((v) => Math.min(1, +(v + 0.1).toFixed(2)));
+      } else if (e.key === "ArrowDown") {
+        setVolume((v) => Math.max(0, +(v - 0.1).toFixed(2)));
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
   return (
     <>
       <div
@@ -342,6 +358,13 @@ const VirtualAutoTour: React.FC = () => {
             autoRotateSpeed={speedRotate}
           />
         </Canvas>
+        <audio
+          ref={audioRef}
+          src={autoTour.soundBackground}
+          autoPlay
+          loop
+          controls // <-- có thể bỏ nếu bạn không muốn người dùng điều khiển
+        />
         {!isMobile && (
           <FooterTour
             isRotation={isRotation}
@@ -385,7 +408,10 @@ const VirtualAutoTour: React.FC = () => {
         </div>
         {/* Hộp node */}
         {openNodeList && (
-          <div className={styles.node_list} style={{bottom: isMobile ? "1rem" : ""}}>
+          <div
+            className={styles.node_list}
+            style={{ bottom: isMobile ? "1rem" : "" }}
+          >
             {autoPanoramaList.map((pano) => (
               <div
                 key={pano.id}
@@ -406,7 +432,11 @@ const VirtualAutoTour: React.FC = () => {
             ))}
           </div>
         )}
-        <button className={styles.skip_button} style={{bottom: isMobile ? "8rem" : ""}} onClick={skipToNext}>
+        <button
+          className={styles.skip_button}
+          style={{ bottom: isMobile ? "8rem" : "" }}
+          onClick={skipToNext}
+        >
           <FaAngleDoubleRight className={styles.arrow} /> Đi tiếp{" "}
           <FaAngleDoubleRight className={styles.arrow} />
         </button>
