@@ -178,9 +178,7 @@ const Header: React.FC = () => {
           <button
             className={style.dropdownBtn}
             onClick={() => {
-              currentUser.username === "admin"
-                ? navigate("/admin")
-                : setDropdownOpen(!dropdownOpen);
+              setDropdownOpen(!dropdownOpen);
             }}
           >
             <img src={currentUser.avatar || ""} /> {currentUser.username}
@@ -199,8 +197,20 @@ const Header: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button className={style.dropdownBtn} onClick={handleLogout}>
-                  <Link to="">Đăng xuất</Link>
+                <button
+                  className={style.dropdownBtn}
+                  onClick={
+                    currentUser.roleId == 2 || currentUser.roleId == 3
+                      ? () => navigate("/admin")
+                      : handleLogout
+                  }
+                >
+                  <Link to="">
+                    {currentUser.roleId == 2 || currentUser.roleId == 3
+                      ? "Về admin"
+                      : "Đăng xuất"
+                      }
+                  </Link>
                 </button>
               </li>
             </ul>
