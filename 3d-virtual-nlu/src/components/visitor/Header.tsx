@@ -162,7 +162,7 @@ const Header: React.FC = () => {
             Liên hệ
           </ScrollLink>
 
-          {!isMobile && (
+          {/* {!isMobile && (
             <span
               onClick={handleManage}
               className={style.navLink}
@@ -170,7 +170,7 @@ const Header: React.FC = () => {
             >
               Thêm không gian
             </span>
-          )}
+          )} */}
         </nav>
       )}
       {!isMobile && currentUser ? (
@@ -196,6 +196,11 @@ const Header: React.FC = () => {
               <li>
                 <button className={style.dropdownBtn} onClick={handleLogout}>
                   <Link to="">Đăng xuất</Link>
+                </button>
+              </li>
+              <li>
+                <button className={style.dropdownBtn} onClick={handleManage}>
+                  <Link to="">Thêm không gian</Link>
                 </button>
               </li>
             </ul>

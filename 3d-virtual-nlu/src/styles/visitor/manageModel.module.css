@@ -11,7 +11,7 @@
 .header {
     height: 40vh;
     width: 100%;
-    background: url("/road.jpg") no-repeat right;
+    background: url("/model_background.png") no-repeat right;
     background-size: contain;
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(8px);

@@ -129,6 +129,7 @@
 .username {
     position: absolute;
     bottom: -40px;
+    white-space: nowrap;
 }
 
 .share_container {
