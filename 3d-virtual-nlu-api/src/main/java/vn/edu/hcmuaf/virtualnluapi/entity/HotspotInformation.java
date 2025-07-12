@@ -8,6 +8,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class HotspotInformation extends Hotspot{
-    String title;
-    String content;
+    String content, backgroundColorContent, borderColorContent;
+    float borderSizeContent;
 }

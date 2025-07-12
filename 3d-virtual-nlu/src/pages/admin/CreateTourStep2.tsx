@@ -303,9 +303,9 @@ const CreateTourStep2 = () => {
             ...updatedProps,
             type: 2,
             content: "",
-            backgroundColorContent: {},
+            backgroundColorContent: { r: 0, g: 0, b: 0, a: 0 },
             borderColorContent: "",
-            borderSizeContent: "",
+            borderSizeContent: 0,
           })
         );
         break;

@@ -21,6 +21,6 @@ public class HotspotInformationResponse {
     String color, backgroundColor;
     byte allowBackgroundColor;
     float opacity;
-    String title, content;
-    int iconType;
+    String content, backgroundColorContent, borderColorContent;
+    float borderSizeContent;
 }

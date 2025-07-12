@@ -218,7 +218,10 @@ const GroundHotspotInfo = ({
             <div
               className={styles.container}
               style={{
-                border: `${5}px solid ${hotspotInfo.borderColorContent} `,
+                border:
+                  Number(hotspotInfo.borderSizeContent) > 0.2
+                    ? `${hotspotInfo.borderSizeContent}px solid ${hotspotInfo.borderColorContent}`
+                    : undefined,
               }}
             >
               <div
@@ -227,11 +230,6 @@ const GroundHotspotInfo = ({
                   backgroundColor: rgbaToString(
                     hotspotInfo.backgroundColorContent
                   ),
-
-                  border:
-                    Number(hotspotInfo.borderSizeContent) > 0.2
-                      ? `${hotspotInfo.borderSizeContent}px solid ${hotspotInfo.borderColorContent}`
-                      : undefined,
                 }}
               >
                 {hotspotInfo.content.trim() == "" ? (
@@ -248,7 +246,8 @@ const GroundHotspotInfo = ({
               <span
                 className={styles.exit_btn}
                 onClick={() => {
-                  () => setClicked((prev) => !prev);
+                  setClicked((prev) => !prev);
+                  console.log("Clicked exit button", isClicked);
                 }}
               >
                 <MdTransitEnterexit />

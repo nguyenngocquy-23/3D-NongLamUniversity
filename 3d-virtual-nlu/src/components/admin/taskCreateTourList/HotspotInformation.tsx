@@ -32,7 +32,7 @@ const TypeInfomation = ({
     a: 255,
   });
   const [borderColorContent, setBorderColorContent] = useState("");
-  const [borderSizeContent, setBorderSizeContent] = useState("");
+  const [borderSizeContent, setBorderSizeContent] = useState<number>(0);
   const [showPicker, setShowPicker] = useState(false);
   const dispatch = useDispatch();
 
@@ -124,7 +124,7 @@ const TypeInfomation = ({
             step="0.2"
             style={{ color: `${borderColorContent}` }}
             value={borderSizeContent}
-            onChange={(e) => setBorderSizeContent(e.target.value)}
+            onChange={(e) => setBorderSizeContent(Number(e.target.value))}
             placeholder="Kích thước"
           />
         </div>

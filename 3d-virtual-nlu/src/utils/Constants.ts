@@ -5,5 +5,12 @@ export const DEFAULT_ZOOM_ANGLE = 75;
 export const DEFAULT_ANGLE_THREE = 0;
 export const DEFAULT_ANGLE_RADAR = 270;
 export const MAX_QUANTITY_PANORAMA = 5; //Số lượng tối đa trong 1 tour.
+
+//Xử lý lưu ảnh trong Cloudinary.
+export const PICTURE_SIZE_LIMIT = 2; //Kích thước tối đa cho hình tải lên Info.
+export const PICTURE_MAX_WIDTH = 500; //Kích thước tối đa ảnh
+export const PICTURE_MAX_HEIGHT = 500; //Kích thước tối đa ảnh
+export const PICTURE_MAX_QUANTITY = 2; //Kích thước tối đa ảnh
+
 export const AROUND_MAP = 0.04;
 export const perPage = 10;

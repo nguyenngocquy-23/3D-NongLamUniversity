@@ -31,7 +31,7 @@ export interface HotspotInformation extends BaseHotspot {
   content: string;
   backgroundColorContent: rgbaColor; //JSON string representing bkgColor
   borderColorContent: string;
-  borderSizeContent: string;
+  borderSizeContent: number;
 }
 export interface HotspotMedia extends BaseHotspot {
   mediaType: string; //image or video
@@ -226,7 +226,7 @@ const hotspotSlice = createSlice({
         content: string;
         backgroundColorContent: rgbaColor;
         borderColorContent: string;
-        borderSizeContent: string;
+        borderSizeContent: number;
       }>
     ) => {
       const index = state.hotspotList.findIndex(

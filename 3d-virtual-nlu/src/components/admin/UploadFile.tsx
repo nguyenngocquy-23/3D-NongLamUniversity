@@ -26,18 +26,18 @@ type UploadFileProps = {
   index?: number;
 };
 
-interface CloudinaryUploadResp {
+export interface CloudinaryUploadResp {
   originalFileName?: string;
   url?: string;
 }
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   statusCode: number;
   message: string;
   data: T;
 }
 
-type FileUploadStatus = {
+export type FileUploadStatus = {
   file: File;
   status: "idle" | "uploading" | "success" | "error" | "waiting";
   error?: string;
@@ -381,11 +381,6 @@ const UploadFile: React.FC<UploadFileProps> = ({
             };
             img.onerror = reject;
           });
-
-          console.log(
-            "Tổng số ảnh trong imageRef:",
-            Object.keys(imageRef.current).length
-          );
         } catch (err) {
           console.warn("Không tải được ảnh 360 trong nextStep2:", url, err);
         }

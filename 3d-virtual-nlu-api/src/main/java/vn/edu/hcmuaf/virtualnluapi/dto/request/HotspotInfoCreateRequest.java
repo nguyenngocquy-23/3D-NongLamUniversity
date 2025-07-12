@@ -19,5 +19,6 @@ public class HotspotInfoCreateRequest {
     String color, backgroundColor;
     byte allowBackgroundColor;
     float opacity;
-    String title, content;
+    String content, backgroundColorContent, borderColorContent;
+    float borderSizeContent;
 }

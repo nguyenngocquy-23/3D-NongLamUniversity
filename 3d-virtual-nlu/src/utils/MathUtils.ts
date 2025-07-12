@@ -27,8 +27,6 @@
  * Note : atan2 sử dụng để xác định góc phần tư của Z,X. trong khi atan có thể bị nhầm trường hợp nếu z âm x dương hoặc z dương x âm.
  */
 
-import { PI2 } from "three/src/nodes/TSL.js";
-
 export const getAngleFromXZ = (x: number, z: number): number => {
   const radians = Math.atan2(x, z);
   let degrees = (radians * 180) / Math.PI;
