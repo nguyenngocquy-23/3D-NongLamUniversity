@@ -73,7 +73,11 @@ export const NodeItem = ({ onclick, node }: NodeItemProps) => {
           </div>
           <div
             className={`${styles.status} ${
-              node.status === 0 ? styles.status_stop : styles.status_open
+              node.status == 0
+                ? styles.status_stop
+                : node.status == 2
+                ? styles.status_open
+                : styles.status_wait
             }`}
           >
             {node.status == 0 ? (

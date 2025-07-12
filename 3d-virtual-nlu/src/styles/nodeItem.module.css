@@ -132,3 +132,7 @@
 .status_stop {
   background-color: red;
 }
+
+.status_wait {
+  background-color: orange;
+}

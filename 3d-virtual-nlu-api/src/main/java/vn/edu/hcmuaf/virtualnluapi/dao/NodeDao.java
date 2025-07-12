@@ -70,7 +70,21 @@ public class NodeDao {
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
-                 WHERE n.status = 2
+                 WHERE n.status IN (0,2,3)
+                 ORDER BY n.updatedAt DESC
+                 LIMIT :limit OFFSET :offset
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("limit", request.getLimit()).bind("offset", request.getPage() * request.getLimit()).mapToBean(NodeFullResponse.class).list());
+    }
+
+    public List<NodeFullResponse> getAllApprovingNodes(PageRequest request) {
+        String sql = """
+                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                 n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                 FROM nodes n
+                 JOIN spaces s ON n.spaceId = s.id
+                 JOIN fields f ON s.fieldId = f.id
+                 WHERE n.status IN (0,2,3)
                  ORDER BY n.updatedAt DESC
                  LIMIT :limit OFFSET :offset
                 """;
@@ -78,7 +92,7 @@ public class NodeDao {
     }
 
     public int countAllNodes() {
-        String sql = "SELECT COUNT(*) FROM nodes WHERE status = 2";
+        String sql = "SELECT COUNT(*) FROM nodes WHERE status IN (0,2,3)";
         return ConnectionPool.getConnection().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)

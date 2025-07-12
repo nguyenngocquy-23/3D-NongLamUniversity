@@ -13,16 +13,17 @@
   align-content: center;
 }
 .header .tour_icon_back {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   position: absolute;
   top: 0;
   left: 0;
   cursor: pointer;
+  padding: 0.2rem;
 }
 .header .tour_icon_back:hover {
-  box-shadow: 5px 5px 5px 5px #00000065;
+  box-shadow: 2px 2px 5px #00000065;
   animation: all 1s ease-in;
 }
 

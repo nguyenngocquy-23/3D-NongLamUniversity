@@ -250,7 +250,7 @@ const Sidebar: React.FC<SideBarProps> = ({
             {isOpen && <span>Thêm quản trị viên</span>}
           </li>
         </Link>
-        <Link to="/admin/commentManage">
+        {/* <Link to="/admin/commentManage">
           <li
             className={`
               ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
@@ -261,7 +261,7 @@ const Sidebar: React.FC<SideBarProps> = ({
             <FaComment />
             {isOpen && <span>Bình luận</span>}
           </li>
-        </Link>
+        </Link> */}
       </ul>
       <div className={styles.side_bar_logout} onClick={handleLogout}>
         <CiLogout />
