@@ -10,6 +10,7 @@
   border-radius: 0.5rem;
   position: relative;
 }
+
 .side_bar_admin {
   margin-top: 0.5rem;
   display: flex;
@@ -18,6 +19,7 @@
   align-items: center;
   gap: 0.5rem;
 }
+
 .side_bar_admin img {
   width: 4rem;
   height: 4rem;
@@ -48,10 +50,12 @@
   color: #fff;
   cursor: default;
 }
+
 .side_bar .click:hover {
-  cursor: default;
+  cursor: default !important;
   background: #0e9013;
 }
+
 .side_bar .click {
   background: #0e9013;
   padding-left: 20px;
@@ -69,6 +73,7 @@
   padding: 0;
   gap: 0.5rem;
 }
+
 /* Li bình thường */
 .side_bar .expand_nav_item {
   padding: 0.5rem 1rem;
@@ -86,6 +91,12 @@
   cursor: pointer;
   border-radius: 0.5rem;
 }
+
+.side_bar .expand_nav_item.click:hover {
+  background: #0e9013;
+  cursor: default !important;
+}
+
 .side_bar .collapse_nav_item {
   display: flex;
   justify-content: center;
@@ -95,6 +106,7 @@
   margin-bottom: 0.5rem;
   position: relative;
 }
+
 .collapse_nav_item .open_sub_visit {
   font-size: 1rem;
   position: absolute;
@@ -115,11 +127,13 @@
 .visit {
   position: relative;
 }
+
 .visit .open_sub_visit {
   position: absolute;
   right: 0;
   transform: translateX(-50%);
 }
+
 .active_nav_item {
   background: rgba(0, 0, 0, 0.1);
   border-radius: 0.5rem 0.5rem 0 0;

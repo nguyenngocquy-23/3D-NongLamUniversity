@@ -34,6 +34,7 @@ import CreateAutoTour from "./features/CreateAutoTour.tsx";
 import ManageAutoTour from "./pages/visitor/ManageAutoTour.tsx";
 import VirtualAutoTour from "./pages/visitor/VirtualAutoTour.tsx";
 import ManageModel from "./pages/visitor/ManageModel.tsx";
+import CreateAccount from "./pages/admin/createAccount.tsx";
 
 function RouterConfig() {
   return (
@@ -74,6 +75,7 @@ function RouterConfig() {
         <Route path="updateTour" element={<UpdateNode />} />
         <Route path="model" element={<Model />} />
         <Route path="attachMap" element={<AttachMap />} />
+        <Route path="createAccount" element={<CreateAccount />} />
       </Route>
       {/* Nếu URL không đúng, điều hướng đến trang lỗi */}
       <Route path="*" element={<PageNotFound />} />

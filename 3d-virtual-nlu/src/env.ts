@@ -11,6 +11,7 @@ export const API_URLS = {
   LOGIN: `${DOMAIN}/login`,
   LOGOUT: `${DOMAIN}/authenticate/logout`,
   REGISTER: `${DOMAIN}/register`,
+  CREATE_ADMIN: `${DOMAIN}/register/createAdmin`,
   USER: `${DOMAIN}/user`,
   VERIFY: `${DOMAIN}/authenticate/verifyEmail`,
   REFRESH_TOKEN: `${DOMAIN}/authenticate/refresh`,

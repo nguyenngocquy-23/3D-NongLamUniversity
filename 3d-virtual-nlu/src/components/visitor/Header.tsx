@@ -194,13 +194,13 @@ const Header: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button className={style.dropdownBtn} onClick={handleLogout}>
-                  <Link to="">Đăng xuất</Link>
+                <button className={style.dropdownBtn} onClick={handleManage}>
+                  <Link to="">Thêm không gian</Link>
                 </button>
               </li>
               <li>
-                <button className={style.dropdownBtn} onClick={handleManage}>
-                  <Link to="">Thêm không gian</Link>
+                <button className={style.dropdownBtn} onClick={handleLogout}>
+                  <Link to="">Đăng xuất</Link>
                 </button>
               </li>
             </ul>

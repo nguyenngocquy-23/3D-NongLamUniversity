@@ -80,7 +80,7 @@ const Sidebar: React.FC<SideBarProps> = ({
           <li
             className={`
             ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
-            ${location.pathname === "/admin" ? styles.click : ""}
+            ${location.pathname.endsWith("/admin") ? styles.click : ""}
             `}
           >
             <MdDashboard />
@@ -92,7 +92,7 @@ const Sidebar: React.FC<SideBarProps> = ({
           <li
             className={`
               ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
-            ${location.pathname === "/admin/icons" ? styles.click : ""}
+            ${location.pathname.includes("/admin/icons") ? styles.click : ""}
             
             `}
           >
@@ -165,60 +165,11 @@ const Sidebar: React.FC<SideBarProps> = ({
           </ul>
         )}
 
-        {/* <li
-          className={` ${isOpen ? styles.visit : styles.collapse_nav_item} ${
-            styles.expand_nav_item
-          }
-          ${showSubMenu && styles.active_nav_item}
-          
-          `}
-          onClick={() => {
-            setShowSubMenu((prev) => !prev);
-            setIsOpen(true);
-          }}
-        >
-          <MdNotifications />
-          {isOpen && <span>Phê duyệt</span>}
-          {showSubMenu ? (
-            <MdKeyboardArrowUp className={styles.open_sub_visit} />
-          ) : (
-            <MdKeyboardArrowDown className={styles.open_sub_visit} />
-          )}
-        </li> */}
-
-        {/* {isOpen && showSubMenu && (
-          <ul
-            className={`${styles.sub_menu} 
-          ${showSubMenu && styles.active_nav_item_ul}
-          `}
-          >
-            <Link to="/admin/fields">
-              <li
-                className={
-                  location.pathname === "/admin/fields" ? styles.click : ""
-                }
-              >
-                <span>Tour</span>
-              </li>
-            </Link>
-            <Link to="/admin/spaces">
-              <li
-                className={
-                  location.pathname === "/admin/spaces" ? styles.click : ""
-                }
-              >
-                <span>Báo cáo</span>
-              </li>
-            </Link>
-          </ul>
-        )} */}
-
         <Link to="/admin/users" onClick={() => setTitle("Tài khoản")}>
           <li
             className={`
               ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
-            ${location.pathname === "/admin/users" ? styles.click : ""}
-            
+            ${location.pathname.includes("/admin/users") ? styles.click : ""}
             `}
           >
             <FaUserCog />
@@ -230,38 +181,50 @@ const Sidebar: React.FC<SideBarProps> = ({
           <li
             className={`
               ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
-            ${location.pathname === "/admin/attachMap" ? styles.click : ""}
-            
+            ${
+              location.pathname.includes("/admin/attachMap") ? styles.click : ""
+            }
             `}
           >
             <FaMap />
             {isOpen && <span>Gán nhãn bản đồ</span>}
           </li>
         </Link>
-        <Link to="/admin/adminCreate">
-          <li
-            className={`
-              ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
-            ${location.pathname === "/admin/adminCreate" ? styles.click : ""}
-            
-            `}
+        {currentUser.roleId === 2 && (
+          <Link
+            to="/admin/createAccount"
+            onClick={() => setTitle("Thêm quản trị viên")}
           >
-            <FaUserPlus />
-            {isOpen && <span>Thêm quản trị viên</span>}
-          </li>
-        </Link>
-        {/* <Link to="/admin/commentManage">
+            <li
+              className={`
+              ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
+            ${
+              location.pathname.includes("/admin/createAccount")
+                ? styles.click
+                : ""
+            }
+            `}
+            >
+              <FaUserPlus />
+              {isOpen && <span>Thêm quản trị viên</span>}
+            </li>
+          </Link>
+        )}
+        <Link to="/admin/commentManage">
           <li
             className={`
               ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
-            ${location.pathname === "/admin/commentManage" ? styles.click : ""}
-            
+            ${
+              location.pathname.includes("/admin/commentManage")
+                ? styles.click
+                : ""
+            }
             `}
           >
             <FaComment />
-            {isOpen && <span>Bình luận</span>}
+            {isOpen && <span>Phản hồi</span>}
           </li>
-        </Link> */}
+        </Link>
       </ul>
       <div className={styles.side_bar_logout} onClick={handleLogout}>
         <CiLogout />

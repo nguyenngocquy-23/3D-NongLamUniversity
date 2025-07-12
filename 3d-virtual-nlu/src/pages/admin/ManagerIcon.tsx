@@ -38,7 +38,7 @@ const ManagerIcon = () => {
     if (
       currentUser == undefined ||
       currentUser == null ||
-      (currentUser && currentUser.roleId !== 2)
+      (currentUser && currentUser.roleId !== 2 && currentUser.roleId !== 3)
     ) {
       navigate("/unauthorized");
     } else {

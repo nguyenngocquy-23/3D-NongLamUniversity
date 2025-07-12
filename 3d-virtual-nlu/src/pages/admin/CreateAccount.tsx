@@ -1,20 +1,18 @@
-// src/components/RegisterForm.tsx
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import styles from "../../styles/login.module.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { FaBox, FaLetterboxd, FaRegUser } from "react-icons/fa6";
-import { CiLock, CiMail } from "react-icons/ci";
-import { MdOutlineVerified } from "react-icons/md";
-import { FaMailBulk } from "react-icons/fa";
-import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
+import styles from "../../styles/createAccount.module.css";
+import { FaRegUser } from "react-icons/fa";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { registerUser } from "../../redux/slices/AuthSlice";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { CiMail, CiLock } from "react-icons/ci";
+import { MdOutlineVerified } from "react-icons/md";
+import Swal from "sweetalert2";
 import { DEFAULT_AVATAR } from "../../env";
+import { createAdminAccount, registerUser } from "../../redux/slices/AuthSlice";
 
-const Register: React.FC = () => {
+const CreateAccount = () => {
   // Khai báo state để lưu trữ giá trị của username, password và confirmPassword
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -106,9 +104,8 @@ const Register: React.FC = () => {
 
     try {
       const avatar = DEFAULT_AVATAR;
-      // Dispatch action đăng nhập
       const response = await dispatch(
-        registerUser({ username, email, password, avatar })
+        createAdminAccount({ username, email, password, avatar })
       ).unwrap();
       if (response) {
         setUsername("");
@@ -136,9 +133,8 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className={styles.container} style={{ position: "relative" }}>
-      <div className={styles.loginContainer}>
-        <h2 className={styles.h2}>Đăng ký</h2>
+    <div className={styles.container}>
+      <div className={styles.login_container}>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <FaRegUser className={styles.icon} />
@@ -202,15 +198,9 @@ const Register: React.FC = () => {
             {isLoading ? "Logging in..." : "Đăng ký"}
           </button>
         </form>
-        <p>
-          Đã có tài khoản?
-          <Link className={styles.link} to="/login">
-            Đăng nhập!
-          </Link>
-        </p>
       </div>
     </div>
   );
 };
 
-export default Register;
+export default CreateAccount;

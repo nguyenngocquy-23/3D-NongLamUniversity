@@ -32,7 +32,7 @@ public class StartupConfig {
                 admin.setUsername("admin");
                 admin.setPassword(EncryptUtil.hashPassword("admin")); // Hash password
                 admin.setEmail("admin@gmail.com");
-                admin.setRoleId(SystemConstant.ADMIN_ROLE_ID);
+                admin.setRoleId(SystemConstant.SUPER_ADMIN_ROLE_ID);
                 admin.setStatus((byte) 2);
                 admin.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
