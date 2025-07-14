@@ -210,12 +210,12 @@ const Sidebar: React.FC<SideBarProps> = ({
             </li>
           </Link>
         )}
-        <Link to="/admin/commentManage">
+        <Link to="/admin/contacts" onClick={() => setTitle("Phản hồi")}>
           <li
             className={`
               ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
             ${
-              location.pathname.includes("/admin/commentManage")
+              location.pathname.includes("/contacts")
                 ? styles.click
                 : ""
             }

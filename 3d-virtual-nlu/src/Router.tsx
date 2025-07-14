@@ -35,6 +35,7 @@ import ManageAutoTour from "./pages/visitor/ManageAutoTour.tsx";
 import VirtualAutoTour from "./pages/visitor/VirtualAutoTour.tsx";
 import ManageModel from "./pages/visitor/ManageModel.tsx";
 import CreateAccount from "./pages/admin/createAccount.tsx";
+import ManagerContact from "./pages/admin/ManagerContact.tsx";
 
 function RouterConfig() {
   return (
@@ -62,6 +63,7 @@ function RouterConfig() {
         <Route path="tours" element={<ManagerTour />} />
         <Route path="tours/:nodeId" element={<ManagerTourDetail />} />
         <Route path="users" element={<User />} />
+        <Route path="contacts" element={<ManagerContact />} />
         <Route path="fields" element={<Field />} />
         <Route path="spaces" element={<Space />} />
         <Route path="spaces/:spaceId" element={<SpaceDetail />} />

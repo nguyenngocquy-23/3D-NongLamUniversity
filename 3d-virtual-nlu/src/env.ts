@@ -42,6 +42,8 @@ export const API_URLS = {
   EDIT_COMMENT: `${DOMAIN}/comment/update`,
   REMOVE_COMMENT: `${DOMAIN}/comment/remove`,
   
+  SEND_CONTACT: `${DOMAIN}/contact/send`,
+
   SEARCH_FIELDS: `${DOMAIN}/admin/field/search`,
   SEARCH_SPACES: `${DOMAIN}/admin/space/search`,
   SEARCH_NODES: `${DOMAIN}/v1/admin/node/search`,

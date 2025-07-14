@@ -10,6 +10,7 @@ import { MdAdminPanelSettings } from "react-icons/md";
 import { Datatable } from "../../components/admin/DataTable";
 import { fetchUsers } from "../../redux/slices/DataSlice";
 import { API_URLS } from "../../env";
+import { IoSearch } from "react-icons/io5";
 
 interface User {
   id: number;
@@ -150,7 +151,15 @@ function User() {
               )}
             </button>
           ) : (
-            <span style={{padding:'0.3rem ', backgroundColor: "orange", borderRadius:'5px'}}>Đang xác thực</span>
+            <span
+              style={{
+                padding: "0.3rem ",
+                backgroundColor: "orange",
+                borderRadius: "5px",
+              }}
+            >
+              Đang xác thực
+            </span>
           )
         ) : (
           <MdAdminPanelSettings
@@ -165,14 +174,19 @@ function User() {
 
   return (
     <div className={styles.container}>
-      <input
-        type="text"
-        title="Keyword trong tiêu đề và mô tả ngắn"
-        onChange={handleSearch}
-        placeholder="Tìm kiếm..."
-        className={styles.search_input}
-      />
-      <h2>Danh Sách Người Dùng</h2>
+      <div className={styles.search_box}>
+        <label htmlFor="input" className={styles.label}>
+          <IoSearch className={styles.search_icon} />
+        </label>
+        <input
+          type="text"
+          name="field"
+          id="input"
+          placeholder="Tìm kiếm..."
+          className={styles.search_input}
+          onChange={handleSearch}
+        />
+      </div>
       {loading && <p>Đang tải...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
