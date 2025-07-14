@@ -17,6 +17,8 @@ import java.util.List;
 public class ContactService {
     @Inject
     ContactDao contactDao;
+    @Inject
+    MailService mailService;
 
     public boolean sendContact(SendContactRequest req) {
         try {
@@ -33,6 +35,16 @@ public class ContactService {
         } catch (Exception e) {
             e.printStackTrace();
             return List.of();
+        }
+    }
+
+    public Boolean feedback(FeedbackContactRequest request) {
+        try {
+            mailService.sendMailReplyContact(request);
+            return contactDao.feedback(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

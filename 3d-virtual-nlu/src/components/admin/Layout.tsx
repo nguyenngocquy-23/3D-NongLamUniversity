@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
 import {
+  fetchContacts,
   fetchDashboard,
   fetchFields,
   fetchHotspotTypes,
@@ -47,6 +48,7 @@ const Layout = () => {
     dispatch(fetchHotspotTypes());
     dispatch(fetchNodes());
     dispatch(fetchIcons());
+    dispatch(fetchContacts());
   }, [dispatch]);
 
   useEffect(() => {

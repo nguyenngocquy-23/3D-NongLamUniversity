@@ -30,7 +30,7 @@ public class ContactDao {
 
     public List<ContactResponse> getAllContact() {
         String sql = """
-                SELECT c.id, u.username, u.email, c.content, c.status, c.createdAt 
+                SELECT c.id, c.userId, c.email, c.content, c.status, c.createdAt 
                 FROM contacts c
                 ORDER BY c.createdAt DESC
                 """;
@@ -38,6 +38,19 @@ public class ContactDao {
             return handle.createQuery(sql)
                     .mapToBean(ContactResponse.class)
                     .list();
+        });
+    }
+
+    public Boolean feedback(FeedbackContactRequest request) {
+        String sql = """
+                UPDATE contacts 
+                SET status = 1
+                WHERE id = :id
+                """;
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            return handle.createUpdate(sql)
+                    .bind("id", request.getContactId())
+                    .execute() > 0;
         });
     }
 }

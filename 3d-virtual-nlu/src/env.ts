@@ -43,6 +43,7 @@ export const API_URLS = {
   REMOVE_COMMENT: `${DOMAIN}/comment/remove`,
   
   SEND_CONTACT: `${DOMAIN}/contact/send`,
+  ADMIN_FEEDBACK_CONTACT: `${DOMAIN}/v1/admin/contact/feedback`,
 
   SEARCH_FIELDS: `${DOMAIN}/admin/field/search`,
   SEARCH_SPACES: `${DOMAIN}/admin/space/search`,
@@ -61,6 +62,7 @@ export const API_URLS = {
   ADMIN_GET_HOTSPOT_TYPES: `${DOMAIN}/admin/hotspotType`,
   ADMIN_GET_ALL_FIELDS: `${DOMAIN}/admin/field`,
   ADMIN_GET_ALL_NODE_IMAGES: `${DOMAIN}/v1/admin/node/getNodeImg`,
+  ADMIN_GET_ALL_CONTACTS: `${DOMAIN}/v1/admin/contact/getAll`,
 
   ADMIN_CREATE_NODES: `${DOMAIN}/v1/admin/node/insert`,
   ADMIN_CREATE_AUTO_TOUR: `${DOMAIN}/v1/admin/node/createAutoTour`,

@@ -20,6 +20,7 @@ interface DataState {
   defaultNode: any;
   trackNodes: any[];
   icons: any[];
+  contacts: any[];
   commentOfNode: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
   dashboard: any;
@@ -41,6 +42,7 @@ const initialState: DataState = {
   trackNodes: [],
   preloadNodes: [],
   icons: [],
+  contacts: [],
   commentOfNode: [],
   status: "idle",
   dashboard: null,
@@ -200,6 +202,20 @@ export const fetchSpaces = createAsyncThunk(
   }));
 
   return parsedSpaces;
+});
+
+// Fetch contact
+export const fetchContacts = createAsyncThunk(
+  "data/fetchContacts", 
+  async () => {
+  try {
+      const response = await axios.post(API_URLS.ADMIN_GET_ALL_CONTACTS);
+      if (response.data.data) {
+        return response.data.data;
+      }
+    } catch (error: any) {
+      console.error(error);
+    }
 });
 
 /**
@@ -482,6 +498,7 @@ const dataSlice = createSlice({
       .addCase(fetchCommentOfNode.rejected, (state) => {
         state.status = "failed";
       })
+
       .addCase(fetchToursFromSpace.pending, (state) => {
         state.status = "loading";
       })
@@ -490,6 +507,17 @@ const dataSlice = createSlice({
         state.trackNodes = action.payload;
       })
       .addCase(fetchToursFromSpace.rejected, (state) => {
+        state.status = "failed";
+      })
+      
+      .addCase(fetchContacts.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.contacts = action.payload;
+      })
+      .addCase(fetchContacts.rejected, (state) => {
         state.status = "failed";
       });
   },

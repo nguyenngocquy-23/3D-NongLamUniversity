@@ -32,13 +32,4 @@ public class ContactController {
         boolean result = contactService.sendContact(request);
         return ApiResponse.<Boolean>builder().statusCode(1000).message("Lien he thanh cong").data(result).build();
     }
-
-    @POST
-    @Path("/getAll")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<ContactResponse>> getAllContact() {
-        List<ContactResponse> result = contactService.getAllContact();
-        return ApiResponse.<List<ContactResponse>>builder().statusCode(1000).message("get danh sach lien he thanh cong").data(result).build();
-    }
 }

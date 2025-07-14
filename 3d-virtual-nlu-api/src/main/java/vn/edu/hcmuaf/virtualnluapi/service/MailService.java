@@ -7,10 +7,10 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import vn.edu.hcmuaf.virtualnluapi.config.MailProperties;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.FeedbackContactRequest;
 import vn.edu.hcmuaf.virtualnluapi.entity.EmailVerification;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
 
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,13 +49,21 @@ public class MailService {
                 .append("<h2 style='color:blue;'><strong>").append(verification.getToken()).append("</strong></h2>")
                 .append("<p>Nhập mã này vào trang xác thực để hoàn tất quá trình đăng ký.</p>")
                 .append("<p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>")
-                .append("<p>Trân trọng,</p><p>Ban quản trị <strong>VirtualTour.NLU.edu.vn</strong>.</p>");
+                .append("<p>Trân trọng,</p><p>Ban quản trị <strong>3dtour.io.vn/3dtour/</strong>.</p>");
         sendMail(user.getEmail(), subject, content.toString());
     }
 
-//    public void sendMailReplyContact(ReplyContact replyContact, ContactDTO contact) {
-//        sendMail(contact.getEmail(), replyContact.getTitle(), replyContact.getContent());
-//    }
+    public void sendMailReplyContact(FeedbackContactRequest request) {
+        String subject = "Phản hồi liên hệ từ VirtualTour.NLU.edu.vn";
+        StringBuilder content = new StringBuilder();
+        content.append("<p>Chào bạn,</p>")
+                .append("<p>Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi đã nhận được yêu cầu của bạn.</p>")
+                .append("<p>Nội dung phản hồi: </p>")
+                .append("<blockquote>").append(request.getContent()).append("</blockquote>")
+                .append("<p>Nếu có thắc mắc. Vui lòng liên hệ với chúng tôi qua email này.</p>")
+                .append("<p>Trân trọng,</p><p>Đội ngũ hỗ trợ <strong>3dtour.io.vn/3dtour/</strong>.</p>");
+        sendMail(request.getEmail(), subject, content.toString());
+    }
 
 //    public void sendMailToAdmin(String content) {
 //        String subject = "Warning";
