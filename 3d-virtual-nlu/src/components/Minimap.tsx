@@ -266,7 +266,6 @@ const MiniMap: React.FC<MiniMapProps> = ({
         {!isExpanded && (
           <motion.div layoutId="minimap" className={styles.minimap_header}>
             <MdZoomOutMap onClick={handleZoomMap} />
-            <RiEdit2Line />
             {panoramaList.map((item) => (
               <div key={item.id} className={styles.node}>
                 <div
@@ -304,19 +303,6 @@ const MiniMap: React.FC<MiniMapProps> = ({
                   ) : (
                     ""
                   )}
-
-                  {/* {currentTour
-                    ? item.config.status === 2 &&
-                      item.id !== currentTour && (
-                        <div className={styles.master_node_icon_container}>
-                          <GiQueenCrown className={styles.master_node_icon} />
-                        </div>
-                      )
-                    : item.config.status === 2 && (
-                        <div className={styles.master_node_icon_container}>
-                          <GiQueenCrown className={styles.master_node_icon} />
-                        </div>
-                      )} */}
                   <span className={styles.node_name}>{item.config.name}</span>
                 </div>
               </div>

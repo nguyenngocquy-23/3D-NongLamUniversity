@@ -12,7 +12,11 @@ import { RADIUS_SPHERE } from "../../utils/Constants";
 import FallbackHotspot from "../FallbackHotspot";
 import { useModelCache } from "../../contexts/ImageCacheContext";
 import Hotspot3D from "./Hotspot3D";
-import { rgbaToString } from "../../utils/TransformRgbaColor";
+import {
+  initialRgba,
+  rgbaToString,
+  stringToRgba,
+} from "../../utils/TransformRgbaColor";
 import { MdTransitEnterexit } from "react-icons/md";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
@@ -227,9 +231,9 @@ const GroundHotspotInfo = ({
               <div
                 className={styles.center_pane}
                 style={{
-                  backgroundColor: rgbaToString(
-                    hotspotInfo.backgroundColorContent
-                  ),
+                  backgroundColor:
+                    rgbaToString(hotspotInfo.backgroundColorContent) ??
+                    rgbaToString(initialRgba),
                 }}
               >
                 {hotspotInfo.content.trim() == "" ? (
