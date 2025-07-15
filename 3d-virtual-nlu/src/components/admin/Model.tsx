@@ -11,21 +11,59 @@ import {
   FaShareFromSquare,
 } from "react-icons/fa6";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { FaCloudDownloadAlt } from "react-icons/fa";
+import { FaCloudDownloadAlt, FaRegEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { API_URLS } from "../../env";
 
 interface NodeProps {
   modelUrl: string;
+  color: string;
 }
 
-const Node: React.FC<NodeProps> = ({ modelUrl }) => {
+// const Node: React.FC<NodeProps> = ({ modelUrl }) => {
+//   const modelRef = useRef<THREE.Group>(null);
+//   const { gl } = useThree();
+//   const [rotate, setRotate] = useState(true);
+
+//   useEffect(() => {
+//     if (!modelUrl) return;
+//     const loader = new GLTFLoader();
+//     console.error("Load GLB:");
+//     loader.load(
+//       modelUrl ?? "/thienly.glb",
+//       (gltf) => {
+//         const scene = gltf.scene;
+//         if (modelRef.current) {
+//           modelRef.current.add(scene);
+//         }
+//       },
+//       undefined,
+//       (error) => {
+//         console.error("❌ Lỗi load GLB:", error);
+//       }
+//     );
+//   }, [modelUrl]);
+
+//   return (
+//     <group
+//       ref={modelRef}
+//       position={[0, 0, 0]}
+//       // scale={2}
+//       onPointerOver={() => {
+//         gl.domElement.style.cursor = "grabbing";
+//       }}
+//     >
+//       <ambientLight color={"#fff"} intensity={2} />
+//       <pointLight position={[10, 10, 10]} intensity={2} />
+//       <directionalLight position={[5, 5, 5]} intensity={2} />
+//     </group>
+//   );
+// };
+
+const Node: React.FC<NodeProps> = ({ modelUrl, color }) => {
   const modelRef = useRef<THREE.Group>(null);
   const { gl } = useThree();
-  const [rotate, setRotate] = useState(true);
-
-  // const texture = useTexture("/floor.png");
 
   useEffect(() => {
     if (!modelUrl) return;
@@ -46,18 +84,49 @@ const Node: React.FC<NodeProps> = ({ modelUrl }) => {
     );
   }, [modelUrl]);
 
+  // ✅ Chỉ update màu vật liệu nếu có thay đổi
+  useEffect(() => {
+    if (!modelRef.current) return;
+
+    modelRef.current.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        const materials = Array.isArray(mesh.material)
+          ? mesh.material
+          : [mesh.material];
+
+        materials.forEach((mat) => {
+          const stdMat = mat as THREE.MeshStandardMaterial;
+
+          // ✅ Không gán map = null nếu model gốc cần texture
+          // ✅ Thay vì xóa map, bạn nên giữ nếu không cần đổi màu toàn bộ
+          if (!stdMat.map) {
+            try {
+              stdMat.color.set(color);
+              stdMat.metalness = 0.1; // thấp để không bị đen
+              stdMat.roughness = 0.7;
+            } catch (e) {
+              console.warn("⚠️ Màu không hợp lệ:", color);
+            }
+            stdMat.needsUpdate = true;
+          }
+        });
+      }
+    });
+  }, [color]);
+
   return (
     <group
       ref={modelRef}
       position={[0, 0, 0]}
-      // scale={2}
       onPointerOver={() => {
         gl.domElement.style.cursor = "grabbing";
       }}
     >
-      <ambientLight color={"#fff"} intensity={2} />
-      <pointLight position={[10, 10, 10]} intensity={2} />
-      <directionalLight position={[5, 5, 5]} intensity={2} />
+      {/* Ánh sáng rất quan trọng */}
+      <ambientLight intensity={1.5} />
+      <directionalLight position={[5, 10, 7]} intensity={3} />
+      <pointLight position={[10, 10, 10]} intensity={2.5} />
     </group>
   );
 };
@@ -68,6 +137,8 @@ const Model = () => {
   const { hotspotModelId } = useParams();
   const navigate = useNavigate();
   const [hotspotModel, setHotspotModel] = useState<any>(null);
+  const [color, setColor] = useState("#ffffff");
+  const [openEdit, setOpenEdit] = useState(false);
 
   useEffect(() => {
     const id = Number.parseInt(hotspotModelId as string, 10);
@@ -198,6 +269,13 @@ const Model = () => {
       </div>
       <div className={styles.share_container}>
         <button
+          className={`${styles.share_button} ${openEdit ? styles.active : ""}`}
+          title="Chỉnh sửa mô hình"
+          onClick={() => setOpenEdit((prev) => !prev)}
+        >
+          <FaRegEdit className={styles.share_icon} />
+        </button>
+        <button
           className={styles.share_button}
           title="Chia sẻ URL"
           onClick={handleShare}
@@ -212,6 +290,22 @@ const Model = () => {
           <FaCloudDownloadAlt className={styles.share_icon} />
         </button>
       </div>
+      <div
+        className={`${styles.edit_model_container} ${
+          openEdit ? styles.open_edit : ""
+        }`}
+      >
+        <label htmlFor="colorPicker" className={styles.label}>
+          Màu mô hình:
+        </label>
+        <input
+          type="color"
+          id="colorPicker"
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          className={styles.color_picker}
+        />
+      </div>
       <Canvas
         shadows
         className={styles.canvas}
@@ -221,7 +315,10 @@ const Model = () => {
           // aspect: (window.innerWidth / window.innerHeight) * 0.8,
         }}
       >
-        <Node modelUrl={!hotspotModel ? modelUrl : hotspotModel.modelUrl} />
+        <Node
+          modelUrl={!hotspotModel ? modelUrl : hotspotModel.modelUrl}
+          color={color}
+        />
         <OrbitControls
           rotateSpeed={0.5}
           autoRotate={true}

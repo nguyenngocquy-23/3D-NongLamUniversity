@@ -167,6 +167,32 @@
     transition: background-color 0.3s ease;
 }
 
+.edit_model_container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1rem;
+    opacity: 0;
+    width: 15rem;
+    height: 15rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    border-top-left-radius: 1rem;
+    border-bottom-left-radius: 1rem;
+}
+
+.label {
+    margin-right: 1rem;
+}
+
+.active {
+    background-color: #3A3F43;
+}
+
+.open_edit {
+    opacity: 1;
+}
+
 @media screen and (max-width: 768px) {
     .container {
         display: flex;
@@ -196,6 +222,7 @@
         width: auto;
         opacity: 0.7;
     }
+
     .option_button {
         width: auto;
         height: 40px;
@@ -212,9 +239,10 @@
         margin-left: 0;
     }
 
-    .model_info p{
+    .model_info p {
         display: none;
     }
+
     .model_info {
         position: static;
         width: 100%;
@@ -261,5 +289,19 @@
 
     .share_icon {
         font-size: 1.2rem;
+    }
+
+    .edit_model_container {
+        position: static;
+        width: 100%;
+        height: auto;
+        padding: 1rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 0;
+        display: none;
+    }
+    
+    .open_edit {
+        display: block;
     }
 }

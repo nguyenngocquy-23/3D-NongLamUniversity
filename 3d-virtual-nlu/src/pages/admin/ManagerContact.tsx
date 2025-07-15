@@ -57,10 +57,7 @@ function ManagerContact() {
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value.toLowerCase();
     const newData = contacts.filter((row: any) => {
-      return (
-        row.username.toLowerCase().includes(searchTerm) ||
-        row.email.toLowerCase().includes(searchTerm)
-      );
+      return row.email.toLowerCase().includes(searchTerm);
     });
     setSearchData(newData);
   };
@@ -76,13 +73,12 @@ function ManagerContact() {
       name: "Email",
       selector: (row: Contact) => row.email,
       sortable: true,
-      grow: 1,
     },
     {
       name: "Nội dung",
       selector: (row: Contact) => row.content,
       grow: 2,
-      maxWidth: "500px",
+      width: "500px",
     },
     {
       name: "Trạng thái",
