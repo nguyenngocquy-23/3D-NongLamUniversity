@@ -15,53 +15,21 @@ import { FaCloudDownloadAlt, FaRegEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { API_URLS } from "../../env";
+import LightDial from "../LightDial";
 
 interface NodeProps {
   modelUrl: string;
   color: string;
+  lightPosition: [number, number, number];
+  intensity: number;
 }
 
-// const Node: React.FC<NodeProps> = ({ modelUrl }) => {
-//   const modelRef = useRef<THREE.Group>(null);
-//   const { gl } = useThree();
-//   const [rotate, setRotate] = useState(true);
-
-//   useEffect(() => {
-//     if (!modelUrl) return;
-//     const loader = new GLTFLoader();
-//     console.error("Load GLB:");
-//     loader.load(
-//       modelUrl ?? "/thienly.glb",
-//       (gltf) => {
-//         const scene = gltf.scene;
-//         if (modelRef.current) {
-//           modelRef.current.add(scene);
-//         }
-//       },
-//       undefined,
-//       (error) => {
-//         console.error("❌ Lỗi load GLB:", error);
-//       }
-//     );
-//   }, [modelUrl]);
-
-//   return (
-//     <group
-//       ref={modelRef}
-//       position={[0, 0, 0]}
-//       // scale={2}
-//       onPointerOver={() => {
-//         gl.domElement.style.cursor = "grabbing";
-//       }}
-//     >
-//       <ambientLight color={"#fff"} intensity={2} />
-//       <pointLight position={[10, 10, 10]} intensity={2} />
-//       <directionalLight position={[5, 5, 5]} intensity={2} />
-//     </group>
-//   );
-// };
-
-const Node: React.FC<NodeProps> = ({ modelUrl, color }) => {
+const Node: React.FC<NodeProps> = ({
+  modelUrl,
+  color,
+  lightPosition,
+  intensity,
+}) => {
   const modelRef = useRef<THREE.Group>(null);
   const { gl } = useThree();
 
@@ -73,6 +41,18 @@ const Node: React.FC<NodeProps> = ({ modelUrl, color }) => {
       modelUrl ?? "/thienly.glb",
       (gltf) => {
         const scene = gltf.scene;
+
+        const box = new THREE.Box3().setFromObject(scene);
+        const size = new THREE.Vector3();
+        const center = new THREE.Vector3();
+        box.getSize(size);
+        box.getCenter(center);
+
+        const minY = box.min.y;
+
+        // ✅ Canh lại mô hình sao cho chạm đất
+        scene.position.y -= minY;
+
         if (modelRef.current) {
           modelRef.current.add(scene);
         }
@@ -91,6 +71,8 @@ const Node: React.FC<NodeProps> = ({ modelUrl, color }) => {
     modelRef.current.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
         const materials = Array.isArray(mesh.material)
           ? mesh.material
           : [mesh.material];
@@ -116,18 +98,24 @@ const Node: React.FC<NodeProps> = ({ modelUrl, color }) => {
   }, [color]);
 
   return (
-    <group
-      ref={modelRef}
-      position={[0, 0, 0]}
-      onPointerOver={() => {
-        gl.domElement.style.cursor = "grabbing";
-      }}
-    >
-      {/* Ánh sáng rất quan trọng */}
-      <ambientLight intensity={1.5} />
-      <directionalLight position={[5, 10, 7]} intensity={3} />
-      <pointLight position={[10, 10, 10]} intensity={2.5} />
-    </group>
+    <>
+      <group
+        ref={modelRef}
+        position={[0, 0, 0]}
+        onPointerOver={() => {
+          gl.domElement.style.cursor = "grabbing";
+        }}
+      >
+        {/* Ánh sáng rất quan trọng */}
+        <ambientLight intensity={1.5} />
+        <directionalLight castShadow position={lightPosition} intensity={intensity} />
+        <pointLight position={[10, 10, 10]} intensity={2.5} />
+      </group>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+        <circleGeometry args={[10, 64]} />
+        <meshStandardMaterial color="#707070" />
+      </mesh>
+    </>
   );
 };
 
@@ -138,6 +126,16 @@ const Model = () => {
   const navigate = useNavigate();
   const [hotspotModel, setHotspotModel] = useState<any>(null);
   const [color, setColor] = useState("#ffffff");
+  const [autoRotate, setAutoRotate] = useState(false);
+  const [intensity, setIntensity] = useState(1);
+  const [theta, setTheta] = useState(45);
+
+  const radius = 10;
+  const lightPosition: [number, number, number] = [
+    radius * Math.cos(THREE.MathUtils.degToRad(theta)),
+    10,
+    radius * Math.sin(THREE.MathUtils.degToRad(theta)),
+  ];
   const [openEdit, setOpenEdit] = useState(false);
 
   useEffect(() => {
@@ -305,6 +303,31 @@ const Model = () => {
           onChange={(e) => setColor(e.target.value)}
           className={styles.color_picker}
         />
+        <label htmlFor="colorPicker" className={styles.label}>
+          Hướng ánh sáng:
+          <input
+            style={{ marginLeft: "0.5rem" }}
+            type="checkbox"
+            checked={autoRotate}
+            onChange={() => setAutoRotate(!autoRotate)}
+          />
+        </label>
+        <div style={{ display: "flex", alignItems: "center", marginTop: "1rem" }}>
+          <LightDial
+            theta={theta}
+            onChange={setTheta}
+            autoRotate={autoRotate}
+          />
+          <input
+            type="range"
+            min={1}
+            max={10}
+            step={0.1}
+            value={intensity}
+            onChange={(e) => setIntensity(+e.target.value)}
+            className={styles.vertical_slider}
+          />
+        </div>
       </div>
       <Canvas
         shadows
@@ -318,6 +341,8 @@ const Model = () => {
         <Node
           modelUrl={!hotspotModel ? modelUrl : hotspotModel.modelUrl}
           color={color}
+          intensity={intensity}
+          lightPosition={lightPosition}
         />
         <OrbitControls
           rotateSpeed={0.5}
