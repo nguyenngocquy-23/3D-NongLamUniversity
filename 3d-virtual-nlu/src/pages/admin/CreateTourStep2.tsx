@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import styles from "../../styles/createTourStep2.module.css";
 import { FaAngleLeft, FaAngleRight, FaBook, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
@@ -483,52 +483,59 @@ const CreateTourStep2 = () => {
               setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
             }}
           />
+          <Suspense fallback={null}>
+            {isTextureReady &&
+              hotspotNavigations
+                .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                .map((hotspot) => (
+                  <GroundHotspot
+                    key={hotspot.id}
+                    onNavigate={(targetNodeId, cameraTargetPosition) =>
+                      handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                    }
+                    setCurrentHotspotId={setCurrentHotspotId}
+                    hotspotNavigation={hotspot}
+                  />
+                ))}
+          </Suspense>
 
-          {isTextureReady &&
-            hotspotNavigations
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
-                <GroundHotspot
-                  key={hotspot.id}
-                  onNavigate={(targetNodeId, cameraTargetPosition) =>
-                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                  }
-                  setCurrentHotspotId={setCurrentHotspotId}
-                  hotspotNavigation={hotspot}
-                />
-              ))}
+          <Suspense>
+            {isTextureReady &&
+              hotspotInfos
+                .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                .map((hotspot) => (
+                  <GroundHotspotInfo
+                    key={hotspot.id}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                    hotspotInfo={hotspot}
+                  />
+                ))}
+          </Suspense>
+          <Suspense fallback={null}>
+            {isTextureReady &&
+              hotspotModels
+                .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                .map((hotspot) => (
+                  <GroundHotspotModel
+                    key={hotspot.id}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                    hotspotModel={hotspot}
+                  />
+                ))}
+          </Suspense>
 
-          {isTextureReady &&
-            hotspotInfos
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
-                <GroundHotspotInfo
-                  key={hotspot.id}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                  hotspotInfo={hotspot}
-                />
-              ))}
-          {isTextureReady &&
-            hotspotModels
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
-                <GroundHotspotModel
-                  key={hotspot.id}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                  hotspotModel={hotspot}
-                />
-              ))}
-
-          {isTextureReady &&
-            hotspotMedias
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
-                <VideoMeshComponent
-                  key={hotspot.id}
-                  hotspotMedia={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
+          <Suspense fallback={null}>
+            {isTextureReady &&
+              hotspotMedias
+                .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                .map((hotspot) => (
+                  <VideoMeshComponent
+                    key={hotspot.id}
+                    hotspotMedia={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
+          </Suspense>
 
           {currentPoints.length > 1 &&
             currentPoints.map((point, i) => {

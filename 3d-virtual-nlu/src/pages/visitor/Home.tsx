@@ -23,8 +23,6 @@ const Home: React.FC = () => {
     <main className={styles.home_container}>
       <Banner />
 
-      {/* <CampusMap /> */}
-
       <Introduce />
 
       <TourOverview />

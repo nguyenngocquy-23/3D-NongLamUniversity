@@ -175,6 +175,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     <>
       {isHovered && (
         <Html
+          key="hover-hotspot"
           position={[
             hotspotNavigation.positionX,
             hotspotNavigation.positionY,
@@ -209,6 +210,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       )}
       {isIcon3D && clonedScene ? (
         <group
+          key="3d-hotspot"
           ref={groupRef}
           scale={hotspotNavigation.scale}
           position={[
@@ -245,15 +247,11 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
         >
           <primitive object={clonedScene}></primitive>
 
-          <SoundEffect
-            url="https://res.cloudinary.com/dkoc6kbg1/video/upload/v1750922657/usxngr98lreae7ochjdx.mp3"
-            setPlayFunction={setPlaySound}
-          />
-
           <ambientLight color={"#fff"} intensity={0.3} />
         </group>
       ) : (
         <mesh
+          key="2d-hotspot"
           ref={hotspotRef}
           position={[
             hotspotNavigation.positionX,
@@ -303,10 +301,6 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             emissiveIntensity={isHovered ? 2 : 0}
             side={THREE.DoubleSide}
           />
-          <SoundEffect
-            url="https://res.cloudinary.com/dkoc6kbg1/video/upload/v1750922657/usxngr98lreae7ochjdx.mp3"
-            setPlayFunction={setPlaySound}
-          />
         </mesh>
       )}
 
@@ -314,6 +308,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
       (currentStep == 2 || currentStep == 4) &&
       !blockUpdate ? (
         <OptionHotspot
+          key="config-hotspot"
           hotspotId={hotspotNavigation.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
           onClose={() => {
@@ -325,9 +320,7 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             hotspotNavigation.positionZ,
           ]}
         />
-      ) : (
-        ""
-      )}
+      ) : null}
     </>
   );
 };

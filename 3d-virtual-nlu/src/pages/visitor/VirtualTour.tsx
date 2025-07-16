@@ -505,49 +505,6 @@ const VirtualTour = () => {
     });
   }, [nodeToRender]);
 
-  // useEffect(() => {
-  //   if (!preloadNodes || preloadNodes.length === 0) return;
-
-  //   let loaded = 0;
-  //   const total = preloadNodes.length;
-
-  //   preloadNodes.forEach(async (node) => {
-  //     const existing = imageRef.current[node.id];
-
-  //     if (existing) return; //Có rồi thì không tải nữa.
-
-  //     try {
-  //       const lowResURL = buildImageUrlWithQuality(node.url, "2K");
-
-  //       const response = await fetch(lowResURL, { mode: "cors" });
-  //       const blob = await response.blob();
-  //       const objectUrl = URL.createObjectURL(blob);
-
-  //       const img = new Image();
-  //       img.crossOrigin = "anonymous";
-  //       img.src = objectUrl;
-
-  //       img.onload = () => {
-  //         loaded++;
-  //         imageRef.current[node.id] = {
-  //           img,
-  //           objectUrl,
-  //           quality: "2K",
-  //           lastUsed: Date.now(),
-  //         };
-
-  //         setPercent(Math.floor((loaded / total) * 100));
-  //         if (loaded === total) {
-  //           // imageRef.current = imgCache;
-  //           setIsWaiting(false);
-  //         }
-  //       };
-  //     } catch (err) {
-  //       console.warn("Lỗi không thể tải reload:", node.url, err);
-  //     }
-  //   });
-  // }, [preloadNodes]);
-
   const getUrlGLB = (iconId: number): string | null => {
     //Icon phải là icon 3D
     const iconObj = icons.find((i) => i.id === iconId && i.type === 2);
@@ -642,8 +599,6 @@ const VirtualTour = () => {
         });
       }
     });
-
-    // ================= Preload các GLB model hotspot =================
   }, [preloadNodes]);
 
   if (!icons || icons.length === 0) {

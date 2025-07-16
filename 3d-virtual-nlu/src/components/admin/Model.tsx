@@ -23,7 +23,6 @@ interface NodeProps {
 const Node: React.FC<NodeProps> = ({ modelUrl }) => {
   const modelRef = useRef<THREE.Group>(null);
   const { gl } = useThree();
-  const [rotate, setRotate] = useState(true);
 
   // const texture = useTexture("/floor.png");
 
@@ -169,7 +168,16 @@ const Model = () => {
         >
           <b className={styles.username}>
             Người tạo:{" "}
-            <span style={{color: 'white', marginLeft: '0.5rem' ,fontSize: '20px', fontStyle: 'italic'}}>{!hotspotModel ? "" : hotspotModel.usernameAuthor} </span>
+            <span
+              style={{
+                color: "white",
+                marginLeft: "0.5rem",
+                fontSize: "20px",
+                fontStyle: "italic",
+              }}
+            >
+              {!hotspotModel ? "" : hotspotModel.usernameAuthor}{" "}
+            </span>
           </b>
         </div>
       </div>

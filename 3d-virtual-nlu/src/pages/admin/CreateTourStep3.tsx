@@ -64,6 +64,7 @@ const CreateTourStep3: React.FC = () => {
   const hotspotMedias = useSelector(getFilteredHotspotMediaInList);
 
   const navigate = useNavigate();
+  const [isTextureReady, setIsTextureReady] = useState(false);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
   const [currentPoints, setCurrentPoints] = useState<
     [number, number, number][]
@@ -95,8 +96,11 @@ const CreateTourStep3: React.FC = () => {
     positionY = 0,
     positionZ = 0,
     lightIntensity = 1,
-    autoRotate = 0,
-    speedRotate = 0,
+    brightness = 0,
+    contrast = 1,
+    saturation = 1.2,
+    grayscale = 0,
+    exposure = 1,
   } = currentPanorama?.config ?? {};
 
   const cameraPosition: [number, number, number] = [
@@ -109,6 +113,7 @@ const CreateTourStep3: React.FC = () => {
     return;
 
   const handleSelectNode = (id: string) => {
+    setIsTextureReady(false);
     dispatch(selectPanorama(id));
   };
 
@@ -247,45 +252,55 @@ const CreateTourStep3: React.FC = () => {
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
             lightIntensity={lightIntensity}
+            brightness={brightness}
+            contrast={contrast}
+            saturation={saturation}
+            grayscale={grayscale}
+            exposure={exposure}
+            onTextureReady={() => setIsTextureReady(true)}
           />
           <CamControls
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
-            autoRotate={autoRotate === 1 ? true : false}
-            autoRotateSpeed={speedRotate}
+            autoRotate={false}
+            autoRotateSpeed={0}
           />
-          {hotspotNavigations
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <GroundHotspot
-                key={hotspot.id}
-                onNavigate={(targetNodeId, cameraTargetPosition) =>
-                  handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                }
-                hotspotNavigation={hotspot}
-              />
-            ))}
-          {hotspotInfos
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} />
-            ))}
-          {hotspotModels
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <GroundHotspotModel
-                key={hotspot.id}
-                setHoveredHotspot={setHoveredHotspot}
-                hotspotModel={hotspot}
-              />
-            ))}
+          {isTextureReady &&
+            hotspotNavigations
+              .filter((hotspot) => hotspot.nodeId === currentSelectId)
+              .map((hotspot) => (
+                <GroundHotspot
+                  key={hotspot.id}
+                  onNavigate={(targetNodeId, cameraTargetPosition) =>
+                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                  }
+                  hotspotNavigation={hotspot}
+                />
+              ))}
+          {isTextureReady &&
+            hotspotInfos
+              .filter((hotspot) => hotspot.nodeId === currentSelectId)
+              .map((hotspot) => (
+                <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} />
+              ))}
+          {isTextureReady &&
+            hotspotModels
+              .filter((hotspot) => hotspot.nodeId === currentSelectId)
+              .map((hotspot) => (
+                <GroundHotspotModel
+                  key={hotspot.id}
+                  setHoveredHotspot={setHoveredHotspot}
+                  hotspotModel={hotspot}
+                />
+              ))}
 
-          {hotspotMedias
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <VideoMeshComponent key={hotspot.id} hotspotMedia={hotspot} />
-            ))}
+          {isTextureReady &&
+            hotspotMedias
+              .filter((hotspot) => hotspot.nodeId === currentSelectId)
+              .map((hotspot) => (
+                <VideoMeshComponent key={hotspot.id} hotspotMedia={hotspot} />
+              ))}
           {currentPoints.length > 1 &&
             currentPoints.map((point, i) => {
               if (i < currentPoints.length - 1)
