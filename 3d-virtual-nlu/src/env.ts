@@ -48,6 +48,7 @@ export const API_URLS = {
   SEARCH_FIELDS: `${DOMAIN}/admin/field/search`,
   SEARCH_SPACES: `${DOMAIN}/admin/space/search`,
   SEARCH_NODES: `${DOMAIN}/v1/admin/node/search`,
+  SEARCH_ICONS: `${DOMAIN}/v1/admin/icon/search`,
 
   GET_MODEL: `${DOMAIN}/v1/admin/hotspot/getModel`,
   GET_NUM_TOTAL_MODEL: `${DOMAIN}/v1/admin/hotspot/getNumTotalModel`,

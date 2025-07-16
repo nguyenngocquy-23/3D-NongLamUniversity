@@ -312,6 +312,7 @@ const CreateTourStep2 = () => {
             description: "",
             autoRotate: 0,
             colorCode: "",
+            thumbnailUrl: "",
           })
         );
         break;
