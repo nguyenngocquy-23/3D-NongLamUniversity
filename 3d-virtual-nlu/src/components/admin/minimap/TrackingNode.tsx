@@ -64,7 +64,6 @@ const Flow: React.FC<FlowProps> = ({
       id: item.id,
       source: item.nodeId,
       target: item.targetNodeId,
-      animated: true,
       markerEnd: { type: MarkerType.Arrow, color: "#fff000", strokeWidth: 3 },
       style: {
         stroke: "#000",
