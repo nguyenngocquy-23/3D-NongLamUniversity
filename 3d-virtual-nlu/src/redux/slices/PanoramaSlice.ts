@@ -123,14 +123,17 @@ const panoramaSlice = createSlice({
     },
 
     //Upload thêm panorama khi trong tour.
-    addPanorama(state, action: PayloadAction<string>) {
+    addPanorama(
+      state,
+      action: PayloadAction<{ originalFileName: string; url: string }>
+    ) {
       if (state.panoramaList.length < 5 && state.spaceId !== null) {
         const newPanorama: PanoramaItem = {
           id: nanoid(),
-          url: action.payload,
+          url: action.payload.url,
           spaceId: state.spaceId,
           config: {
-            name: "",
+            name: action.payload.originalFileName,
             description: "",
             positionX: 0,
             positionY: 0,

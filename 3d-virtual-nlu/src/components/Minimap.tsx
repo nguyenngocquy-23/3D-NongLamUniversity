@@ -3,6 +3,7 @@ import styles from "../styles/minimap.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
 import {
+  addPanorama,
   deletePanoramaById,
   PanoramaItem,
   renameMasterAndUpdateSlaves,
@@ -21,7 +22,7 @@ import {
 } from "../utils/Constants";
 import { GiQueenCrown } from "react-icons/gi";
 import { TiTick } from "react-icons/ti";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import TrackingNode from "./admin/minimap/TrackingNode";
 import {
   getFilteredHotspotNavigationById,
@@ -37,6 +38,14 @@ import { useImageCache } from "../contexts/ImageCacheContext";
 import { IoSettings } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa6";
 import Swal from "sweetalert2";
+import UploadFile, {
+  ApiResponse,
+  CloudinaryUploadResp,
+  FileUploadStatus,
+} from "./admin/UploadFile";
+import { isValidAspectRatio } from "../utils/ValidPanorama";
+import axios, { AxiosError } from "axios";
+import { API_URLS } from "../env";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
@@ -51,6 +60,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
   };
+  const [fileStatuses, setFileStatuses] = useState<FileUploadStatus[]>([]);
 
   const deletePanoramaItem = (id: string) => {
     Swal.fire({
@@ -66,10 +76,18 @@ const MiniMap: React.FC<MiniMapProps> = ({
       }
     });
   };
+  const inputRef = useRef<HTMLInputElement>(null);
+  const onChooseFile = () => {
+    inputRef.current?.click();
+  };
 
   const imageRef = useImageCache();
 
   const dispatch = useDispatch();
+
+  const handleUploadedFile = (url: string) => {
+    console.log("Tải nè");
+  };
 
   const { panoramaList } = useSelector((state: RootState) => state.panoramas);
 
@@ -266,6 +284,98 @@ const MiniMap: React.FC<MiniMapProps> = ({
     label: p.config.name,
     imageUrl: imageRef.current[p.url]?.objectUrl || p.url,
   }));
+
+  /**
+   * Kiểm tra file tải lên:
+   * + Tỷ lệ 16:9.
+   * + Chính xác có đuôi mong muốn
+   *
+   */
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const newFile = e.target.files?.[0];
+    if (!newFile) return;
+
+    const isValid = await isValidAspectRatio(newFile);
+
+    if (!isValid) {
+      Swal.fire({
+        icon: "warning",
+        title: "Vui lòng tải lên ảnh 360 đúng định dạng để tiếp tục",
+        text: `Ảnh không có tỉ lệ 2:1 và sẽ bị loại.`,
+        confirmButtonText: "Đồng ý",
+      });
+      return;
+    }
+
+    await handleUpload(newFile);
+  };
+
+  const handleUpload = async (file: File): Promise<void> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const resp = await axios.post<ApiResponse<CloudinaryUploadResp>>(
+        API_URLS.UPLOAD_CLOUD,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      if (resp.data.statusCode === 200) {
+        const item = resp.data.data!;
+        if (item.originalFileName && item.url) {
+          Swal.fire({
+            icon: "success",
+            title: "Tải ảnh thành công!!",
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true,
+          });
+          // Đánh dấu thành công
+          setFileStatuses([
+            {
+              file,
+              status: "success",
+              uploadedUrl: item.url,
+            },
+          ]);
+
+          dispatch(
+            addPanorama({
+              originalFileName: item.originalFileName,
+              url: item.url,
+            })
+          );
+        }
+      } else {
+        // Đánh dấu lỗi nếu server trả về lỗi
+        setFileStatuses((prev) =>
+          prev.map((f) =>
+            f.file.name === file.name
+              ? { ...f, status: "error", error: resp.data.message }
+              : f
+          )
+        );
+      }
+    } catch (error: unknown) {
+      const err = error as AxiosError<ApiResponse<null>>;
+      const message = err.response?.data?.message || err.message;
+
+      // Đánh dấu lỗi nếu request bị lỗi
+      setFileStatuses((prev) =>
+        prev.map((f) =>
+          f.file.name === file.name
+            ? { ...f, status: "error", error: message }
+            : f
+        )
+      );
+
+      console.error("[UploadFile Error:]", message);
+    }
+  };
+
   return (
     <Html
       transform={false}
@@ -432,7 +542,17 @@ const MiniMap: React.FC<MiniMapProps> = ({
                       </div>
                     ))}
                     {panoramaList.length < MAX_QUANTITY_PANORAMA && (
-                      <div className={styles.list_panorama_item}>
+                      <div
+                        className={styles.list_panorama_item}
+                        onClick={onChooseFile}
+                      >
+                        <input
+                          ref={inputRef}
+                          type="file"
+                          onChange={handleFileChange}
+                          accept={".jpg , .jpeg, .avif, .webp, .png"}
+                          style={{ display: "none" }}
+                        />
                         <FaPlus />
                       </div>
                     )}
