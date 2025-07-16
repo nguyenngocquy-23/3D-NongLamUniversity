@@ -3,17 +3,19 @@ import styles from "../styles/minimap.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
 import {
+  deletePanoramaById,
   PanoramaItem,
   renameMasterAndUpdateSlaves,
   selectPanorama,
   setMasterPanorama,
 } from "../redux/slices/PanoramaSlice";
 import { RiEdit2Line } from "react-icons/ri";
-import { MdZoomInMap, MdZoomOutMap } from "react-icons/md";
+import { MdClear, MdZoomInMap, MdZoomOutMap } from "react-icons/md";
 import { getAngleFromXZ, getArcAnglesThree } from "../utils/MathUtils";
 import {
   DEFAULT_ANGLE_RADAR,
   DEFAULT_ANGLE_THREE,
+  MAX_QUANTITY_PANORAMA,
   RADIUS_MINIMAP_TOUR,
   RADIUS_SPHERE,
 } from "../utils/Constants";
@@ -32,6 +34,9 @@ import ImageSelect from "./SelectPanorama";
 import { AnimatePresence, motion } from "framer-motion";
 import { TbTournament } from "react-icons/tb";
 import { useImageCache } from "../contexts/ImageCacheContext";
+import { IoSettings } from "react-icons/io5";
+import { FaPlus } from "react-icons/fa6";
+import Swal from "sweetalert2";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
@@ -45,6 +50,21 @@ const MiniMap: React.FC<MiniMapProps> = ({
 }) => {
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
+  };
+
+  const deletePanoramaItem = (id: string) => {
+    Swal.fire({
+      title: "Hành động này sẽ không thể hoàn tác?",
+      showCancelButton: true,
+      confirmButtonText: "Xoá",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire("Xoá thành công!", "", "success");
+        dispatch(deletePanoramaById(id));
+      }
+    });
   };
 
   const imageRef = useImageCache();
@@ -265,7 +285,6 @@ const MiniMap: React.FC<MiniMapProps> = ({
       >
         {!isExpanded && (
           <motion.div layoutId="minimap" className={styles.minimap_header}>
-            <MdZoomOutMap onClick={handleZoomMap} />
             {panoramaList.map((item) => (
               <div key={item.id} className={styles.node}>
                 <div
@@ -307,6 +326,9 @@ const MiniMap: React.FC<MiniMapProps> = ({
                 </div>
               </div>
             ))}
+            <span className={styles.minimap_setting} onClick={handleZoomMap}>
+              <IoSettings />
+            </span>
           </motion.div>
         )}
 
@@ -374,7 +396,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
               <div
                 className={`${styles.tour_general_information} ${styles.tour_general}`}
               >
-                <div className={styles.tour_information_item}>
+                {/* <div className={styles.tour_information_item}>
                   <span>Lĩnh vực: </span>
                 </div>
                 <div className={styles.tour_information_item}>
@@ -382,19 +404,39 @@ const MiniMap: React.FC<MiniMapProps> = ({
                 </div>
                 <div className={styles.tour_information_item}>
                   <span>Số lượng ảnh: {panoramaList.length}</span>
-                </div>
+                </div> */}
+
                 <div className={styles.tour_information_item}>
-                  <span>Trung tâm tour:</span>
-                  <ImageSelect
-                    options={options}
-                    onChange={(selected) => {
-                      if (selected) {
-                        dispatch(setMasterPanorama(selected.value));
-                        dispatch(clearHotspotNavigation());
-                      }
-                    }}
-                    placeholder="-- Chọn ảnh panorama --"
-                  />
+                  <span>Danh sách ảnh:</span>
+                  <div className={styles.list_panorama_container}>
+                    {panoramaList.map((item) => (
+                      <div key={item.id} className={styles.list_panorama_item}>
+                        <img
+                          src={
+                            imageRef.current[item.url]?.objectUrl || item.url
+                          }
+                          alt={item.config.name}
+                          className={styles.thumbnail_node}
+                        />
+                        <span
+                          className={styles.delete_panorama_item}
+                          onClick={() => deletePanoramaItem(item.id)}
+                        >
+                          <MdClear />
+                        </span>
+                        {item.config.status === 2 && (
+                          <span className={styles.master_panorama_item}>
+                            <GiQueenCrown />
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                    {panoramaList.length < MAX_QUANTITY_PANORAMA && (
+                      <div className={styles.list_panorama_item}>
+                        <FaPlus />
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className={`${styles.tour_information_item} `}>
                   <span>Tên tour : </span>
@@ -435,6 +477,19 @@ const MiniMap: React.FC<MiniMapProps> = ({
                     <div className={styles.underline}></div>
                   </div>
                 </div>
+                {/* <div className={styles.tour_information_item}>
+                  <span>Ảnh trung tâm:</span>
+                  <ImageSelect
+                    options={options}
+                    onChange={(selected) => {
+                      if (selected) {
+                        dispatch(setMasterPanorama(selected.value));
+                        dispatch(clearHotspotNavigation());
+                      }
+                    }}
+                    placeholder="-- Chọn ảnh panorama --"
+                  />
+                </div> */}
               </div>
               <div className={styles.tour_tracking}>
                 <TrackingNode
@@ -445,11 +500,8 @@ const MiniMap: React.FC<MiniMapProps> = ({
               </div>
             </div>
 
-            <span>
-              <MdZoomInMap
-                className={styles.zoomOutMap}
-                onClick={handleZoomMap}
-              />
+            <span className={styles.zoom_out_minimap} onClick={handleZoomMap}>
+              <MdZoomInMap />
             </span>
           </>
         )}
