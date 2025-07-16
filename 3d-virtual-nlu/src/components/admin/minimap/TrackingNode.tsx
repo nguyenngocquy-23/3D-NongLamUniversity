@@ -53,7 +53,7 @@ const Flow: React.FC<FlowProps> = ({
         position: { x: 200, y: index * 36 },
         data: {
           name: item.config.name,
-          img: imageRef.current[masterPanorama.url]?.objectUrl || item.url,
+          img: imageRef.current[item.url]?.objectUrl || item.url,
         },
       })),
     ];

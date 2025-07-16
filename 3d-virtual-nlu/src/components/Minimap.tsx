@@ -60,7 +60,9 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
   };
-  const [fileStatuses, setFileStatuses] = useState<FileUploadStatus[]>([]);
+  const [fileStatuses, setFileStatuses] = useState<FileUploadStatus | null>(
+    null
+  );
 
   const deletePanoramaItem = (id: string) => {
     Swal.fire({
@@ -306,6 +308,10 @@ const MiniMap: React.FC<MiniMapProps> = ({
       });
       return;
     }
+    setFileStatuses({
+      file: newFile,
+      status: "uploading",
+    });
 
     await handleUpload(newFile);
   };
@@ -334,13 +340,11 @@ const MiniMap: React.FC<MiniMapProps> = ({
             timerProgressBar: true,
           });
           // Đánh dấu thành công
-          setFileStatuses([
-            {
-              file,
-              status: "success",
-              uploadedUrl: item.url,
-            },
-          ]);
+          setFileStatuses({
+            file,
+            status: "success",
+            uploadedUrl: item.url,
+          });
 
           dispatch(
             addPanorama({
@@ -351,28 +355,42 @@ const MiniMap: React.FC<MiniMapProps> = ({
         }
       } else {
         // Đánh dấu lỗi nếu server trả về lỗi
-        setFileStatuses((prev) =>
-          prev.map((f) =>
-            f.file.name === file.name
-              ? { ...f, status: "error", error: resp.data.message }
-              : f
-          )
-        );
+
+        setFileStatuses({
+          file,
+          status: "error",
+          error: resp.data.message,
+        });
+        Swal.fire({
+          icon: "error",
+          title: `Tải ảnh thất bại ${fileStatuses?.error}`,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
       }
     } catch (error: unknown) {
       const err = error as AxiosError<ApiResponse<null>>;
       const message = err.response?.data?.message || err.message;
 
       // Đánh dấu lỗi nếu request bị lỗi
-      setFileStatuses((prev) =>
-        prev.map((f) =>
-          f.file.name === file.name
-            ? { ...f, status: "error", error: message }
-            : f
-        )
-      );
+      setFileStatuses({
+        file,
+        status: "error",
+        error: message,
+      });
 
-      console.error("[UploadFile Error:]", message);
+      Swal.fire({
+        icon: "error",
+        title: `Tải ảnh thất bại ${fileStatuses?.error}`,
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+      });
     }
   };
 
@@ -542,10 +560,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
                       </div>
                     ))}
                     {panoramaList.length < MAX_QUANTITY_PANORAMA && (
-                      <div
-                        className={styles.list_panorama_item}
-                        onClick={onChooseFile}
-                      >
+                      <div className={styles.list_panorama_item}>
                         <input
                           ref={inputRef}
                           type="file"
@@ -553,7 +568,13 @@ const MiniMap: React.FC<MiniMapProps> = ({
                           accept={".jpg , .jpeg, .avif, .webp, .png"}
                           style={{ display: "none" }}
                         />
-                        <FaPlus />
+                        {fileStatuses && fileStatuses.status === "uploading" ? (
+                          <div className={styles.loaderWrapper}>
+                            <div className={styles.loader}></div>
+                          </div>
+                        ) : (
+                          <FaPlus onClick={onChooseFile} />
+                        )}
                       </div>
                     )}
                   </div>
