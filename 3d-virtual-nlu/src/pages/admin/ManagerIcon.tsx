@@ -25,9 +25,23 @@ interface Icon {
   name: string;
   code: string;
   url: string;
+  type: number;
+  thumbnail: string;
   isActive: number;
-  createdAt: string;
+  createdAt: number | null;
 }
+
+
+const emptyIcon: Icon = {
+  id: 0, // ID giả để phân biệt với các field thật
+  name: "",
+  code: "",
+  type: 1,
+  url: "",
+  thumbnail: "",
+  isActive: 1,
+  createdAt: null,
+};
 
 const ManagerIcon = () => {
   const [loading, setLoading] = useState(false);
@@ -118,7 +132,7 @@ const ManagerIcon = () => {
       }
 
       let response;
-      
+
       if (req.id === 0) {
         response = await axios.post(API_URLS.ADMIN_CREATE_SPACES, req);
         setInputIconName("");
@@ -144,83 +158,91 @@ const ManagerIcon = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.search_box}>
-        <label htmlFor="input" className={styles.label}>
-          <IoSearch className={styles.search_icon} />
-        </label>
-        <input
-          type="text"
-          name="field"
-          id="input"
-          placeholder="Tìm kiếm..."
-          className={styles.search_input}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-      {/* {loading && <p>Đang tải...</p>} */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <button
-        className={stylesCommon.add_icon}
-        // onClick={() => {
-        //   setOpenModel(true);
-        // }}
-      >
-        Tạo biểu tượng
-      </button>
-      <div className={styles.icon_list}>
-        {iconList.map((icon) => {
-          return (
-            <div
-              key={icon.id}
-              className={styles.icon_item}
-              title={icon.name}
-              onClick={() => setSelectedIcon(icon)}
-            >
-              <img
-                src={!icon.url.includes("glb") ? icon.url : icon.thumbnail}
-                alt={icon.name}
-                className={styles.icon_image}
-              />
-              <div className={styles.icon_info}>
-                <h3>{icon.name}</h3>
+    <>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <div className={styles.search_box}>
+            <label htmlFor="input" className={styles.label}>
+              <IoSearch className={styles.search_icon} />
+            </label>
+            <input
+              type="text"
+              name="field"
+              id="input"
+              placeholder="Tìm kiếm..."
+              className={styles.search_input}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <button
+            className={styles.add_icon}
+            onClick={() => {
+              setSelectedIcon(emptyIcon);
+            }}
+          >
+            Tạo biểu tượng
+          </button>
+        </div>
+        <div className={styles.icon_list}>
+          {iconList.map((icon) => {
+            return (
+              <div
+                key={icon.id}
+                className={styles.icon_item}
+                title={icon.name}
+                onClick={() => setSelectedIcon(icon)}
+              >
+                <img
+                  src={!icon.url.includes("glb") ? icon.url : icon.thumbnail}
+                  alt={icon.name}
+                  className={styles.icon_image}
+                />
+                <div className={styles.icon_info}>
+                  <h3>{icon.name}</h3>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
       {selectedIcon && (
-        <div className={styles.space_edit_by_id}>
+        <div className={styles.icon_edit_by_id}>
           <IoMdExit
             className={styles.close_btn}
             onClick={() => setSelectedIcon(null)}
           />
-          <div className={styles.space_item}>
-            {/* <SpaceCard
-              space={{ ...selectedIcon, name: selectedIcon.name ?? "" }}
-            /> */}
+          <div
+            className={styles.icon_card}
+            style={{
+              backgroundImage: `url(${
+                selectedIcon.url.includes("glb")
+                  ? selectedIcon.thumbnail
+                  : selectedIcon.url
+              })`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+            }}
+          />
 
-            <div className={styles.space_feautures_inner}>
-              <div className={`${styles.space_information_item} `}>
-                <span>Trạng thái: </span>
-                <StatusToggle
-                  id={selectedIcon.id}
-                  status={selectedIcon.isActive}
-                  apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
-                  type="icon"
-                />
-              </div>
+          <div className={styles.icon_edit_content}>
+            <p className={styles.icon_edit_label}>Thông tin</p>
+            <div className={`${styles.icon_information_item} `}>
+              <span>Trạng thái: </span>
+              <StatusToggle
+                id={selectedIcon.id}
+                status={selectedIcon.isActive}
+                apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
+                type="icon"
+              />
             </div>
-          </div>
+            <div className={`${styles.icon_information_item} `}>
+              <span>Loại: {selectedIcon.type == 1 ? "2D" : "3D"}</span>
+            </div>
+            <div className={`${styles.icon_information_item} `}>
+              <span>Tên biểu tượng : </span>
 
-          <div className={styles.space_edit_content}>
-            <p className={styles.space_edit_label}>Thông tin cơ bản</p>
-
-            <div className={`${styles.space_information_item} `}>
-              <span>Tên không gian : </span>
-
-              <div className={styles.space_input_name_container}>
+              <div className={styles.icon_input_name_container}>
                 <input
                   type="text"
                   id="input"
@@ -232,14 +254,14 @@ const ManagerIcon = () => {
 
                 {!isEditing ? (
                   <RiEdit2Line
-                    className={styles.space_input_name_edit}
+                    className={styles.icon_input_name_edit}
                     onClick={handleEditInput}
                   />
                 ) : error ? (
-                  <IoIosWarning className={styles.space_input_name_warning} />
+                  <IoIosWarning className={styles.icon_input_name_warning} />
                 ) : (
                   <FaSave
-                    className={styles.space_input_name_edit}
+                    className={styles.icon_input_name_edit}
                     // onClick={() => {
                     //   selectedIcon.id !== 0 &&
                     //     handleRename({
@@ -253,18 +275,16 @@ const ManagerIcon = () => {
 
                 <div className={styles.underline}></div>
               </div>
-              {error && (
-                <p className={styles.space_input_name_error}>{error}</p>
-              )}
+              {error && <p className={styles.icon_input_name_error}>{error}</p>}
             </div>
 
-            <div className={`${styles.space_information_item} `}>
-              <span>Mã không gian: </span>
-              <span className={styles.space_code}>{nameCode}</span>
+            <div className={`${styles.icon_information_item} `}>
+              <span>Mã biểu tượng: </span>
+              <span className={styles.icon_code}>{nameCode}</span>
             </div>
-            <div className={`${styles.space_information_item} `}>
+            <div className={`${styles.icon_information_item} `}>
               <span>Ngày khởi tạo: </span>
-              <span className={styles.space_space_list}>
+              <span>
                 {selectedIcon.createdAt === null
                   ? "Chưa có"
                   : format(
@@ -276,7 +296,7 @@ const ManagerIcon = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

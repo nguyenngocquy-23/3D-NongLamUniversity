@@ -2,7 +2,6 @@
     width: 100%;
     padding: 10px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     position: relative;
 }
 
@@ -71,9 +70,8 @@
 .search_box {
     font-size: 50px;
     font-weight: 800;
-    width: 30%;
+    max-width: 30%;
     display: flex;
-    margin-bottom: 1rem;
 }
 
 .search_box .search_input::placeholder {
@@ -97,9 +95,11 @@
     flex: 1 1;
 }
 
+/* for manage icon */
 .label {
-    width: 30px;
+    /* width: 30px; */
     height: 30px;
+    aspect-ratio: 1;
     background-color: white;
     border-radius: 50%;
     display: flex;
@@ -187,4 +187,254 @@
     height: 50px;
     border-radius: 50%;
     object-fit: cover;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.add_icon {
+    margin-left: auto;
+    padding: 1rem;
+    color: #000;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border-radius: 1rem;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    font-size: 0.9rem;
+}
+
+/* Phần chỉnh sửa bé */
+.icon_edit_by_id {
+    position: relative;
+    font-size: 1rem;
+    width: calc(100% - 600px);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: transparent;
+    padding: 1rem;
+    border-left: 0.5rem solid #fff;
+    color: #123315;
+}
+
+.close_btn {
+    position: absolute;
+    right: 0;
+    transform: translateX(-50%);
+    font-size: 30px;
+    color: #bd1919;
+}
+
+.close_btn:hover {
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.icon_edit_content {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.icon_edit_label {
+    text-align: center;
+}
+
+.icon_card {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+}
+
+.icon_information_item {
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+    flex-wrap: wrap;
+}
+
+.icon_input_name_container {
+    flex: 1;
+    position: relative;
+}
+
+.icon_input_name_container input[type="text"] {
+    font-size: 15px;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    padding: 5px 5px;
+    background-color: transparent;
+    outline: none;
+    width: 100%;
+    color: #000;
+}
+
+.icon_input_name_container .underline {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    background-color: #267026;
+    transform: scaleX(0);
+    transition: all 0.3s ease;
+}
+
+.icon_input_name_container input[type="text"]:focus~.underline,
+.icon_input_name_container input[type="text"]:valid~.underline {
+    transform: scaleX(1);
+}
+
+.icon_input_name_container .icon_input_name_edit {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translateY(50%);
+    color: #267026;
+}
+
+.icon_input_name_container .icon_input_name_edit:hover {
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 10px;
+    background-color: #fff;
+    transition: ease 0.2s all;
+}
+
+.icon_input_name_container .icon_input_name_warning {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translateY(50%);
+    color: #d90e0e;
+}
+
+.icon_input_name_error {
+    flex-basis: 100%;
+    padding-right: 1rem;
+    font-size: 13px;
+    text-align: right;
+    color: #d90e0e;
+    font-style: italic;
+}
+
+.icon_status_label {
+    font-size: 0.8rem;
+    font-style: italic;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.icon_node_list {
+    font-weight: bold;
+}
+
+.icon_navigation_list_icon:hover {}
+
+.icon_navigation_add_icon {
+    font-size: 0.8rem;
+    text-decoration: underline;
+    color: blue;
+    font-style: italic;
+    cursor: pointer;
+}
+
+.icon_footer {
+    /* margin-top: auto; */
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    justify-content: center;
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.icon_footer .icon_delete_change_btn {
+    color: #fff;
+    background-color: #bd1919;
+    padding: 0.5rem;
+}
+
+.icon_footer .icon_add_change_btn {
+    color: #fff;
+    background-color: #267026;
+    padding: 0.5rem;
+}
+
+.icon_select_master {
+    display: flex;
+    justify-content: start;
+    gap: 1rem;
+}
+
+.check_container {
+    --input-focus: #2d8cf0;
+    --input-out-of-focus: #ccc;
+    --bg-color: #fff;
+    --bg-color-alt: #666;
+    --main-color: #323232;
+    position: relative;
+    cursor: pointer;
+}
+
+.check_container input {
+    position: absolute;
+    opacity: 0;
+}
+
+.checkmark {
+    width: 30px;
+    height: 30px;
+    position: relative;
+    top: 0;
+    left: 0;
+    border: 2px solid var(--main-color);
+    border-radius: 5px;
+    box-shadow: 4px 4px var(--main-color);
+    background-color: var(--input-out-of-focus);
+    transition: all 0.3s;
+}
+
+.check_container input:checked~.checkmark {
+    background-color: var(--input-focus);
+}
+
+.checkmark:after {
+    content: "";
+    width: 7px;
+    height: 15px;
+    position: absolute;
+    top: 2px;
+    left: 8px;
+    display: none;
+    border: solid var(--bg-color);
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
+
+.check_container input:checked~.checkmark:after {
+    display: block;
+}
+
+.icon_choose_master {
+    display: flex;
+    gap: 10px;
 }
