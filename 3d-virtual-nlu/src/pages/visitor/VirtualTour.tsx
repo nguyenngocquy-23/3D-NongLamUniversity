@@ -631,7 +631,7 @@ const VirtualTour = () => {
       onPointerMove={handleMouseEnterMenu}
       onPointerDown={handleCloseMenu}
     >
-      {isWaiting ? <Waiting percent={percent} /> : ""}
+      {/* {isWaiting ? <Waiting percent={percent} /> : ""} */}
       <TourCanvas
         windowSize={windowSize}
         cursor={cursor}

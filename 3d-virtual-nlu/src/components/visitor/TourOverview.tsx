@@ -18,6 +18,14 @@ import ShadowScreen from "./ShadowScreen";
 import { useImageCache } from "../../contexts/ImageCacheContext";
 import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL";
 const TourOverview = () => {
+  useEffect(() => {
+    return () => {
+      console.log("HomeCanvas unmounted ✅");
+
+      // Nếu bạn có texture, geometry custom → dispose ở đây
+    };
+  }, []);
+
   const navigate = useNavigate();
   const container = useRef<HTMLDivElement>(null);
 
@@ -185,8 +193,13 @@ const TourOverview = () => {
             Khám phá ngay!
           </button>
 
-          {/* <canvas id="intro-tour" /> */}
           <Canvas
+            onCreated={({ gl }) => {
+              gl.domElement.addEventListener("webglcontextlost", (e) => {
+                e.preventDefault();
+                console.warn("WebGL context lost!");
+              });
+            }}
             camera={{
               fov: 75,
               aspect: windowSize.width / windowSize.height,
@@ -202,7 +215,7 @@ const TourOverview = () => {
               sphereRef={sphereRef}
               textureCurrent={
                 defaultNode && imageRef.current[defaultNode.id]
-                  ? imageRef.current[defaultNode].img.src
+                  ? imageRef.current[defaultNode.id].objectUrl
                   : defaultNode
                   ? defaultNode.url
                   : `${import.meta.env.BASE_URL}khoa.jpg`
@@ -214,7 +227,7 @@ const TourOverview = () => {
               sphereRef={sphereRef}
               textureCurrent={
                 defaultNode && imageRef.current[defaultNode.id]
-                  ? imageRef.current[defaultNode].img.src
+                  ? imageRef.current[defaultNode.id].objectUrl
                   : defaultNode
                   ? defaultNode.url
                   : `${import.meta.env.BASE_URL}khoa.jpg`
