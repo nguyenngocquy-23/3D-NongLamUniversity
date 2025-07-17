@@ -2,6 +2,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.ChangeNameRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
@@ -61,7 +62,7 @@ public class FieldDao {
         });
     }
 
-    public boolean changeNameField(FieldCreateRequest req) {
+    public boolean changeNameField(ChangeNameRequest req) {
         String updateSql = "UPDATE fields SET name = :name, code = :code, updatedAt = :updatedAt WHERE id = :id";
         return ConnectionPool.getConnection().inTransaction(
                 handle -> {

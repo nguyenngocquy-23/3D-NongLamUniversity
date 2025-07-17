@@ -71,14 +71,6 @@ export default function Introduce() {
       <div className={styles.info_panel}>
         <h2>{images[selectedIndex].title}</h2>
         <p>{images[selectedIndex].description}</p>
-        <div>
-          {" "}
-          `Pixel Ratio: {pixelRatio}
-          Điện thoại: {isMobile ? "Điện thoại" : "Máy tính"}
-          Ram : {ram}
-          CPU: {cpuCores}
-          Ngôn ngữ {userLang}`,
-        </div>
       </div>
     </div>
   );

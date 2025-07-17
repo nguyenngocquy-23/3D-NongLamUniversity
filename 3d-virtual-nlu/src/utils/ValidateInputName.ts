@@ -40,12 +40,19 @@ export function validateName(name: unknown): NameValidationResult {
     };
   }
 
-  if (!/^[A-Za-zÀ-Ỹà-ỹ\s]+$/.test(trimmed)) {
+  if (/[^\p{L}0-9\s]/u.test(trimmed)) {
     return {
       valid: false,
-      error: "Tên chỉ được chứa chữ cái và khoảng trắng.",
+      error: "Tên không được chứa ký tự đặc biệt.",
     };
   }
+
+  // if (!/^[A-Za-zÀ-Ỹà-ỹ\s]+$/.test(trimmed)) {
+  //   return {
+  //     valid: false,
+  //     error: "Tên chỉ được chứa chữ cái và khoảng trắng.",
+  //   };
+  // }
 
   return { valid: true, error: "" };
 }

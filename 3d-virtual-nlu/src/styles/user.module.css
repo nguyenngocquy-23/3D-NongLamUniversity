@@ -191,6 +191,7 @@
     cursor: default;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
 }
+
 .icon_item.selected {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
     transform: translateY(-5px);
@@ -217,17 +218,17 @@
     position: relative;
 }
 
-.icon_status{
+.icon_status {
     width: 15px;
     height: 15px;
     border-radius: 50%;
     background-color: red;
     position: absolute;
     top: 5px;
-    right: 5px; 
+    right: 5px;
 }
 
-.status_active{
+.status_active {
     background-color: #16eb48;
 }
 
@@ -506,4 +507,32 @@
 .icon_choose_master {
     display: flex;
     gap: 10px;
+}
+
+.upload_icon_card{
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.custom_select {
+    appearance: none;
+    /* ẩn mũi tên mặc định */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+
+    width: 100px;
+    padding: 5px 20px;
+    color: black;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    font-size: 15px;
+    outline: none;
+
+    background-image: url("/public/down.svg");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
 }

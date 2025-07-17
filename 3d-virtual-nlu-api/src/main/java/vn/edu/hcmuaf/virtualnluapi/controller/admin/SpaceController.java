@@ -130,7 +130,7 @@ public class SpaceController {
     @POST
     @Path("/changeName")
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<Boolean> changeNameField(SpaceChangeNameRequest req) {
+    public ApiResponse<Boolean> changeNameField(ChangeNameRequest req) {
         try {
             boolean result = spaceService.changeNameSpace(req);
             return ApiResponse.<Boolean>builder()

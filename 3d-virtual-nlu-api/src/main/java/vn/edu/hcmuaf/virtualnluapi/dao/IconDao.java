@@ -2,6 +2,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.ChangeNameRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
@@ -29,10 +30,14 @@ public class IconDao {
     }
 
     public boolean createIcon(IconCreateRequest req) {
-        String sqlQuery = "INSERT INTO icons(name, code, url, isActive, type, thumbnail, createdAt) VALUES (:name, :url, :isActive, :createdAt, :type, :thumbnail)";
+        String sqlQuery = """
+                INSERT INTO icons(name, code, url, isActive, type, thumbnail, createdAt) 
+                VALUES (:name, :code, :url, :isActive, :type, :thumbnail, :createdAt)
+                """;
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("name", req.getName())
+                    .bind("code", req.getCode())
                     .bind("url", req.getIconUrl())
                     .bind("isActive", 1)
                     .bind("createdAt", Timestamp.valueOf(LocalDateTime.now()))
@@ -63,6 +68,21 @@ public class IconDao {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("isActive", req.getStatus())
+                    .bind("id", req.getId())
+                    .execute();
+            return rows == 1;
+        });
+    }
+
+    public boolean changeNameIcon(ChangeNameRequest req) {
+        String sqlQuery = """
+                UPDATE icons SET name = :name, code = :code 
+                WHERE id = :id
+                """;
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int rows = handle.createUpdate(sqlQuery)
+                    .bind("name", req.getName())
+                    .bind("code", req.getCode())
                     .bind("id", req.getId())
                     .execute();
             return rows == 1;

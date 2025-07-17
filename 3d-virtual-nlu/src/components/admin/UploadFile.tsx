@@ -413,7 +413,19 @@ const UploadFile: React.FC<UploadFileProps> = ({
           }`}
           onClick={onChooseFile}
         >
-          <span className={styles.upload_icon} style={{background: `${className == "upload_model" || className == "upload_image" || className == "upload_video" ? "none" : ""}`}}>
+          <span
+            className={styles.uploadIcon}
+            style={{
+              background: `${
+                className == "upload_icon" ||
+                className == "upload_model" ||
+                className == "upload_image" ||
+                className == "upload_video"
+                  ? "none"
+                  : ""
+              }`,
+            }}
+          >
             <FaFile />
           </span>
           <span>Chọn tệp</span>
@@ -460,13 +472,16 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
                       <span className={styles.process_label}>
                         {status === "success" ? (
-                          <MdFileDownloadDone
-                            className={styles.success_label}
-                          />
+                          <>
+                            <MdFileDownloadDone
+                              className={styles.success_label}
+                            />
+                            <MdDeleteForever style={{cursor:'pointer'}} title="xóa" onClick={() => removeFile(file)} />
+                          </>
                         ) : uploadStatus === "uploading" ? (
                           <RiLoader2Fill className={styles.waiting_label} />
                         ) : (
-                          <MdDeleteForever onClick={() => removeFile(file)} />
+                          <MdDeleteForever style={{cursor:'pointer'}} title="xóa" onClick={() => removeFile(file)} />
                         )}
                       </span>
                     </div>

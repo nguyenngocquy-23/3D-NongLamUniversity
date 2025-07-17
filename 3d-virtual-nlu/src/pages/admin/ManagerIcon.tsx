@@ -19,6 +19,8 @@ import StatusToggle from "../../components/admin/ToggleChangeStatus";
 import { goToStep } from "../../redux/slices/StepSlice";
 import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 import { validateName } from "../../utils/ValidateInputName";
+import Swal from "sweetalert2";
+import UploadFile from "../../components/admin/UploadFile";
 
 interface Icon {
   id: number;
@@ -31,21 +33,19 @@ interface Icon {
   createdAt: number | null;
 }
 
-const emptyIcon: Icon = {
-  id: 0,
+const emptyIcon: any = {
   name: "",
   code: "",
   type: 1,
   url: "",
   thumbnail: "",
-  isActive: 1,
-  createdAt: null,
 };
 
 const ManagerIcon = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [type, setType] = useState(1);
+  const [typeCreate, setTypeCreate] = useState(1);
   const navigate = useNavigate();
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -53,12 +53,16 @@ const ManagerIcon = () => {
   const [inputIconName, setInputIconName] = useState<string | null>(
     selectedIcon?.name || null
   );
+  const [modelUrl, setModelUrl] = useState("");
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
 
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     setInputIconName(selectedIcon?.name || "");
     setNameCode(selectedIcon?.code || "");
+    setIsEditing(false);
+    setError("");
   }, [selectedIcon]);
 
   useEffect(() => {
@@ -123,7 +127,8 @@ const ManagerIcon = () => {
     setNameCode(iconCodeNew);
   };
 
-  const handleRename = async (req: Icon) => {
+  const handleRename = async (req: any) => {
+    console.log("handleRename", req);
     try {
       const nameCheck = validateName(req.name);
 
@@ -132,14 +137,18 @@ const ManagerIcon = () => {
         return;
       }
 
+      if (iconCodeList.includes(req.code)) {
+        setError("Tên đã tồn tại. Vui lòng chọn tên mới để cập nhật !");
+        return;
+      }
+
       let response;
 
-      if (req.id === 0) {
-        response = await axios.post(API_URLS.ADMIN_CREATE_SPACES, req);
-        setInputIconName("");
-        setNameCode("");
+      if (req.id === 0 || req.id == undefined) {
+        const { iconId, ...reqWithoutId } = req;
+        response = await axios.post(API_URLS.ADMIN_CREATE_ICONS, reqWithoutId);
       } else {
-        response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_SPACE, req);
+        response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_ICON, req);
       }
 
       /**
@@ -147,6 +156,32 @@ const ManagerIcon = () => {
        * + dispatch vào redux cho đồng bộ
        */
       if (response.data.statusCode === 1000 || response.status === 200) {
+        if (req.id === 0 || req.id == undefined) {
+          Swal.fire({
+            title: "Tạo biểu tượng thành công",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+            position: "top-end",
+            toast: true,
+            timerProgressBar: true,
+          });
+          setSelectedIcon(null);
+          setInputIconName("");
+          setNameCode("");
+        } else {
+          Swal.fire({
+            title: "Đổi tên thành công",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+            position: "top-end",
+            toast: true,
+            timerProgressBar: true,
+          });
+          setInputIconName(req.name);
+          setNameCode(req.code);
+        }
         dispatch(fetchIcons());
         setError("");
       } else {
@@ -156,6 +191,13 @@ const ManagerIcon = () => {
       setError(err.response?.data?.message || "Có lỗi xảy ra");
     }
     setIsEditing(false);
+  };
+
+  const handleUploadedFile = (url: string) => {
+    setModelUrl(url);
+  };
+  const handleThumbnailSaved = (url: string) => {
+    setThumbnailUrl(url);
   };
 
   return (
@@ -199,26 +241,34 @@ const ManagerIcon = () => {
           </button>
         </div>
         <div className={styles.icon_list}>
-          {iconList.filter((i) => i.type == type).map((icon) => {
-            return (
-              <div
-                key={icon.id}
-                className={`${styles.icon_item} ${icon.id == selectedIcon?.id ? styles.selected : ""}`}
-                title={icon.name}
-                onClick={() => setSelectedIcon(icon)}
-              >
-                <img
-                  src={!icon.url.includes("glb") ? icon.url : icon.thumbnail}
-                  alt={icon.name}
-                  className={styles.icon_image}
-                />
-                <div className={`${styles.icon_status} ${icon.isActive ? styles.status_active : ""}`}/>
-                <div className={styles.icon_info}>
-                  <h3>{icon.name}</h3>
+          {iconList
+            .filter((i) => i.type == type)
+            .map((icon) => {
+              return (
+                <div
+                  key={icon.id}
+                  className={`${styles.icon_item} ${
+                    icon.id == selectedIcon?.id ? styles.selected : ""
+                  }`}
+                  title={icon.name}
+                  onClick={() => setSelectedIcon(icon)}
+                >
+                  <img
+                    src={!icon.url.includes("glb") ? icon.url : icon.thumbnail}
+                    alt={icon.name}
+                    className={styles.icon_image}
+                  />
+                  <div
+                    className={`${styles.icon_status} ${
+                      icon.isActive ? styles.status_active : ""
+                    }`}
+                  />
+                  <div className={styles.icon_info}>
+                    <h3>{icon.name}</h3>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
       {selectedIcon && (
@@ -227,65 +277,111 @@ const ManagerIcon = () => {
             className={styles.close_btn}
             onClick={() => setSelectedIcon(null)}
           />
-          <div
-            className={styles.icon_card}
-            style={{
-              backgroundImage: `url(${
-                selectedIcon.url.includes("glb")
-                  ? selectedIcon.thumbnail
-                  : selectedIcon.url
-              })`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-              backgroundSize: "cover",
-            }}
-          />
+          {selectedIcon.id != undefined && selectedIcon.id != null ? (
+            <div
+              className={styles.icon_card}
+              style={{
+                backgroundImage: `url(${
+                  selectedIcon.url.includes("glb")
+                    ? selectedIcon.thumbnail
+                    : selectedIcon.url
+                })`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+              }}
+            />
+          ) : typeCreate == 1 ? (
+            <div className={styles.upload_icon_card}>
+              <UploadFile
+                className="upload_icon"
+                onUploaded={handleUploadedFile}
+              />
+            </div>
+          ) : (
+            <div className={styles.upload_icon_card}>
+              <UploadFile
+                className="upload_model"
+                onUploaded={handleUploadedFile}
+              />
+            </div>
+          )}
 
           <div className={styles.icon_edit_content}>
             <p className={styles.icon_edit_label}>Thông tin</p>
+            {selectedIcon.id != undefined && selectedIcon.id != null && (
+              <div className={`${styles.icon_information_item} `}>
+                <span>Trạng thái: </span>
+                <StatusToggle
+                  id={selectedIcon.id}
+                  status={selectedIcon.isActive}
+                  apiUrl={API_URLS.ADMIN_CHANGE_ICON_STATUS}
+                  type="icon"
+                />
+              </div>
+            )}
             <div className={`${styles.icon_information_item} `}>
-              <span>Trạng thái: </span>
-              <StatusToggle
-                id={selectedIcon.id}
-                status={selectedIcon.isActive}
-                apiUrl={API_URLS.ADMIN_CHANGE_ICON_STATUS}
-                type="icon"
-              />
-            </div>
-            <div className={`${styles.icon_information_item} `}>
-              <span>Loại: {selectedIcon.type == 1 ? "2D" : "3D"}</span>
+              {selectedIcon.id != undefined && selectedIcon.id != null ? (
+                <span>Loại: {selectedIcon.type == 1 ? "2D" : "3D"}</span>
+              ) : (
+                <>
+                  <span>Loại:</span>
+                  <select
+                    className={styles.custom_select}
+                    value={typeCreate}
+                    onChange={(e) => setTypeCreate(Number(e.target.value))}
+                  >
+                    <option value="1">2D</option>
+                    <option value="2">3D</option>
+                  </select>
+                </>
+              )}
             </div>
             <div className={`${styles.icon_information_item} `}>
               <span>Tên biểu tượng : </span>
 
               <div className={styles.icon_input_name_container}>
-                <input
-                  type="text"
-                  id="input"
-                  required
-                  readOnly={!isEditing}
-                  value={inputIconName ?? ""}
-                  onChange={handleChangeIconName}
-                />
+                {selectedIcon.id != undefined && selectedIcon.id != null ? (
+                  <input
+                    type="text"
+                    id="input"
+                    required
+                    readOnly={!isEditing}
+                    value={inputIconName ?? ""}
+                    onChange={handleChangeIconName}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    id="input"
+                    required
+                    readOnly={selectedIcon.id !== undefined}
+                    value={inputIconName ?? ""}
+                    onChange={handleChangeIconName}
+                  />
+                )}
 
                 {!isEditing ? (
                   <RiEdit2Line
                     className={styles.icon_input_name_edit}
                     onClick={handleEditInput}
+                    visibility={
+                      selectedIcon.id !== undefined ? "visible" : "hidden"
+                    }
                   />
                 ) : error ? (
                   <IoIosWarning className={styles.icon_input_name_warning} />
                 ) : (
                   <FaSave
                     className={styles.icon_input_name_edit}
-                    // onClick={() => {
-                    //   selectedIcon.id !== 0 &&
-                    //     handleRename({
-                    //       id: selectedIcon.id,
-                    //       name: inputIconName ?? "",
-                    //       code: nameCode ?? "",
-                    //     });
-                    // }}
+                    onClick={() => {
+                      selectedIcon.id !== 0 &&
+                        handleRename({
+                          id: selectedIcon.id,
+                          name: inputIconName?.trim() ?? "",
+                          code: nameCode?.trim() ?? "",
+                        });
+                    }}
                   />
                 )}
 
@@ -298,17 +394,37 @@ const ManagerIcon = () => {
               <span>Mã biểu tượng: </span>
               <span className={styles.icon_code}>{nameCode}</span>
             </div>
-            <div className={`${styles.icon_information_item} `}>
-              <span>Ngày khởi tạo: </span>
-              <span>
-                {selectedIcon.createdAt === null
-                  ? "Chưa có"
-                  : format(
-                      new Date(selectedIcon.createdAt),
-                      "dd/MM/yyyy HH:mm"
-                    )}
-              </span>
-            </div>
+            {selectedIcon.id != undefined && selectedIcon.id != null && (
+              <div className={`${styles.icon_information_item} `}>
+                <span>Ngày khởi tạo: </span>
+                <span>
+                  {selectedIcon.createdAt === null
+                    ? "Chưa có"
+                    : format(
+                        new Date(selectedIcon.createdAt),
+                        "dd/MM/yyyy HH:mm"
+                      )}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className={styles.icon_footer}>
+            <button
+              className={styles.icon_add_change_btn}
+              disabled={!!error}
+              onClick={() =>
+                handleRename({
+                  iconId: selectedIcon.id,
+                  name: inputIconName ?? "",
+                  code: nameCode ?? "",
+                  iconUrl: modelUrl,
+                  thumbnail: thumbnailUrl,
+                  type: typeCreate,
+                })
+              }
+            >
+              Hoàn tất
+            </button>
           </div>
         </div>
       )}

@@ -66,4 +66,24 @@ public class IconController {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai icon").data(result).build();
         }
     }
+
+    @POST
+    @Path("/changeName")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeNameIcon(ChangeNameRequest req) {
+        try {
+            boolean result = iconService.changeNameIcon(req);
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(1000)
+                    .message("Thay đổi tên icon thành công")
+                    .data(result)
+                    .build();
+        } catch (IllegalStateException e) {
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(5000)
+                    .message("Lỗi thay đổi tên icon: " + e.getMessage())
+                    .data(null)
+                    .build();
+        }
+    }
 }

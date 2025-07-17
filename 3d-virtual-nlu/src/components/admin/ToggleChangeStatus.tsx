@@ -99,6 +99,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
         id="checkbox"
         type="checkbox"
         checked={toggle.current == 1}
+        title={toggle.current == 0 ? "Kích hoạt" : "Vô hiệu hóa"}
         onChange={id > 0 ? handleToggleStatus : undefined}
         disabled={loading}
         style={{

@@ -70,7 +70,8 @@ export const API_URLS = {
   ADMIN_UPDATE_NODES: `${DOMAIN}/v1/admin/node/update`,
   ADMIN_LINK_NODES: `${DOMAIN}/v1/admin/node/linkNode`,
   ADMIN_CREATE_FIELDS: `${DOMAIN}/admin/field/create`,
-  ADMIN_CREATE_SPACES: `${DOMAIN}/admin/field/create`,
+  ADMIN_CREATE_SPACES: `${DOMAIN}/admin/space/create`,
+  ADMIN_CREATE_ICONS: `${DOMAIN}/v1/admin/icon/`,
   ADMIN_ATTACH_SPACE_LOCATION: `${DOMAIN}/admin/space/attachLocation`,
   ADMIN_REMOVE_SPACE_LOCATION: `${DOMAIN}/admin/space/removeLocation`,
 
@@ -81,4 +82,5 @@ export const API_URLS = {
   ADMIN_CHANGE_MASTER_NODE_BY_ID: `${DOMAIN}/admin/space/setMasterNodeById`,
   ADMIN_CHANGE_NAME_FIELD: `${DOMAIN}/admin/field/changeName`,
   ADMIN_CHANGE_ICON_STATUS: `${DOMAIN}/v1/admin/icon/changeStatus`,
+  ADMIN_CHANGE_NAME_ICON: `${DOMAIN}/v1/admin/icon/changeName`,
 };
