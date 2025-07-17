@@ -34,8 +34,8 @@ import CreateAutoTour from "./features/CreateAutoTour.tsx";
 import ManageAutoTour from "./pages/visitor/ManageAutoTour.tsx";
 import VirtualAutoTour from "./pages/visitor/VirtualAutoTour.tsx";
 import ManageModel from "./pages/visitor/ManageModel.tsx";
-import CreateAccount from "./pages/admin/createAccount.tsx";
 import ManagerContact from "./pages/admin/ManagerContact.tsx";
+import CreateAccount from "./pages/admin/CreateAccount.tsx";
 
 function RouterConfig() {
   return (

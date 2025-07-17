@@ -129,6 +129,41 @@
     overflow: auto;
 }
 
+.type_icon {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-left: 1rem;
+}
+
+.type {
+    width: 10rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background-color: white;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.active:hover {
+    cursor: default;
+    transform: none;
+}
+.active {
+    background-color: black;
+    color: white;
+}
+
+.type:focus {
+    outline: none;
+}
+
+.type:hover {
+    transform: translateY(-2px);
+}
+
 .icon_list::-webkit-scrollbar {
     width: 8px;
     height: 8px;

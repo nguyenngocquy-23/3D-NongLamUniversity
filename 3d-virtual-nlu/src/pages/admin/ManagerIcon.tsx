@@ -31,7 +31,6 @@ interface Icon {
   createdAt: number | null;
 }
 
-
 const emptyIcon: Icon = {
   id: 0, // ID giả để phân biệt với các field thật
   name: "",
@@ -46,6 +45,7 @@ const emptyIcon: Icon = {
 const ManagerIcon = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [type, setType] = useState(1);
   const navigate = useNavigate();
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -181,6 +181,20 @@ const ManagerIcon = () => {
             }}
           >
             Tạo biểu tượng
+          </button>
+        </div>
+        <div className={styles.type_icon}>
+          <button
+            className={`${styles.type} ${type == 1 ? styles.active : ""}`}
+            onClick={() => setType(1)}
+          >
+            2D
+          </button>
+          <button
+            className={`${styles.type} ${type == 2 ? styles.active : ""}`}
+            onClick={() => setType(2)}
+          >
+            3D
           </button>
         </div>
         <div className={styles.icon_list}>
