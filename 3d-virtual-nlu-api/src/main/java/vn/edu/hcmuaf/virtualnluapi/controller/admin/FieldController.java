@@ -36,10 +36,25 @@ public class FieldController {
         }
     }
 
-    @POST
+
+
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<FieldResponse>> getFields(PageRequest request) {
-        List<FieldResponse> allFields = fieldService.getAllFields(request);
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<FieldResponse>> getFields() {
+        List<FieldResponse> allFields = fieldService.getAllFields();
+        return ApiResponse.<List<FieldResponse>>builder()
+                .statusCode(1000)
+                .message("Lay danh sach field thanh cong")
+                .data(allFields)
+                .build();
+    }
+
+    @POST
+    @Path("/byPage")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<FieldResponse>> getFieldsByPage(PageRequest request) {
+        List<FieldResponse> allFields = fieldService.getFieldsByPage(request);
         return ApiResponse.<List<FieldResponse>>builder()
                 .statusCode(1000)
                 .message("Lay danh sach field thanh cong")

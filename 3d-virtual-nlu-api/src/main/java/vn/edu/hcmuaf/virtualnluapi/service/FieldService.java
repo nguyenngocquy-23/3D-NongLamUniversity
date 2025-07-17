@@ -26,8 +26,16 @@ public class FieldService {
         return fieldDao.insertField(req);
     }
 
-    public List<FieldResponse> getAllFields(PageRequest request) {
-        return fieldDao.getAllFields(request);
+    public List<FieldResponse> getAllFields() {
+        return fieldDao.getAllFields();
+    }
+
+    public List<FieldResponse> getAllFieldsInVisitor() {
+        return fieldDao.getAllFieldsInVisitor();
+    }
+
+    public List<FieldResponse> getFieldsByPage(PageRequest request) {
+        return fieldDao.getFieldsByPage(request);
     }
 
     public FieldResponse getFieldById(int id) {

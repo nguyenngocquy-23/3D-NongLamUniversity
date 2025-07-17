@@ -27,7 +27,31 @@ public class FieldDao {
         });
     }
 
-    public List<FieldResponse> getAllFields(PageRequest request) {
+    public List<FieldResponse> getAllFields() {
+        String sql = """
+                SELECT id, code, name, status, createdAt, updatedAt 
+                FROM fields
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .mapToBean(FieldResponse.class)
+                    .list();
+        });
+    }
+    public List<FieldResponse> getAllFieldsInVisitor() {
+        String sql = """
+                    SELECT id, code, name, status, createdAt, updatedAt 
+                    FROM fields
+                    WHERE status = 1
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .mapToBean(FieldResponse.class)
+                    .list();
+        });
+    }
+
+    public List<FieldResponse> getFieldsByPage(PageRequest request) {
         String sql = """
                 SELECT id, code, name, status, createdAt, updatedAt 
                 FROM fields

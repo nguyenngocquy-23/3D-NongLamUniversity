@@ -12,7 +12,7 @@ import {
   setSpaceId,
 } from "../redux/slices/PanoramaSlice";
 import { RiEdit2Line } from "react-icons/ri";
-import { MdClear, MdZoomInMap, MdZoomOutMap } from "react-icons/md";
+import { MdAdsClick, MdClear, MdZoomInMap, MdZoomOutMap } from "react-icons/md";
 import { getAngleFromXZ, getArcAnglesThree } from "../utils/MathUtils";
 import {
   DEFAULT_ANGLE_RADAR,
@@ -37,7 +37,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { TbTournament } from "react-icons/tb";
 import { useImageCache } from "../contexts/ImageCacheContext";
 import { IoSettings } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa6";
+import { FaLock, FaLockOpen, FaPlus } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import UploadFile, {
   ApiResponse,
@@ -66,11 +66,17 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const handleSelectMasterNode = (nodeId: string) => {
     dispatch(setMasterPanorama(nodeId));
     dispatch(clearHotspotNavigation());
+    setChooseMaster(false);
   };
 
   const [fileStatuses, setFileStatuses] = useState<FileUploadStatus | null>(
     null
   );
+
+  const [chooseMaster, setChooseMaster] = useState<boolean>(false);
+  const handleChooseMaster = () => {
+    setChooseMaster((p) => !p);
+  };
 
   const deletePanoramaItem = (id: string) => {
     Swal.fire({
@@ -641,7 +647,15 @@ const MiniMap: React.FC<MiniMapProps> = ({
                           }
                           alt={item.config.name}
                           className={styles.thumbnail_node}
+                          onClick={
+                            chooseMaster
+                              ? () => {
+                                  handleSelectMasterNode(item.id);
+                                }
+                              : undefined
+                          }
                         />
+
                         <span
                           className={styles.delete_panorama_item}
                           onClick={() => deletePanoramaItem(item.id)}
@@ -673,6 +687,18 @@ const MiniMap: React.FC<MiniMapProps> = ({
                         )}
                       </div>
                     )}
+                  </div>
+                </div>
+
+                <div className={styles.tour_information_item}>
+                  <span>Chọn ảnh trung tâm</span>
+                  <div
+                    className={styles.choose_master}
+                    onClick={() => {
+                      handleChooseMaster();
+                    }}
+                  >
+                    {chooseMaster ? <FaLockOpen /> : <FaLock />}
                   </div>
                 </div>
               </div>

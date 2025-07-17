@@ -12,7 +12,7 @@ function App() {
   return (
     <DeviceInfoProvider>
       <CacheProvider>
-        <Router basename={`/${DOMAIN_CLIENT}`}>
+        <Router basename={`/${DOMAIN_CLIENT}/`}>
           <>
             <RouterConfig />
           </>

@@ -27,6 +27,8 @@ export const API_URLS = {
   GET_MASTER_NODES: `${DOMAIN}/node/master`,
   GET_ALL_MODEL: `${DOMAIN}/v1/admin/hotspot/getAllModel`,
   INCREASE_NUM_DOWNLOAD_MODEL: `${DOMAIN}/v1/admin/hotspot/countDownloadModel`,
+  GET_ALL_SPACES: `${DOMAIN}/space`,
+  GET_ALL_FIELDS: `${DOMAIN}/field`,
   INCREASE_NODE_VIEW: `${DOMAIN}/node/increaseView`,
   GET_PRELOAD_NODES: `${DOMAIN}/node/preloadNodeList`,
   GET_FULL_TOUR: `${DOMAIN}/node/nodeListByMasterId`,
@@ -41,7 +43,7 @@ export const API_URLS = {
   SEND_COMMENT: `${DOMAIN}/comment/send`,
   EDIT_COMMENT: `${DOMAIN}/comment/update`,
   REMOVE_COMMENT: `${DOMAIN}/comment/remove`,
-  
+
   SEND_CONTACT: `${DOMAIN}/contact/send`,
   ADMIN_FEEDBACK_CONTACT: `${DOMAIN}/v1/admin/contact/feedback`,
 
@@ -53,15 +55,18 @@ export const API_URLS = {
   GET_MODEL: `${DOMAIN}/v1/admin/hotspot/getModel`,
   GET_NUM_TOTAL_MODEL: `${DOMAIN}/v1/admin/hotspot/getNumTotalModel`,
   ADMIN_GET_DASHBOARD: `${DOMAIN}/admin/dashboard`,
-  ADMIN_GET_ALL_NODES: `${DOMAIN}/v1/admin/node/all`,
+  ADMIN_GET_ALL_NODES: `${DOMAIN}/v1/admin/node`,
+  ADMIN_GET_NODES_BY_PAGE: `${DOMAIN}/v1/admin/node/byPage`,
   ADMIN_GET_AUTO_TOURS: `${DOMAIN}/v1/admin/node/getAutoTour`,
   ADMIN_GET_MASTER_NODES_OF_SPACE: `${DOMAIN}/v1/admin/node/masterNodeList`,
-  ADMIN_GET_ALL_SPACES: `${DOMAIN}/admin/space/all`,
+  ADMIN_GET_ALL_SPACES: `${DOMAIN}/admin/space`,
+  ADMIN_GET_SPACES_BY_PAGE: `${DOMAIN}/admin/space/byPage`,
   ADMIN_GET_SPACE_BY_ID: `${DOMAIN}/admin/space/byId`,
   ADMIN_GET_SPACE_OF_FIELD: `${DOMAIN}/admin/space/byField`,
   ADMIN_GET_ALL_ICONS: `${DOMAIN}/v1/admin/icon`,
   ADMIN_GET_HOTSPOT_TYPES: `${DOMAIN}/admin/hotspotType`,
   ADMIN_GET_ALL_FIELDS: `${DOMAIN}/admin/field`,
+  ADMIN_GET_FIELDS_BY_PAGE: `${DOMAIN}/admin/field/byPage`,
   ADMIN_GET_ALL_NODE_IMAGES: `${DOMAIN}/v1/admin/node/getNodeImg`,
   ADMIN_GET_ALL_CONTACTS: `${DOMAIN}/v1/admin/contact/getAll`,
 

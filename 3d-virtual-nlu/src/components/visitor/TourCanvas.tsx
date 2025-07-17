@@ -125,7 +125,7 @@ const TourCanvas = React.memo(
         className={styles.tourCanvas}
       >
         <Environment preset="studio" background={false} />
-        <Perf />
+        {/* <Perf /> */}
         <UpdateCameraOnResize />
         <TourScene
           radius={radius}

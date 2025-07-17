@@ -295,7 +295,7 @@ const ManagerTourDetail: React.FC = () => {
           className={styles.tour_icon_back}
           onClick={() => navigate(-1)}
         />
-        <p className={styles.tour_title}>{currentTour.config.name}</p>
+        {/* <p className={styles.tour_title}>{currentTour.config.name}</p> */}
         <div className={styles.tour_mode}>
           <button
             className={`${styles.tour_mode_item}

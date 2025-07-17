@@ -20,8 +20,8 @@ const AttachMap = () => {
   const [selectedSpaceId, setSelectedSpaceId] = useState(0);
   const [isAssign, setIsAssign] = useState(true);
   const [isRemove, setIsRemove] = useState(false);
+  const [spaces, setSpaces] = useState<any[]>([]);
 
-  const spaces = useSelector((state: RootState) => state.data.spaces);
   const [isSaving, setIsSaving] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -32,6 +32,21 @@ const AttachMap = () => {
         mapRef.current!.invalidateSize();
       }, 300); // chờ animation transition xong
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchSpaces = async () => {
+      try {
+        const response = await axios.get(API_URLS.GET_ALL_SPACES);
+        setSpaces(response.data.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách spaces:", error);
+      } finally {
+        //loading
+      }
+    };
+
+    fetchSpaces();
   }, []);
 
   const handleSubmit = async () => {
@@ -128,6 +143,7 @@ const AttachMap = () => {
         points={points}
         setPoints={setPoints}
         isRemove={isRemove}
+        spaces={spaces}
       />
       <div className={styles.controlPanel}>
         <button

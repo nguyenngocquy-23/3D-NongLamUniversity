@@ -21,6 +21,15 @@ public class SpaceController {
     @Inject
     SpaceService spaceService;
 
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<SpaceFullResponse>> getAllSpaces() {
+        List<SpaceFullResponse> result = spaceService.getAllSpaces();
+        return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Lay danh sach space thanh cong").data(result).build();
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> createSpace(SpaceCreateRequest req) {
@@ -41,11 +50,11 @@ public class SpaceController {
     }
 
     @POST
-    @Path("/all")
+    @Path("/byPage")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<SpaceFullResponse>> getAllSpaces(PageRequest request) {
-        List<SpaceFullResponse> result = spaceService.getAllSpaces(request);
+    public ApiResponse<List<SpaceFullResponse>> getSpacesByPage(PageRequest request) {
+        List<SpaceFullResponse> result = spaceService.getSpacesByPage(request);
         return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Lay danh sach space thanh cong").data(result).build();
     }
 

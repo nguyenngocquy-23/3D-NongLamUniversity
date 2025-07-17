@@ -51,6 +51,8 @@ import {
 } from "../../contexts/ImageCacheContext.tsx";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { useGLTF } from "@react-three/drei";
+import axios from "axios";
+import { API_URLS } from "../../env.ts";
 
 /*
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -82,6 +84,7 @@ const VirtualTour = () => {
 
   const [isMobile, setIsMobile] = useState(false);
   const [imageVersion, setImageVersion] = useState<number>(0);
+  const [spaces, setSpaces] = useState<any[]>([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -90,6 +93,21 @@ const VirtualTour = () => {
     window.addEventListener("resize", handleResize);
     handleResize();
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchSpaces = async () => {
+      try {
+        const response = await axios.get(API_URLS.GET_ALL_SPACES);
+        setSpaces(response.data.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách spaces:", error);
+      } finally {
+        //loading
+      }
+    };
+
+    fetchSpaces();
   }, []);
 
   useEffect(() => {
@@ -491,46 +509,60 @@ const VirtualTour = () => {
   const [isLoadingDone, setIsLoadingDone] = useState(false);
 
   useEffect(() => {
-    if(!preloadNodes || !nodeToRender || !hotspotModels || !hotspotMedias || !hotspotNavigations || !hotspotInformations) {
+    if (
+      !preloadNodes ||
+      !nodeToRender ||
+      !hotspotModels ||
+      !hotspotMedias ||
+      !hotspotNavigations ||
+      !hotspotInformations
+    ) {
       setIsLoadingDone(false);
       return;
-    }else{
+    } else {
       setIsLoadingDone(true);
     }
-  }, [preloadNodes, nodeToRender, hotspotModels, hotspotMedias, hotspotNavigations, hotspotInformations, imageRef]);
+  }, [
+    preloadNodes,
+    nodeToRender,
+    hotspotModels,
+    hotspotMedias,
+    hotspotNavigations,
+    hotspotInformations,
+    imageRef,
+  ]);
 
   useEffect(() => {
-  let progress = 0;
+    let progress = 0;
 
-  const interval = setInterval(() => {
-    if (!isLoadingDone) {
-      // Loading giả lập, chỉ cho đến 90%
-      if (progress < 90) {
-        progress += Math.random() * 5; // tăng chậm lại để mượt
-        if (progress > 90) progress = 90;
-        setPercent(Math.floor(progress));
+    const interval = setInterval(() => {
+      if (!isLoadingDone) {
+        // Loading giả lập, chỉ cho đến 90%
+        if (progress < 90) {
+          progress += Math.random() * 5; // tăng chậm lại để mượt
+          if (progress > 90) progress = 90;
+          setPercent(Math.floor(progress));
+        }
+      } else {
+        // Task thật xong, tăng nốt phần còn lại đến 100%
+        if (progress < 100) {
+          progress += Math.random() * 10;
+          if (progress > 100) progress = 100;
+          setPercent(Math.floor(progress));
+        }
+
+        // Nếu đã 100% thì clear interval
+        if (progress >= 100) {
+          clearInterval(interval);
+          requestAnimationFrame(() => {
+            setTimeout(() => setIsWaiting(false), 500);
+          });
+        }
       }
-    } else {
-      // Task thật xong, tăng nốt phần còn lại đến 100%
-      if (progress < 100) {
-        progress += Math.random() * 10;
-        if (progress > 100) progress = 100;
-        setPercent(Math.floor(progress));
-      }
+    }, 200);
 
-      // Nếu đã 100% thì clear interval
-      if (progress >= 100) {
-        clearInterval(interval);
-        requestAnimationFrame(() => {
-          setTimeout(() => setIsWaiting(false), 500);
-        });
-      }
-    }
-  }, 200);
-
-  return () => clearInterval(interval);
-}, [isLoadingDone]);
-
+    return () => clearInterval(interval);
+  }, [isLoadingDone]);
 
   useEffect(() => {
     if (!preloadNodes || preloadNodes.length === 0) return;
@@ -669,13 +701,10 @@ const VirtualTour = () => {
         imageRef={imageRef}
         imageVersion={imageVersion}
       />
-
-
       <div className={styles.header_tour}>
         <h2>NLU360</h2>
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
-
       {fullMap || hoverMap || !isMenuVisible ? (
         ""
       ) : (
@@ -781,7 +810,11 @@ const VirtualTour = () => {
             </button>
           ) : (
             <>
-              <MapLeaflet spaceId={nodeToRender.spaceId} mapRef={mapRef} />
+              <MapLeaflet
+                spaceId={nodeToRender.spaceId}
+                mapRef={mapRef}
+                spaces={spaces}
+              />
               {fullMap ? (
                 <button
                   className={styles.full_button}
