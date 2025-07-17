@@ -147,6 +147,7 @@ public class NodeDao {
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
+  
                 WHERE s.status = 2 AND n.id = s.masterNodeId    
                 """;
         NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)

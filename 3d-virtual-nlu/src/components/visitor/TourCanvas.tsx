@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import React, { Ref, useEffect, useRef, useState } from "react";
+import React, { Ref, Suspense, useEffect, useRef, useState } from "react";
 import VideoMeshComponent from "../admin/VideoMesh";
 import UpdateCameraOnResize from "../UpdateCameraOnResize";
 import CamControls from "./CamControls";
@@ -16,7 +16,8 @@ import { Environment } from "@react-three/drei";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 import Radar from "./Radar";
 import { Perf } from "r3f-perf";
-import { ImageCacheMap } from "../../pages/visitor/VirtualTour";
+import { ImageCacheMap } from "../../contexts/ImageCacheContext";
+import { div } from "three/src/nodes/TSL.js";
 const TourCanvas = React.memo(
   ({
     windowSize,
@@ -137,7 +138,6 @@ const TourCanvas = React.memo(
           onTextureReady={() => setIsTextureReady(true)}
           imageVersion={imageVersion}
         />
-        <Perf />
         {isOpenRadar && defaultNode && (
           <Radar
             currentPanorama={defaultNode}
@@ -163,41 +163,50 @@ const TourCanvas = React.memo(
             setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
           }}
         />
-        {isTextureReady &&
-          hotspotInformations.map((hotspot) => (
-            <GroundHotspotInfo
-              key={hotspot.id}
-              hotspotInfo={hotspot}
-              blockUpdate={true}
-            />
-          ))}
-        {isTextureReady &&
-          hotspotNavigations.map((hotspot) => (
-            <GroundHotspot
-              key={hotspot.id}
-              onNavigate={(targetNodeId, cameraTargetPosition) =>
-                handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-              }
-              hotspotNavigation={hotspot}
-              blockUpdate={true}
-            />
-          ))}
-        {isTextureReady &&
-          hotspotModels.map((hotspot) => (
-            <GroundHotspotModel
-              key={hotspot.id}
-              hotspotModel={hotspot}
-              blockUpdate={true}
-            />
-          ))}
-        {isTextureReady &&
-          hotspotMedias.map((hotspot) => (
-            <VideoMeshComponent
-              key={hotspot.id}
-              hotspotMedia={hotspot}
-              blockUpdate={true}
-            />
-          ))}
+        <Suspense fallback={null}>
+          {isTextureReady &&
+            hotspotInformations.map((hotspot) => (
+              <GroundHotspotInfo
+                key={hotspot.id}
+                hotspotInfo={hotspot}
+                blockUpdate={true}
+              />
+            ))}
+        </Suspense>
+        <Suspense fallback={null}>
+          {isTextureReady &&
+            hotspotNavigations.map((hotspot) => (
+              <GroundHotspot
+                key={hotspot.id}
+                onNavigate={(targetNodeId, cameraTargetPosition) =>
+                  handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                }
+                hotspotNavigation={hotspot}
+                blockUpdate={true}
+              />
+            ))}
+        </Suspense>
+
+        <Suspense fallback={null}>
+          {isTextureReady &&
+            hotspotModels.map((hotspot) => (
+              <GroundHotspotModel
+                key={hotspot.id}
+                hotspotModel={hotspot}
+                blockUpdate={true}
+              />
+            ))}
+        </Suspense>
+        <Suspense fallback={null}>
+          {isTextureReady &&
+            hotspotMedias.map((hotspot) => (
+              <VideoMeshComponent
+                key={hotspot.id}
+                hotspotMedia={hotspot}
+                blockUpdate={true}
+              />
+            ))}
+        </Suspense>
       </Canvas>
     );
   }

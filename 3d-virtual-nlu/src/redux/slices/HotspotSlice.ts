@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction, nanoid } from "@reduxjs/toolkit";
+import { rgbaColor } from "../../utils/TransformRgbaColor";
 
 //Test trước, sau đó dùng API để lấy.
 export type HotspotType = 1 | 2 | 3 | 4;
@@ -26,8 +27,10 @@ export interface HotspotNavigation extends BaseHotspot {
   targetNodeId: string;
 }
 export interface HotspotInformation extends BaseHotspot {
-  title: string;
   content: string;
+  backgroundColorContent: rgbaColor; //JSON string representing bkgColor
+  borderColorContent: string;
+  borderSizeContent: number;
 }
 export interface HotspotMedia extends BaseHotspot {
   mediaType: string; //image or video
@@ -78,19 +81,17 @@ const hotspotSlice = createSlice({
       // action: PayloadAction<Omit<HotspotNavigation, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload
+        ...action.payload,
       });
       // id: nanoid(),
     },
     addInformationHotspot: (
       state,
       action: PayloadAction<HotspotInformation>
-      // action: PayloadAction<Omit<HotspotInformation, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload
+        ...action.payload,
       });
-      // id: nanoid(),
     },
     addMediaHotspot: (
       state,
@@ -98,7 +99,7 @@ const hotspotSlice = createSlice({
       // action: PayloadAction<Omit<HotspotMedia, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload
+        ...action.payload,
       });
       // id: nanoid(),
     },
@@ -108,13 +109,18 @@ const hotspotSlice = createSlice({
       // action: PayloadAction<Omit<HotspotModel, "id">>
     ) => {
       state.hotspotList.push({
-        ...action.payload
+        ...action.payload,
       });
       // id: nanoid(),
     },
     deleteHotspot: (state, action: PayloadAction<string>) => {
       state.hotspotList = state.hotspotList.filter(
         (h) => h.id !== action.payload
+      );
+    },
+    deleteHotspotByNodeId: (state, action: PayloadAction<string>) => {
+      state.hotspotList = state.hotspotList.filter(
+        (h) => h.nodeId !== action.payload
       );
     },
 
@@ -194,7 +200,7 @@ const hotspotSlice = createSlice({
           const node = state.hotspotPositions.find(
             (n) => n.nodeId == (nodeId ?? state.hotspotList[index].nodeId)
           );
-          
+
           if (node) {
             const hotspotIndex = node.hotspotPositions.findIndex(
               (h) => h.id == action.payload.hotspotId
@@ -218,12 +224,14 @@ const hotspotSlice = createSlice({
       }
     },
 
-    updateHotspotInfomation: (
+    updateHotspotInformation: (
       state,
       action: PayloadAction<{
         hotspotId: string;
-        title: string;
         content: string;
+        backgroundColorContent: rgbaColor;
+        borderColorContent: string;
+        borderSizeContent: number;
       }>
     ) => {
       const index = state.hotspotList.findIndex(
@@ -232,8 +240,13 @@ const hotspotSlice = createSlice({
       if (index !== -1) {
         const hotspot = state.hotspotList[index];
         if (hotspot.type === 2) {
-          (hotspot as HotspotInformation).title = action.payload.title;
           (hotspot as HotspotInformation).content = action.payload.content;
+          (hotspot as HotspotInformation).backgroundColorContent =
+            action.payload.backgroundColorContent;
+          (hotspot as HotspotInformation).borderColorContent =
+            action.payload.borderColorContent;
+          (hotspot as HotspotInformation).borderSizeContent =
+            action.payload.borderSizeContent;
         }
       }
     },
@@ -396,9 +409,7 @@ const hotspotSlice = createSlice({
     ) => {
       const { nodeId, hotspotPosition } = action.payload;
 
-      const index = state.hotspotPositions.findIndex(
-        (h) => h.nodeId == nodeId
-      );
+      const index = state.hotspotPositions.findIndex((h) => h.nodeId == nodeId);
 
       if (index === -1) {
         // Nếu nodeId chưa tồn tại => thêm mới
@@ -442,13 +453,14 @@ export const {
   addMediaHotspot,
   addModelHotspot,
   deleteHotspot,
+  deleteHotspotByNodeId,
   clearHotspot,
   clearHotspotNavigation,
   updateModelHotspotModelUrl,
   updateIconId,
   updateNavigationHotspotTarget,
   updateConfigHotspot,
-  updateHotspotInfomation,
+  updateHotspotInformation,
   updateHotspotModel,
   updateHotspotMedia,
   updateCornerPoint,

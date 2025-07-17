@@ -19,34 +19,41 @@ const customStyles = {
   control: (base: any, state: any) => ({
     ...base,
     backgroundColor: "#dad3cc5c",
-    borderColor: state.isFocused ? "#007bff" : "#ccc",
-    boxShadow: state.isFocused ? "0 0 0 1px #007bff" : "none",
+    borderColor: state.isFocused ? "#267026" : "#ccc",
+    boxShadow: state.isFocused ? "0 0 0 1px #267026" : "none",
     "&:hover": {
-      borderColor: "#007bff",
+      borderColor: "#267026",
     },
-    padding: "2px 4px",
   }),
 
+  // Item (Không hoạt động)
   option: (base: any, state: any) => ({
     ...base,
     backgroundColor: state.isSelected
-      ? "#007bff"
+      ? "#267026"
       : state.isFocused
       ? "#e6f0ff"
       : "#fff",
-    color: state.isSelected ? "#fff" : "#333",
+    color: state.isSelected ? "#267026" : "#333",
     cursor: "pointer",
   }),
+
+  //Màu chữ khi chọn (Không hoạt động)
   singleValue: (base: any) => ({
     ...base,
-    color: "#333",
+    color: "#267026",
   }),
+
   menu: (base: any) => ({
     ...base,
     backgroundColor: "#dad3cc5c",
     color: "#000",
     border: "1px solid #ccc",
+    width: "fitContent",
+    maxHeight: "200px", // ✅ Giới hạn chiều cao
+    overflowY: "auto",
   }),
+
   placeholder: (base: any) => ({
     ...base,
     color: "#999",
@@ -78,9 +85,7 @@ const customOption = ({ data, innerRef, innerProps }: any) => (
   </div>
 );
 
-const customSingleValue = ({ data }: any) => (
-  <div style={{ paddingLeft: 4 }}>{data.label}</div>
-);
+const customSingleValue = ({ data }: any) => <div>{data.label}</div>;
 
 const ImageSelect: React.FC<ImageSelectProps> = ({
   options,
@@ -98,6 +103,7 @@ const ImageSelect: React.FC<ImageSelectProps> = ({
       components={{ Option: customOption, SingleValue: customSingleValue }}
       styles={customStyles}
       menuPlacement={menuPlacement ?? "bottom"}
+      isSearchable={false}
     />
   );
 };

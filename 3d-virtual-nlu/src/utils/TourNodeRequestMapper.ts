@@ -6,6 +6,12 @@ import {
   HotspotModel,
 } from "../redux/slices/HotspotSlice";
 import { PanoramaItem } from "../redux/slices/PanoramaSlice";
+import {
+  initialRgba,
+  rgbaColor,
+  rgbaToString,
+  stringToRgba,
+} from "./TransformRgbaColor";
 
 /**
  * Định dạng theo BackendAPI.
@@ -102,8 +108,10 @@ export interface HotspotInfoCreateRequest {
   backgroundColor: string;
   allowBackgroundColor: number;
   opacity: number;
-  title: string;
   content: string;
+  backgroundColorContent: string;
+  borderColorContent: string;
+  borderSizeContent: number;
 }
 export interface HotspotMediaCreateRequest {
   nodeId: string;
@@ -183,8 +191,10 @@ export interface HotspotInfoUpdateRequest {
   backgroundColor: string;
   allowBackgroundColor: number;
   opacity: number;
-  title: string;
   content: string;
+  backgroundColorContent: string;
+  borderColorContent: string;
+  borderSizeContent: number;
 }
 export interface HotspotMediaUpdateRequest {
   id: string;
@@ -275,13 +285,14 @@ export interface HotspotNavResponse {
   allowBackgroundColor: number;
   opacity: number;
   targetNodeId: string;
+  iconType: number;
 }
 
 export interface HotspotInfoResponse {
   id: string;
   nodeId: string;
   type: number;
-  iconId: number;  
+  iconId: number;
   status: number;
   positionX: number;
   positionY: number;
@@ -294,8 +305,10 @@ export interface HotspotInfoResponse {
   backgroundColor: string;
   allowBackgroundColor: number;
   opacity: number;
-  title: string;
   content: string;
+  backgroundColorContent: string;
+  borderColorContent: string;
+  borderSizeContent: number;
 }
 export interface HotspotMediaResponse {
   id: string;
@@ -323,7 +336,7 @@ export interface HotspotModelResponse {
   id: string;
   nodeId: string;
   type: number;
-  iconId: number;  
+  iconId: number;
   status: number;
   positionX: number;
   positionY: number;
@@ -341,6 +354,7 @@ export interface HotspotModelResponse {
   name: string;
   description: string;
   colorCode: string;
+  iconType: number;
 }
 
 export class TourNodeRequestMapper {
@@ -395,8 +409,10 @@ export class TourNodeRequestMapper {
           allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
           opacity: h.opacity,
           scale: h.scale,
-          title: h.title,
           content: h.content,
+          backgroundColorContent: rgbaToString(h.backgroundColorContent),
+          borderColorContent: h.borderColorContent,
+          borderSizeContent: h.borderSizeContent,
         }));
 
       const mediaHotspots: HotspotMediaCreateRequest[] = hotspotsForNode
@@ -524,8 +540,10 @@ export class TourNodeRequestMapper {
           allowBackgroundColor: h.allowBackgroundColor == false ? 0 : 1,
           opacity: h.opacity,
           scale: h.scale,
-          title: h.title,
           content: h.content,
+          backgroundColorContent: rgbaToString(h.backgroundColorContent),
+          borderColorContent: h.borderColorContent,
+          borderSizeContent: h.borderSizeContent,
         }));
 
       const mediaHotspots: HotspotMediaUpdateRequest[] = hotspotsForNode
@@ -686,10 +704,11 @@ export class TourNodeRequestMapper {
           opacity: h.opacity,
           scale: h.scale,
           targetNodeId: String(h.targetNodeId),
+          iconType: h.iconType,
         } as HotspotNavigation);
       });
 
-      node.infoHotspots?.forEach((h, idx) => {
+      node.infoHotspots?.forEach((h) => {
         hotspotList.push({
           id: String(h.id),
           nodeId: String(h.nodeId),
@@ -707,13 +726,16 @@ export class TourNodeRequestMapper {
           backgroundColor: h.backgroundColor,
           allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
           opacity: h.opacity,
-          title: h.title,
           content: h.content,
+          backgroundColorContent:
+            stringToRgba(h.backgroundColorContent) ?? initialRgba,
+          borderColorContent: h.borderColorContent,
+          borderSizeContent: h.borderSizeContent,
         } as HotspotInformation);
       });
 
       // Media Hotspots
-      node.mediaHotspots?.forEach((h, idx) => {
+      node.mediaHotspots?.forEach((h) => {
         hotspotList.push({
           id: h.id,
           nodeId: h.nodeId,
@@ -739,7 +761,7 @@ export class TourNodeRequestMapper {
       });
 
       // Model Hotspots
-      node.modelHotspots?.forEach((h, idx) => {
+      node.modelHotspots?.forEach((h) => {
         hotspotList.push({
           id: h.id,
           nodeId: h.nodeId,

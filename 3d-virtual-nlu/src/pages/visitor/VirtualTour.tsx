@@ -45,19 +45,14 @@ import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
 import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
 import Swal from "sweetalert2";
 import useTrackTourView from "../../hooks/useTrackTourView.ts";
+import {
+  useImageCache,
+  useModelCache,
+} from "../../contexts/ImageCacheContext.tsx";
+import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import { useGLTF } from "@react-three/drei";
 
-export type ImageCacheEntry = {
-  img: HTMLImageElement;
-  objectUrl: string;
-  quality: ImageQuality;
-  lastUsed: number; //time to live
-};
-
-/**
- * string: id của node hiện tại
- */
-export type ImageCacheMap = Record<string, ImageCacheEntry>;
-/**
+/*
  * Nhằm mục đích tái sử dụng Virtual Tour.
  * => Nhận vào 1 texture url (Test)
  * Chúng ta sẽ cần nhận vào 1 danh sách thông tin url để hiển thị
@@ -66,7 +61,8 @@ export type ImageCacheMap = Record<string, ImageCacheEntry>;
  * 2. Hiển thị màn hình cho phép người dùng di chuyển tại giao diện.
  */
 const VirtualTour = () => {
-  const imageRef = useRef<ImageCacheMap>({});
+  const imageRef = useImageCache(); //Sử dụng trong context phục vụ cho việc cache lần đầu.
+  const modelRef = useModelCache();
 
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.data.status);
@@ -128,8 +124,9 @@ const VirtualTour = () => {
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isMenuPin, setIsMenuPin] = useState(false);
 
-  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
+  const [cursor, setCursor] = useState("grab");
 
   const [isMuted, setIsMuted] = useState(false); // Trạng thái âm thanh
 
@@ -318,6 +315,7 @@ const VirtualTour = () => {
     });
   };
 
+  //Xử lý hiển thị Menu bên trái.
   const handleMouseEnterMenu = (event: any) => {
     const mouseX = event.clientX;
     const mouseY = event.clientY;
@@ -330,9 +328,11 @@ const VirtualTour = () => {
   };
 
   const handleCloseMenu = (event: any) => {
+    if (isMenuPin) return;
     const mouse = event.clientX;
 
     const threshold = 200;
+
     if (mouse > threshold) {
       setIsMenuVisible(false);
     }
@@ -340,15 +340,6 @@ const VirtualTour = () => {
 
   // Gọi hàm để đọc văn bản khi thay đổi trạng thái âm thanh
   const hasMounted = useRef(false);
-
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return; // bỏ qua lần mount đầu tiên (Strict Mode sẽ gọi 2 lần)
-    }
-
-    readText();
-  }, [nodeToRender]);
 
   useEffect(() => {
     if (utterance) {
@@ -403,7 +394,17 @@ const VirtualTour = () => {
 
   useEffect(() => {
     if (!nodeToRender) return;
-    const { id, url } = nodeToRender;
+
+    //Sử dụng cho hàm read text.
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return; // bỏ qua lần mount đầu tiên (Strict Mode sẽ gọi 2 lần)
+    }
+    readText();
+
+    //Nạp ảnh vào RAM.
+
+    const { id, url, navHotspots, infoHotspots, modelHotspots } = nodeToRender;
 
     const existing = imageRef.current[id];
     if (existing && existing.quality === "8K") return; //Nếu tồn tại rồi & 8K => Tức là đã từng hiển thị thì không tải nữa.
@@ -438,10 +439,54 @@ const VirtualTour = () => {
         console.warn("Không load được ảnh 360 cho nodeToRender", id, err);
       }
     };
-
     loadHighRes();
+
+    //Nạp mô hình glb vào RAM.
+    const gltfLoader = new GLTFLoader();
+    const glbURLset = new Set<string>();
+
+    [
+      ...(navHotspots ?? []),
+      ...(infoHotspots ?? []),
+      ...(modelHotspots ?? []),
+    ].forEach((h) => {
+      if (h?.url?.endsWith(".glb")) {
+        glbURLset.add(h.url);
+      }
+    });
+
+    glbURLset.forEach((modelUrl) => {
+      if (modelRef.current[modelUrl]) return;
+      const loadModel = async () => {
+        try {
+          const response = await fetch(modelUrl);
+          const blob = await response.blob();
+          const objectUrl = URL.createObjectURL(blob);
+
+          gltfLoader.load(objectUrl, (gltf) => {
+            modelRef.current[modelUrl] = {
+              glbScene: gltf.scene,
+              objectUrl,
+              quality: "high",
+              lastUsed: Date.now(),
+            };
+            console.log("✅ Cached mô hình GLB:", modelUrl);
+          });
+        } catch (err) {
+          console.warn("⚠️ Không preload được mô hình GLB:", modelUrl, err);
+        }
+      };
+
+      loadModel();
+    });
   }, [nodeToRender]);
 
+  const getUrlGLB = (iconId: number): string | null => {
+    //Icon phải là icon 3D
+    const iconObj = icons.find((i) => i.id === iconId && i.type === 2);
+    if (iconObj) return iconObj.url;
+    return null;
+  };
   const [percent, setPercent] = useState(0);
   const [isLoadingDone, setIsLoadingDone] = useState(false);
 
@@ -493,39 +538,85 @@ const VirtualTour = () => {
     let loaded = 0;
     const total = preloadNodes.length;
 
+    const gltfLoader = new GLTFLoader();
+    const glbURLSet = new Set<string>();
+
     preloadNodes.forEach(async (node) => {
       const existing = imageRef.current[node.id];
+      if (!existing) {
+        try {
+          const lowResURL = buildImageUrlWithQuality(node.url, "2K");
 
-      if (existing) return; //Có rồi thì không tải nữa.
+          const response = await fetch(lowResURL, { mode: "cors" });
+          const blob = await response.blob();
+          const objectUrl = URL.createObjectURL(blob);
 
-      try {
-        const lowResURL = buildImageUrlWithQuality(node.url, "2K");
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.src = objectUrl;
+          img.onload = () => {
+            loaded++;
+            imageRef.current[node.id] = {
+              img,
+              objectUrl,
+              quality: "2K",
+              lastUsed: Date.now(),
+            };
 
-        const response = await fetch(lowResURL, { mode: "cors" });
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
+            setPercent(Math.floor((loaded / total) * 100));
+            if (loaded === total) {
+              setIsWaiting(false);
+            }
+          };
+        } catch (err) {
+          console.warn("Lỗi không thể tải reload:", node.url, err);
+        }
 
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = objectUrl;
+        const { navHotspots, infoHotspots, modelHotspots } = node;
 
-        img.onload = () => {
-          loaded++;
-          imageRef.current[node.id] = {
-            img,
-            objectUrl,
-            quality: "2K",
-            lastUsed: Date.now(),
+        [
+          ...(navHotspots ?? []),
+          ...(infoHotspots ?? []),
+          ...(modelHotspots ?? []),
+        ].forEach((h) => {
+          //glbUrl sẽ có giá trị nếu nó là icon.
+          const glbUrl = getUrlGLB(h.iconId);
+          if (glbUrl?.endsWith(".glb")) {
+            glbURLSet.add(glbUrl);
+            console.log("Giá trị URL cần cache", glbUrl);
+            console.log("URL", glbURLSet.size);
+          }
+        });
+
+        glbURLSet.forEach((modelUrl) => {
+          if (modelRef.current[modelUrl]) return;
+
+          const loadModel = async () => {
+            try {
+              const response = await fetch(modelUrl);
+              const blob = await response.blob();
+              const objectUrl = URL.createObjectURL(blob);
+
+              gltfLoader.load(objectUrl, (gltf) => {
+                modelRef.current[modelUrl] = {
+                  glbScene: gltf.scene,
+                  objectUrl,
+                  quality: "high",
+                  lastUsed: Date.now(),
+                };
+                console.log("✅ Preloaded GLB (preloadNodes):", modelUrl);
+              });
+            } catch (err) {
+              console.warn(
+                "⚠️ Không preload được GLB từ preloadNodes:",
+                modelUrl,
+                err
+              );
+            }
           };
 
-          // setPercent(Math.floor((loaded / total) * 100));
-          // if (loaded === total) {
-          //   // imageRef.current = imgCache;
-          //   setIsWaiting(false);
-          // }
-        };
-      } catch (err) {
-        console.warn("Lỗi không thể tải reload:", node.url, err);
+          loadModel();
+        });
       }
     });
   }, [preloadNodes]);
@@ -578,26 +669,33 @@ const VirtualTour = () => {
         imageRef={imageRef}
         imageVersion={imageVersion}
       />
-      <div className={styles.headerTour}>
+
+
+      <div className={styles.header_tour}>
         <h2>NLU360</h2>
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
-      {fullMap || hoverMap ? (
+
+      {fullMap || hoverMap || !isMenuVisible ? (
         ""
       ) : (
-        <LeftMenuTour isMenuVisible={isMenuVisible} imageRef={imageRef} />
-      )}
-      <AnimatePresence>
-        <motion.div
-          initial={{ y: 800, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 800, opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className={`${styles.update_hotspot_container} `}
-        ></motion.div>
-      </AnimatePresence>
-      {isMenuVisible && (
-        <LeftMenuTour isMenuVisible={isMenuVisible} imageRef={imageRef} />
+        <AnimatePresence>
+          <motion.div
+            initial={{ x: -300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 300, opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className={styles.left_tour}
+          >
+            <LeftMenuTour
+              isMenuPin={isMenuPin}
+              setIsMenuPin={setIsMenuPin}
+              isMenuVisible={isMenuVisible}
+              setIsMenuVisible={setIsMenuVisible}
+              imageRef={imageRef}
+            />
+          </motion.div>
+        </AnimatePresence>
       )}
       {!isOpenRadar && (
         <button

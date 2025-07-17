@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import styles from "../../styles/createTourStep2.module.css";
 import { FaAngleLeft, FaAngleRight, FaBook, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
@@ -52,6 +52,7 @@ import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import CamControls from "../../components/visitor/CamControls";
+import { useImageCache } from "../../contexts/ImageCacheContext.tsx";
 
 export const tasks = [
   {
@@ -76,6 +77,8 @@ const CreateTourStep2 = () => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<any>(null); //OrbitControls
+
+  const imageRef = useImageCache(); // Lấy ảnh từ cache trong ram.
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
@@ -137,7 +140,10 @@ const CreateTourStep2 = () => {
   /**
    * Lấy URL panorama hiện tại - hoặc dùng mặc định.
    */
-  const currentPanoramaUrl = currentPanorama?.url ?? "/khoa.jpg";
+  const currentPanoramaUrl =
+    imageRef.current[currentPanorama?.url ?? ""]?.objectUrl ??
+    currentPanorama?.url ??
+    "/khoa.jpg";
 
   const {
     positionX = 0,
@@ -296,8 +302,10 @@ const CreateTourStep2 = () => {
           addInformationHotspot({
             ...updatedProps,
             type: 2,
-            title: "",
             content: "",
+            backgroundColorContent: { r: 0, g: 0, b: 0, a: 0 },
+            borderColorContent: "",
+            borderSizeContent: 0,
           })
         );
         break;
@@ -394,61 +402,8 @@ const CreateTourStep2 = () => {
 
     const [x, y, z] = hotspotTargetPosition;
 
-    lookAtHotspot([x, y, z]);
     // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);
-
-    gsap.to(camera, {
-      fov: zoomTarget,
-      duration: 1.0,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        camera.updateProjectionMatrix();
-      },
-      onComplete: () => {
-        gsap.to(camera, {
-          fov: originalFov,
-          duration: 0.2,
-          delay: 0.1,
-          ease: "power2.inOut",
-          onUpdate: () => {
-            camera.updateProjectionMatrix();
-          },
-          onComplete: () => {
-            camera.updateProjectionMatrix();
-            control.update(); // đảm bảo OrbitControls cập nhật
-          },
-        });
-      },
-    });
-  };
-
-  const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
-    if (!cameraRef.current || !controlsRef.current) return;
-
-    const controls = controlsRef.current;
-
-    /**
-     * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
-     * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
-     */
-    const hotspotVec = new THREE.Vector3(
-      hotspotTargetPosition[0],
-      0,
-      hotspotTargetPosition[2]
-    );
-    const center = new THREE.Vector3(0, 0, 0);
-
-    const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
-
-    const spherical = new THREE.Spherical();
-    spherical.setFromVector3(dir);
-
-    // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
-    controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
-    controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
-
-    controls.update();
   };
 
   const handleBackStep2 = () => {
@@ -498,6 +453,7 @@ const CreateTourStep2 = () => {
             nodeId={currentSelectId ?? ""}
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
+            imageRef={imageRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
             onPointerDown={handleScenePointerDown}
@@ -528,52 +484,59 @@ const CreateTourStep2 = () => {
               setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
             }}
           />
+          <Suspense fallback={null}>
+            {isTextureReady &&
+              hotspotNavigations
+                .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                .map((hotspot) => (
+                  <GroundHotspot
+                    key={hotspot.id}
+                    onNavigate={(targetNodeId, cameraTargetPosition) =>
+                      handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                    }
+                    setCurrentHotspotId={setCurrentHotspotId}
+                    hotspotNavigation={hotspot}
+                  />
+                ))}
+          </Suspense>
 
-          {isTextureReady &&
-            hotspotNavigations
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
-                <GroundHotspot
-                  key={hotspot.id}
-                  onNavigate={(targetNodeId, cameraTargetPosition) =>
-                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                  }
-                  setCurrentHotspotId={setCurrentHotspotId}
-                  hotspotNavigation={hotspot}
-                />
-              ))}
+          <Suspense>
+            {isTextureReady &&
+              hotspotInfos
+                .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                .map((hotspot) => (
+                  <GroundHotspotInfo
+                    key={hotspot.id}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                    hotspotInfo={hotspot}
+                  />
+                ))}
+          </Suspense>
+          <Suspense fallback={null}>
+            {isTextureReady &&
+              hotspotModels
+                .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                .map((hotspot) => (
+                  <GroundHotspotModel
+                    key={hotspot.id}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                    hotspotModel={hotspot}
+                  />
+                ))}
+          </Suspense>
 
-          {isTextureReady &&
-            hotspotInfos
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
-                <GroundHotspotInfo
-                  key={hotspot.id}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                  hotspotInfo={hotspot}
-                />
-              ))}
-          {isTextureReady &&
-            hotspotModels
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
-                <GroundHotspotModel
-                  key={hotspot.id}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                  hotspotModel={hotspot}
-                />
-              ))}
-
-          {isTextureReady &&
-            hotspotMedias
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
-                <VideoMeshComponent
-                  key={hotspot.id}
-                  hotspotMedia={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
+          <Suspense fallback={null}>
+            {isTextureReady &&
+              hotspotMedias
+                .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                .map((hotspot) => (
+                  <VideoMeshComponent
+                    key={hotspot.id}
+                    hotspotMedia={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
+          </Suspense>
 
           {currentPoints.length > 1 &&
             currentPoints.map((point, i) => {
@@ -601,13 +564,14 @@ const CreateTourStep2 = () => {
             <span>{CREATE_TOUR_STEPS[currentStep - 1].name}</span>
           </div>
           <span className={styles.number_step}>{currentStep}</span>
-          <div className={styles.toggleRightMenu}>
+          <div className={styles.toggle_right_menu}>
             <IoMdMenu
               className={styles.show_menu}
               onClick={() => handleOpenMenu()}
             />
           </div>
         </div>
+
         {/* Hiển thị menu bên phải.*/}
         <AnimatePresence>
           {isMenuVisible && (

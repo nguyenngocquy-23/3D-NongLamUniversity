@@ -31,11 +31,20 @@ import { API_URLS } from "../../env";
 import { Environment } from "@react-three/drei";
 import MiniMap from "../../components/Minimap";
 import CamControls from "../../components/visitor/CamControls";
+import {
+  getFilteredHotspotInformationInList,
+  getFilteredHotspotMediaInList,
+  getFilteredHotspotModelInList,
+  getFilteredHotspotNavigationInList,
+} from "../../redux/slices/Selectors";
+import { useImageCache } from "../../contexts/ImageCacheContext";
 
 const CreateTourStep3: React.FC = () => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<any>(null); //OrbitControls
+
+  const imageRef = useImageCache(); // Sử dụng trong Ram.
 
   const dispatch = useDispatch<AppDispatch>();
   const panoramas = useSelector((state: RootState) => state.panoramas);
@@ -49,29 +58,13 @@ const CreateTourStep3: React.FC = () => {
     (pano) => pano.id === currentSelectId
   );
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
-  const hotspotNavigations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
-    )
-  );
-  const hotspotInfos = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
-    )
-  );
-  const hotspotModels = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotModel => hotspot.type === 4
-    )
-  );
-
-  const hotspotMedias = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-    )
-  );
+  const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
+  const hotspotInfos = useSelector(getFilteredHotspotInformationInList);
+  const hotspotModels = useSelector(getFilteredHotspotModelInList);
+  const hotspotMedias = useSelector(getFilteredHotspotMediaInList);
 
   const navigate = useNavigate();
+  const [isTextureReady, setIsTextureReady] = useState(false);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
   const [currentPoints, setCurrentPoints] = useState<
     [number, number, number][]
@@ -93,15 +86,21 @@ const CreateTourStep3: React.FC = () => {
   /**
    * Lấy URL panorama hiện tại - hoặc dùng mặc định.
    */
-  const currentPanoramaUrl = currentPanorama?.url ?? "/khoa.jpg";
+  const currentPanoramaUrl =
+    imageRef.current[currentPanorama?.url ?? ""]?.objectUrl ??
+    currentPanorama?.url ??
+    "/khoa.jpg";
 
   const {
     positionX = 0,
     positionY = 0,
     positionZ = 0,
     lightIntensity = 1,
-    autoRotate = 0,
-    speedRotate = 0,
+    brightness = 0,
+    contrast = 1,
+    saturation = 1.2,
+    grayscale = 0,
+    exposure = 1,
   } = currentPanorama?.config ?? {};
 
   const cameraPosition: [number, number, number] = [
@@ -114,6 +113,7 @@ const CreateTourStep3: React.FC = () => {
     return;
 
   const handleSelectNode = (id: string) => {
+    setIsTextureReady(false);
     dispatch(selectPanorama(id));
   };
 
@@ -136,62 +136,36 @@ const CreateTourStep3: React.FC = () => {
 
     const [x, y, z] = hotspotTargetPosition;
 
-    lookAtHotspot([x, y, z]);
-    // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);
-
-    gsap.to(camera, {
-      fov: zoomTarget,
-      duration: 1.0,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        camera.updateProjectionMatrix();
-      },
-      onComplete: () => {
-        gsap.to(camera, {
-          fov: originalFov,
-          duration: 0.2,
-          delay: 0.1,
-          ease: "power2.inOut",
-          onUpdate: () => {
-            camera.updateProjectionMatrix();
-          },
-          onComplete: () => {
-            camera.updateProjectionMatrix();
-            control.update(); // đảm bảo OrbitControls cập nhật
-          },
-        });
-      },
-    });
   };
 
-  const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
-    if (!cameraRef.current || !controlsRef.current) return;
+  // const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
+  //   if (!cameraRef.current || !controlsRef.current) return;
 
-    const controls = controlsRef.current;
+  //   const controls = controlsRef.current;
 
-    /**
-     * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
-     * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
-     */
-    const hotspotVec = new THREE.Vector3(
-      hotspotTargetPosition[0],
-      0,
-      hotspotTargetPosition[2]
-    );
-    const center = new THREE.Vector3(0, 0, 0);
+  //   /**
+  //    * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
+  //    * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
+  //    */
+  //   const hotspotVec = new THREE.Vector3(
+  //     hotspotTargetPosition[0],
+  //     0,
+  //     hotspotTargetPosition[2]
+  //   );
+  //   const center = new THREE.Vector3(0, 0, 0);
 
-    const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
+  //   const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
 
-    const spherical = new THREE.Spherical();
-    spherical.setFromVector3(dir);
+  //   const spherical = new THREE.Spherical();
+  //   spherical.setFromVector3(dir);
 
-    // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
-    controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
-    controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
+  //   // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
+  //   controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
+  //   controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
 
-    controls.update();
-  };
+  //   controls.update();
+  // };
 
   const handleBackStep3 = () => {
     Swal.fire({
@@ -232,8 +206,13 @@ const CreateTourStep3: React.FC = () => {
           text: "Xuất bản thành công",
         }).then(() => {
           dispatch(nextStep());
-          // dispatch(fetchMasterNodes());
         });
+
+        //Dọn RAM ảnh cũ:
+        Object.values(imageRef.current).forEach((entry) => {
+          URL.revokeObjectURL(entry.objectUrl);
+        });
+        imageRef.current = {};
       } else {
         Swal.fire({
           icon: "error",
@@ -273,45 +252,55 @@ const CreateTourStep3: React.FC = () => {
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
             lightIntensity={lightIntensity}
+            brightness={brightness}
+            contrast={contrast}
+            saturation={saturation}
+            grayscale={grayscale}
+            exposure={exposure}
+            onTextureReady={() => setIsTextureReady(true)}
           />
           <CamControls
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
-            autoRotate={autoRotate === 1 ? true : false}
-            autoRotateSpeed={speedRotate}
+            autoRotate={false}
+            autoRotateSpeed={0}
           />
-          {hotspotNavigations
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <GroundHotspot
-                key={hotspot.id}
-                onNavigate={(targetNodeId, cameraTargetPosition) =>
-                  handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                }
-                hotspotNavigation={hotspot}
-              />
-            ))}
-          {hotspotInfos
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} />
-            ))}
-          {hotspotModels
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <GroundHotspotModel
-                key={hotspot.id}
-                setHoveredHotspot={setHoveredHotspot}
-                hotspotModel={hotspot}
-              />
-            ))}
+          {isTextureReady &&
+            hotspotNavigations
+              .filter((hotspot) => hotspot.nodeId === currentSelectId)
+              .map((hotspot) => (
+                <GroundHotspot
+                  key={hotspot.id}
+                  onNavigate={(targetNodeId, cameraTargetPosition) =>
+                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                  }
+                  hotspotNavigation={hotspot}
+                />
+              ))}
+          {isTextureReady &&
+            hotspotInfos
+              .filter((hotspot) => hotspot.nodeId === currentSelectId)
+              .map((hotspot) => (
+                <GroundHotspotInfo key={hotspot.id} hotspotInfo={hotspot} />
+              ))}
+          {isTextureReady &&
+            hotspotModels
+              .filter((hotspot) => hotspot.nodeId === currentSelectId)
+              .map((hotspot) => (
+                <GroundHotspotModel
+                  key={hotspot.id}
+                  setHoveredHotspot={setHoveredHotspot}
+                  hotspotModel={hotspot}
+                />
+              ))}
 
-          {hotspotMedias
-            .filter((hotspot) => hotspot.nodeId === currentSelectId)
-            .map((hotspot) => (
-              <VideoMeshComponent key={hotspot.id} hotspotMedia={hotspot} />
-            ))}
+          {isTextureReady &&
+            hotspotMedias
+              .filter((hotspot) => hotspot.nodeId === currentSelectId)
+              .map((hotspot) => (
+                <VideoMeshComponent key={hotspot.id} hotspotMedia={hotspot} />
+              ))}
           {currentPoints.length > 1 &&
             currentPoints.map((point, i) => {
               if (i < currentPoints.length - 1)

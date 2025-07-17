@@ -1,6 +1,6 @@
 import { Html } from "@react-three/drei";
 import styles from "../../styles/minimap.module.css";
-import React, { RefObject, useEffect, useState } from "react";
+import React, { MutableRefObject, RefObject, useEffect, useState } from "react";
 import {
   DEFAULT_ANGLE_THREE,
   DEFAULT_ANGLE_RADAR,
@@ -9,6 +9,7 @@ import {
 } from "../../utils/Constants";
 import { getArcAnglesThree } from "../../utils/MathUtils";
 import { FaAngleDoubleRight } from "react-icons/fa";
+import { ImageCacheMap } from "../../contexts/ImageCacheContext";
 
 type RadarProps = {
   currentPanorama: any;
@@ -16,9 +17,7 @@ type RadarProps = {
   panoramaList: any[];
   navigateList: any[];
   setIsOpenRadar: (val: boolean) => void;
-  imageRef: React.RefObject<
-    Record<string, { img: HTMLImageElement; objectUrl: string }>
-  >;
+  imageRef: MutableRefObject<ImageCacheMap>;
 };
 const Radar: React.FC<RadarProps> = ({
   currentPanorama,
@@ -106,13 +105,6 @@ const Radar: React.FC<RadarProps> = ({
 
   const { ctx, ctz } = getRadarPosition();
 
-  const [masterNameInput, setMasterNameInput] = useState(
-    (masterPanorama?.name || "").slice(0, 40)
-  );
-  useEffect(() => {
-    setMasterNameInput(masterPanorama?.name.slice(0, 40) || "");
-  }, [masterPanorama]);
-
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -136,25 +128,28 @@ const Radar: React.FC<RadarProps> = ({
         >
           <div className={styles.minimap_preview_zoom}>
             <div className={styles.minimap_content}>
-              {masterPanorama?.url &&
-                imageRef.current[masterPanorama.url]?.objectUrl && (
-                  <img
-                    src={imageRef.current[masterPanorama.url].objectUrl}
-                    alt="panorama_master"
-                    className={styles.master_node}
-                  />
-                )}
+              {masterPanorama?.url && (
+                <img
+                  src={
+                    imageRef.current[masterPanorama.id]?.objectUrl ||
+                    masterPanorama.url
+                  }
+                  alt="panorama_master"
+                  className={styles.master_node}
+                />
+              )}
 
               {navigateList.map((item) => {
                 const targetUrl = panoramaTargetUrl(item.targetNodeId);
-                const cached = imageRef.current[targetUrl];
-                if (!cached) return null;
 
                 const { x, y } = scalePosition(item.positionX, item.positionZ);
                 return (
                   <img
                     key={item.id}
-                    src={cached.objectUrl}
+                    src={
+                      imageRef.current[item.targetNodeId]?.objectUrl ||
+                      targetUrl
+                    }
                     alt="node"
                     className={styles.slave_node}
                     style={{

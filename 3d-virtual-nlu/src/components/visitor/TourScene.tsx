@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import * as THREE from "three";
 import { RootState } from "../../redux/Store";
 import { radianToTexture } from "../../utils/MathUtils";
-import { ImageCacheMap } from "../../pages/visitor/VirtualTour";
+import { ImageCacheMap } from "../../contexts/ImageCacheContext";
 
 /**
  *  Lớp này sử dụng cho việc :
@@ -36,6 +36,8 @@ const CrossFadeMaterial = shaderMaterial(
   },
   //Vertex Shader .gsgl
   `
+    precision highp float;
+
     varying vec2 vUv;
     void main() {
       vUv = uv;
@@ -44,6 +46,8 @@ const CrossFadeMaterial = shaderMaterial(
      `,
   //Fragment Shader .gsgl
   `
+    precision highp float;
+    
     uniform sampler2D uTexture1;
     uniform sampler2D uTexture2;
     uniform sampler2D uUpgradeTex;
@@ -77,6 +81,7 @@ const CrossFadeMaterial = shaderMaterial(
     void main() {
       vec2 uv1 = vec2(mod(vUv.x + uYawOffset1, 1.0), vUv.y);
       vec2 uv2 = vec2(mod(vUv.x + uYawOffset2, 1.0), vUv.y);
+
 
       vec4 baseColor;
 
@@ -215,10 +220,7 @@ const TourScene: React.FC<TourSceneProps> = ({
       // Chuyển node: nodeId sẽ đổi / Texture cũng đổi url.
 
       if (!urlChanged && imgUpdated) {
-        const upgradedTex = new THREE.Texture(cachedEntry.img);
-        upgradedTex.needsUpdate = true;
-        upgradedTex.wrapS = THREE.RepeatWrapping;
-        upgradedTex.wrapT = THREE.RepeatWrapping;
+        const upgradedTex = prepareTexture(new THREE.Texture(cachedEntry.img));
 
         // setUpgradeTexture(upgradedTex); // state chứa upgradeTex
         // upgradeProgressRef.current = 0; // reset tiến trình upgrade
@@ -243,14 +245,12 @@ const TourScene: React.FC<TourSceneProps> = ({
         let texNew: THREE.Texture | undefined;
 
         if (cachedEntry) {
-          texNew = new THREE.Texture(cachedEntry.img);
-          texNew.needsUpdate = true;
+          texNew = prepareTexture(new THREE.Texture(cachedEntry.img));
         } else {
           const loader = new THREE.TextureLoader();
           texNew = await loader.loadAsync(textureCurrent);
+          texNew = prepareTexture(texNew);
         }
-        texNew.wrapS = THREE.RepeatWrapping;
-        texNew.wrapT = THREE.RepeatWrapping;
 
         if (!texNew) {
           console.warn("Texture not preloaded:", cacheKey);
@@ -359,6 +359,15 @@ const TourScene: React.FC<TourSceneProps> = ({
       progressRef.current = 0;
     }
   });
+
+  function prepareTexture(tex: THREE.Texture): THREE.Texture {
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.ClampToEdgeWrapping;
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.needsUpdate = true;
+    return tex;
+  }
 
   // Gửi sự kiện click chuột kèm điểm raycaste (x,y,z) về CreateTourStep2.
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {

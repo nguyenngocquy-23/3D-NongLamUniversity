@@ -2,6 +2,8 @@ import { createSlice, PayloadAction, nanoid } from "@reduxjs/toolkit";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
 import { useSelector } from "react-redux";
 import { RootState } from "../Store";
+import Swal from "sweetalert2";
+import { deleteHotspotByNodeId } from "./HotspotSlice";
 
 export interface PanoramaConfig {
   /**
@@ -112,18 +114,23 @@ const panoramaSlice = createSlice({
     },
 
     removeAutoPanorama(state, action: PayloadAction<string>) {
-      state.autoPanoramaList = state.autoPanoramaList.filter(p => p.originalNodeId !== action.payload);
+      state.autoPanoramaList = state.autoPanoramaList.filter(
+        (p) => p.originalNodeId !== action.payload
+      );
     },
 
     //Upload thêm panorama khi trong tour.
-    addPanorama(state, action: PayloadAction<string>) {
+    addPanorama(
+      state,
+      action: PayloadAction<{ originalFileName: string; url: string }>
+    ) {
       if (state.panoramaList.length < 5 && state.spaceId !== null) {
         const newPanorama: PanoramaItem = {
           id: nanoid(),
-          url: action.payload,
+          url: action.payload.url,
           spaceId: state.spaceId,
           config: {
-            name: "",
+            name: action.payload.originalFileName,
             description: "",
             positionX: 0,
             positionY: 0,
@@ -182,7 +189,7 @@ const panoramaSlice = createSlice({
         };
       }
     },
-    
+
     updateAutoPanoConfig(
       state,
       action: PayloadAction<{ id: string; duration : number, soundBackground : string }>
@@ -219,14 +226,30 @@ const panoramaSlice = createSlice({
     updateCurrentAngleMaster(state, action: PayloadAction<number>) {
       state.currentAngleMaster = action.payload;
     },
-    // deletePanorame(state, action: PayloadAction<number>) {
-    //   const deleted = state.panoramaList.splice(action.payload, 1);
-    //   if (state.currentSelectedPosition >= state.panoramaList.length) {
-    //     s;
-    //   }
-    // },
+    deletePanoramaById(state, action: PayloadAction<string>) {
+      const panoramaId = action.payload;
+
+      if (state.currentSelectId === panoramaId) {
+        Swal.fire({
+          icon: "warning",
+          title: "⚠️ Node đang được hiển thị!",
+          text: `Vui lòng di chuyển sang node mới trước khi xoá node này!`,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+        return;
+      }
+
+      state.panoramaList = state.panoramaList.filter(
+        (p) => p.id !== panoramaId
+      );
+      deleteHotspotByNodeId(panoramaId);
+    },
     clearPanorama(state) {
-        (state.panoramaList = []),
+      (state.panoramaList = []),
         (state.autoPanoramaList = []),
         (state.currentAngleMaster = 0),
         (state.currentSelectId = null);
@@ -248,5 +271,6 @@ export const {
   renameMasterAndUpdateSlaves,
   updateCurrentAngleMaster,
   clearPanorama,
+  deletePanoramaById,
 } = panoramaSlice.actions;
 export default panoramaSlice.reducer;

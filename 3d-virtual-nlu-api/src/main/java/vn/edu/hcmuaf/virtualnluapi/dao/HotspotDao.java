@@ -43,7 +43,8 @@ public class HotspotDao {
 
     public boolean insertHotspotInformation(List<HotspotInfoCreateRequest> req, String nodeId) {
         String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, status, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity) " + "VALUES(:nodeId, :type, :iconId, :status, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity)";
-        String sqlInsertNavigation = "INSERT INTO hotspot_informations(hotspotId, title, content) " + "VALUES(:hotspotId, :title, :content)";
+
+        String sqlInsertNavigation = "INSERT INTO hotspot_informations(hotspotId, content, backgroundColorContent, borderColorContent, borderSizeContent) " + "VALUES(:hotspotId, :content, :backgroundColorContent, :borderColorContent, :borderSizeContent)";
 
         return ConnectionPool.getConnection().inTransaction(handle -> {
 
@@ -60,7 +61,8 @@ public class HotspotDao {
 
             PreparedBatch navigationBatch = handle.prepareBatch(sqlInsertNavigation);
             for (int i = 0; i < generateIds.size(); i++) {
-                navigationBatch.bind("hotspotId", generateIds.get(i)).bind("title", req.get(i).getTitle()).bind("content", req.get(i).getContent()).add();
+                navigationBatch.bind("hotspotId", generateIds.get(i)).bind("content", req.get(i).getContent()).bind("backgroundColorContent", req.get(i).getBackgroundColorContent())
+                        .bind("borderColorContent", req.get(i).getBorderColorContent()).bind("borderSizeContent", req.get(i).getBorderSizeContent()).add();
             }
             navigationBatch.execute();
             return true;
@@ -131,14 +133,31 @@ public class HotspotDao {
     }
 
     public List<HotspotNavigationResponse> getNavigationByNodeId(int nodeId) {
-        String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" + ", n.targetNodeId " + "FROM hotspots AS h JOIN hotspot_navigations AS n ON h.id = n.hotspotId WHERE h.nodeId = :nodeId and h.status = 1";
+        String sql = """
+        SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ,
+        h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor,
+        h.opacity ,n.targetNodeId , i.type as iconType
+        FROM hotspots AS h 
+        JOIN hotspot_navigations AS n ON h.id = n.hotspotId 
+        JOIN icons i ON h.iconId = i.id
+        WHERE h.nodeId = :nodeId and h.status = 1 
+        
+        """;
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotNavigationResponse.class).list();
         });
     }
 
     public List<HotspotInformationResponse> getInformationByNodeId(int nodeId) {
-        String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" + ", i.title, i.content " + "FROM hotspots AS h JOIN hotspot_informations AS i ON h.id = i.hotspotId WHERE h.nodeId = :nodeId and h.status = 1";
+        String sql =
+                """
+                        SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, 
+                        h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity
+                        , i.content, i.backgroundColorContent, i.borderColorContent, i.borderSizeContent , ic.type as iconType
+                        FROM hotspots AS h JOIN hotspot_informations AS i ON h.id = i.hotspotId
+                        JOIN icons ic ON h.iconId = ic.id
+                         WHERE h.nodeId = :nodeId and h.status = 1
+                        """;
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotInformationResponse.class).list();
         });
@@ -189,7 +208,10 @@ public class HotspotDao {
     public int updateInfoHotspots(List<HotspotInfoUpdateRequest> infoHotspots, int nodeId) {
         String sqlUpdateHotspot = "UPDATE hotspots SET " + "type = :type, iconId = :iconId, status = :status, positionX = :posX, positionY = :posY, positionZ = :posZ, " + "pitchX = :pitchX, yawY = :yawY, rollZ = :rollZ, scale = :scale, " + "color = :color, backgroundColor = :backgroundColor, " + "allowBackgroundColor = :allowBackgroundColor, opacity = :opacity " + "WHERE id = :id";
 
-        String sqlUpdateInfo = "UPDATE hotspot_informations SET title = :title, content = :content WHERE hotspotId = :hotspotId";
+        String sqlUpdateInfo = """
+                UPDATE hotspot_informations SET content = :content , backgroundColorContent = :backgroundColorContent, borderColorContent = :borderColorContent,
+                 borderSizeContent = :borderSizeContent WHERE hotspotId = :hotspotId
+                """;
         List<HotspotInfoCreateRequest> infoCreateRequests = new ArrayList<>();
         return ConnectionPool.getConnection().inTransaction(handle -> {
             PreparedBatch updateBaseBatch = handle.prepareBatch(sqlUpdateHotspot);
@@ -200,9 +222,17 @@ public class HotspotDao {
                     Integer.parseInt(infoReq.getId());
                     updateBaseBatch.bind("id", infoReq.getId()).bind("type", infoReq.getType()).bind("iconId", infoReq.getIconId()).bind("status", infoReq.getStatus()).bind("posX", infoReq.getPositionX()).bind("posY", infoReq.getPositionY()).bind("posZ", infoReq.getPositionZ()).bind("pitchX", infoReq.getPitchX()).bind("yawY", infoReq.getYawY()).bind("rollZ", infoReq.getRollZ()).bind("scale", infoReq.getScale()).bind("color", infoReq.getColor()).bind("backgroundColor", infoReq.getBackgroundColor()).bind("allowBackgroundColor", infoReq.getAllowBackgroundColor()).bind("opacity", infoReq.getOpacity()).add();
 
-                    updateInfoBatch.bind("hotspotId", infoReq.getId()).bind("title", infoReq.getTitle()).bind("content", infoReq.getContent()).add();
+                    updateInfoBatch.bind("hotspotId", infoReq.getId())
+                            .bind("content", infoReq.getContent()).add()
+                            .bind("backgroundColorContent", infoReq.getBackgroundColorContent()).add()
+                            .bind("borderColorContent", infoReq.getBorderColorContent()).add()
+                            .bind("borderSizeContent", infoReq.getBorderSizeContent()).add();
                 } catch (NumberFormatException e) {
-                    infoCreateRequests.add(HotspotInfoCreateRequest.builder().nodeId(infoReq.getNodeId()).type(infoReq.getType()).iconId(infoReq.getIconId()).positionX(infoReq.getPositionX()).positionY(infoReq.getPositionY()).positionZ(infoReq.getPositionZ()).pitchX(infoReq.getPitchX()).yawY(infoReq.getYawY()).rollZ(infoReq.getRollZ()).scale(infoReq.getScale()).color(infoReq.getColor()).backgroundColor(infoReq.getBackgroundColor()).allowBackgroundColor(infoReq.getAllowBackgroundColor()).opacity(infoReq.getOpacity()).title(infoReq.getTitle()).content(infoReq.getContent()).build());
+                    infoCreateRequests.add(HotspotInfoCreateRequest.builder().nodeId(infoReq.getNodeId()).type(infoReq.getType()).iconId(infoReq.getIconId()).positionX(infoReq.getPositionX()).positionY(infoReq.getPositionY()).positionZ(infoReq.getPositionZ()).pitchX(infoReq.getPitchX()).yawY(infoReq.getYawY()).rollZ(infoReq.getRollZ()).scale(infoReq.getScale()).color(infoReq.getColor()).backgroundColor(infoReq.getBackgroundColor()).allowBackgroundColor(infoReq.getAllowBackgroundColor()).opacity(infoReq.getOpacity()).content(infoReq.getContent())
+                                    .backgroundColorContent(infoReq.getBackgroundColorContent())
+                                    .borderColorContent(infoReq.getBorderColorContent())
+                                    .borderSizeContent(infoReq.getBorderSizeContent())
+                                    .build());
                 }
             }
 

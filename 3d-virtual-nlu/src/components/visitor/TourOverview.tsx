@@ -15,7 +15,17 @@ import { RADIUS_SPHERE } from "../../utils/Constants";
 import { OrbitControls } from "@react-three/drei";
 import CurvedScreen from "./CurvedScreen";
 import ShadowScreen from "./ShadowScreen";
+import { useImageCache } from "../../contexts/ImageCacheContext";
+import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL";
 const TourOverview = () => {
+  useEffect(() => {
+    return () => {
+      console.log("HomeCanvas unmounted ✅");
+
+      // Nếu bạn có texture, geometry custom → dispose ở đây
+    };
+  }, []);
+
   const navigate = useNavigate();
   const container = useRef<HTMLDivElement>(null);
 
@@ -38,6 +48,7 @@ const TourOverview = () => {
   const handleVirtualTour = () => {
     navigate("/virtualTour");
   };
+  const imageRef = useImageCache();
 
   useEffect(() => {
     function moveDivWithMouse() {
@@ -122,6 +133,41 @@ const TourOverview = () => {
     };
   }, []);
 
+  //Nạp default node vào ImageCache.
+  useEffect(() => {
+    if (!defaultNode || !defaultNode.url) return; //Thiếu defaultnode.
+
+    const { id, url } = defaultNode;
+
+    const existing = imageRef.current[id];
+    if (existing && existing.quality === "8K") return;
+
+    const loadHighRes = async () => {
+      try {
+        const highResURL = buildImageUrlWithQuality(url, "8K");
+        const response = await fetch(highResURL, { mode: "cors" });
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = objectUrl;
+
+        img.onload = () => {
+          imageRef.current[id] = {
+            img,
+            objectUrl,
+            quality: "8K",
+            lastUsed: Date.now(),
+          };
+        };
+      } catch (err) {
+        console.warn("Không load được ảnh mặc định.", id, err);
+      }
+    };
+    loadHighRes();
+  }, [defaultNode, imageRef]);
+
   return (
     <div
       id="tourOverview"
@@ -139,7 +185,7 @@ const TourOverview = () => {
           </h2>
           <i className={styles.title}>
             Chào mừng bạn đến với chuyến tham quan khuôn viên Trường Đại học
-            Nông Lâm...
+            Nông Lâm ...
           </i>
         </div>
         <div className={styles.contain_canvas}>
@@ -147,8 +193,13 @@ const TourOverview = () => {
             Khám phá ngay!
           </button>
 
-          {/* <canvas id="intro-tour" /> */}
           <Canvas
+            onCreated={({ gl }) => {
+              gl.domElement.addEventListener("webglcontextlost", (e) => {
+                e.preventDefault();
+                console.warn("WebGL context lost!");
+              });
+            }}
             camera={{
               fov: 75,
               aspect: windowSize.width / windowSize.height,
@@ -159,17 +210,13 @@ const TourOverview = () => {
             className={styles.tourCanvas}
           >
             <UpdateCameraOnResize />
-            {/* <TourScene
-              radius={RADIUS_SPHERE}
-              sphereRef={sphereRef}
-              textureCurrent={defaultNode ? defaultNode.url : "/khoa.jpg"}
-              lightIntensity={defaultNode ? defaultNode.lightIntensity : "1"}
-            /> */}
             <CurvedScreen
               radius={RADIUS_SPHERE}
               sphereRef={sphereRef}
               textureCurrent={
-                defaultNode
+                defaultNode && imageRef.current[defaultNode.id]
+                  ? imageRef.current[defaultNode.id].objectUrl
+                  : defaultNode
                   ? defaultNode.url
                   : `${import.meta.env.BASE_URL}khoa.jpg`
               }
@@ -179,7 +226,9 @@ const TourOverview = () => {
               radius={RADIUS_SPHERE}
               sphereRef={sphereRef}
               textureCurrent={
-                defaultNode
+                defaultNode && imageRef.current[defaultNode.id]
+                  ? imageRef.current[defaultNode.id].objectUrl
+                  : defaultNode
                   ? defaultNode.url
                   : `${import.meta.env.BASE_URL}khoa.jpg`
               }
@@ -189,7 +238,6 @@ const TourOverview = () => {
             <OrbitControls
               enableZoom={false}
               enablePan={false}
-              // autoRotate
               enableRotate={false}
             />
           </Canvas>

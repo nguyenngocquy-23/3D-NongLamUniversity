@@ -3,8 +3,12 @@ import styles from "../../../styles/trackingNode.module.css";
 import "@xyflow/react/dist/style.css";
 import NodeItem from "./TrackingNodeItem";
 import { HotspotNavigation } from "../../../redux/slices/HotspotSlice";
-import React from "react";
+import React, { MutableRefObject } from "react";
 import { PanoramaItem } from "../../../redux/slices/PanoramaSlice";
+import {
+  ImageCacheMap,
+  useImageCache,
+} from "../../../contexts/ImageCacheContext";
 
 const nodeTypes = {
   customCircle: NodeItem,
@@ -13,9 +17,14 @@ const nodeTypes = {
 type FlowProps = {
   panoramaList: PanoramaItem[];
   hotspotNavigations: HotspotNavigation[];
+  imageRef: MutableRefObject<ImageCacheMap>;
 };
 
-const Flow: React.FC<FlowProps> = ({ panoramaList, hotspotNavigations }) => {
+const Flow: React.FC<FlowProps> = ({
+  panoramaList,
+  hotspotNavigations,
+  imageRef,
+}) => {
   const masterPanorama = React.useMemo(() => {
     return panoramaList.find((h) => h.config.status === 2);
   }, [panoramaList]);
@@ -31,13 +40,21 @@ const Flow: React.FC<FlowProps> = ({ panoramaList, hotspotNavigations }) => {
         id: masterPanorama.id,
         type: "customCircle",
         position: { x: 0, y: 54 },
-        data: { name: masterPanorama.config.name, img: masterPanorama.url },
+        data: {
+          name: masterPanorama.config.name,
+          img:
+            imageRef.current[masterPanorama.url]?.objectUrl ||
+            masterPanorama.url,
+        },
       },
       ...panoramaListExceptMasterNode.map((item, index) => ({
         id: item.id,
         type: "customCircle",
         position: { x: 200, y: index * 36 },
-        data: { name: item.config.name, img: item.url },
+        data: {
+          name: item.config.name,
+          img: imageRef.current[item.url]?.objectUrl || item.url,
+        },
       })),
     ];
   }, [masterPanorama, panoramaListExceptMasterNode]);
@@ -47,7 +64,6 @@ const Flow: React.FC<FlowProps> = ({ panoramaList, hotspotNavigations }) => {
       id: item.id,
       source: item.nodeId,
       target: item.targetNodeId,
-      animated: true,
       markerEnd: { type: MarkerType.Arrow, color: "#fff000", strokeWidth: 3 },
       style: {
         stroke: "#000",

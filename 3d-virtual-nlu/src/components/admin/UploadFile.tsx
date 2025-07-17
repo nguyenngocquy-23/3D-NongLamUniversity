@@ -11,8 +11,10 @@ import { RiLoader2Fill } from "react-icons/ri";
 import { nextStep } from "../../redux/slices/StepSlice";
 import { RootState } from "../../redux/Store";
 import { API_URLS } from "../../env";
-import { ImageCacheMap } from "../../pages/visitor/VirtualTour";
 import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL";
+import { ImageCacheMap, useImageCache } from "../../contexts/ImageCacheContext";
+import { isValidAspectRatio } from "../../utils/ValidPanorama";
+import { MAX_QUANTITY_PANORAMA } from "../../utils/Constants";
 
 /**
  * UploadFile sẽ nhận vào các kiểu props:
@@ -37,7 +39,7 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-type FileUploadStatus = {
+export type FileUploadStatus = {
   file: File;
   status: "idle" | "uploading" | "success" | "error" | "waiting";
   error?: string;
@@ -52,7 +54,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
 
-  const imageRef = useRef<ImageCacheMap>({});
+  const imageRef = useImageCache(); // Lấy image từ ram.
 
   const [progress, setProgress] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -80,27 +82,6 @@ const UploadFile: React.FC<UploadFileProps> = ({
       handleUpload();
     }
   }, [fileStatuses]);
-
-  /**
-   * Kiểm tra ratio của ảnh (Đúng tỷ lệ 2:1)
-   */
-  const isValidAspectRatio = (file: File): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-
-        img.onload = () => {
-          const ratio = img.width / img.height;
-          resolve(Math.abs(ratio - 2) < 0.01);
-        };
-      };
-
-      reader.readAsDataURL(file);
-    });
-  };
 
   /**
    * Danh sách ảnh (nhiều ảnh) tối đa là 5.
@@ -158,11 +139,11 @@ const UploadFile: React.FC<UploadFileProps> = ({
 
     const combinedFiles = [...fileStatuses, ...validFiles];
 
-    if (combinedFiles.length > 5) {
+    if (combinedFiles.length > MAX_QUANTITY_PANORAMA) {
       Swal.fire({
         icon: "warning",
         title: "Vượt số lượng ảnh cho phép.",
-        text: `Vui lòng chọn tối đa 5 ảnh 360 độ`,
+        text: `Vui lòng chọn tối đa ${MAX_QUANTITY_PANORAMA} ảnh 360 độ`,
         confirmButtonText: "Đồng ý",
       });
       return;

@@ -31,3 +31,10 @@ export const buildImageUrlWithQuality = (
     `/upload/w_${dimension.w}/h_${dimension.h}/c_fill/q_auto/f_auto`
   );
 };
+
+/**
+ * Transform để sử dụng cho thumbnails.
+ */
+export const transformUrlToThumbnail = (baseUrl: string): string => {
+  return baseUrl.replace("/upload", `/upload/w_320/q_20/f_auto`);
+};

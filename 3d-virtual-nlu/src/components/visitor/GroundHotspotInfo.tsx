@@ -9,6 +9,15 @@ import { RootState } from "../../redux/Store";
 import { DoubleSide } from "three";
 import { Html, Text, useGLTF } from "@react-three/drei";
 import { RADIUS_SPHERE } from "../../utils/Constants";
+import FallbackHotspot from "../FallbackHotspot";
+import { useModelCache } from "../../contexts/ImageCacheContext";
+import Hotspot3D from "./Hotspot3D";
+import {
+  initialRgba,
+  rgbaToString,
+  stringToRgba,
+} from "../../utils/TransformRgbaColor";
+import { MdTransitEnterexit } from "react-icons/md";
 type GroundHotspotProps = {
   setCurrentHotspotId?: (val: string | null) => void;
   hotspotInfo: HotspotInformation;
@@ -20,6 +29,11 @@ const GroundHotspotInfo = ({
   hotspotInfo,
   blockUpdate,
 }: GroundHotspotProps) => {
+  /**
+   * Sử dụng để Cache trên Virtual Tour.
+   */
+  const modelCache = useModelCache();
+
   const hotspotRef = useRef<THREE.Mesh>(null);
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
@@ -40,6 +54,7 @@ const GroundHotspotInfo = ({
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
 
   const isIcon3D = iconObj.type === 2;
+
   const maxSizeRef = useRef(10 * hotspotInfo.scale);
 
   useEffect(() => {
@@ -128,13 +143,28 @@ const GroundHotspotInfo = ({
     (hotspotRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
   });
 
-  const gltf = isIcon3D ? useGLTF(iconObj.url) : null;
+  /**
+   * Nếu icon3D = glb => Nó là mô hình GlB
+   * => Tải chưa xong thì dùng fallbackGlTf.
+   */
+  const gltf = isIcon3D ? useGLTF(iconObj.url, true) : null;
+  const fallbackGltf = useGLTF(`${import.meta.env.BASE_URL}gheda.glb`, true);
 
   const clonedScene = useMemo(() => {
-    if (!isIcon3D || !gltf || Array.isArray(gltf) || !("scene" in gltf))
-      return null;
+    //Nếu chưa có gltf nó sẽ return null.
+    if (!isIcon3D) return null;
 
-    const scene = gltf.scene.clone(true);
+    const cache = modelCache.current[iconObj.url];
+
+    const originalScene =
+      cache?.glbScene ??
+      (gltf && "scene" in gltf ? gltf.scene : null) ??
+      fallbackGltf?.scene;
+
+    console.log("[Giá trị display lúc đầu]", originalScene);
+
+    const scene = originalScene.clone(true);
+
     scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
@@ -147,20 +177,18 @@ const GroundHotspotInfo = ({
             mesh.material.emissiveIntensity = 10; // Độ sáng tự phát
             // mesh.material.color.set("#347433"); // Không có màu gốc (chỉ sáng bằng emissive)
 
-            // Tắt phản chiếu ánh sáng từ môi trường (nếu có)
             mesh.material.envMap = null;
             mesh.material.envMapIntensity = 0;
-
-            // Thêm nữa nếu muốn không chịu ảnh hưởng của ánh sáng khác
-            mesh.material.metalness = 0; // Tắt metalness nếu không muốn phản chiếu ánh sáng
-            mesh.material.roughness = 1; // Đảm bảo vật liệu không có độ nhám, tránh hiệu ứng sáng
+            mesh.material.metalness = 0;
+            mesh.material.roughness = 1;
           }
         }
       }
     });
 
     return scene;
-  }, [isIcon3D, gltf]);
+  }, [isIcon3D, gltf, fallbackGltf, modelCache]);
+
   useFrame(() => {
     if (clonedScene) {
       clonedScene.rotation.y += 0.01;
@@ -191,10 +219,24 @@ const GroundHotspotInfo = ({
           ]}
         >
           <Html distanceFactor={40} transform>
-            <div className={styles.container}>
-              <div className={styles.center_pane}>
-                {hotspotInfo.title.trim() == "" &&
-                hotspotInfo.content.trim() == "" ? (
+            <div
+              className={styles.container}
+              style={{
+                border:
+                  Number(hotspotInfo.borderSizeContent) > 0.2
+                    ? `${hotspotInfo.borderSizeContent}px solid ${hotspotInfo.borderColorContent}`
+                    : undefined,
+              }}
+            >
+              <div
+                className={styles.center_pane}
+                style={{
+                  backgroundColor:
+                    rgbaToString(hotspotInfo.backgroundColorContent) ??
+                    rgbaToString(initialRgba),
+                }}
+              >
+                {hotspotInfo.content.trim() == "" ? (
                   <div className={styles.description}></div>
                 ) : (
                   <>
@@ -205,41 +247,20 @@ const GroundHotspotInfo = ({
                   </>
                 )}
               </div>
+              <span
+                className={styles.exit_btn}
+                onClick={() => {
+                  setClicked((prev) => !prev);
+                  console.log("Clicked exit button", isClicked);
+                }}
+              >
+                <MdTransitEnterexit />
+              </span>
             </div>
           </Html>
         </group>
       ) : (
-        <group
-          ref={htmlGroupRef}
-          position={[
-            hotspotInfo.positionX,
-            hotspotInfo.positionY + 15,
-            hotspotInfo.positionZ,
-          ]}
-        >
-          <Text
-            fontSize={2.5}
-            color="#ffd700"
-            anchorX="center"
-            anchorY="bottom"
-            maxWidth={40}
-            lineHeight={1.2}
-            position={[0, 2, 0]} // Đẩy title lên một chút
-          >
-            {hotspotInfo.title}
-          </Text>
-          <Text
-            fontSize={1.5}
-            color="white"
-            anchorX="center"
-            anchorY="top"
-            maxWidth={40}
-            lineHeight={1.4}
-            position={[0, -0.5, 0]} // Đặt description bên dưới
-          >
-            {hotspotInfo.content}
-          </Text>
-        </group>
+        ""
       )}
 
       {isIcon3D && clonedScene ? (
@@ -265,6 +286,7 @@ const GroundHotspotInfo = ({
           }}
         >
           <primitive object={clonedScene} />
+
           <ambientLight color={"#fff"} intensity={0.3} />
         </group>
       ) : (

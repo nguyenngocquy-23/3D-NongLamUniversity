@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FaHome } from "react-icons/fa";
 import {
   FaAngleDown,
   FaAngleLeft,
@@ -66,11 +65,6 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
     );
   };
 
-  // function computeZ(x: number, y: number): number {
-  //   // Giả sử công thức tính z là z = x * 0.5 + y * 0.2
-  //   return x * 0.5 + y * 0.2;
-  // }
-
   const handleChange = (index: number, axis: "x" | "y", delta: number) => {
     const [x, y, z] = cornerPointList[index];
     let newX = x,
@@ -100,7 +94,7 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
     }
     return false;
   };
-  
+
   const originalCornerPoints = useRef<number[][]>([]);
 
   useEffect(() => {
