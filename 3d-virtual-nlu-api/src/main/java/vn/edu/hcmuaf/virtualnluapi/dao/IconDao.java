@@ -3,6 +3,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 import jakarta.enterprise.context.ApplicationScoped;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
 
 import java.sql.Timestamp;
@@ -13,9 +14,12 @@ import java.util.List;
 public class IconDao {
 
 
-
     public List<IconResponse> getAllIcons() {
-        String sqlQuery = "SELECT id, name,url, isActive, createdAt, isActive as active, type, thumbnail  FROM icons";
+        String sqlQuery = """
+                SELECT id, name,url, isActive, createdAt, isActive as active, type, thumbnail
+                FROM icons
+                ORDER BY createdAt DESC
+                """;
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sqlQuery)
                     .mapToBean(IconResponse.class)
@@ -35,6 +39,21 @@ public class IconDao {
                     .bind("thumbnail", req.getThumbnail())
                     .execute();
             return rows == 1;
+        });
+    }
+
+    public List<IconResponse> search(String searchKey) {
+        String sqlQuery = """
+                SELECT id, name, url, isActive, createdAt, isActive as active, type, thumbnail
+                FROM icons
+                WHERE name LIKE :searchKey
+                ORDER BY createdAt DESC
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sqlQuery)
+                    .bind("searchKey", "%" + searchKey + "%")
+                    .mapToBean(IconResponse.class)
+                    .list();
         });
     }
 }

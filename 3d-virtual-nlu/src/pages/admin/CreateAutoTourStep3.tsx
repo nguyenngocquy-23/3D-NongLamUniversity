@@ -1,37 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { useNavigate } from "react-router-dom";
-import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
 import axios from "axios";
 import { Canvas } from "@react-three/fiber";
-import VideoMeshComponent from "../../components/admin/VideoMesh";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
-import GroundHotspot from "../../components/visitor/GroundHotspot";
-import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
-import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import TourScene from "../../components/visitor/TourScene";
 import styles from "../../styles/createTourStep2.module.css";
-import {
-  HotspotNavigation,
-  HotspotInformation,
-  HotspotModel,
-  HotspotMedia,
-} from "../../redux/slices/HotspotSlice";
 import * as THREE from "three";
 import { FaAngleLeft } from "react-icons/fa6";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import Swal from "sweetalert2";
 import { selectPanorama } from "../../redux/slices/PanoramaSlice";
 import { nextStep, prevStep } from "../../redux/slices/StepSlice";
-import { fetchMasterNodes } from "../../redux/slices/DataSlice";
 import gsap from "gsap";
 import { RADIUS_SPHERE } from "../../utils/Constants";
 import { API_URLS } from "../../env";
-import { Environment, OrbitControls } from "@react-three/drei";
-import MiniMap from "../../components/Minimap";
+import { Environment } from "@react-three/drei";
 import CamControls from "../../components/visitor/CamControls";
 import { useAutoTour } from "../../hooks/useAutoTour";
+import {
+  ApiResponse,
+  CloudinaryUploadResp,
+} from "../../components/admin/UploadFile";
 
 const CreateAutoTourStep3: React.FC = () => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
@@ -56,6 +46,8 @@ const CreateAutoTourStep3: React.FC = () => {
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
     null
   ); // Giữ lại đối tượng
+
+  const [soundBackground, setSoundBackground] = useState("");
 
   const [cursor, setCursor] = useState("grab");
   const handleMouseDown = () => {
@@ -89,12 +81,6 @@ const CreateAutoTourStep3: React.FC = () => {
     dispatch(selectPanorama(id));
   };
 
-  /**
-   *
-   * @param targetNodeId : Id node đích cần di chuyển.
-   * @param hotspotTargetPosition : Thay thế vị trí camera hướng đến tại vị trí hotspot mục tiêu.
-   */
-
   const handleHotspotNavigate = (
     targetNodeId: string,
     hotspotTargetPosition: [number, number, number]
@@ -102,67 +88,10 @@ const CreateAutoTourStep3: React.FC = () => {
     if (!cameraRef.current || !controlsRef.current) return;
 
     const camera = cameraRef.current;
-    const control = controlsRef.current;
-    const originalFov = camera.fov;
-    const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
 
     const [x, y, z] = hotspotTargetPosition;
 
-    // lookAtHotspot([x, y, z]);
-    // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);
-
-    gsap.to(camera, {
-      fov: zoomTarget,
-      duration: 1.0,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        camera.updateProjectionMatrix();
-      },
-      onComplete: () => {
-        gsap.to(camera, {
-          fov: originalFov,
-          duration: 0.2,
-          delay: 0.1,
-          ease: "power2.inOut",
-          onUpdate: () => {
-            camera.updateProjectionMatrix();
-          },
-          onComplete: () => {
-            camera.updateProjectionMatrix();
-            control.update(); // đảm bảo OrbitControls cập nhật
-          },
-        });
-      },
-    });
-  };
-
-  const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
-    if (!cameraRef.current || !controlsRef.current) return;
-
-    const controls = controlsRef.current;
-
-    /**
-     * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
-     * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
-     */
-    const hotspotVec = new THREE.Vector3(
-      hotspotTargetPosition[0],
-      0,
-      hotspotTargetPosition[2]
-    );
-    const center = new THREE.Vector3(0, 0, 0);
-
-    const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
-
-    const spherical = new THREE.Spherical();
-    spherical.setFromVector3(dir);
-
-    // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
-    controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
-    controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
-
-    controls.update();
   };
 
   const { startAutoTour, stopAutoTour } = useAutoTour(
@@ -272,6 +201,17 @@ const CreateAutoTourStep3: React.FC = () => {
     readText();
   }, [currentPanorama]);
 
+  const uploadToCloud = async (soundUrl: string) => {
+    const formData = new FormData();
+    formData.append("file", soundUrl);
+    const response = await axios.post<ApiResponse<CloudinaryUploadResp>>(
+      API_URLS.UPLOAD_CLOUD,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return response.data.data.url || "";
+  };
+
   const handlePublishAutoTour = async () => {
     const { autoPanoramaList } = panoramas;
     const tourName = `${autoPanoramaList[0]?.name || ""} - ${
@@ -287,17 +227,20 @@ const CreateAutoTourStep3: React.FC = () => {
     // Chuyển thành chuỗi JSON
     const indexNode = JSON.stringify(indexNodeArray);
 
-    console.log(tourName); // Panorama A - Panorama C
-    console.log(indexNode);
     if (autoPanoramaList.length === 0) {
       alert("spaceId bị null hay panorama không chứa giá trị..");
       return;
     }
+
+    const soundUrl = await uploadToCloud(autoPanoramaList[0].soundBackground);
+    alert("Sound URL:" + soundUrl);
+
     try {
       const response = await axios.post(API_URLS.ADMIN_CREATE_AUTO_TOUR, {
         userId: userId,
         name: tourName,
         indexNode: indexNode,
+        soundBackground: soundUrl,
       });
       if (response.data?.statusCode === 1000) {
         Swal.fire({
@@ -320,8 +263,6 @@ const CreateAutoTourStep3: React.FC = () => {
       console.log("Lỗi khi xuất bản: ", error);
     }
   };
-
-  const [cameraAngle, setCameraAngle] = useState(0);
 
   return (
     <>
@@ -356,6 +297,12 @@ const CreateAutoTourStep3: React.FC = () => {
             autoRotateSpeed={speedRotate}
           />
         </Canvas>
+        <audio
+          src={autoPanoramaList[0].soundBackground || ""}
+          autoPlay
+          loop
+          controls // <-- có thể bỏ nếu bạn không muốn người dùng điều khiển
+        />
         {/* Header chứa back */}
         <div className={styles.header_tour} style={{ height: "50px" }}>
           <div className={styles.header_tour_left}>
@@ -368,13 +315,13 @@ const CreateAutoTourStep3: React.FC = () => {
             <span>{CREATE_TOUR_STEPS[currentStep - 1].name}</span>
           </div>
           <span className={styles.number_step}>{currentStep}</span>
+          <button
+            className={styles.publish_tour_button}
+            onClick={handlePublishAutoTour}
+          >
+            Xuất bản
+          </button>
         </div>
-        <button
-          className={styles.publish_tour_button}
-          onClick={handlePublishAutoTour}
-        >
-          Xuất bản
-        </button>
       </div>
     </>
   );

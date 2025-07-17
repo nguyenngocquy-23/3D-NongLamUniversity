@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import styles from "../styles/chat.module.css";
 // import { useUser } from "../Context.tsx";
-import { IoIosClose, IoIosCloseCircle, IoMdSend } from "react-icons/io";
+import { IoIosChatboxes, IoIosClose, IoIosCloseCircle, IoMdHelp, IoMdHelpCircle, IoMdSend } from "react-icons/io";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
@@ -210,7 +210,7 @@ const Chat = ({
             }`}
             onClick={() => handleChooseOption(1)}
           >
-            <FaMessage />
+            <IoIosChatboxes />
             <span>All</span>
           </div>
           <div
@@ -219,7 +219,7 @@ const Chat = ({
             }`}
             onClick={() => handleChooseOption(2)}
           >
-            <FaMessage />
+            <IoMdHelpCircle />
             <span>Help</span>
           </div>
         </div>

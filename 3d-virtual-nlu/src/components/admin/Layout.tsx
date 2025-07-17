@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
 import {
+  fetchContacts,
   fetchDashboard,
   fetchFields,
   fetchHotspotTypes,
@@ -18,6 +19,7 @@ import {
 } from "../../redux/slices/DataSlice";
 import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 import Sidebar from "./Sidebar";
+import { perPage } from "../../utils/Constants";
 
 const Layout = () => {
   const currentUserJson = sessionStorage.getItem("user");
@@ -29,13 +31,11 @@ const Layout = () => {
   const [title, setTitle] = useState("Tổng quan");
 
   useEffect(() => {
-    console.log("currentUser:", currentUser);
     if (
       currentUser == undefined ||
       currentUser == null ||
-      (currentUser && currentUser.roleId !== 2)
+      (currentUser && currentUser.roleId !== 2 && currentUser.roleId !== 3)
     ) {
-      console.log("navigate");
       navigate("/unauthorized");
       return;
     }
@@ -43,11 +43,12 @@ const Layout = () => {
 
   useEffect(() => {
     dispatch(fetchDashboard());
-    dispatch(fetchFields());
-    dispatch(fetchSpaces());
+    dispatch(fetchFields({ limit: perPage, page: 0}));
+    dispatch(fetchSpaces({ limit: perPage, page: 0 }));
     dispatch(fetchHotspotTypes());
     dispatch(fetchNodes());
     dispatch(fetchIcons());
+    dispatch(fetchContacts());
   }, [dispatch]);
 
   useEffect(() => {
@@ -89,7 +90,7 @@ const Layout = () => {
       )}
       {/* Main Content */}
       <main className={styles.main_contain}>
-        {!isOptionFullScreen && isOpenSideBar && (
+        {!isOptionFullScreen && (
           <header className={styles.header}>
             <h2>{title}</h2>
           </header>

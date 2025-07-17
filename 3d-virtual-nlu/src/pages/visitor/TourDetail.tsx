@@ -516,6 +516,7 @@ const TourDetail = () => {
             description: "",
             autoRotate: 0,
             colorCode: "",
+            thumbnailUrl: "",
           })
         );
         break;

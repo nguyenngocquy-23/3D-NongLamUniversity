@@ -6,6 +6,7 @@ import UploadFile from "../UploadFile";
 import styles from "../../../styles/tasklistCT/task3.module.css";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
+import ModelPreviewWithSnapshot from "./PreviewModelWithSnapshot";
 
 interface TypeModelProps {
   isOpenTypeModel?: boolean;
@@ -27,6 +28,7 @@ const TypeModel = ({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const dispatch = useDispatch();
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
 
   useEffect(() => {
     setModelUrl(hotspotModel.modelUrl);
@@ -39,6 +41,7 @@ const TypeModel = ({
       updateHotspotModel({
         hotspotId: hotspotModel.id,
         modelUrl,
+        thumbnailUrl,
         name,
         description,
       })
@@ -48,6 +51,9 @@ const TypeModel = ({
   const handleUploadedFile = (url: string) => {
     setModelUrl(url);
   };
+  const handleThumbnailSaved = (url: string) => {
+    setThumbnailUrl(url);
+  };
 
   return (
     <div
@@ -56,14 +62,6 @@ const TypeModel = ({
       }`}
     >
       <div style={{ height: "75%", overflowY: "auto" }}>
-        <p>
-          <span style={{ color: "pink" }}> {hotspotModel?.positionX} </span>
-          <span style={{ color: "yellow" }}> {hotspotModel?.positionY} </span>
-          <span style={{ color: "lightblue" }}>
-            {" "}
-            {hotspotModel?.positionZ}{" "}
-          </span>
-        </p>
         <div
           style={{
             position: "relative",
@@ -79,9 +77,16 @@ const TypeModel = ({
             onUploaded={handleUploadedFile}
           />
         </div>
-        <div style={{ display: "flex" }}>
+        {modelUrl && (
+          <ModelPreviewWithSnapshot
+            modelUrl={modelUrl}
+            onThumbnailSaved={handleThumbnailSaved}
+          />
+        )}
+        <div className={styles.row_config} style={{ display: "flex" }}>
           <label className={styles.label}>Tên mô hình:</label>
           <input
+            className={styles.model_name_input}
             type="text"
             name=""
             id=""
@@ -91,9 +96,10 @@ const TypeModel = ({
             }}
           />
         </div>
-        <div style={{ display: "flex" }}>
+        <div className={styles.row_config} style={{ display: "flex" }}>
           <label className={styles.label}>Mô tả:</label>
           <textarea
+            className={styles.model_description_input}
             name=""
             id=""
             value={description}

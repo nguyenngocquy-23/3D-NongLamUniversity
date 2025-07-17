@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import vn.edu.hcmuaf.virtualnluapi.config.JwtProperties;
+import vn.edu.hcmuaf.virtualnluapi.config.SystemConstant;
 import vn.edu.hcmuaf.virtualnluapi.dao.EmailVerificationDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.RoleDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
@@ -120,6 +121,25 @@ public class AuthenticationService {
                 .status((byte) 1)
                 .email(userRegisterDTO.getEmail())
                 .roleId(roleDao.getRoleByName("USER").getId())
+                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
+                .build();
+        //signup user
+        if (!userDao.insert(user)) {
+            return null;
+        }
+        return userDao.findByUsername(user.getUsername());
+    }
+
+    public User createAdminAccount(UserRegisterRequest userRegisterDTO) {
+        // encrypt Password
+        String encryptPassword = EncryptUtil.hashPassword(userRegisterDTO.getPassword());
+        User user = User.builder()
+                .username(userRegisterDTO.getUsername())
+                .password(encryptPassword)
+                .avatar(userRegisterDTO.getAvatar())
+                .status((byte) 1)
+                .email(userRegisterDTO.getEmail())
+                .roleId(SystemConstant.ADMIN_ROLE_ID)
                 .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
         //signup user

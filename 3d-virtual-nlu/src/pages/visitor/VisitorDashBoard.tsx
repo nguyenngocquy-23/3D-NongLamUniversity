@@ -1,6 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styles from "../../styles/visitor/dashboard.module.css";
-import { FaChartColumn, FaEye, FaEyeSlash, FaHourglassHalf, FaRegCommentDots } from "react-icons/fa6";
+import {
+  FaChartColumn,
+  FaEye,
+  FaEyeSlash,
+  FaHourglassHalf,
+  FaRegCommentDots,
+} from "react-icons/fa6";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
@@ -11,6 +17,7 @@ import { API_URLS } from "../../env";
 import {
   fetchCommentOfNode,
   fetchNodeOfUser,
+  fetchPrivateNodeOfUser,
 } from "../../redux/slices/DataSlice";
 import { FaMapMarkedAlt, FaShareAlt } from "react-icons/fa";
 
@@ -41,12 +48,17 @@ const VisitorDashBoard = () => {
 
   useEffect(() => {
     dispatch(fetchNodeOfUser(user.id));
+    dispatch(fetchPrivateNodeOfUser(user.id));
   }, [dispatch]);
 
   const nodes = useSelector((state: RootState) => state.data.nodeOfUser);
+  const privateNodes = useSelector(
+    (state: RootState) => state.data.privateNodeOfUser
+  );
 
   const [totalComments, setTotalComments] = useState<number | null>(null);
   const [totalViews, setTotalViews] = useState<number | null>(null);
+  const [totalDownloads, setTotalDownloads] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchTotalComments = async () => {
@@ -71,8 +83,20 @@ const VisitorDashBoard = () => {
       }
     };
 
+    const fetchTotalDownloads = async () => {
+      try {
+        const response = await axios.post(API_URLS.NUM_DOWNLOAD_MODEL_OF_USER, {
+          userId: user.id,
+        });
+        setTotalDownloads(response.data.data); // hoặc response.data nếu trả về số trực tiếp
+      } catch (error) {
+        console.error("Lỗi khi lấy tổng số view:", error);
+      }
+    };
+
     fetchTotalComments();
     fetchTotalViews();
+    fetchTotalDownloads();
   }, [user.id]);
 
   const handleFileChange = async (e: any) => {
@@ -354,7 +378,7 @@ const VisitorDashBoard = () => {
       <div className={styles.dashboard}>
         <div className={styles.category}>
           <FaMapMarkedAlt />
-          <span className={styles.title}>Số tour</span>
+          <span className={styles.title}>Số tour hoạt động</span>
           <span>{nodes.length}</span>
         </div>
         <div className={styles.category}>
@@ -370,12 +394,14 @@ const VisitorDashBoard = () => {
         <div className={styles.category}>
           <FaShareAlt />
           <span className={styles.title}>Số lượt chia sẻ</span>
-          <span>20</span>
+          <span>
+            {totalDownloads !== null ? totalDownloads : "Đang tải..."}
+          </span>
         </div>
         <div className={styles.category}>
           <FaHourglassHalf />
           <span className={styles.title}>Đang đợi phê duyệt</span>
-          <span>1</span>
+          <span>{privateNodes.length}</span>
         </div>
       </div>
     </div>

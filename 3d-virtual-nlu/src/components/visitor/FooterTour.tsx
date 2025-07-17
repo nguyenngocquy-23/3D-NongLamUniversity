@@ -52,6 +52,9 @@ const FooterTour = ({
         {user ? accessing : <Link to={"/login"}>Đăng nhập để xem</Link>}
       </i>
       <div className="contain_extension" style={{ display: "flex" }}>
+        {setOpenNodeList && 
+          <p className={styles.sound_guide}>Dùng mũi tên ↑↓ để điều chỉnh nhạc nền</p>
+        }
         {setOpenNodeList && (
           <FaLayerGroup
             className={styles.info_btn}

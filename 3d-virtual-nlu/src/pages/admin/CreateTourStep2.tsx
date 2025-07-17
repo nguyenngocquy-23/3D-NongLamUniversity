@@ -203,10 +203,10 @@ const CreateTourStep2 = () => {
     const maxZ = point.z + limit;
 
     const isNear = hotspotPosition
-      .filter((h) => h.nodeId === currentSelectId)
-      .some((h) =>
+      .filter((h:any) => h.nodeId === currentSelectId)
+      .some((h:any) =>
         h.hotspotPositions.some(
-          (hotspot) =>
+          (hotspot:any) =>
             hotspot.position[0] > minX &&
             hotspot.position[0] < maxX &&
             hotspot.position[1] > minY &&
@@ -320,6 +320,7 @@ const CreateTourStep2 = () => {
             description: "",
             autoRotate: 0,
             colorCode: "",
+            thumbnailUrl: "",
           })
         );
         break;

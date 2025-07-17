@@ -29,15 +29,18 @@
 }
 
 .tour_container {
-    width: 100%;
-    margin: 0.5rem auto;
+    flex: 1 1;
+    overflow: auto;
+    scrollbar-width: none;
     padding: 1rem;
+}
+
+.content {
+    width: 100%;
     border-radius: 10px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
-    overflow: auto;
-    scrollbar-width: none;
 }
 
 .tour {
@@ -190,4 +193,49 @@
     background-color: #007bff;
     color: white;
     font-weight: bold;
+}
+
+@media screen and (max-width: 768px) {
+
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .search_box {
+        width: 80%;
+    }
+
+    .search_input {
+        font-size: 0.9rem;
+    }
+
+    .title {
+        position: absolute;
+        text-align: start;
+        font-size: 1.5rem;
+        left: 1rem;
+        top: 5rem;
+        transform: translateX(10px);
+    }
+
+    .content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .tour {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 4 / 3;
+    }
+
+    .name {
+        display: none;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+    }
 }

@@ -16,4 +16,6 @@ public class DashboardResponse {
     int numComment;
     int numTourWaitingApprovel;
     int numReport;
+    int numField;
+    int numSpace;
 }

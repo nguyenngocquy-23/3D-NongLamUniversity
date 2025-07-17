@@ -413,7 +413,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
           }`}
           onClick={onChooseFile}
         >
-          <span className={styles.upload_icon}>
+          <span className={styles.upload_icon} style={{background: `${className == "upload_model" || className == "upload_image" || className == "upload_video" ? "none" : ""}`}}>
             <FaFile />
           </span>
           <span>Chọn tệp</span>

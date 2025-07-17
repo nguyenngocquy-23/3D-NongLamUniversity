@@ -65,6 +65,42 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+// Thunk tạo tài khoản admin
+export const createAdminAccount = createAsyncThunk(
+  "auth/createAdminAccount",
+  async (
+    { username, email, password, avatar }: { username: string; email: string; password: string; avatar: string },
+    thunkAPI
+  ) => {
+    try {
+      const response = await axios.post(API_URLS.CREATE_ADMIN, {
+        username,
+        email,
+        password,
+        avatar,
+      });
+
+      if (!response.data) {
+        throw new Error(
+          response.data.message || "Invalid username or password"
+        );
+      }
+      sessionStorage.setItem("userId", response.data);
+      return response.data;
+    } catch (error: any) {
+      if (error.code === "ERR_NETWORK") {
+        return thunkAPI.rejectWithValue(
+          "Không thể kết nối đến server. Vui lòng thử lại sau."
+        );
+      }
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại."
+      );
+    }
+  }
+);
+
 // Thunk xác thực tài khoản
 export const verifyUser = createAsyncThunk(
   "auth/verifyUser",

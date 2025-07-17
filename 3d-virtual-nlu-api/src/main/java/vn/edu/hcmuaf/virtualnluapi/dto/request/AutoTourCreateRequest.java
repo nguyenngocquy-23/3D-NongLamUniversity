@@ -17,4 +17,5 @@ public class AutoTourCreateRequest {
     int userId;
     String name;
     String indexNode;
+    String soundBackground;
 }

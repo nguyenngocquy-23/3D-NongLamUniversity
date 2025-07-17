@@ -123,7 +123,7 @@ public class NodeController {
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<NodeFullResponse>> updateNode(SearchRequest request) {
+    public ApiResponse<List<NodeFullResponse>> searchNode(SearchRequest request) {
         List<NodeFullResponse> result = nodeService.search(request.getSearchKey());
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Tim kiem thanh cong").data(result).build();
     }
@@ -204,8 +204,6 @@ public class NodeController {
             }
         }
     }
-
-
 
     /**
      * Tải ảnh và nạp vào ram:

@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../redux/Store";
 import { fetchFields, fetchSpaces } from "../../redux/slices/DataSlice";
 import styles from "../../styles/toggleChangeStatus.module.css";
+import { perPage } from "../../utils/Constants";
 
 type StatusToggleProps = {
   id: number;
@@ -32,11 +33,11 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
       await axios.post(apiUrl, { id, status: newToggle });
       switch (type) {
         case "field":
-          dispatch(fetchFields());
+          dispatch(fetchFields({ limit: perPage, page: 0 }));
           break;
 
         case "space":
-          dispatch(fetchSpaces());
+          dispatch(fetchSpaces({ limit: perPage, page: 0 }));
           break;
 
         default:

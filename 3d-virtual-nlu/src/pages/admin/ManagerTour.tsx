@@ -6,7 +6,7 @@ import { TiFilter } from "react-icons/ti";
 import { FaSortAmountDown } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NodeItem } from "../../components/admin/NodeItem";
 import {
   HotspotInformation,
@@ -14,6 +14,10 @@ import {
   HotspotModel,
   HotspotNavigation,
 } from "../../redux/slices/HotspotSlice";
+import { useDebounce } from "../../hooks/useDebounce";
+import { perPage } from "../../utils/Constants";
+import axios from "axios";
+import { API_URLS } from "../../env";
 
 export interface NodeObject {
   id: number;
@@ -44,14 +48,55 @@ const ManagerTour = () => {
   const location = useLocation();
   const nodes = useSelector((state: RootState) => state.data.nodes);
 
-  //Custom phân trang client-side.
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  let pageSize = 10; // Số lượng bản ghi trên 1 page.
+  const dashboard = useSelector((state: RootState) => state.data.dashboard);
+  const [nodeList, setNodeList] = useState<any[]>(nodes || []);
 
-  const currentListNodeData = useMemo(() => {
-    const firstPageIndex = (currentPage - 1) * pageSize;
-    const lastPageIndex = firstPageIndex + pageSize;
-    return nodes.slice(firstPageIndex, lastPageIndex);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500); // custom hook
+
+  const [currentPage, setCurrentPage] = useState(0);
+
+  const [totalNode, setTotalNode] = useState(0);
+  const totalPages = Math.ceil(totalNode / perPage);
+
+  useEffect(() => {
+    const handleSearch = async () => {
+      if (!debouncedSearch) return;
+      const response = await axios.post(`${API_URLS.SEARCH_NODES}`, {
+        searchKey: debouncedSearch,
+      });
+      setNodeList(response.data.data);
+    };
+    handleSearch();
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (nodes && nodes.length > 0) {
+      setNodeList(nodes);
+    }
+  }, [nodes]);
+
+  useEffect(() => {
+    if (dashboard) {
+      setTotalNode(dashboard.numTour);
+    }
+  }, [dashboard]);
+
+  useEffect(() => {
+    if (search === "") {
+      setNodeList(nodes);
+    }
+  }, [search]);
+
+  useEffect(() => {
+    const handleChangePage = async () => {
+      const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES, {
+        page: currentPage,
+        limit: perPage,
+      });
+      setNodeList(response.data.data);
+    };
+    handleChangePage();
   }, [currentPage]);
 
   // Chon space
@@ -67,8 +112,9 @@ const ManagerTour = () => {
             type="text"
             name="field"
             id="input"
-            placeholder="Tìm kiếm tour mới..."
+            placeholder="Tìm kiếm tour..."
             className={styles.tour_search_input}
+            onChange={(e) => setSearch(e.target.value)}
           />
           <label htmlFor="input" className={styles.label_for_search}>
             <IoSearch className={styles.search_icon} />
@@ -89,19 +135,23 @@ const ManagerTour = () => {
           <button className={styles.filter_popup}>Tên</button>
         </div>
 
-        <Link
-          to="/admin/createTour"
-          className={`${styles.tour_add} ${styles.tour_box}`}
-        >
-          Thêm tour mới
-        </Link>
+        <div style={{ display: "flex", gap: "10px", marginLeft: "auto" }}>
+          <Link
+            to="/admin/createAutoTour"
+            className={`${styles.tour_add} ${styles.tour_box}`}
+          >
+            Thêm tour tự động
+          </Link>
+          <Link
+            to="/admin/createTour"
+            className={`${styles.tour_add} ${styles.tour_box}`}
+          >
+            Thêm tour mới
+          </Link>
+        </div>
       </div>
-      <hr className={styles.break} />
-
-      <div className={styles.tour_quantity}>Kết quả: {nodes.length} tour.</div>
-
       <div className={styles.tour_list}>
-        {currentListNodeData.map((node) => (
+        {nodeList.map((node) => (
           <NodeItem
             key={node.id}
             node={node}
@@ -109,16 +159,28 @@ const ManagerTour = () => {
           />
         ))}
       </div>
-
-      {/* <div className={styles.field_pagination}>
-        <Pagination
-          onPageChange={(page) => setCurrentPage(page)}
-          totalCount={fields.length}
-          siblingCount={1}
-          currentPage={currentPage}
-          pageSize={pageSize}
-        />
-      </div> */}
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <div className={styles.tour_quantity}>
+          Kết quả: {search == "" ? totalNode : nodeList.length} tour.
+        </div>
+        {search.length === 0 && (
+          <div className={styles.pagination}>
+            {[...Array(totalPages)].map((_, index) => {
+              return (
+                <button
+                  key={index}
+                  className={`${styles.page_btn} ${
+                    currentPage === index ? styles.active : ""
+                  }`}
+                  onClick={() => setCurrentPage(index)}
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

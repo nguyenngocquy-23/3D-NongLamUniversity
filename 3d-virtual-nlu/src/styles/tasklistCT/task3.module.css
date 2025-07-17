@@ -167,6 +167,10 @@
   color: #fff;
 }
 
+.choose_media_type:focus {
+  outline: none;
+}
+
 .choose_media_type {
   width: 100%;
   padding: 0.5rem 1rem;

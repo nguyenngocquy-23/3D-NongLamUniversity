@@ -59,7 +59,9 @@ const CreateAutoTourStep2 = () => {
   const [openConfigTour, setOpenConfigTour] = useState(false);
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
-  >(null); //test
+  >(null);
+
+  const [soundBackground, setSoundBackground] = useState("");
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
@@ -445,17 +447,9 @@ const CreateAutoTourStep2 = () => {
             sphereRef={sphereRef}
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             yawOffsetCurrent={currentPanorama?.yawOffset ?? 0}
-            onPointerDown={handleScenePointerDown}
             lightIntensity={lightIntensity}
             onTextureReady={() => setIsTextureReady(true)}
           />
-
-          {/* {currentPanorama && (
-            <MiniMap
-              currentPanorama={currentPanorama}
-              angleCurrent={cameraAngle}
-            />
-          )} */}
 
           <CamControls
             targetPosition={targetPosition}

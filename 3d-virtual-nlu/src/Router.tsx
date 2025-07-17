@@ -33,6 +33,9 @@ import ManagerTourDetail from "./components/admin/ManagerTourDetail.tsx";
 import CreateAutoTour from "./features/CreateAutoTour.tsx";
 import ManageAutoTour from "./pages/visitor/ManageAutoTour.tsx";
 import VirtualAutoTour from "./pages/visitor/VirtualAutoTour.tsx";
+import ManageModel from "./pages/visitor/ManageModel.tsx";
+import ManagerContact from "./pages/admin/ManagerContact.tsx";
+import CreateAccount from "./pages/admin/CreateAccount.tsx";
 
 function RouterConfig() {
   return (
@@ -45,6 +48,7 @@ function RouterConfig() {
       <Route path="/virtualTour" element={<VirtualTour />} />
       <Route path="/model/:hotspotModelId" element={<Model />} />
       <Route path="/autoTour" element={<ManageAutoTour />} />
+      <Route path="/manageModel" element={<ManageModel />} />
       <Route path="/autoTourDetail/:tourId" element={<VirtualAutoTour />} />
       <Route path="/manage/" element={<VisitorManage />}>
         <Route index element={<VisitorDashBoard />} />
@@ -59,6 +63,7 @@ function RouterConfig() {
         <Route path="tours" element={<ManagerTour />} />
         <Route path="tours/:nodeId" element={<ManagerTourDetail />} />
         <Route path="users" element={<User />} />
+        <Route path="contacts" element={<ManagerContact />} />
         <Route path="fields" element={<Field />} />
         <Route path="spaces" element={<Space />} />
         <Route path="spaces/:spaceId" element={<SpaceDetail />} />
@@ -72,6 +77,7 @@ function RouterConfig() {
         <Route path="updateTour" element={<UpdateNode />} />
         <Route path="model" element={<Model />} />
         <Route path="attachMap" element={<AttachMap />} />
+        <Route path="createAccount" element={<CreateAccount />} />
       </Route>
       {/* Nếu URL không đúng, điều hướng đến trang lỗi */}
       <Route path="*" element={<PageNotFound />} />

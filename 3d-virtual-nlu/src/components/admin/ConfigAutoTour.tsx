@@ -11,6 +11,7 @@ import {
   updatePanoConfig,
 } from "../../redux/slices/PanoramaSlice";
 import { FaX } from "react-icons/fa6";
+import SoundUpload from "./SoundUpload";
 
 /**
  *
@@ -47,15 +48,36 @@ const ConfigAutoTour = ({
   const [duration, setDuration] = useState<number>(
     currentPanorama?.duration ?? 0
   );
+  const [soundBackground, setSoundBackground] = useState<string | null>(currentPanorama?.soundBackground || "");
+
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] =
+    useState<SpeechSynthesisVoice | null>(null);
+
+  useEffect(() => {
+    const loadVoices = () => {
+      const loadedVoices = speechSynthesis.getVoices();
+      if (loadedVoices.length > 0) {
+        setVoices(loadedVoices);
+      }
+    };
+
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    loadVoices();
+  }, []);
 
   useEffect(() => {
     dispatch(
       updateAutoPanoConfig({
         id: currentPanorama.id,
         duration: duration,
+        soundBackground: soundBackground || "",
       })
     );
-  }, [duration]);
+  }, [duration, soundBackground]);
 
   return (
     <div className={styles.config_container}>
@@ -99,10 +121,23 @@ const ConfigAutoTour = ({
       </div>
       <div className={styles.config_item}>
         <div className={styles.input_group}>
-          <label className={styles.label}>Cầu hình ảnh:</label>
+          <label className={styles.label}>Nhạc nền:</label>
+          <SoundUpload setSoundBackground={setSoundBackground}/>
           <label className={styles.label}>Giọng nói:</label>
-          <label className={styles.label}>Điểm thông tin:</label>
-          <label className={styles.label}>Mô hình:</label>
+          <select
+            className={styles.custom_select}
+            onChange={(e) => {
+              const voice = voices.find((v) => v.name === e.target.value);
+              setSelectedVoice(voice || null);
+            }}
+          >
+            <option value="">-- Chọn giọng đọc --</option>
+            {voices.map((voice, index) => (
+              <option key={index} value={voice.name}>
+                {voice.name} ({voice.lang})
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </div>

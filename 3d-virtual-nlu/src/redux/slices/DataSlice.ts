@@ -11,6 +11,7 @@ interface DataState {
   spaces: any[];
   nodes: any[];
   autoNodes: any[];
+  models: any[];
   hotspotTypes: any[];
   masterNodes: any[];
   preloadNodes: any[];
@@ -19,6 +20,7 @@ interface DataState {
   defaultNode: any;
   trackNodes: any[];
   icons: any[];
+  contacts: any[];
   commentOfNode: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
   dashboard: any;
@@ -31,6 +33,7 @@ const initialState: DataState = {
   spaces: [],
   nodes: [],
   autoNodes: [],
+  models: [],
   hotspotTypes: [],
   masterNodes: [],
   nodeOfUser: [],
@@ -39,6 +42,7 @@ const initialState: DataState = {
   trackNodes: [],
   preloadNodes: [],
   icons: [],
+  contacts: [],
   commentOfNode: [],
   status: "idle",
   dashboard: null,
@@ -115,6 +119,18 @@ export const fetchAutoNode = createAsyncThunk(
   }
 );
 
+// Fetch model
+export const fetchModel = createAsyncThunk(
+  "data/fetchModel",
+  async ({ limit, page }: { limit: number; page: number }) => {
+    const response = await axios.post(API_URLS.GET_ALL_MODEL, {
+      page: page,
+      limit: limit,
+    });
+    return response.data.data;
+  }
+);
+
 // Fetch private nodes of user
 export const fetchPrivateNodeOfUser = createAsyncThunk(
   "data/fetchPrivateNodeOfUser",
@@ -157,14 +173,27 @@ export const fetchDashboard = createAsyncThunk(
 );
 
 // Fetch field
-export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
-  const response = await axios.get(API_URLS.ADMIN_GET_ALL_FIELDS);
-  return response.data.data;
-});
+export const fetchFields = createAsyncThunk(
+  "data/fetchFields",
+  async ({ limit, page }: { limit: number; page: number }) => {
+    const response = await axios.post(API_URLS.ADMIN_GET_ALL_FIELDS, {
+      page: page,
+      limit: limit,
+    });
+    return response.data.data;
+  }
+);
 
 // Fetch space
-export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
-  const response = await axios.get(API_URLS.ADMIN_GET_ALL_SPACES);
+export const fetchSpaces = createAsyncThunk(
+  "data/fetchSpaces", 
+  async ({ limit, page }: { limit: number; page: number }) => {
+  const response = await axios.post(API_URLS.ADMIN_GET_ALL_SPACES,
+    {
+      page: page,
+      limit: limit,
+    }
+  );
   const rawSpaces = response.data.data;
 
   const parsedSpaces = rawSpaces.map((space: any) => ({
@@ -173,6 +202,20 @@ export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
   }));
 
   return parsedSpaces;
+});
+
+// Fetch contact
+export const fetchContacts = createAsyncThunk(
+  "data/fetchContacts", 
+  async () => {
+  try {
+      const response = await axios.post(API_URLS.ADMIN_GET_ALL_CONTACTS);
+      if (response.data.data) {
+        return response.data.data;
+      }
+    } catch (error: any) {
+      console.error(error);
+    }
 });
 
 /**
@@ -332,6 +375,17 @@ const dataSlice = createSlice({
         state.status = "failed";
       })
 
+      .addCase(fetchModel.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchModel.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.models = action.payload;
+      })
+      .addCase(fetchModel.rejected, (state) => {
+        state.status = "failed";
+      })
+
       .addCase(fetchMasterNodes.pending, (state) => {
         state.status = "loading";
       })
@@ -444,6 +498,7 @@ const dataSlice = createSlice({
       .addCase(fetchCommentOfNode.rejected, (state) => {
         state.status = "failed";
       })
+
       .addCase(fetchToursFromSpace.pending, (state) => {
         state.status = "loading";
       })
@@ -452,6 +507,17 @@ const dataSlice = createSlice({
         state.trackNodes = action.payload;
       })
       .addCase(fetchToursFromSpace.rejected, (state) => {
+        state.status = "failed";
+      })
+      
+      .addCase(fetchContacts.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.contacts = action.payload;
+      })
+      .addCase(fetchContacts.rejected, (state) => {
         state.status = "failed";
       });
   },

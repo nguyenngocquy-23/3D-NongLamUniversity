@@ -148,7 +148,7 @@ const Register: React.FC = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="Enter your username"
+              placeholder="Tên đăng nhập"
               className={styles.inputField}
             />
           </div>
@@ -160,7 +160,7 @@ const Register: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="Enter your email"
+              placeholder="Tài khoản email"
               className={styles.inputField}
             />
           </div>
@@ -172,7 +172,7 @@ const Register: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Enter your password"
+              placeholder="Mật khẩu"
               className={styles.inputField}
             />
             <FontAwesomeIcon
@@ -190,7 +190,7 @@ const Register: React.FC = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              placeholder="Confirm your password"
+              placeholder="Xác nhận mật khẩu"
               className={styles.inputField}
             />
           </div>
@@ -199,13 +199,13 @@ const Register: React.FC = () => {
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? "Logging in..." : "Register"}
+            {isLoading ? "Logging in..." : "Đăng ký"}
           </button>
         </form>
         <p>
-          Already have an account?
+          Đã có tài khoản?
           <Link className={styles.link} to="/login">
-            Login here!
+            Đăng nhập!
           </Link>
         </p>
       </div>

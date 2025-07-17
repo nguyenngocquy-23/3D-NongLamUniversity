@@ -4,6 +4,8 @@ package vn.edu.hcmuaf.virtualnluapi.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.sql.Timestamp;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -21,7 +23,8 @@ public class HotspotModelResponse {
     String color, backgroundColor;
     byte allowBackgroundColor;
     float opacity;
-    String modelUrl, name, description;
+    String modelUrl, thumbnailUrl, name, description;
+    int numDownload;
     String usernameAuthor;
-    int iconType;
+    Timestamp updatedAt;
 }

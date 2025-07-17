@@ -2,10 +2,7 @@ package vn.edu.hcmuaf.virtualnluapi.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import vn.edu.hcmuaf.virtualnluapi.dao.CommentDao;
-import vn.edu.hcmuaf.virtualnluapi.dao.IconDao;
-import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
-import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
+import vn.edu.hcmuaf.virtualnluapi.dao.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.DashboardResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
@@ -22,6 +19,10 @@ public class DashboardService {
 
     @Inject
     private NodeDao nodeDao;
+    @Inject
+    private FieldDao fieldDao;
+    @Inject
+    private SpaceDao spaceDao;
 
     public DashboardResponse statistical() {
         int numCurrentAccess = nodeDao.countAllView();
@@ -34,6 +35,9 @@ public class DashboardService {
         int numComment = commentDao.countAllComments();
 //        int numReport = commentDao.countReports();
 
+        int numField = fieldDao.countAllFields();
+        int numSpace = spaceDao.countAllSpaces();
+
         return DashboardResponse.builder()
                 .numCurrentAccess(numCurrentAccess)
                 .numFreeAccess(23894)
@@ -42,6 +46,8 @@ public class DashboardService {
                 .numTourWaitingApprovel(numTourWaitingApprovel)
                 .numComment(numComment)
                 .numReport(1)
+                .numField(numField)
+                .numSpace(numSpace)
                 .build();
     }
 

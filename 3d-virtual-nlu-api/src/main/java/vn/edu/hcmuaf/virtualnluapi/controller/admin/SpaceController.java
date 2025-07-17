@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.SpaceService;
@@ -39,12 +40,12 @@ public class SpaceController {
         return ApiResponse.<List<SpaceResponse>>builder().statusCode(1000).message("Lay danh sach ten space thanh cong").data(result).build();
     }
 
-    @GET
+    @POST
     @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<SpaceFullResponse>> getAllSpaces() {
-        List<SpaceFullResponse> result = spaceService.getAllSpaces();
+    public ApiResponse<List<SpaceFullResponse>> getAllSpaces(PageRequest request) {
+        List<SpaceFullResponse> result = spaceService.getAllSpaces(request);
         return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Lay danh sach space thanh cong").data(result).build();
     }
 
@@ -146,5 +147,12 @@ public class SpaceController {
         }
     }
 
-
+    @POST
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<SpaceFullResponse>> searchField(SearchRequest request) {
+        List<SpaceFullResponse> result = spaceService.search(request.getSearchKey());
+        return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Tim kiem thanh cong").data(result).build();
+    }
 }

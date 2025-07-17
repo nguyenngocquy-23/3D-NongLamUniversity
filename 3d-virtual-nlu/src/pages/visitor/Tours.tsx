@@ -17,6 +17,8 @@ const VisitorTours = () => {
   const userJson = sessionStorage.getItem("user");
   const user = userJson ? JSON.parse(userJson) : null;
 
+  const [isActive, setIsActive] = useState(0);
+
   useEffect(() => {
     dispatch(fetchNodeOfUser(user.id));
     dispatch(fetchPrivateNodeOfUser(user.id));
@@ -64,15 +66,31 @@ const VisitorTours = () => {
             type="text"
             name="field"
             id="input"
-            placeholder="Tìm kiếm không gian..."
+            placeholder="Tìm kiếm tour..."
             className={styles.search_input}
             onChange={handleSearch}
           />
         </div>
-        <button className={styles.task_button} onClick={handlePublishNode}>
+        <button
+          className={`${styles.task_button} ${
+            isActive == 0 ? styles.actived : ""
+          }`}
+          onClick={() => {
+            handlePublishNode();
+            setIsActive(0);
+          }}
+        >
           Đã duyệt
         </button>
-        <button className={styles.task_button} onClick={handlePrivateNode}>
+        <button
+          className={`${styles.task_button} ${
+            isActive == 1 ? styles.actived : ""
+          }`}
+          onClick={() => {
+            handlePrivateNode();
+            setIsActive(1);
+          }}
+        >
           Chưa duyệt
           {!privateNodes ? (
             ""

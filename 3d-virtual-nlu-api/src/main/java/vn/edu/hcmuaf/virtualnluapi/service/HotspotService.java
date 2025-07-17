@@ -65,4 +65,49 @@ public class HotspotService {
             return null;
         }
     }
+
+    public List<HotspotModelResponse> getAllModel(PageRequest reqs) {
+        try {
+            return hotspotDao.getAllModel(reqs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean countDownloadModel(HotspotIdRequest reqs) {
+        try {
+            return hotspotDao.countDownloadModel(reqs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<HotspotModelResponse> searchModel(String searchKey) {
+        try {
+            return hotspotDao.searchModel(searchKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public int getNumTotalModel() {
+        try {
+            return hotspotDao.getNumTotalModel();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public int getNumDownloadModel(UserIdRequest reqs) {
+        try {
+            return hotspotDao.getNumDownloadModel(reqs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

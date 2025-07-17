@@ -16,6 +16,7 @@ import {
   removeAutoPanorama,
 } from "../../redux/slices/PanoramaSlice.ts";
 import Swal from "sweetalert2";
+import { perPage } from "../../utils/Constants.ts";
 
 const BoardSelectNode = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -23,10 +24,10 @@ const BoardSelectNode = () => {
     dispatch(fetchNodes());
   }, [dispatch]);
   const nodes = useSelector((state: RootState) => state.data.nodes);
-  const autoPanoramaList = useSelector((state: RootState) => state.panoramas.autoPanoramaList);
-  const dashboard = useSelector(
-    (state: RootState) => state.data.dashboard
+  const autoPanoramaList = useSelector(
+    (state: RootState) => state.panoramas.autoPanoramaList
   );
+  const dashboard = useSelector((state: RootState) => state.data.dashboard);
 
   const [selectedNodes, setSelectedNodes] = useState<any[]>([]);
   const [nodeList, setNodeList] = useState<any[]>(nodes || []);
@@ -38,18 +39,14 @@ const BoardSelectNode = () => {
 
   // For example
   const [totalNode, setTotalNode] = useState(0);
-  const perPage = 10;
   const totalPages = Math.ceil(totalNode / perPage);
 
   useEffect(() => {
     const handleSearch = async () => {
       if (!debouncedSearch) return;
-      const response = await axios.post(
-        `${API_URLS.BASE}/v1/admin/node/search`,
-        {
-          searchKey: debouncedSearch,
-        }
-      );
+      const response = await axios.post(API_URLS.SEARCH_NODES, {
+        searchKey: debouncedSearch,
+      });
       setNodeList(response.data.data);
     };
     handleSearch();
@@ -75,7 +72,7 @@ const BoardSelectNode = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
-      const response = await axios.post(`${API_URLS.BASE}/v1/admin/node/all`, {
+      const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES, {
         page: currentPage,
         limit: perPage,
       });
@@ -206,7 +203,7 @@ const BoardSelectNode = () => {
                 }`}
                 onClick={() => setCurrentPage(index)}
               >
-                {index+1}
+                {index + 1}
               </button>
             );
           })}

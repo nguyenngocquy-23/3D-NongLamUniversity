@@ -10,6 +10,7 @@ import {
 } from "../../redux/slices/DataSlice";
 import { AppDispatch, RootState } from "../../redux/Store";
 import UploadFile from "./UploadFile";
+import { perPage } from "../../utils/Constants";
 
 interface CustomModalProps {
   onClose: () => void;
@@ -78,8 +79,8 @@ const CustomModal: React.FC<CustomModalProps> = ({
       const response = await axios.post(apiUrl, formData);
       if (response.data.statusCode === 1000 || response.status === 200) {
         handleFadeOut();
-        dispatch(fetchFields());
-        dispatch(fetchSpaces());
+        dispatch(fetchFields({page: perPage, limit: 0}));
+        dispatch(fetchSpaces({page: perPage, limit: 0}));
         dispatch(fetchIcons());
       } else {
         Swal.fire({

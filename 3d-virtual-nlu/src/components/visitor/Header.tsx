@@ -42,25 +42,15 @@ const Header: React.FC = () => {
       });
     }
   };
-  
+
   const handleAutoTour = (e: React.MouseEvent) => {
     e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
-    if (currentUser) {
-      navigate("/autoTour");
-    } else {
-      Swal.fire({
-        icon: "warning",
-        title: "Bạn chưa đăng nhập",
-        text: "Vui lòng đăng nhập để tiếp tục.",
-        showCancelButton: true,
-        cancelButtonText: "Hủy",
-        confirmButtonText: "Đăng nhập",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          navigate("/login");
-        }
-      });
-    }
+    navigate("/autoTour");
+  };
+
+  const handleModel = (e: React.MouseEvent) => {
+    e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
+    navigate("/manageModel");
   };
 
   useEffect(() => {
@@ -153,6 +143,14 @@ const Header: React.FC = () => {
             Tour tự động
           </span>
 
+          <span
+            onClick={handleModel}
+            className={style.navLink}
+            style={{ cursor: "pointer" }}
+          >
+            Mô hình 3D
+          </span>
+
           <ScrollLink
             to="contact"
             className={style.navLink}
@@ -164,7 +162,7 @@ const Header: React.FC = () => {
             Liên hệ
           </ScrollLink>
 
-          {!isMobile && (
+          {/* {!isMobile && (
             <span
               onClick={handleManage}
               className={style.navLink}
@@ -172,7 +170,7 @@ const Header: React.FC = () => {
             >
               Thêm không gian
             </span>
-          )}
+          )} */}
         </nav>
       )}
       {!isMobile && currentUser ? (
@@ -180,9 +178,7 @@ const Header: React.FC = () => {
           <button
             className={style.dropdownBtn}
             onClick={() => {
-              currentUser.username === "admin"
-                ? navigate("/admin")
-                : setDropdownOpen(!dropdownOpen);
+              setDropdownOpen(!dropdownOpen);
             }}
           >
             <img src={currentUser.avatar || ""} /> {currentUser.username}
@@ -196,8 +192,25 @@ const Header: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button className={style.dropdownBtn} onClick={handleLogout}>
-                  <Link to="">Đăng xuất</Link>
+                <button className={style.dropdownBtn} onClick={handleManage}>
+                  <Link to="">Thêm không gian</Link>
+                </button>
+              </li>
+              <li>
+                <button
+                  className={style.dropdownBtn}
+                  onClick={
+                    currentUser.roleId == 2 || currentUser.roleId == 3
+                      ? () => navigate("/admin")
+                      : handleLogout
+                  }
+                >
+                  <Link to="">
+                    {currentUser.roleId == 2 || currentUser.roleId == 3
+                      ? "Về admin"
+                      : "Đăng xuất"
+                      }
+                  </Link>
                 </button>
               </li>
             </ul>

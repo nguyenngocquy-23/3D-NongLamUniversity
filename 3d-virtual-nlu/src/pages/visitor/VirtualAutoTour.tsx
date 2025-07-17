@@ -42,6 +42,15 @@ const VirtualAutoTour: React.FC = () => {
     (pano) => pano.id === currentSelectId
   );
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const [isRotation, setIsRotation] = useState(true);
   const [openNodeList, setOpenNodeList] = useState(true);
@@ -180,39 +189,10 @@ const VirtualAutoTour: React.FC = () => {
     if (!cameraRef.current || !controlsRef.current) return;
 
     const camera = cameraRef.current;
-    const control = controlsRef.current;
-    const originalFov = camera.fov;
-    const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
 
     const [x, y, z] = hotspotTargetPosition;
 
-    // lookAtHotspot([x, y, z]);
-    // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);
-
-    gsap.to(camera, {
-      fov: zoomTarget,
-      duration: 1.0,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        camera.updateProjectionMatrix();
-      },
-      onComplete: () => {
-        gsap.to(camera, {
-          fov: originalFov,
-          duration: 0.2,
-          delay: 0.1,
-          ease: "power2.inOut",
-          onUpdate: () => {
-            camera.updateProjectionMatrix();
-          },
-          onComplete: () => {
-            camera.updateProjectionMatrix();
-            control.update(); // đảm bảo OrbitControls cập nhật
-          },
-        });
-      },
-    });
   };
 
   const handleClose = () => {
@@ -231,21 +211,6 @@ const VirtualAutoTour: React.FC = () => {
       stopAutoTour();
     };
   }, []);
-
-  const handleBackStep3 = () => {
-    Swal.fire({
-      icon: "info",
-      title: "Tiếp tục chỉnh sửa ở bước 2",
-      timer: 2000,
-      showConfirmButton: false,
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    }).then(() => {
-      dispatch(prevStep());
-    });
-  };
 
   // Gọi hàm để đọc văn bản khi thay đổi trạng thái âm thanh
   const hasMounted = useRef(false);
@@ -326,6 +291,37 @@ const VirtualAutoTour: React.FC = () => {
     readText();
   }, [currentPanorama]);
 
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [volume, setVolume] = useState(0.3); // ban đầu là 30%
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+      audioRef.current.play().catch((e) => {
+        console.warn("Autoplay bị chặn:", e);
+      });
+    }
+  }, [autoTour, volume]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp") {
+        setVolume((v) => Math.min(1, +(v + 0.1).toFixed(2)));
+      } else if (e.key === "ArrowDown") {
+        setVolume((v) => Math.max(0, +(v - 0.1).toFixed(2)));
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
   return (
     <>
       <div
@@ -362,21 +358,34 @@ const VirtualAutoTour: React.FC = () => {
             autoRotateSpeed={speedRotate}
           />
         </Canvas>
-        <FooterTour
-          isRotation={isRotation}
-          setIsRotation={setIsRotation}
-          isMuted={isMuted}
-          isFullscreen={isFullscreen}
-          toggleInformation={toggleInformation}
-          toggleFullscreen={toggleFullscreen}
-          toggleMute={toggleMute}
-          setIsComment={setIsComment}
-          accessing={accessing}
-          setOpenNodeList={setOpenNodeList}
+        <audio
+          ref={audioRef}
+          src={autoTour.soundBackground}
+          autoPlay
+          loop
+          controls // <-- có thể bỏ nếu bạn không muốn người dùng điều khiển
         />
+        {!isMobile && (
+          <FooterTour
+            isRotation={isRotation}
+            setIsRotation={setIsRotation}
+            isMuted={isMuted}
+            isFullscreen={isFullscreen}
+            toggleInformation={toggleInformation}
+            toggleFullscreen={toggleFullscreen}
+            toggleMute={toggleMute}
+            setIsComment={setIsComment}
+            accessing={accessing}
+            setOpenNodeList={setOpenNodeList}
+          />
+        )}
         {/* Header chứa back */}
         <div className={styles.header_tour}>
-          <h2>{autoTour.name || ""}</h2>
+          {isMobile ? (
+            <h4>{autoTour.name || ""}</h4>
+          ) : (
+            <h2>{autoTour.name || ""}</h2>
+          )}
           <IoIosCloseCircle
             className={styles.close_btn}
             onClick={handleClose}
@@ -399,7 +408,10 @@ const VirtualAutoTour: React.FC = () => {
         </div>
         {/* Hộp node */}
         {openNodeList && (
-          <div className={styles.node_list}>
+          <div
+            className={styles.node_list}
+            style={{ bottom: isMobile ? "1rem" : "" }}
+          >
             {autoPanoramaList.map((pano) => (
               <div
                 key={pano.id}
@@ -420,7 +432,11 @@ const VirtualAutoTour: React.FC = () => {
             ))}
           </div>
         )}
-        <button className={styles.skip_button} onClick={skipToNext}>
+        <button
+          className={styles.skip_button}
+          style={{ bottom: isMobile ? "8rem" : "" }}
+          onClick={skipToNext}
+        >
           <FaAngleDoubleRight className={styles.arrow} /> Đi tiếp{" "}
           <FaAngleDoubleRight className={styles.arrow} />
         </button>

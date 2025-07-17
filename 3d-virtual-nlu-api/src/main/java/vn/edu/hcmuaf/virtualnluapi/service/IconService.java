@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import vn.edu.hcmuaf.virtualnluapi.dao.IconDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
 
 import java.util.List;
@@ -17,10 +18,24 @@ public class IconService {
 
 
     public List<IconResponse> getAllIcons() {
-        return iconDao.getAllIcons();
+        try {
+            return iconDao.getAllIcons();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 
     public boolean createIcon(IconCreateRequest req) {
         return iconDao.createIcon(req);
+    }
+
+    public List<IconResponse> search(String searchKey) {
+        try {
+            return iconDao.search(searchKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 }

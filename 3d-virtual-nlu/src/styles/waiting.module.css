@@ -12,6 +12,7 @@
   animation: spinner-wiggle 1.2s infinite;
   z-index: 100000000;
 }
+
 .loader:before,
 .loader:after {
   content: "";
@@ -23,9 +24,11 @@
   animation: spinner-spin 1.2s cubic-bezier(0.6, 0.2, 0, 0.8) infinite,
     spinner-fade 1.2s linear infinite;
 }
+
 .loader:before {
   border-top-color: #fff;
 }
+
 .loader:after {
   border-top-color: #ff3d00;
   animation-delay: 0.4s;
@@ -36,11 +39,14 @@
     transform: rotate(360deg);
   }
 }
+
 @keyframes spinner-fade {
+
   25%,
   75% {
     opacity: 0.1;
   }
+
   50% {
     opacity: 1;
   }
@@ -105,13 +111,11 @@
 .progress_fill {
   height: 100%;
   width: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    #41c546,
-    #41c546 10px,
-    #5fd66b 10px,
-    #5fd66b 20px
-  );
+  background: repeating-linear-gradient(45deg,
+      #41c546,
+      #41c546 10px,
+      #5fd66b 10px,
+      #5fd66b 20px);
   border-radius: 6px 0 0 6px;
   animation: moveStripes 1s linear infinite;
   transition: width 0.3s ease-in-out;
@@ -141,4 +145,103 @@
   font-weight: bold;
   color: #4caf50;
   white-space: nowrap;
+}
+
+.sk_chase {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  animation: sk_chase 2.5s infinite linear both;
+}
+
+.sk_chase_dot {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: sk_chase_dot 2.0s infinite ease-in-out both;
+}
+
+.sk_chase_dot:before {
+  content: '';
+  display: block;
+  width: 25%;
+  height: 25%;
+  background-color: #4CAF50;
+  border-radius: 100%;
+  animation: sk_chase_dot-before 2.0s infinite ease-in-out both;
+}
+
+.sk_chase_dot:nth-child(1) {
+  animation-delay: -1.1s;
+}
+
+.sk_chase_dot:nth-child(2) {
+  animation-delay: -1.0s;
+}
+
+.sk_chase_dot:nth-child(3) {
+  animation-delay: -0.9s;
+}
+
+.sk_chase_dot:nth-child(4) {
+  animation-delay: -0.8s;
+}
+
+.sk_chase_dot:nth-child(5) {
+  animation-delay: -0.7s;
+}
+
+.sk_chase_dot:nth-child(6) {
+  animation-delay: -0.6s;
+}
+
+.sk_chase_dot:nth-child(1):before {
+  animation-delay: -1.1s;
+}
+
+.sk_chase_dot:nth-child(2):before {
+  animation-delay: -1.0s;
+}
+
+.sk_chase_dot:nth-child(3):before {
+  animation-delay: -0.9s;
+}
+
+.sk_chase_dot:nth-child(4):before {
+  animation-delay: -0.8s;
+}
+
+.sk_chase_dot:nth-child(5):before {
+  animation-delay: -0.7s;
+}
+
+.sk_chase_dot:nth-child(6):before {
+  animation-delay: -0.6s;
+}
+
+@keyframes sk_chase {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sk_chase_dot {
+
+  80%,
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sk_chase_dot-before {
+  50% {
+    transform: scale(0.4);
+  }
+
+  100%,
+  0% {
+    transform: scale(1.0);
+  }
 }

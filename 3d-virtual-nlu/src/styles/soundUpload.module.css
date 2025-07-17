@@ -1,0 +1,36 @@
+.sound_container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input_file {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.input_file:hover {
+  background-color: #f0f0f0;
+  border-color: #888;
+}
+
+.input_file::-webkit-file-upload-button {
+  padding: 8px 16px;
+  border: none;
+  background-color: #4f46e5; /* Indigo-600 */
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.input_file::-webkit-file-upload-button:hover {
+  background-color: #4338ca; /* Indigo-700 */
+}

@@ -118,40 +118,41 @@ const ManageAutoTour = () => {
         <span className={styles.title}>TOUR TỰ ĐỘNG</span>
       </div>
       <div className={styles.tour_container}>
-        {searchData.length > 0 ? (
-          searchData.map((node) => (
-            <>
+        <div className={styles.content}>
+          {searchData.length > 0 ? (
+            searchData.map((node) => (
               <div
                 key={node.id}
                 className={styles.tour}
                 onClick={() => handleDetail(node.id)}
+                title={node.name}
                 style={{ background: `url(${node.thumbNail})` }}
               >
                 <div className={styles.blur} />
                 <span className={styles.name}>{node.name}</span>
               </div>
-            </>
-          ))
-        ) : (
-          <div style={{ color: "black" }}>Danh sách trống...</div>
-        )}
-        {search.length === 0 && (
-          <div className={styles.pagination}>
-            {[...Array(totalPages)].map((_, index) => {
-              return (
-                <button
-                  key={index}
-                  className={`${styles.page_btn} ${
-                    currentPage === index ? styles.active : ""
-                  }`}
-                  onClick={() => setCurrentPage(index)}
-                >
-                  {index + 1}
-                </button>
-              );
-            })}
-          </div>
-        )}
+            ))
+          ) : (
+            <div style={{ color: "black" }}>Danh sách trống...</div>
+          )}
+          {search.length === 0 && (
+            <div className={styles.pagination}>
+              {[...Array(totalPages)].map((_, index) => {
+                return (
+                  <button
+                    key={index}
+                    className={`${styles.page_btn} ${
+                      currentPage === index ? styles.active : ""
+                    }`}
+                    onClick={() => setCurrentPage(index)}
+                  >
+                    {index + 1}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
