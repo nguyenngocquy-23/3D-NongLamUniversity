@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/visitor/introduce.module.css";
 import { useDeviceInfo } from "../../contexts/DeviceInfoContext";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/Store";
 
 const images = [
   {
@@ -35,8 +37,8 @@ const images = [
 ];
 
 export default function Introduce() {
-  const [selectedIndex, setSelectedIndex] = useState(2); // mặc định ảnh giữa
-  const { pixelRatio, isMobile, ram, cpuCores, userLang } = useDeviceInfo();
+  const [selectedIndex, setSelectedIndex] = useState(2);
+  const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
     const timer = setTimeout(() => {
       setSelectedIndex((prevIndex) => (prevIndex + 1) % images.length);
