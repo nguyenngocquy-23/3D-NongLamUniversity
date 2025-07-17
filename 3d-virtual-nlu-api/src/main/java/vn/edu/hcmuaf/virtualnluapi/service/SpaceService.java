@@ -27,8 +27,14 @@ public class SpaceService {
         return spaceDao.getSpaceByFieldId(req);
     }
 
-    public List<SpaceFullResponse> getAllSpaces(PageRequest request) {
-        return spaceDao.getAllSpaces(request);
+    public List<SpaceFullResponse> getAllSpaces() {
+        return spaceDao.getAllSpaces();
+    }
+    public List<SpaceFullResponse> getAllSpacesInVisitor() {
+        return spaceDao.getAllSpacesInVisitor();
+    }
+    public List<SpaceFullResponse> getSpacesByPage(PageRequest request) {
+        return spaceDao.getSpacesByPage(request);
     }
 
     public SpaceFullResponse getSpaceById(SpaceIdRequest req) {

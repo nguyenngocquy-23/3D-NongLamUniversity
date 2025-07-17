@@ -139,11 +139,19 @@ public class NodeController {
     }
 
     @POST
-    @Path("/all")
+    @Path("/byPage")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<NodeFullResponse>> getAllNodes(PageRequest request) {
-        List<NodeFullResponse> result = nodeService.getAllNodes(request);
+    public ApiResponse<List<NodeFullResponse>> getNodesByPage(PageRequest request) {
+        List<NodeFullResponse> result = nodeService.getNodesByPage(request);
+
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
+    }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getAllNodes() {
+        List<NodeFullResponse> result = nodeService.getAllNodes();
 
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }

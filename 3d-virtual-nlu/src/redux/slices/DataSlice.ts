@@ -68,7 +68,7 @@ export const fetchUsers = createAsyncThunk(
 
 // Fetch nodes
 export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
-  const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES, {
+  const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
     page: 0,
     limit: perPage,
   });
@@ -176,7 +176,7 @@ export const fetchDashboard = createAsyncThunk(
 export const fetchFields = createAsyncThunk(
   "data/fetchFields",
   async ({ limit, page }: { limit: number; page: number }) => {
-    const response = await axios.post(API_URLS.ADMIN_GET_ALL_FIELDS, {
+    const response = await axios.post(API_URLS.ADMIN_GET_FIELDS_BY_PAGE, {
       page: page,
       limit: limit,
     });
@@ -186,29 +186,28 @@ export const fetchFields = createAsyncThunk(
 
 // Fetch space
 export const fetchSpaces = createAsyncThunk(
-  "data/fetchSpaces", 
+  "data/fetchSpaces",
   async ({ limit, page }: { limit: number; page: number }) => {
-  const response = await axios.post(API_URLS.ADMIN_GET_ALL_SPACES,
-    {
+    const response = await axios.post(API_URLS.ADMIN_GET_SPACES_BY_PAGE, {
       page: page,
       limit: limit,
-    }
-  );
-  const rawSpaces = response.data.data;
+    });
+    const rawSpaces = response.data.data;
 
-  const parsedSpaces = rawSpaces.map((space: any) => ({
-    ...space,
-    tourIds: safeParseJsonArray(space.tourIds),
-  }));
+    const parsedSpaces = rawSpaces.map((space: any) => ({
+      ...space,
+      tourIds: safeParseJsonArray(space.tourIds),
+    }));
 
-  return parsedSpaces;
-});
+    return parsedSpaces;
+  }
+);
 
 // Fetch contact
 export const fetchContacts = createAsyncThunk(
-  "data/fetchContacts", 
+  "data/fetchContacts",
   async () => {
-  try {
+    try {
       const response = await axios.post(API_URLS.ADMIN_GET_ALL_CONTACTS);
       if (response.data.data) {
         return response.data.data;
@@ -216,7 +215,8 @@ export const fetchContacts = createAsyncThunk(
     } catch (error: any) {
       console.error(error);
     }
-});
+  }
+);
 
 /**
  * Fetch dành cho Preload - Danh sách các node liên quan đến node đang tham quan.
@@ -509,7 +509,7 @@ const dataSlice = createSlice({
       .addCase(fetchToursFromSpace.rejected, (state) => {
         state.status = "failed";
       })
-      
+
       .addCase(fetchContacts.pending, (state) => {
         state.status = "loading";
       })

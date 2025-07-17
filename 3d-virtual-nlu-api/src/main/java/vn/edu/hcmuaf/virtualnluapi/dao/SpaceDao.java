@@ -52,7 +52,7 @@ public class SpaceDao {
         });
     }
 
-    public List<SpaceFullResponse> getAllSpaces(PageRequest request) {
+    public List<SpaceFullResponse> getSpacesByPage(PageRequest request) {
         String spaceSql = """
                 SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name as masterNodeName
                 , s.createdAt, s.updatedAt
@@ -72,6 +72,42 @@ public class SpaceDao {
 
         });
     }
+    public List<SpaceFullResponse> getAllSpaces() {
+        String spaceSql = """
+                SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name as masterNodeName
+                , s.createdAt, s.updatedAt
+                FROM spaces s
+                JOIN fields f ON s.fieldId = f.id
+                LEFT JOIN nodes n ON s.masterNodeId = n.id
+                """;
+
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            // Lấy danh sách spaces
+            return handle.createQuery(spaceSql)
+                    .mapToBean(SpaceFullResponse.class)
+                    .list();
+
+        });
+    }
+    public List<SpaceFullResponse> getAllSpacesInVisitor() {
+        String spaceSql = """
+                SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name as masterNodeName
+                , s.createdAt, s.updatedAt
+                FROM spaces s
+                JOIN fields f ON s.fieldId = f.id
+                LEFT JOIN nodes n ON s.masterNodeId = n.id
+                WHERE s.status IN (1,2)
+                """;
+
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            // Lấy danh sách spaces
+            return handle.createQuery(spaceSql)
+                    .mapToBean(SpaceFullResponse.class)
+                    .list();
+
+        });
+    }
+
 
     public SpaceFullResponse getSpaceById(SpaceIdRequest request) {
         String spaceSql = """

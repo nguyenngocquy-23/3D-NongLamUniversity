@@ -29,9 +29,9 @@ const TypeInfomation = ({
     r: 255,
     g: 255,
     b: 255,
-    a: 255,
+    a: 1,
   });
-  const [borderColorContent, setBorderColorContent] = useState("");
+  const [borderColorContent, setBorderColorContent] = useState("#000000");
   const [borderSizeContent, setBorderSizeContent] = useState<number>(0);
   const [showPicker, setShowPicker] = useState(false);
   const dispatch = useDispatch();

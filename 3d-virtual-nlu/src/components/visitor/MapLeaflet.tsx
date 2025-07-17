@@ -43,6 +43,7 @@ interface MapLeafletProps {
   isRemove?: boolean;
   setPoints?: React.Dispatch<React.SetStateAction<any[]>>;
   spaceId?: number;
+  spaces?: any[];
 }
 
 // Component con để lắng nghe sự kiện click trên map
@@ -103,13 +104,23 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
   isRemove,
   setPoints,
   spaceId,
+  spaces: propsSpaces,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const listSpaces = useSelector((state: RootState) => state.data.spaces);
+
   useEffect(() => {
-    dispatch(fetchSpaces({ limit: perPage, page: 0 }));
-  }, [dispatch]);
-  const spaces = useSelector((state: RootState) => state.data.spaces);
-  const maker = spaces.filter((s) => s.location !== null && s.location !== "");
+    if (!propsSpaces || propsSpaces.length === 0) {
+      dispatch(fetchSpaces({ limit: perPage, page: 0 }));
+    }
+  }, [dispatch, propsSpaces]);
+
+  const spacesToUse =
+    propsSpaces && propsSpaces.length > 0 ? propsSpaces : listSpaces;
+
+  const maker = spacesToUse.filter(
+    (s) => s.location !== null && s.location !== ""
+  );
 
   const handleRemove = async (spaceId: number) => {
     const result = await Swal.fire({
@@ -176,7 +187,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
     }
   };
 
-  if (spaces.length == 0) {
+  if (spacesToUse.length == 0) {
     return null;
   }
 
@@ -240,7 +251,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
                   <div className={styles.customTooltip}>
                     <img src={space.url} alt="Image" />
                     <div className={styles.text}>
-                      {spaces.find((s) => s.id === space.id)?.name}
+                      {spacesToUse.find((s) => s.id === space.id)?.name}
                     </div>
                   </div>
                 </Tooltip>
