@@ -72,7 +72,7 @@ const Login: React.FC = () => {
       ).unwrap();
       if (response.user.roleId == 1) {
         navigate("/"); // Điều hướng về trang chính sau khi đăng nhập thành công
-      } else if (response.user.roleId == 2) {
+      } else if (response.user.roleId == 2 || response.user.roleId == 3) {
         navigate("/admin"); // Điều hướng về trang admin sau khi đăng nhập thành công
       }
     } catch (err: any) {
@@ -98,7 +98,7 @@ const Login: React.FC = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="Enter your username"
+              placeholder="Tên tài khoản"
               className={`${styles.inputField} ${
                 isError ? styles.passLengthError : ""
               }`}
@@ -112,7 +112,7 @@ const Login: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Enter your password"
+              placeholder="Mật khẩu"
               className={`${styles.inputField} ${
                 passLengthError ? styles.passLengthError : ""
               } ${isError ? styles.passLengthError : ""} `}
@@ -128,7 +128,7 @@ const Login: React.FC = () => {
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
           {/* {isError && <p className={styles.error}>{error}</p>}
           {passLengthError && (
@@ -137,13 +137,13 @@ const Login: React.FC = () => {
           {/* <button className={styles.loginBtn} type="submit">Login</button> */}
         </form>
         <Link className={styles.link} to="/forgotPassword">
-          Forgot Password
+          Quên mật khẩu?
         </Link>{" "}
         <br />
         <b>
-          Don't have an account?{" "}
+          Chưa có tài khoản?{" "}
           <Link className={styles.link} to="/register">
-            Register here!
+            Đăng ký tại đây!
           </Link>
         </b>
       </div>

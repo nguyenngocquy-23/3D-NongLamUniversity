@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import vn.edu.hcmuaf.virtualnluapi.config.SystemConstant;
 import vn.edu.hcmuaf.virtualnluapi.dao.EmailVerificationDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.RoleDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
@@ -107,6 +108,23 @@ public class UserService {
         user.setAvatar(request.getAvatar());
         try {
             return userDao.updateAvatar(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean toggleLockStatus(UserIdRequest request) {
+        User user = userDao.findById(request.getUserId());
+        if (user == null) {
+            return false;
+        }
+        try {
+            if(user.getStatus() == SystemConstant.ACTIVATED) {
+                return userDao.toggleLockStatus(request.getUserId(), SystemConstant.LOCKED);
+            } else {
+                return userDao.toggleLockStatus(request.getUserId(), SystemConstant.ACTIVATED);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return false;

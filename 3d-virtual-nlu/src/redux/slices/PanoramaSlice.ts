@@ -39,6 +39,7 @@ export interface AutoPanoramaItem {
   url: string;
   config: PanoramaConfig;
   duration: number;
+  soundBackground: string;
 }
 
 interface PanoramaState {
@@ -97,12 +98,13 @@ const panoramaSlice = createSlice({
       state.currentSelectId = panoramas[0]?.id || null;
     },
     
-    addAutoPanorama(state, action: PayloadAction<{  node: any; duration?: number }>) {
+    addAutoPanorama(state, action: PayloadAction<{  node: any; duration?: number; soundBackground ?: string }>) {
       const existing = state.autoPanoramaList.find(p => p.originalNodeId === action.payload.node.id);
       if (!existing) {
         state.autoPanoramaList.push({
           ...action.payload.node,
           duration: action.payload.duration || 5,
+          soundBackground: action.payload.soundBackground || "",
           originalNodeId: action.payload.node.id,
         });
       }
@@ -183,12 +185,13 @@ const panoramaSlice = createSlice({
     
     updateAutoPanoConfig(
       state,
-      action: PayloadAction<{ id: string; duration : number }>
+      action: PayloadAction<{ id: string; duration : number, soundBackground : string }>
     ) {
-      const { id, duration } = action.payload;
+      const { id, duration, soundBackground } = action.payload;
       const pano = state.autoPanoramaList.find((p) => p.id === id);
       if (pano) {
         pano.duration = duration;
+        pano.soundBackground = soundBackground
       }
     },
 

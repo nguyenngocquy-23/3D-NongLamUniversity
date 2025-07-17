@@ -9,7 +9,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import styles from "../../styles/visitor/map.module.css";
-import { AROUND_MAP } from "../../utils/Constants";
+import { AROUND_MAP, perPage } from "../../utils/Constants";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { fetchSpaces, removeLocation } from "../../redux/slices/DataSlice";
@@ -106,7 +106,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
-    dispatch(fetchSpaces());
+    dispatch(fetchSpaces({ limit: perPage, page: 0 }));
   }, [dispatch]);
   const spaces = useSelector((state: RootState) => state.data.spaces);
   const maker = spaces.filter((s) => s.location !== null && s.location !== "");

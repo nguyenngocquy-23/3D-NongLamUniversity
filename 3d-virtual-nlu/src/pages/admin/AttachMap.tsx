@@ -7,6 +7,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import Swal from "sweetalert2";
 import { attachLocation, fetchSpaces } from "../../redux/slices/DataSlice";
 import { API_URLS } from "../../env";
+import { perPage } from "../../utils/Constants";
 
 const AttachMap = () => {
   /**
@@ -72,7 +73,7 @@ const AttachMap = () => {
           showConfirmButton: false,
         });
         setPoints([]);
-        dispatch(fetchSpaces());
+        dispatch(fetchSpaces({ limit: perPage, page: 0 }));
       } else {
         Swal.fire({
           title: "Thất bại",

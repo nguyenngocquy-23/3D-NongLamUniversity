@@ -14,7 +14,7 @@ public class AutoTour {
     int id;
     int userId;
     String name;
-    String indexNode;
+    String indexNode, soundBackground;
     byte status;
     Timestamp createdAt, updatedAt;
 }

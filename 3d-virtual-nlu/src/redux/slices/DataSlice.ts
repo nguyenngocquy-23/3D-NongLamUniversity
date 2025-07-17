@@ -11,6 +11,7 @@ interface DataState {
   spaces: any[];
   nodes: any[];
   autoNodes: any[];
+  models: any[];
   hotspotTypes: any[];
   masterNodes: any[];
   preloadNodes: any[];
@@ -19,6 +20,7 @@ interface DataState {
   defaultNode: any;
   trackNodes: any[];
   icons: any[];
+  contacts: any[];
   commentOfNode: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
   dashboard: any;
@@ -31,6 +33,7 @@ const initialState: DataState = {
   spaces: [],
   nodes: [],
   autoNodes: [],
+  models: [],
   hotspotTypes: [],
   masterNodes: [],
   nodeOfUser: [],
@@ -39,6 +42,7 @@ const initialState: DataState = {
   trackNodes: [],
   preloadNodes: [],
   icons: [],
+  contacts: [],
   commentOfNode: [],
   status: "idle",
   dashboard: null,
@@ -64,12 +68,10 @@ export const fetchUsers = createAsyncThunk(
 
 // Fetch nodes
 export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
-  const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES,
-    {
-      page: 0,
-      limit: perPage,
-    }
-  );
+  const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES, {
+    page: 0,
+    limit: perPage,
+  });
   return response.data.data;
 });
 
@@ -109,12 +111,22 @@ export const fetchNodeOfUser = createAsyncThunk(
 export const fetchAutoNode = createAsyncThunk(
   "data/fetchAutoNode",
   async () => {
-    const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS,
-      {
-        page: 0,
-        limit: perPage,
-      }
-    );
+    const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
+      page: 0,
+      limit: perPage,
+    });
+    return response.data.data;
+  }
+);
+
+// Fetch model
+export const fetchModel = createAsyncThunk(
+  "data/fetchModel",
+  async ({ limit, page }: { limit: number; page: number }) => {
+    const response = await axios.post(API_URLS.GET_ALL_MODEL, {
+      page: page,
+      limit: limit,
+    });
     return response.data.data;
   }
 );
@@ -148,24 +160,40 @@ export const fetchCommentOfNode = createAsyncThunk(
 );
 
 // Fetch dashboard
-export const fetchDashboard = createAsyncThunk("data/fetchDashboard", async () => {
-  const userJson = sessionStorage.getItem("user");
-  const user = userJson ? JSON.parse(userJson) : null;
-  const response = await axios.post(API_URLS.ADMIN_GET_DASHBOARD, {
-    userId: user.id,
-  });
-  return response.data.data;
-});
+export const fetchDashboard = createAsyncThunk(
+  "data/fetchDashboard",
+  async () => {
+    const userJson = sessionStorage.getItem("user");
+    const user = userJson ? JSON.parse(userJson) : null;
+    const response = await axios.post(API_URLS.ADMIN_GET_DASHBOARD, {
+      userId: user.id,
+    });
+    return response.data.data;
+  }
+);
 
 // Fetch field
-export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
-  const response = await axios.get(API_URLS.ADMIN_GET_ALL_FIELDS);
-  return response.data.data;
-});
+export const fetchFields = createAsyncThunk(
+  "data/fetchFields",
+  async ({ limit, page }: { limit: number; page: number }) => {
+    const response = await axios.post(API_URLS.ADMIN_GET_ALL_FIELDS, {
+      page: page,
+      limit: limit,
+    });
+    return response.data.data;
+  }
+);
 
 // Fetch space
-export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
-  const response = await axios.get(API_URLS.ADMIN_GET_ALL_SPACES);
+export const fetchSpaces = createAsyncThunk(
+  "data/fetchSpaces", 
+  async ({ limit, page }: { limit: number; page: number }) => {
+  const response = await axios.post(API_URLS.ADMIN_GET_ALL_SPACES,
+    {
+      page: page,
+      limit: limit,
+    }
+  );
   const rawSpaces = response.data.data;
 
   const parsedSpaces = rawSpaces.map((space: any) => ({
@@ -174,6 +202,20 @@ export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
   }));
 
   return parsedSpaces;
+});
+
+// Fetch contact
+export const fetchContacts = createAsyncThunk(
+  "data/fetchContacts", 
+  async () => {
+  try {
+      const response = await axios.post(API_URLS.ADMIN_GET_ALL_CONTACTS);
+      if (response.data.data) {
+        return response.data.data;
+      }
+    } catch (error: any) {
+      console.error(error);
+    }
 });
 
 /**
@@ -299,7 +341,7 @@ const dataSlice = createSlice({
       .addCase(fetchDashboard.rejected, (state) => {
         state.status = "failed";
       })
-      
+
       .addCase(fetchUsers.pending, (state) => {
         state.status = "loading";
       })
@@ -330,6 +372,17 @@ const dataSlice = createSlice({
         state.autoNodes = action.payload;
       })
       .addCase(fetchAutoNode.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchModel.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchModel.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.models = action.payload;
+      })
+      .addCase(fetchModel.rejected, (state) => {
         state.status = "failed";
       })
 
@@ -445,6 +498,7 @@ const dataSlice = createSlice({
       .addCase(fetchCommentOfNode.rejected, (state) => {
         state.status = "failed";
       })
+
       .addCase(fetchToursFromSpace.pending, (state) => {
         state.status = "loading";
       })
@@ -453,6 +507,17 @@ const dataSlice = createSlice({
         state.trackNodes = action.payload;
       })
       .addCase(fetchToursFromSpace.rejected, (state) => {
+        state.status = "failed";
+      })
+      
+      .addCase(fetchContacts.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.contacts = action.payload;
+      })
+      .addCase(fetchContacts.rejected, (state) => {
         state.status = "failed";
       });
   },

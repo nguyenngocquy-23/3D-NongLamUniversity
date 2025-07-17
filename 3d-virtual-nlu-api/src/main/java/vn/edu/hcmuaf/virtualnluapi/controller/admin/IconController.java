@@ -1,4 +1,5 @@
 package vn.edu.hcmuaf.virtualnluapi.controller.admin;
+
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -7,9 +8,12 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.SearchRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.IconService;
 
 import java.util.List;
@@ -42,6 +46,15 @@ public class IconController {
         } else {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi tao icon").data(result).build();
         }
+    }
+
+    @POST
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<IconResponse>> searchField(SearchRequest request) {
+        List<IconResponse> result = iconService.search(request.getSearchKey());
+        return ApiResponse.<List<IconResponse>>builder().statusCode(1000).message("Tim kiem thanh cong").data(result).build();
     }
 //
 //    @POST

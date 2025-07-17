@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.FieldDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 
 import java.util.List;
 
@@ -23,8 +25,8 @@ public class FieldService {
         return fieldDao.insertField(req);
     }
 
-    public List<FieldResponse> getAllFields() {
-        return fieldDao.getAllFields();
+    public List<FieldResponse> getAllFields(PageRequest request) {
+        return fieldDao.getAllFields(request);
     }
 
     public FieldResponse getFieldById(int id) {
@@ -36,5 +38,14 @@ public class FieldService {
     }
     public boolean changeNameField(FieldCreateRequest req) {
         return fieldDao.changeNameField(req);
+    }
+
+    public List<FieldResponse> search(String searchKey) {
+        try {
+            return fieldDao.search(searchKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 }

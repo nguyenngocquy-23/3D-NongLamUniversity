@@ -26,12 +26,12 @@ type UploadFileProps = {
   index?: number;
 };
 
-interface CloudinaryUploadResp {
+export interface CloudinaryUploadResp {
   originalFileName?: string;
   url?: string;
 }
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   statusCode: number;
   message: string;
   data: T;
@@ -432,7 +432,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
           }`}
           onClick={onChooseFile}
         >
-          <span className={styles.upload_icon}>
+          <span className={styles.upload_icon} style={{background: `${className == "upload_model" || className == "upload_image" || className == "upload_video" ? "none" : ""}`}}>
             <FaFile />
           </span>
           <span>Chọn tệp</span>

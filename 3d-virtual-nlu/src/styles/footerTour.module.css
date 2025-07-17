@@ -1,4 +1,3 @@
-
 .pause:hover,
 .play:hover,
 .close_btn:hover,
@@ -83,4 +82,52 @@
   justify-content: space-between;
   align-items: center;
   z-index: 100000000;
+}
+
+.sound_guide {
+  opacity: 0.8;
+  margin-right: 2rem;
+  animation: blinkAndDisappear 10s forwards;
+}
+
+@keyframes blinkAndDisappear {
+
+  0%,
+  10% {
+    opacity: 0.2;
+  }
+
+  15%,
+  25% {
+    opacity: 1;
+  }
+
+  30%,
+  40% {
+    opacity: 0.2;
+  }
+
+  45%,
+  55% {
+    opacity: 1;
+  }
+
+  60%,
+  70% {
+    opacity: 0.2;
+  }
+
+  75%,
+  85% {
+    opacity: 1;
+  }
+
+  90%,
+  99% {
+    opacity: 0.2;
+  }
+
+  100% {
+    opacity: 0.2;
+  }
 }

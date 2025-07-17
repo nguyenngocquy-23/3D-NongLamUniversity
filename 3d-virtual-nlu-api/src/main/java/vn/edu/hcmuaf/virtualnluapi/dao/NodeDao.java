@@ -70,7 +70,21 @@ public class NodeDao {
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
-                 WHERE n.status IN (2,3)
+                 WHERE n.status IN (0,2,3)
+                 ORDER BY n.updatedAt DESC
+                 LIMIT :limit OFFSET :offset
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("limit", request.getLimit()).bind("offset", request.getPage() * request.getLimit()).mapToBean(NodeFullResponse.class).list());
+    }
+
+    public List<NodeFullResponse> getAllApprovingNodes(PageRequest request) {
+        String sql = """
+                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                 n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                 FROM nodes n
+                 JOIN spaces s ON n.spaceId = s.id
+                 JOIN fields f ON s.fieldId = f.id
+                 WHERE n.status IN (0,2,3)
                  ORDER BY n.updatedAt DESC
                  LIMIT :limit OFFSET :offset
                 """;
@@ -78,7 +92,7 @@ public class NodeDao {
     }
 
     public int countAllNodes() {
-        String sql = "SELECT COUNT(*) FROM nodes";
+        String sql = "SELECT COUNT(*) FROM nodes WHERE status IN (0,2,3)";
         return ConnectionPool.getConnection().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)
@@ -454,16 +468,17 @@ public class NodeDao {
                  FROM nodes n
                  JOIN spaces s ON n.spaceId = s.id
                  JOIN fields f ON s.fieldId = f.id
-                 WHERE LOWER(n.name) LIKE :searchKey
+                 WHERE LOWER(n.name) LIKE :searchKey and n.status = 2
                  ORDER BY n.updatedAt DESC
+                 LIMIT 10
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("searchKey", "%" + searchKey.toLowerCase() + "%").mapToBean(NodeFullResponse.class).list());
     }
 
     public boolean createAutoTour(AutoTourCreateRequest request) {
         String sql = """
-                INSERT INTO auto_tours (userId, name, indexNode, status, createdAt, updatedAt)
-                VALUES (:userId, :name, :indexNode, :status, :createdAt, :updatedAt)
+                INSERT INTO auto_tours (userId, name, indexNode, status, soundBackground, createdAt, updatedAt)
+                VALUES (:userId, :name, :indexNode, :status, :soundBackground, :createdAt, :updatedAt)
                 """;
 
         try {
@@ -473,6 +488,7 @@ public class NodeDao {
                         .bind("name", request.getName())
                         .bind("indexNode", request.getIndexNode())
                         .bind("status", 1)
+                        .bind("soundBackground", request.getSoundBackground())
                         .bind("createdAt", LocalDateTime.now())
                         .bind("updatedAt", LocalDateTime.now())
                         .execute();
@@ -488,7 +504,7 @@ public class NodeDao {
 
     public List<AutoTourResponse> getAutoTour(PageRequest request) {
         String sql = """
-                SELECT at.id, at.name, at.indexNode, at.status, at.updatedAt
+                SELECT at.id, at.name, at.indexNode, at.soundBackground , at.status, at.updatedAt
                 FROM auto_tours at
                 ORDER BY at.updatedAt DESC
                 LIMIT :limit OFFSET :offset

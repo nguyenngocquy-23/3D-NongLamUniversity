@@ -219,6 +219,21 @@ public class UserDao {
         }
     }
 
+    public boolean toggleLockStatus(int userId, int locked) {
+        try {
+            int result = ConnectionPool.getConnection().inTransaction(handle ->
+                    handle.createUpdate("UPDATE users SET status = :status WHERE id = :id")
+                            .bind("status", locked)
+                            .bind("id", userId)
+                            .execute());
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 //    public List<String> getAllAdminEmail() {
 //        return ConnectionPool.getConnection().withHandle(n -> {
 //            return n.createQuery("Select email from users where roleId = 2").mapTo(String.class).stream().toList();

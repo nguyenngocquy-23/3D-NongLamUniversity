@@ -3,6 +3,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 import jakarta.enterprise.context.ApplicationScoped;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 
@@ -25,9 +26,16 @@ public class FieldDao {
         });
     }
 
-    public List<FieldResponse> getAllFields() {
+    public List<FieldResponse> getAllFields(PageRequest request) {
+        String sql = """
+                SELECT id, code, name, status, createdAt, updatedAt 
+                FROM fields
+                LIMIT :limit OFFSET :offset
+                """;
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("SELECT id, code, name, status, createdAt, updatedAt FROM fields")
+            return handle.createQuery(sql)
+                    .bind("limit", request.getLimit())
+                    .bind("offset", request.getPage() * request.getLimit())
                     .mapToBean(FieldResponse.class)
                     .list();
         });
@@ -45,7 +53,7 @@ public class FieldDao {
     public boolean changeStatusField(StatusRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int i = handle.createUpdate("UPDATE fields SET status = :status, updatedAt = :updatedAt WHERE id = :id")
-                    .bind("status", req.getStatus() )
+                    .bind("status", req.getStatus())
                     .bind("id", req.getId())
                     .bind("updatedAt", LocalDateTime.now())
                     .execute();
@@ -59,12 +67,12 @@ public class FieldDao {
                 handle -> {
                     int i = handle.createUpdate(updateSql)
                             .bind("name", req.getName()
-                                    )
+                            )
                             .bind("code", req.getCode())
                             .bind("id", req.getId())
                             .bind("updatedAt", LocalDateTime.now())
                             .execute();
-                    if(i == 0) {
+                    if (i == 0) {
                         throw new IllegalStateException("Không thể thay đổi, id có thể sai!");
                     }
                     return i > 0;
@@ -72,4 +80,26 @@ public class FieldDao {
         );
     }
 
+    public int countAllFields() {
+        String countSql = "SELECT COUNT(*) FROM fields";
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(countSql)
+                    .mapTo(Integer.class)
+                    .one();
+        });
+    }
+
+    public List<FieldResponse> search(String searchKey) {
+        String searchSql = """
+                SELECT id, code, name, status, createdAt, updatedAt 
+                FROM fields
+                WHERE name LIKE :searchKey OR code LIKE :searchKey
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(searchSql)
+                    .bind("searchKey", "%" + searchKey + "%")
+                    .mapToBean(FieldResponse.class)
+                    .list();
+        });
+    }
 }

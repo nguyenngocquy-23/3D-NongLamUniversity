@@ -7,9 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.SearchRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.FieldService;
 
 import java.time.LocalDateTime;
@@ -36,15 +39,24 @@ public class FieldController {
         }
     }
 
-    @GET
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<FieldResponse>> getFields() {
-        List<FieldResponse> allFields = fieldService.getAllFields();
+    public ApiResponse<List<FieldResponse>> getFields(PageRequest request) {
+        List<FieldResponse> allFields = fieldService.getAllFields(request);
         return ApiResponse.<List<FieldResponse>>builder()
                 .statusCode(1000)
                 .message("Lay danh sach field thanh cong")
                 .data(allFields)
                 .build();
+    }
+
+    @POST
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<FieldResponse>> searchField(SearchRequest request) {
+        List<FieldResponse> result = fieldService.search(request.getSearchKey());
+        return ApiResponse.<List<FieldResponse>>builder().statusCode(1000).message("Tim kiem thanh cong").data(result).build();
     }
 
     @POST

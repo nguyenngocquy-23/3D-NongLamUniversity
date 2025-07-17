@@ -18,7 +18,7 @@ const BoardUploader = () => {
   const fields = useSelector((state: RootState) => state.data.fields);
 
   useEffect(() => {
-    dispatch(fetchFields());
+    dispatch(fetchFields({limit: 50, page: 0}));
   }, [dispatch]);
 
   // Lấy danh sách space theo field

@@ -11,6 +11,7 @@ export const API_URLS = {
   LOGIN: `${DOMAIN}/login`,
   LOGOUT: `${DOMAIN}/authenticate/logout`,
   REGISTER: `${DOMAIN}/register`,
+  CREATE_ADMIN: `${DOMAIN}/register/createAdmin`,
   USER: `${DOMAIN}/user`,
   VERIFY: `${DOMAIN}/authenticate/verifyEmail`,
   REFRESH_TOKEN: `${DOMAIN}/authenticate/refresh`,
@@ -24,6 +25,8 @@ export const API_URLS = {
   UPLOAD_CLOUD: `${DOMAIN}/v1/admin/cloud/upload`,
 
   GET_MASTER_NODES: `${DOMAIN}/node/master`,
+  GET_ALL_MODEL: `${DOMAIN}/v1/admin/hotspot/getAllModel`,
+  INCREASE_NUM_DOWNLOAD_MODEL: `${DOMAIN}/v1/admin/hotspot/countDownloadModel`,
   INCREASE_NODE_VIEW: `${DOMAIN}/node/increaseView`,
   GET_PRELOAD_NODES: `${DOMAIN}/node/preloadNodeList`,
   GET_FULL_TOUR: `${DOMAIN}/node/nodeListByMasterId`,
@@ -34,11 +37,21 @@ export const API_URLS = {
   NUM_VIEW_OF_USER: `${DOMAIN}/node/getNumOfUser`,
   COMMENT_OF_NODE: `${DOMAIN}/comment/getOfNode`,
   NUM_COMMENT_OF_USER: `${DOMAIN}/comment/getNumOfUser`,
+  NUM_DOWNLOAD_MODEL_OF_USER: `${DOMAIN}/v1/admin/hotspot/getNumDownloadModel`,
   SEND_COMMENT: `${DOMAIN}/comment/send`,
   EDIT_COMMENT: `${DOMAIN}/comment/update`,
   REMOVE_COMMENT: `${DOMAIN}/comment/remove`,
+  
+  SEND_CONTACT: `${DOMAIN}/contact/send`,
+  ADMIN_FEEDBACK_CONTACT: `${DOMAIN}/v1/admin/contact/feedback`,
+
+  SEARCH_FIELDS: `${DOMAIN}/admin/field/search`,
+  SEARCH_SPACES: `${DOMAIN}/admin/space/search`,
+  SEARCH_NODES: `${DOMAIN}/v1/admin/node/search`,
+  SEARCH_ICONS: `${DOMAIN}/v1/admin/icon/search`,
 
   GET_MODEL: `${DOMAIN}/v1/admin/hotspot/getModel`,
+  GET_NUM_TOTAL_MODEL: `${DOMAIN}/v1/admin/hotspot/getNumTotalModel`,
   ADMIN_GET_DASHBOARD: `${DOMAIN}/admin/dashboard`,
   ADMIN_GET_ALL_NODES: `${DOMAIN}/v1/admin/node/all`,
   ADMIN_GET_AUTO_TOURS: `${DOMAIN}/v1/admin/node/getAutoTour`,
@@ -50,6 +63,7 @@ export const API_URLS = {
   ADMIN_GET_HOTSPOT_TYPES: `${DOMAIN}/admin/hotspotType`,
   ADMIN_GET_ALL_FIELDS: `${DOMAIN}/admin/field`,
   ADMIN_GET_ALL_NODE_IMAGES: `${DOMAIN}/v1/admin/node/getNodeImg`,
+  ADMIN_GET_ALL_CONTACTS: `${DOMAIN}/v1/admin/contact/getAll`,
 
   ADMIN_CREATE_NODES: `${DOMAIN}/v1/admin/node/insert`,
   ADMIN_CREATE_AUTO_TOUR: `${DOMAIN}/v1/admin/node/createAutoTour`,

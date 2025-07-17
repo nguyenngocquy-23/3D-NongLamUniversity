@@ -379,30 +379,6 @@ const VirtualTour = () => {
     }
   }, [fullMap, hoverMap]);
 
-  // const defaultNode = sessionStorage.getItem("defaultNode");
-  // let defaultNode = null;
-  // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
-
-  const [percent, setPercent] = useState(0);
-
-  // useEffect(() => {
-  //   let progress = 0;
-  //   const interval = setInterval(() => {
-  //     progress += Math.random() * 10;
-  //     if (progress >= 100) {
-  //       progress = 100;
-  //       clearInterval(interval);
-  //       // Đợi render xong mới tắt loading
-  //       requestAnimationFrame(() => {
-  //         setTimeout(() => setIsWaiting(false), 500);
-  //       });
-  //     }
-  //     setPercent(Math.floor(progress));
-  //   }, 200);
-
-  //   return () => clearInterval(interval);
-  // }, []);
-
   const preloadNodes = useSelector(
     (state: RootState) => state.data.preloadNodes
   );
@@ -466,6 +442,51 @@ const VirtualTour = () => {
     loadHighRes();
   }, [nodeToRender]);
 
+  const [percent, setPercent] = useState(0);
+  const [isLoadingDone, setIsLoadingDone] = useState(false);
+
+  useEffect(() => {
+    if(!preloadNodes || !nodeToRender || !hotspotModels || !hotspotMedias || !hotspotNavigations || !hotspotInformations) {
+      setIsLoadingDone(false);
+      return;
+    }else{
+      setIsLoadingDone(true);
+    }
+  }, [preloadNodes, nodeToRender, hotspotModels, hotspotMedias, hotspotNavigations, hotspotInformations, imageRef]);
+
+  useEffect(() => {
+  let progress = 0;
+
+  const interval = setInterval(() => {
+    if (!isLoadingDone) {
+      // Loading giả lập, chỉ cho đến 90%
+      if (progress < 90) {
+        progress += Math.random() * 5; // tăng chậm lại để mượt
+        if (progress > 90) progress = 90;
+        setPercent(Math.floor(progress));
+      }
+    } else {
+      // Task thật xong, tăng nốt phần còn lại đến 100%
+      if (progress < 100) {
+        progress += Math.random() * 10;
+        if (progress > 100) progress = 100;
+        setPercent(Math.floor(progress));
+      }
+
+      // Nếu đã 100% thì clear interval
+      if (progress >= 100) {
+        clearInterval(interval);
+        requestAnimationFrame(() => {
+          setTimeout(() => setIsWaiting(false), 500);
+        });
+      }
+    }
+  }, 200);
+
+  return () => clearInterval(interval);
+}, [isLoadingDone]);
+
+
   useEffect(() => {
     if (!preloadNodes || preloadNodes.length === 0) return;
 
@@ -497,11 +518,11 @@ const VirtualTour = () => {
             lastUsed: Date.now(),
           };
 
-          setPercent(Math.floor((loaded / total) * 100));
-          if (loaded === total) {
-            // imageRef.current = imgCache;
-            setIsWaiting(false);
-          }
+          // setPercent(Math.floor((loaded / total) * 100));
+          // if (loaded === total) {
+          //   // imageRef.current = imgCache;
+          //   setIsWaiting(false);
+          // }
         };
       } catch (err) {
         console.warn("Lỗi không thể tải reload:", node.url, err);
@@ -539,40 +560,33 @@ const VirtualTour = () => {
       onPointerMove={handleMouseEnterMenu}
       onPointerDown={handleCloseMenu}
     >
-      {isWaiting ? (
-        <Waiting percent={percent} />
-      ) : (
-        <TourCanvas
-          windowSize={windowSize}
-          cursor={cursor}
-          sphereRef={sphereRef}
-          radius={RADIUS_SPHERE}
-          defaultNode={nodeToRender}
-          targetPosition={targetPosition ?? null}
-          hotspotNavigations={hotspotNavigations}
-          hotspotInformations={hotspotInformations}
-          hotspotModels={hotspotModels}
-          hotspotMedias={hotspotMedias}
-          isRotation={isRotation}
-          setTargetPosition={setTargetPosition}
-          isOpenRadar={isOpenRadar}
-          setIsOpenRadar={setIsOpenRadar}
-          imageRef={imageRef}
-          imageVersion={imageVersion}
-        />
-      )}
-
+      <TourCanvas
+        windowSize={windowSize}
+        cursor={cursor}
+        sphereRef={sphereRef}
+        radius={RADIUS_SPHERE}
+        defaultNode={nodeToRender}
+        targetPosition={targetPosition ?? null}
+        hotspotNavigations={hotspotNavigations}
+        hotspotInformations={hotspotInformations}
+        hotspotModels={hotspotModels}
+        hotspotMedias={hotspotMedias}
+        isRotation={isRotation}
+        setTargetPosition={setTargetPosition}
+        isOpenRadar={isOpenRadar}
+        setIsOpenRadar={setIsOpenRadar}
+        imageRef={imageRef}
+        imageVersion={imageVersion}
+      />
       <div className={styles.headerTour}>
         <h2>NLU360</h2>
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
-
-      {/* {fullMap || hoverMap ? (
+      {fullMap || hoverMap ? (
         ""
       ) : (
         <LeftMenuTour isMenuVisible={isMenuVisible} imageRef={imageRef} />
-      )} */}
-
+      )}
       <AnimatePresence>
         <motion.div
           initial={{ y: 800, opacity: 0 }}
@@ -585,7 +599,6 @@ const VirtualTour = () => {
       {isMenuVisible && (
         <LeftMenuTour isMenuVisible={isMenuVisible} imageRef={imageRef} />
       )}
-
       {!isOpenRadar && (
         <button
           className={styles.open_radar_button}
@@ -595,7 +608,6 @@ const VirtualTour = () => {
           <IoIosCompass />
         </button>
       )}
-
       {/* Hộp chat sửa wss */}
       <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />
       {/* Footer chứa các tính năng */}
@@ -708,6 +720,8 @@ const VirtualTour = () => {
           )}
         </div>
       )}
+      /* Màn hình laoding */
+      {isWaiting ? <Waiting percent={percent} /> : ""}
     </div>
   );
 };

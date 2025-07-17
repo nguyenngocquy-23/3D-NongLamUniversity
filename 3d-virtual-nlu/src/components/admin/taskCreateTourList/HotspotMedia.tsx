@@ -313,6 +313,7 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
         <div className={styles.row_container}>
           <label className={styles.label}>Tiêu đề:</label>
           <textarea
+            className={styles.title_input}
             name=""
             id=""
             value={caption}

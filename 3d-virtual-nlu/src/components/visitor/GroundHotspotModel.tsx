@@ -246,11 +246,11 @@ const GroundHotspotModel = ({
             )}
           </Suspense>
           <Html distanceFactor={40} transform>
-            <div className={styles.container}>
+            <div className={styles.model_container}>
               <div className={styles.leftPane} />
               <div className={styles.rightPane}>
                 <div className={styles.title}>{hotspotModel.name}</div>
-                <div className={styles.description}>
+                <div className={styles.model_description}>
                   {hotspotModel.description}
                 </div>
                 <button

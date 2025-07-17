@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Message {
-    private int id, userId, roomId;
+    private int id, userId, nodeId;
     private String content;
     private Timestamp createdAt;
 

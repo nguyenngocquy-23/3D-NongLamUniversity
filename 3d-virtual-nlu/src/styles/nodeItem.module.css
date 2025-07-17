@@ -1,17 +1,18 @@
 .node_wrapper {
-  width: 100%;
-  height: 100%;
-  border: 1px solid #ffffff22;
-  background-color: #fff;
-
-  border-radius: 0.7rem;
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
-  overflow: hidden;
-  transition: 0.5s all;
-  font-size: 0.5rem;
+  width: 200px;
+  height: 200px;
   display: flex;
-  gap: 2px;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.node_wrapper:hover {
+  opacity: 0.8;
 }
 
 .node_content_left {
@@ -26,24 +27,41 @@
   height: 100%;
 }
 
-.node_content_right {
-  width: calc(70% - 2px);
+.node_card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  filter: brightness(0.4);
 }
 
-.node_content_right .name {
+.node_content {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  color: #fff;
+  cursor: pointer;
+  position: relative;
+}
+
+.node_content .name {
   font-size: 1rem;
   font-weight: 400;
-  color: #000;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
 }
 
-.node_content_right .label {
+.node_content .label {
   display: flex;
   justify-content: start;
-  column-gap: 0.4rem;
-  color: #000;
   font-size: 0.8rem;
   flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.5rem;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .num_react {
@@ -51,12 +69,16 @@
   justify-content: center;
   align-items: center;
 }
+
 .footer {
+  width: 100%;
+  padding: 0 0.5rem;
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
-  margin: 0.5rem 0;
+  position: absolute;
+  bottom: 1rem;
 }
+
 .by_user_wrapper {
   display: flex;
   justify-content: center;
@@ -92,14 +114,15 @@
   top: 0px;
   opacity: 0;
 }
+
 .status {
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 0.5rem;
-  padding: 0.2rem;
+  padding: 0.3rem 0.5rem;
   color: #fff;
-  font-size: 0.5rem;
+  font-size: 0.6rem;
 }
 
 .status_open {
@@ -108,4 +131,8 @@
 
 .status_stop {
   background-color: red;
+}
+
+.status_wait {
+  background-color: orange;
 }

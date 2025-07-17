@@ -9,6 +9,8 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { MdAdminPanelSettings } from "react-icons/md";
 import { Datatable } from "../../components/admin/DataTable";
 import { fetchUsers } from "../../redux/slices/DataSlice";
+import { API_URLS } from "../../env";
+import { IoSearch } from "react-icons/io5";
 
 interface User {
   id: number;
@@ -32,7 +34,7 @@ function User() {
     if (
       currentUser == undefined ||
       currentUser == null ||
-      (currentUser && currentUser.roleId !== 2)
+      (currentUser && currentUser.roleId !== 2 && currentUser.roleId !== 3)
     ) {
       navigate("/unauthorized");
     } else {
@@ -43,7 +45,7 @@ function User() {
 
   // Cập nhật searchData mỗi khi users thay đổi
   useEffect(() => {
-    console.log(users)
+    console.log(users);
     if (users.length > 0) {
       setSearchData(users); // Chỉ cập nhật khi users có dữ liệu
     }
@@ -64,34 +66,35 @@ function User() {
   const toggleLockStatus = async (userId: number, isLock: boolean) => {
     setLoading(true);
     try {
-      await axios.put(
-        `https://localhost:7125/User/toggleLockStatus/${userId}`,
-        null,
+      const response = await axios.post(
+        `${API_URLS.BASE}/user/toggleLockStatus`,
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
+          userId: userId,
         }
       );
-      if (isLock)
-        Swal.fire({
-          title: "Đã khóa tài khoản!",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1000,
-          toast: true,
-          timerProgressBar: true,
-        });
-      else
-        Swal.fire({
-          title: "Đã mở tài khoản!",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1000,
-          toast: true,
-          timerProgressBar: true,
-        });
-      fetchUsers();
+      if (response.data.data) {
+        if (isLock)
+          Swal.fire({
+            title: "Đã khóa tài khoản!",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1000,
+            toast: true,
+            timerProgressBar: true,
+            position: "top-end",
+          });
+        else
+          Swal.fire({
+            title: "Đã mở tài khoản!",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1000,
+            toast: true,
+            timerProgressBar: true,
+            position: "top-end",
+          });
+      }
+      dispatch(fetchUsers()); // Cập nhật lại danh sách người dùng sau khi thay đổi trạng thái
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const errorMsg =
@@ -129,22 +132,35 @@ function User() {
       name: "Trạng thái",
       cell: (row: User) =>
         row.roleId === 0 ? (
-          <button
-            style={{ margin: "auto", cursor: "pointer" }}
-            onClick={() => {
-              if (row.status === 1) {
-                toggleLockStatus(row.id, true);
-              } else if (row.status === 0) {
-                toggleLockStatus(row.id, false);
-              }
-            }}
-          >
-            {row.status === 0 ? (
-              <FaLock style={{ color: "red" }} />
-            ) : (
-              <FaUnlock />
-            )}
-          </button>
+          row.status != 1 ? (
+            <button
+              className={styles.status_button}
+              onClick={() => {
+                if (row.status == 2) {
+                  toggleLockStatus(row.id, true);
+                } else if (row.status == 0) {
+                  toggleLockStatus(row.id, false);
+                }
+              }}
+              title={row.status == 2 ? "khóa tài khoản" : "mở tài khoản"}
+            >
+              {row.status === 0 ? (
+                <FaLock style={{ color: "red" }} />
+              ) : (
+                <FaUnlock />
+              )}
+            </button>
+          ) : (
+            <span
+              style={{
+                padding: "0.3rem ",
+                backgroundColor: "orange",
+                borderRadius: "5px",
+              }}
+            >
+              Đang xác thực
+            </span>
+          )
         ) : (
           <MdAdminPanelSettings
             style={{ margin: "auto", fontSize: "25px", color: "#009879" }}
@@ -158,23 +174,19 @@ function User() {
 
   return (
     <div className={styles.container}>
-      <input
-        type="text"
-        title="Keyword trong tiêu đề và mô tả ngắn"
-        onChange={handleSearch}
-        placeholder="Tìm kiếm..."
-        className="search-input"
-        style={{
-          position: "absolute",
-          top: "5px",
-          left: "10px",
-          width: "20%",
-          padding: "10px",
-          borderRadius: "5px",
-          border: "1px solid #ccc",
-        }}
-      />
-      <h2>Danh Sách Người Dùng</h2>
+      <div className={styles.search_box}>
+        <label htmlFor="input" className={styles.label}>
+          <IoSearch className={styles.search_icon} />
+        </label>
+        <input
+          type="text"
+          name="field"
+          id="input"
+          placeholder="Tìm kiếm..."
+          className={styles.search_input}
+          onChange={handleSearch}
+        />
+      </div>
       {loading && <p>Đang tải...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 

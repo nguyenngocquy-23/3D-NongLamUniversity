@@ -3,7 +3,6 @@
   height: 100%;
   border-radius: 8px;
   position: relative;
-  padding: 0 20px;
   /* padding-top: 30px; */
   box-sizing: border-box;
 }
@@ -131,6 +130,7 @@
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
   font-size: 0.9rem;
 }
+
 .tour_search_box {
   padding-left: 1rem;
 }
@@ -143,19 +143,24 @@
   font-size: 0.9rem;
   caret-color: #267026;
   background-color: #fff;
+  color: black;
 }
+
 .tour_search_box .label_for_search {
   cursor: text;
   padding: 0px 12px;
 }
+
 .search_icon {
   width: 13px;
 }
+
 .border {
   height: 40%;
   width: 1.3px;
   background-color: rgb(223, 223, 223);
 }
+
 .mic_search {
   padding: 0px 15px 0px 12px;
   border: none;
@@ -168,6 +173,7 @@
 .mic_icon {
   width: 12px;
 }
+
 .mic_search:hover {
   background-color: rgb(230, 255, 230);
   transition-duration: 0.3s;
@@ -179,14 +185,17 @@
   padding: 1rem;
   color: #000;
 }
+
 .tour_box:hover {
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
 }
+
 .tour_box button {
   background-color: transparent;
   border: none;
   color: #000;
 }
+
 .tour_sort_box {
   color: #000;
   padding: 1rem;
@@ -195,7 +204,6 @@
 
 .tour_add {
   color: #000;
-  margin-left: auto;
   padding: 1rem;
   text-decoration: none;
 }
@@ -210,18 +218,51 @@
   background-color: #267026;
   margin: 0 1rem 1rem 1rem;
 }
+
 .tour_quantity {
   color: #848484;
   font-style: italic;
   margin: 1rem;
+  position: absolute;
 }
 
 .tour_list {
   display: grid;
   max-height: 420px;
   margin: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   justify-items: center;
   gap: 1rem;
   overflow: auto;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.page_btn {
+  padding: 8px 12px;
+  margin: 0 4px;
+  border: none;
+  background-color: #eee;
+  cursor: pointer;
+  color: black;
+}
+
+.page_btn:focus {
+  outline: none;
+  border: none;
+}
+
+.page_btn:hover {
+  background-color: #ddd;
+}
+
+.active {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
 }

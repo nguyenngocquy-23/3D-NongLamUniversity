@@ -64,9 +64,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
 
       {isOpen && (
         <ul
-          style={{
-            marginTop: isOpen ? undefined : "30px",
-          }}
+          className={styles.nav_list}
         >
           <Link to={"/manage/"} onClick={() => setIsNav(1)}>
             <li className={`${styles.title} ${isNav == 1 ? styles.show : ""}`}>
@@ -83,14 +81,14 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
               <span>Tạo tour mới</span>
             </li>
           </Link>
-          <Link to={""}>t
+          <Link to={""}>
             <li className={`${styles.title} ${isNav == 4 ? styles.show : ""}`}>
               <span>Tạo tour tự động</span>
             </li>
           </Link>
         </ul>
       )}
-      <div className={styles.info}>
+      {/* <div className={styles.info}>
         {isOpen && (
           <>
             <img src={user.avatar}/>
@@ -101,7 +99,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
             </div>
           </>
         )}
-      </div>
+      </div> */}
     </nav>
   );
 };

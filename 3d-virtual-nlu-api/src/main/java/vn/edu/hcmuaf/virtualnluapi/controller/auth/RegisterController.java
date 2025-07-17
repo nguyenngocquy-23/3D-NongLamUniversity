@@ -80,6 +80,54 @@ public class RegisterController {
 //                .build();
     }
 
+    @POST
+    @Path("/createAdmin")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createAdminAccount(UserRegisterRequest userForm) {
+        if (userForm == null) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Invalid user data")
+                    .build();
+        }
+
+        // Validate user input
+        boolean hasError = validate(userForm);
+        if (hasError) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Validation failed: Username or Email already exists, or password is invalid.")
+                    .build();
+        }
+
+        // Register user
+        User user = authenticationService.createAdminAccount(userForm);
+        if (user == null) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("User registration failed")
+                    .build();
+        }
+
+        // Create email verification
+        EmailVerification verification = verificationService.sendVerify(user.getId());
+        if (verification != null) {
+            try {
+                mail.sendMailVerifyUser(user, verification);
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
+            return Response.ok("Registration successful. Please check your email to verify your account.").entity(user.getId())
+                    .build();
+        }
+
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("Email verification failed")
+                .build();
+//        return ApiResponse.builder()
+//                .statusCode(200)
+//                .message("Email verification failed")
+//                .build();
+    }
+
     private boolean validate(UserRegisterRequest user) {
         if (Validator.containsWhitespace(user.getUsername()) || userService.isUsernameExists(user.getUsername())) {
             return true;

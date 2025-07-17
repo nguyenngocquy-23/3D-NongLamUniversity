@@ -330,16 +330,16 @@ const SpaceDetail = () => {
     const maxZ = point.z + limit;
 
     const isNear = hotspotPosition
-      .filter((h) => h.nodeId === currentSelectId)
-      .some((h) =>
+      .filter((h:any) => h.nodeId === currentSelectId)
+      .some((h:any) =>
         h.hotspotPositions.some(
-          (positions) =>
-            positions[0] > minX &&
-            positions[0] < maxX &&
-            positions[1] > minY &&
-            positions[1] < maxY &&
-            positions[2] > minZ &&
-            positions[2] < maxZ
+          (hotspot:any) =>
+            hotspot.position[0] > minX &&
+            hotspot.position[0] < maxX &&
+            hotspot.position[1] > minY &&
+            hotspot.position[1] < maxY &&
+            hotspot.position[2] > minZ &&
+            hotspot.position[2] < maxZ
         )
       );
     if (isNear) {

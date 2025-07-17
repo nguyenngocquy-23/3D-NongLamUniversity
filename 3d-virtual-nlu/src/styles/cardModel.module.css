@@ -13,6 +13,20 @@
   border: 1px solid #fff;
 }
 
+.model_container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: transparent;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  width: 400px;
+  max-height: 250px;
+  color: black;
+  transform: scaleX(-1);
+  border: 1px solid #fff;
+}
+
 .leftPane {
   flex: 1;
   width: 50%;
@@ -24,8 +38,8 @@
   width: 50%;
   height: 200px;
   padding: 15px;
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .description {
@@ -35,6 +49,19 @@
   overflow-y: auto;
   pointer-events: auto;
 }
+
+.model_description {
+  color: black;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  height: 55%;
+  overflow-y: auto;
+  pointer-events: auto;
+
+  white-space: normal;
+  word-break: break-word;
+}
+
 
 .center_pane {
   margin: auto;

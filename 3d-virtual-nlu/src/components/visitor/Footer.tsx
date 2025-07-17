@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "../../styles/visitor/footer.module.css";
 import { Link as ScrollLink } from "react-scroll";
 
@@ -19,6 +19,25 @@ export default function Footer() {
   const [openForm, setOpenForm] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY; // vị trí hiện tại cuộn
+      const windowHeight = window.innerHeight; // chiều cao màn hình
+      const fullHeight = document.documentElement.scrollHeight; // tổng chiều cao trang
+
+      const checkOpenForm = sessionStorage.getItem("openForm");
+      if (scrollTop + windowHeight >= fullHeight && !checkOpenForm) {
+        setOpenForm(true);
+        sessionStorage.setItem("openForm", "true");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <>
       {/* <div className={styles.marqueeWrapper}>

@@ -16,6 +16,7 @@ const CreateTourStep4: React.FC = () => {
         onClick={() => {
           dispatch(resetStep());
         }}
+        style={{padding: '0.5rem 1rem'}}
       >
         Tạo tour mới
       </button>
