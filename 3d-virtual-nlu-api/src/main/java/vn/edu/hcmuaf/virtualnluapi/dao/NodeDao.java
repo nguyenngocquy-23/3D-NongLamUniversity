@@ -63,7 +63,7 @@ public class NodeDao {
         });
     }
 
-    public List<NodeFullResponse> getAllNodes(PageRequest request) {
+    public List<NodeFullResponse> getNodesByPage(PageRequest request) {
         String sql = """
                  SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
                  n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
@@ -75,6 +75,18 @@ public class NodeDao {
                  LIMIT :limit OFFSET :offset
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("limit", request.getLimit()).bind("offset", request.getPage() * request.getLimit()).mapToBean(NodeFullResponse.class).list());
+    }
+    public List<NodeFullResponse> getAllNodes() {
+        String sql = """
+                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                 n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                 FROM nodes n
+                 JOIN spaces s ON n.spaceId = s.id
+                 JOIN fields f ON s.fieldId = f.id
+                 WHERE n.status IN (0,2,3)
+                 ORDER BY n.updatedAt DESC
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
     }
 
     public List<NodeFullResponse> getAllApprovingNodes(PageRequest request) {

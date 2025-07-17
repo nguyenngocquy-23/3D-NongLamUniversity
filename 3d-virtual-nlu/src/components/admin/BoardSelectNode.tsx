@@ -72,7 +72,7 @@ const BoardSelectNode = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
-      const response = await axios.post(API_URLS.ADMIN_GET_ALL_NODES, {
+      const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
         page: currentPage,
         limit: perPage,
       });

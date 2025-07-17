@@ -27,8 +27,12 @@ public class NodeService {
         return nodeDao.insertNode(reqs);
     }
 
-    public List<NodeFullResponse> getAllNodes(PageRequest request) {
-        return nodeDao.getAllNodes(request);
+    public List<NodeFullResponse> getNodesByPage(PageRequest request) {
+        return nodeDao.getNodesByPage(request);
+    }
+
+    public List<NodeFullResponse> getAllNodes() {
+        return nodeDao.getAllNodes();
     }
 
     public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {

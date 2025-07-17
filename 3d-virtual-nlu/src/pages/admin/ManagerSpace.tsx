@@ -115,7 +115,7 @@ const Space = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
-      const response = await axios.post(API_URLS.ADMIN_GET_ALL_SPACES, {
+      const response = await axios.post(API_URLS.ADMIN_GET_SPACES_BY_PAGE, {
         page: currentPage,
         limit: perPage,
       });
@@ -301,7 +301,8 @@ const Space = () => {
           </div>
           <div style={{ display: "flex", alignItems: "center" }}>
             <div className={styles.space_quantity}>
-              Kết quả: {search == "" ? totalSpace : spaceList.length} không gian.
+              Kết quả: {search == "" ? totalSpace : spaceList.length} không
+              gian.
             </div>
             {search.length === 0 && (
               <div className={styles.pagination}>

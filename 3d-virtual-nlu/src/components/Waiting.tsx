@@ -4,22 +4,7 @@ import styles from "../styles/waiting.module.css";
 const Waiting = ({ percent }: { percent: number }) => {
   return (
     <div className={styles.loading_container}>
-      {/* <video
-        className={styles.video}
-        src={`${import.meta.env.BASE_URL}loadingNLU.mp4`}
-        autoPlay
-        muted
-        loop
-      /> */}
-      <div className={styles.sk_chase}>
-        <div className={styles.sk_chase_dot}></div>
-        <div className={styles.sk_chase_dot}></div>
-        <div className={styles.sk_chase_dot}></div>
-        <div className={styles.sk_chase_dot}></div>
-        <div className={styles.sk_chase_dot}></div>
-        <div className={styles.sk_chase_dot}></div>
-      </div>
-      {/* <div className={styles.shadow}></div> */}
+      <span className={styles.loader}></span>
       <div className={styles.loading_box}>
         <div className={styles.progress_bar}>
           <div
