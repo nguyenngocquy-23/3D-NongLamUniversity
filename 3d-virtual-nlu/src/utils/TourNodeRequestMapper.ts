@@ -778,7 +778,6 @@ export class TourNodeRequestMapper {
           name: h.name,
           description: h.description,
           colorCode: h.colorCode,
-          iconType: h.iconType,
         } as HotspotModel);
       });
     }

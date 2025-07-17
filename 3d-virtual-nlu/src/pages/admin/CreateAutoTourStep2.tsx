@@ -126,7 +126,8 @@ const CreateAutoTourStep2 = () => {
   /**
    * Lấy URL panorama hiện tại - hoặc dùng mặc định.
    */
-  const currentPanoramaUrl = currentPanorama?.url ??  `${import.meta.env.BASE_URL}khoa.jpg`;
+  const currentPanoramaUrl =
+    currentPanorama?.url ?? `${import.meta.env.BASE_URL}khoa.jpg`;
 
   const {
     positionX = 0,
@@ -280,8 +281,10 @@ const CreateAutoTourStep2 = () => {
           addInformationHotspot({
             ...updatedProps,
             type: 2,
-            title: "",
             content: "",
+            backgroundColorContent: { r: 0, g: 0, b: 0, a: 0 },
+            borderColorContent: "",
+            borderSizeContent: 0,
           })
         );
         break;

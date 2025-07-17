@@ -137,7 +137,6 @@ const ConfigIcon = ({
       backgroundColor,
       allowBackgroundColor,
       opacity,
-      iconType,
     };
   };
 

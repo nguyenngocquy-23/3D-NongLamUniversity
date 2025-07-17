@@ -135,7 +135,7 @@ const ConfigMedia = ({
             }}
             checked={typeFrame === 0}
           />{" "}
-          <div className={styles.rectangle}/>
+          <div className={styles.rectangle} />
         </div>
         <div className={`${styles.frame} ${styles.circle_frame}`}>
           <input
@@ -147,11 +147,10 @@ const ConfigMedia = ({
             disabled
             checked={typeFrame === 1}
           />{" "}
-          <div className={styles.circle}/>
+          <div className={styles.circle} />
         </div>
       </div>
       <div>
-      
         {typeFrame == 0 ? (
           <button
             onClick={() => {

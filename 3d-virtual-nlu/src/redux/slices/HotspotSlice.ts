@@ -21,7 +21,6 @@ export interface BaseHotspot {
   backgroundColor: string;
   allowBackgroundColor: boolean;
   opacity: number;
-  iconType: number;
 }
 
 export interface HotspotNavigation extends BaseHotspot {

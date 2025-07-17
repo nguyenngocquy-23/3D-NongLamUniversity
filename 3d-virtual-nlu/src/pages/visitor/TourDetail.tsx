@@ -498,8 +498,10 @@ const TourDetail = () => {
           addInformationHotspot({
             ...updatedProps,
             type: 2,
-            title: "",
             content: "",
+            backgroundColorContent: { r: 0, g: 0, b: 0, a: 0 },
+            borderColorContent: "",
+            borderSizeContent: 0,
           })
         );
         break;
