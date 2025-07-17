@@ -80,5 +80,5 @@ export const API_URLS = {
   ADMIN_CHANGE_NAME_SPACE: `${DOMAIN}/admin/space/changeName`,
   ADMIN_CHANGE_MASTER_NODE_BY_ID: `${DOMAIN}/admin/space/setMasterNodeById`,
   ADMIN_CHANGE_NAME_FIELD: `${DOMAIN}/admin/field/changeName`,
-  ADMIN_CHANGE_ICON_STATUS: `${DOMAIN}/admin/field/changeStatus`,
+  ADMIN_CHANGE_ICON_STATUS: `${DOMAIN}/v1/admin/icon/changeStatus`,
 };

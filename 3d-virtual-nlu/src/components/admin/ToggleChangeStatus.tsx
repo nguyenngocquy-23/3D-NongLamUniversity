@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../redux/Store";
-import { fetchFields, fetchSpaces } from "../../redux/slices/DataSlice";
+import {
+  fetchFields,
+  fetchIcons,
+  fetchSpaces,
+} from "../../redux/slices/DataSlice";
 import styles from "../../styles/toggleChangeStatus.module.css";
 import { perPage } from "../../utils/Constants";
+import Swal from "sweetalert2";
 
 type StatusToggleProps = {
   id: number;
@@ -22,30 +27,67 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
+  const toggle = useRef<number>(status);
+  useEffect(() => {
+    toggle.current = status;
+  }, [id, status]);
 
   const handleToggleStatus = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
-    const newToggle = checked ? 1 : 0;
-
+    toggle.current = e.target.checked ? 1 : 0;
     setLoading(true);
-
     try {
-      await axios.post(apiUrl, { id, status: newToggle });
-      switch (type) {
-        case "field":
-          dispatch(fetchFields({ limit: perPage, page: 0 }));
-          break;
+      const response = await axios.post(apiUrl, { id, status: toggle.current });
+      if (response.data.data) {
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Cập nhật trạng thái thành công.",
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          toast: true,
+        });
+        switch (type) {
+          case "field":
+            dispatch(fetchFields({ limit: perPage, page: 0 }));
+            break;
 
-        case "space":
-          dispatch(fetchSpaces({ limit: perPage, page: 0 }));
-          break;
+          case "space":
+            dispatch(fetchSpaces({ limit: perPage, page: 0 }));
+            break;
 
-        default:
-          break;
+          case "icon":
+            dispatch(fetchIcons());
+            break;
+
+          default:
+            break;
+        }
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Cập nhật trạng thái không thành công. Vui lòng thử lại sau.",
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          toast: true,
+        });
       }
     } catch (err) {
-      console.error("Cập nhật trạng thái thất bại:", err);
-      alert("Không thể cập nhật trạng thái!");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Cập nhật trạng thái không thành công. Vui lòng thử lại sau.",
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        toast: true,
+      });
+      toggle.current = status;
     } finally {
       setLoading(false);
     }
@@ -56,7 +98,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
       <input
         id="checkbox"
         type="checkbox"
-        checked={status > 0}
+        checked={toggle.current == 1}
         onChange={id > 0 ? handleToggleStatus : undefined}
         disabled={loading}
         style={{

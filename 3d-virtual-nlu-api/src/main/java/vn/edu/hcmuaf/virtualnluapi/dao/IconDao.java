@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
 
 import java.sql.Timestamp;
@@ -16,7 +17,7 @@ public class IconDao {
 
     public List<IconResponse> getAllIcons() {
         String sqlQuery = """
-                SELECT id, name,url, isActive, createdAt, isActive as active, type, thumbnail
+                SELECT id, name, code, url, isActive, createdAt, type, thumbnail
                 FROM icons
                 ORDER BY createdAt DESC
                 """;
@@ -28,7 +29,7 @@ public class IconDao {
     }
 
     public boolean createIcon(IconCreateRequest req) {
-        String sqlQuery = "INSERT INTO icons(name, url, isActive, type, thumbnail, createdAt) VALUES (:name, :url, :isActive, :createdAt, :type, :thumbnail)";
+        String sqlQuery = "INSERT INTO icons(name, code, url, isActive, type, thumbnail, createdAt) VALUES (:name, :url, :isActive, :createdAt, :type, :thumbnail)";
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("name", req.getName())
@@ -44,7 +45,7 @@ public class IconDao {
 
     public List<IconResponse> search(String searchKey) {
         String sqlQuery = """
-                SELECT id, name, url, isActive, createdAt, isActive as active, type, thumbnail
+                SELECT id, name, code, url, isActive, createdAt, type, thumbnail
                 FROM icons
                 WHERE name LIKE :searchKey
                 ORDER BY createdAt DESC
@@ -54,6 +55,17 @@ public class IconDao {
                     .bind("searchKey", "%" + searchKey + "%")
                     .mapToBean(IconResponse.class)
                     .list();
+        });
+    }
+
+    public boolean changeStatusIcon(StatusRequest req) {
+        String sqlQuery = "UPDATE icons SET isActive = :isActive WHERE id = :id";
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int rows = handle.createUpdate(sqlQuery)
+                    .bind("isActive", req.getStatus())
+                    .bind("id", req.getId())
+                    .execute();
+            return rows == 1;
         });
     }
 }

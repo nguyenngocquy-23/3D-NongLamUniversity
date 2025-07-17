@@ -190,6 +190,7 @@
   background-color: transparent;
   outline: none;
   width: 100%;
+  color: black;
 }
 
 .field_input_name_container .underline {

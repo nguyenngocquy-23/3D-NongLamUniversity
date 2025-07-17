@@ -20,6 +20,7 @@ import {
 import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 import Sidebar from "./Sidebar";
 import { perPage } from "../../utils/Constants";
+import { resetStep } from "../../redux/slices/StepSlice";
 
 const Layout = () => {
   const currentUserJson = sessionStorage.getItem("user");
@@ -39,6 +40,7 @@ const Layout = () => {
       navigate("/unauthorized");
       return;
     }
+    dispatch(resetStep());
   }, []);
 
   useEffect(() => {

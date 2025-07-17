@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import vn.edu.hcmuaf.virtualnluapi.dao.IconDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
 
 import java.util.List;
@@ -36,6 +37,15 @@ public class IconService {
         } catch (Exception e) {
             e.printStackTrace();
             return List.of();
+        }
+    }
+
+    public boolean changeStatusIcon(StatusRequest req) {
+        try {
+            return iconDao.changeStatusIcon(req);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

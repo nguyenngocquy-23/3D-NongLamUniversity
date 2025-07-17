@@ -32,7 +32,7 @@ interface Icon {
 }
 
 const emptyIcon: Icon = {
-  id: 0, // ID giả để phân biệt với các field thật
+  id: 0,
   name: "",
   code: "",
   type: 1,
@@ -58,6 +58,7 @@ const ManagerIcon = () => {
 
   useEffect(() => {
     setInputIconName(selectedIcon?.name || "");
+    setNameCode(selectedIcon?.code || "");
   }, [selectedIcon]);
 
   useEffect(() => {
@@ -198,11 +199,11 @@ const ManagerIcon = () => {
           </button>
         </div>
         <div className={styles.icon_list}>
-          {iconList.map((icon) => {
+          {iconList.filter((i) => i.type == type).map((icon) => {
             return (
               <div
                 key={icon.id}
-                className={styles.icon_item}
+                className={`${styles.icon_item} ${icon.id == selectedIcon?.id ? styles.selected : ""}`}
                 title={icon.name}
                 onClick={() => setSelectedIcon(icon)}
               >
@@ -211,6 +212,7 @@ const ManagerIcon = () => {
                   alt={icon.name}
                   className={styles.icon_image}
                 />
+                <div className={`${styles.icon_status} ${icon.isActive ? styles.status_active : ""}`}/>
                 <div className={styles.icon_info}>
                   <h3>{icon.name}</h3>
                 </div>
@@ -246,7 +248,7 @@ const ManagerIcon = () => {
               <StatusToggle
                 id={selectedIcon.id}
                 status={selectedIcon.isActive}
-                apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
+                apiUrl={API_URLS.ADMIN_CHANGE_ICON_STATUS}
                 type="icon"
               />
             </div>
