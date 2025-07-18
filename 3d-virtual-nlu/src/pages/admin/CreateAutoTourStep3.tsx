@@ -233,7 +233,6 @@ const CreateAutoTourStep3: React.FC = () => {
     }
 
     const soundUrl = await uploadToCloud(autoPanoramaList[0].soundBackground);
-    alert("Sound URL:" + soundUrl);
 
     try {
       const response = await axios.post(API_URLS.ADMIN_CREATE_AUTO_TOUR, {

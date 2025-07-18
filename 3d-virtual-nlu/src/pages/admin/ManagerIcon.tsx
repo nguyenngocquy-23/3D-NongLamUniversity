@@ -408,24 +408,26 @@ const ManagerIcon = () => {
               </div>
             )}
           </div>
-          <div className={styles.icon_footer}>
-            <button
-              className={styles.icon_add_change_btn}
-              disabled={!!error}
-              onClick={() =>
-                handleRename({
-                  iconId: selectedIcon.id,
-                  name: inputIconName ?? "",
-                  code: nameCode ?? "",
-                  iconUrl: modelUrl,
-                  thumbnail: thumbnailUrl,
-                  type: typeCreate,
-                })
-              }
-            >
-              Hoàn tất
-            </button>
-          </div>
+          {selectedIcon.id == undefined && selectedIcon.id == null && (
+            <div className={styles.icon_footer}>
+              <button
+                className={styles.icon_add_change_btn}
+                disabled={!!error}
+                onClick={() =>
+                  handleRename({
+                    iconId: selectedIcon.id,
+                    name: inputIconName ?? "",
+                    code: nameCode ?? "",
+                    iconUrl: modelUrl,
+                    thumbnail: thumbnailUrl,
+                    type: typeCreate,
+                  })
+                }
+              >
+                Hoàn tất
+              </button>
+            </div>
+          )}
         </div>
       )}
     </>

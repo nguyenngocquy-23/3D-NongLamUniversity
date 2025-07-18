@@ -76,7 +76,7 @@ export default function Introduce() {
   }, []);
 
   useEffect(() => {
-    if (images.length === 0) return; // ✅ Chặn khi chưa load xong ảnh
+    if (images.length === 0) return;
 
     const timer = setTimeout(() => {
       setSelectedIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -100,19 +100,31 @@ export default function Introduce() {
           backgroundImage: `url(${images[selectedIndex]?.url})`,
         }}
       ></div>
-
       <div className={styles.carousel}>
-        {images.map((img: any, i: any) => (
-          <img
-            key={i}
-            src={img.url}
-            alt={img.title}
-            className={`${styles.carousel_image} ${
-              i === selectedIndex ? styles.active_image : ""
-            }`}
-            onClick={() => setSelectedIndex(i)}
-          />
-        ))}
+        {images.map((img: any, i: number) => {
+          const total = images.length;
+          const position = (i - selectedIndex + total) % total;
+
+          let className = styles.carousel_image;
+
+          // Chỉ render 5 ảnh gần selectedIndex (±2)
+          if (position === 0) className += ` ${styles.active_image}`;
+          else if (position === 1 || position === total - 1)
+            className += ` ${styles.near_image}`;
+          else if (position === 2 || position === total - 2)
+            className += ` ${styles.far_image}`;
+          else return null; // Không render ảnh quá xa
+
+          return (
+            <img
+              key={i}
+              src={img.url}
+              alt={img.title}
+              className={className}
+              onClick={() => setSelectedIndex(i)}
+            />
+          );
+        })}
       </div>
 
       <div className={styles.info_panel}>
