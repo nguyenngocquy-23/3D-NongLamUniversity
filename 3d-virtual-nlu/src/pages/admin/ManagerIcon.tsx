@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../../styles/user.module.css";
-import stylesCommon from "../../styles/common/navigateBar.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { fetchIcons, fetchUsers } from "../../redux/slices/DataSlice";
@@ -13,14 +12,12 @@ import { format } from "date-fns";
 import { FaSave } from "react-icons/fa";
 import { IoMdExit, IoIosWarning } from "react-icons/io";
 import { RiEdit2Line } from "react-icons/ri";
-import { TfiNewWindow } from "react-icons/tfi";
-import SpaceCard from "../../components/admin/SpaceCard";
 import StatusToggle from "../../components/admin/ToggleChangeStatus";
-import { goToStep } from "../../redux/slices/StepSlice";
 import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 import { validateName } from "../../utils/ValidateInputName";
 import Swal from "sweetalert2";
 import UploadFile from "../../components/admin/UploadFile";
+import Icon3DPreviewWithSnapshot from "../../components/admin/PreviewIcon3DWithSnapshot";
 
 interface Icon {
   id: number;
@@ -55,15 +52,23 @@ const ManagerIcon = () => {
   );
   const [modelUrl, setModelUrl] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [changeThumbnailUrl, setChangeThumbnailUrl] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     setInputIconName(selectedIcon?.name || "");
     setNameCode(selectedIcon?.code || "");
+    setModelUrl(selectedIcon?.url || "");
+    setThumbnailUrl(selectedIcon?.thumbnail || "");
     setIsEditing(false);
     setError("");
+    setChangeThumbnailUrl(false);
   }, [selectedIcon]);
+
+  useEffect(() => {
+    if (thumbnailUrl != selectedIcon?.thumbnail) setChangeThumbnailUrl(true);
+  }, [thumbnailUrl]);
 
   useEffect(() => {
     if (
@@ -82,6 +87,7 @@ const ManagerIcon = () => {
   const [nameCode, setNameCode] = useState(selectedIcon?.code);
   const [iconList, setIconList] = useState<any[]>(icons || []);
   const [isEditing, setIsEditing] = useState(false);
+  const [canHandle, setCanHandle] = useState(false);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
@@ -114,6 +120,32 @@ const ManagerIcon = () => {
   const handleEditInput = () => {
     if (!isEditing) setIsEditing(true);
   };
+
+  /**
+   * kiểm tra điều kiện để có thể thực hiện thao tác lưu
+   * nếu là tạo mới biểu tượng 2D thì chỉ cần tên và modelUrl
+   * nếu là tạo mới biểu tượng 3D thì cần tên, modelUrl và thumbnailUrl
+   */
+  useEffect(() => {
+    if (
+      typeCreate == 2 &&
+      inputIconName &&
+      modelUrl !== "" &&
+      thumbnailUrl !== ""
+    ) {
+      setCanHandle(true);
+    } else if (typeCreate == 1 && inputIconName && modelUrl) {
+      setCanHandle(true);
+    } else {
+      setCanHandle(false);
+    }
+  }, [inputIconName, modelUrl, thumbnailUrl]);
+
+  useEffect(() => {
+    handleUploadedFile("");
+    handleThumbnailSaved("");
+    setType(typeCreate);
+  }, [typeCreate]);
 
   const handleChangeIconName = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -169,6 +201,7 @@ const ManagerIcon = () => {
           setSelectedIcon(null);
           setInputIconName("");
           setNameCode("");
+          setModelUrl("");
         } else {
           Swal.fire({
             title: "Đổi tên thành công",
@@ -185,10 +218,83 @@ const ManagerIcon = () => {
         dispatch(fetchIcons());
         setError("");
       } else {
-        setError(response.data.message || "Lỗi không xác định");
+        if (req.id === 0 || req.id == undefined) {
+          Swal.fire({
+            title: "Lỗi khi tạo biểu tượng",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 1500,
+            position: "top-end",
+            toast: true,
+            timerProgressBar: true,
+          });
+          return;
+        } else {
+          Swal.fire({
+            title: "Đổi tên thất bại",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 1500,
+            position: "top-end",
+            toast: true,
+            timerProgressBar: true,
+          });
+          return;
+        }
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Có lỗi xảy ra");
+      Swal.fire({
+        title: "Lỗi khi thao tác",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 1500,
+        position: "top-end",
+        toast: true,
+        timerProgressBar: true,
+      });
+    }
+    setIsEditing(false);
+  };
+
+  const handleChangeThumbnail = async (req: any) => {
+    try {
+      const response = await axios.post(API_URLS.ADMIN_CHANGE_THUMBNAIL_ICONS, req);
+
+      if (response.data.data) {
+        Swal.fire({
+          title: "cập nhật thành công",
+          icon: "success",
+          showConfirmButton: false,
+          timer: 1500,
+          position: "top-end",
+          toast: true,
+          timerProgressBar: true,
+        });
+        setSelectedIcon(null);
+        dispatch(fetchIcons());
+        setError("");
+      } else {
+        Swal.fire({
+          title: "Cập nhật thất bại",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500,
+          position: "top-end",
+          toast: true,
+          timerProgressBar: true,
+        });
+        return;
+      }
+    } catch (err: any) {
+      Swal.fire({
+        title: "Cập nhật thất bại",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 1500,
+        position: "top-end",
+        toast: true,
+        timerProgressBar: true,
+      });
     }
     setIsEditing(false);
   };
@@ -271,6 +377,7 @@ const ManagerIcon = () => {
             })}
         </div>
       </div>
+
       {selectedIcon && (
         <div className={styles.icon_edit_by_id}>
           <IoMdExit
@@ -294,6 +401,7 @@ const ManagerIcon = () => {
           ) : typeCreate == 1 ? (
             <div className={styles.upload_icon_card}>
               <UploadFile
+                key={typeCreate === 1 ? "upload-icon" : "upload-model"}
                 className="upload_icon"
                 onUploaded={handleUploadedFile}
               />
@@ -301,14 +409,35 @@ const ManagerIcon = () => {
           ) : (
             <div className={styles.upload_icon_card}>
               <UploadFile
+                key={typeCreate === 1 ? "upload-icon" : "upload-model"}
                 className="upload_model"
                 onUploaded={handleUploadedFile}
               />
             </div>
           )}
 
+          {((typeCreate === 2 && modelUrl && selectedIcon.thumbnail == "") ||
+            (modelUrl && selectedIcon.thumbnail)) && (
+            <>
+              <Icon3DPreviewWithSnapshot
+                key={selectedIcon.id || "null"}
+                modelUrl={modelUrl}
+                onThumbnailSaved={handleThumbnailSaved}
+              />
+              <i style={{ margin: "0 auto", fontSize: "12px" }}>
+                Dùng{" "}
+                <img
+                  style={{ width: "40px", verticalAlign: "middle" }}
+                  src={`${import.meta.env.BASE_URL}key_move.png`}
+                  alt="Arrow keys"
+                />
+                để di chuyển mô hình
+              </i>
+            </>
+          )}
+
           <div className={styles.icon_edit_content}>
-            <p className={styles.icon_edit_label}>Thông tin</p>
+            {/* <p className={styles.icon_edit_label}>Thông tin</p> */}
             {selectedIcon.id != undefined && selectedIcon.id != null && (
               <div className={`${styles.icon_information_item} `}>
                 <span>Trạng thái: </span>
@@ -411,7 +540,9 @@ const ManagerIcon = () => {
           {selectedIcon.id == undefined && selectedIcon.id == null && (
             <div className={styles.icon_footer}>
               <button
-                className={styles.icon_add_change_btn}
+                className={`${styles.icon_add_change_btn} ${
+                  canHandle ? "" : styles.cant_handle
+                }`}
                 disabled={!!error}
                 onClick={() =>
                   handleRename({
@@ -425,6 +556,24 @@ const ManagerIcon = () => {
                 }
               >
                 Hoàn tất
+              </button>
+            </div>
+          )}
+          {selectedIcon.thumbnail && (
+            <div className={styles.icon_footer}>
+              <button
+                className={`${styles.icon_add_change_btn} ${
+                  changeThumbnailUrl ? "" : styles.cant_handle
+                }`}
+                disabled={!!error}
+                onClick={() =>
+                  handleChangeThumbnail({
+                    id: selectedIcon.id,
+                    thumbnail: thumbnailUrl,
+                  })
+                }
+              >
+                Cập nhật
               </button>
             </div>
           )}

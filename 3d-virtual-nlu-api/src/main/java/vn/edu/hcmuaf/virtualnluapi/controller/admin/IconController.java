@@ -68,6 +68,19 @@ public class IconController {
     }
 
     @POST
+    @Path("/changeThumbnail")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeThumbnail(ThumbnailRequest req) {
+        boolean result = iconService.changeThumbnail(req);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi thumbnail icon thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi thumbnail icon").data(result).build();
+        }
+    }
+
+    @POST
     @Path("/changeName")
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> changeNameIcon(ChangeNameRequest req) {

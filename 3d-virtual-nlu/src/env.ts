@@ -77,6 +77,7 @@ export const API_URLS = {
   ADMIN_CREATE_FIELDS: `${DOMAIN}/admin/field/create`,
   ADMIN_CREATE_SPACES: `${DOMAIN}/admin/space/create`,
   ADMIN_CREATE_ICONS: `${DOMAIN}/v1/admin/icon/`,
+  ADMIN_CHANGE_THUMBNAIL_ICONS: `${DOMAIN}/v1/admin/icon/changeThumbnail`,
   ADMIN_ATTACH_SPACE_LOCATION: `${DOMAIN}/admin/space/attachLocation`,
   ADMIN_REMOVE_SPACE_LOCATION: `${DOMAIN}/admin/space/removeLocation`,
 

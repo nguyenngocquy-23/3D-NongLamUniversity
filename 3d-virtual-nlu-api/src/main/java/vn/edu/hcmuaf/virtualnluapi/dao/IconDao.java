@@ -2,10 +2,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.ChangeNameRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
 
 import java.sql.Timestamp;
@@ -83,6 +80,17 @@ public class IconDao {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("name", req.getName())
                     .bind("code", req.getCode())
+                    .bind("id", req.getId())
+                    .execute();
+            return rows == 1;
+        });
+    }
+
+    public boolean changeThumbnail(ThumbnailRequest req) {
+        String sqlQuery = "UPDATE icons SET thumbnail = :thumbnail WHERE id = :id";
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int rows = handle.createUpdate(sqlQuery)
+                    .bind("thumbnail", req.getThumbnail())
                     .bind("id", req.getId())
                     .execute();
             return rows == 1;

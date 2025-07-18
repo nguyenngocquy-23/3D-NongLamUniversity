@@ -432,7 +432,7 @@
     padding: 0.5rem;
     justify-content: center;
     position: absolute;
-    bottom: 2rem;
+    bottom: 1rem;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -513,6 +513,12 @@
     display: flex;
     justify-content: center;
     margin-top: 1rem;
+}
+
+.cant_handle{
+    cursor: not-allowed;
+    background-color: #ccc !important;
+    pointer-events: none;
 }
 
 .custom_select {

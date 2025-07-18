@@ -173,6 +173,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
       (f) => !(f.file.name === file.name && f.file.size === file.size)
     );
     setFileStatuses(updatedStatuses);
+    onUploaded?.("", index ?? 0);
   };
 
   // await Promise.all(promises);

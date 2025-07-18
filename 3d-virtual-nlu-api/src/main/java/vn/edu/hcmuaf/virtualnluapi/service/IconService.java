@@ -3,10 +3,7 @@ package vn.edu.hcmuaf.virtualnluapi.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import vn.edu.hcmuaf.virtualnluapi.dao.IconDao;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.ChangeNameRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
 
 import java.util.List;
@@ -58,6 +55,15 @@ public class IconService {
     public boolean changeNameIcon(ChangeNameRequest req) {
         try {
             return iconDao.changeNameIcon(req);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean changeThumbnail(ThumbnailRequest req) {
+        try {
+            return iconDao.changeThumbnail(req);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
