@@ -191,6 +191,11 @@ back_btn:hover {
   align-items: center;
 }
 
+.toggle_next_step_3 {
+  position: absolute;
+  right: 0;
+}
+
 .done_button {
   margin-top: 10px;
   position: absolute;

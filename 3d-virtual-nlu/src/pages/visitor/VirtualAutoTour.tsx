@@ -304,11 +304,15 @@ const VirtualAutoTour: React.FC = () => {
   }, [autoTour, volume]);
 
   useEffect(() => {
+    const step = 0.02;
+    const minVolume = 0;
+    const maxVolume = 2;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp") {
-        setVolume((v) => Math.min(1, +(v + 0.1).toFixed(2)));
+        setVolume((v) => Math.min(maxVolume, +(v + step).toFixed(2)));
       } else if (e.key === "ArrowDown") {
-        setVolume((v) => Math.max(0, +(v - 0.1).toFixed(2)));
+        setVolume((v) => Math.max(minVolume, +(v - step).toFixed(2)));
       }
     };
 
