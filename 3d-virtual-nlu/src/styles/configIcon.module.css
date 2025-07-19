@@ -345,7 +345,7 @@ input[type="range"] {
 }
 .grid_xz_plane {
   position: absolute;
-  top: 25px;
+  /* top: 25px; */
   left: 25px;
   width: 200px;
   height: 200px;

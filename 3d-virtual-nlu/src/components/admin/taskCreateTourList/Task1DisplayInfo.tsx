@@ -27,7 +27,7 @@ const Task1 = () => {
   };
   return (
     <div className={styles.task1}>
-      <div className={styles.contain_input}>
+      <div className={styles.contain_input} style={{display: "flex"}}>
         <label className={styles.label}>Tên:</label>
         <input
           type="text"

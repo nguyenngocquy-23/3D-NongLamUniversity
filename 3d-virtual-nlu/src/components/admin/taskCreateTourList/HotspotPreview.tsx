@@ -83,7 +83,6 @@ const HotspotPreview = ({
         console.error("Error loading or processing SVG:", err);
       }
     };
-    console.log("[HotspotPreview: " + iconUrl);
     loadAndModifySVG();
   }, [iconUrl, color]);
 

@@ -28,9 +28,6 @@ const ConfigIcon = ({
   currentHotspotType: number | null;
   type?: number | null;
 }) => {
-  useEffect(() => {
-    console.log("....propHotspot....", propHotspot?.id);
-  }, [propHotspot]);
   const [openListIcon, setOpenListIcon] = useState(false);
   const [typeIcon, setTypeIcon] = useState(type ?? 1);
 
@@ -115,15 +112,11 @@ const ConfigIcon = ({
   const [opacity, setOpacity] = useState(propHotspot?.opacity ?? 1);
 
   const handleInitialHotspotProps = (): BaseHotspot => {
+    console.log("handleInitialHotspotProps called...", foundIcon.id);
     return {
-      id: propHotspot?.id ?? nanoid(),
+      id: propHotspot?.id ?? "",
       nodeId: currentPanorama?.id ?? "",
-      iconId:
-        iconId !== 0 && propHotspot !== null
-          ? iconId
-          : typeIcon === 1
-          ? hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId
-          : null,
+      iconId: foundIcon?.id ?? 0,
       status: 1,
       positionX: positionX,
       positionY: positionY,
@@ -141,6 +134,21 @@ const ConfigIcon = ({
   };
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setScale(propHotspot?.scale ?? 1);
+    setPitchX(propHotspot?.pitchX ?? 0);
+    setYawY(propHotspot?.yawY ?? 0);
+    setRollZ(propHotspot?.rollZ ?? 0);
+    setPositionX(propHotspot?.positionX ?? 0);
+    setPositionY(propHotspot?.positionY ?? 0);
+    setPositionZ(propHotspot?.positionZ ?? DEFAULT_ORIGINAL_Z);
+    setColor(propHotspot?.color ?? "#333333");
+    setBackgroundColor(propHotspot?.backgroundColor ?? "#333333");
+    setAllowBackgroundColor(
+      propHotspot?.allowBackgroundColor ?? false
+    );
+  },[currentHotspotType])
 
   // 3. Khi muốn cập nhật Redux (chỉ khi propHotspot != null) — THÊM useEffect MỚI!
   const hasMounted = useRef(false);
@@ -170,7 +178,7 @@ const ConfigIcon = ({
     color,
     backgroundColor,
     allowBackgroundColor,
-    // currentHotspotType,
+    currentHotspotType,
     currentPanorama,
   ]);
 
@@ -181,7 +189,7 @@ const ConfigIcon = ({
       onPropsChange(props); // truyền props tạo mới
     }
   }, [
-    // currentHotspotType,
+    currentHotspotType,
     currentPanorama,
     scale,
     opacity,
