@@ -31,13 +31,15 @@ public class SpaceController {
     }
 
     @POST
+    @Path("/create")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> createSpace(SpaceCreateRequest req) {
         boolean result = spaceService.createSpace(req);
         if (result) {
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Tao space thanh cong").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Tạo không gian thành công!").data(result).build();
         } else {
-            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi tao space").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Tạo không gian thất bại!").data(result).build();
         }
     }
 
