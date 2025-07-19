@@ -55,6 +55,8 @@ const ConfigIcon = ({
       : null;
 
   const iconUrl = foundIcon?.url ?? "";
+  const thumbnailUrl = foundIcon?.thumbnail ?? "";
+  console.log('thumbnailUrl...', thumbnailUrl)
   const iconType = foundIcon?.type ?? 2;
 
   const [scale, setScale] = useState(propHotspot?.scale ?? 1);
@@ -112,7 +114,6 @@ const ConfigIcon = ({
   const [opacity, setOpacity] = useState(propHotspot?.opacity ?? 1);
 
   const handleInitialHotspotProps = (): BaseHotspot => {
-    console.log("handleInitialHotspotProps called...", foundIcon.id);
     return {
       id: propHotspot?.id ?? "",
       nodeId: currentPanorama?.id ?? "",
@@ -136,6 +137,7 @@ const ConfigIcon = ({
   const dispatch = useDispatch();
 
   useEffect(() => {
+    setIconId(propHotspot?.iconId ?? 0);
     setScale(propHotspot?.scale ?? 1);
     setPitchX(propHotspot?.pitchX ?? 0);
     setYawY(propHotspot?.yawY ?? 0);
@@ -145,10 +147,8 @@ const ConfigIcon = ({
     setPositionZ(propHotspot?.positionZ ?? DEFAULT_ORIGINAL_Z);
     setColor(propHotspot?.color ?? "#333333");
     setBackgroundColor(propHotspot?.backgroundColor ?? "#333333");
-    setAllowBackgroundColor(
-      propHotspot?.allowBackgroundColor ?? false
-    );
-  },[currentHotspotType])
+    setAllowBackgroundColor(propHotspot?.allowBackgroundColor ?? false);
+  }, [currentHotspotType]);
 
   // 3. Khi muốn cập nhật Redux (chỉ khi propHotspot != null) — THÊM useEffect MỚI!
   const hasMounted = useRef(false);
@@ -239,6 +239,7 @@ const ConfigIcon = ({
                   type="radio"
                   name="2d"
                   value="2d"
+                  disabled={propHotspot != null ? true : false}
                   checked={typeIcon === 1}
                   onChange={() => {
                     if (typeIcon !== 1) {
@@ -257,6 +258,7 @@ const ConfigIcon = ({
                   type="radio"
                   name="3d"
                   value="3d"
+                  disabled={propHotspot != null ? true : false}
                   checked={typeIcon === 2}
                   onChange={() => {
                     if (typeIcon !== 2) {
@@ -271,13 +273,13 @@ const ConfigIcon = ({
           </div>
         </div>
 
-        {typeIcon === 1 ? (
+        {typeIcon === 1 || thumbnailUrl == "" ? (
           <div className={styles.config_icon_infor}>
             <div className={styles.preview_icon}>
               <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <HotspotPreview
                   iconUrl={iconUrl}
-                  typeIcon={iconType}
+                  typeIcon={1}
                   color={color}
                   backgroundColor={backgroundColor}
                   scale={scale}
@@ -401,8 +403,8 @@ const ConfigIcon = ({
             <div className={styles.preview_icon}>
               <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
                 <HotspotPreview
-                  iconUrl={iconUrl}
-                  typeIcon={typeIcon}
+                  iconUrl={thumbnailUrl}
+                  typeIcon={2}
                   color={color}
                   backgroundColor={backgroundColor}
                   scale={scale}

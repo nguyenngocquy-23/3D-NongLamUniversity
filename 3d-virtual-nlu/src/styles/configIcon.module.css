@@ -110,6 +110,7 @@ input[type="range"] {
   padding: 5px;
   border-radius: 10px;
   background-color: #0303034e;
+  z-index:99999999;
 }
 .edit_icon_content {
   display: flex;
