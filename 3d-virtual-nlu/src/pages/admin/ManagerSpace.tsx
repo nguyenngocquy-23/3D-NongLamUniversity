@@ -23,7 +23,7 @@ import { goToStep } from "../../redux/slices/StepSlice";
 import { TfiNewWindow } from "react-icons/tfi";
 import Pagination from "../../components/Pagination";
 import { useDebounce } from "../../hooks/useDebounce";
-import { perPage } from "../../utils/Constants";
+import { MAX_DESCRIPTION, perPage } from "../../utils/Constants";
 import { select } from "three/src/nodes/TSL.js";
 import Field from "./ManagerField";
 import { ApiResponse } from "../../components/admin/UploadFile";
@@ -72,7 +72,6 @@ const emptySpace: Space = {
 const Space = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const MAX_DESCRIPTION = 300;
 
   //Gọi từ Redux
   const dashboard = useSelector((state: RootState) => state.data.dashboard);
@@ -177,6 +176,7 @@ const Space = () => {
     setInputSpaceName(selectedSpace?.name || "");
     setInputSpaceDescription(selectedSpace?.description || "");
     setNameCode(selectedSpace?.code || "");
+    setIsChecked(selectedSpace?.status === 2);
     setIsEditing(false);
     setError("");
   }, [selectedSpace]);
@@ -250,7 +250,6 @@ const Space = () => {
   };
 
   const handleCreateSpace = async (req: SpaceCreateRequest) => {
-    alert(`gọi tới ròi ${fieldId} nhá`);
     try {
       if (error !== "") {
         Swal.fire({
@@ -500,7 +499,7 @@ const Space = () => {
               )}
 
               <div className={`${styles.space_information_item} `}>
-                <span>Tên không gian : </span>
+                <label htmlFor="input">Tên không gian : </label>
 
                 <div className={styles.space_input_name_container}>
                   <input
@@ -589,7 +588,7 @@ const Space = () => {
                       )}
                 </span>
               </div>
-              {selectedSpace.id !== 0 && (
+              {selectedSpace.id !== 0 && selectedSpace.status === 1 && (
                 <div className={styles.space_select_master}>
                   <span>Chọn làm không gian chính: </span>
                   <label className={styles.check_container}>

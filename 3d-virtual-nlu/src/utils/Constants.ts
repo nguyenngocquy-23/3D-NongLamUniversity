@@ -14,3 +14,5 @@ export const PICTURE_MAX_QUANTITY = 2; //Kích thước tối đa ảnh
 
 export const AROUND_MAP = 0.04;
 export const perPage = 10;
+
+export const MAX_DESCRIPTION = 300; //kích thước mô tả tối đa

@@ -30,7 +30,11 @@ import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import RightMenuCreateTour from "./RightMenuCT";
 import TaskContainerCT from "./TaskContainerCT";
-import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
+import {
+  DEFAULT_ORIGINAL_Z,
+  MAX_DESCRIPTION,
+  RADIUS_SPHERE,
+} from "../../utils/Constants";
 import { Environment } from "@react-three/drei";
 import UpdateCameraOnResize from "../UpdateCameraOnResize";
 import TourScene from "../visitor/TourScene";
@@ -46,7 +50,13 @@ import { goToStep } from "../../redux/slices/StepSlice";
 import gsap from "gsap";
 import TrackingSpace from "../TrackingSpace";
 import CamControls from "../visitor/CamControls";
-import { CiEdit } from "react-icons/ci";
+import { CiEdit, CiSquareChevDown } from "react-icons/ci";
+import StatusToggle from "./ToggleChangeStatus";
+import { TiEdit } from "react-icons/ti";
+import { FaSave } from "react-icons/fa";
+import Field from "../../pages/admin/ManagerField";
+import { ApiResponse } from "./UploadFile";
+import Space from "../../pages/admin/ManagerSpace";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
@@ -59,7 +69,8 @@ const SpaceDetail = () => {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<any>(null);
 
-  const [currentSpace, setCurrentSpace] = useState<any>(null);
+  const [currentSpace, setCurrentSpace] = useState<Space | null>(null);
+  const [fields, setFields] = useState<Field[] | null>([]);
 
   useEffect(() => {
     dispatch(goToStep(4)); //
@@ -107,6 +118,36 @@ const SpaceDetail = () => {
         });
     }
   }, [spaceId, reduxSpace]);
+
+  useEffect(() => {
+    const fetchFields = async () => {
+      try {
+        const response = await axios.get<ApiResponse<Field[]>>(
+          `${API_URLS.GET_ALL_FIELDS}`
+        );
+
+        if (response.data.statusCode === 1000) {
+          setFields(response.data.data);
+        } else {
+          console.log("Lỗi khi lấy danh sách fields", response.data.message);
+        }
+      } catch (error) {
+        console.warn("Lỗi khi gọi API", error);
+      }
+    };
+
+    fetchFields();
+  }, []);
+
+  // ======= Xử lý trong trang tổng quan ============
+  /**
+   * currentSpace: Version chính gốc.
+   *  originalSpace: Version ngay trước khi "click chỉnh sửa".
+   * editedSpace: Version chỉnh sửa => dùng đối chiếu để lưu về database.
+   * */
+
+  const [originalSpace, setOriginalSpace] = useState<Space | null>(null);
+  const [editedSpace, setEditedSpace] = useState<Space | null>(null);
 
   /**
    * Xử lý chọn node trung tâm
@@ -196,62 +237,7 @@ const SpaceDetail = () => {
 
     const [x, y, z] = hotspotTargetPosition;
 
-    // === Bước 1:Xoay camera về vị trí (hotspot)
-    lookAtHotspot([x, y, z]);
-
     handleSelectNode(targetNodeId);
-
-    gsap.to(camera, {
-      fov: zoomTarget,
-      duration: 1.1,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        camera.updateProjectionMatrix();
-      },
-      onComplete: () => {
-        gsap.to(camera, {
-          fov: originalFov,
-          duration: 0.3,
-          delay: 0.3,
-          ease: "power2.inOut",
-          onUpdate: () => {
-            camera.updateProjectionMatrix();
-          },
-          onComplete: () => {
-            camera.updateProjectionMatrix();
-            control.update(); // đảm bảo OrbitControls cập nhật
-          },
-        });
-      },
-    });
-  };
-
-  const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
-    if (!cameraRef.current || !controlsRef.current) return;
-
-    const controls = controlsRef.current;
-
-    /**
-     * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
-     * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
-     */
-    const hotspotVec = new THREE.Vector3(
-      hotspotTargetPosition[0],
-      0,
-      hotspotTargetPosition[2]
-    );
-    const center = new THREE.Vector3(0, 0, 0);
-
-    const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
-
-    const spherical = new THREE.Spherical();
-    spherical.setFromVector3(dir);
-
-    // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
-    controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
-    controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
-
-    controls.update();
   };
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
@@ -330,10 +316,10 @@ const SpaceDetail = () => {
     const maxZ = point.z + limit;
 
     const isNear = hotspotPosition
-      .filter((h:any) => h.nodeId === currentSelectId)
-      .some((h:any) =>
+      .filter((h: any) => h.nodeId === currentSelectId)
+      .some((h: any) =>
         h.hotspotPositions.some(
-          (hotspot:any) =>
+          (hotspot: any) =>
             hotspot.position[0] > minX &&
             hotspot.position[0] < maxX &&
             hotspot.position[1] > minY &&
@@ -435,6 +421,24 @@ const SpaceDetail = () => {
     }
   };
   const [isViewMode, setIsViewMode] = useState<Number>(1);
+  const [editInformation, setEditInformation] = useState<boolean>(false);
+  const handleEditSpace = () => {
+    if (!editInformation) {
+      setOriginalSpace(currentSpace);
+      setEditedSpace(currentSpace);
+    }
+
+    setEditInformation((p) => !p);
+  };
+
+  const handleSaveInformation = async () => {
+    const changeFields: Partial<Space> = {};
+  };
+
+  const cancelEditInformation = () => {
+    setEditedSpace(originalSpace);
+    setEditInformation(false);
+  };
 
   if (!currentSpace) return <p>Đang tải thông tin không gian...</p>;
   return (
@@ -448,7 +452,9 @@ const SpaceDetail = () => {
           <p className={styles.space_title}>{currentSpace.name} </p>
           <div className={styles.space_mode}>
             <button
-              className={styles.space_mode_item}
+              className={`${styles.space_mode_item} 
+              ${isViewMode === 1 ? styles.space_mode_active : ""}
+              `}
               onClick={() => {
                 if (isViewMode !== 1) setIsViewMode(1);
               }}
@@ -456,7 +462,9 @@ const SpaceDetail = () => {
               Tổng quan
             </button>
             <button
-              className={styles.space_mode_item}
+              className={`${styles.space_mode_item} 
+              ${isViewMode === 2 ? styles.space_mode_active : ""}
+              `}
               onClick={() => {
                 if (isViewMode !== 2) setIsViewMode(2);
               }}
@@ -464,7 +472,9 @@ const SpaceDetail = () => {
               Sơ đồ
             </button>
             <button
-              className={styles.space_mode_item}
+              className={`${styles.space_mode_item} 
+              ${isViewMode === 3 ? styles.space_mode_active : ""}
+              `}
               onClick={() => {
                 if (isViewMode !== 3) setIsViewMode(3);
               }}
@@ -490,37 +500,50 @@ const SpaceDetail = () => {
 
                 <div className={styles.space_overview_right}>
                   <div className={styles.overview_information}>
-                    <div className={styles.label_information}>Lĩnh vực: </div>
+                    <label htmlFor="field" className={styles.label_information}>
+                      Lĩnh vực:
+                    </label>
                     <div className={styles.content_information}>
-                      {currentSpace.fieldName}
-                    </div>
-                  </div>
-                  <div className={styles.overview_information}>
-                    <div className={styles.label_information}>
-                      Tên không gian:{" "}
-                    </div>
-                    <div className={styles.content_information}>
-                      {currentSpace.name}
-                    </div>
-                  </div>
-                  <div className={styles.overview_information}>
-                    <div className={styles.label_information}>
-                      Mã không gian:{" "}
-                    </div>
-                    <div className={styles.content_information}>
-                      {currentSpace.code}
-                    </div>
-                  </div>
-                  <div className={styles.overview_information}>
-                    <div className={styles.label_information}>Mô tả: </div>
-                    <div className={styles.content_information}>
-                      {currentSpace.description}
+                      <select
+                        className={styles.custom_select}
+                        name="field"
+                        id="field"
+                        disabled={!editInformation}
+                        value={
+                          editInformation
+                            ? editedSpace?.fieldId ?? ""
+                            : currentSpace?.fieldId ?? ""
+                        }
+                        onChange={
+                          editInformation
+                            ? (e) =>
+                                setEditedSpace((prev) => ({
+                                  ...prev!,
+                                  fieldId: parseInt(e.target.value, 10),
+                                }))
+                            : undefined
+                        }
+                      >
+                        <option value="">Chọn lĩnh vực</option>
+
+                        {fields !== null &&
+                          fields.map((field) => (
+                            <option key={field.id} value={field.id}>
+                              {field.name}
+                            </option>
+                          ))}
+                      </select>
                     </div>
                   </div>
                   <div className={styles.overview_information}>
                     <div className={styles.label_information}>Trạng thái: </div>
                     <div className={styles.content_information}>
-                      {currentSpace.status}
+                      <StatusToggle
+                        id={currentSpace.id}
+                        status={currentSpace.status}
+                        apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
+                        type="space"
+                      />
                     </div>
                   </div>
                   <div className={styles.overview_information}>
@@ -530,16 +553,23 @@ const SpaceDetail = () => {
                     <div className={styles.content_information}>
                       <select
                         className={styles.custom_select}
-                        onChange={(e) =>
-                          handleSelect(
-                            Number(spaceId),
-                            parseInt(e.target.value, 10)
-                          )
+                        value={
+                          editInformation
+                            ? editedSpace?.masterNodeId ?? ""
+                            : currentSpace?.masterNodeId ?? ""
                         }
+                        onChange={
+                          editInformation
+                            ? (e) =>
+                                setEditedSpace((prev) => ({
+                                  ...prev!,
+                                  masterNodeId: parseInt(e.target.value, 10),
+                                }))
+                            : undefined
+                        }
+                        disabled={!editInformation}
                       >
-                        <option value={currentSpace.masterNodeId}>
-                          {currentSpace.masterNodeName}
-                        </option>
+                        <option value="">Chọn tour mặc định</option>
                         {panoramaList.map((p) => (
                           <option key={p.id} value={p.id}>
                             {p.config.name}
@@ -548,10 +578,98 @@ const SpaceDetail = () => {
                       </select>
                     </div>
                   </div>
+                  <div className={styles.overview_information}>
+                    <label className={styles.label_information} htmlFor="input">
+                      Tên không gian :{" "}
+                    </label>
+                    <div className={styles.content_information}>
+                      <input
+                        type="text"
+                        id="input"
+                        required
+                        readOnly={!editInformation}
+                        value={
+                          editInformation
+                            ? editedSpace?.name ?? ""
+                            : currentSpace?.name ?? ""
+                        }
+                        onChange={
+                          editInformation
+                            ? (e) =>
+                                setEditedSpace((prev) => ({
+                                  ...prev!,
+                                  name: e.target.value,
+                                }))
+                            : undefined
+                        }
+                      />
+                      <span className={styles.content_code}>
+                        ({currentSpace.code})
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.overview_information}>
+                    <label
+                      className={styles.label_information}
+                      htmlFor="description"
+                    >
+                      Mô tả:{" "}
+                    </label>
+                    <textarea
+                      id="description"
+                      value={
+                        editInformation
+                          ? editedSpace?.description ?? ""
+                          : currentSpace?.description ?? ""
+                      }
+                      onChange={
+                        editInformation
+                          ? (e) =>
+                              setEditedSpace((prev) => ({
+                                ...prev!,
+                                description: e.target.value,
+                              }))
+                          : undefined
+                      }
+                      readOnly={!editInformation}
+                      rows={5}
+                      cols={40}
+                      placeholder="Tối đa 300 ký tự."
+                      className={styles.description_content}
+                    />
+                    <span></span>
+                    <span className={styles.description_count}>
+                      {currentSpace.description?.length}/{MAX_DESCRIPTION} ký tự
+                    </span>
+                  </div>
+
+                  {editInformation ? (
+                    <>
+                      <button
+                        className={styles.edit_information}
+                        onClick={handleEditSpace}
+                      >
+                        Lưu <FaSave />
+                      </button>
+                      <button
+                        className={styles.edit_information}
+                        onClick={cancelEditInformation}
+                      >
+                        Huỷ <FaSave />
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className={styles.edit_information}
+                      onClick={handleEditSpace}
+                    >
+                      Chỉnh sửa <TiEdit />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
-          ) : isViewMode === 2 ? (
+          ) : isViewMode === 2 && currentSpace.masterNodeId ? (
             <div className={styles.space_preview_tour}>
               <Canvas
                 camera={{
@@ -702,14 +820,16 @@ const SpaceDetail = () => {
                 </span>
               </div>
             </div>
-          ) : (
+          ) : currentSpace.masterNodeId ? (
             <div className={styles.space_preview_tour}>
               <TrackingSpace
-                masterId={currentSpace.masterNodeId}
+                masterId={`${currentSpace.masterNodeId}`}
                 panoramaList={panoramaList}
                 hotspotNavigations={hotspotNavigations}
               />
             </div>
+          ) : (
+            ""
           )}
         </div>
       </div>

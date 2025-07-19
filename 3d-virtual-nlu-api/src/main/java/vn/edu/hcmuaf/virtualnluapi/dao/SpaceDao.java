@@ -21,9 +21,14 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class SpaceDao {
 
-    @Inject
-    FieldDao fieldDao;
 
+
+
+    /**
+     *
+     * @param req : Khi tạo không gian mới, nó ở trạng thái vẫn dùng bình thường nhưng rỗng.
+     * @return
+     */
     public boolean insertSpace(SpaceCreateRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int i = handle.createUpdate(
@@ -32,7 +37,7 @@ public class SpaceDao {
                     .bind("name", req.getName())
                     .bind("code", req.getCode())
                     .bind("description", req.getDescription())
-                    .bind("status", 1)
+                    .bind("status", 3)
                     .bind("url", req.getUrl())
                     .bind("createdAt", LocalDateTime.now())
                     .bind("updatedAt", LocalDateTime.now())

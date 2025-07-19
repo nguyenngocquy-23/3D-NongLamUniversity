@@ -14,6 +14,7 @@ import { API_URLS } from "../../env";
 import Swal from "sweetalert2";
 import axios, { AxiosError } from "axios";
 import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL";
+import { IoIosWarning } from "react-icons/io";
 
 type SpaceCardProps = {
   space: Space;
@@ -150,6 +151,11 @@ const SpaceCard: React.FC<SpaceCardProps> = ({ space, setSelectedSpace }) => {
               style={{ display: "none" }}
             />
             <MdCloudUpload />
+          </span>
+        ) : space.status === 3 ? (
+          <span className={styles.space_start_node}>
+            <IoIosWarning />
+            Đang rỗng
           </span>
         ) : (
           <span className={styles.space_start_node}>
