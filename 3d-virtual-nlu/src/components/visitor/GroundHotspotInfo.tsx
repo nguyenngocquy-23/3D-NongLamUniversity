@@ -232,8 +232,11 @@ const GroundHotspotInfo = ({
                 className={styles.center_pane}
                 style={{
                   backgroundColor:
-                    rgbaToString(hotspotInfo.backgroundColorContent) ??
-                    rgbaToString(initialRgba),
+                    typeof hotspotInfo.backgroundColorContent === "string"
+                      ? hotspotInfo.backgroundColorContent
+                      : rgbaToString(
+                          hotspotInfo.backgroundColorContent ?? initialRgba
+                        ),
                 }}
               >
                 {hotspotInfo.content.trim() == "" ? (

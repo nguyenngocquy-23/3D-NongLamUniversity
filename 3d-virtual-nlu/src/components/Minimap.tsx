@@ -111,10 +111,6 @@ const MiniMap: React.FC<MiniMapProps> = ({
 
   const dispatch = useDispatch();
 
-  const handleUploadedFile = (url: string) => {
-    console.log("Tải nè");
-  };
-
   const { panoramaList, spaceId } = useSelector(
     (state: RootState) => state.panoramas
   );
@@ -202,7 +198,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const panoramaTargetUrl = (id: string) => {
     const panoramaTarget = panoramaList.find((pano) => pano.id === id);
     return (
-      imageRef.current[panoramaTarget?.url].objectUrl || panoramaTarget?.url
+      imageRef.current[panoramaTarget?.url]?.objectUrl || panoramaTarget?.url
     );
   };
 
@@ -533,7 +529,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
           >
             <img
               src={
-                imageRef.current[masterPanorama.url]?.objectUrl ||
+                imageRef.current[masterPanorama?.url]?.objectUrl ||
                 masterPanorama?.url
               }
               alt="panorama_master"

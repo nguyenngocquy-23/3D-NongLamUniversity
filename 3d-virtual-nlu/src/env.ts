@@ -75,7 +75,7 @@ export const API_URLS = {
   ADMIN_UPDATE_NODES: `${DOMAIN}/v1/admin/node/update`,
   ADMIN_LINK_NODES: `${DOMAIN}/v1/admin/node/linkNode`,
   ADMIN_CREATE_FIELDS: `${DOMAIN}/admin/field/create`,
-  ADMIN_CREATE_SPACES: `${DOMAIN}/admin/field/create`,
+  ADMIN_CREATE_SPACES: `${DOMAIN}/admin/space/create`,
   ADMIN_ATTACH_SPACE_LOCATION: `${DOMAIN}/admin/space/attachLocation`,
   ADMIN_REMOVE_SPACE_LOCATION: `${DOMAIN}/admin/space/removeLocation`,
 

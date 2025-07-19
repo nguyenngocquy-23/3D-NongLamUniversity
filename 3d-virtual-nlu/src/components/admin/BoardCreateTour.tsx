@@ -18,8 +18,13 @@ const BoardUploader = () => {
   const fields = useSelector((state: RootState) => state.data.fields);
 
   useEffect(() => {
-    dispatch(fetchFields({limit: 50, page: 0}));
+    dispatch(fetchFields({ limit: 50, page: 0 }));
   }, [dispatch]);
+
+  // Lấy field từ api
+  // useEffect(() => {
+  //   const fetchFields = await axios.get({ GET_ALL_FIELDS });
+  // }, []);
 
   // Lấy danh sách space theo field
   const handleSelectField = async (event: any) => {

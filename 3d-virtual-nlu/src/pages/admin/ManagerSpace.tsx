@@ -24,10 +24,15 @@ import { TfiNewWindow } from "react-icons/tfi";
 import Pagination from "../../components/Pagination";
 import { useDebounce } from "../../hooks/useDebounce";
 import { perPage } from "../../utils/Constants";
+import { select } from "three/src/nodes/TSL.js";
+import Field from "./ManagerField";
+import { ApiResponse } from "../../components/admin/UploadFile";
+import Swal from "sweetalert2";
 
 interface Space {
   id: number;
   url: string;
+  fieldId: number | null;
   fieldName: string;
   code: string;
   masterNodeId: number | null;
@@ -39,15 +44,22 @@ interface Space {
   updatedAt: number | null;
 }
 
-type SpaceCreateRequest = {
+type SpaceEditRequest = {
   spaceId: Space["id"];
 } & Pick<Space, "name" | "code">;
 
+//Khi tạo, spaceId sẽ là 0.
+type SpaceCreateRequest = Pick<
+  Space,
+  "fieldId" | "name" | "code" | "description" | "url"
+>;
+
 const emptySpace: Space = {
-  id: 0, // ID giả để phân biệt với các field thật
+  id: 0, // ID giả để phân biệt với các space thật.
   name: null,
   code: "",
   url: "",
+  fieldId: null,
   fieldName: "",
   masterNodeId: null,
   masterNodeName: null,
@@ -58,31 +70,63 @@ const emptySpace: Space = {
 };
 
 const Space = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>("");
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const MAX_DESCRIPTION = 300;
+
+  //Gọi từ Redux
+  const dashboard = useSelector((state: RootState) => state.data.dashboard);
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const spaces = useSelector((state: RootState) => state.data.spaces) || [];
-  const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
-
-  const [isEditing, setIsEditing] = useState(false);
-  const dispatch = useDispatch<AppDispatch>();
   const spaceCodeList = spaces.map((space) => space.code);
 
+  const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [fields, setFields] = useState<Field[] | null>([]);
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+
+  //Sửa.
+  const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
   const [inputSpaceName, setInputSpaceName] = useState<string | null>(
     selectedSpace?.name || null
   );
   const [nameCode, setNameCode] = useState(selectedSpace?.code);
-  const dashboard = useSelector((state: RootState) => state.data.dashboard);
+  const [inputSpaceDescription, setInputSpaceDescription] = useState<
+    string | null
+  >(selectedSpace?.description || null);
+  const [fieldId, setFieldId] = useState<number | null>(
+    selectedSpace?.fieldId || null
+  );
+
   const [spaceList, setSpaceList] = useState<any[]>(spaces || []);
-
-  const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 500); // custom hook
-
   const [currentPage, setCurrentPage] = useState(0);
-
   const [totalSpace, setTotalSpace] = useState(0);
+  const [isChecked, setIsChecked] = useState(false); //logic việc hiển thị chọn/thêm không gian.
+
   const totalPages = Math.ceil(totalSpace / perPage);
+
+  useEffect(() => {
+    const fetchFields = async () => {
+      try {
+        const response = await axios.get<ApiResponse<Field[]>>(
+          `${API_URLS.GET_ALL_FIELDS}`
+        );
+
+        if (response.data.statusCode === 1000) {
+          setFields(response.data.data);
+        } else {
+          console.log("Lỗi khi lấy danh sách fields", response.data.message);
+        }
+      } catch (error) {
+        console.warn("Lỗi khi gọi API", error);
+      }
+    };
+
+    fetchFields();
+  }, []);
 
   useEffect(() => {
     const handleSearch = async () => {
@@ -129,7 +173,9 @@ const Space = () => {
   };
 
   useEffect(() => {
+    setFieldId(selectedSpace?.fieldId || null);
     setInputSpaceName(selectedSpace?.name || "");
+    setInputSpaceDescription(selectedSpace?.description || "");
     setNameCode(selectedSpace?.code || "");
     setIsEditing(false);
     setError("");
@@ -144,6 +190,10 @@ const Space = () => {
       navigate("/unauthorized");
     }
   }, [currentUser, navigate]);
+  const handleSelectField = (event: any) => {
+    const fieldId = event?.target.value;
+    setFieldId(fieldId);
+  };
 
   const handleChangeSpaceName = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -157,10 +207,19 @@ const Space = () => {
     setNameCode(spaceCodeNew);
   };
 
+  const handleChangeSpaceDes = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newText = e.target.value;
+
+    //Kiểm tra đội dài & pattern
+    if (newText.length <= MAX_DESCRIPTION) {
+      setInputSpaceDescription(newText);
+    }
+  };
+
   /**
    * Xử lý phần chỉnh sửa tên cho lĩnh vực.
    */
-  const handleRename = async (req: SpaceCreateRequest) => {
+  const handleRename = async (req: SpaceEditRequest) => {
     try {
       const nameCheck = validateName(req.name);
 
@@ -171,14 +230,7 @@ const Space = () => {
 
       let response;
 
-      if (req.spaceId === 0) {
-        response = await axios.post(API_URLS.ADMIN_CREATE_SPACES, req);
-        setSelectedSpace(emptySpace);
-        setInputSpaceName("");
-        setNameCode("");
-      } else {
-        response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_SPACE, req);
-      }
+      response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_SPACE, req);
 
       /**
        * Xử lý sau khi có api trả về:
@@ -197,8 +249,70 @@ const Space = () => {
     setIsEditing(false);
   };
 
-  const [isChecked, setIsChecked] = useState(false); // mặc định chưa chọn
+  const handleCreateSpace = async (req: SpaceCreateRequest) => {
+    alert(`gọi tới ròi ${fieldId} nhá`);
+    try {
+      if (error !== "") {
+        Swal.fire({
+          icon: "error",
+          title: `Tạo không gian thất bại ${error}`,
+          toast: true,
+          position: "bottom-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+        return;
+      }
 
+      const response = await axios.post(API_URLS.ADMIN_CREATE_SPACES, req);
+
+      if (response.data.statusCode === 1000) {
+        setSelectedSpace(emptySpace);
+        Swal.fire({
+          icon: "success",
+          title: `${response.data.message}`,
+          toast: true,
+          position: "bottom-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+      } else if (response.data.statusCode === 5000) {
+        Swal.fire({
+          icon: "error",
+          title: `${response.data.message}`,
+          toast: true,
+          position: "bottom-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: `Không thể tạo không gian`,
+          toast: true,
+          position: "bottom-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+      }
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: `Tạo không gian thất bại ${err}`,
+        toast: true,
+        position: "bottom-end",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+      });
+    }
+  };
+
+  //Xử lý việc hiển thị master space.
   const handleCheckboxChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
     id: number
@@ -206,7 +320,6 @@ const Space = () => {
     const checked = event.target.checked;
 
     if (!event.target.checked) {
-      // Ngăn không cho bỏ chọn
       event.preventDefault();
       return;
     }
@@ -280,7 +393,9 @@ const Space = () => {
 
             <button
               className={`${styles.space_add} ${styles.space_box}`}
-              onClick={() => {}}
+              onClick={() => {
+                setSelectedSpace(emptySpace);
+              }}
             >
               Thêm không gian
             </button>
@@ -323,6 +438,7 @@ const Space = () => {
             )}
           </div>
         </div>
+
         {/* Chỉnh sửa thông tin chung */}
         {selectedSpace && (
           <div className={styles.space_edit_by_id}>
@@ -333,33 +449,55 @@ const Space = () => {
             <div className={styles.space_item}>
               <SpaceCard
                 space={{ ...selectedSpace, name: selectedSpace.name ?? "" }}
+                setSelectedSpace={setSelectedSpace}
               />
 
-              <div className={styles.space_feautures_inner}>
-                <div className={`${styles.space_information_item} `}>
-                  <Link
-                    to={`./${selectedSpace.id}`}
-                    className={styles.space_feature_detail}
-                    onClick={() => dispatch(goToStep(4))}
-                  >
-                    Thông tin chi tiết
-                    <TfiNewWindow />
-                  </Link>
+              {selectedSpace.id !== 0 && (
+                <div className={styles.space_feautures_inner}>
+                  <div className={`${styles.space_information_item} `}>
+                    <Link
+                      to={`./${selectedSpace.id}`}
+                      className={styles.space_feature_detail}
+                      onClick={() => dispatch(goToStep(4))}
+                    >
+                      Thông tin chi tiết
+                      <TfiNewWindow />
+                    </Link>
+                  </div>
+                  <div className={`${styles.space_information_item} `}>
+                    <span>Trạng thái: </span>
+                    <StatusToggle
+                      id={selectedSpace.id}
+                      status={selectedSpace.status}
+                      apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
+                      type="space"
+                    />
+                  </div>
                 </div>
-                <div className={`${styles.space_information_item} `}>
-                  <span>Trạng thái: </span>
-                  <StatusToggle
-                    id={selectedSpace.id}
-                    status={selectedSpace.status}
-                    apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
-                    type="space"
-                  />
-                </div>
-              </div>
+              )}
             </div>
 
             <div className={styles.space_edit_content}>
-              <p className={styles.space_edit_label}>Thông tin cơ bản</p>
+              {selectedSpace.id === 0 && (
+                <div className={`${styles.space_information_item} `}>
+                  <label className={styles.label}>Lĩnh vực:</label>
+                  <select
+                    className={styles.custom_select}
+                    name="field"
+                    id="field"
+                    onChange={handleSelectField}
+                  >
+                    <option value="">-- Chọn lĩnh vực --</option>
+
+                    {fields !== null &&
+                      fields.map((field) => (
+                        <option key={field.id} value={field.id}>
+                          {field.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              )}
 
               <div className={`${styles.space_information_item} `}>
                 <span>Tên không gian : </span>
@@ -369,7 +507,7 @@ const Space = () => {
                     type="text"
                     id="input"
                     required
-                    readOnly={!isEditing}
+                    readOnly={!isEditing && selectedSpace.id !== 0}
                     value={inputSpaceName ?? ""}
                     onChange={handleChangeSpaceName}
                   />
@@ -406,6 +544,28 @@ const Space = () => {
                 <span>Mã không gian: </span>
                 <span className={styles.space_code}>{nameCode}</span>
               </div>
+
+              <div className={`${styles.space_information_item} `}>
+                <label
+                  className={styles.description_label}
+                  htmlFor="description"
+                >
+                  Mô tả:{" "}
+                </label>
+                <textarea
+                  id="description"
+                  value={inputSpaceDescription ?? ""}
+                  onChange={handleChangeSpaceDes}
+                  rows={5}
+                  cols={40}
+                  placeholder="Tối đa 300 ký tự."
+                  className={styles.description_content}
+                />
+                <span className={styles.description_count}>
+                  {inputSpaceDescription?.length}/{MAX_DESCRIPTION} ký tự
+                </span>
+              </div>
+
               <div className={`${styles.space_information_item} `}>
                 <span>Ngày khởi tạo: </span>
                 <span className={styles.space_space_list}>
@@ -429,20 +589,21 @@ const Space = () => {
                       )}
                 </span>
               </div>
-
-              <div className={styles.space_select_master}>
-                <span>Chọn làm không gian chính: </span>
-                <label className={styles.check_container}>
-                  <input
-                    checked={isChecked}
-                    type="checkbox"
-                    onChange={(event) =>
-                      handleCheckboxChange(event, selectedSpace.id)
-                    }
-                  />
-                  <div className={styles.checkmark}></div>
-                </label>
-              </div>
+              {selectedSpace.id !== 0 && (
+                <div className={styles.space_select_master}>
+                  <span>Chọn làm không gian chính: </span>
+                  <label className={styles.check_container}>
+                    <input
+                      checked={isChecked}
+                      type="checkbox"
+                      onChange={(event) =>
+                        handleCheckboxChange(event, selectedSpace.id)
+                      }
+                    />
+                    <div className={styles.checkmark}></div>
+                  </label>
+                </div>
+              )}
             </div>
 
             <div className={styles.space_footer}>
@@ -456,15 +617,16 @@ const Space = () => {
                   className={styles.space_add_change_btn}
                   disabled={!!error}
                   onClick={() =>
-                    handleRename({
-                      spaceId: selectedSpace.id,
-                      name: inputSpaceName ?? "",
+                    handleCreateSpace({
+                      fieldId: fieldId,
+                      url: selectedSpace.url,
+                      name: inputSpaceName,
                       code: nameCode ?? "",
+                      description: inputSpaceDescription ?? "",
                     })
                   }
                 >
-                  {" "}
-                  Hoàn tất{" "}
+                  Hoàn tất
                 </button>
               )}
             </div>
