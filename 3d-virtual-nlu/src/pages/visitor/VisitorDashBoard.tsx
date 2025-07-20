@@ -20,6 +20,7 @@ import {
   fetchPrivateNodeOfUser,
 } from "../../redux/slices/DataSlice";
 import { FaMapMarkedAlt, FaShareAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 interface CloudinaryUploadResp {
   originalFileName?: string;
@@ -35,6 +36,7 @@ interface ApiResponse<T> {
 const VisitorDashBoard = () => {
   const userJson = sessionStorage.getItem("user");
   const user = userJson ? JSON.parse(userJson) : null;
+
   const [username, setUsername] = useState(user.username || "");
   const [email, setEmail] = useState(user.email || "");
 
@@ -334,7 +336,7 @@ const VisitorDashBoard = () => {
             type="email"
             placeholder="Email"
             value={email}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <button className={styles.button} onClick={handleChangeProfile}>
             Lưu thông tin

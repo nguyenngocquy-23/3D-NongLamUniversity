@@ -60,11 +60,6 @@ const Layout = () => {
     }
   }, []);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    navigate("/login");
-  };
-
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(true);
   const [isOpenSideBar, setIsOpenSideBar] = useState(false);

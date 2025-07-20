@@ -81,16 +81,7 @@ const HotspotPreview = ({
     loadAndModifySVG();
   }, [iconUrl, color]);
 
-  //CASE 2: 3D ICON - GLB
-  const rasterTexture =
-    typeIcon === 2 && iconUrl ? useLoader(THREE.TextureLoader, iconUrl) : null;
-
-  useEffect(() => {
-    console.log("Raster texture loaded:", typeIcon, iconUrl);
-  }, [iconUrl]);
-
   if (typeIcon === 1 && !texture) return null;
-  // if (!texture) return null;
 
   return (
     <>
