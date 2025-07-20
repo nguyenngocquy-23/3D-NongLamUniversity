@@ -737,8 +737,8 @@ export class TourNodeRequestMapper {
       // Media Hotspots
       node.mediaHotspots?.forEach((h) => {
         hotspotList.push({
-          id: h.id,
-          nodeId: h.nodeId,
+          id: String(h.id),
+          nodeId: String(h.nodeId),
           type: h.type,
           iconId: h.iconId,
           status: h.status,

@@ -2,6 +2,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "../../styles/spaceDetail.module.css";
+import stylesLoading from "../../styles/minimap.module.css";
 import { IoChevronBack } from "react-icons/io5";
 import axios, { AxiosError } from "axios";
 import { API_URLS } from "../../env";
@@ -20,9 +21,6 @@ import {
   addHotspotsFromResponse,
   addNavigationHotspot,
   BaseHotspot,
-  HotspotInformation,
-  HotspotMedia,
-  HotspotModel,
   HotspotNavigation,
 } from "../../redux/slices/HotspotSlice";
 import UpdateHotspot from "./taskCreateTourList/UpdateHotspot";
@@ -62,19 +60,30 @@ import {
 } from "./UploadFile";
 import Space from "../../pages/admin/ManagerSpace";
 import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
+import {
+  getFilteredHotspotInformationInList,
+  getFilteredHotspotMediaInList,
+  getFilteredHotspotModelInList,
+  getFilteredHotspotNavigationInList,
+} from "../../redux/slices/Selectors";
+import { AnimatePresence, motion } from "framer-motion";
+import { IoMdMenu } from "react-icons/io";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
   const { spaceId } = useParams(); //Id từ url
+
   const dispatch = useDispatch<AppDispatch>();
+
   const inputImageRef = useRef<HTMLInputElement>(null);
+
+  const sphereRef = useRef<THREE.Mesh | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<any>(null);
 
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
-  const sphereRef = useRef<THREE.Mesh | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const controlsRef = useRef<any>(null);
 
   const [currentSpace, setCurrentSpace] = useState<Space | null>(null);
   const [fields, setFields] = useState<Field[] | null>([]);
@@ -95,6 +104,7 @@ const SpaceDetail = () => {
         const nodes = res.data.data;
         const { panoramaList, hotspotList } =
           TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
+
         dispatch(addPanoramasFromResponse(panoramaList));
         dispatch(addHotspotsFromResponse(hotspotList));
       })
@@ -245,6 +255,9 @@ const SpaceDetail = () => {
       });
     }
   };
+
+  // Xử lý cho trang cấu hình nối tour.
+
   /**
    * Xử lý chọn node trung tâm
    * @param spaceId  : id không gian hiện tại
@@ -280,27 +293,11 @@ const SpaceDetail = () => {
 
   const hotspots = useSelector((state: RootState) => state.hotspots);
 
-  const hotspotNavigations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
-    )
-  );
-  const hotspotInfos = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
-    )
-  );
-  const hotspotModels = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotModel => hotspot.type === 4
-    )
-  );
+  const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
+  const hotspotInfos = useSelector(getFilteredHotspotInformationInList);
+  const hotspotModels = useSelector(getFilteredHotspotModelInList);
+  const hotspotMedias = useSelector(getFilteredHotspotMediaInList);
 
-  const hotspotMedias = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-    )
-  );
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
   >(null);
@@ -337,8 +334,15 @@ const SpaceDetail = () => {
   };
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const handleOpenMenu = () => {
+    setIsMenuVisible((preState) => !preState);
+  };
 
   const tasks = [
+    {
+      id: 2,
+      title: "Thông tin cơ bản",
+    },
     {
       id: 3,
       title: "Nối điểm tương tác",
@@ -362,7 +366,7 @@ const SpaceDetail = () => {
       case 2:
         return (
           <>
-            <Task2 cameraRef={cameraRef} />
+            <Task2 cameraRef={cameraRef} isLocked={true} />
           </>
         );
       case 3:
@@ -403,40 +407,7 @@ const SpaceDetail = () => {
     if (!currentHotspotType || !assignable) {
       return;
     }
-    const limit = (basicProps?.scale || 1) * 5 + 5;
-    const minX = point.x - limit;
-    const maxX = point.x + limit;
-    const minY = point.y - limit;
-    const maxY = point.y + limit;
-    const minZ = point.z - limit;
-    const maxZ = point.z + limit;
 
-    const isNear = hotspotPosition
-      .filter((h: any) => h.nodeId === currentSelectId)
-      .some((h: any) =>
-        h.hotspotPositions.some(
-          (hotspot: any) =>
-            hotspot.position[0] > minX &&
-            hotspot.position[0] < maxX &&
-            hotspot.position[1] > minY &&
-            hotspot.position[1] < maxY &&
-            hotspot.position[2] > minZ &&
-            hotspot.position[2] < maxZ
-        )
-      );
-    if (isNear) {
-      Swal.fire({
-        title: "Cảnh báo",
-        text: "Các hotspot không được nằm gần nhau",
-        icon: "warning",
-        showCancelButton: false,
-        toast: true,
-        timer: 2000,
-        position: "top-end",
-        showConfirmButton: false,
-      });
-      return;
-    }
     if (!validIcon) {
       Swal.fire({
         title: "Cảnh báo",
@@ -527,6 +498,7 @@ const SpaceDetail = () => {
     setEditInformation((p) => !p);
   };
 
+  // Cập nhật không gian trong overview.
   const handleUpdateSpace = async () => {
     const changeFields: Partial<Space> = {};
 
@@ -608,36 +580,46 @@ const SpaceDetail = () => {
           />
           <p className={styles.space_title}>{currentSpace.name} </p>
           <div className={styles.space_mode}>
-            <button
-              className={`${styles.space_mode_item} 
-              ${isViewMode === 1 ? styles.space_mode_active : ""}
-              `}
-              onClick={() => {
-                if (isViewMode !== 1) setIsViewMode(1);
-              }}
-            >
-              Tổng quan
-            </button>
-            <button
-              className={`${styles.space_mode_item} 
-              ${isViewMode === 2 ? styles.space_mode_active : ""}
-              `}
-              onClick={() => {
-                if (isViewMode !== 2) setIsViewMode(2);
-              }}
-            >
-              Sơ đồ
-            </button>
-            <button
-              className={`${styles.space_mode_item} 
-              ${isViewMode === 3 ? styles.space_mode_active : ""}
-              `}
-              onClick={() => {
-                if (isViewMode !== 3) setIsViewMode(3);
-              }}
-            >
-              Nối tour
-            </button>
+            <div className={styles.radio_container}>
+              <label className={styles.radio_item}>
+                <input
+                  type="radio"
+                  name="radio"
+                  value="overview"
+                  checked={isViewMode === 1}
+                  onChange={() => {
+                    if (isViewMode !== 1) setIsViewMode(1);
+                  }}
+                />
+                <span className={styles.radio_name}>Tổng quan</span>
+              </label>
+              <label className={styles.radio_item}>
+                <input
+                  type="radio"
+                  name="radio"
+                  value="floor"
+                  checked={isViewMode === 2}
+                  onChange={() => {
+                    if (isViewMode !== 2) setIsViewMode(2);
+                  }}
+                />
+                <span className={styles.radio_name}>Cấu hình</span>
+              </label>
+
+              <label className={styles.radio_item}>
+                <input
+                  type="radio"
+                  name="radio"
+                  id="wall"
+                  value="wall"
+                  checked={isViewMode === 3}
+                  onChange={() => {
+                    if (isViewMode !== 3) setIsViewMode(3);
+                  }}
+                />
+                <span className={styles.radio_name}>Sơ đồ</span>
+              </label>
+            </div>
           </div>
         </div>
         <div className={styles.space_content}>
@@ -662,22 +644,30 @@ const SpaceDetail = () => {
                       filter: editInformation ? "brightness(0.6)" : "",
                     }}
                   />
-                  {editInformation && (
-                    <span
-                      className={styles.space_img_custom}
-                      onClick={() => {
-                        inputImageRef.current?.click();
-                      }}
-                    >
-                      <input
-                        ref={inputImageRef}
-                        type="file"
-                        onChange={handleFileChange}
-                        accept={".jpg , .jpeg, .avif, .webp, .png"}
-                        style={{ display: "none" }}
-                      />
-                      <CiEdit />
-                    </span>
+                  {editInformation ? (
+                    fileStatuses && fileStatuses.status === "uploading" ? (
+                      <div className={stylesLoading.loaderWrapper}>
+                        <div className={stylesLoading.loader}></div>
+                      </div>
+                    ) : (
+                      <span
+                        className={styles.space_img_custom}
+                        onClick={() => {
+                          inputImageRef.current?.click();
+                        }}
+                      >
+                        <input
+                          ref={inputImageRef}
+                          type="file"
+                          onChange={handleFileChange}
+                          accept={".jpg , .jpeg, .avif, .webp, .png"}
+                          style={{ display: "none" }}
+                        />
+                        <CiEdit />
+                      </span>
+                    )
+                  ) : (
+                    ""
                   )}
                 </div>
 
@@ -879,6 +869,13 @@ const SpaceDetail = () => {
             </div>
           ) : isViewMode === 2 && currentSpace.masterNodeId ? (
             <div className={styles.space_preview_tour}>
+              <div className={styles.toggle_right_menu}>
+                <IoMdMenu
+                  className={styles.show_menu}
+                  onClick={() => handleOpenMenu()}
+                />
+              </div>
+
               <Canvas
                 camera={{
                   fov: 75,
@@ -970,7 +967,7 @@ const SpaceDetail = () => {
                     ))}
               </Canvas>
 
-              <div
+              {/* <div
                 className={`${styles.space_right_menu} ${
                   isMenuVisible ? styles.show : ""
                 }`}
@@ -987,8 +984,80 @@ const SpaceDetail = () => {
                   setPreOpenTask={setPreTaskIndex}
                   saveLinkNode={true}
                 />
-              </div>
-              <div
+              </div> */}
+
+              <AnimatePresence>
+                {isMenuVisible && (
+                  <motion.div
+                    initial={{ x: 300, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: 300, opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className={`${styles.rightMenu} `}
+                  >
+                    <div className={styles.rightTitle}>
+                      <FaAngleRight
+                        className={styles.close_menu_btn}
+                        onClick={handleOpenMenu}
+                      />
+                      <h2>Cấu hình</h2>
+                    </div>
+
+                    <RightMenuCreateTour
+                      tasks={tasks}
+                      openTaskIndex={openTaskIndex}
+                      onTaskClick={handleOpenTask}
+                      setPreOpenTask={setPreTaskIndex}
+                      saveLinkNode={true}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {isMenuVisible &&
+                  openTaskIndex !== null &&
+                  currentHotspotId === null && (
+                    <motion.div
+                      initial={{ y: 800, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: 800, opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className={`${styles.task_container}`}
+                    >
+                      <TaskContainerCT
+                        id={preTaskIndex}
+                        name={
+                          tasks.find((t) => t.id === preTaskIndex)?.title || ""
+                        }
+                      >
+                        {preTaskIndex
+                          ? getTaskContentById(openTaskIndex ?? preTaskIndex)
+                          : ""}
+                      </TaskContainerCT>
+                    </motion.div>
+                  )}
+              </AnimatePresence>
+              <AnimatePresence>
+                {currentHotspotId !== null && (
+                  <motion.div
+                    initial={{ y: 800, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 800, opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className={`${styles.update_hotspot_container} `}
+                  >
+                    <UpdateHotspot
+                      hotspotId={currentHotspotId}
+                      setHotspotId={setCurrentHotspotId}
+                      onPropsChange={handleOnPropsChange}
+                      limitNav={true}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* <div
                 className={`${styles.task_container} ${
                   isMenuVisible &&
                   openTaskIndex !== null &&
@@ -1026,7 +1095,7 @@ const SpaceDetail = () => {
                 >
                   Lưu
                 </span>
-              </div>
+              </div> */}
             </div>
           ) : currentSpace.masterNodeId ? (
             <div className={styles.space_preview_tour}>

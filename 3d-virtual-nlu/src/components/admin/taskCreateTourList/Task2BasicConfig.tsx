@@ -17,9 +17,10 @@ import { DEFAULT_ORIGINAL_Z } from "../../../utils/Constants";
 type Task2Props = {
   cameraRef?: React.RefObject<THREE.PerspectiveCamera | null>;
   controlsRef?: React.RefObject<any>;
+  isLocked?: boolean;
 };
 
-const Task2 = ({ cameraRef, controlsRef }: Task2Props) => {
+const Task2 = ({ cameraRef, controlsRef, isLocked }: Task2Props) => {
   const dispatch = useDispatch();
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
@@ -159,10 +160,15 @@ const Task2 = ({ cameraRef, controlsRef }: Task2Props) => {
         <div className={styles.contain_input_title}>
           <span>Vùng sáng:</span>
         </div>
-        <div className={styles.contain_input_content}>
+        <div
+          className={`${styles.contain_input_content} ${
+            isLocked ? styles.contain_blur : ""
+          }`}
+        >
           <div className={styles.contain_label}>{lightIntensity}</div>
           <div className={styles.contain_edit}>
             <input
+              disabled={isLocked}
               type="range"
               min="0.5"
               max="6"
@@ -181,10 +187,15 @@ const Task2 = ({ cameraRef, controlsRef }: Task2Props) => {
           <CiBrightnessDown />
           <span>Ánh sáng/Brightness:</span>
         </div>
-        <div className={styles.contain_input_content}>
+        <div
+          className={`${styles.contain_input_content} ${
+            isLocked ? styles.contain_blur : ""
+          }`}
+        >
           <div className={styles.contain_label}>{brightness}</div>
           <div className={styles.contain_edit}>
             <input
+              disabled={isLocked}
               type="range"
               name="brightness"
               id="brightness"
@@ -205,10 +216,15 @@ const Task2 = ({ cameraRef, controlsRef }: Task2Props) => {
           <IoIosContrast />
           <span>Tương phản/Contrast:</span>
         </div>
-        <div className={styles.contain_input_content}>
+        <div
+          className={`${styles.contain_input_content} ${
+            isLocked ? styles.contain_blur : ""
+          }`}
+        >
           <div className={styles.contain_label}>{contrast}</div>
           <div className={styles.contain_edit}>
             <input
+              disabled={isLocked}
               type="range"
               name="contrast"
               id="contrast"
@@ -229,10 +245,15 @@ const Task2 = ({ cameraRef, controlsRef }: Task2Props) => {
           <IoColorFilter />
           <span>Độ bão hoà/Saturation:</span>
         </div>
-        <div className={styles.contain_input_content}>
+        <div
+          className={`${styles.contain_input_content} ${
+            isLocked ? styles.contain_blur : ""
+          }`}
+        >
           <div className={styles.contain_label}>{saturation}</div>
           <div className={styles.contain_edit}>
             <input
+              disabled={isLocked}
               type="range"
               name="saturation"
               id="saturation"
@@ -253,7 +274,11 @@ const Task2 = ({ cameraRef, controlsRef }: Task2Props) => {
           <TbBrightness />
           <span>Trắng đen/Grayscale:</span>
         </div>
-        <div className={styles.contain_input_content}>
+        <div
+          className={`${styles.contain_input_content} ${
+            isLocked ? styles.contain_blur : ""
+          }`}
+        >
           <div className={styles.contain_label}>{grayscale}</div>
           <div className={styles.contain_edit}>
             <input
@@ -277,7 +302,11 @@ const Task2 = ({ cameraRef, controlsRef }: Task2Props) => {
           <MdExposure />
           <span>Phơi sáng/Exposure:</span>
         </div>
-        <div className={styles.contain_input_content}>
+        <div
+          className={`${styles.contain_input_content} ${
+            isLocked ? styles.contain_blur : ""
+          }`}
+        >
           <div className={styles.contain_label}>{exposure}</div>
           <div className={styles.contain_edit}>
             <input
