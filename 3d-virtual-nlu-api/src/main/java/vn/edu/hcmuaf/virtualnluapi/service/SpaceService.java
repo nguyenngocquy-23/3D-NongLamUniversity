@@ -67,6 +67,9 @@ public class SpaceService {
         return spaceDao.removeLocation(request);
     }
 
+    public SpaceFullResponse updateSpacePartial(int id , SpaceUpdateRequest request) {
+        return spaceDao.updateSpacePartial(id, request);
+    }
 
     public List<SpaceFullResponse> search(String searchKey) {
         try {

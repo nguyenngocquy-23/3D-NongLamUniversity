@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Space {
-    int id, fieldId;
-    String name, description;
+    int id, fieldId, masterNodeId;
+    String name, code, description, location, url;
     byte status;
     Timestamp createdAt, updatedAt;
 }

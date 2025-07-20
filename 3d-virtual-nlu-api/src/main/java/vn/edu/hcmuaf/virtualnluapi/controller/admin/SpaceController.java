@@ -166,4 +166,20 @@ public class SpaceController {
         List<SpaceFullResponse> result = spaceService.search(request.getSearchKey());
         return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Tim kiem thanh cong").data(result).build();
     }
+
+
+    @PATCH
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<SpaceFullResponse> updateSpaceById(@PathParam("id") int id, SpaceUpdateRequest request) {
+
+        SpaceFullResponse result = spaceService.updateSpacePartial(id, request);
+        if (result != null) {
+            return ApiResponse.<SpaceFullResponse>builder().statusCode(1000).message("Cập nhật thành công!").data(result).build();
+        } else {
+            return ApiResponse.<SpaceFullResponse>builder().statusCode(5000).message("Cập nhật thất bại!").data(result).build();
+        }
+
+    }
 }

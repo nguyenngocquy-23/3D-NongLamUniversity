@@ -78,6 +78,7 @@ export const API_URLS = {
   ADMIN_CREATE_SPACES: `${DOMAIN}/admin/space/create`,
   ADMIN_ATTACH_SPACE_LOCATION: `${DOMAIN}/admin/space/attachLocation`,
   ADMIN_REMOVE_SPACE_LOCATION: `${DOMAIN}/admin/space/removeLocation`,
+  ADMIN_UPDATE_SPACE_BY_ID: `${DOMAIN}/admin/space`,
 
   ADMIN_CHANGE_FIELD_STATUS: `${DOMAIN}/admin/field/changeStatus`,
   ADMIN_CHANGE_SPACE_STATUS: `${DOMAIN}/admin/space/changeStatus`,

@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "../../styles/spaceDetail.module.css";
 import { IoChevronBack } from "react-icons/io5";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { API_URLS } from "../../env";
 import {
   isInteger,
@@ -55,13 +55,20 @@ import StatusToggle from "./ToggleChangeStatus";
 import { TiEdit } from "react-icons/ti";
 import { FaSave } from "react-icons/fa";
 import Field from "../../pages/admin/ManagerField";
-import { ApiResponse } from "./UploadFile";
+import {
+  ApiResponse,
+  CloudinaryUploadResp,
+  FileUploadStatus,
+} from "./UploadFile";
 import Space from "../../pages/admin/ManagerSpace";
+import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
   const { spaceId } = useParams(); //Id từ url
   const dispatch = useDispatch<AppDispatch>();
+  const inputImageRef = useRef<HTMLInputElement>(null);
+
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
@@ -149,6 +156,95 @@ const SpaceDetail = () => {
   const [originalSpace, setOriginalSpace] = useState<Space | null>(null);
   const [editedSpace, setEditedSpace] = useState<Space | null>(null);
 
+  const [fileStatuses, setFileStatuses] = useState<FileUploadStatus | null>(
+    null
+  );
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const newFile = e.target.files?.[0];
+    if (!newFile) return;
+
+    setFileStatuses({
+      file: newFile,
+      status: "uploading",
+    });
+
+    await handleUpload(newFile);
+  };
+
+  const handleUpload = async (file: File): Promise<void> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const resp = await axios.post<ApiResponse<CloudinaryUploadResp>>(
+        API_URLS.UPLOAD_CLOUD,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      if (resp.data.statusCode === 200) {
+        const item = resp.data.data!;
+        if (item.originalFileName && item.url) {
+          Swal.fire({
+            icon: "success",
+            title: "Tải ảnh thành công!!",
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true,
+          });
+          // Đánh dấu thành công
+          setFileStatuses({
+            file,
+            status: "success",
+            uploadedUrl: item.url,
+          });
+
+          setEditedSpace((prev) => ({
+            ...prev!,
+            url: item.url ?? "",
+          }));
+        }
+      } else {
+        setFileStatuses({
+          file,
+          status: "error",
+          error: resp.data.message,
+        });
+        Swal.fire({
+          icon: "error",
+          title: `Tải ảnh thất bại ${fileStatuses?.error}`,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+      }
+    } catch (error: unknown) {
+      const err = error as AxiosError<ApiResponse<null>>;
+      const message = err.response?.data?.message || err.message;
+
+      // Đánh dấu lỗi nếu request bị lỗi
+      setFileStatuses({
+        file,
+        status: "error",
+        error: message,
+      });
+
+      Swal.fire({
+        icon: "error",
+        title: `Tải ảnh thất bại ${fileStatuses?.error}`,
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+      });
+    }
+  };
   /**
    * Xử lý chọn node trung tâm
    * @param spaceId  : id không gian hiện tại
@@ -431,8 +527,69 @@ const SpaceDetail = () => {
     setEditInformation((p) => !p);
   };
 
-  const handleSaveInformation = async () => {
+  const handleUpdateSpace = async () => {
     const changeFields: Partial<Space> = {};
+
+    if (!editedSpace) return;
+
+    //So sánh EditedSpace & OrginalSpace.
+    if (editedSpace.name !== originalSpace?.name)
+      changeFields.name = editedSpace.name;
+    if (editedSpace.fieldId !== originalSpace?.fieldId)
+      changeFields.fieldId = editedSpace.fieldId;
+    if (editedSpace.description !== originalSpace?.description)
+      changeFields.description = editedSpace.description;
+    if (editedSpace.masterNodeId !== originalSpace?.masterNodeId)
+      changeFields.masterNodeId = editedSpace.masterNodeId;
+    if (editedSpace.status !== originalSpace?.status)
+      changeFields.status = editedSpace.status;
+    if (editedSpace.url !== originalSpace?.url)
+      changeFields.url = editedSpace.url;
+
+    if (Object.keys(changeFields).length === 0) {
+      Swal.fire("Không có thay đổi nào!", "", "info");
+      setEditInformation(false);
+      return;
+    }
+
+    //Nếu có thay đổi => gửi API.
+    try {
+      const response = await axios.patch(
+        `${API_URLS.ADMIN_UPDATE_SPACE_BY_ID}/${spaceId}`,
+        changeFields
+      );
+
+      if (response.data.statusCode === 1000) {
+        Swal.fire({
+          title: "Thành công",
+          text: `${response.data?.message}`,
+          icon: "success",
+          showCancelButton: false,
+          toast: true,
+          timer: 2000,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+        const updatedSpace = response.data.data;
+        setCurrentSpace(updatedSpace);
+
+        setEditInformation(false);
+      } else {
+        Swal.fire({
+          title: "Thất bại",
+          text: `${response.data?.message || ""}`,
+          icon: "error",
+          showCancelButton: false,
+          toast: true,
+          timer: 2000,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      }
+    } catch (error: any) {
+      console.error("Lỗi khi cập nhật space:", error);
+      Swal.fire("Lỗi kết nối", error?.message || "Không rõ lý do", "error");
+    }
   };
 
   const cancelEditInformation = () => {
@@ -486,16 +643,42 @@ const SpaceDetail = () => {
         <div className={styles.space_content}>
           {isViewMode === 1 ? (
             <div className={styles.space_preview_tour}>
-              <div className={styles.space_overview}>
+              <div
+                className={styles.space_overview}
+                style={{
+                  border: editInformation ? "1px solid #267026" : "",
+                }}
+              >
                 <div className={styles.space_overview_left}>
                   <img
-                    src={currentSpace.url}
+                    src={
+                      editInformation
+                        ? editedSpace?.url ?? ""
+                        : currentSpace?.url ?? ""
+                    }
                     alt="anh-khong-gian"
                     className={styles.space_img}
+                    style={{
+                      filter: editInformation ? "brightness(0.6)" : "",
+                    }}
                   />
-                  <span className={styles.space_img_custom}>
-                    <CiEdit />
-                  </span>
+                  {editInformation && (
+                    <span
+                      className={styles.space_img_custom}
+                      onClick={() => {
+                        inputImageRef.current?.click();
+                      }}
+                    >
+                      <input
+                        ref={inputImageRef}
+                        type="file"
+                        onChange={handleFileChange}
+                        accept={".jpg , .jpeg, .avif, .webp, .png"}
+                        style={{ display: "none" }}
+                      />
+                      <CiEdit />
+                    </span>
+                  )}
                 </div>
 
                 <div className={styles.space_overview_right}>
@@ -543,6 +726,7 @@ const SpaceDetail = () => {
                         status={currentSpace.status}
                         apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
                         type="space"
+                        editable={editInformation}
                       />
                     </div>
                   </div>
@@ -595,16 +779,26 @@ const SpaceDetail = () => {
                         }
                         onChange={
                           editInformation
-                            ? (e) =>
-                                setEditedSpace((prev) => ({
-                                  ...prev!,
-                                  name: e.target.value,
-                                }))
+                            ? (e) => {
+                                setEditedSpace((prev) => {
+                                  if (!prev) return prev;
+
+                                  return {
+                                    ...prev,
+                                    name: e.target.value,
+                                    code: RemoveVietnameseTones(e.target.value),
+                                  };
+                                });
+                              }
                             : undefined
                         }
                       />
                       <span className={styles.content_code}>
-                        ({currentSpace.code})
+                        (
+                        {editInformation
+                          ? editedSpace?.code ?? ""
+                          : currentSpace?.code ?? ""}
+                        )
                       </span>
                     </div>
                   </div>
@@ -625,10 +819,19 @@ const SpaceDetail = () => {
                       onChange={
                         editInformation
                           ? (e) =>
-                              setEditedSpace((prev) => ({
-                                ...prev!,
-                                description: e.target.value,
-                              }))
+                              setEditedSpace((prev) => {
+                                if (!prev) return prev;
+
+                                const textNew = e.target.value;
+
+                                if (textNew.length > MAX_DESCRIPTION)
+                                  return prev;
+
+                                return {
+                                  ...prev!,
+                                  description: e.target.value,
+                                };
+                              })
                           : undefined
                       }
                       readOnly={!editInformation}
@@ -639,33 +842,38 @@ const SpaceDetail = () => {
                     />
                     <span></span>
                     <span className={styles.description_count}>
-                      {currentSpace.description?.length}/{MAX_DESCRIPTION} ký tự
+                      {editInformation
+                        ? editedSpace?.description?.length
+                        : currentSpace?.description?.length}
+                      /{MAX_DESCRIPTION} ký tự
                     </span>
                   </div>
 
-                  {editInformation ? (
-                    <>
+                  <div className={styles.edit_information}>
+                    {editInformation ? (
+                      <>
+                        <button
+                          className={styles.edit_information_btn}
+                          onClick={handleUpdateSpace}
+                        >
+                          Lưu <FaSave />
+                        </button>
+                        <button
+                          className={styles.edit_information_btn}
+                          onClick={cancelEditInformation}
+                        >
+                          Huỷ
+                        </button>
+                      </>
+                    ) : (
                       <button
-                        className={styles.edit_information}
+                        className={styles.edit_information_btn}
                         onClick={handleEditSpace}
                       >
-                        Lưu <FaSave />
+                        Chỉnh sửa <TiEdit />
                       </button>
-                      <button
-                        className={styles.edit_information}
-                        onClick={cancelEditInformation}
-                      >
-                        Huỷ <FaSave />
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      className={styles.edit_information}
-                      onClick={handleEditSpace}
-                    >
-                      Chỉnh sửa <TiEdit />
-                    </button>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

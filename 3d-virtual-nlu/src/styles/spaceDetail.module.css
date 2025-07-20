@@ -87,14 +87,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: 50%;
+  right: 50%;
   background-color: #fff;
-  border-radius: 0.1rem;
-  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  transform: translate(50%, 50%);
 }
 
 .space_choose_master_sl {
@@ -187,11 +187,20 @@
   position: absolute;
   top: 0;
   right: 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit_information_btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.5rem;
   transition: box-shadow 0.3s ease;
 }
 
-.edit_information:hover {
+.edit_information_btn:hover {
   font-weight: bold;
   color: #267026;
 }

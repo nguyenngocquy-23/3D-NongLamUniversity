@@ -11,6 +11,7 @@ type StatusToggleProps = {
   status: number;
   apiUrl: string; // URL để gọi PUT hoặc POST cập nhật status
   type: string;
+  editable?: boolean;
 };
 
 const StatusToggle: React.FC<StatusToggleProps> = ({
@@ -18,6 +19,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
   status,
   apiUrl,
   type,
+  editable,
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -58,7 +60,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
         type="checkbox"
         checked={status > 0}
         onChange={id > 0 ? handleToggleStatus : undefined}
-        disabled={loading}
+        disabled={loading || !editable}
         style={{
           cursor: loading ? "not-allowed" : "pointer",
           opacity: loading ? 0.6 : 1,
