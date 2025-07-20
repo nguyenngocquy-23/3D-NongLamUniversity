@@ -161,4 +161,8 @@ public class NodeService {
         }
     }
 
+    public NodeFullResponse updateNodePartial(int id, NodeUpdateOverviewRequest req) {
+        return nodeDao.updateNodePartial(id, req);
+    }
+
 }

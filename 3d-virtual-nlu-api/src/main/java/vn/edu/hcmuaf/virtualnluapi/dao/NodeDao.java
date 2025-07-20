@@ -13,6 +13,7 @@ import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -596,4 +597,72 @@ public class NodeDao {
                         .one()
         );
     }
+
+    public NodeFullResponse updateNodePartial(int id, NodeUpdateOverviewRequest req) {
+        return ConnectionPool.getConnection()
+                .inTransaction(handle -> {
+                    StringBuilder sql = new StringBuilder("UPDATE nodes SET");
+                    Map<String, Object> binds = new HashMap<>();
+
+                    if (req.getSpaceId() != null) {
+                        sql.append(" spaceId = :spaceId, ");
+                        binds.put("spaceId", req.getSpaceId());
+                    }
+                    if (req.getName() != null) {
+                        sql.append(" name = :name, ");
+                        binds.put("name", req.getName());
+                    }
+                    if (req.getDescription() != null) {
+                        sql.append(" description = :description, ");
+                        binds.put("description", req.getDescription());
+                    }
+                    if (req.getUrl() != null) {
+                        sql.append(" url = :url, ");
+                        binds.put("url", req.getUrl());
+                    }
+                    if (req.getStatus() != null) {
+                        sql.append(" status = :status, ");
+                        binds.put("status", req.getStatus());
+                    }
+
+                    sql.append((" updatedAt = :updatedAt"));
+                    binds.put("updatedAt", LocalDateTime.now());
+
+
+                    sql.append(" WHERE id = :id");
+                    binds.put("id", id);
+
+                    //Nếu không có trường nào cập nhật.
+                    if(binds.size() <= 2) return null;
+
+                    //tạo query.
+                    var update = handle.createUpdate(sql.toString());
+                    binds.forEach(update::bind);
+
+                    int rowAffected = update.execute();
+                    if(rowAffected == 0) return null;
+
+                    String nodeSql = """
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                 n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                 FROM nodes n
+                 JOIN spaces s ON n.spaceId = s.id
+                 JOIN fields f ON s.fieldId = f.id
+                WHERE n.id = :id
+                """;
+
+                    return handle.createQuery(nodeSql).bind("id", id)
+                            .mapToBean(NodeFullResponse.class)
+                            .findOne()
+                            .orElse(null);
+
+
+                });
+    }
+
+
+
+
+
+
 }

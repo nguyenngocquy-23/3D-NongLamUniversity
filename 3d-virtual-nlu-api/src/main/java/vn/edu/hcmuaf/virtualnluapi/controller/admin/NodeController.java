@@ -7,11 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.AutoTourResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeImageResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
 import vn.edu.hcmuaf.virtualnluapi.service.NodeService;
 
@@ -187,6 +183,22 @@ public class NodeController {
         } else {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Lỗi cập nhật").data(result).build();
         }
+    }
+
+    @PATCH
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+
+    public ApiResponse<NodeFullResponse> updateNodeById(@PathParam("id") int id, NodeUpdateOverviewRequest request) {
+
+        SpaceFullResponse result = nodeService.updateNodePartial(id, request);
+        if (result != null) {
+            return ApiResponse.<SpaceFullResponse>builder().statusCode(1000).message("Cập nhật thành công!").data(result).build();
+        } else {
+            return ApiResponse.<SpaceFullResponse>builder().statusCode(5000).message("Cập nhật thất bại!").data(result).build();
+        }
+
     }
 
     /**

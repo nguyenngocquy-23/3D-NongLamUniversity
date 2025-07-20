@@ -59,6 +59,7 @@ import {
   getFilteredHotspotModelInList,
   getFilteredHotspotNavigationInList,
 } from "../../redux/slices/Selectors.ts";
+import StatusToggle from "./ToggleChangeStatus.tsx";
 
 const ManagerTourDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -295,30 +296,34 @@ const ManagerTourDetail: React.FC = () => {
           className={styles.tour_icon_back}
           onClick={() => navigate(-1)}
         />
-        {/* <p className={styles.tour_title}>{currentTour.config.name}</p> */}
+        <p className={styles.tour_title}>{currentTour.config.name}</p>
         <div className={styles.tour_mode}>
-          <button
-            className={`${styles.tour_mode_item}
-          
-            ${viewMode === 1 ? styles.tour_mode_active : ""}
-            
-            `}
-            onClick={() => {
-              if (viewMode !== 1) setViewMode(1);
-            }}
-          >
-            Thông tin
-          </button>
-          <button
-            className={`${styles.tour_mode_item} ${
-              viewMode === 2 ? styles.tour_mode_active : ""
-            }`}
-            onClick={() => {
-              if (viewMode !== 2) setViewMode(2);
-            }}
-          >
-            Preview
-          </button>
+          <div className={styles.radio_container}>
+            <label className={styles.radio_item}>
+              <input
+                type="radio"
+                name="radio"
+                value="overview"
+                checked={viewMode === 1}
+                onChange={() => {
+                  if (viewMode !== 1) setViewMode(1);
+                }}
+              />
+              <span className={styles.radio_name}>Tổng quan</span>
+            </label>
+            <label className={styles.radio_item}>
+              <input
+                type="radio"
+                name="radio"
+                value="config_canvas"
+                checked={viewMode === 2}
+                onChange={() => {
+                  if (viewMode !== 2) setViewMode(2);
+                }}
+              />
+              <span className={styles.radio_name}>Cấu hình</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -360,7 +365,13 @@ const ManagerTourDetail: React.FC = () => {
                 <div className={styles.overview_information}>
                   <div className={styles.label_information}>Trạng thái: </div>
                   <div className={styles.content_information}>
-                    {currentTour.config.status}
+                    <StatusToggle
+                      id={currentTour.config.id}
+                      status={currentTour.config.status}
+                      apiUrl={`${API_URLS.ADMIN_CHANGE_TOUR_BY_ID}/${nodeId}`}
+                      type="node"
+                      // editable={editInformation}
+                    />
                   </div>
                 </div>
               </div>

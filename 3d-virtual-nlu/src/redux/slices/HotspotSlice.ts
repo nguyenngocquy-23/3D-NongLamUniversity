@@ -82,8 +82,8 @@ const hotspotSlice = createSlice({
     ) => {
       state.hotspotList.push({
         ...action.payload,
+        id: nanoid(),
       });
-      // id: nanoid(),
     },
     addInformationHotspot: (
       state,
