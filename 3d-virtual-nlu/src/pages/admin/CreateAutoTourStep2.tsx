@@ -31,7 +31,12 @@ import {
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
 import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
-import { goToStep, nextStep, prevStep, resetStep } from "../../redux/slices/StepSlice";
+import {
+  goToStep,
+  nextStep,
+  prevStep,
+  resetStep,
+} from "../../redux/slices/StepSlice";
 import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
@@ -45,6 +50,7 @@ import {
   ApiResponse,
   CloudinaryUploadResp,
 } from "../../components/admin/UploadFile";
+import Waiting from "../../components/Waiting";
 
 const CreateAutoTourStep2 = () => {
   const navigate = useNavigate();
@@ -244,15 +250,16 @@ const CreateAutoTourStep2 = () => {
         autoTourId: tourId,
         name: tourName,
         indexNode: indexNode,
+        status: status,
         soundBackground: soundUrl,
       });
       if (response.data?.statusCode === 1000) {
         Swal.fire({
           icon: "success",
           title: "Thành công",
-          text: "Xuất bản thành công",
+          text: "Cập nhật thành công",
         }).then(() => {
-          dispatch(nextStep());
+          navigate(-1);
         });
       } else {
         Swal.fire({
@@ -266,6 +273,72 @@ const CreateAutoTourStep2 = () => {
     } catch (error) {
       console.log("Lỗi khi xuất bản: ", error);
     }
+  };
+
+  const [isWaiting, setIsWaiting] = useState(true);
+  const [percent, setPercent] = useState(0);
+  const [isLoadingDone, setIsLoadingDone] = useState(false);
+
+  useEffect(() => {
+    if (
+      !hotspotModels ||
+      !hotspotMedias ||
+      !hotspotNavigations ||
+      !hotspotInfos
+    ) {
+      setIsLoadingDone(false);
+      return;
+    } else {
+      setIsLoadingDone(true);
+    }
+  }, [hotspotModels, hotspotMedias, hotspotNavigations, hotspotInfos]);
+
+  useEffect(() => {
+    let progress = 0;
+
+    const interval = setInterval(() => {
+      if (!isLoadingDone) {
+        // Loading giả lập, chỉ cho đến 90%
+        if (progress < 90) {
+          progress += Math.random() * 5; // tăng chậm lại để mượt
+          if (progress > 90) progress = 90;
+          setPercent(Math.floor(progress));
+        }
+      } else {
+        // Task thật xong, tăng nốt phần còn lại đến 100%
+        if (progress < 100) {
+          progress += Math.random() * 10;
+          if (progress > 100) progress = 100;
+          setPercent(Math.floor(progress));
+        }
+
+        // Nếu đã 100% thì clear interval
+        if (progress >= 100) {
+          clearInterval(interval);
+          requestAnimationFrame(() => {
+            setTimeout(() => setIsWaiting(false), 500);
+          });
+        }
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [isLoadingDone]);
+
+  const handleBackStep2 = () => {
+    Swal.fire({
+      icon: "question",
+      title: "Bạn có chắc chắn muốn quay lại bước trước?",
+      text: "Các thay đổi có thể chưa được lưu.",
+      showCancelButton: true,
+      confirmButtonText: "Quay lại",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate(-1);
+        dispatch(resetStep());
+      }
+    });
   };
 
   return (
@@ -378,8 +451,7 @@ const CreateAutoTourStep2 = () => {
             <FaAngleLeft
               className={styles.back_btn}
               onClick={() => {
-                isUpdate && navigate(-1);
-                dispatch(resetStep());
+                isUpdate ? handleBackStep2() : dispatch(resetStep());
               }}
             />
             <span>{CREATE_TOUR_STEPS[currentStep - 1].name}</span>
@@ -392,11 +464,8 @@ const CreateAutoTourStep2 = () => {
                 textAlign: "center",
                 padding: "0.5rem 1rem",
               }}
-              // onClick={() => {
-              //   isUpdate ? handleUpdateAutoTour() : dispatch(nextStep());
-              // }}
               onClick={() => {
-                dispatch(nextStep());
+                isUpdate ? handleUpdateAutoTour() : dispatch(nextStep());
               }}
             >
               {isUpdate ? "Cập nhật" : "Tiếp tục"}
@@ -457,6 +526,7 @@ const CreateAutoTourStep2 = () => {
             />
           </div>
         )}
+        {isWaiting ? <Waiting percent={percent} /> : ""}
       </div>
     </>
   );
