@@ -23,6 +23,7 @@ import {
   PanoramaConfig,
   PanoramaItem,
   selectPanorama,
+  smartUpdatePanoramasFromResponse,
 } from "../../redux/slices/PanoramaSlice.ts";
 import {
   addHotspotsFromResponse,
@@ -267,28 +268,28 @@ const ManagerTourDetail: React.FC = () => {
   const handleUpdateTourOverview = async () => {
     const changeFields: {
       spaceId?: string;
-      config?: Partial<PanoramaConfig>;
+      name?: string;
+      description?: string;
+      status?: number;
     } = {};
-
-    const ensureConfig = () => {
-      if (!changeFields.config) changeFields.config = {};
-    };
 
     if (!editedTour) return;
 
-    //So sánh EditedSpace & OrginalSpace.
-    if (editedTour.config.name !== originalTour?.config?.name) {
-      ensureConfig();
-      changeFields.config!.name = editedTour.config.name;
-    }
-    if (editedTour.spaceId !== originalTour?.spaceId)
+    if (editedTour.spaceId !== originalTour?.spaceId) {
       changeFields.spaceId = editedTour.spaceId;
-    if (editedTour.config.description !== originalTour?.config?.description)
-      ensureConfig();
-    changeFields.config!.description = editedTour.config.description;
-    if (editedTour.config.status !== originalTour?.config?.status)
-      ensureConfig();
-    changeFields.config!.status = editedTour.config.status;
+    }
+
+    if (editedTour.config.name !== originalTour?.config?.name) {
+      changeFields.name = editedTour.config.name;
+    }
+
+    if (editedTour.config.description !== originalTour?.config?.description) {
+      changeFields.description = editedTour.config.description;
+    }
+
+    if (editedTour.config.status !== originalTour?.config?.status) {
+      changeFields.status = editedTour.config.status;
+    }
 
     if (Object.keys(changeFields).length === 0) {
       Swal.fire("Không có thay đổi nào!", "", "info");
@@ -296,10 +297,9 @@ const ManagerTourDetail: React.FC = () => {
       return;
     }
 
-    //Nếu có thay đổi => gửi API.
     try {
       const response = await axios.patch(
-        `${API_URLS.ADMIN_UPDATE_SPACE_BY_ID}/${nodeId}`,
+        `${API_URLS.ADMIN_UPDATE_OVERVIEW_TOUR_BY_MASTERID}/${nodeId}`,
         changeFields
       );
 
@@ -308,14 +308,52 @@ const ManagerTourDetail: React.FC = () => {
           title: "Thành công",
           text: `${response.data?.message}`,
           icon: "success",
-          showCancelButton: false,
           toast: true,
           timer: 2000,
           position: "top-end",
           showConfirmButton: false,
         });
-        const updatedSpace = response.data.data;
-        // setCur(updatedSpace);
+        const nodes: NodeResponse[] = response.data.data;
+
+        const mainNode = nodes.find((node) => node.id == nodeId);
+        if (mainNode) {
+          setFieldId(mainNode.fieldId);
+
+          try {
+            const response = await axios.post(
+              API_URLS.ADMIN_GET_SPACE_OF_FIELD,
+              {
+                fieldId: mainNode.fieldId,
+              }
+            );
+            if (response.data.statusCode === 1000) {
+              setListSpace(response.data.data);
+              setOriginalListSpace(response.data.data);
+            } else {
+              console.warn("Lỗi dữ liệu space", response.data.message);
+              //fallback lấy mỗi cái đang active đủ dùng.
+              setListSpace([
+                { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+              ]);
+              setOriginalListSpace([
+                { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+              ]);
+            }
+          } catch (err) {
+            console.warn("Lỗi khi gọi API space", err);
+            //fallback lấy mỗi cái đang active đủ dùng.
+            setListSpace([
+              { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+            ]);
+            setOriginalListSpace([
+              { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+            ]);
+          }
+        }
+
+        const { panoramaList } =
+          TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
+        dispatch(smartUpdatePanoramasFromResponse(panoramaList)); // chỉ cập nhật node.
 
         setEditInformation(false);
       } else {
@@ -323,7 +361,6 @@ const ManagerTourDetail: React.FC = () => {
           title: "Thất bại",
           text: `${response.data?.message || ""}`,
           icon: "error",
-          showCancelButton: false,
           toast: true,
           timer: 2000,
           position: "top-end",
@@ -331,7 +368,7 @@ const ManagerTourDetail: React.FC = () => {
         });
       }
     } catch (error: any) {
-      console.error("Lỗi khi cập nhật space:", error);
+      console.error("Lỗi khi cập nhật tour:", error);
       Swal.fire("Lỗi kết nối", error?.message || "Không rõ lý do", "error");
     }
   };
@@ -488,7 +525,12 @@ const ManagerTourDetail: React.FC = () => {
       <div className={styles.content}>
         {viewMode === 1 ? (
           <div className={styles.preview_tour}>
-            <div className={styles.overview}>
+            <div
+              className={styles.overview}
+              style={{
+                border: editInformation ? "1px solid #267026" : "",
+              }}
+            >
               <div className={styles.overview_left}>
                 <img
                   src={currentTour.url ?? "https://placehold.co/600x400"}
@@ -607,8 +649,10 @@ const ManagerTourDetail: React.FC = () => {
 
                                 return {
                                   ...prev,
-                                  name: e.target.value,
-                                  code: RemoveVietnameseTones(e.target.value),
+                                  config: {
+                                    ...prev.config,
+                                    name: e.target.value,
+                                  },
                                 };
                               });
                             }
@@ -644,7 +688,10 @@ const ManagerTourDetail: React.FC = () => {
 
                               return {
                                 ...prev!,
-                                description: e.target.value,
+                                config: {
+                                  ...prev.config,
+                                  description: textNew,
+                                },
                               };
                             })
                         : undefined
@@ -691,6 +738,8 @@ const ManagerTourDetail: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <div className={styles.space_statistic}></div>
           </div>
         ) : (
           <div className={styles.preview_tour}>

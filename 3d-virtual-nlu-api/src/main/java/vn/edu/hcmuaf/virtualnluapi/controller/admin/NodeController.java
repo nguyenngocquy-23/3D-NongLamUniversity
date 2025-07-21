@@ -203,13 +203,14 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
 
-    public ApiResponse<Boolean> updateNodeOverviewById(@PathParam("id") int id, NodeUpdateOverviewRequest request) {
+    public ApiResponse<List<NodeExpandResponse>> updateNodeOverviewById(@PathParam("id") int id, NodeUpdateOverviewRequest request) {
 
         boolean result = nodeService.updateNodePartial(id, request);
         if (result) {
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Cập nhật thành công!").data(result).build();
+            List<NodeExpandResponse> updatedList = nodeService.getNodeListByMasterId(id);
+            return ApiResponse.<List<NodeExpandResponse>>builder().statusCode(1000).message("Cập nhật thành công!").data(updatedList).build();
         } else {
-            return ApiResponse.<Boolean>builder().statusCode(5000).message("Cập nhật thất bại!").data(result).build();
+            return ApiResponse.<List<NodeExpandResponse>>builder().statusCode(5000).message("Cập nhật thất bại!").data(null).build();
         }
 
     }

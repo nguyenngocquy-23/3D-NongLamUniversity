@@ -44,7 +44,7 @@ public class SpaceDao {
         return ConnectionPool.getConnection().withHandle(handle -> {
 
             return handle
-                    .createQuery("SELECT id, name from spaces where fieldId = :fieldId and status IN (1,2)")
+                    .createQuery("SELECT id, name from spaces where fieldId = :fieldId and status IN (1,2,3)")
                     .bind("fieldId", req.getFieldId())
                     .mapToBean(SpaceResponse.class)
                     .list();
