@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/managerField.module.css";
+import stylesPagination from "../../styles/managerSpace.module.css";
 
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,7 +25,6 @@ import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 import axios from "axios";
 import { validateName } from "../../utils/ValidateInputName";
 import { format } from "date-fns";
-import Pagination from "../../components/Pagination";
 import { useDebounce } from "../../hooks/useDebounce";
 import { perPage } from "../../utils/Constants";
 
@@ -293,13 +293,13 @@ const Field = () => {
             Kết quả: {search == "" ? totalField : fieldList.length} lĩnh vực.
           </div>
           {search.length === 0 && (
-            <div className={styles.pagination}>
+            <div className={stylesPagination.pagination}>
               {[...Array(totalPages)].map((_, index) => {
                 return (
                   <button
                     key={index}
-                    className={`${styles.page_btn} ${
-                      currentPage === index ? styles.active : ""
+                    className={`${stylesPagination.page_btn} ${
+                      currentPage === index ? stylesPagination.active : ""
                     }`}
                     onClick={() => setCurrentPage(index)}
                   >

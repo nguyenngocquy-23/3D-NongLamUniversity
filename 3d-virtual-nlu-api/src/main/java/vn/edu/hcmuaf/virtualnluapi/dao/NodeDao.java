@@ -369,12 +369,13 @@ public class NodeDao {
     public boolean changeStatus(StatusRequest request) {
         String sql = "UPDATE nodes SET status = :status, updatedAt = :updatedAt WHERE id = :nodeId";
         int rowsUpdated = ConnectionPool.getConnection().withHandle(handle -> handle.createUpdate(sql)
-                .bind("status", request.getStatus() == 0 ? 2 : 0)
+                .bind("status", request.getStatus())
                 .bind("updatedAt", LocalDateTime.now())
                 .bind("nodeId", request.getId())
                 .execute());
         return rowsUpdated > 0;
     }
+
 
     public boolean removeNode(NodeIdRequest request) {
         String sql = "UPDATE nodes SET status = -1, updatedAt = :updatedAt WHERE id = :nodeId";

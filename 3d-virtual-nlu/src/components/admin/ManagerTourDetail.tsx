@@ -292,7 +292,6 @@ const ManagerTourDetail: React.FC = () => {
     }
 
     if (Object.keys(changeFields).length === 0) {
-      Swal.fire("Không có thay đổi nào!", "", "info");
       setEditInformation(false);
       return;
     }
@@ -615,9 +614,9 @@ const ManagerTourDetail: React.FC = () => {
                   </div>
                   <div className={stylesOverview.content_information}>
                     <StatusToggle
-                      id={currentTour.config.id}
+                      id={currentTour.id}
                       status={currentTour.config.status}
-                      apiUrl={`${API_URLS.ADMIN_CHANGE_TOUR_BY_ID}/${nodeId}`}
+                      apiUrl={`${API_URLS.ADMIN_CHANGE_NODE_STATUS}`}
                       type="node"
                       editable={editInformation}
                     />

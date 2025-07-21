@@ -239,20 +239,17 @@ public class NodeController {
         }
     }
 
-    /**
-     * Tải ảnh và nạp vào ram:
-     * 1. Tải ảnh của node default.
-     * 2. Tải ảnh các node preload liên quan.
-     *
-     *
-     */
-//    @POST
-//    @Path("/getPreloadNodeImg")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    public ApiResponse<List<NodeImageResponse>> getPreloadImgs(NodeIdRequest request) {
-//        List<NodeImageResponse> result = nodeService.getPreloadNodeImgs(request.getNodeId());
-//        return ApiResponse.<List<NodeImageResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
-//    }
+    @POST
+    @Path("/changeStatus")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeStatusNode(StatusRequest req) {
+        boolean result = nodeService.changeStatus(req);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai space thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai space").data(result).build();
+        }
+    }
 
 }

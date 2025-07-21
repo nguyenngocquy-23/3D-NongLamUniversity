@@ -5,6 +5,7 @@ import { AppDispatch } from "../../redux/Store";
 import { fetchFields, fetchSpaces } from "../../redux/slices/DataSlice";
 import styles from "../../styles/toggleChangeStatus.module.css";
 import { perPage } from "../../utils/Constants";
+import { updatePanoConfig } from "../../redux/slices/PanoramaSlice";
 
 type StatusToggleProps = {
   id: number;
@@ -40,6 +41,17 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
 
         case "space":
           dispatch(fetchSpaces({ limit: perPage, page: 0 }));
+          break;
+
+        case "node":
+          dispatch(
+            updatePanoConfig({
+              id: `${id}`,
+              config: {
+                status: newToggle,
+              },
+            })
+          );
           break;
 
         default:
