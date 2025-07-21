@@ -12,7 +12,7 @@ import styles from "../../styles/visitor/map.module.css";
 import { AROUND_MAP, perPage } from "../../utils/Constants";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { fetchSpaces, removeLocation } from "../../redux/slices/DataSlice";
+import { fetchSpaces, removeLocation, setDefaultNode } from "../../redux/slices/DataSlice";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { API_URLS } from "../../env";
@@ -128,6 +128,8 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
       text: "Bạn có chắc chắn muốn gỡ nhãn này?",
       icon: "warning",
       showCancelButton: true,
+      confirmButtonText: "Gỡ",
+      cancelButtonText: "Hủy",
     });
 
     if (result.isConfirmed) {
@@ -187,6 +189,41 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
     }
   };
 
+  const handleSelectSpace = async (spaceId: number) => {
+    const nodeId = propsSpaces?.find((h:any) => h.id === spaceId).masterNodeId;
+
+    try {
+      const response = await axios.post(API_URLS.NODE_BY_ID, {
+        nodeId: nodeId,
+      });
+      if (response.data.data) {
+        dispatch(setDefaultNode(response.data.data));
+      } else {
+        Swal.fire({
+          title: "Thất bại",
+          text: "Không gian đang bảo trì",
+          icon: "warning",
+          toast: true,
+          timer: 2000,
+          position: "top-right",
+          showCancelButton: false,
+          showConfirmButton: false,
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Thất bại",
+        text: "Không gian đang bảo trì.",
+        icon: "warning",
+        toast: true,
+        timer: 2000,
+        position: "top-right",
+        showCancelButton: false,
+        showConfirmButton: false,
+      });
+    }
+  };
+
   if (spacesToUse.length == 0) {
     return null;
   }
@@ -239,7 +276,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
                 // icon={isRemove ? customIcon : new L.Icon.Default()}
                 eventHandlers={{
                   click: () => {
-                    isRemove ? handleRemove(space.id) : "";
+                    isRemove ? handleRemove(space.id) : handleSelectSpace(space.id);
                   },
                 }}
               >
