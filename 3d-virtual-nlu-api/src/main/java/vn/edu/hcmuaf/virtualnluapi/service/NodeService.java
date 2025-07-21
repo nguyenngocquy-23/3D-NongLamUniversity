@@ -7,11 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.AutoTourResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeImageResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 
 import java.util.List;
 
@@ -47,7 +43,7 @@ public class NodeService {
         return nodeDao.getListPreloadNodeByNode(nodeId);
     }
 
-    public List<NodeFullResponse> getNodeListByMasterId(int nodeId) {
+    public List<NodeExpandResponse> getNodeListByMasterId(int nodeId) {
         return nodeDao.getListNodeByMasterId(nodeId);
     }
 
@@ -161,7 +157,7 @@ public class NodeService {
         }
     }
 
-    public NodeFullResponse updateNodePartial(int id, NodeUpdateOverviewRequest req) {
+    public boolean updateNodePartial(int id, NodeUpdateOverviewRequest req) {
         return nodeDao.updateNodePartial(id, req);
     }
 

@@ -246,6 +246,8 @@ export interface NodeResponse {
   id: string;
   spaceId: string;
   fieldId: string;
+  fieldName: string;
+  spaceName: string;
   userId: string;
   url: string;
   name: string;

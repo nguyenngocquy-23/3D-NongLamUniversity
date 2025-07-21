@@ -13,6 +13,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class NodeUpdateOverviewRequest {
     Integer spaceId;
-    String url, name, description;
+    String name, description;
     Byte status;
 }

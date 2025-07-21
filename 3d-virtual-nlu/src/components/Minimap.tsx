@@ -117,7 +117,6 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const { spaces } = useSelector((state: RootState) => state.data);
 
   const spaceItem = spaces.find((s) => s.id === Number(spaceId));
-  // console.log("MiniMap currentPanorama:", panoramaList);
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
   const masterPanorama = panoramaList.find((h) => h.config.status === 2);

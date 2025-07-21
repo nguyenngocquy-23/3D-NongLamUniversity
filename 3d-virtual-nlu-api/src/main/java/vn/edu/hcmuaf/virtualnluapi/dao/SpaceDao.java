@@ -44,12 +44,14 @@ public class SpaceDao {
         return ConnectionPool.getConnection().withHandle(handle -> {
 
             return handle
-                    .createQuery("SELECT id, name from spaces where fieldId = :fieldId and status = 1 or status = 2")
+                    .createQuery("SELECT id, name from spaces where fieldId = :fieldId and status IN (1,2)")
                     .bind("fieldId", req.getFieldId())
                     .mapToBean(SpaceResponse.class)
                     .list();
         });
     }
+
+
 
     public List<SpaceFullResponse> getSpacesByPage(PageRequest request) {
         String spaceSql = """

@@ -185,18 +185,31 @@ public class NodeController {
         }
     }
 
+
+    /**
+     * Method này dành cho việc cập nhật dữ liệu trong tour (tổng quan)
+     * @param id : id của master node.
+     * @param request
+     * Các trường được update ở dạng động:
+     * 1. name : Update name cho thằng master, đồng thời những thằng con sẽ update thành _1, _2.
+     * 2. spaceId: Cập nhật toàn bộ tour với spaceId mới nhất.
+     * 3. description: Chỉ cập nhật mô tả cho  master node.
+     * 4. trạng thái: chỉ cập nhật trạng thái cho  master node
+     *
+     * @return boolean
+     */
     @PATCH
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
 
-    public ApiResponse<NodeFullResponse> updateNodeById(@PathParam("id") int id, NodeUpdateOverviewRequest request) {
+    public ApiResponse<Boolean> updateNodeOverviewById(@PathParam("id") int id, NodeUpdateOverviewRequest request) {
 
-        SpaceFullResponse result = nodeService.updateNodePartial(id, request);
-        if (result != null) {
-            return ApiResponse.<SpaceFullResponse>builder().statusCode(1000).message("Cập nhật thành công!").data(result).build();
+        boolean result = nodeService.updateNodePartial(id, request);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Cập nhật thành công!").data(result).build();
         } else {
-            return ApiResponse.<SpaceFullResponse>builder().statusCode(5000).message("Cập nhật thất bại!").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Cập nhật thất bại!").data(result).build();
         }
 
     }

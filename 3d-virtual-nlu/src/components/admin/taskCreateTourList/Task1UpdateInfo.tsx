@@ -5,6 +5,7 @@ import { updatePanoConfig } from "../../../redux/slices/PanoramaSlice";
 
 const TaskUpdate1 = () => {
   const dispatch = useDispatch();
+
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
@@ -21,6 +22,7 @@ const TaskUpdate1 = () => {
       })
     );
   };
+
   return (
     <div className={styles.task1}>
       <div className={styles.contain_input}>

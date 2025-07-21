@@ -866,6 +866,7 @@ const SpaceDetail = () => {
                   </div>
                 </div>
               </div>
+              <div className={styles.space_statistic}></div>
             </div>
           ) : isViewMode === 2 && currentSpace.masterNodeId ? (
             <div className={styles.space_preview_tour}>

@@ -99,7 +99,7 @@ const Header: React.FC = () => {
           alt="University Logo"
           className={style.logo}
         />
-        <span className={style.name}>NLU</span>
+        <span className={style.name}>Nong Lam University</span>
       </div>
 
       {(mobileNavOpen || !isMobile) && (
@@ -193,7 +193,7 @@ const Header: React.FC = () => {
               </li>
               <li>
                 <button className={style.dropdownBtn} onClick={handleManage}>
-                  <Link to="">Thêm không gian</Link>
+                  <Link to="">Tạo tour</Link>
                 </button>
               </li>
               <li>
@@ -208,8 +208,7 @@ const Header: React.FC = () => {
                   <Link to="">
                     {currentUser.roleId == 2 || currentUser.roleId == 3
                       ? "Về admin"
-                      : "Đăng xuất"
-                      }
+                      : "Đăng xuất"}
                   </Link>
                 </button>
               </li>

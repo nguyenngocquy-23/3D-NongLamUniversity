@@ -203,10 +203,10 @@ const CreateTourStep2 = () => {
     const maxZ = point.z + limit;
 
     const isNear = hotspotPosition
-      .filter((h:any) => h.nodeId === currentSelectId)
-      .some((h:any) =>
+      .filter((h: any) => h.nodeId === currentSelectId)
+      .some((h: any) =>
         h.hotspotPositions.some(
-          (hotspot:any) =>
+          (hotspot: any) =>
             hotspot.position[0] > minX &&
             hotspot.position[0] < maxX &&
             hotspot.position[1] > minY &&
@@ -394,13 +394,6 @@ const CreateTourStep2 = () => {
     hotspotTargetPosition: [number, number, number]
   ) => {
     if (!cameraRef.current || !controlsRef.current) return;
-
-    const camera = cameraRef.current;
-    const control = controlsRef.current;
-    const originalFov = camera.fov;
-    const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-
-    const [x, y, z] = hotspotTargetPosition;
 
     // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);

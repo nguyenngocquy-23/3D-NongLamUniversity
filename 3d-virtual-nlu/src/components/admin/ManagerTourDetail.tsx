@@ -1,5 +1,6 @@
 import React, { useRef, useState, useMemo, useEffect } from "react";
 import styles from "../../styles/managerTourDetail.module.css";
+import stylesOverview from "../../styles/spaceDetail.module.css";
 import * as THREE from "three";
 import {
   FaAngleDown,
@@ -19,6 +20,7 @@ import {
   addPanorama,
   addPanoramasFromResponse,
   clearPanorama,
+  PanoramaConfig,
   PanoramaItem,
   selectPanorama,
 } from "../../redux/slices/PanoramaSlice.ts";
@@ -27,11 +29,18 @@ import {
   BaseHotspot,
   clearHotspot,
 } from "../../redux/slices/HotspotSlice.ts";
-import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
+import {
+  NodeResponse,
+  TourNodeRequestMapper,
+} from "../../utils/TourNodeRequestMapper.ts";
 import { IoChevronBack } from "react-icons/io5";
 import { CiEdit } from "react-icons/ci";
 import { Canvas } from "@react-three/fiber";
-import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants.ts";
+import {
+  DEFAULT_ORIGINAL_Z,
+  MAX_DESCRIPTION,
+  RADIUS_SPHERE,
+} from "../../utils/Constants.ts";
 import { Environment } from "@react-three/drei";
 import UpdateCameraOnResize from "../UpdateCameraOnResize.tsx";
 import TourScene from "../visitor/TourScene.tsx";
@@ -60,6 +69,15 @@ import {
   getFilteredHotspotNavigationInList,
 } from "../../redux/slices/Selectors.ts";
 import StatusToggle from "./ToggleChangeStatus.tsx";
+import { ApiResponse } from "./UploadFile.tsx";
+import Space from "../../pages/admin/ManagerSpace.tsx";
+import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones.ts";
+import { TiEdit } from "react-icons/ti";
+import { FaSave } from "react-icons/fa";
+
+interface PanoramaItemWithField extends PanoramaItem {
+  fieldId: string;
+}
 
 const ManagerTourDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -71,6 +89,10 @@ const ManagerTourDetail: React.FC = () => {
   const controlsRef = useRef<any>(null);
 
   const dispatch = useDispatch<AppDispatch>();
+  // Lấy danh sách fields từ Redux
+  const fields = useSelector((state: RootState) => state.data.fields);
+
+  const [fieldId, setFieldId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!nodeId) return;
@@ -79,8 +101,45 @@ const ManagerTourDetail: React.FC = () => {
       .post(API_URLS.GET_FULL_TOUR, {
         nodeId: Number(nodeId),
       })
-      .then((resp) => {
-        const nodes = resp.data.data;
+      .then(async (resp) => {
+        const nodes: NodeResponse[] = resp.data.data;
+
+        const mainNode = nodes.find((node) => node.id == nodeId);
+        if (mainNode) {
+          setFieldId(mainNode.fieldId);
+
+          try {
+            const response = await axios.post(
+              API_URLS.ADMIN_GET_SPACE_OF_FIELD,
+              {
+                fieldId: mainNode.fieldId,
+              }
+            );
+            if (response.data.statusCode === 1000) {
+              setListSpace(response.data.data);
+              setOriginalListSpace(response.data.data);
+            } else {
+              console.warn("Lỗi dữ liệu space", response.data.message);
+              //fallback lấy mỗi cái đang active đủ dùng.
+              setListSpace([
+                { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+              ]);
+              setOriginalListSpace([
+                { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+              ]);
+            }
+          } catch (err) {
+            console.warn("Lỗi khi gọi API space", err);
+            //fallback lấy mỗi cái đang active đủ dùng.
+            setListSpace([
+              { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+            ]);
+            setOriginalListSpace([
+              { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+            ]);
+          }
+        }
+
         dispatch(clearPanorama());
         dispatch(clearHotspot());
         const { panoramaList, hotspotList } =
@@ -98,7 +157,9 @@ const ManagerTourDetail: React.FC = () => {
   );
 
   const currentTour = panoramaList.find((p) => p.id == nodeId);
-  const currentNode = panoramaList.find((p) => p.id == currentSelectId);
+
+  //Sử dụng trên overview chỉnh thông tin.
+  const currentNodeView = panoramaList.find((p) => p.id == currentSelectId); //Sử dụng để sửa thông tin.
 
   const panoramasOtherTour = panoramaList.filter(
     (p) => p.config.status === 2 && p.id !== nodeId
@@ -117,6 +178,59 @@ const ManagerTourDetail: React.FC = () => {
   const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
 
   const [viewMode, setViewMode] = useState<number>(1);
+  const [editInformation, setEditInformation] = useState<boolean>(false);
+  const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
+    []
+  );
+  const [originalListSpace, setOriginalListSpace] = useState<
+    { id: number; name: string }[]
+  >([]);
+
+  const handleEditTourOverview = () => {
+    if (!editInformation) {
+      const currentWithField = {
+        ...currentTour,
+        fieldId: fieldId,
+      };
+      setOriginalTour(currentWithField);
+      setEditedTour(currentWithField);
+    }
+    setEditInformation((p) => !p);
+  };
+
+  const cancelEditTourOverview = () => {
+    setEditedTour(originalTour);
+    setEditInformation(false);
+    setListSpace(originalListSpace);
+  };
+
+  //Lĩnh vực chỉ mang ý nghĩa để filter api cho space.
+  useEffect(() => {
+    const fetchSpaces = async () => {
+      try {
+        const response = await axios.post(API_URLS.ADMIN_GET_SPACE_OF_FIELD, {
+          fieldId: fieldId,
+        });
+
+        if (response.data.statusCode === 1000) {
+          setListSpace(response.data.data);
+        } else {
+          console.log("Lỗi khi lấy danh sách spaces", response.data.message);
+        }
+      } catch (error) {
+        console.warn("Lỗi khi gọi API", error);
+      }
+    };
+
+    fetchSpaces();
+  }, []);
+
+  const [originalTour, setOriginalTour] =
+    useState<PanoramaItemWithField | null>(null);
+  const [editedTour, setEditedTour] = useState<PanoramaItemWithField | null>(
+    null
+  );
+
   const [isTextureReady, setIsTextureReady] = useState(false);
   const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
@@ -125,6 +239,102 @@ const ManagerTourDetail: React.FC = () => {
   const [currentHotspotType, setCurrentHotspotType] = useState(1);
   const [validIcon, setValidIcon] = useState(true);
   const [cameraAngle, setCameraAngle] = useState(0);
+
+  const handleSelectField = async (event: any) => {
+    const fieldId = event?.target.value;
+
+    setEditedTour((prev) => ({
+      ...prev!,
+      fieldId: fieldId,
+    }));
+
+    if (!fieldId) {
+      setListSpace([]); // Nếu chọn "-- Chọn lĩnh vực --", reset danh sách spaces
+      return;
+    }
+
+    try {
+      const response = await axios.post(API_URLS.ADMIN_GET_SPACE_OF_FIELD, {
+        fieldId: fieldId,
+      });
+      const listSpace = response.data.data;
+      setListSpace(listSpace);
+    } catch {
+      console.log("call api choose field error");
+    }
+  };
+
+  const handleUpdateTourOverview = async () => {
+    const changeFields: {
+      spaceId?: string;
+      config?: Partial<PanoramaConfig>;
+    } = {};
+
+    const ensureConfig = () => {
+      if (!changeFields.config) changeFields.config = {};
+    };
+
+    if (!editedTour) return;
+
+    //So sánh EditedSpace & OrginalSpace.
+    if (editedTour.config.name !== originalTour?.config?.name) {
+      ensureConfig();
+      changeFields.config!.name = editedTour.config.name;
+    }
+    if (editedTour.spaceId !== originalTour?.spaceId)
+      changeFields.spaceId = editedTour.spaceId;
+    if (editedTour.config.description !== originalTour?.config?.description)
+      ensureConfig();
+    changeFields.config!.description = editedTour.config.description;
+    if (editedTour.config.status !== originalTour?.config?.status)
+      ensureConfig();
+    changeFields.config!.status = editedTour.config.status;
+
+    if (Object.keys(changeFields).length === 0) {
+      Swal.fire("Không có thay đổi nào!", "", "info");
+      setEditInformation(false);
+      return;
+    }
+
+    //Nếu có thay đổi => gửi API.
+    try {
+      const response = await axios.patch(
+        `${API_URLS.ADMIN_UPDATE_SPACE_BY_ID}/${nodeId}`,
+        changeFields
+      );
+
+      if (response.data.statusCode === 1000) {
+        Swal.fire({
+          title: "Thành công",
+          text: `${response.data?.message}`,
+          icon: "success",
+          showCancelButton: false,
+          toast: true,
+          timer: 2000,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+        const updatedSpace = response.data.data;
+        // setCur(updatedSpace);
+
+        setEditInformation(false);
+      } else {
+        Swal.fire({
+          title: "Thất bại",
+          text: `${response.data?.message || ""}`,
+          icon: "error",
+          showCancelButton: false,
+          toast: true,
+          timer: 2000,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      }
+    } catch (error: any) {
+      console.error("Lỗi khi cập nhật space:", error);
+      Swal.fire("Lỗi kết nối", error?.message || "Không rõ lý do", "error");
+    }
+  };
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
@@ -161,61 +371,8 @@ const ManagerTourDetail: React.FC = () => {
 
     const [x, y, z] = hotspotTargetPosition;
 
-    lookAtHotspot([x, y, z]);
     // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);
-
-    gsap.to(camera, {
-      fov: zoomTarget,
-      duration: 1.0,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        camera.updateProjectionMatrix();
-      },
-      onComplete: () => {
-        gsap.to(camera, {
-          fov: originalFov,
-          duration: 0.2,
-          delay: 0.1,
-          ease: "power2.inOut",
-          onUpdate: () => {
-            camera.updateProjectionMatrix();
-          },
-          onComplete: () => {
-            camera.updateProjectionMatrix();
-            control.update(); // đảm bảo OrbitControls cập nhật
-          },
-        });
-      },
-    });
-  };
-
-  const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
-    if (!cameraRef.current || !controlsRef.current) return;
-
-    const controls = controlsRef.current;
-
-    /**
-     * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
-     * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
-     */
-    const hotspotVec = new THREE.Vector3(
-      hotspotTargetPosition[0],
-      0,
-      hotspotTargetPosition[2]
-    );
-    const center = new THREE.Vector3(0, 0, 0);
-
-    const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
-
-    const spherical = new THREE.Spherical();
-    spherical.setFromVector3(dir);
-
-    // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
-    controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
-    controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
-
-    controls.update();
   };
 
   const handleUpdateTour = async () => {
@@ -278,7 +435,7 @@ const ManagerTourDetail: React.FC = () => {
               setValidIcon={setValidIcon}
               setCurrentHotspotType={setCurrentHotspotType}
               onPropsChange={handleOnPropsChange}
-              currentPanorama={currentNode}
+              currentPanorama={currentNodeView}
               limitNav={true}
             />
           </>
@@ -288,7 +445,8 @@ const ManagerTourDetail: React.FC = () => {
     }
   };
 
-  if (!currentNode) return <p>Đang tải thông tin ...</p>;
+  if (!currentTour) return <p>Đang tải thông tin ...</p>;
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -333,46 +491,203 @@ const ManagerTourDetail: React.FC = () => {
             <div className={styles.overview}>
               <div className={styles.overview_left}>
                 <img
-                  src={currentTour.url}
+                  src={currentTour.url ?? "https://placehold.co/600x400"}
                   alt="anh-khong-gian"
                   className={styles.img}
                 />
-                <span className={styles.img_custom}>
-                  <CiEdit />
-                </span>
               </div>
 
               <div className={styles.overview_right}>
                 <div className={styles.overview_information}>
-                  <div className={styles.label_information}>Không gian: </div>
-                  <div className={styles.content_information}></div>
-                </div>
-                <div className={styles.overview_information}>
-                  <div className={styles.label_information}>Tên Tour: </div>
-                  <div className={styles.content_information}>
-                    {currentTour.config.name}
+                  <label
+                    htmlFor="field"
+                    className={stylesOverview.label_information}
+                  >
+                    Lĩnh vực:
+                  </label>
+                  <div className={stylesOverview.content_information}>
+                    <select
+                      className={stylesOverview.custom_select}
+                      name="field"
+                      id="field"
+                      disabled={!editInformation}
+                      value={
+                        editInformation
+                          ? editedTour?.fieldId ?? ""
+                          : fieldId ?? ""
+                      }
+                      onChange={editInformation ? handleSelectField : undefined}
+                    >
+                      {fields !== null &&
+                        fields.map((field) => (
+                          <option key={field.id} value={field.id}>
+                            {field.name}
+                          </option>
+                        ))}
+                    </select>
                   </div>
                 </div>
                 <div className={styles.overview_information}>
-                  <div className={styles.label_information}>Mã tour: </div>
-                </div>
-                <div className={styles.overview_information}>
-                  <div className={styles.label_information}>Mô tả: </div>
-                  <div className={styles.content_information}>
-                    {currentTour.config.description}
+                  <label
+                    htmlFor="space"
+                    className={stylesOverview.label_information}
+                  >
+                    Không gian:
+                  </label>
+                  <div className={stylesOverview.content_information}>
+                    <select
+                      className={stylesOverview.custom_select}
+                      name="space"
+                      id="space"
+                      disabled={!editInformation}
+                      value={
+                        editInformation
+                          ? editedTour?.spaceId ?? ""
+                          : currentTour?.spaceId ?? ""
+                      }
+                      onChange={
+                        editInformation
+                          ? (e) =>
+                              setEditedTour((prev) => ({
+                                ...prev!,
+                                spaceId: e.target.value,
+                              }))
+                          : undefined
+                      }
+                    >
+                      <option value="">Chọn không gian</option>
+
+                      {listSpace !== null &&
+                        listSpace.map((space) => (
+                          <option key={space.id} value={space.id}>
+                            {space.name}
+                          </option>
+                        ))}
+                    </select>
                   </div>
                 </div>
+
                 <div className={styles.overview_information}>
-                  <div className={styles.label_information}>Trạng thái: </div>
-                  <div className={styles.content_information}>
+                  <div className={stylesOverview.label_information}>
+                    Trạng thái:{" "}
+                  </div>
+                  <div className={stylesOverview.content_information}>
                     <StatusToggle
                       id={currentTour.config.id}
                       status={currentTour.config.status}
                       apiUrl={`${API_URLS.ADMIN_CHANGE_TOUR_BY_ID}/${nodeId}`}
                       type="node"
-                      // editable={editInformation}
+                      editable={editInformation}
                     />
                   </div>
+                </div>
+                <div className={styles.overview_information}>
+                  <label
+                    className={stylesOverview.label_information}
+                    htmlFor="input"
+                  >
+                    Tên không gian :{" "}
+                  </label>
+                  <div className={stylesOverview.content_information}>
+                    <input
+                      type="text"
+                      id="input"
+                      required
+                      readOnly={!editInformation}
+                      value={
+                        editInformation
+                          ? editedTour?.config?.name ?? ""
+                          : currentTour.config?.name ?? ""
+                      }
+                      onChange={
+                        editInformation
+                          ? (e) => {
+                              setEditedTour((prev) => {
+                                if (!prev) return prev;
+
+                                return {
+                                  ...prev,
+                                  name: e.target.value,
+                                  code: RemoveVietnameseTones(e.target.value),
+                                };
+                              });
+                            }
+                          : undefined
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className={stylesOverview.overview_information}>
+                  <label
+                    className={stylesOverview.label_information}
+                    htmlFor="description"
+                  >
+                    Mô tả:{" "}
+                  </label>
+                  <textarea
+                    id="description"
+                    value={
+                      editInformation
+                        ? editedTour?.config.description ?? ""
+                        : currentTour?.config.description ?? ""
+                    }
+                    onChange={
+                      editInformation
+                        ? (e) =>
+                            setEditedTour((prev) => {
+                              if (!prev) return prev;
+
+                              const textNew = e.target.value;
+
+                              if (textNew.length > MAX_DESCRIPTION) return prev;
+
+                              return {
+                                ...prev!,
+                                description: e.target.value,
+                              };
+                            })
+                        : undefined
+                    }
+                    readOnly={!editInformation}
+                    rows={5}
+                    cols={40}
+                    placeholder="Tối đa 300 ký tự."
+                    className={stylesOverview.description_content}
+                  />
+                  <span></span>
+                  <span className={stylesOverview.description_count}>
+                    {editInformation
+                      ? editedTour?.config?.description?.length
+                      : currentTour?.config?.description?.length}
+                    /{MAX_DESCRIPTION} ký tự
+                  </span>
+                </div>
+
+                <div className={stylesOverview.edit_information}>
+                  {editInformation ? (
+                    <>
+                      <button
+                        className={stylesOverview.edit_information_btn}
+                        onClick={handleUpdateTourOverview}
+                      >
+                        Lưu <FaSave />
+                      </button>
+                      <button
+                        className={stylesOverview.edit_information_btn}
+                        onClick={cancelEditTourOverview}
+                      >
+                        Huỷ
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      className={stylesOverview.edit_information_btn}
+                      onClick={handleEditTourOverview}
+                    >
+                      Chỉnh sửa <TiEdit />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -395,8 +710,8 @@ const ManagerTourDetail: React.FC = () => {
               <TourScene
                 radius={RADIUS_SPHERE}
                 sphereRef={sphereRef}
-                textureCurrent={currentNode.url}
-                yawOffsetCurrent={currentNode.config.yawOffset}
+                textureCurrent={currentNodeView.url}
+                yawOffsetCurrent={currentNodeView.config.yawOffset}
                 lightIntensity={1}
                 onTextureReady={() => setIsTextureReady(true)}
               />
@@ -405,25 +720,25 @@ const ManagerTourDetail: React.FC = () => {
                 targetPosition={targetPosition}
                 cameraRef={cameraRef}
                 sphereRef={sphereRef}
-                autoRotate={currentNode.autoRotate === 1 ? true : false}
+                autoRotate={currentNodeView.autoRotate === 1 ? true : false}
                 autoRotateSpeed={
-                  currentNode || currentNode.config.speedRotate == 0
+                  currentNodeView || currentNodeView.config.speedRotate == 0
                     ? 0.2
-                    : currentNode.config.speedRotate
+                    : currentNodeView.config.speedRotate
                 }
                 onAngleChange={(angle) => {
                   setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
                 }}
               />
               <MiniMap
-                currentPanorama={currentNode}
+                currentPanorama={currentNodeView}
                 angleCurrent={cameraAngle}
                 currentTour={nodeId}
               />
 
               {isTextureReady &&
                 hotspotInformations
-                  .filter((hotspot) => hotspot.nodeId == currentNode.id)
+                  .filter((hotspot) => hotspot.nodeId == currentNodeView.id)
                   .map((hotspot) => (
                     <GroundHotspotInfo
                       key={hotspot.id}
@@ -433,7 +748,7 @@ const ManagerTourDetail: React.FC = () => {
                   ))}
               {isTextureReady &&
                 hotspotNavigations
-                  .filter((hotspot) => hotspot.nodeId == currentNode.id)
+                  .filter((hotspot) => hotspot.nodeId == currentNodeView.id)
                   .map((hotspot) => (
                     <GroundHotspot
                       key={hotspot.id}
@@ -449,7 +764,7 @@ const ManagerTourDetail: React.FC = () => {
                   ))}
               {isTextureReady &&
                 hotspotModels
-                  .filter((hotspot) => hotspot.nodeId == currentNode.id)
+                  .filter((hotspot) => hotspot.nodeId == currentNodeView.id)
                   .map((hotspot) => (
                     <GroundHotspotModel
                       key={hotspot.id}
@@ -459,7 +774,7 @@ const ManagerTourDetail: React.FC = () => {
                   ))}
               {isTextureReady &&
                 hotspotMedias
-                  .filter((hotspot) => hotspot.nodeId == currentNode.id)
+                  .filter((hotspot) => hotspot.nodeId == currentNodeView.id)
                   .map((hotspot) => (
                     <VideoMeshComponent
                       key={hotspot.id}

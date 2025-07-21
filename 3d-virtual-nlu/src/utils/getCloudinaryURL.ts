@@ -38,3 +38,7 @@ export const buildImageUrlWithQuality = (
 export const transformUrlToThumbnail = (baseUrl: string): string => {
   return baseUrl.replace("/upload", `/upload/w_320/q_20/f_auto`);
 };
+
+export const transformUrlToThumbnailBig = (baseUrl: string): string => {
+  return baseUrl.replace("/upload", `/upload/w_480/q_70/f_auto`);
+};
