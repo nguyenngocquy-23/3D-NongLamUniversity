@@ -88,9 +88,13 @@ const CreateAutoTourStep3: React.FC = () => {
     if (!cameraRef.current || !controlsRef.current) return;
 
     const camera = cameraRef.current;
+    const control = controlsRef.current;
+    const originalFov = camera.fov;
+    const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
 
     const [x, y, z] = hotspotTargetPosition;
 
+    // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);
   };
 
@@ -213,7 +217,6 @@ const CreateAutoTourStep3: React.FC = () => {
   };
 
   const handlePublishAutoTour = async () => {
-    const { autoPanoramaList } = panoramas;
     const tourName = `${autoPanoramaList[0]?.name || ""} - ${
       autoPanoramaList[autoPanoramaList.length - 1]?.name || ""
     }`;

@@ -115,6 +115,7 @@ const Field = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
+      if(currentPage === 0) return;
       const response = await axios.post(API_URLS.ADMIN_GET_FIELDS_BY_PAGE, {
         page: currentPage,
         limit: perPage,

@@ -29,7 +29,7 @@ const ManageAutoTour = () => {
   const totalPages = Math.ceil(totalNode / perPage);
 
   useEffect(() => {
-    dispatch(fetchAutoNode());
+    dispatch(fetchAutoNode({ limit: perPage, page: 0 }));
   }, [dispatch]);
 
   const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
@@ -46,7 +46,7 @@ const ManageAutoTour = () => {
     const handleSearch = async () => {
       if (!debouncedSearch) return;
       const response = await axios.post(
-        `${API_URLS.BASE}/v1/admin/node/search`,
+        `${API_URLS.SEARCH_AUTO_NODES}`,
         {
           searchKey: debouncedSearch,
         }
@@ -55,6 +55,18 @@ const ManageAutoTour = () => {
     };
     handleSearch();
   }, [debouncedSearch]);
+
+   useEffect(() => {
+      const handleChangePage = async () => {
+        if(currentPage === 0) return;
+        const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
+          page: currentPage,
+          limit: perPage,
+        });
+        setAutoNodeList(response.data.data);
+      };
+      handleChangePage();
+    }, [currentPage]);
 
   const handleDetail = async (nodeId: number) => {
     const node = autoNodes.find((node) => node.id === nodeId);

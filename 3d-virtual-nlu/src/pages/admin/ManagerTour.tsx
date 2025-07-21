@@ -137,10 +137,10 @@ const ManagerTour = () => {
 
         <div style={{ display: "flex", gap: "10px", marginLeft: "auto" }}>
           <Link
-            to="/admin/createAutoTour"
+            to="/admin/manageAutoTour"
             className={`${styles.tour_add} ${styles.tour_box}`}
           >
-            Thêm tour tự động
+            Tour tự động
           </Link>
           <Link
             to="/admin/createTour"

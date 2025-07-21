@@ -51,6 +51,7 @@ public class ConnectionPool {
         if (instance == null) {
             instance = new ConnectionPool();
         }
+        System.out.println("GET: " + instance.toString()); // ✅ Debug pool status
         try {
             if (instance.pool.isEmpty() && instance.activeConnections.get() < MAX_CONNECTIONS) {
                 instance.activeConnections.incrementAndGet();
@@ -65,6 +66,7 @@ public class ConnectionPool {
     }
 
     public static synchronized void releaseConnection(Connection connection) {
+        System.out.println("CLOSE: " + instance.toString()); // ✅ Debug pool status
         if (connection != null) {
             instance.activeConnections.decrementAndGet();
             instance.pool.offer(connection);

@@ -129,6 +129,15 @@ public class NodeController {
     }
 
     @POST
+    @Path("/searchAutoNode")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<AutoTourResponse>> searchAutoNode(SearchRequest request) {
+        List<AutoTourResponse> result = nodeService.searchAutoNode(request.getSearchKey());
+        return ApiResponse.<List<AutoTourResponse>>builder().statusCode(1000).message("Tim kiem thanh cong").data(result).build();
+    }
+
+    @POST
     @Path("/masterNodeList")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -147,12 +156,12 @@ public class NodeController {
 
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<List<NodeFullResponse>> getAllNodes() {
         List<NodeFullResponse> result = nodeService.getAllNodes();
-
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 
@@ -163,6 +172,15 @@ public class NodeController {
     public ApiResponse<List<AutoTourResponse>> getAutoTour(PageRequest request) {
         List<AutoTourResponse> result = nodeService.getAutoTour(request);
         return ApiResponse.<List<AutoTourResponse>>builder().statusCode(1000).message("Lay danh sach tour tu dong thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/updateAutoTour")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> updateAutoTour(AutoTourUpdateRequest request) {
+        boolean result = nodeService.updateAutoTour(request);
+        return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat tour tu dong thanh cong").data(result).build();
     }
 
     @POST

@@ -53,7 +53,12 @@ public class UserService {
     }
 
     public User findById(int userId) {
-        return userDao.findById(userId);
+        try{
+            return userDao.findById(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public boolean forgotPassword(ForgotPasswordRequest request) {
