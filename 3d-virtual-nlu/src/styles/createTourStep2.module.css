@@ -200,6 +200,11 @@ back_btn:hover {
   right: 0;
 }
 
+.toggle_status {
+  position: absolute;
+  right: 10rem;
+}
+
 .done_button {
   margin-top: 10px;
   position: absolute;

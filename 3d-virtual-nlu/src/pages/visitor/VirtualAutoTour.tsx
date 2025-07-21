@@ -35,8 +35,9 @@ const VirtualAutoTour: React.FC = () => {
   const { autoPanoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
-  const { autoNodes } = useSelector((state: RootState) => state.data);
+  const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
   const autoTour = autoNodes.find((tour) => tour.id == tourId);
+  console.log("autoTour", tourId, autoTour);
   // Panorama hiện tại.
   const currentPanorama = autoPanoramaList.find(
     (pano) => pano.id === currentSelectId

@@ -20,11 +20,11 @@ import SoundUpload from "./SoundUpload";
  */
 const ConfigAutoTour = ({
   setOpenConfigTour,
-  propHotspot,
+  soundBackgroundProp,
 }: // onPropsChange,
 {
   setOpenConfigTour: (open: boolean) => void;
-  propHotspot?: any;
+  soundBackgroundProp?: string;
   // onPropsChange: (value: any) => void;
 }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -51,6 +51,11 @@ const ConfigAutoTour = ({
   const [soundBackground, setSoundBackground] = useState<string | null>(
     currentPanorama?.soundBackground || ""
   );
+
+
+  useEffect(() => {
+    setSoundBackground(soundBackgroundProp || "");
+  },[soundBackgroundProp])
 
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] =
@@ -125,7 +130,7 @@ const ConfigAutoTour = ({
         <div className={styles.config_item}>
           <div className={styles.input_group}>
             <label className={styles.label}>Nhạc nền:</label>
-            <SoundUpload setSoundBackground={setSoundBackground} />
+            <SoundUpload soundBackground={soundBackground || ""} setSoundBackground={setSoundBackground} />
             <label className={styles.label}>Giọng nói:</label>
             <select
               className={styles.custom_select}

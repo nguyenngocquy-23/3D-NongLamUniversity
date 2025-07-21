@@ -449,7 +449,6 @@ const VirtualTour = () => {
           if (nodeToRender.id === id) {
             setTimeout(() => {
               setImageVersion((v) => v + 1);
-              console.log("Giá trị imageVersion: VirtualTour", imageVersion);
             }, 3000); // Delay 100ms
           }
         };
@@ -615,8 +614,6 @@ const VirtualTour = () => {
           const glbUrl = getUrlGLB(h.iconId);
           if (glbUrl?.endsWith(".glb")) {
             glbURLSet.add(glbUrl);
-            console.log("Giá trị URL cần cache", glbUrl);
-            console.log("URL", glbURLSet.size);
           }
         });
 
@@ -636,7 +633,6 @@ const VirtualTour = () => {
                   quality: "high",
                   lastUsed: Date.now(),
                 };
-                console.log("✅ Preloaded GLB (preloadNodes):", modelUrl);
               });
             } catch (err) {
               console.warn(

@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
 import {
+  fetchAutoNode,
   fetchContacts,
   fetchDashboard,
   fetchFields,
@@ -51,6 +52,7 @@ const Layout = () => {
     dispatch(fetchNodes());
     dispatch(fetchIcons());
     dispatch(fetchContacts());
+    dispatch(fetchAutoNode({ limit: perPage, page: 0 }));
   }, [dispatch]);
 
   useEffect(() => {
