@@ -718,6 +718,7 @@ const VirtualTour = () => {
               isMenuVisible={isMenuVisible}
               setIsMenuVisible={setIsMenuVisible}
               imageRef={imageRef}
+              nodeId={nodeToRender.id}
             />
           </motion.div>
         </AnimatePresence>

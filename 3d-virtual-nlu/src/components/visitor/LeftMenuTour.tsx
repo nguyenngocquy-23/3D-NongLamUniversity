@@ -11,6 +11,7 @@ import {
 import { transformUrlToThumbnail } from "../../utils/getCloudinaryURL";
 import { GoPin } from "react-icons/go";
 import { BiPin, BiSolidPin } from "react-icons/bi";
+import { FaCheck } from "react-icons/fa6";
 
 interface LeftMenuProps {
   imageRef: React.RefObject<
@@ -20,6 +21,7 @@ interface LeftMenuProps {
   isMenuVisible: boolean;
   setIsMenuPin: React.Dispatch<React.SetStateAction<boolean>>;
   isMenuPin: boolean;
+  nodeId: number;
 }
 
 const LeftMenuTour = ({
@@ -28,6 +30,7 @@ const LeftMenuTour = ({
   isMenuVisible,
   isMenuPin,
   setIsMenuPin,
+  nodeId,
 }: LeftMenuProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const listMasterNode = useSelector(
@@ -99,6 +102,9 @@ const LeftMenuTour = ({
     dispatch(setDefaultNode(activeNode));
   };
 
+  const viewHistory = sessionStorage.getItem("view-history");
+  const viewHistoryList = viewHistory ? JSON.parse(viewHistory) : [];
+
   return (
     <div className={`${styles.left_menu}`}>
       <div className={styles.header}>
@@ -136,10 +142,18 @@ const LeftMenuTour = ({
                 backgroundImage: `url(${
                   imageRef.current[node.id]?.objectUrl || imgUrl
                 })`,
+                filter:
+                  node.id === nodeId ? "brightness(1.3)" : "brightness(0.6)",
+                pointerEvents: node.id === nodeId ? "none" : "auto",
               }}
               onClick={() => handleSelectNode(node.id)}
             >
               <span className={styles.nodeName}>{node.name}</span>
+              {viewHistoryList.includes(node.id) && (
+                <span className={styles.visited}>
+                  <FaCheck />
+                </span>
+              )}
             </li>
           );
         })}
