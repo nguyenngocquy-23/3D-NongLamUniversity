@@ -10,6 +10,7 @@
   background: url("/backgroundNL.jpg") no-repeat center / cover;
   font-family: Arial, sans-serif;
   position: relative;
+  border-radius: 8px;
 }
 
 .login_container {

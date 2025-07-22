@@ -30,6 +30,7 @@ public class DashboardService {
 //        int numRegister = userDao.countRegisterUser();
 
         int numTour = nodeDao.countAllNodes();
+        int numAutoTour = nodeDao.countAllAutoNodes();
         int numTourWaitingApprovel = nodeDao.countApprovingNodes();
 
         int numComment = commentDao.countAllComments();
@@ -42,6 +43,7 @@ public class DashboardService {
                 .numCurrentAccess(numCurrentAccess)
                 .numFreeAccess(23894)
                 .numRegister(100)
+                .numAutoTour(numAutoTour)
                 .numTour(numTour)
                 .numTourWaitingApprovel(numTourWaitingApprovel)
                 .numComment(numComment)

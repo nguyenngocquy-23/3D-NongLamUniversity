@@ -43,6 +43,11 @@ const Header: React.FC = () => {
     }
   };
 
+  const handleCreateTour = (e: React.MouseEvent) => {
+    e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
+    navigate("/manage/createTour");
+  };
+
   const handleAutoTour = (e: React.MouseEvent) => {
     e.preventDefault(); // chặn chuyển hướng mặc định nếu dùng <a>
     navigate("/autoTour");
@@ -192,7 +197,7 @@ const Header: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button className={style.dropdownBtn} onClick={handleManage}>
+                <button className={style.dropdownBtn} onClick={handleCreateTour}>
                   <Link to="">Thêm không gian</Link>
                 </button>
               </li>

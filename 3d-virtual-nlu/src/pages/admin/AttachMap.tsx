@@ -5,7 +5,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import Swal from "sweetalert2";
-import { attachLocation, fetchSpaces } from "../../redux/slices/DataSlice";
+import { attachLocation, fetchSpaces, setDefaultNode } from "../../redux/slices/DataSlice";
 import { API_URLS } from "../../env";
 import { perPage } from "../../utils/Constants";
 
@@ -132,10 +132,12 @@ const AttachMap = () => {
               location: JSON.stringify([latlng.lat, latlng.lng]),
             })
           );
+          console.log("Đã gán nhãn cho không gian:", selectedSpaceId);
           setPoints((prev) => [
             ...prev,
             { lat: latlng.lat, lng: latlng.lng, spaceId: selectedSpaceId },
           ]);
+          console.log("Points hiện tại:", points);
           setIsAssign(false);
           setIsRemove(false);
           setSelectedSpaceId(0);

@@ -6,10 +6,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.IconCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SearchRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
@@ -56,26 +53,50 @@ public class IconController {
         List<IconResponse> result = iconService.search(request.getSearchKey());
         return ApiResponse.<List<IconResponse>>builder().statusCode(1000).message("Tim kiem thanh cong").data(result).build();
     }
-//
-//    @POST
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Response insertIcon (IconCreateRequest iconReq) {
-//        IconResponse iconResp = iconService.insertIcon(iconReq);
-//        if(iconResp != null) {
-//            ApiResponse<IconResponse> resp = ApiResponse.<IconResponse>builder().
-//                    statusCode(201)
-//                    .message("Icon create success ! [insertIcon - IconController]")
-//                    .data(iconResp).build();
-//
-//            return Response.status(Response.Status.CREATED).entity(resp).build();
-//        }
-//        else {
-//            ApiResponse<Void> resp = ApiResponse.<Void>builder()
-//                    .statusCode(400)
-//                    .message("Icon create failed ! [insertIcon - IconController]")
-//                    .data(null).build();
-//        return Response.status(Response.Status.BAD_REQUEST).entity(resp).build();
-//        }
-//    }
+
+    @POST
+    @Path("/changeStatus")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeStatusIcon(StatusRequest req) {
+        boolean result = iconService.changeStatusIcon(req);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai icon thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai icon").data(result).build();
+        }
+    }
+
+    @POST
+    @Path("/changeThumbnail")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeThumbnail(ThumbnailRequest req) {
+        boolean result = iconService.changeThumbnail(req);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi thumbnail icon thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi thumbnail icon").data(result).build();
+        }
+    }
+
+    @POST
+    @Path("/changeName")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeNameIcon(ChangeNameRequest req) {
+        try {
+            boolean result = iconService.changeNameIcon(req);
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(1000)
+                    .message("Thay đổi tên icon thành công")
+                    .data(result)
+                    .build();
+        } catch (IllegalStateException e) {
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(5000)
+                    .message("Lỗi thay đổi tên icon: " + e.getMessage())
+                    .data(null)
+                    .build();
+        }
+    }
 }

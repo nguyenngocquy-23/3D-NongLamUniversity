@@ -154,6 +154,27 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     }
   });
 
+  useFrame((state) => {
+    if (!hotspotRef.current || isHovered) return;
+
+    const time = state.clock.getElapsedTime();
+
+    // Dao động scale: từ baseScale - amplitude → baseScale + amplitude
+    const baseScale = hotspotNavigation.scale ?? 1;
+    const amplitude = 0.2;
+    const opacityRange = [0.3, 1];
+
+    const s = baseScale + amplitude * Math.sin(time * 2);
+    hotspotRef.current.scale.set(s, s, s);
+
+    // Tính độ lệch so với baseScale (0 khi đúng base, max = amplitude)
+    const deviation = Math.abs(s - baseScale);
+    const t = deviation / amplitude; // Tỉ lệ lệch (0 → 1)
+
+    const opacity = opacityRange[1] - t * (opacityRange[1] - opacityRange[0]);
+    (hotspotRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
+  });
+
   useEffect(() => {
     if (isHovered) {
       targetOpacity.current = hotspotNavigation.opacity + 0.5;

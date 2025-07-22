@@ -1,13 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaUpload, FaPlus, FaMicrophone } from "react-icons/fa6";
+import { FaMicrophone, FaAngleLeft } from "react-icons/fa6";
 import styles from "../../styles/managerTour.module.css";
 import { IoSearch } from "react-icons/io5";
 import { TiFilter } from "react-icons/ti";
 import { FaSortAmountDown } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { useEffect, useMemo, useState } from "react";
-import { NodeItem } from "../../components/admin/NodeItem";
+import { useEffect, useState } from "react";
 import {
   HotspotInformation,
   HotspotMedia,
@@ -18,6 +17,10 @@ import { useDebounce } from "../../hooks/useDebounce";
 import { perPage } from "../../utils/Constants";
 import axios from "axios";
 import { API_URLS } from "../../env";
+import { AutoNodeItem } from "../../components/admin/AutoNodeItem";
+import { fetchAutoNode } from "../../redux/slices/DataSlice";
+import { addAutoPanorama } from "../../redux/slices/PanoramaSlice";
+import { goToStep } from "../../redux/slices/StepSlice";
 
 export interface NodeObject {
   id: number;
@@ -42,71 +45,106 @@ export interface NodeObject {
   modelHotspots: HotspotModel[];
 }
 
-const ManagerTour = () => {
-  const dispatch = useDispatch<AppDispatch>();
+const ManagerAutoTour = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
-  const nodes = useSelector((state: RootState) => state.data.nodes);
+  const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
 
   const dashboard = useSelector((state: RootState) => state.data.dashboard);
-  const [nodeList, setNodeList] = useState<any[]>(nodes || []);
+  const [autoNodeList, setAutoNodeList] = useState<any[]>(autoNodes || []);
+  console.log("autoNodes", autoNodes, autoNodeList);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
 
   const [currentPage, setCurrentPage] = useState(0);
 
-  const [totalNode, setTotalNode] = useState(0);
-  const totalPages = Math.ceil(totalNode / perPage);
+  const [totalAutoTour, setTotalAutoTour] = useState(0);
+  const totalPages = Math.ceil(totalAutoTour / perPage);
+
+  useEffect(() => {
+    dispatch(fetchAutoNode({ limit: perPage, page: 0 }));
+  }, [dispatch]);
+
+  const handleDetail = async (nodeId: number) => {
+    const node = autoNodes.find((node) => node.id === nodeId);
+    if (!node) {
+      console.error("Node not found");
+      return;
+    }
+    const indexNode = JSON.parse(node.indexNode) as {
+      nodeId: number;
+      duration: number;
+    }[];
+    for (const item of indexNode) {
+      const node = await axios.post(API_URLS.NODE_BY_ID, {
+        nodeId: item.nodeId,
+      });
+      dispatch(
+        addAutoPanorama({
+          node: {
+            ...node.data.data,
+          },
+          duration: item.duration, // ghi đè duration từ indexNode
+        })
+      );
+    }
+    dispatch(goToStep(2));
+    navigate(`${location.pathname}/${nodeId}`);
+  };
 
   useEffect(() => {
     const handleSearch = async () => {
       if (!debouncedSearch) return;
-      const response = await axios.post(`${API_URLS.SEARCH_NODES}`, {
+      const response = await axios.post(`${API_URLS.SEARCH_AUTO_NODES}`, {
         searchKey: debouncedSearch,
       });
-      setNodeList(response.data.data);
+      setAutoNodeList(response.data.data);
     };
     handleSearch();
   }, [debouncedSearch]);
 
   useEffect(() => {
-    if (nodes && nodes.length > 0) {
-      setNodeList(nodes);
+    if (autoNodes && autoNodes.length > 0) {
+      setAutoNodeList(autoNodes);
     }
-  }, [nodes]);
+  }, [autoNodes]);
 
   useEffect(() => {
     if (dashboard) {
-      setTotalNode(dashboard.numTour);
+      setTotalAutoTour(dashboard.numAutoTour);
     }
   }, [dashboard]);
 
   useEffect(() => {
     if (search === "") {
-      setNodeList(nodes);
+      setAutoNodeList(autoNodes);
     }
   }, [search]);
 
   useEffect(() => {
     const handleChangePage = async () => {
-      const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
+      if(currentPage === 0) return;
+      const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
         page: currentPage,
         limit: perPage,
       });
-      setNodeList(response.data.data);
+      setAutoNodeList(response.data.data);
     };
     handleChangePage();
   }, [currentPage]);
 
-  // Chon space
-  const handleSelectNode = (node: any) => {
-    navigate(`${location.pathname}/${node.id}`, { state: node });
-  };
+  // const handleSelectAutoNode = (node: any) => {
+  //   navigate(`${location.pathname}/${node.id}`, { state: node });
+  // };
 
   return (
     <div className={styles.container}>
       <div className={styles.tour_features}>
+        <button className={styles.back_btn} onClick={() => navigate(-1)}>
+          <FaAngleLeft />
+        </button>
         <div className={`${styles.tour_search_box} ${styles.tour_box}`}>
           <input
             type="text"
@@ -137,31 +175,26 @@ const ManagerTour = () => {
 
         <div style={{ display: "flex", gap: "10px", marginLeft: "auto" }}>
           <Link
-            to="/admin/manageAutoTour"
+            to="/admin/createAutoTour"
             className={`${styles.tour_add} ${styles.tour_box}`}
           >
-            Tour tự động
-          </Link>
-          <Link
-            to="/admin/createTour"
-            className={`${styles.tour_add} ${styles.tour_box}`}
-          >
-            Thêm tour mới
+            Thêm tour tự động
           </Link>
         </div>
       </div>
       <div className={styles.tour_list}>
-        {nodeList.map((node) => (
-          <NodeItem
-            key={node.id}
-            node={node}
-            onclick={() => handleSelectNode(node)}
-          />
-        ))}
+        {autoNodeList &&
+          autoNodeList.map((node) => (
+            <AutoNodeItem
+              key={node.id}
+              node={node}
+              onclick={() => handleDetail(node.id)}
+            />
+          ))}
       </div>
       <div style={{ display: "flex", alignItems: "center" }}>
         <div className={styles.tour_quantity}>
-          Kết quả: {search == "" ? totalNode : nodeList.length} tour.
+          Kết quả: {search == "" ? totalAutoTour : autoNodeList.length} tour.
         </div>
         {search.length === 0 && (
           <div className={styles.pagination}>
@@ -185,4 +218,4 @@ const ManagerTour = () => {
   );
 };
 
-export default ManagerTour;
+export default ManagerAutoTour;

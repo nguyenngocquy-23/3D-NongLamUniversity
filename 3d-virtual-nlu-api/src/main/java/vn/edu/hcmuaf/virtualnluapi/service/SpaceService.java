@@ -50,7 +50,7 @@ public class SpaceService {
     }
 
 
-    public boolean changeNameSpace(SpaceChangeNameRequest req) {
+    public boolean changeNameSpace(ChangeNameRequest req) {
         return spaceDao.changeNameSpace(req);
     }
 

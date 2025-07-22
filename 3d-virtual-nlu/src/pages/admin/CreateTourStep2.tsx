@@ -203,10 +203,10 @@ const CreateTourStep2 = () => {
     const maxZ = point.z + limit;
 
     const isNear = hotspotPosition
-      .filter((h:any) => h.nodeId === currentSelectId)
-      .some((h:any) =>
+      .filter((h: any) => h.nodeId === currentSelectId)
+      .some((h: any) =>
         h.hotspotPositions.some(
-          (hotspot:any) =>
+          (hotspot: any) =>
             hotspot.position[0] > minX &&
             hotspot.position[0] < maxX &&
             hotspot.position[1] > minY &&
@@ -564,11 +564,11 @@ const CreateTourStep2 = () => {
             <span>{CREATE_TOUR_STEPS[currentStep - 1].name}</span>
           </div>
           <span className={styles.number_step}>{currentStep}</span>
-          <div className={styles.toggle_right_menu}>
-            <IoMdMenu
-              className={styles.show_menu}
-              onClick={() => handleOpenMenu()}
-            />
+          <div
+            className={styles.toggle_right_menu}
+            onClick={() => handleOpenMenu()}
+          >
+            <IoMdMenu className={styles.show_menu} />
           </div>
         </div>
 

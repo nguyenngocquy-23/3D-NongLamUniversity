@@ -162,7 +162,7 @@ public class SpaceDao {
         });
     }
 
-    public boolean changeNameSpace(SpaceChangeNameRequest req) {
+    public boolean changeNameSpace(ChangeNameRequest req) {
         String updateSql = "UPDATE spaces SET name = :name, code = :code, updatedAt = :updatedAt WHERE id = :id";
         return ConnectionPool.getConnection().inTransaction(
                 handle -> {
@@ -170,7 +170,7 @@ public class SpaceDao {
                             .bind("name", req.getName()
                             )
                             .bind("code", req.getCode())
-                            .bind("id", req.getSpaceId())
+                            .bind("id", req.getId())
                             .bind("updatedAt", LocalDateTime.now())
                             .execute();
                     if (i == 0) {

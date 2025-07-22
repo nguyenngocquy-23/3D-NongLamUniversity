@@ -105,7 +105,7 @@ export default function Footer() {
               Liên hệ
             </ScrollLink>
             <button
-              className={styles.feed_back_button}
+              className={styles.feedback_button}
               onClick={() => setOpenForm(true)}
             >
               Khảo sát & đánh giá
