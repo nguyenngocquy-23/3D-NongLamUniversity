@@ -50,7 +50,7 @@ const LeftMenuTour = ({
 
   const limit = 7;
 
-  const [nodeList, setNodeList] = useState<any[]>(listMasterNode || []);
+  const [nodeList, setNodeList] = useState<any[]>(listMasterNode);
 
   const scrollRef = useRef<HTMLUListElement>(null);
   const scrollPositionRef = useRef<number>(0);
@@ -62,21 +62,23 @@ const LeftMenuTour = ({
   }, [search]);
 
   useEffect(() => {
+    if (listMasterNode && listMasterNode.length > 0) {
+      setNodeList(listMasterNode);
+    }
+  }, [listMasterNode]);
+
+  useEffect(() => {
     const handleSearch = async () => {
       if (!debouncedSearch) return;
-      const response = await axios.post(
-        API_URLS.SEARCH_NODES,
-        {
-          searchKey: debouncedSearch,
-        }
-      );
+      const response = await axios.post(API_URLS.SEARCH_NODES, {
+        searchKey: debouncedSearch,
+      });
       setNodeList(response.data.data);
     };
     handleSearch();
   }, [debouncedSearch]);
 
   const loadNodes = async () => {
-    console.log("Loading nodes for page:", page, loading, hasMore);
     if (loading || !hasMore) return;
 
     setLoading(true);
@@ -105,8 +107,9 @@ const LeftMenuTour = ({
     scrollPositionRef.current = list.scrollTop;
 
     const { scrollTop, scrollHeight, clientHeight } = list;
-    if (scrollTop + clientHeight >= scrollHeight - 50) {
-      setPage((prev) => prev + 1); // tăng page sẽ gọi useEffect → loadNodes
+    if (scrollTop + clientHeight >= scrollHeight) {
+      console.log(page , "page");
+      setPage((prev) => prev + 1);
     }
   };
 
