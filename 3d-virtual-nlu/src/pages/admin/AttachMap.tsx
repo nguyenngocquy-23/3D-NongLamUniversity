@@ -5,7 +5,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import Swal from "sweetalert2";
-import { attachLocation, fetchSpaces, setDefaultNode } from "../../redux/slices/DataSlice";
+import { attachLocation, fetchAllSpaces, fetchSpaces, setDefaultNode } from "../../redux/slices/DataSlice";
 import { API_URLS } from "../../env";
 import { perPage } from "../../utils/Constants";
 
@@ -20,7 +20,7 @@ const AttachMap = () => {
   const [selectedSpaceId, setSelectedSpaceId] = useState(0);
   const [isAssign, setIsAssign] = useState(true);
   const [isRemove, setIsRemove] = useState(false);
-  const [spaces, setSpaces] = useState<any[]>([]);
+  const spaces = useSelector((state: RootState) => state.data.allSpaces);
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -30,24 +30,13 @@ const AttachMap = () => {
     if (mapRef.current) {
       setTimeout(() => {
         mapRef.current!.invalidateSize();
-      }, 300); // chờ animation transition xong
+      }, 300);
     }
   }, []);
 
   useEffect(() => {
-    const fetchSpaces = async () => {
-      try {
-        const response = await axios.get(API_URLS.GET_ALL_SPACES);
-        setSpaces(response.data.data);
-      } catch (error) {
-        console.error("Lỗi khi lấy danh sách spaces:", error);
-      } finally {
-        //loading
-      }
-    };
-
-    fetchSpaces();
-  }, []);
+    dispatch(fetchAllSpaces())
+  }, [dispatch]);
 
   const handleSubmit = async () => {
     if (points.length === 0) {
@@ -132,12 +121,10 @@ const AttachMap = () => {
               location: JSON.stringify([latlng.lat, latlng.lng]),
             })
           );
-          console.log("Đã gán nhãn cho không gian:", selectedSpaceId);
           setPoints((prev) => [
             ...prev,
             { lat: latlng.lat, lng: latlng.lng, spaceId: selectedSpaceId },
           ]);
-          console.log("Points hiện tại:", points);
           setIsAssign(false);
           setIsRemove(false);
           setSelectedSpaceId(0);
