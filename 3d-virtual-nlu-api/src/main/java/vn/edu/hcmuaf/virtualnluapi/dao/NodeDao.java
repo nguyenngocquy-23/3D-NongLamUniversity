@@ -4,6 +4,7 @@ import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import vn.edu.hcmuaf.virtualnluapi.connection.Connection;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
@@ -206,6 +207,9 @@ public class NodeDao {
         }
 
         List<NodeFullResponse> preloadNodes = new ArrayList<>();
+
+
+
         for (Integer i : targetNodeIds) {
             NodeFullResponse node = getNodeById(new NodeIdRequest(i));
             if (node != null) preloadNodes.add(node);
@@ -348,7 +352,7 @@ public class NodeDao {
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
-                WHERE n.id = :nodeId
+                WHERE n.id = :nodeId AND n.status IN (1,2)
                 """;
         NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
                 .bind("nodeId", request.getNodeId())
@@ -368,13 +372,14 @@ public class NodeDao {
         return nodeFullResponse;
     }
 
-    public boolean changeStatus(StatusRequest request) {
-        String sql = "UPDATE nodes SET status = :status, updatedAt = :updatedAt WHERE id = :nodeId";
-        int rowsUpdated = ConnectionPool.getConnection().withHandle(handle -> handle.createUpdate(sql)
+    public boolean changeStatus(Handle handle, StatusRequest request) {
+        String sqlSetStatusNode = "UPDATE nodes SET status = :status, updatedAt = :updatedAt WHERE id = :nodeId";
+
+        int rowsUpdated = handle.createUpdate(sqlSetStatusNode)
                 .bind("status", request.getStatus())
                 .bind("updatedAt", LocalDateTime.now())
                 .bind("nodeId", request.getId())
-                .execute());
+                .execute();
         return rowsUpdated > 0;
     }
 

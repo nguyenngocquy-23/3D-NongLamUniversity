@@ -5,6 +5,8 @@ import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.dao.HotspotDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
@@ -18,6 +20,9 @@ public class NodeService {
 
     @Inject
     NodeDao nodeDao;
+
+    @Inject
+    HotspotDao hotspotDao;
 
     public List<NodeIdMapResponse> createNode(List<NodeCreateRequest> reqs) {
         return nodeDao.insertNode(reqs);
@@ -66,13 +71,19 @@ public class NodeService {
         }
     }
 
-    public boolean changeStatus(StatusRequest request) {
-        try {
-            return nodeDao.changeStatus(request);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean changeStatusAtomic(StatusRequest request) {
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            boolean nodeResult = nodeDao.changeStatus(handle, request);
+            boolean hotspotResult = true;
+
+            if(request.getStatus() == 0) {
+            hotspotResult = hotspotDao.changeStatusForHotspotNav(handle, request);
+            }
+            if (!nodeResult || !hotspotResult) {
+                throw new RuntimeException("Failed to update both node and hotspot. Rollback.");
+            }
+            return true;
+        });
     }
 
     public boolean remove(NodeIdRequest request) {

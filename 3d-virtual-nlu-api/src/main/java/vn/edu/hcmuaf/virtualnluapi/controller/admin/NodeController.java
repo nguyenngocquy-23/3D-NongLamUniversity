@@ -262,11 +262,22 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> changeStatusNode(StatusRequest req) {
-        boolean result = nodeService.changeStatus(req);
-        if (result) {
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai space thanh cong").data(result).build();
-        } else {
-            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai space").data(result).build();
+
+        try {
+            boolean result = nodeService.changeStatusAtomic(req);
+
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(1000)
+                    .message("Thay đổi trạng thái tour và hotspot thành công!")
+                    .data(result)
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(5000)
+                    .message("Thay đổi trạng thái thất bại")
+                    .data(false)
+                    .build();
         }
     }
 

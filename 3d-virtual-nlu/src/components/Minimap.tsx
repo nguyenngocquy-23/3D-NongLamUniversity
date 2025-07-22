@@ -706,7 +706,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
               </div>
               <div className={styles.tour_tracking}>
                 <TrackingNode
-                  panoramaList={panoramaList}
+                  panoramaList={panaramaListInTour}
                   hotspotNavigations={hotspotNavigations}
                   imageRef={imageRef}
                 />

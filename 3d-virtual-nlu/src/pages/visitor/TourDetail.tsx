@@ -287,7 +287,7 @@ const TourDetail = () => {
       .post(API_URLS.GET_FULL_TOUR, {
         nodeId: Number(nodeId),
       })
-      .then(async (resp) => {
+      .then((resp) => {
         const nodes: NodeExpandResponse[] = resp.data.data;
 
         // Tìm ra node đại diện
@@ -308,9 +308,9 @@ const TourDetail = () => {
         };
         setOriginalMasterNode(currentTourExpandField);
 
-        //Logic preload ảnh vào ram.
+        //Logic preload ảnh vào ram. Dùng url làm key.
         nodes.forEach((node) => {
-          if (!node.url || imageRef.current[node.id]) return;
+          if (!node.url || imageRef.current[node.url]) return;
 
           const highResURL = buildImageUrlWithQuality(node.url, "8K");
 
@@ -323,13 +323,13 @@ const TourDetail = () => {
               img.src = objectUrl;
 
               img.onload = () => {
-                imageRef.current[node.id] = {
+                imageRef.current[node.url] = {
                   img,
                   objectUrl,
                   quality: "8K",
                   lastUsed: Date.now(),
                 };
-                console.log("✅ Cached ảnh 360:", node.id);
+                console.log("✅ Cached ảnh 360:", node.url);
               };
             })
             .catch((err) => {

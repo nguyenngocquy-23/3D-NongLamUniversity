@@ -2,11 +2,13 @@ package vn.edu.hcmuaf.virtualnluapi.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dao.HotspotDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotMediaResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotModelResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @ApplicationScoped
@@ -110,4 +112,5 @@ public class HotspotService {
             return -1;
         }
     }
+
 }

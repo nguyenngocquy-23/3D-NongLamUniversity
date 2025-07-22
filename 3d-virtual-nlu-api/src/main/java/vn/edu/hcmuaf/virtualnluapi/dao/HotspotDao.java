@@ -2,6 +2,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
@@ -174,6 +175,7 @@ public class HotspotDao {
     public int updateNavHotspots(List<HotspotNavUpdateRequest> navHotspots, int nodeId) {
         String sqlUpdateHotspot = "UPDATE hotspots SET " + "type = :type, iconId = :iconId, status = :status, positionX = :posX, positionY = :posY, positionZ = :posZ, " + "pitchX = :pitchX, yawY = :yawY, rollZ = :rollZ, scale = :scale, " + "color = :color, backgroundColor = :backgroundColor, " + "allowBackgroundColor = :allowBackgroundColor, opacity = :opacity " + "WHERE id = :id";
 
+
         String sqlUpdateNavigation = "UPDATE hotspot_navigations SET targetNodeId = :targetNodeId WHERE hotspotId = :hotspotId";
         List<HotspotNavCreateRequest> navCreateRequests = new ArrayList<>();
         return ConnectionPool.getConnection().inTransaction(handle -> {
@@ -202,7 +204,6 @@ public class HotspotDao {
 
             return totalUpdated + totalInserted;
         });
-
     }
 
     public int updateInfoHotspots(List<HotspotInfoUpdateRequest> infoHotspots, int nodeId) {
@@ -398,4 +399,20 @@ public class HotspotDao {
             return handle.createQuery(sql).bind("userId", reqs.getUserId()).mapTo(Integer.class).findOne().orElse(0);
         });
     }
+
+    public boolean changeStatusForHotspotNav(Handle handle, StatusRequest request) {
+        //id là id của node
+        String sqlSetHotspotNavsStatus = "UPDATE hotspots  h JOIN hotspot_navigations hn ON h.id = hn.hotspotId SET h.status = :status, h.updatedAt = :updatedAt WHERE hn.targetNodeId = :id";
+
+
+        int rowsUpdated = handle.createUpdate(sqlSetHotspotNavsStatus)
+                .bind("status", request.getStatus())
+                .bind("updatedAt", LocalDateTime.now())
+                .bind("id", request.getId())
+                .execute();
+        return rowsUpdated > 0;
+    }
+
+
+
 }
