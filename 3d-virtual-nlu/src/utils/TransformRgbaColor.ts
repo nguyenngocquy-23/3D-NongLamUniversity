@@ -20,6 +20,7 @@ export function stringToRgba(color: string): rgbaColor | null {
 
   const regex =
     /rgba?\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d*\.?\d+)\s*\)/;
+  if (!color) return null;
 
   const match = color.match(regex);
 

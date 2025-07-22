@@ -11,6 +11,7 @@ import { Datatable } from "../../components/admin/DataTable";
 import { fetchUsers } from "../../redux/slices/DataSlice";
 import { API_URLS } from "../../env";
 import { IoSearch } from "react-icons/io5";
+import { formatTimestampToDate } from "../../utils/formatDateTime";
 
 interface User {
   id: number;
@@ -18,6 +19,7 @@ interface User {
   email: string;
   status: number;
   roleId: number;
+  createdAt: number;
 }
 
 function User() {
@@ -126,6 +128,11 @@ function User() {
     {
       name: "Email",
       selector: (row: User) => row.email,
+      sortable: true,
+    },
+    {
+      name: "Thời gian tạo",
+      selector: (row: User) => formatTimestampToDate(row.createdAt),
       sortable: true,
     },
     {

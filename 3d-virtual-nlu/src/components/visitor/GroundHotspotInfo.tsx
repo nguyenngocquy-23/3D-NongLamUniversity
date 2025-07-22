@@ -129,17 +129,29 @@ const GroundHotspotInfo = ({
     }
   });
 
-  useFrame((state, delta) => {
+  // animation
+  useFrame((state) => {
     if (!hotspotRef.current || isHovered) return;
 
-    // Sử dụng thời gian để tạo hiệu ứng sin tuần hoàn
     const time = state.clock.getElapsedTime();
-    const s = 1 + 0.5 * Math.sin(time * 2); // dao động giữa 0.5 -> 1.5
 
+    // Lấy scale gốc hiện tại tại thời điểm render (scale.x đủ vì scale đồng đều)
+    const baseScale =
+      hotspotRef.current.userData.baseScale ?? hotspotRef.current.scale.x;
+
+    // Biên độ dao động (mặc định = 0.2)
+    const amplitude = hotspotRef.current.userData.amplitude ?? 0.2;
+
+    // Tạo scale dao động quanh baseScale
+    const s = baseScale + (amplitude * (Math.sin(time * 2) + 1)) / 2;
     hotspotRef.current.scale.set(s, s, s);
 
-    // Làm mờ theo tỉ lệ scale
-    const opacity = 1 - (s - 1) / 0.5;
+    // Opacity giảm khi scale tăng
+    const opacityRange = hotspotRef.current.userData.opacityRange || [0.3, 1];
+    const deviation = Math.abs(s - baseScale); // lệch từ baseScale
+    const t = deviation / amplitude; // tỷ lệ lệch (0 → 1)
+    const opacity = opacityRange[1] - t * (opacityRange[1] - opacityRange[0]);
+
     (hotspotRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
   });
 
@@ -195,11 +207,11 @@ const GroundHotspotInfo = ({
     }
   });
 
-  useEffect(() => {
-    if (isHovered) {
-      targetOpacity.current += 0.5;
-    }
-  }, [isHovered]);
+  // useEffect(() => {
+  //   if (isHovered) {
+  //     targetOpacity.current += 0.5;
+  //   }
+  // }, [isHovered]);
 
   /**
    * ICON 3D

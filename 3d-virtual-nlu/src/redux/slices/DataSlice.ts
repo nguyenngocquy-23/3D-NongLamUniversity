@@ -110,10 +110,10 @@ export const fetchNodeOfUser = createAsyncThunk(
 // Fetch auto tour
 export const fetchAutoNode = createAsyncThunk(
   "data/fetchAutoNode",
-  async () => {
+  async ({ limit, page }: { limit: number; page: number }) => {
     const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
-      page: 0,
-      limit: perPage,
+      page: page,
+      limit: limit,
     });
     return response.data.data;
   }

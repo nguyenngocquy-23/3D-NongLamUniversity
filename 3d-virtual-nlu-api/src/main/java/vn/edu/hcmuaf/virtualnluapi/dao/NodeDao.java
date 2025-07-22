@@ -77,6 +77,7 @@ public class NodeDao {
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("limit", request.getLimit()).bind("offset", request.getPage() * request.getLimit()).mapToBean(NodeFullResponse.class).list());
     }
+
     public List<NodeFullResponse> getAllNodes() {
         String sql = """
                  SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
@@ -160,7 +161,7 @@ public class NodeDao {
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
-  
+                
                 WHERE s.status = 2 AND n.id = s.masterNodeId    
                 """;
         NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
@@ -216,11 +217,10 @@ public class NodeDao {
 
     /**
      * NodeByMasterId:Lấy ra danh sách các node có chung (đơn vị là tour khởi tạo).
-     * @param nodeId : master node của 1 tour.
-     * @return
-     * + Thông tin hoàn chỉnh của master node kèm theo các node con.
-     * + Thông tin hotspot. => Lấy kèm thêm node có targetNode là hotspot nhưng nó là không gian khác nên chỉ hiển thị không thể click
      *
+     * @param nodeId : master node của 1 tour.
+     * @return + Thông tin hoàn chỉnh của master node kèm theo các node con.
+     * + Thông tin hotspot. => Lấy kèm thêm node có targetNode là hotspot nhưng nó là không gian khác nên chỉ hiển thị không thể click
      */
 
     public List<NodeExpandResponse> getListNodeByMasterId(int nodeId) {
@@ -228,8 +228,8 @@ public class NodeDao {
          * Truy xuất sql cho danh sách targetNodeId dựa vào hotspot navigation..
          */
         String getTargetNodeIdSQL = """
-              SELECT hn.targetNodeId FROM hotspots h JOIN hotspot_navigations hn ON h.id = hn.hotspotId 
-                WHERE h.nodeId = :nodeId AND h.type = 1
+                SELECT hn.targetNodeId FROM hotspots h JOIN hotspot_navigations hn ON h.id = hn.hotspotId 
+                  WHERE h.nodeId = :nodeId AND h.type = 1
                 """;
 
         String getNodeStatusSQL = """
@@ -272,6 +272,7 @@ public class NodeDao {
         }
         return listNodesOfTour;
     }
+
     /**
      * Trả về Full Response cho 1 node dựa vào Ids.
      */
@@ -694,4 +695,46 @@ public class NodeDao {
             );
     }
 
+    public int countAllAutoNodes() {
+        String sql = "SELECT COUNT(*) FROM auto_tours WHERE status = 1";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
+
+    public List<AutoTourResponse> searchAutoNode(String searchKey) {
+        String sql = """
+                SELECT at.id, at.name, at.indexNode, at.soundBackground , at.status, at.updatedAt
+                FROM auto_tours at
+                WHERE LOWER(at.name) LIKE :searchKey AND at.status = 1
+                ORDER BY at.updatedAt DESC
+                LIMIT 10
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+                .bind("searchKey", "%" + searchKey.toLowerCase() + "%")
+                .mapToBean(AutoTourResponse.class)
+                .list());
+    }
+
+    public boolean updateAutoTour(AutoTourUpdateRequest request) {
+        String sql = """
+                UPDATE auto_tours
+                SET name = :name, indexNode = :indexNode, soundBackground = :soundBackground, status = :status, updatedAt = :updatedAt
+                WHERE id = :id
+                """;
+
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            int updatedRows = handle.createUpdate(sql)
+                    .bind("name", request.getName())
+                    .bind("indexNode", request.getIndexNode())
+                    .bind("soundBackground", request.getSoundBackground())
+                    .bind("status", request.getStatus())
+                    .bind("updatedAt", LocalDateTime.now())
+                    .bind("id", request.getAutoTourId())
+                    .execute();
+            return updatedRows > 0;
+        });
+    }
 }

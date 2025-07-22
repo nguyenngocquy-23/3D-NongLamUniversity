@@ -178,6 +178,10 @@ back_btn:hover {
   align-items: center;
 }
 
+.toggle_right_menu:hover {
+  cursor: pointer;
+}
+
 .toggle_right_menu {
   background-color: #333333;
   border-radius: 50%;
@@ -189,6 +193,16 @@ back_btn:hover {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.toggle_next_step_3 {
+  position: absolute;
+  right: 0;
+}
+
+.toggle_status {
+  position: absolute;
+  right: 10rem;
 }
 
 .done_button {

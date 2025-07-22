@@ -91,6 +91,7 @@ const hotspotSlice = createSlice({
     ) => {
       state.hotspotList.push({
         ...action.payload,
+        id: nanoid(),
       });
     },
     addMediaHotspot: (
@@ -100,8 +101,8 @@ const hotspotSlice = createSlice({
     ) => {
       state.hotspotList.push({
         ...action.payload,
+        id: nanoid(),
       });
-      // id: nanoid(),
     },
     addModelHotspot: (
       state,
@@ -110,8 +111,8 @@ const hotspotSlice = createSlice({
     ) => {
       state.hotspotList.push({
         ...action.payload,
+        id: nanoid(),
       });
-      // id: nanoid(),
     },
     deleteHotspot: (state, action: PayloadAction<string>) => {
       state.hotspotList = state.hotspotList.filter(

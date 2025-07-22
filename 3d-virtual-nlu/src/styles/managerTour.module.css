@@ -266,3 +266,19 @@
   color: white;
   font-weight: bold;
 }
+
+.back_btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color: black;
+  transition: all 0.3s ease;
+}
+
+.back_btn:hover {
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+}

@@ -161,4 +161,21 @@ public class NodeService {
         return nodeDao.updateNodePartial(id, req);
     }
 
+    public List<AutoTourResponse> searchAutoNode(String searchKey) {
+    try {
+            return nodeDao.searchAutoNode(searchKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean updateAutoTour(AutoTourUpdateRequest request) {
+        try {
+            return nodeDao.updateAutoTour(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -50,6 +50,7 @@ export const API_URLS = {
   SEARCH_FIELDS: `${DOMAIN}/admin/field/search`,
   SEARCH_SPACES: `${DOMAIN}/admin/space/search`,
   SEARCH_NODES: `${DOMAIN}/v1/admin/node/search`,
+  SEARCH_AUTO_NODES: `${DOMAIN}/v1/admin/node/searchAutoNode`,
   SEARCH_ICONS: `${DOMAIN}/v1/admin/icon/search`,
 
   GET_MODEL: `${DOMAIN}/v1/admin/hotspot/getModel`,
@@ -71,11 +72,15 @@ export const API_URLS = {
   ADMIN_GET_ALL_CONTACTS: `${DOMAIN}/v1/admin/contact/getAll`,
 
   ADMIN_CREATE_NODES: `${DOMAIN}/v1/admin/node/insert`,
-  ADMIN_CREATE_AUTO_TOUR: `${DOMAIN}/v1/admin/node/createAutoTour`,
   ADMIN_UPDATE_NODES: `${DOMAIN}/v1/admin/node/update`,
+  ADMIN_CREATE_AUTO_TOUR: `${DOMAIN}/v1/admin/node/createAutoTour`,
+  ADMIN_UPDATE_AUTO_TOUR: `${DOMAIN}/v1/admin/node/updateAutoTour`,
   ADMIN_LINK_NODES: `${DOMAIN}/v1/admin/node/linkNode`,
   ADMIN_CREATE_FIELDS: `${DOMAIN}/admin/field/create`,
   ADMIN_CREATE_SPACES: `${DOMAIN}/admin/space/create`,
+  ADMIN_CREATE_ICONS: `${DOMAIN}/v1/admin/icon/`,
+  ADMIN_CHANGE_THUMBNAIL_ICONS: `${DOMAIN}/v1/admin/icon/changeThumbnail`,
+
   ADMIN_ATTACH_SPACE_LOCATION: `${DOMAIN}/admin/space/attachLocation`,
   ADMIN_REMOVE_SPACE_LOCATION: `${DOMAIN}/admin/space/removeLocation`,
   ADMIN_UPDATE_SPACE_BY_ID: `${DOMAIN}/admin/space`,
@@ -89,5 +94,6 @@ export const API_URLS = {
   ADMIN_CHANGE_NAME_SPACE: `${DOMAIN}/admin/space/changeName`,
   ADMIN_CHANGE_MASTER_NODE_BY_ID: `${DOMAIN}/admin/space/setMasterNodeById`,
   ADMIN_CHANGE_NAME_FIELD: `${DOMAIN}/admin/field/changeName`,
-  ADMIN_CHANGE_ICON_STATUS: `${DOMAIN}/admin/field/changeStatus`,
+  ADMIN_CHANGE_ICON_STATUS: `${DOMAIN}/v1/admin/icon/changeStatus`,
+  ADMIN_CHANGE_NAME_ICON: `${DOMAIN}/v1/admin/icon/changeName`,
 };

@@ -76,6 +76,7 @@ const ManageModel = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
+      if(currentPage === 0) return;
       const response = await axios.post(API_URLS.GET_ALL_MODEL, {
         page: currentPage,
         limit: perPage,

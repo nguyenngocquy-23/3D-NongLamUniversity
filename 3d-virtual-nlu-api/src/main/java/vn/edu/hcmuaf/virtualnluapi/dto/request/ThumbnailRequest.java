@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 @FieldDefaults( level = AccessLevel.PRIVATE)
-public class IconCreateRequest {
-    String name, code, iconUrl, thumbnail;
-    int type;
+public class ThumbnailRequest {
+    int id;
+    String thumbnail;
 }

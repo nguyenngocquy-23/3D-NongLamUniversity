@@ -117,7 +117,7 @@ const Node: React.FC<NodeProps> = ({
       </mesh>
     </>
   );
-};
+}; 
 
 const Model = () => {
   const location = useLocation();
@@ -158,7 +158,7 @@ const Model = () => {
 
   const handleDownload = async () => {
     const link = document.createElement("a");
-    link.href = modelUrl;
+    link.href = modelUrl ?? hotspotModel?.modelUrl;
     link.download = `${
       !hotspotModel ? (!title ? "Mô hình 3D" : title) : hotspotModel.name
     }.glb`;

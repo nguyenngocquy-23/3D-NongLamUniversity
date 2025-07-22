@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../../styles/user.module.css";
-import stylesCommon from "../../styles/common/navigateBar.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { fetchIcons, fetchUsers } from "../../redux/slices/DataSlice";
@@ -13,12 +12,12 @@ import { format } from "date-fns";
 import { FaSave } from "react-icons/fa";
 import { IoMdExit, IoIosWarning } from "react-icons/io";
 import { RiEdit2Line } from "react-icons/ri";
-import { TfiNewWindow } from "react-icons/tfi";
-import SpaceCard from "../../components/admin/SpaceCard";
 import StatusToggle from "../../components/admin/ToggleChangeStatus";
-import { goToStep } from "../../redux/slices/StepSlice";
 import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
 import { validateName } from "../../utils/ValidateInputName";
+import Swal from "sweetalert2";
+import UploadFile from "../../components/admin/UploadFile";
+import Icon3DPreviewWithSnapshot from "../../components/admin/PreviewIcon3DWithSnapshot";
 
 interface Icon {
   id: number;
@@ -31,21 +30,19 @@ interface Icon {
   createdAt: number | null;
 }
 
-const emptyIcon: Icon = {
-  id: 0, // ID giả để phân biệt với các field thật
+const emptyIcon: any = {
   name: "",
   code: "",
   type: 1,
   url: "",
   thumbnail: "",
-  isActive: 1,
-  createdAt: null,
 };
 
 const ManagerIcon = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [type, setType] = useState(1);
+  const [typeCreate, setTypeCreate] = useState(1);
   const navigate = useNavigate();
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -53,12 +50,25 @@ const ManagerIcon = () => {
   const [inputIconName, setInputIconName] = useState<string | null>(
     selectedIcon?.name || null
   );
+  const [modelUrl, setModelUrl] = useState("");
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [changeThumbnailUrl, setChangeThumbnailUrl] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     setInputIconName(selectedIcon?.name || "");
+    setNameCode(selectedIcon?.code || "");
+    setModelUrl(selectedIcon?.url || "");
+    setThumbnailUrl(selectedIcon?.thumbnail || "");
+    setIsEditing(false);
+    setError("");
+    setChangeThumbnailUrl(false);
   }, [selectedIcon]);
+
+  useEffect(() => {
+    if (thumbnailUrl != selectedIcon?.thumbnail) setChangeThumbnailUrl(true);
+  }, [thumbnailUrl]);
 
   useEffect(() => {
     if (
@@ -77,6 +87,7 @@ const ManagerIcon = () => {
   const [nameCode, setNameCode] = useState(selectedIcon?.code);
   const [iconList, setIconList] = useState<any[]>(icons || []);
   const [isEditing, setIsEditing] = useState(false);
+  const [canHandle, setCanHandle] = useState(false);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
@@ -110,6 +121,32 @@ const ManagerIcon = () => {
     if (!isEditing) setIsEditing(true);
   };
 
+  /**
+   * kiểm tra điều kiện để có thể thực hiện thao tác lưu
+   * nếu là tạo mới biểu tượng 2D thì chỉ cần tên và modelUrl
+   * nếu là tạo mới biểu tượng 3D thì cần tên, modelUrl và thumbnailUrl
+   */
+  useEffect(() => {
+    if (
+      typeCreate == 2 &&
+      inputIconName &&
+      modelUrl !== "" &&
+      thumbnailUrl !== ""
+    ) {
+      setCanHandle(true);
+    } else if (typeCreate == 1 && inputIconName && modelUrl) {
+      setCanHandle(true);
+    } else {
+      setCanHandle(false);
+    }
+  }, [inputIconName, modelUrl, thumbnailUrl]);
+
+  useEffect(() => {
+    handleUploadedFile("");
+    handleThumbnailSaved("");
+    setType(typeCreate);
+  }, [typeCreate]);
+
   const handleChangeIconName = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     const iconCodeNew = RemoveVietnameseTones(value);
@@ -122,7 +159,8 @@ const ManagerIcon = () => {
     setNameCode(iconCodeNew);
   };
 
-  const handleRename = async (req: Icon) => {
+  const handleRename = async (req: any) => {
+    console.log("handleRename", req);
     try {
       const nameCheck = validateName(req.name);
 
@@ -131,14 +169,18 @@ const ManagerIcon = () => {
         return;
       }
 
+      if (iconCodeList.includes(req.code)) {
+        setError("Tên đã tồn tại. Vui lòng chọn tên mới để cập nhật !");
+        return;
+      }
+
       let response;
 
-      if (req.id === 0) {
-        response = await axios.post(API_URLS.ADMIN_CREATE_SPACES, req);
-        setInputIconName("");
-        setNameCode("");
+      if (req.id === 0 || req.id == undefined) {
+        const { iconId, ...reqWithoutId } = req;
+        response = await axios.post(API_URLS.ADMIN_CREATE_ICONS, reqWithoutId);
       } else {
-        response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_SPACE, req);
+        response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_ICON, req);
       }
 
       /**
@@ -146,15 +188,122 @@ const ManagerIcon = () => {
        * + dispatch vào redux cho đồng bộ
        */
       if (response.data.statusCode === 1000 || response.status === 200) {
+        if (req.id === 0 || req.id == undefined) {
+          Swal.fire({
+            title: "Tạo biểu tượng thành công",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+            position: "top-end",
+            toast: true,
+            timerProgressBar: true,
+          });
+          setSelectedIcon(null);
+          setInputIconName("");
+          setNameCode("");
+          setModelUrl("");
+        } else {
+          Swal.fire({
+            title: "Đổi tên thành công",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+            position: "top-end",
+            toast: true,
+            timerProgressBar: true,
+          });
+          setInputIconName(req.name);
+          setNameCode(req.code);
+        }
         dispatch(fetchIcons());
         setError("");
       } else {
-        setError(response.data.message || "Lỗi không xác định");
+        if (req.id === 0 || req.id == undefined) {
+          Swal.fire({
+            title: "Lỗi khi tạo biểu tượng",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 1500,
+            position: "top-end",
+            toast: true,
+            timerProgressBar: true,
+          });
+          return;
+        } else {
+          Swal.fire({
+            title: "Đổi tên thất bại",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 1500,
+            position: "top-end",
+            toast: true,
+            timerProgressBar: true,
+          });
+          return;
+        }
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Có lỗi xảy ra");
+      Swal.fire({
+        title: "Lỗi khi thao tác",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 1500,
+        position: "top-end",
+        toast: true,
+        timerProgressBar: true,
+      });
     }
     setIsEditing(false);
+  };
+
+  const handleChangeThumbnail = async (req: any) => {
+    try {
+      const response = await axios.post(API_URLS.ADMIN_CHANGE_THUMBNAIL_ICONS, req);
+
+      if (response.data.data) {
+        Swal.fire({
+          title: "cập nhật thành công",
+          icon: "success",
+          showConfirmButton: false,
+          timer: 1500,
+          position: "top-end",
+          toast: true,
+          timerProgressBar: true,
+        });
+        setSelectedIcon(null);
+        dispatch(fetchIcons());
+        setError("");
+      } else {
+        Swal.fire({
+          title: "Cập nhật thất bại",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500,
+          position: "top-end",
+          toast: true,
+          timerProgressBar: true,
+        });
+        return;
+      }
+    } catch (err: any) {
+      Swal.fire({
+        title: "Cập nhật thất bại",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 1500,
+        position: "top-end",
+        toast: true,
+        timerProgressBar: true,
+      });
+    }
+    setIsEditing(false);
+  };
+
+  const handleUploadedFile = (url: string) => {
+    setModelUrl(url);
+  };
+  const handleThumbnailSaved = (url: string) => {
+    setThumbnailUrl(url);
   };
 
   return (
@@ -198,92 +347,171 @@ const ManagerIcon = () => {
           </button>
         </div>
         <div className={styles.icon_list}>
-          {iconList.map((icon) => {
-            return (
-              <div
-                key={icon.id}
-                className={styles.icon_item}
-                title={icon.name}
-                onClick={() => setSelectedIcon(icon)}
-              >
-                <img
-                  src={!icon.url.includes("glb") ? icon.url : icon.thumbnail}
-                  alt={icon.name}
-                  className={styles.icon_image}
-                />
-                <div className={styles.icon_info}>
-                  <h3>{icon.name}</h3>
+          {iconList
+            .filter((i) => i.type == type)
+            .map((icon) => {
+              return (
+                <div
+                  key={icon.id}
+                  className={`${styles.icon_item} ${
+                    icon.id == selectedIcon?.id ? styles.selected : ""
+                  }`}
+                  title={icon.name}
+                  onClick={() => setSelectedIcon(icon)}
+                >
+                  <img
+                    src={!icon.url.includes("glb") ? icon.url : icon.thumbnail}
+                    alt={icon.name}
+                    className={styles.icon_image}
+                  />
+                  <div
+                    className={`${styles.icon_status} ${
+                      icon.isActive ? styles.status_active : ""
+                    }`}
+                  />
+                  <div className={styles.icon_info}>
+                    <h3>{icon.name}</h3>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
+
       {selectedIcon && (
         <div className={styles.icon_edit_by_id}>
           <IoMdExit
             className={styles.close_btn}
             onClick={() => setSelectedIcon(null)}
           />
-          <div
-            className={styles.icon_card}
-            style={{
-              backgroundImage: `url(${
-                selectedIcon.url.includes("glb")
-                  ? selectedIcon.thumbnail
-                  : selectedIcon.url
-              })`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-              backgroundSize: "cover",
-            }}
-          />
-
-          <div className={styles.icon_edit_content}>
-            <p className={styles.icon_edit_label}>Thông tin</p>
-            <div className={`${styles.icon_information_item} `}>
-              <span>Trạng thái: </span>
-              <StatusToggle
-                id={selectedIcon.id}
-                status={selectedIcon.isActive}
-                apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
-                type="icon"
+          {selectedIcon.id != undefined && selectedIcon.id != null ? (
+            <div
+              className={styles.icon_card}
+              style={{
+                backgroundImage: `url(${
+                  selectedIcon.url.includes("glb")
+                    ? selectedIcon.thumbnail
+                    : selectedIcon.url
+                })`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+              }}
+            />
+          ) : typeCreate == 1 ? (
+            <div className={styles.upload_icon_card}>
+              <UploadFile
+                key={typeCreate === 1 ? "upload-icon" : "upload-model"}
+                className="upload_icon"
+                onUploaded={handleUploadedFile}
               />
             </div>
+          ) : (
+            <div className={styles.upload_icon_card}>
+              <UploadFile
+                key={typeCreate === 1 ? "upload-icon" : "upload-model"}
+                className="upload_model"
+                onUploaded={handleUploadedFile}
+              />
+            </div>
+          )}
+
+          {((typeCreate === 2 && modelUrl && selectedIcon.thumbnail == "") ||
+            (modelUrl && selectedIcon.thumbnail)) && (
+            <>
+              <Icon3DPreviewWithSnapshot
+                key={selectedIcon.id || "null"}
+                modelUrl={modelUrl}
+                onThumbnailSaved={handleThumbnailSaved}
+              />
+              <i style={{ margin: "0 auto", fontSize: "12px" }}>
+                Dùng{" "}
+                <img
+                  style={{ width: "40px", verticalAlign: "middle" }}
+                  src={`${import.meta.env.BASE_URL}key_move.png`}
+                  alt="Arrow keys"
+                />
+                để di chuyển mô hình
+              </i>
+            </>
+          )}
+
+          <div className={styles.icon_edit_content}>
+            {/* <p className={styles.icon_edit_label}>Thông tin</p> */}
+            {selectedIcon.id != undefined && selectedIcon.id != null && (
+              <div className={`${styles.icon_information_item} `}>
+                <span>Trạng thái: </span>
+                <StatusToggle
+                  id={selectedIcon.id}
+                  status={selectedIcon.isActive}
+                  apiUrl={API_URLS.ADMIN_CHANGE_ICON_STATUS}
+                  type="icon"
+                  editable={true}
+                />
+              </div>
+            )}
             <div className={`${styles.icon_information_item} `}>
-              <span>Loại: {selectedIcon.type == 1 ? "2D" : "3D"}</span>
+              {selectedIcon.id != undefined && selectedIcon.id != null ? (
+                <span>Loại: {selectedIcon.type == 1 ? "2D" : "3D"}</span>
+              ) : (
+                <>
+                  <span>Loại:</span>
+                  <select
+                    className={styles.custom_select}
+                    value={typeCreate}
+                    onChange={(e) => setTypeCreate(Number(e.target.value))}
+                  >
+                    <option value="1">2D</option>
+                    <option value="2">3D</option>
+                  </select>
+                </>
+              )}
             </div>
             <div className={`${styles.icon_information_item} `}>
               <span>Tên biểu tượng : </span>
 
               <div className={styles.icon_input_name_container}>
-                <input
-                  type="text"
-                  id="input"
-                  required
-                  readOnly={!isEditing}
-                  value={inputIconName ?? ""}
-                  onChange={handleChangeIconName}
-                />
+                {selectedIcon.id != undefined && selectedIcon.id != null ? (
+                  <input
+                    type="text"
+                    id="input"
+                    required
+                    readOnly={!isEditing}
+                    value={inputIconName ?? ""}
+                    onChange={handleChangeIconName}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    id="input"
+                    required
+                    readOnly={selectedIcon.id !== undefined}
+                    value={inputIconName ?? ""}
+                    onChange={handleChangeIconName}
+                  />
+                )}
 
                 {!isEditing ? (
                   <RiEdit2Line
                     className={styles.icon_input_name_edit}
                     onClick={handleEditInput}
+                    visibility={
+                      selectedIcon.id !== undefined ? "visible" : "hidden"
+                    }
                   />
                 ) : error ? (
                   <IoIosWarning className={styles.icon_input_name_warning} />
                 ) : (
                   <FaSave
                     className={styles.icon_input_name_edit}
-                    // onClick={() => {
-                    //   selectedIcon.id !== 0 &&
-                    //     handleRename({
-                    //       id: selectedIcon.id,
-                    //       name: inputIconName ?? "",
-                    //       code: nameCode ?? "",
-                    //     });
-                    // }}
+                    onClick={() => {
+                      selectedIcon.id !== 0 &&
+                        handleRename({
+                          id: selectedIcon.id,
+                          name: inputIconName?.trim() ?? "",
+                          code: nameCode?.trim() ?? "",
+                        });
+                    }}
                   />
                 )}
 
@@ -296,18 +524,60 @@ const ManagerIcon = () => {
               <span>Mã biểu tượng: </span>
               <span className={styles.icon_code}>{nameCode}</span>
             </div>
-            <div className={`${styles.icon_information_item} `}>
-              <span>Ngày khởi tạo: </span>
-              <span>
-                {selectedIcon.createdAt === null
-                  ? "Chưa có"
-                  : format(
-                      new Date(selectedIcon.createdAt),
-                      "dd/MM/yyyy HH:mm"
-                    )}
-              </span>
-            </div>
+            {selectedIcon.id != undefined && selectedIcon.id != null && (
+              <div className={`${styles.icon_information_item} `}>
+                <span>Ngày khởi tạo: </span>
+                <span>
+                  {selectedIcon.createdAt === null
+                    ? "Chưa có"
+                    : format(
+                        new Date(selectedIcon.createdAt),
+                        "dd/MM/yyyy HH:mm"
+                      )}
+                </span>
+              </div>
+            )}
           </div>
+          {selectedIcon.id == undefined && selectedIcon.id == null && (
+            <div className={styles.icon_footer}>
+              <button
+                className={`${styles.icon_add_change_btn} ${
+                  canHandle ? "" : styles.cant_handle
+                }`}
+                disabled={!!error}
+                onClick={() =>
+                  handleRename({
+                    iconId: selectedIcon.id,
+                    name: inputIconName ?? "",
+                    code: nameCode ?? "",
+                    iconUrl: modelUrl,
+                    thumbnail: thumbnailUrl,
+                    type: typeCreate,
+                  })
+                }
+              >
+                Hoàn tất
+              </button>
+            </div>
+          )}
+          {selectedIcon.thumbnail && (
+            <div className={styles.icon_footer}>
+              <button
+                className={`${styles.icon_add_change_btn} ${
+                  changeThumbnailUrl ? "" : styles.cant_handle
+                }`}
+                disabled={!!error}
+                onClick={() =>
+                  handleChangeThumbnail({
+                    id: selectedIcon.id,
+                    thumbnail: thumbnailUrl,
+                  })
+                }
+              >
+                Cập nhật
+              </button>
+            </div>
+          )}
         </div>
       )}
     </>

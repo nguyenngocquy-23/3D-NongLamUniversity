@@ -6,7 +6,7 @@ import { fetchNodes } from "../../redux/slices/DataSlice.ts";
 import axios from "axios";
 import { API_URLS } from "../../env.ts";
 import { FaSortAmountDown } from "react-icons/fa";
-import { FaMicrophone } from "react-icons/fa6";
+import { FaAngleLeft, FaMicrophone } from "react-icons/fa6";
 import { IoSearch } from "react-icons/io5";
 import { TiFilter } from "react-icons/ti";
 import { nextStep } from "../../redux/slices/StepSlice.ts";
@@ -17,9 +17,11 @@ import {
 } from "../../redux/slices/PanoramaSlice.ts";
 import Swal from "sweetalert2";
 import { perPage } from "../../utils/Constants.ts";
+import { useNavigate } from "react-router-dom";
 
 const BoardSelectNode = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   useEffect(() => {
     dispatch(fetchNodes());
   }, [dispatch]);
@@ -72,6 +74,7 @@ const BoardSelectNode = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
+      if(currentPage === 0) return;
       const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
         page: currentPage,
         limit: perPage,
@@ -116,6 +119,9 @@ const BoardSelectNode = () => {
     <div className={styles.select_node_container}>
       {/* feature */}
       <div className={styles.features}>
+        <button className={styles.back_btn} onClick={() => navigate(-1)}>
+          <FaAngleLeft />
+        </button>
         <div className={`${styles.search_box} ${styles.box}`}>
           <input
             type="text"
