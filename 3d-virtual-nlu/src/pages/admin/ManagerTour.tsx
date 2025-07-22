@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaUpload, FaPlus, FaMicrophone } from "react-icons/fa6";
 import styles from "../../styles/managerTour.module.css";
+import stylesPagination from "../../styles/managerSpace.module.css";
 import { IoSearch } from "react-icons/io5";
 import { TiFilter } from "react-icons/ti";
 import { FaSortAmountDown } from "react-icons/fa";
@@ -164,13 +165,13 @@ const ManagerTour = () => {
           Kết quả: {search == "" ? totalNode : nodeList.length} tour.
         </div>
         {search.length === 0 && (
-          <div className={styles.pagination}>
+          <div className={stylesPagination.pagination}>
             {[...Array(totalPages)].map((_, index) => {
               return (
                 <button
                   key={index}
-                  className={`${styles.page_btn} ${
-                    currentPage === index ? styles.active : ""
+                  className={`${stylesPagination.page_btn} ${
+                    currentPage === index ? stylesPagination.active : ""
                   }`}
                   onClick={() => setCurrentPage(index)}
                 >

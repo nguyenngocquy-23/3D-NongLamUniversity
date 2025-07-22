@@ -77,16 +77,18 @@ const Task3 = ({
 
   return (
     <div className={styles.task3}>
-      <select
-        className={styles.select_type}
-        onChange={(e) => handleChooseType(Number(e.target.value))}
-      >
-        {hotspotType.map((type) => (
-          <option key={type.id} value={type.id}>
-            {type.name}
-          </option>
-        ))}
-      </select>
+      {limitNav && (
+        <select
+          className={styles.select_type}
+          onChange={(e) => handleChooseType(Number(e.target.value))}
+        >
+          {hotspotType.map((type) => (
+            <option key={type.id} value={type.id}>
+              {type.name}
+            </option>
+          ))}
+        </select>
+      )}
 
       {[1, 2, 4].includes(openTypeIndex) ? (
         <>
@@ -95,6 +97,7 @@ const Task3 = ({
             currentHotspotType={openTypeIndex}
           />
           <label className={styles.label}>Chọn vị trí điểm:</label>
+
           {limitNav &&
           hotspotNavigationFromNode.length >= limitNavigation() * 2 &&
           openTypeIndex == 1 ? (

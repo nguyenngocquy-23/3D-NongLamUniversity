@@ -64,7 +64,6 @@ const TypeNavigation = ({
           onChange={(e) => {
             const selectedId = e.target.value;
             if (selectedId && hotspotNav.id) {
-              console.log("🔽 Đã chọn panorama:", selectedId);
               dispatch(
                 updateNavigationHotspotTarget({
                   id: hotspotNav.id,
@@ -75,7 +74,7 @@ const TypeNavigation = ({
           }}
           className={styles.custom_select}
         >
-          <option value="">Chọn panorama</option>
+          <option value="">Chọn panorama {panoramaList.length}</option>
           {limitNav
             ? filteredPanoramas?.map((pano) => (
                 <option key={pano.id} value={pano.id}>

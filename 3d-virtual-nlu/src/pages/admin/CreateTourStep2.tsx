@@ -395,13 +395,6 @@ const CreateTourStep2 = () => {
   ) => {
     if (!cameraRef.current || !controlsRef.current) return;
 
-    const camera = cameraRef.current;
-    const control = controlsRef.current;
-    const originalFov = camera.fov;
-    const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-
-    const [x, y, z] = hotspotTargetPosition;
-
     // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);
   };

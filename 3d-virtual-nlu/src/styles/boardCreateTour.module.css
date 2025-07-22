@@ -33,7 +33,6 @@
 
 .custom_select {
   appearance: none;
-  /* ẩn mũi tên mặc định */
   -webkit-appearance: none;
   -moz-appearance: none;
   cursor: pointer;

@@ -10,6 +10,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { fetchUsers } from "../../redux/slices/DataSlice";
+import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
 
 interface NodeItemProps {
   onclick: () => void;
@@ -42,7 +43,7 @@ export const NodeItem = ({ onclick, node }: NodeItemProps) => {
       <div
         className={styles.node_card}
         style={{
-          backgroundImage: `url(${node.url})`,
+          backgroundImage: `url(${transformUrlToThumbnailBig(node.url)})`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           backgroundSize: "cover",

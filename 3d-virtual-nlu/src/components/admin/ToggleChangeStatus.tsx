@@ -9,6 +9,7 @@ import {
 } from "../../redux/slices/DataSlice";
 import styles from "../../styles/toggleChangeStatus.module.css";
 import { perPage } from "../../utils/Constants";
+import { updatePanoConfig } from "../../redux/slices/PanoramaSlice";
 import Swal from "sweetalert2";
 
 type StatusToggleProps = {
@@ -16,6 +17,7 @@ type StatusToggleProps = {
   status: number;
   apiUrl: string; // URL để gọi PUT hoặc POST cập nhật status
   type: string;
+  editable?: boolean;
 };
 
 const StatusToggle: React.FC<StatusToggleProps> = ({
@@ -23,6 +25,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
   status,
   apiUrl,
   type,
+  editable,
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -61,8 +64,19 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
             dispatch(fetchIcons());
             break;
 
-          default:
-            break;
+        case "node":
+          dispatch(
+            updatePanoConfig({
+              id: `${id}`,
+              config: {
+                status: newToggle,
+              },
+            })
+          );
+          break;
+
+        default:
+          break;
         }
       } else {
         Swal.fire({
@@ -75,6 +89,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
           timerProgressBar: true,
           toast: true,
         });
+
       }
     } catch (err) {
       Swal.fire({
@@ -101,7 +116,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
         checked={toggle.current == 1}
         title={toggle.current == 0 ? "Kích hoạt" : "Vô hiệu hóa"}
         onChange={id > 0 ? handleToggleStatus : undefined}
-        disabled={loading}
+        disabled={loading || !editable}
         style={{
           cursor: loading ? "not-allowed" : "pointer",
           opacity: loading ? 0.6 : 1,

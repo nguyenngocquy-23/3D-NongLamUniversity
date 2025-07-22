@@ -9,6 +9,7 @@ import {
 import { AppDispatch, RootState } from "../../redux/Store";
 import { IoSearch } from "react-icons/io5";
 import { TiFilter } from "react-icons/ti";
+import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
 
 const VisitorTours = () => {
   const navigate = useNavigate();
@@ -111,7 +112,9 @@ const VisitorTours = () => {
               key={node.id}
               className={styles.tour}
               onClick={() => handleDetail(node.id)}
-              style={{ background: `url(${node.url})` }}
+              style={{
+                background: `url(${transformUrlToThumbnailBig(node.url)})`,
+              }}
             >
               <div className={styles.blur} />
               <span className={styles.name}>{node.name}</span>

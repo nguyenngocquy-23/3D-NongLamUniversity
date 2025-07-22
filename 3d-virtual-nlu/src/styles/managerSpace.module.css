@@ -234,8 +234,38 @@
 .space_information_item {
   display: flex;
   align-items: center;
-  column-gap: 10px;
+  column-gap: 1rem;
   flex-wrap: wrap;
+}
+
+.space_information_item .label {
+  display: inline-block;
+  width: 100px;
+  margin-right: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.custom_select {
+  appearance: none;
+  /* ẩn mũi tên mặc định */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+
+  width: 200px;
+  padding: 5px 20px;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 15px;
+  outline: none;
+
+  background-image: url("/public/down.svg");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
 }
 
 .space_input_name_container {
@@ -265,8 +295,8 @@
   transition: all 0.3s ease;
 }
 
-.space_input_name_container input[type="text"]:focus~.underline,
-.space_input_name_container input[type="text"]:valid~.underline {
+.space_input_name_container input[type="text"]:focus ~ .underline,
+.space_input_name_container input[type="text"]:valid ~ .underline {
   transform: scaleX(1);
 }
 
@@ -303,6 +333,36 @@
   font-style: italic;
 }
 
+.description_label {
+  flex-grow: 1;
+}
+
+.description_content {
+  resize: none;
+  flex-grow: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  font-family: sans-serif;
+  font-style: italic;
+  color: #123315;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+  border: 1.5px solid #ccc;
+}
+
+.description_content:focus {
+  outline: none;
+}
+
+.description_count {
+  font-size: 0.8rem;
+  font-style: italic;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}
+
 .space_status_label {
   font-size: 0.8rem;
   font-style: italic;
@@ -314,8 +374,6 @@
 .space_node_list {
   font-weight: bold;
 }
-
-.space_navigation_list_space:hover {}
 
 .space_navigation_add_space {
   font-size: 0.8rem;
@@ -331,10 +389,10 @@
   align-items: center;
   padding: 0.5rem;
   justify-content: center;
-  position: absolute;
+  /* position: absolute;
   bottom: 2rem;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%); */
 }
 
 .space_footer .space_delete_change_btn {
@@ -383,7 +441,7 @@
   transition: all 0.3s;
 }
 
-.check_container input:checked~.checkmark {
+.check_container input:checked ~ .checkmark {
   background-color: var(--input-focus);
 }
 
@@ -400,7 +458,7 @@
   transform: rotate(45deg);
 }
 
-.check_container input:checked~.checkmark:after {
+.check_container input:checked ~ .checkmark:after {
   display: block;
 }
 
@@ -424,7 +482,7 @@
   font-size: 15px;
   outline: none;
 
-  background-image: url("/vite.svg");
+  background-image: url("/public/down.svg");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 12px;
@@ -462,7 +520,7 @@
 }
 
 .active {
-  background-color: #007bff;
+  background-color: #0e9013;
   color: white;
   font-weight: bold;
 }

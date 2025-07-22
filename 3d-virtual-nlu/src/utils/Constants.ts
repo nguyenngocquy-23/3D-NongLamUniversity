@@ -14,3 +14,16 @@ export const PICTURE_MAX_QUANTITY = 2; //Kích thước tối đa ảnh
 
 export const AROUND_MAP = 0.04;
 export const perPage = 10;
+
+export const MAX_DESCRIPTION = 300; //kích thước mô tả tối đa
+
+const statusMap: Record<number, string> = {
+  0: "Tạm ngưng",
+  1: "Hoạt động",
+  2: "Hoạt động",
+  3: "Chờ duyệt",
+};
+
+export const getStatusText = (status: number): string => {
+  return statusMap[status] ?? "Không xác định";
+};
