@@ -144,16 +144,6 @@ const VirtualAutoTour: React.FC = () => {
   };
 
   const toggleInformation = () => {
-    const divInfo = document.querySelector<HTMLElement>(`.${styles.info_box}`);
-    if (!divInfo) return;
-
-    if (isOpenInfo) {
-      divInfo.style.display = "none";
-      divInfo.style.bottom = "-100px";
-    } else {
-      divInfo.style.display = "block";
-      divInfo.style.bottom = "50px";
-    }
     setIsOpenInfo(!isOpenInfo);
   };
 
@@ -501,11 +491,16 @@ const VirtualAutoTour: React.FC = () => {
           ""
         )}
         {/* Hộp thông tin */}
-        <div className={styles.info_box} onClick={toggleInformation}>
-          {currentPanorama.description == ""
-            ? "Trống"
-            : currentPanorama.description}
-        </div>
+        {isOpenInfo && (
+          <div className={styles.info_box_container}>
+            <div className={styles.overlay} onClick={toggleInformation} />
+            <div className={styles.info_box}>
+              {currentPanorama.descriptionescription?.trim()
+                ? currentPanorama.description
+                : "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
+            </div>
+          </div>
+        )}
         {/* Hộp node */}
         {openNodeList && (
           <div

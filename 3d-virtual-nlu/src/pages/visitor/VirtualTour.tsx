@@ -251,16 +251,6 @@ const VirtualTour = () => {
   };
 
   const toggleInformation = () => {
-    const divInfo = document.querySelector<HTMLElement>(`.${styles.info_box}`);
-    if (!divInfo) return;
-
-    if (isOpenInfo) {
-      divInfo.style.display = "none";
-      divInfo.style.bottom = "-100px";
-    } else {
-      divInfo.style.display = "block";
-      divInfo.style.bottom = "50px";
-    }
     setIsOpenInfo(!isOpenInfo);
   };
   // Hàm bật/tắt âm thanh
@@ -735,7 +725,11 @@ const VirtualTour = () => {
         </button>
       )}
       {/* Hộp chat sửa wss */}
-      <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} setIsOpenChat={setIsOpenBox} />
+      <Chat
+        nodeId={nodeToRender.id}
+        setAccessing={setAccessing}
+        setIsOpenChat={setIsOpenBox}
+      />
       {/* Footer chứa các tính năng */}
       {isMobile ? (
         <>
@@ -772,10 +766,16 @@ const VirtualTour = () => {
         />
       )}
       {/* Hộp thông tin */}
-      <div className={styles.info_box} onClick={toggleInformation}>
-        {nodeToRender.description ??
-          "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
-      </div>
+      {isOpenInfo && (
+        <div className={styles.info_box_container}>
+          <div className={styles.overlay} onClick={toggleInformation}/>
+          <div className={styles.info_box}>
+            {nodeToRender.description?.trim()
+              ? nodeToRender.description
+              : "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
+          </div>
+        </div>
+      )}
       {isComment && user ? (
         <CommentBox
           userId={user.id}
