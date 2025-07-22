@@ -557,11 +557,11 @@ const CreateTourStep2 = () => {
             <span>{CREATE_TOUR_STEPS[currentStep - 1].name}</span>
           </div>
           <span className={styles.number_step}>{currentStep}</span>
-          <div className={styles.toggle_right_menu}>
-            <IoMdMenu
-              className={styles.show_menu}
-              onClick={() => handleOpenMenu()}
-            />
+          <div
+            className={styles.toggle_right_menu}
+            onClick={() => handleOpenMenu()}
+          >
+            <IoMdMenu className={styles.show_menu} />
           </div>
         </div>
 

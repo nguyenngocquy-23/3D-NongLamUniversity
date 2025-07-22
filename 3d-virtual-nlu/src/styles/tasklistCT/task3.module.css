@@ -79,6 +79,8 @@
 
 .label {
   display: flex;
+  width: 150px;
+  margin-right: 20px;
 }
 
 .label_container {
@@ -360,6 +362,7 @@
   justify-content: center;
   align-items: center;
 }
+
 .update_btn {
   padding: 0.5rem;
 }
@@ -382,6 +385,7 @@
   box-sizing: border-box;
   transition: all 150ms ease;
 }
+
 .color_icon_content input[type="color"]::-webkit-color-swatch {
   padding: 0;
   margin: 0;
@@ -395,6 +399,7 @@
   border-radius: 8px 0 0 8px;
   border: none;
 }
+
 .color_icon_content input[type="text"] {
   /* color: #524a4a; */
   box-sizing: border-box;
@@ -427,6 +432,7 @@
   align-items: center;
   position: relative;
 }
+
 .edit_icon_opacity {
   position: relative;
   width: 200px;
@@ -450,6 +456,7 @@
   background-color: transparent;
   z-index: 3;
 }
+
 .edit_icon_opacity input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -460,6 +467,7 @@
   border-radius: 50%;
   cursor: pointer;
 }
+
 .edit_icon_opacity progress {
   -webkit-appearance: none;
   appearance: none;
@@ -473,9 +481,11 @@
   transform: translate(5%, 50%);
   transition: background-color 0.3s ease;
 }
+
 .edit_icon_opacity progress::-webkit-progress-bar {
   background-color: #ffffff46;
 }
+
 .edit_icon_opacity progress::-webkit-progress-value {
   background-color: #000000;
 }
@@ -493,6 +503,7 @@
   align-items: center;
   gap: 1rem;
 }
+
 .color_picker {
   position: absolute;
   top: 0;
@@ -513,4 +524,52 @@
   border-left: 0;
   padding: 1em;
   letter-spacing: 1.5px;
+}
+
+.title_input,
+.model_description_input {
+  height: 4rem;
+}
+
+.title_input,
+.model_name_input,
+.model_description_input {
+  width: 55%;
+  border-radius: 10px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.model_name_input {
+  height: auto;
+}
+
+.custom_select {
+  appearance: none;
+  /* ẩn mũi tên mặc định */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+
+  width: 200px;
+  padding: 5px 20px;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 15px;
+  outline: none;
+
+  background-image: url("/public/down.svg");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+.row_config {
+  display: flex;
+  margin-bottom: 10px;
 }

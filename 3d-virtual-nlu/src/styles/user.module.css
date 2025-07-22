@@ -151,6 +151,7 @@
     cursor: default;
     transform: none;
 }
+
 .active {
     background-color: black;
     color: white;
@@ -186,6 +187,17 @@
     box-shadow: inset 0 0 1px #3a47d5;
 }
 
+.icon_item.selected:hover {
+    cursor: default;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.icon_item.selected {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    transform: translateY(-5px);
+    cursor: pointer;
+}
+
 .icon_item:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     transform: translateY(-5px);
@@ -203,9 +215,29 @@
     border: 1px solid #ddd;
     box-shadow: 2px 1px 5px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
+    position: relative;
+}
+
+.icon_status {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: red;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.status_active {
+    background-color: #16eb48;
 }
 
 .icon_info {
+    width: 90%;
+    padding: 0 5px;
+}
+
+.icon_info h3 {
     color: black;
     text-align: center;
     font-size: 12px;
@@ -213,8 +245,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 90%;
-    padding: 0 5px;
+    display: block;
 }
 
 .icon_image {
@@ -228,6 +259,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.add_icon:focus {
+    outline: none;
 }
 
 .add_icon {
@@ -397,7 +432,7 @@
     padding: 0.5rem;
     justify-content: center;
     position: absolute;
-    bottom: 2rem;
+    bottom: 1rem;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -472,4 +507,38 @@
 .icon_choose_master {
     display: flex;
     gap: 10px;
+}
+
+.upload_icon_card{
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.cant_handle{
+    cursor: not-allowed;
+    background-color: #ccc !important;
+    pointer-events: none;
+}
+
+.custom_select {
+    appearance: none;
+    /* ẩn mũi tên mặc định */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+
+    width: 100px;
+    padding: 5px 20px;
+    color: black;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    font-size: 15px;
+    outline: none;
+
+    background-image: url("/public/down.svg");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
 }

@@ -124,7 +124,9 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const spaceItem = spaces.find((s) => s.id === Number(spaceId));
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
-  const masterPanorama = panoramaList.find((h) => h.config.status === 2);
+  const masterPanorama = panoramaList.find(
+    (h) => h.config.status == 2 || h.config.status == 3
+  );
 
   /**
    * Là danh sách các hostpot navigation từ Master Node.
@@ -496,7 +498,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
                       <TiTick className={styles.node_tick} />
                     </div>
                   )}
-                  {item.config.status === 2 ? (
+                  {[2, 3].includes(item.config.status) ? (
                     currentTour ? (
                       item.id !== currentTour ? (
                         <div className={styles.master_node_icon_container}>
@@ -662,7 +664,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
                         >
                           <MdClear />
                         </span>
-                        {item.config.status === 2 && (
+                        {[2, 3].includes(item.config.status) && (
                           <span className={styles.master_panorama_item}>
                             <GiQueenCrown />
                           </span>

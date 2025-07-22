@@ -20,11 +20,11 @@ import SoundUpload from "./SoundUpload";
  */
 const ConfigAutoTour = ({
   setOpenConfigTour,
-  propHotspot,
+  soundBackgroundProp,
 }: // onPropsChange,
 {
   setOpenConfigTour: (open: boolean) => void;
-  propHotspot?: any;
+  soundBackgroundProp?: string;
   // onPropsChange: (value: any) => void;
 }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -48,7 +48,14 @@ const ConfigAutoTour = ({
   const [duration, setDuration] = useState<number>(
     currentPanorama?.duration ?? 0
   );
-  const [soundBackground, setSoundBackground] = useState<string | null>(currentPanorama?.soundBackground || "");
+  const [soundBackground, setSoundBackground] = useState<string | null>(
+    currentPanorama?.soundBackground || ""
+  );
+
+
+  useEffect(() => {
+    setSoundBackground(soundBackgroundProp || "");
+  },[soundBackgroundProp])
 
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] =
@@ -119,27 +126,29 @@ const ConfigAutoTour = ({
           />
         </div>
       </div>
-      <div className={styles.config_item}>
-        <div className={styles.input_group}>
-          <label className={styles.label}>Nhạc nền:</label>
-          <SoundUpload setSoundBackground={setSoundBackground}/>
-          <label className={styles.label}>Giọng nói:</label>
-          <select
-            className={styles.custom_select}
-            onChange={(e) => {
-              const voice = voices.find((v) => v.name === e.target.value);
-              setSelectedVoice(voice || null);
-            }}
-          >
-            <option value="">-- Chọn giọng đọc --</option>
-            {voices.map((voice, index) => (
-              <option key={index} value={voice.name}>
-                {voice.name} ({voice.lang})
-              </option>
-            ))}
-          </select>
+      {currentPanorama == autoPanoramaList[0] && (
+        <div className={styles.config_item}>
+          <div className={styles.input_group}>
+            <label className={styles.label}>Nhạc nền:</label>
+            <SoundUpload soundBackground={soundBackground || ""} setSoundBackground={setSoundBackground} />
+            <label className={styles.label}>Giọng nói:</label>
+            <select
+              className={styles.custom_select}
+              onChange={(e) => {
+                const voice = voices.find((v) => v.name === e.target.value);
+                setSelectedVoice(voice || null);
+              }}
+            >
+              <option value="">-- Chọn giọng đọc --</option>
+              {voices.map((voice, index) => (
+                <option key={index} value={voice.name}>
+                  {voice.name} ({voice.lang})
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

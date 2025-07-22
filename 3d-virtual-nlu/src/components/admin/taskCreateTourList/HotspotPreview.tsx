@@ -1,5 +1,5 @@
-import { OrbitControls, useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
+import { useLoader } from "@react-three/fiber";
 import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 import { DoubleSide } from "three";
@@ -40,11 +40,6 @@ const HotspotPreview = ({
       );
     }
   }, [pitchX, yawY, rollZ]);
-  // useFrame(() => {
-  //   if (typeIcon === 2 && groupRef.current) {
-  //     groupRef.current.rotation.y += 0.01;
-  //   }
-  // });
 
   //CASE 1: 2D ICON - SVG
   useEffect(() => {
@@ -83,51 +78,53 @@ const HotspotPreview = ({
         console.error("Error loading or processing SVG:", err);
       }
     };
-    console.log("[HotspotPreview: " + iconUrl);
     loadAndModifySVG();
   }, [iconUrl, color]);
 
-  //CASE 2: 3D ICON -GLB
-  const iconGlb = typeIcon === 2 && iconUrl ? useGLTF(iconUrl) : null;
-
   if (typeIcon === 1 && !texture) return null;
-  if (!texture) return null;
+
   return (
-    <group ref={groupRef} position={[0, 0, 0]} scale={scale}>
-      {allowBackgroundColor ? (
-        <mesh position={[0, 0, -0.01]}>
-          <circleGeometry args={[5, 100]} />
-          <meshBasicMaterial
-            color={new THREE.Color(backgroundColor)}
-            side={DoubleSide}
-            opacity={opacity}
-          />
-        </mesh>
+    <>
+      {typeIcon === 1 ? (
+        <group ref={groupRef} position={[0, 0, 0]} scale={scale}>
+          {allowBackgroundColor ? (
+            <mesh position={[0, 0, -0.01]}>
+              <circleGeometry args={[5, 100]} />
+              <meshBasicMaterial
+                color={new THREE.Color(backgroundColor)}
+                side={DoubleSide}
+                opacity={opacity}
+              />
+            </mesh>
+          ) : (
+            ""
+          )}
+
+          <mesh position={[0, 0, 0]}>
+            <planeGeometry args={[5, 5]} />
+            <meshBasicMaterial
+              map={texture}
+              color={new THREE.Color(color)}
+              transparent
+              side={DoubleSide}
+              opacity={opacity}
+            />
+          </mesh>
+        </group>
       ) : (
-        ""
-      )}
-
-      {typeIcon === 1 && (
-        <mesh position={[0, 0, 0]}>
-          <planeGeometry args={[5, 5]} />
-          <meshBasicMaterial
-            map={texture}
-            color={new THREE.Color(color)}
-            transparent
-            side={DoubleSide}
-            opacity={opacity}
+        <Html>
+          <div
+            style={{
+              width: 50,
+              height: 50,
+              transform: "translate(-50%, -50%)",
+              background: `url(${iconUrl}) no-repeat center/cover`,
+              zIndex: 1,
+            }}
           />
-        </mesh>
+        </Html>
       )}
-
-      {typeIcon === 2 && iconGlb && (
-        <>
-          <primitive object={iconGlb.scene} scale={scale} />
-          <ambientLight color={"#fff"} intensity={4} />
-          <directionalLight position={[10, 10, 10]} intensity={1} />
-        </>
-      )}
-    </group>
+    </>
   );
 };
 

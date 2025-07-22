@@ -13,6 +13,7 @@ public class DashboardResponse {
     int numFreeAccess;
     int numRegister;
     int numTour;
+    int numAutoTour;
     int numComment;
     int numTourWaitingApprovel;
     int numReport;

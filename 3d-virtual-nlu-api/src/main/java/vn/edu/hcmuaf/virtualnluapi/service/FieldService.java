@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.FieldDao;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.ChangeNameRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
@@ -44,7 +45,7 @@ public class FieldService {
     public boolean changeStatusField(StatusRequest req) {
         return fieldDao.changeStatusField(req);
     }
-    public boolean changeNameField(FieldCreateRequest req) {
+    public boolean changeNameField(ChangeNameRequest req) {
         return fieldDao.changeNameField(req);
     }
 

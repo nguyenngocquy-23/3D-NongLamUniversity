@@ -153,21 +153,26 @@ const GroundHotspotModel = ({
     }
   });
 
-  const scaleRef = useRef(1);
-  useFrame((_, delta) => {
+  const scaleRef = useRef(hotspotModel.scale);
+  // animation
+  useFrame((state) => {
     if (!hotspotRef.current || isHovered) return;
 
-    // Tăng scale đều
-    scaleRef.current += delta * 1;
-    if (scaleRef.current > 2) {
-      scaleRef.current = 1; // Reset sau khi lan rộng
-    }
+    const time = state.clock.getElapsedTime();
 
-    const s = scaleRef.current;
+    // Dao động scale: từ baseScale - amplitude → baseScale + amplitude
+    const baseScale = hotspotModel.scale ?? 1;
+    const amplitude = 0.2;
+    const opacityRange = [0.3, 1];
+
+    const s = baseScale + amplitude * Math.sin(time * 2);
     hotspotRef.current.scale.set(s, s, s);
 
-    // Làm mờ dần khi lan rộng
-    const opacity = 1 - (s - 1) / 2;
+    // Tính độ lệch so với baseScale (0 khi đúng base, max = amplitude)
+    const deviation = Math.abs(s - baseScale);
+    const t = deviation / amplitude; // Tỉ lệ lệch (0 → 1)
+
+    const opacity = opacityRange[1] - t * (opacityRange[1] - opacityRange[0]);
     (hotspotRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
   });
 

@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import styles from "../../styles/soundUpload.module.css";
 
 function SoundUpload({
+  soundBackground,
   setSoundBackground,
 }: {
+  soundBackground?: string;
   setSoundBackground: (sound: string) => void;
 }) {
   const [audioFile, setAudioFile] = useState<File | null>(null);
@@ -47,9 +49,9 @@ function SoundUpload({
         onChange={handleFileChange}
         className={styles.input_file}
       />
-      {audioFile && (
+      {(audioFile || soundBackground) && (
         <div className="mt-2">
-          <audio controls src={audioURL || ""} />
+          <audio controls src={audioURL || soundBackground || ""} />
         </div>
       )}
     </div>

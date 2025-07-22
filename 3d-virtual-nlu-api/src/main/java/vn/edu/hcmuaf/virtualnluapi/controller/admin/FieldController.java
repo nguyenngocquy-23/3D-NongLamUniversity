@@ -6,10 +6,7 @@ import jakarta.ws.rs.core.MediaType;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SearchRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
@@ -94,7 +91,7 @@ public class FieldController {
     @POST
     @Path("/changeName")
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<Boolean> changeNameField(FieldCreateRequest req) {
+    public ApiResponse<Boolean> changeNameField(ChangeNameRequest req) {
         try {
             boolean result = fieldService.changeNameField(req);
             return ApiResponse.<Boolean>builder()

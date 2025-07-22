@@ -89,9 +89,6 @@ const BoardUploader = () => {
             ))}
           </select>
         </div>
-        {/* 
-          Custom Form Upload file.
-      */}
         <div className={styles.panosCard}>
           <UploadFile className={"upload_panos"} />
         </div>

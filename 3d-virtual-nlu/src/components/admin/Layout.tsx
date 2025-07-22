@@ -9,6 +9,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
 import {
+  fetchAutoNode,
   fetchContacts,
   fetchDashboard,
   fetchFields,
@@ -20,6 +21,7 @@ import {
 import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 import Sidebar from "./Sidebar";
 import { perPage } from "../../utils/Constants";
+import { resetStep } from "../../redux/slices/StepSlice";
 
 const Layout = () => {
   const currentUserJson = sessionStorage.getItem("user");
@@ -39,6 +41,7 @@ const Layout = () => {
       navigate("/unauthorized");
       return;
     }
+    dispatch(resetStep());
   }, []);
 
   useEffect(() => {
@@ -49,6 +52,7 @@ const Layout = () => {
     dispatch(fetchNodes());
     dispatch(fetchIcons());
     dispatch(fetchContacts());
+    dispatch(fetchAutoNode({ limit: perPage, page: 0 }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -57,11 +61,6 @@ const Layout = () => {
       scheduleTokenRefresh(token, dispatch);
     }
   }, []);
-
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    navigate("/login");
-  };
 
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(true);

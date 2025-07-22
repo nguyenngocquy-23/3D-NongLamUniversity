@@ -46,7 +46,6 @@ const Chat = ({
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log(`Connected to node ${nodeId} as user ${user?.id}`);
       loadMessages(0);
     };
 

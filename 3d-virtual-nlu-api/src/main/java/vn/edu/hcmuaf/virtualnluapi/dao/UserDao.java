@@ -33,10 +33,9 @@ public class UserDao {
     }
 
     public User findById(int id) {
-        Optional<User> user = ConnectionPool.getConnection().withHandle(handle ->
+        return ConnectionPool.getConnection().withHandle(handle ->
                 handle.createQuery("select * from users where id = ?")
-                        .bind(0, id).mapToBean(User.class).stream().findFirst());
-        return user.orElse(null);
+                        .bind(0, id).mapToBean(User.class).one());
     }
 
     public boolean insert(User user) {

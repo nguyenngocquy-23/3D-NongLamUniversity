@@ -107,12 +107,13 @@
   }
 }
 
-.feed_back_button:focus{
+.feedback_button:focus{
   outline: none;
   border: none;
 }
-.feed_back_button{
+.feedback_button{
   background-color: transparent;
+  color: white;
 }
 .form_overlay {
   position: fixed;

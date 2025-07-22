@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class IconResponse {
     int id;
-    String name, url;
-    boolean active;
+    String name, code, url;
+    int isActive;
     int type;
     String thumbnail;
     Timestamp createdAt;

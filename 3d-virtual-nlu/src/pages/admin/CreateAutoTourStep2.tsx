@@ -31,41 +31,69 @@ import {
 import GroundHotspot from "../../components/visitor/GroundHotspot";
 import VideoMeshComponent from "../../components/admin/VideoMesh";
 import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
-import { nextStep, prevStep } from "../../redux/slices/StepSlice";
+import {
+  goToStep,
+  nextStep,
+  prevStep,
+  resetStep,
+} from "../../redux/slices/StepSlice";
 import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import CamControls from "../../components/visitor/CamControls";
 import ConfigAutoTour from "../../components/admin/ConfigAutoTour";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { API_URLS } from "../../env";
+import {
+  ApiResponse,
+  CloudinaryUploadResp,
+} from "../../components/admin/UploadFile";
+import Waiting from "../../components/Waiting";
 
 const CreateAutoTourStep2 = () => {
-  /**
-   * Xử lý toggle hiển thị menu - start
-   */
-
+  const navigate = useNavigate();
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const cameraRadarRef = useRef<number>(null);
-  const controlsRef = useRef<any>(null); //OrbitControls
+  const controlsRef = useRef<any>(null);
 
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
   const [currentPoints, setCurrentPoints] = useState<
     [number, number, number][]
   >([]);
-  const [assignable, setAssignable] = useState(false);
-  const [validIcon, setValidIcon] = useState(true);
   const [openConfigTour, setOpenConfigTour] = useState(false);
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
   >(null);
 
-  const [soundBackground, setSoundBackground] = useState("");
+  const { tourId } = useParams();
+  const [isUpdate, setIsUpdate] = useState(false);
+  useEffect(() => {
+    if (tourId) {
+      setIsUpdate(true);
+      dispatch(goToStep(2));
+    }
+  }, [tourId]);
+  const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
 
-  const handleOpenMenu = () => {
-    setIsMenuVisible((preState) => !preState);
-  };
+  // const [autoNode, setAutoNode] = useState(null);
+  const [autoNode, setAutoNode] = useState<any>(
+    autoNodes.find((node) => node.id === tourId)
+  );
+
+  useEffect(() => {
+    if (tourId && autoNodes.length > 0) {
+      const foundNode = autoNodes.find((node) => node.id == tourId);
+      setAutoNode(foundNode);
+    }
+  }, [tourId, autoNodes]);
+
+  useEffect(() => {
+    if (autoNode) setStatus(autoNode?.status);
+  }, [autoNode]);
+
+  const [status, setStatus] = useState(autoNode?.status); // State để điều khiển cursor
 
   const handleMouseDown = () => {
     setCursor("grabbing"); // Khi nhấn chuột, đổi cursor thành grabbing
@@ -78,8 +106,6 @@ const CreateAutoTourStep2 = () => {
   /**
    * Khởi tạo sphereRef: sphere ban đầu của hình cầu.
    */
-
-  const [currentHotspotType, setCurrentHotspotType] = useState(1);
 
   // ========= REDUX ================
 
@@ -100,7 +126,6 @@ const CreateAutoTourStep2 = () => {
       (hotspot): hotspot is HotspotModel => hotspot.type === 4
     )
   );
-
   const hotspotMedias = useSelector((state: RootState) =>
     state.hotspots.hotspotList.filter(
       (hotspot): hotspot is HotspotMedia => hotspot.type === 3
@@ -112,10 +137,6 @@ const CreateAutoTourStep2 = () => {
   );
   const currentPanorama = autoPanoramaList.find(
     (pano) => pano.id === currentSelectId
-  );
-
-  const hotspotPosition = useSelector(
-    (state: RootState) => state.hotspots.hotspotPositions
   );
 
   const handleSelectNode = (id: string) => {
@@ -163,7 +184,6 @@ const CreateAutoTourStep2 = () => {
    * dùng để nhận giá trị trả về từ OptionHotspot.tsx để update cho đúng hotspot
    */
   const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
-
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
 
   /**
@@ -185,87 +205,148 @@ const CreateAutoTourStep2 = () => {
 
     const [x, y, z] = hotspotTargetPosition;
 
-    lookAtHotspot([x, y, z]);
     // === Bước 2: Zoom vào
     handleSelectNode(targetNodeId);
-
-    gsap.to(camera, {
-      fov: zoomTarget,
-      duration: 1.0,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        camera.updateProjectionMatrix();
-      },
-      onComplete: () => {
-        gsap.to(camera, {
-          fov: originalFov,
-          duration: 0.2,
-          delay: 0.1,
-          ease: "power2.inOut",
-          onUpdate: () => {
-            camera.updateProjectionMatrix();
-          },
-          onComplete: () => {
-            camera.updateProjectionMatrix();
-            control.update(); // đảm bảo OrbitControls cập nhật
-          },
-        });
-      },
-    });
-  };
-
-  const lookAtHotspot = (hotspotTargetPosition: [number, number, number]) => {
-    if (!cameraRef.current || !controlsRef.current) return;
-
-    const controls = controlsRef.current;
-
-    /**
-     * Toạ độ hoá vector (Dùng cho việc chỉ hướng) cho 2 điểm hotspot target và center
-     * + Lưu ý: hotspot target sẽ nằm dưới mặt đất -> ta cần lấy ngang tầm mắt tức là y =0.
-     */
-    const hotspotVec = new THREE.Vector3(
-      hotspotTargetPosition[0],
-      0,
-      hotspotTargetPosition[2]
-    );
-    const center = new THREE.Vector3(0, 0, 0);
-
-    const dir = hotspotVec.clone().sub(center); // Vector hướng từ tâm -> hotspot
-
-    const spherical = new THREE.Spherical();
-    spherical.setFromVector3(dir);
-
-    // PHI : Góc xoay theo mặt phẳng XZ / THETA: Góc xoay theo trục Y
-    controls.setAzimuthalAngle(spherical.theta + Math.PI); // quay 180 độ
-    controls.setPolarAngle(Math.PI - spherical.phi); // góc xoay dọc
-
-    controls.update();
-  };
-
-  const handleBackStep2 = () => {
-    Swal.fire({
-      icon: "question",
-      title: "Bạn có chắc chắn muốn quay lại bước trước?",
-      text: "Các thay đổi chưa được lưu lại.",
-      showCancelButton: true,
-      confirmButtonText: "Quay lại",
-      cancelButtonText: "Hủy",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        dispatch(clearPanorama());
-        dispatch(clearHotspot());
-        dispatch(prevStep());
-      }
-    });
   };
 
   const [cameraAngle, setCameraAngle] = useState(0);
 
   const [isTextureReady, setIsTextureReady] = useState(false);
 
+  const uploadToCloud = async (soundUrl: string) => {
+    const formData = new FormData();
+    formData.append("file", soundUrl);
+    const response = await axios.post<ApiResponse<CloudinaryUploadResp>>(
+      API_URLS.UPLOAD_CLOUD,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return response.data.data.url || "";
+  };
+
+  const handleUpdateAutoTour = async () => {
+    const tourName = `${autoPanoramaList[0]?.name || ""} - ${
+      autoPanoramaList[autoPanoramaList.length - 1]?.name || ""
+    }`;
+
+    // Tạo mảng indexNode
+    const indexNodeArray = autoPanoramaList.map((p: any) => ({
+      nodeId: p.id,
+      duration: p.duration,
+    }));
+
+    // Chuyển thành chuỗi JSON
+    const indexNode = JSON.stringify(indexNodeArray);
+
+    if (autoPanoramaList.length === 0) {
+      alert("spaceId bị null hay panorama không chứa giá trị..");
+      return;
+    }
+
+    const soundUrl = await uploadToCloud(autoPanoramaList[0].soundBackground);
+
+    try {
+      const response = await axios.post(API_URLS.ADMIN_UPDATE_AUTO_TOUR, {
+        autoTourId: tourId,
+        name: tourName,
+        indexNode: indexNode,
+        status: status,
+        soundBackground: soundUrl,
+      });
+      if (response.data?.statusCode === 1000) {
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Cập nhật thành công",
+        }).then(() => {
+          navigate(-1);
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Thất bại",
+          text:
+            "Xuất bản thất bại: " +
+            (response.data?.message || "Không rõ lý do"),
+        });
+      }
+    } catch (error) {
+      console.log("Lỗi khi xuất bản: ", error);
+    }
+  };
+
+  const [isWaiting, setIsWaiting] = useState(true);
+  const [percent, setPercent] = useState(0);
+  const [isLoadingDone, setIsLoadingDone] = useState(false);
+
+  useEffect(() => {
+    if (
+      !hotspotModels ||
+      !hotspotMedias ||
+      !hotspotNavigations ||
+      !hotspotInfos
+    ) {
+      setIsLoadingDone(false);
+      return;
+    } else {
+      setIsLoadingDone(true);
+    }
+  }, [hotspotModels, hotspotMedias, hotspotNavigations, hotspotInfos]);
+
+  useEffect(() => {
+    let progress = 0;
+
+    const interval = setInterval(() => {
+      if (!isLoadingDone) {
+        // Loading giả lập, chỉ cho đến 90%
+        if (progress < 90) {
+          progress += Math.random() * 5; // tăng chậm lại để mượt
+          if (progress > 90) progress = 90;
+          setPercent(Math.floor(progress));
+        }
+      } else {
+        // Task thật xong, tăng nốt phần còn lại đến 100%
+        if (progress < 100) {
+          progress += Math.random() * 10;
+          if (progress > 100) progress = 100;
+          setPercent(Math.floor(progress));
+        }
+
+        // Nếu đã 100% thì clear interval
+        if (progress >= 100) {
+          clearInterval(interval);
+          requestAnimationFrame(() => {
+            setTimeout(() => setIsWaiting(false), 500);
+          });
+        }
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [isLoadingDone]);
+
+  const handleBackStep2 = () => {
+    Swal.fire({
+      icon: "question",
+      title: "Bạn có chắc chắn muốn quay lại bước trước?",
+      text: "Các thay đổi có thể chưa được lưu.",
+      showCancelButton: true,
+      confirmButtonText: "Quay lại",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate(-1);
+        dispatch(resetStep());
+      }
+    });
+  };
+
   return (
     <>
-      <div className={styles.previewTour}>
+      <div
+        className={styles.previewTour}
+        style={{ position: `${isUpdate ? "fixed" : "relative"}` }}
+      >
         <Canvas
           camera={{
             fov: 75,
@@ -370,13 +451,13 @@ const CreateAutoTourStep2 = () => {
             <FaAngleLeft
               className={styles.back_btn}
               onClick={() => {
-                handleBackStep2();
+                isUpdate ? handleBackStep2() : dispatch(resetStep());
               }}
             />
             <span>{CREATE_TOUR_STEPS[currentStep - 1].name}</span>
           </div>
           <span className={styles.number_step}>{currentStep}</span>
-          <div className={styles.toggleRightMenu}>
+          <div className={styles.toggle_next_step_3}>
             <button
               style={{
                 marginRight: "1rem",
@@ -384,12 +465,30 @@ const CreateAutoTourStep2 = () => {
                 padding: "0.5rem 1rem",
               }}
               onClick={() => {
-                dispatch(nextStep());
+                isUpdate ? handleUpdateAutoTour() : dispatch(nextStep());
               }}
             >
-              Tiếp tục
+              {isUpdate ? "Cập nhật" : "Tiếp tục"}
             </button>
           </div>
+          {isUpdate && (
+            <div className={styles.toggle_status}>
+              <span>Trạng thái: </span>
+              <button
+                style={{
+                  marginRight: "1rem",
+                  textAlign: "center",
+                  padding: "0.5rem 1rem",
+                  backgroundColor: status == 0 ? "#f00" : "#0f0",
+                }}
+                onClick={() => {
+                  setStatus(status === 1 ? 0 : 1);
+                }}
+              >
+                {status == 0 ? "Tạm ngưng" : "Hoạt động"}
+              </button>
+            </div>
+          )}
         </div>
         {/* Hộp node */}
         <div className={styles.node_list}>
@@ -414,14 +513,20 @@ const CreateAutoTourStep2 = () => {
           ))}
         </div>
         {/* Hướng dẫn sử dụng */}
-        <button className={styles.guide_button} title="Hướng dẫn">
-          <FaBook />
-        </button>
+        {!isUpdate && (
+          <button className={styles.guide_button} title="Hướng dẫn">
+            <FaBook />
+          </button>
+        )}
         {openConfigTour && (
           <div className={styles.config_tour}>
-            <ConfigAutoTour setOpenConfigTour={setOpenConfigTour} />
+            <ConfigAutoTour
+              setOpenConfigTour={setOpenConfigTour}
+              soundBackgroundProp={autoNode?.soundBackground}
+            />
           </div>
         )}
+        {isWaiting ? <Waiting percent={percent} /> : ""}
       </div>
     </>
   );
