@@ -14,36 +14,50 @@
   flex-direction: column;
 }
 
-.left_menu .searchBox {
-  margin-top: 10px;
+.search_box {
+  font-size: 50px;
+  font-weight: 800;
+  display: flex;
+}
+
+.search_box .input_seach::placeholder {
+  color: black;
+}
+
+.search_box .input_seach::focus {
+  outline: none;
+  border: none;
+}
+
+.search_box .input_seach {
+  cursor: text;
+  padding: 0px 12px;
+  height: 30px;
+  border-radius: 20px;
+  background-color: white;
+  color: black;
+  border: none;
+  font-size: 15px;
+  flex: 1 1;
+}
+
+.label {
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-right: 10px;
 }
 
-.header .input_seach::placeholder {
-  color: white;
-  opacity: 0.7;
-}
-.header .input_seach {
-  padding: 5px;
-  font-size: 15px;
-  width: 80%;
-  outline: none;
+.search_icon {
+  font-size: 18px;
+  font-weight: 900;
+  color: black;
 }
 
-.header .searchBtn {
-  font-size: 20px;
-  margin-left: 10px;
-  transition: transform 0.3s ease;
-}
-
-.header .searchBtn:hover {
-  cursor: pointer;
-  opacity: 0.7;
-  transform: scale(1.2);
-  color: rgba(0, 0, 0, 0.5);
-}
 
 .pin_header {
   position: absolute;
@@ -70,25 +84,25 @@
 
 
 .master_container::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  width: 8px;
+  height: 8px;
 }
 
 /* Track – nền sau */
 .master_container::-webkit-scrollbar-track {
-    background-color: white;
+  background-color: white;
 }
 
 /* Thumb – phần trượt */
 .master_container::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00fff0 0%, #00d2ff 50%, #007cf0 100%);
-    border-radius: 15px;
+  background: linear-gradient(180deg, #00fff0 0%, #00d2ff 50%, #007cf0 100%);
+  border-radius: 15px;
 }
 
 /* Hover – đổi màu nhẹ */
 .master_container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #00d2ff, #3a47d5);
-    box-shadow: inset 0 0 1px #3a47d5;
+  background: linear-gradient(180deg, #00d2ff, #3a47d5);
+  box-shadow: inset 0 0 1px #3a47d5;
 }
 
 .left_menu .node {
@@ -136,7 +150,7 @@
   max-width: 80%;
 }
 
-.visited{
+.visited {
   position: absolute;
   top: 1rem;
   right: 1rem;

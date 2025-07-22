@@ -12,6 +12,10 @@ import { transformUrlToThumbnail } from "../../utils/getCloudinaryURL";
 import { GoPin } from "react-icons/go";
 import { BiPin, BiSolidPin } from "react-icons/bi";
 import { FaCheck } from "react-icons/fa6";
+import { IoSearch } from "react-icons/io5";
+import { useDebounce } from "../../hooks/useDebounce";
+import { API_URLS } from "../../env";
+import axios from "axios";
 
 interface LeftMenuProps {
   imageRef: React.RefObject<
@@ -37,10 +41,8 @@ const LeftMenuTour = ({
     (state: RootState) => state.data.masterNodes
   );
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const filteredNodes = listMasterNode.filter((node) =>
-    node.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
 
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -48,8 +50,30 @@ const LeftMenuTour = ({
 
   const limit = 7;
 
+  const [nodeList, setNodeList] = useState<any[]>(listMasterNode || []);
+
   const scrollRef = useRef<HTMLUListElement>(null);
   const scrollPositionRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (search === "") {
+      setNodeList(listMasterNode);
+    }
+  }, [search]);
+
+  useEffect(() => {
+    const handleSearch = async () => {
+      if (!debouncedSearch) return;
+      const response = await axios.post(
+        API_URLS.SEARCH_NODES,
+        {
+          searchKey: debouncedSearch,
+        }
+      );
+      setNodeList(response.data.data);
+    };
+    handleSearch();
+  }, [debouncedSearch]);
 
   const loadNodes = async () => {
     console.log("Loading nodes for page:", page, loading, hasMore);
@@ -71,10 +95,7 @@ const LeftMenuTour = ({
   }, [isMenuVisible]);
 
   useEffect(() => {
-    // if (isMenuVisible) {
-    console.log("Fetching nodes for page:", page);
     loadNodes();
-    // }
   }, [page]);
 
   const handleScroll = () => {
@@ -110,13 +131,15 @@ const LeftMenuTour = ({
       <div className={styles.header}>
         <h2>NLU Tour</h2>
         <div className={styles.search_box}>
+          <label htmlFor="input" className={styles.label}>
+            <IoSearch className={styles.search_icon} />
+          </label>
           <input
             type="text"
             className={styles.input_seach}
             placeholder="Tên không gian.."
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
-          <FaSearch className={styles.searchBtn} />
         </div>
 
         <div
@@ -131,7 +154,7 @@ const LeftMenuTour = ({
         onScroll={handleScroll}
         className={styles.master_container}
       >
-        {filteredNodes.map((node) => {
+        {nodeList.map((node) => {
           const imgUrl = transformUrlToThumbnail(node.url);
 
           return (

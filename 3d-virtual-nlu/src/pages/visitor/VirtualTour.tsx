@@ -349,7 +349,7 @@ const VirtualTour = () => {
     if (isMenuPin) return;
     const mouse = event.clientX;
 
-    const threshold = 200;
+    const threshold = 300;
 
     if (mouse > threshold) {
       setIsMenuVisible(false);
@@ -698,7 +698,7 @@ const VirtualTour = () => {
         imageVersion={imageVersion}
       />
       <div className={styles.header_tour}>
-        <h2>NLU360</h2>
+        <h2>{nodeToRender.name}</h2>
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
       {fullMap || hoverMap || !isMenuVisible ? (
