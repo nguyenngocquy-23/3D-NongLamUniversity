@@ -15,7 +15,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    background-color: #1e84e4;
+    /* background-color: #1e84e4; */
+    background-color: #1e84e441;
     border-top-right-radius: 20px;
     border-top-left-radius: 20px;
     padding: 20px;
@@ -70,9 +71,9 @@
 
 .chatBox {
     position: absolute;
-    right: 10px;
+    right: 0;
     bottom: -3%;
-    background-color: white;
+    /* background-color: white; */
     width: 300px;
     max-height: 0;
     height: 500px;
@@ -98,6 +99,7 @@
     color: #1e84e4;
     overflow-y: auto;
     pointer-events: auto;
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .message {
@@ -166,23 +168,26 @@
 }
 
 .sendChatBtn:hover {
-    opacity: 0.8;
+    color: #0a59a3;
 }
 
 .sendChatBtn.show {
+    opacity: 1;
     background-color: #1e84e4;
+    pointer-events: auto;
 }
 
 .sendChatBtn {
     padding: 10px;
     position: absolute;
-    bottom: 10px;
+    bottom: 5px;
     right: 10px;
     background: none;
-    margin-top: -10px;
     outline: none !important;
     border: none;
     transition: all .3s ease-in;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .login_button {

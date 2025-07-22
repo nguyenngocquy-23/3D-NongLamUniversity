@@ -69,7 +69,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
             updatePanoConfig({
               id: `${id}`,
               config: {
-                status: newToggle,
+                status: toggle.current,
               },
             })
           );
@@ -116,7 +116,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
         checked={toggle.current == 1}
         title={toggle.current == 0 ? "Kích hoạt" : "Vô hiệu hóa"}
         onChange={id > 0 ? handleToggleStatus : undefined}
-        disabled={loading || !editable}
+        disabled={loading}
         style={{
           cursor: loading ? "not-allowed" : "pointer",
           opacity: loading ? 0.6 : 1,

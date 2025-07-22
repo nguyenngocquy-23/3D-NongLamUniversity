@@ -527,6 +527,7 @@ public class NodeDao {
         String sql = """
                 SELECT at.id, at.name, at.indexNode, at.soundBackground , at.status, at.updatedAt
                 FROM auto_tours at
+                WHERE status = 1
                 ORDER BY at.updatedAt DESC
                 LIMIT :limit OFFSET :offset
                 """;

@@ -65,7 +65,7 @@ const Field = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(-1);
 
   const [totalField, setTotalField] = useState(0);
   const totalPages = Math.ceil(totalField / perPage);
@@ -115,7 +115,7 @@ const Field = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
-      if(currentPage === 0) return;
+      if (currentPage === -1) return;
       const response = await axios.post(API_URLS.ADMIN_GET_FIELDS_BY_PAGE, {
         page: currentPage,
         limit: perPage,
@@ -300,7 +300,9 @@ const Field = () => {
                   <button
                     key={index}
                     className={`${stylesPagination.page_btn} ${
-                      currentPage === index ? stylesPagination.active : ""
+                      currentPage === index || (index == 0 && currentPage == -1)
+                        ? stylesPagination.active
+                        : ""
                     }`}
                     onClick={() => setCurrentPage(index)}
                   >

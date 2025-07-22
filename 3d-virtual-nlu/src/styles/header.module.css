@@ -111,7 +111,7 @@
 .dropdownMenu {
   position: absolute;
   top: 30px;
-  right: -1rem;
+  /* right: -1rem; */
   display: flex;
   flex-direction: column;
   gap: 10px;

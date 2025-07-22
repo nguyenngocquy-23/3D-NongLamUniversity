@@ -55,7 +55,7 @@ const ManagerTour = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(-1);
 
   const [totalNode, setTotalNode] = useState(0);
   const totalPages = Math.ceil(totalNode / perPage);
@@ -91,6 +91,7 @@ const ManagerTour = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
+      if(currentPage == -1) return;
       const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
         page: currentPage,
         limit: perPage,
@@ -171,7 +172,9 @@ const ManagerTour = () => {
                 <button
                   key={index}
                   className={`${stylesPagination.page_btn} ${
-                    currentPage === index ? stylesPagination.active : ""
+                    currentPage === index || (index == 0 && currentPage == -1)
+                      ? stylesPagination.active
+                      : ""
                   }`}
                   onClick={() => setCurrentPage(index)}
                 >

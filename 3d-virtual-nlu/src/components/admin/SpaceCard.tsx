@@ -152,7 +152,7 @@ const SpaceCard: React.FC<SpaceCardProps> = ({ space, setSelectedSpace }) => {
             />
             <MdCloudUpload />
           </span>
-        ) : space.status === 3 ? (
+        ) : space.masterNodeId == 0 ? (
           <span className={styles.space_start_node}>
             <IoIosWarning />
             Đang rỗng
