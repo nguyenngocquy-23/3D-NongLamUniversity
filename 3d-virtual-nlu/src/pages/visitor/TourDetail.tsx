@@ -2,7 +2,11 @@ import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
 import TourScene from "../../components/visitor/TourScene";
 import styles from "../../styles/visitor/tourDetail.module.css";
 import stylesRightMenu from "../../styles/createTourStep2.module.css";
-import { RADIUS_SPHERE } from "../../utils/Constants";
+import {
+  DEFAULT_ORIGINAL_Z,
+  getStatusText,
+  RADIUS_SPHERE,
+} from "../../utils/Constants";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -15,8 +19,6 @@ import {
   fetchCommentOfNode,
   fetchHotspotTypes,
   fetchIcons,
-  fetchMasterNodes,
-  fetchPreloadNodes,
 } from "../../redux/slices/DataSlice";
 import { formatTimeAgo } from "../../utils/formatDateTime";
 import Swal from "sweetalert2";
@@ -26,10 +28,6 @@ import GroundHotspot from "../../components/visitor/GroundHotspot";
 import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
-  HotspotModel,
-  HotspotMedia,
-  HotspotNavigation,
-  HotspotInformation,
   BaseHotspot,
   addHotspotsFromResponse,
   addHotspotPosition,
@@ -37,6 +35,7 @@ import {
   addMediaHotspot,
   addModelHotspot,
   addNavigationHotspot,
+  clearHotspot,
 } from "../../redux/slices/HotspotSlice";
 import CamControls from "../../components/visitor/CamControls";
 import { goToStep } from "../../redux/slices/StepSlice";
@@ -49,12 +48,17 @@ import { IoMdMenu } from "react-icons/io";
 import TaskUpdate1 from "../../components/admin/taskCreateTourList/Task1UpdateInfo";
 import TaskUpdate2 from "../../components/admin/taskCreateTourList/Task2UpdateConfig";
 import TaskUpdate3 from "../../components/admin/taskCreateTourList/Task3UpdateHotspot";
-import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
+import {
+  NodeExpandResponse,
+  NodeResponse,
+  TourNodeRequestMapper,
+} from "../../utils/TourNodeRequestMapper";
 import {
   addPanoramasFromResponse,
+  clearPanorama,
+  PanoramaItem,
   selectPanorama,
 } from "../../redux/slices/PanoramaSlice";
-import gsap from "gsap";
 import { Environment } from "@react-three/drei";
 import {
   getFilteredHotspotInformationInList,
@@ -63,13 +67,49 @@ import {
   getFilteredHotspotNavigationInList,
 } from "../../redux/slices/Selectors";
 import { AnimatePresence, motion } from "framer-motion";
+import Task1 from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
+import Task2 from "../../components/admin/taskCreateTourList/Task2BasicConfig";
+import MiniMap from "../../components/Minimap";
+import { useImageCache } from "../../contexts/ImageCacheContext";
+import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL";
+
+/**
+ * Data đại diện của MasterNodeId có thêm:
+ * 1. updatedAt : Ngày cập nhật
+ */
+interface PanoramaItemExpandField extends PanoramaItem {
+  fieldId: string;
+  numView: number;
+  updatedAt: number;
+}
 
 const TourDetail = () => {
   const sphereRef = useRef<THREE.Mesh | null>(null);
+  const imageRef = useImageCache();
+
   const { nodeId } = useParams<{ nodeId: string }>();
-  const [node, setNode] = useState<any>();
-  const comments = useSelector((state: RootState) => state.data.commentOfNode);
   const dispatch = useDispatch<AppDispatch>();
+
+  //Redux
+  const comments = useSelector((state: RootState) => state.data.commentOfNode);
+
+  //Version of Kien
+  const { panoramaList, currentSelectId } = useSelector(
+    (state: RootState) => state.panoramas
+  );
+
+  const currentTour = panoramaList.find((p) => p.id == nodeId);
+
+  //Sử dụng trên overview chỉnh thông tin.
+  const currentNodeView = panoramaList.find((p) => p.id == currentSelectId); //Sử dụng để sửa thông tin.
+
+  const [originalMasterNode, setOriginalMasterNode] =
+    useState<PanoramaItemExpandField | null>(null);
+
+  //Version of Kien  end
+
+  // const [node, setNode] = useState<any>(); Version of Quy
+
   const [isOpenComment, setIsOpenComment] = useState(false);
   const [isUpdateTour, setIsUpdateTour] = useState(false);
   const [isFullPreview, setIsFullPreview] = useState(false);
@@ -104,36 +144,59 @@ const TourDetail = () => {
   const [currentPoints, setCurrentPoints] = useState<
     [number, number, number][]
   >([]);
+  const [cameraAngle, setCameraAngle] = useState(0);
   const [isTextureReady, setIsTextureReady] = useState(false);
 
-  useEffect(() => {
-    if (nodeId) {
-      handleFetchNode(nodeId || "");
-    }
-  }, [nodeId]);
-  const { panoramaList, currentSelectId } = useSelector(
-    (state: RootState) => state.panoramas
-  );
+  const {
+    positionX = 0,
+    positionY = 0,
+    positionZ = DEFAULT_ORIGINAL_Z,
+    lightIntensity = 1,
+    autoRotate = 0,
+    speedRotate = 0,
+    brightness = 1,
+    contrast = 1,
+    saturation = 1.2,
+    grayscale = 0,
+    exposure = 1,
+  } = currentNodeView?.config ?? {};
+  const currentNodeViewUrl =
+    imageRef.current[currentNodeView?.url ?? ""]?.objectUrl ??
+    currentNodeView?.url ??
+    "/khoa.jpg";
 
-  useEffect(() => {
-    if (node) {
-      dispatch(fetchPreloadNodes(Number.parseInt(node.id)));
-    }
-  }, [node]);
-  const preloadNodes = useSelector(
-    (state: RootState) => state.data.preloadNodes
-  );
+  // Version of Quy 1.1.
 
-  useEffect(() => {
-    if (preloadNodes && node) {
-      const nodes = [node, ...preloadNodes];
-      const { panoramaList, hotspotList } =
-        TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
+  // useEffect(() => {
+  //   if (nodeId) {
+  //     handleFetchNode(nodeId || "");
+  //   }
+  // }, [nodeId]);
+  // const { panoramaList, currentSelectId } = useSelector(
+  //   (state: RootState) => state.panoramas
+  // );
+  // useEffect(() => {
+  //   if (node) {
+  //     dispatch(fetchPreloadNodes(Number.parseInt(node.id)));
+  //   }
+  // }, [node]);
 
-      dispatch(addPanoramasFromResponse(panoramaList));
-      dispatch(addHotspotsFromResponse(hotspotList));
-    }
-  }, [preloadNodes, node, dispatch]);
+  // const preloadNodes = useSelector(
+  //   (state: RootState) => state.data.preloadNodes
+  // );
+
+  // useEffect(() => {
+  //   if (preloadNodes && node) {
+  //     const nodes = [node, ...preloadNodes];
+  //     dispatch(clearPanorama());
+  //     dispatch(clearHotspot());
+  //     const { panoramaList, hotspotList } =
+  //       TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
+
+  //     dispatch(addPanoramasFromResponse(panoramaList));
+  //     dispatch(addHotspotsFromResponse(hotspotList));
+  //   }
+  // }, [preloadNodes, node, dispatch]);
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
@@ -149,13 +212,14 @@ const TourDetail = () => {
       case 1:
         return (
           <>
-            <TaskUpdate1 />
+            <Task1 />
           </>
         );
       case 2:
         return (
           <>
-            <TaskUpdate2 cameraRef={cameraRef} />
+            {/* <TaskUpdate2 cameraRef={cameraRef} /> */}
+            <Task2 cameraRef={cameraRef} controlsRef={controlsRef} />
           </>
         );
       case 3:
@@ -166,7 +230,8 @@ const TourDetail = () => {
               setAssignable={setAssignable}
               setCurrentHotspotType={setCurrentHotspotType}
               onPropsChange={handleOnPropsChange}
-              currentPanorama={node}
+              // currentPanorama={node}
+              currentPanorama={currentNodeView}
             />
           </>
         );
@@ -193,26 +258,93 @@ const TourDetail = () => {
   const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
   const hotspotInformations = useSelector(getFilteredHotspotInformationInList);
   const hotspotModels = useSelector(getFilteredHotspotModelInList);
-
   const hotspotMedias = useSelector(getFilteredHotspotMediaInList);
 
-  const handleFetchNode = async (nodeId: string) => {
-    if (!nodeId) {
-      console.warn("Missing nodeId from URL");
-      return;
-    }
-    try {
-      const response = await axios.post(API_URLS.NODE_BY_ID, {
-        nodeId: nodeId,
+  // Version of Quy 1.2.
+  // const handleFetchNode = async (nodeId: string) => {
+  //   if (!nodeId) {
+  //     console.warn("Missing nodeId from URL");
+  //     return;
+  //   }
+  //   try {
+  //     const response = await axios.post(API_URLS.NODE_BY_ID, {
+  //       nodeId: nodeId,
+  //     });
+  //     if (response.data) {
+  //       console.log("Node data fetched successfully:", response.data.data);
+  //       setNode(response.data.data);
+  //     }
+  //   } catch (err: any) {
+  //     console.error(err);
+  //   }
+  // };
+
+  //Version of Kien replace 1.2, 1.1
+  useEffect(() => {
+    if (!nodeId) return;
+
+    axios
+      .post(API_URLS.GET_FULL_TOUR, {
+        nodeId: Number(nodeId),
+      })
+      .then(async (resp) => {
+        const nodes: NodeExpandResponse[] = resp.data.data;
+
+        // Tìm ra node đại diện
+        const mainNode = nodes.find((node) => node.id == nodeId);
+        dispatch(clearPanorama());
+        dispatch(clearHotspot());
+        const { panoramaList, hotspotList } =
+          TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
+        dispatch(addPanoramasFromResponse(panoramaList));
+        dispatch(addHotspotsFromResponse(hotspotList));
+
+        //Set giá trị api cho biến originalMasterNode
+        const currentTourExpandField = {
+          ...currentTour,
+          fieldId: mainNode?.fieldId,
+          numView: mainNode?.numView,
+          updatedAt: mainNode?.updatedAt,
+        };
+        setOriginalMasterNode(currentTourExpandField);
+
+        //Logic preload ảnh vào ram.
+        nodes.forEach((node) => {
+          if (!node.url || imageRef.current[node.id]) return;
+
+          const highResURL = buildImageUrlWithQuality(node.url, "8K");
+
+          fetch(highResURL, { mode: "cors" })
+            .then((res) => res.blob())
+            .then((blob) => {
+              const objectUrl = URL.createObjectURL(blob);
+              const img = new Image();
+              img.crossOrigin = "anonymous";
+              img.src = objectUrl;
+
+              img.onload = () => {
+                imageRef.current[node.id] = {
+                  img,
+                  objectUrl,
+                  quality: "8K",
+                  lastUsed: Date.now(),
+                };
+                console.log("✅ Cached ảnh 360:", node.id);
+              };
+            })
+            .catch((err) => {
+              console.warn(
+                "⚠️ Không preload được ảnh 360 cho node:",
+                node.id,
+                err
+              );
+            });
+        });
+      })
+      .catch((err) => {
+        console.warn("Lỗi không lấy được node", err);
       });
-      if (response.data) {
-        console.log("Node data fetched successfully:", response.data.data);
-        setNode(response.data.data);
-      }
-    } catch (err: any) {
-      console.error(err);
-    }
-  };
+  }, [nodeId, dispatch]);
 
   const handleSendComment = async () => {
     if (!content.trim()) return;
@@ -226,7 +358,8 @@ const TourDetail = () => {
       });
       if (response.data.data) {
         setContent("");
-        dispatch(fetchCommentOfNode(node.id));
+        // dispatch(fetchCommentOfNode(node.id)); //version of Quy
+        dispatch(fetchCommentOfNode(currentNodeView.id)); //version of Kien
       }
     } catch (error) {
       console.error("Lỗi khi gửi bình luận:", error);
@@ -308,7 +441,7 @@ const TourDetail = () => {
         timerProgressBar: true,
         showConfirmButton: false,
       });
-      handleFetchNode(node.id);
+      // handleFetchNode(node.id);  --- Version of Quy 1.3
     } else {
       Swal.fire({
         title: "Thất bại",
@@ -372,7 +505,7 @@ const TourDetail = () => {
 
   const handleSelectNode = (nodeId: string) => {
     dispatch(selectPanorama(nodeId));
-    handleFetchNode(nodeId || "");
+    // handleFetchNode(nodeId || ""); ---- version of quy 1.4
     setCurrentHotspotId(null);
   };
 
@@ -540,7 +673,13 @@ const TourDetail = () => {
     handleSelectNode(targetNodeId);
   };
 
-  if (!node || !comments) {
+  // Version of quy
+  // if (!node || !comments) {
+  //   return null;
+  // }
+
+  // Version of Kien
+  if (!currentTour || !comments) {
     return null;
   }
 
@@ -555,7 +694,6 @@ const TourDetail = () => {
             position: [0, 0, 0.0000001],
           }}
           className={styles.tourCanvas}
-          // style={{ cursor }}
         >
           <Environment preset="studio" background={false} />
           <axesHelper args={[10]} position={[0, -90, 0]} />
@@ -563,29 +701,62 @@ const TourDetail = () => {
           <TourScene
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
-            textureCurrent={node.url}
-            yawOffsetCurrent={node.yawOffset ?? 0}
+            //Version of Quy
+            // textureCurrent={node.url}
+            // yawOffsetCurrent={node.yawOffset ?? 0}
+            //Version of Kien
+            textureCurrent={currentNodeView.url}
+            yawOffsetCurrent={currentNodeView.config.yawOffset ?? 0}
             onPointerDown={handleScenePointerDown}
             onTextureReady={() => setIsTextureReady(true)}
-            lightIntensity={1}
+            lightIntensity={lightIntensity}
+            brightness={brightness}
+            contrast={contrast}
+            saturation={saturation}
+            grayscale={grayscale}
+            exposure={exposure}
           />
+
+          {currentNodeView && isUpdateTour && (
+            <MiniMap
+              currentPanorama={currentNodeView}
+              angleCurrent={cameraAngle}
+              currentTour={nodeId}
+            />
+          )}
+
           <CamControls
             controlsRef={controlsRef}
             targetPosition={targetPosition}
             cameraRef={cameraRef}
             sphereRef={sphereRef}
-            autoRotate={node.isRotation}
+            // Version of Quy
+            // autoRotate={node.isRotation}
+            // autoRotateSpeed={
+            //   node || node.speedRotate == 0 ? 0.2 : node.speedRotate
+            // }
+
+            // Version of Kien
+            autoRotate={currentNodeView.isRotation}
             autoRotateSpeed={
-              node || node.speedRotate == 0 ? 0.2 : node.speedRotate
+              currentNodeView || currentNodeView.speedRotate == 0
+                ? 0.2
+                : currentNodeView.speedRotate
             }
+            onAngleChange={(angle) => {
+              setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
+            }}
           />
+
           {isUpdateTour && (
             <>
               {isTextureReady &&
                 hotspotInformations
                   .filter(
                     (hotspot) =>
-                      hotspot.nodeId == node.id && hotspot.status == 1
+                      // hotspot.nodeId == node.id && hotspot.status == 1 //Version of Quy
+                      hotspot.nodeId == currentNodeView.id &&
+                      hotspot.status == 1 //Version of Kien
                   )
                   .map((hotspot) => (
                     <GroundHotspotInfo
@@ -598,7 +769,9 @@ const TourDetail = () => {
                 hotspotNavigations
                   .filter(
                     (hotspot) =>
-                      hotspot.nodeId == node.id && hotspot.status == 1
+                      // hotspot.nodeId == node.id && hotspot.status == 1 //Version of Quy
+                      hotspot.nodeId == currentNodeView.id &&
+                      hotspot.status == 1 //Version of Kien
                   )
                   .map((hotspot) => (
                     <GroundHotspot
@@ -617,7 +790,9 @@ const TourDetail = () => {
                 hotspotModels
                   .filter(
                     (hotspot) =>
-                      hotspot.nodeId == node.id && hotspot.status == 1
+                      // hotspot.nodeId == node.id && hotspot.status == 1 // version of Quy
+                      hotspot.nodeId == currentNodeView.id &&
+                      hotspot.status == 1 // version of Kien
                   )
                   .map((hotspot) => (
                     <GroundHotspotModel
@@ -630,7 +805,9 @@ const TourDetail = () => {
                 hotspotMedias
                   .filter(
                     (hotspot) =>
-                      hotspot.nodeId == node.id && hotspot.status == 1
+                      // hotspot.nodeId == node.id && hotspot.status == 1 // version of Quy
+                      hotspot.nodeId == currentNodeView.id &&
+                      hotspot.status == 1 // version of Kien
                   )
                   .map((hotspot) => (
                     <VideoMeshComponent
@@ -642,7 +819,10 @@ const TourDetail = () => {
             </>
           )}
         </Canvas>
-        {node.status == 3 ? (
+
+        {/* Version of Quy */}
+        {/* {node.status == 3 ? ( */}
+        {currentNodeView.status == 3 ? (
           ""
         ) : isFullPreview || isUpdateTour ? (
           <FaAngleUp
@@ -657,15 +837,21 @@ const TourDetail = () => {
           <div>
             <div className={styles.info}>
               <div className={styles.sub_info}>
-                <span className={styles.name}>Cập nhật</span>
+                <span className={styles.name}>Cập nhật </span>
                 <span className={styles.des}>
-                  {formatTimeAgo(node.updatedAt)}
+                  {/* {formatTimeAgo(node.updatedAt)}  */}
+                  {originalMasterNode?.updatedAt
+                    ? formatTimeAgo(originalMasterNode?.updatedAt)
+                    : ""}
                 </span>
               </div>
               <div className={styles.sub_info}>
                 <span className={styles.name}>Trạng thái</span>
                 <span className={styles.des}>
-                  {node.status == 2 ? "Đang hoạt động" : "Ngưng hoạt động"}
+                  {/* getStatusText */}
+                  {/* {node.status == 2 ? "Đang hoạt động" : "Ngưng hoạt động"} */}
+
+                  {getStatusText(currentTour.config.status)}
                 </span>
               </div>
               <div className={styles.sub_info}>
@@ -673,17 +859,26 @@ const TourDetail = () => {
                 <span className={styles.des}>Số bình luận</span>
               </div>
               <div className={styles.sub_info}>
-                <span className={styles.name}>{node.numView}</span>
+                <span className={styles.name}>
+                  {originalMasterNode?.numView ?? 0}
+                </span>
+                {/* <span className={styles.name}>{node.numView}</span> */}
                 <span className={styles.des}>Số lượt truy cập</span>
               </div>
             </div>
             <div className={styles.feature}>
               <span className={styles.title}>Tính năng</span>
               <ul className={styles.featureList}>
-                <li onClick={() => handleChangeStatus(node)}>
+                {/* <li onClick={() => handleChangeStatus(node)}>
                   {node.status == 2 ? "Ngưng hoạt động" : "Mở hoạt động"}
+                </li> */}
+                {/* <li onClick={() => handleRemove(node)}>Xóa tour</li> */}
+                <li onClick={() => handleChangeStatus(currentTour)}>
+                  {currentTour.config.status == 2
+                    ? "Ngưng hoạt động"
+                    : "Mở hoạt động"}
                 </li>
-                <li onClick={() => handleRemove(node)}>Xóa tour</li>
+                <li onClick={() => handleRemove(currentTour)}>Xóa tour</li>
                 <li onClick={() => setIsUpdateTour(true)}>Cập nhật tour</li>
                 <li onClick={() => setIsFullPreview((pre) => !pre)}>
                   Chế độ xem toàn cảnh
@@ -740,6 +935,13 @@ const TourDetail = () => {
                 onClick={() => handleOpenMenu()}
               />
             </div>
+
+            <button
+              className={styles.cancel_update_btn}
+              onClick={() => setIsUpdateTour(false)}
+            >
+              Huỷ
+            </button>
 
             <AnimatePresence>
               {isMenuVisible && (

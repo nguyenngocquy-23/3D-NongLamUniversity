@@ -278,7 +278,8 @@ public class NodeDao {
     public NodeExpandResponse getFullNodeByNodeId(int nodeId) {
         String sql = """
                   SELECT n.id, n.userId, s.id as spaceId, s.name as spaceName, f.id as fieldId, f.name as fieldName, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity,
+                n.numView
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id

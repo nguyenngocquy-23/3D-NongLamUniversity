@@ -245,6 +245,29 @@ export interface HotspotModelUpdateRequest {
 export interface NodeResponse {
   id: string;
   spaceId: string;
+  userId: string;
+  url: string;
+  name: string;
+  description: string;
+  positionX: number;
+  positionY: number;
+  positionZ: number;
+  yawOffset: number;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  grayscale: number;
+  exposure: number;
+  lightIntensity: number;
+  status: number;
+  navHotspots: HotspotNavResponse[];
+  infoHotspots: HotspotInfoResponse[];
+  mediaHotspots: HotspotMediaResponse[];
+  modelHotspots: HotspotModelResponse[];
+}
+export interface NodeExpandResponse {
+  id: string;
+  spaceId: string;
   fieldId: string;
   fieldName: string;
   spaceName: string;
@@ -263,6 +286,8 @@ export interface NodeResponse {
   exposure: number;
   lightIntensity: number;
   status: number;
+  numView: number;
+  updatedAt: number;
   navHotspots: HotspotNavResponse[];
   infoHotspots: HotspotInfoResponse[];
   mediaHotspots: HotspotMediaResponse[];
@@ -657,7 +682,9 @@ export class TourNodeRequestMapper {
     });
   }
 
-  static mapToPanoramaAndHotspots(nodes: NodeResponse[]): {
+  static mapToPanoramaAndHotspots(
+    nodes: NodeResponse[] | NodeExpandResponse[]
+  ): {
     panoramaList: PanoramaItem[];
     hotspotList: HotspotItem[];
   } {

@@ -31,6 +31,7 @@ import {
   clearHotspot,
 } from "../../redux/slices/HotspotSlice.ts";
 import {
+  NodeExpandResponse,
   NodeResponse,
   TourNodeRequestMapper,
 } from "../../utils/TourNodeRequestMapper.ts";
@@ -103,7 +104,7 @@ const ManagerTourDetail: React.FC = () => {
         nodeId: Number(nodeId),
       })
       .then(async (resp) => {
-        const nodes: NodeResponse[] = resp.data.data;
+        const nodes: NodeExpandResponse[] = resp.data.data;
 
         const mainNode = nodes.find((node) => node.id == nodeId);
         if (mainNode) {
@@ -312,7 +313,7 @@ const ManagerTourDetail: React.FC = () => {
           position: "top-end",
           showConfirmButton: false,
         });
-        const nodes: NodeResponse[] = response.data.data;
+        const nodes: NodeExpandResponse[] = response.data.data;
 
         const mainNode = nodes.find((node) => node.id == nodeId);
         if (mainNode) {

@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class NodeExpandResponse {
     int id;
-    int spaceId, fieldId, userId;
+    int spaceId, fieldId, userId, numView;
     String url, name, description, spaceName, fieldName;
     double positionX, positionY, positionZ;
     double yawOffset;

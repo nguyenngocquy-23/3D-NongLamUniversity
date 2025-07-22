@@ -114,6 +114,11 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const { panoramaList, spaceId } = useSelector(
     (state: RootState) => state.panoramas
   );
+
+  const panaramaListInTour = currentTour
+    ? panoramaList.filter((p) => p.config.status !== 2 || p.id == currentTour)
+    : panoramaList; //Filter ra các panos khác tour.
+
   const { spaces } = useSelector((state: RootState) => state.data);
 
   const spaceItem = spaces.find((s) => s.id === Number(spaceId));
@@ -631,10 +636,10 @@ const MiniMap: React.FC<MiniMapProps> = ({
 
                 <div className={styles.tour_information_item}>
                   <span className={styles.label_information}>
-                    Danh sách ảnh: ({panoramaList.length})
+                    Danh sách ảnh: ({panaramaListInTour.length})
                   </span>
                   <div className={styles.list_panorama_container}>
-                    {panoramaList.map((item) => (
+                    {panaramaListInTour.map((item) => (
                       <div key={item.id} className={styles.list_panorama_item}>
                         <img
                           src={
@@ -664,7 +669,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
                         )}
                       </div>
                     ))}
-                    {panoramaList.length < MAX_QUANTITY_PANORAMA && (
+                    {panaramaListInTour.length < MAX_QUANTITY_PANORAMA && (
                       <div className={styles.list_panorama_item}>
                         <input
                           ref={inputRef}
