@@ -4,7 +4,7 @@ import styles from "../../styles/visitor/tourDetail.module.css";
 import stylesRightMenu from "../../styles/createTourStep2.module.css";
 import {
   DEFAULT_ORIGINAL_Z,
-  getStatusText,
+  getStatusNode,
   RADIUS_SPHERE,
 } from "../../utils/Constants";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
@@ -851,7 +851,7 @@ const TourDetail = () => {
                   {/* getStatusText */}
                   {/* {node.status == 2 ? "Đang hoạt động" : "Ngưng hoạt động"} */}
 
-                  {getStatusText(currentTour.config.status)}
+                  {getStatusNode(currentTour.config.status)}
                 </span>
               </div>
               <div className={styles.sub_info}>
@@ -938,7 +938,10 @@ const TourDetail = () => {
 
             <button
               className={styles.cancel_update_btn}
-              onClick={() => setIsUpdateTour(false)}
+              onClick={() => {
+                setIsUpdateTour(false);
+                setIsFullPreview(false);
+              }}
             >
               Huỷ
             </button>

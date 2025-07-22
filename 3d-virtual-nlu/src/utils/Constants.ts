@@ -17,13 +17,22 @@ export const perPage = 10;
 
 export const MAX_DESCRIPTION = 300; //kích thước mô tả tối đa
 
-const statusMap: Record<number, string> = {
+const statusNodeMap: Record<number, string> = {
   0: "Tạm ngưng",
   1: "Hoạt động",
   2: "Hoạt động",
   3: "Chờ duyệt",
 };
+const statusSpaceMap: Record<number, string> = {
+  0: "Tạm ngưng",
+  1: "Hoạt động",
+  2: "Hoạt động", //Space master.
+  3: "Hoạt động", //Space chưa có không gian.
+};
 
-export const getStatusText = (status: number): string => {
-  return statusMap[status] ?? "Không xác định";
+export const getStatusNode = (status: number): string => {
+  return statusNodeMap[status] ?? "Không xác định";
+};
+export const getStatusSpace = (status: number): string => {
+  return statusSpaceMap[status] ?? "Không xác định";
 };
