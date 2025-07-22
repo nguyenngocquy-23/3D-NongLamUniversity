@@ -12,9 +12,11 @@ import { AFTER_DOMAIN, API_URLS } from "../env";
 const Chat = ({
   nodeId,
   setAccessing,
+  setIsOpenChat,
 }: {
   nodeId: number;
   setAccessing: (value: any) => void;
+  setIsOpenChat: (value: boolean) => void;
 }) => {
   // const { roomId, userId } = useParams(); // Lấy roomId & userId từ URL
   const user = useSelector((state: RootState) => state.auth.user);
@@ -166,6 +168,7 @@ const Chat = ({
 
   const handleOpenChatBox = () => {
     setIsOpenBox((preState) => !preState);
+    setIsOpenChat(isOpenBox ? false : true);
   };
 
   const handleCheckFillInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,7 +269,7 @@ const Chat = ({
                   type="text"
                   value={inputMessage}
                   onChange={handleCheckFillInput}
-                  placeholder="Compose your message..."
+                  placeholder="Soạn tin nhắn..."
                 />
                 <button
                   className={`${styles.sendChatBtn} ${
@@ -330,7 +333,7 @@ const Chat = ({
                   type="text"
                   value={inputMessage}
                   onChange={handleCheckFillInput}
-                  placeholder="Compose your message..."
+                  placeholder="Soạn tin nhắn..."
                 />
                 <button
                   className={`${styles.sendChatBtn} ${

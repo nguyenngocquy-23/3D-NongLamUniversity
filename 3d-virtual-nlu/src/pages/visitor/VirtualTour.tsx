@@ -156,6 +156,8 @@ const VirtualTour = () => {
 
   const [accessing, setAccessing] = useState(0);
 
+  const [isOpenBox, setIsOpenBox] = useState(false);
+
   /**
    * Lớp chờ để ẩn các tiến trình render
    * Tạo cảm giác loading cho người dùng
@@ -723,7 +725,7 @@ const VirtualTour = () => {
           </motion.div>
         </AnimatePresence>
       )}
-      {!isOpenRadar && (
+      {!isOpenRadar && !isOpenBox && (
         <button
           className={styles.open_radar_button}
           title="Mở la bàn"
@@ -733,7 +735,7 @@ const VirtualTour = () => {
         </button>
       )}
       {/* Hộp chat sửa wss */}
-      <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />
+      <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} setIsOpenChat={setIsOpenBox} />
       {/* Footer chứa các tính năng */}
       {isMobile ? (
         <>

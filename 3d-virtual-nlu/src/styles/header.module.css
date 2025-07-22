@@ -24,7 +24,7 @@
 }
 
 .header .name {
-  color: black;
+  color: #267026;
   font-weight: 700;
   margin-left: 10px;
 }
@@ -53,7 +53,7 @@
   border-radius: 5px;
   cursor: pointer;
   font-weight: 600;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 
 .navLink:hover {
@@ -86,7 +86,7 @@
   padding: 5px 10px;
   display: block;
   width: 100%;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 
 .dropdownBtn img {
@@ -111,7 +111,7 @@
 .dropdownMenu {
   position: absolute;
   top: 30px;
-  right: -1rem;
+  /* right: -1rem; */
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -135,7 +135,7 @@
   border-radius: 20px;
   cursor: pointer;
   font-weight: 600;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 
 /* responsive mobile */
@@ -154,7 +154,7 @@
 
 .menu_button:focus {
   outline: none;
-  border : none;
+  border: none;
 }
 .menu_button {
   font-size: 24px;
@@ -170,7 +170,6 @@
 .hide_on_mobile {
   display: none;
 }
-
 
 /* Responsive behavior */
 @media (max-width: 768px) {

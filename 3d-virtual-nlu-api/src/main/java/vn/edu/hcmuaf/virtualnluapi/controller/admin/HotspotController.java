@@ -33,6 +33,7 @@ public class HotspotController {
         } else{
             return ApiResponse.<HotspotModelResponse>builder().statusCode(5000).message("get hotspot model failed! Please check.").data(result).build();
         }
+
     }
 
     @POST

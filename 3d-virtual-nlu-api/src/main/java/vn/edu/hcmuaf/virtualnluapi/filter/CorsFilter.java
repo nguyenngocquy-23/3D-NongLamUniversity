@@ -26,7 +26,7 @@ public class CorsFilter implements Filter {
         } else {
             res.setHeader("Access-Control-Allow-Origin", "*"); // fallback an toàn (trừ khi có credentials)
         }
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
         res.setHeader("Access-Control-Allow-Credentials", "false");
 

@@ -12,18 +12,17 @@ import vn.edu.hcmuaf.virtualnluapi.entity.Space;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class SpaceDao {
 
-    @Inject
-    FieldDao fieldDao;
 
+    /**
+     * @param req : Khi tạo không gian mới, nó ở trạng thái vẫn dùng bình thường nhưng rỗng.
+     * @return
+     */
     public boolean insertSpace(SpaceCreateRequest req) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             int i = handle.createUpdate(
@@ -32,7 +31,7 @@ public class SpaceDao {
                     .bind("name", req.getName())
                     .bind("code", req.getCode())
                     .bind("description", req.getDescription())
-                    .bind("status", 1)
+                    .bind("status", 3)
                     .bind("url", req.getUrl())
                     .bind("createdAt", LocalDateTime.now())
                     .bind("updatedAt", LocalDateTime.now())
@@ -45,12 +44,14 @@ public class SpaceDao {
         return ConnectionPool.getConnection().withHandle(handle -> {
 
             return handle
-                    .createQuery("SELECT id, name from spaces where fieldId = :fieldId and status = 1 or status = 2")
+                    .createQuery("SELECT id, name from spaces where fieldId = :fieldId and status IN (1,2,3)")
                     .bind("fieldId", req.getFieldId())
                     .mapToBean(SpaceResponse.class)
                     .list();
         });
     }
+
+
 
     public List<SpaceFullResponse> getSpacesByPage(PageRequest request) {
         String spaceSql = """
@@ -72,6 +73,7 @@ public class SpaceDao {
 
         });
     }
+
     public List<SpaceFullResponse> getAllSpaces() {
         String spaceSql = """
                 SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name as masterNodeName
@@ -89,6 +91,7 @@ public class SpaceDao {
 
         });
     }
+
     public List<SpaceFullResponse> getAllSpacesInVisitor() {
         String spaceSql = """
                 SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name as masterNodeName
@@ -258,5 +261,75 @@ public class SpaceDao {
             e.printStackTrace();
             return Collections.emptyList();
         }
+    }
+
+    public SpaceFullResponse updateSpacePartial(int id, SpaceUpdateRequest req) {
+        return ConnectionPool.getConnection()
+                .inTransaction(handle -> {
+                    StringBuilder sql = new StringBuilder("UPDATE spaces SET");
+                    Map<String, Object> binds = new HashMap<>();
+
+                    if (req.getFieldId() != null) {
+                        sql.append(" fieldId = :fieldId, ");
+                        binds.put("fieldId", req.getFieldId());
+                    }
+                    if (req.getMasterNodeId() != null) {
+                        sql.append(" masterNodeId = :masterNodeId, ");
+                        binds.put("masterNodeId", req.getMasterNodeId());
+                    }
+                    if (req.getName() != null) {
+                        sql.append(" name = :name, ");
+                        binds.put("name", req.getName());
+                    }
+                    if (req.getCode() != null) {
+                        sql.append(" code = :code, ");
+                        binds.put("code", req.getCode());
+                    }
+                    if (req.getDescription() != null) {
+                        sql.append(" description = :description, ");
+                        binds.put("description", req.getDescription());
+                    }
+                    if (req.getUrl() != null) {
+                        sql.append(" url = :url, ");
+                        binds.put("url", req.getUrl());
+                    }
+                    if (req.getStatus() != null) {
+                        sql.append(" status = :status, ");
+                        binds.put("status", req.getStatus());
+                    }
+
+                    sql.append((" updatedAt = :updatedAt"));
+                    binds.put("updatedAt", LocalDateTime.now());
+
+
+                    sql.append(" WHERE id = :id");
+                    binds.put("id", id);
+
+                    //Nếu không có trường nào cập nhật.
+                    if(binds.size() <= 2) return null;
+
+                    //tạo query.
+                    var update = handle.createUpdate(sql.toString());
+                    binds.forEach(update::bind);
+
+                    int rowAffected = update.execute();
+                    if(rowAffected == 0) return null;
+
+                    String spaceSql = """
+                SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name as masterNodeName
+                , s.createdAt, s.updatedAt
+                FROM spaces s
+                JOIN fields f ON s.fieldId = f.id
+                LEFT JOIN nodes n ON s.masterNodeId = n.id
+                WHERE s.id = :id
+                """;
+
+                    return handle.createQuery(spaceSql).bind("id", id)
+                            .mapToBean(SpaceFullResponse.class)
+                            .findOne()
+                            .orElse(null);
+
+
+                });
     }
 }

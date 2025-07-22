@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaUpload, FaPlus, FaMicrophone } from "react-icons/fa6";
 import styles from "../../styles/managerTour.module.css";
+import stylesPagination from "../../styles/managerSpace.module.css";
 import { IoSearch } from "react-icons/io5";
 import { TiFilter } from "react-icons/ti";
 import { FaSortAmountDown } from "react-icons/fa";
@@ -54,7 +55,7 @@ const ManagerTour = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(-1);
 
   const [totalNode, setTotalNode] = useState(0);
   const totalPages = Math.ceil(totalNode / perPage);
@@ -90,6 +91,7 @@ const ManagerTour = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
+      if(currentPage == -1) return;
       const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
         page: currentPage,
         limit: perPage,
@@ -164,13 +166,15 @@ const ManagerTour = () => {
           Kết quả: {search == "" ? totalNode : nodeList.length} tour.
         </div>
         {search.length === 0 && (
-          <div className={styles.pagination}>
+          <div className={stylesPagination.pagination}>
             {[...Array(totalPages)].map((_, index) => {
               return (
                 <button
                   key={index}
-                  className={`${styles.page_btn} ${
-                    currentPage === index ? styles.active : ""
+                  className={`${stylesPagination.page_btn} ${
+                    currentPage === index || (index == 0 && currentPage == -1)
+                      ? stylesPagination.active
+                      : ""
                   }`}
                   onClick={() => setCurrentPage(index)}
                 >

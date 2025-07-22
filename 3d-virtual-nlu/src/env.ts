@@ -80,11 +80,16 @@ export const API_URLS = {
   ADMIN_CREATE_SPACES: `${DOMAIN}/admin/space/create`,
   ADMIN_CREATE_ICONS: `${DOMAIN}/v1/admin/icon/`,
   ADMIN_CHANGE_THUMBNAIL_ICONS: `${DOMAIN}/v1/admin/icon/changeThumbnail`,
+
   ADMIN_ATTACH_SPACE_LOCATION: `${DOMAIN}/admin/space/attachLocation`,
   ADMIN_REMOVE_SPACE_LOCATION: `${DOMAIN}/admin/space/removeLocation`,
+  ADMIN_UPDATE_SPACE_BY_ID: `${DOMAIN}/admin/space`,
+  ADMIN_UPDATE_OVERVIEW_TOUR_BY_MASTERID: `${DOMAIN}/v1/admin/node`,
 
   ADMIN_CHANGE_FIELD_STATUS: `${DOMAIN}/admin/field/changeStatus`,
   ADMIN_CHANGE_SPACE_STATUS: `${DOMAIN}/admin/space/changeStatus`,
+  ADMIN_CHANGE_NODE_STATUS: `${DOMAIN}/v1/admin/node/changeStatus`,
+  ADMIN_CHANGE_TOUR_BY_ID: `${DOMAIN}/v1/admin/node`,
   ADMIN_CHANGE_MASTER_SPACE: `${DOMAIN}/admin/space/setMasterSpace`,
   ADMIN_CHANGE_NAME_SPACE: `${DOMAIN}/admin/space/changeName`,
   ADMIN_CHANGE_MASTER_NODE_BY_ID: `${DOMAIN}/admin/space/setMasterNodeById`,

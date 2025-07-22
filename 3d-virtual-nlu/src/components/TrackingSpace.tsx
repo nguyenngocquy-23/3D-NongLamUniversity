@@ -5,6 +5,7 @@ import "@xyflow/react/dist/style.css";
 import TrackingSpaceItem from "./admin/TrackingSpaceItem";
 import { PanoramaItem } from "../redux/slices/PanoramaSlice";
 import { HotspotNavigation } from "../redux/slices/HotspotSlice";
+import { transformUrlToThumbnail } from "../utils/getCloudinaryURL";
 
 type FlowProps = {
   masterId?: string;
@@ -61,7 +62,7 @@ const TrackingSpace: React.FC<FlowProps> = ({
         data: {
           id: defaultInSpace.id,
           name: defaultInSpace.config.name,
-          img: defaultInSpace.url,
+          img: transformUrlToThumbnail(defaultInSpace.url),
           numOfNodes: numOfPanosInMaster(defaultInSpace.id),
           root: true,
         },
@@ -73,7 +74,7 @@ const TrackingSpace: React.FC<FlowProps> = ({
         data: {
           id: item.id,
           name: item.config.name,
-          img: item.url,
+          img: transformUrlToThumbnail(item.url),
           numOfNodes: numOfPanosInMaster(item.id),
           root: false,
         },

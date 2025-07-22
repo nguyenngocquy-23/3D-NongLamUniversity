@@ -13,6 +13,7 @@ import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -206,7 +207,7 @@ public class NodeDao {
 
         List<NodeFullResponse> preloadNodes = new ArrayList<>();
         for (Integer i : targetNodeIds) {
-            NodeFullResponse node = getFullNodeByNodeId(i);
+            NodeFullResponse node = getNodeById(new NodeIdRequest(i));
             if (node != null) preloadNodes.add(node);
 
         }
@@ -222,7 +223,7 @@ public class NodeDao {
      * + Thông tin hotspot. => Lấy kèm thêm node có targetNode là hotspot nhưng nó là không gian khác nên chỉ hiển thị không thể click
      */
 
-    public List<NodeFullResponse> getListNodeByMasterId(int nodeId) {
+    public List<NodeExpandResponse> getListNodeByMasterId(int nodeId) {
         /**
          * Truy xuất sql cho danh sách targetNodeId dựa vào hotspot navigation..
          */
@@ -255,17 +256,17 @@ public class NodeDao {
                         )).list()
         );
 
-        List<NodeFullResponse> listNodesOfTour = new ArrayList<>();
-        NodeFullResponse mainNode = getFullNodeByNodeId(nodeId);
+        List<NodeExpandResponse> listNodesOfTour = new ArrayList<>();
+        NodeExpandResponse mainNode = getFullNodeByNodeId(nodeId);
         listNodesOfTour.add(mainNode);
 
-        for (NodeStatusResponse item : nodesWithStatus) {
-            if (item.getStatus() == 1) {
-                NodeFullResponse node = getFullNodeByNodeId(item.getId());
-                if (node != null) listNodesOfTour.add(node);
+        for(NodeStatusResponse item : nodesWithStatus) {
+            if(item.getStatus() == 1) {
+                NodeExpandResponse node = getFullNodeByNodeId(item.getId());
+                if(node !=null) listNodesOfTour.add(node);
             } else if (item.getStatus() == 2) {
-                NodeFullResponse node = getCustomNodeByNodeId(item.getId());
-                if (node != null) listNodesOfTour.add(node);
+                NodeExpandResponse node = getCustomNodeByNodeId(item.getId());
+                if(node != null) listNodesOfTour.add(node);
             }
 
         }
@@ -275,48 +276,53 @@ public class NodeDao {
     /**
      * Trả về Full Response cho 1 node dựa vào Ids.
      */
-    public NodeFullResponse getFullNodeByNodeId(int nodeId) {
+    public NodeExpandResponse getFullNodeByNodeId(int nodeId) {
         String sql = """
-                SELECT id, spaceId, url , name, updatedAt, userId, description, status, positionX, positionY, positionZ, yawOffset,
-                  brightness, contrast, saturation, grayscale, exposure, lightIntensity
-                FROM nodes 
-                WHERE id = :nodeId
+                  SELECT n.id, n.userId, s.id as spaceId, s.name as spaceName, f.id as fieldId, f.name as fieldName, n.name, n.description, n.url, n.updatedAt,
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity,
+                n.numView
+                FROM nodes n
+                JOIN spaces s ON n.spaceId = s.id
+                JOIN fields f ON s.fieldId = f.id
+                WHERE n.id = :nodeId
                 """;
-        NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+        NodeExpandResponse nodeExpandResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
                 .bind("nodeId", nodeId)
-                .mapToBean(NodeFullResponse.class).one());
-        if (nodeFullResponse == null) {
+                .mapToBean(NodeExpandResponse.class).one());
+        if (nodeExpandResponse == null) {
             return null;
         }
-        List<HotspotMediaResponse> mediaHotspots = hotspotDao.getMediaByNodeId(nodeFullResponse.getId());
-        List<HotspotModelResponse> modelHotspots = hotspotDao.getModelByNodeId(nodeFullResponse.getId());
-        List<HotspotNavigationResponse> navigationHotspots = hotspotDao.getNavigationByNodeId(nodeFullResponse.getId());
-        List<HotspotInformationResponse> informationHotspots = hotspotDao.getInformationByNodeId(nodeFullResponse.getId());
+        List<HotspotMediaResponse> mediaHotspots = hotspotDao.getMediaByNodeId(nodeExpandResponse.getId());
+        List<HotspotModelResponse> modelHotspots = hotspotDao.getModelByNodeId(nodeExpandResponse.getId());
+        List<HotspotNavigationResponse> navigationHotspots = hotspotDao.getNavigationByNodeId(nodeExpandResponse.getId());
+        List<HotspotInformationResponse> informationHotspots = hotspotDao.getInformationByNodeId(nodeExpandResponse.getId());
 
-        nodeFullResponse.setNavHotspots(navigationHotspots);
-        nodeFullResponse.setInfoHotspots(informationHotspots);
-        nodeFullResponse.setMediaHotspots(mediaHotspots);
-        nodeFullResponse.setModelHotspots(modelHotspots);
-        return nodeFullResponse;
+        nodeExpandResponse.setNavHotspots(navigationHotspots);
+        nodeExpandResponse.setInfoHotspots(informationHotspots);
+        nodeExpandResponse.setMediaHotspots(mediaHotspots);
+        nodeExpandResponse.setModelHotspots(modelHotspots);
+        return nodeExpandResponse;
     }
 
     /**
      * Không lấy danh sách hotspot con. Tất cả Rỗng.
      */
-    public NodeFullResponse getCustomNodeByNodeId(int nodeId) {
+    public NodeExpandResponse getCustomNodeByNodeId(int nodeId) {
         String sql = """
-                SELECT id, spaceId, url , name, updatedAt, userId, description, status, positionX, positionY, positionZ, yawOffset,
-                   brightness, contrast, saturation, grayscale, exposure, lightIntensity
-                FROM nodes 
-                WHERE id = :nodeId
+                 SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, s.name as spaceName, f.name as fieldName, n.name, n.description, n.url, n.updatedAt,
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                FROM nodes n
+                JOIN spaces s ON n.spaceId = s.id
+                JOIN fields f ON s.fieldId = f.id
+                WHERE n.id = :nodeId
                 """;
-        NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+        NodeExpandResponse nodeExpandResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
                 .bind("nodeId", nodeId)
-                .mapToBean(NodeFullResponse.class).one());
-        if (nodeFullResponse == null) {
+                .mapToBean(NodeExpandResponse.class).one());
+        if (nodeExpandResponse == null) {
             return null;
         }
-        return nodeFullResponse;
+        return nodeExpandResponse;
     }
 
 
@@ -365,12 +371,13 @@ public class NodeDao {
     public boolean changeStatus(StatusRequest request) {
         String sql = "UPDATE nodes SET status = :status, updatedAt = :updatedAt WHERE id = :nodeId";
         int rowsUpdated = ConnectionPool.getConnection().withHandle(handle -> handle.createUpdate(sql)
-                .bind("status", request.getStatus() == 0 ? 2 : 0)
+                .bind("status", request.getStatus())
                 .bind("updatedAt", LocalDateTime.now())
                 .bind("nodeId", request.getId())
                 .execute());
         return rowsUpdated > 0;
     }
+
 
     public boolean removeNode(NodeIdRequest request) {
         String sql = "UPDATE nodes SET status = -1, updatedAt = :updatedAt WHERE id = :nodeId";
@@ -520,6 +527,7 @@ public class NodeDao {
         String sql = """
                 SELECT at.id, at.name, at.indexNode, at.soundBackground , at.status, at.updatedAt
                 FROM auto_tours at
+                WHERE status = 1
                 ORDER BY at.updatedAt DESC
                 LIMIT :limit OFFSET :offset
                 """;
@@ -596,6 +604,96 @@ public class NodeDao {
                         .mapTo(int.class)
                         .one()
         );
+    }
+
+    public boolean updateNodePartial(int id, NodeUpdateOverviewRequest req) {
+        List<Integer> subNodeOfTour = getSubNodeByMasterNodeId(id);
+
+        return ConnectionPool.getConnection().inTransaction(handle -> {
+            Map<String, Object> binds = new HashMap<>();
+
+            // 1. Cập nhật cho node gốc
+            StringBuilder sql = new StringBuilder("UPDATE nodes SET ");
+
+            if (req.getSpaceId() != null) {
+                sql.append(" spaceId = :spaceId, ");
+                binds.put("spaceId", req.getSpaceId());
+            }
+            if (req.getName() != null) {
+                sql.append(" name = :name, ");
+                binds.put("name", req.getName());
+            }
+            if (req.getDescription() != null) {
+                sql.append(" description = :description, ");
+                binds.put("description", req.getDescription());
+            }
+            if (req.getStatus() != null) {
+                sql.append(" status = :status, ");
+                binds.put("status", req.getStatus());
+            }
+
+            sql.append(" updatedAt = :updatedAt ");
+            sql.append(" WHERE id = :id");
+            binds.put("updatedAt", LocalDateTime.now());
+            binds.put("id", id);
+
+            if (binds.size() <= 2) return null;
+
+            var update = handle.createUpdate(sql.toString());
+            binds.forEach(update::bind);
+            int rowAffected = update.execute();
+            if (rowAffected == 0) return null;
+
+            // 2. Nếu spaceId có thay đổi, cập nhật cho toàn bộ subNode
+            if (req.getSpaceId() != null && !subNodeOfTour.isEmpty()) {
+                for (Integer subId : subNodeOfTour) {
+                    handle.createUpdate("UPDATE nodes SET spaceId = :spaceId, updatedAt = :updatedAt WHERE id = :id")
+                            .bind("spaceId", req.getSpaceId())
+                            .bind("updatedAt", LocalDateTime.now())
+                            .bind("id", subId)
+                            .execute();
+                }
+            }
+
+            // 3. Nếu name thay đổi, cập nhật cho các node con với hậu tố _1, _2,...
+            if (req.getName() != null && !subNodeOfTour.isEmpty()) {
+                int suffix = 1;
+                for (Integer subId : subNodeOfTour) {
+                    String newName = req.getName() + "_" + suffix++;
+                    handle.createUpdate("UPDATE nodes SET name = :name, updatedAt = :updatedAt WHERE id = :id")
+                            .bind("name", newName)
+                            .bind("updatedAt", LocalDateTime.now())
+                            .bind("id", subId)
+                            .execute();
+                }
+            }
+
+            return true;
+        });
+    }
+
+
+
+    public List<Integer> getSubNodeByMasterNodeId (int nodeId) {
+            /**
+             * Truy xuất sql cho danh sách targetNodeId dựa vào hotspot navigation..
+             */
+            String sql =
+                    """ 
+                     SELECT n.id 
+                     FROM hotspots h 
+                     JOIN hotspot_navigations hn ON h.id = hn.hotspotId
+                     JOIN nodes n ON hn.targetNodeId = n.id
+                     
+                     WHERE h.nodeId = :nodeId AND h.type = 1 AND n.status = 1
+            """;
+
+            return ConnectionPool.getConnection().withHandle(
+                    handle -> handle.createQuery(sql)
+                            .bind("nodeId", nodeId)
+                            .mapTo(Integer.class)
+                            .list()
+            );
     }
 
     public int countAllAutoNodes() {

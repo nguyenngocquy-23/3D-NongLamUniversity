@@ -296,7 +296,6 @@ back_btn:hover {
   overflow-y: auto;
 }
 
-
 .task_container::-webkit-scrollbar,
 .update_hotspot_container::-webkit-scrollbar {
   width: 8px;
@@ -328,6 +327,7 @@ back_btn:hover {
   top: 20px;
   right: 20px;
   padding: 0.5rem 1rem;
+  z-index: 3;
 }
 
 .guide_button:focus {

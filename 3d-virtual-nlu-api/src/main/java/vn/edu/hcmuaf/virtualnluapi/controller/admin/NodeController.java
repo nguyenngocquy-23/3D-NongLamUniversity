@@ -7,11 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.AutoTourResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeIdMapResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeImageResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
 import vn.edu.hcmuaf.virtualnluapi.service.NodeService;
 
@@ -207,6 +203,36 @@ public class NodeController {
         }
     }
 
+
+    /**
+     * Method này dành cho việc cập nhật dữ liệu trong tour (tổng quan)
+     * @param id : id của master node.
+     * @param request
+     * Các trường được update ở dạng động:
+     * 1. name : Update name cho thằng master, đồng thời những thằng con sẽ update thành _1, _2.
+     * 2. spaceId: Cập nhật toàn bộ tour với spaceId mới nhất.
+     * 3. description: Chỉ cập nhật mô tả cho  master node.
+     * 4. trạng thái: chỉ cập nhật trạng thái cho  master node
+     *
+     * @return boolean
+     */
+    @PATCH
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+
+    public ApiResponse<List<NodeExpandResponse>> updateNodeOverviewById(@PathParam("id") int id, NodeUpdateOverviewRequest request) {
+
+        boolean result = nodeService.updateNodePartial(id, request);
+        if (result) {
+            List<NodeExpandResponse> updatedList = nodeService.getNodeListByMasterId(id);
+            return ApiResponse.<List<NodeExpandResponse>>builder().statusCode(1000).message("Cập nhật thành công!").data(updatedList).build();
+        } else {
+            return ApiResponse.<List<NodeExpandResponse>>builder().statusCode(5000).message("Cập nhật thất bại!").data(null).build();
+        }
+
+    }
+
     /**
      * Method dùng để thay thế realId trong Dabatabase cho:
      * 1. tempId của node.
@@ -231,20 +257,17 @@ public class NodeController {
         }
     }
 
-    /**
-     * Tải ảnh và nạp vào ram:
-     * 1. Tải ảnh của node default.
-     * 2. Tải ảnh các node preload liên quan.
-     *
-     *
-     */
-//    @POST
-//    @Path("/getPreloadNodeImg")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    public ApiResponse<List<NodeImageResponse>> getPreloadImgs(NodeIdRequest request) {
-//        List<NodeImageResponse> result = nodeService.getPreloadNodeImgs(request.getNodeId());
-//        return ApiResponse.<List<NodeImageResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
-//    }
+    @POST
+    @Path("/changeStatus")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeStatusNode(StatusRequest req) {
+        boolean result = nodeService.changeStatus(req);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai space thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai space").data(result).build();
+        }
+    }
 
 }

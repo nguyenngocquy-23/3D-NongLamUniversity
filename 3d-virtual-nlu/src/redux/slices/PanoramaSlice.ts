@@ -99,9 +99,18 @@ const panoramaSlice = createSlice({
       state.panoramaList = panoramas;
       state.currentSelectId = panoramas[0]?.id || null;
     },
-    
-    addAutoPanorama(state, action: PayloadAction<{  node: any; duration?: number; soundBackground ?: string }>) {
-      const existing = state.autoPanoramaList.find(p => p.originalNodeId === action.payload.node.id);
+
+    addAutoPanorama(
+      state,
+      action: PayloadAction<{
+        node: any;
+        duration?: number;
+        soundBackground?: string;
+      }>
+    ) {
+      const existing = state.autoPanoramaList.find(
+        (p) => p.originalNodeId === action.payload.node.id
+      );
       if (!existing) {
         state.autoPanoramaList.push({
           ...action.payload.node,
@@ -160,11 +169,20 @@ const panoramaSlice = createSlice({
       // Ưu tiên chọn panorama đầu tiên có status = 2 (master), nếu không thì chọn đầu tiên
       const master = panoramas.find((p) => p.config.status === 2);
       state.currentSelectId = master?.id || panoramas[0]?.id || null;
+    },
 
-      // Đồng bộ vị trí
-      // state.currentSelectedPosition = panoramas.findIndex(
-      //   (p) => p.id === state.currentSelectId
-      // );
+    smartUpdatePanoramasFromResponse(
+      state,
+      action: PayloadAction<PanoramaItem[]>
+    ) {
+      const incoming = action.payload;
+      const incomingMap = new Map(incoming.map((p) => [p.id, p]));
+
+      // Cập nhật từng panorama theo id
+      state.panoramaList = state.panoramaList.map((old) => {
+        const updated = incomingMap.get(old.id);
+        return updated ? { ...old, ...updated } : old;
+      });
     },
     selectPanorama(state, action: PayloadAction<string>) {
       // state.currentSelectedPosition = action.payload;
@@ -192,13 +210,17 @@ const panoramaSlice = createSlice({
 
     updateAutoPanoConfig(
       state,
-      action: PayloadAction<{ id: string; duration : number, soundBackground : string }>
+      action: PayloadAction<{
+        id: string;
+        duration: number;
+        soundBackground: string;
+      }>
     ) {
       const { id, duration, soundBackground } = action.payload;
       const pano = state.autoPanoramaList.find((p) => p.id === id);
       if (pano) {
         pano.duration = duration;
-        pano.soundBackground = soundBackground
+        pano.soundBackground = soundBackground;
       }
     },
 
@@ -272,5 +294,6 @@ export const {
   updateCurrentAngleMaster,
   clearPanorama,
   deletePanoramaById,
+  smartUpdatePanoramasFromResponse,
 } = panoramaSlice.actions;
 export default panoramaSlice.reducer;

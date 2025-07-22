@@ -9,6 +9,7 @@ import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeExpandResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.NodeService;
 
@@ -82,18 +83,18 @@ public class NodeController {
     @Path("/nodeListByMasterId")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<NodeFullResponse>> getNodeListByMasterId(NodeIdRequest node) {
+    public ApiResponse<List<NodeExpandResponse>> getNodeListByMasterId(NodeIdRequest node) {
         try {
-            List<NodeFullResponse> result = nodeService.getNodeListByMasterId(node.getNodeId());
+            List<NodeExpandResponse> result = nodeService.getNodeListByMasterId(node.getNodeId());
 
-            return ApiResponse.<List<NodeFullResponse>>builder()
+            return ApiResponse.<List<NodeExpandResponse>>builder()
                     .statusCode(1000)
                     .message("Lấy danh sách node thành công")
                     .data(result)
                     .build();
 
         } catch (NumberFormatException e) {
-            return ApiResponse.<List<NodeFullResponse>>builder()
+            return ApiResponse.<List<NodeExpandResponse>>builder()
                     .statusCode(1001)
                     .message("ID node không hợp lệ: " + node.getNodeId())
                     .data(null)
@@ -101,7 +102,7 @@ public class NodeController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ApiResponse.<List<NodeFullResponse>>builder()
+            return ApiResponse.<List<NodeExpandResponse>>builder()
                     .statusCode(1002)
                     .message("Đã xảy ra lỗi nội bộ: " + e.getMessage())
                     .data(null)
