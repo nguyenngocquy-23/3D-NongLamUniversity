@@ -47,7 +47,6 @@ function User() {
 
   // Cập nhật searchData mỗi khi users thay đổi
   useEffect(() => {
-    console.log(users);
     if (users.length > 0) {
       setSearchData(users); // Chỉ cập nhật khi users có dữ liệu
     }

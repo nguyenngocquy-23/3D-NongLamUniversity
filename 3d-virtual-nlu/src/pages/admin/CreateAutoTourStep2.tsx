@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import styles from "../../styles/createTourStep2.module.css";
 import { FaAngleLeft, FaBook } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
@@ -51,6 +51,7 @@ import {
   CloudinaryUploadResp,
 } from "../../components/admin/UploadFile";
 import Waiting from "../../components/Waiting";
+import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
 
 const CreateAutoTourStep2 = () => {
   const navigate = useNavigate();
@@ -85,12 +86,15 @@ const CreateAutoTourStep2 = () => {
   useEffect(() => {
     if (tourId && autoNodes.length > 0) {
       const foundNode = autoNodes.find((node) => node.id == tourId);
+      console.log("Found autoNode:", foundNode);
       setAutoNode(foundNode);
     }
   }, [tourId, autoNodes]);
 
   useEffect(() => {
-    if (autoNode) setStatus(autoNode?.status);
+    if (autoNode?.status !== status) {
+      setStatus(autoNode.status);
+    }
   }, [autoNode]);
 
   const [status, setStatus] = useState(autoNode?.status); // State để điều khiển cursor
@@ -111,32 +115,44 @@ const CreateAutoTourStep2 = () => {
 
   const dispatch = useDispatch();
 
-  const hotspotNavigations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
-    )
-  );
-  const hotspotInfos = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
-    )
-  );
-  const hotspotModels = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotModel => hotspot.type === 4
-    )
-  );
-  const hotspotMedias = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-    )
-  );
-
   const { autoPanoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
-  const currentPanorama = autoPanoramaList.find(
-    (pano) => pano.id === currentSelectId
+
+  const currentPanorama = useMemo(() => {
+    return autoPanoramaList.find((pano) => pano.id === currentSelectId);
+  }, [autoPanoramaList, currentSelectId]);
+
+  const hotspotNavigations = useMemo(
+    () =>
+      currentPanorama?.navHotspots?.filter(
+        (hotspot: any): hotspot is HotspotNavigation => hotspot.type === 1
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotInfos = useMemo(
+    () =>
+      currentPanorama?.infoHotspots?.filter(
+        (hotspot: any): hotspot is HotspotInformation => hotspot.type === 2
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotModels = useMemo(
+    () =>
+      currentPanorama?.modelHotspots?.filter(
+        (hotspot: any): hotspot is HotspotModel => hotspot.type === 4
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotMedias = useMemo(
+    () =>
+      currentPanorama?.mediaHotspots?.filter(
+        (hotspot: any): hotspot is HotspotMedia => hotspot.type === 3
+      ) ?? [],
+    [currentPanorama]
   );
 
   const handleSelectNode = (id: string) => {
@@ -258,8 +274,10 @@ const CreateAutoTourStep2 = () => {
           icon: "success",
           title: "Thành công",
           text: "Cập nhật thành công",
-        }).then(() => {
-          navigate(-1);
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
         });
       } else {
         Swal.fire({
@@ -291,7 +309,13 @@ const CreateAutoTourStep2 = () => {
     } else {
       setIsLoadingDone(true);
     }
-  }, [hotspotModels, hotspotMedias, hotspotNavigations, hotspotInfos]);
+  }, [
+    hotspotModels.length,
+    hotspotMedias.length,
+    hotspotNavigations.length,
+    hotspotInfos.length,
+    isLoadingDone,
+  ]);
 
   useEffect(() => {
     let progress = 0;
@@ -387,13 +411,11 @@ const CreateAutoTourStep2 = () => {
 
           {isTextureReady &&
             hotspotNavigations
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
                 <GroundHotspot
                   key={hotspot.id}
-                  onNavigate={(targetNodeId, cameraTargetPosition) =>
-                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                  }
+                  onNavigate={() => {}}
                   setCurrentHotspotId={setCurrentHotspotId}
                   hotspotNavigation={hotspot}
                 />
@@ -401,8 +423,8 @@ const CreateAutoTourStep2 = () => {
 
           {isTextureReady &&
             hotspotInfos
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
                 <GroundHotspotInfo
                   key={hotspot.id}
                   setCurrentHotspotId={setCurrentHotspotId}
@@ -411,8 +433,8 @@ const CreateAutoTourStep2 = () => {
               ))}
           {isTextureReady &&
             hotspotModels
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
                 <GroundHotspotModel
                   key={hotspot.id}
                   setCurrentHotspotId={setCurrentHotspotId}
@@ -422,8 +444,8 @@ const CreateAutoTourStep2 = () => {
 
           {isTextureReady &&
             hotspotMedias
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
                 <VideoMeshComponent
                   key={hotspot.id}
                   hotspotMedia={hotspot}

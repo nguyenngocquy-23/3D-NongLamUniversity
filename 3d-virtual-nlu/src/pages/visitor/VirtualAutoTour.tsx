@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { useNavigate, useParams } from "react-router-dom";
@@ -21,6 +21,17 @@ import { IoIosCloseCircle } from "react-icons/io";
 import { FaAngleDoubleRight } from "react-icons/fa";
 import FooterTour from "../../components/visitor/FooterTour";
 import CommentBox from "../../components/visitor/CommentBox";
+import {
+  HotspotNavigation,
+  HotspotInformation,
+  HotspotModel,
+  HotspotMedia,
+} from "../../redux/slices/HotspotSlice";
+import VideoMeshComponent from "../../components/admin/VideoMesh";
+import GroundHotspot from "../../components/visitor/GroundHotspot";
+import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
+import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
+import { fetchIcons } from "../../redux/slices/DataSlice";
 
 const VirtualAutoTour: React.FC = () => {
   const userJson = sessionStorage.getItem("user");
@@ -32,12 +43,15 @@ const VirtualAutoTour: React.FC = () => {
   const { tourId } = useParams();
 
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    dispatch(fetchIcons());
+  }, [dispatch]);
   const { autoPanoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
   const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
   const autoTour = autoNodes.find((tour) => tour.id == tourId);
-  console.log("autoTour", tourId, autoTour);
   // Panorama hiện tại.
   const currentPanorama = autoPanoramaList.find(
     (pano) => pano.id === currentSelectId
@@ -72,6 +86,8 @@ const VirtualAutoTour: React.FC = () => {
 
   const [accessing, setAccessing] = useState(0);
   const [isOpenInfo, setIsOpenInfo] = useState(true);
+  const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
+  const [isTextureReady, setIsTextureReady] = useState(false);
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -173,8 +189,11 @@ const VirtualAutoTour: React.FC = () => {
     positionY,
     positionZ,
   ];
+
   const handleSelectNode = (id: string) => {
+    setIsTextureReady(false);
     dispatch(selectPanorama(id));
+    setCurrentHotspotId(null);
   };
 
   /**
@@ -305,9 +324,9 @@ const VirtualAutoTour: React.FC = () => {
   }, [autoTour, volume]);
 
   useEffect(() => {
-    const step = 0.02;
+    const step = 0.05;
     const minVolume = 0;
-    const maxVolume = 2;
+    const maxVolume = 1;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp") {
@@ -326,6 +345,38 @@ const VirtualAutoTour: React.FC = () => {
       audioRef.current.volume = volume;
     }
   }, [volume]);
+
+  const hotspotNavigations = useMemo(
+    () =>
+      currentPanorama?.navHotspots?.filter(
+        (hotspot: any): hotspot is HotspotNavigation => hotspot.type === 1
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotInfos = useMemo(
+    () =>
+      currentPanorama?.infoHotspots?.filter(
+        (hotspot: any): hotspot is HotspotInformation => hotspot.type === 2
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotModels = useMemo(
+    () =>
+      currentPanorama?.modelHotspots?.filter(
+        (hotspot: any): hotspot is HotspotModel => hotspot.type === 4
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotMedias = useMemo(
+    () =>
+      currentPanorama?.mediaHotspots?.filter(
+        (hotspot: any): hotspot is HotspotMedia => hotspot.type === 3
+      ) ?? [],
+    [currentPanorama]
+  );
 
   return (
     <>
@@ -354,6 +405,7 @@ const VirtualAutoTour: React.FC = () => {
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             yawOffsetCurrent={currentPanorama?.yawOffset ?? 0}
             lightIntensity={lightIntensity}
+            onTextureReady={() => setIsTextureReady(true)}
           />
           <CamControls
             sphereRef={sphereRef}
@@ -362,6 +414,49 @@ const VirtualAutoTour: React.FC = () => {
             autoRotate={isRotation}
             autoRotateSpeed={speedRotate}
           />
+          {isTextureReady &&
+            hotspotNavigations
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
+                <GroundHotspot
+                  key={hotspot.id}
+                  onNavigate={() => {}}
+                  setCurrentHotspotId={setCurrentHotspotId}
+                  hotspotNavigation={hotspot}
+                />
+              ))}
+
+          {isTextureReady &&
+            hotspotInfos
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
+                <GroundHotspotInfo
+                  key={hotspot.id}
+                  setCurrentHotspotId={setCurrentHotspotId}
+                  hotspotInfo={hotspot}
+                />
+              ))}
+          {isTextureReady &&
+            hotspotModels
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
+                <GroundHotspotModel
+                  key={hotspot.id}
+                  setCurrentHotspotId={setCurrentHotspotId}
+                  hotspotModel={hotspot}
+                />
+              ))}
+
+          {isTextureReady &&
+            hotspotMedias
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
+                <VideoMeshComponent
+                  key={hotspot.id}
+                  hotspotMedia={hotspot}
+                  setCurrentHotspotId={setCurrentHotspotId}
+                />
+              ))}
         </Canvas>
         <audio
           ref={audioRef}

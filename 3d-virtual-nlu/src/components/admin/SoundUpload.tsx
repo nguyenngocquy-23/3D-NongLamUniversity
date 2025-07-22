@@ -51,7 +51,7 @@ function SoundUpload({
       />
       {(audioFile || soundBackground) && (
         <div className="mt-2">
-          <audio controls src={audioURL || soundBackground || ""} />
+          <audio controls src={audioURL || soundBackground} />
         </div>
       )}
     </div>

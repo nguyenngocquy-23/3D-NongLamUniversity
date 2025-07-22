@@ -49,13 +49,13 @@ const ConfigAutoTour = ({
     currentPanorama?.duration ?? 0
   );
   const [soundBackground, setSoundBackground] = useState<string | null>(
-    currentPanorama?.soundBackground || ""
+    currentPanorama?.soundBackground ?? ""
   );
-
 
   useEffect(() => {
     setSoundBackground(soundBackgroundProp || "");
-  },[soundBackgroundProp])
+    console.log("Sound background updated:", soundBackgroundProp);
+  }, [soundBackgroundProp]);
 
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] =
@@ -130,7 +130,10 @@ const ConfigAutoTour = ({
         <div className={styles.config_item}>
           <div className={styles.input_group}>
             <label className={styles.label}>Nhạc nền:</label>
-            <SoundUpload soundBackground={soundBackground || ""} setSoundBackground={setSoundBackground} />
+            <SoundUpload
+              soundBackground={soundBackground || ""}
+              setSoundBackground={setSoundBackground}
+            />
             <label className={styles.label}>Giọng nói:</label>
             <select
               className={styles.custom_select}

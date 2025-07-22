@@ -53,7 +53,6 @@ const ManagerAutoTour = () => {
 
   const dashboard = useSelector((state: RootState) => state.data.dashboard);
   const [autoNodeList, setAutoNodeList] = useState<any[]>(autoNodes || []);
-  console.log("autoNodes", autoNodes, autoNodeList);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
