@@ -130,6 +130,15 @@ public class NodeService {
         }
     }
 
+    public List<AutoTourResponse> getAllAutoTour(PageRequest request) {
+        try {
+            return nodeDao.getAllAutoTour(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public List<AutoTourResponse> getAutoTour(PageRequest request) {
         try {
             return nodeDao.getAutoTour(request);

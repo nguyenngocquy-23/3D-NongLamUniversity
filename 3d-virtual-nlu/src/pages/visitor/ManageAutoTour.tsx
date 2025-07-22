@@ -57,7 +57,7 @@ const ManageAutoTour = () => {
   useEffect(() => {
     const handleChangePage = async () => {
       if (currentPage === -1) return;
-      const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
+      const response = await axios.post(API_URLS.GET_AUTO_TOURS, {
         page: currentPage,
         limit: perPage,
       });
