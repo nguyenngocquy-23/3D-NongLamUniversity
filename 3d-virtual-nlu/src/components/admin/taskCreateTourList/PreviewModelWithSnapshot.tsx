@@ -6,6 +6,7 @@ import styles from "../../../styles/previewModel.module.css";
 import axios from "axios";
 import { ApiResponse, CloudinaryUploadResp } from "../UploadFile";
 import { API_URLS } from "../../../env";
+import Swal from "sweetalert2";
 
 type Props = {
   modelUrl: string;
@@ -54,6 +55,7 @@ const SnapshotHelper = ({
 const ModelPreviewWithSnapshot = ({ modelUrl, onThumbnailSaved }: Props) => {
   const [snapshot, setSnapshot] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [isSave, setIsSave] = useState(false);
 
   const uploadToCloud = async (snapshot: string) => {
     const formData = new FormData();
@@ -68,15 +70,26 @@ const ModelPreviewWithSnapshot = ({ modelUrl, onThumbnailSaved }: Props) => {
   };
 
   const handleUploadThumbnail = async () => {
-    if (!snapshot) return alert("Vui lòng chụp ảnh trước!");
+    if (!snapshot) {
+      Swal.fire({
+        title: "Chưa có ảnh thumbnail",
+        text: "Vui lòng chụp ảnh thumbnail trước khi lưu.",
+        icon: "warning",
+        showCancelButton: false,
+        showConfirmButton: false,
+        timer: 2000,
+        toast: true,
+        position: "top-end",
+      });
+      return;
+    }
     setUploading(true);
     try {
       const url = await uploadToCloud(snapshot);
-      alert("Đã tạo object URL: " + url);
-      onThumbnailSaved(url); // Gửi URL ảnh về cho lớp cha
+      onThumbnailSaved(url);
+      setIsSave(true);
     } catch (err) {
       console.error("Lỗi khi upload thumbnail:", err);
-      alert("Upload thất bại");
     } finally {
       setUploading(false);
     }
@@ -97,7 +110,14 @@ const ModelPreviewWithSnapshot = ({ modelUrl, onThumbnailSaved }: Props) => {
           <SnapshotHelper onSnapshotReady={setSnapshot} />
         </Canvas>
         {snapshot && (
-          <div className={styles.snapshot_container}>
+          <div
+            className={styles.snapshot_container}
+            style={{
+              backgroundColor: isSave
+                ? "rgba(0, 255, 0, 0.5)"
+                : "rgba(0,0,0,0.5)",
+            }}
+          >
             <h5 className={styles.title}>📷 Ảnh Thumbnail:</h5>
             <img
               src={snapshot}

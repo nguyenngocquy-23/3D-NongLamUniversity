@@ -15,8 +15,8 @@ import { IoSettings } from "react-icons/io5";
 import { BiSolidCommentDetail } from "react-icons/bi";
 import { CiLogout } from "react-icons/ci";
 import { TbTournament } from "react-icons/tb";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../redux/Store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 
 type SideBarProps = {
@@ -43,6 +43,11 @@ const Sidebar: React.FC<SideBarProps> = ({
     dispatch(logoutUser());
     navigate("/login");
   };
+
+  const note_contact = useSelector((state: RootState) => state.data.contacts); 
+  const note_contact_not_feedback = note_contact.filter(
+    (contact) => contact.status == 0
+  ).length;
 
   return (
     <nav
@@ -223,6 +228,11 @@ const Sidebar: React.FC<SideBarProps> = ({
           >
             <FaComment />
             {isOpen && <span>Phản hồi</span>}
+            {note_contact_not_feedback > 0 && (
+              <span className={styles.notification}>
+                {note_contact_not_feedback}
+              </span>
+            )}
           </li>
         </Link>
       </ul>
