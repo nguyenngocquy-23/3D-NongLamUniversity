@@ -701,6 +701,7 @@ const TourDetail = () => {
           <TourScene
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
+            imageRef={imageRef}
             //Version of Quy
             // textureCurrent={node.url}
             // yawOffsetCurrent={node.yawOffset ?? 0}
