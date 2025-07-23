@@ -32,6 +32,8 @@ import GroundHotspot from "../../components/visitor/GroundHotspot";
 import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import { fetchIcons } from "../../redux/slices/DataSlice";
+import Waiting from "../../components/Waiting";
+import { FaBookOpen } from "react-icons/fa6";
 
 const VirtualAutoTour: React.FC = () => {
   const userJson = sessionStorage.getItem("user");
@@ -85,7 +87,7 @@ const VirtualAutoTour: React.FC = () => {
   ); // Giữ lại đối tượng
 
   const [accessing, setAccessing] = useState(0);
-  const [isOpenInfo, setIsOpenInfo] = useState(true);
+  const [isOpenInfo, setIsOpenInfo] = useState(false);
   const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
   const [isTextureReady, setIsTextureReady] = useState(false);
 
@@ -367,6 +369,61 @@ const VirtualAutoTour: React.FC = () => {
       ) ?? [],
     [currentPanorama]
   );
+  const [isWaiting, setIsWaiting] = useState(true);
+  const [percent, setPercent] = useState(0);
+  const [isLoadingDone, setIsLoadingDone] = useState(false);
+
+  useEffect(() => {
+    if (
+      !hotspotModels ||
+      !hotspotMedias ||
+      !hotspotNavigations ||
+      !hotspotInfos
+    ) {
+      setIsLoadingDone(false);
+      return;
+    } else {
+      setIsLoadingDone(true);
+    }
+  }, [
+    hotspotModels.length,
+    hotspotMedias.length,
+    hotspotNavigations.length,
+    hotspotInfos.length,
+    isLoadingDone,
+  ]);
+
+  useEffect(() => {
+    let progress = 0;
+
+    const interval = setInterval(() => {
+      if (!isLoadingDone) {
+        // Loading giả lập, chỉ cho đến 90%
+        if (progress < 90) {
+          progress += Math.random() * 5; // tăng chậm lại để mượt
+          if (progress > 90) progress = 90;
+          setPercent(Math.floor(progress));
+        }
+      } else {
+        // Task thật xong, tăng nốt phần còn lại đến 100%
+        if (progress < 100) {
+          progress += Math.random() * 10;
+          if (progress > 100) progress = 100;
+          setPercent(Math.floor(progress));
+        }
+
+        // Nếu đã 100% thì clear interval
+        if (progress >= 100) {
+          clearInterval(interval);
+          requestAnimationFrame(() => {
+            setTimeout(() => setIsWaiting(false), 500);
+          });
+        }
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [isLoadingDone]);
 
   return (
     <>
@@ -495,6 +552,24 @@ const VirtualAutoTour: React.FC = () => {
           <div className={styles.info_box_container}>
             <div className={styles.overlay} onClick={toggleInformation} />
             <div className={styles.info_box}>
+              <h2
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  justifyContent: "center",
+                }}
+              >
+                <FaBookOpen /> Hộp thông tin <FaBookOpen />
+              </h2>
+              <p
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                ⁓º⁓º⁓º⁓º⁓º⁓
+              </p>
               {currentPanorama.descriptionescription?.trim()
                 ? currentPanorama.description
                 : "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
@@ -536,6 +611,7 @@ const VirtualAutoTour: React.FC = () => {
           <FaAngleDoubleRight className={styles.arrow} />
         </button>
       </div>
+      {isWaiting ? <Waiting percent={percent} /> : ""}
     </>
   );
 };

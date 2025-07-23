@@ -8,6 +8,7 @@ import { RootState } from "../redux/Store";
 import { FaMessage, FaXmark } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { AFTER_DOMAIN, API_URLS } from "../env";
+import { formatTimeAgo } from "../utils/formatDateTime";
 
 const Chat = ({
   nodeId,
@@ -188,7 +189,6 @@ const Chat = ({
     if (!isLoadingMore) {
       nodeMessagesRef.current.scrollTop = nodeMessagesRef.current.scrollHeight;
     }
-    // Nếu đang load tin nhắn cũ, ta đã xử lý scroll riêng rồi trong loadMessages()
   }, [messages.length, isSelectOption]);
 
   return (
@@ -257,6 +257,7 @@ const Chat = ({
                       }`}
                     >
                       <span>{msg.content}</span>
+                      <div className={styles.timestamp}>{formatTimeAgo(Number.parseInt(msg.createdAt))}</div>
                     </div>
                   </div>
                 );
@@ -321,6 +322,7 @@ const Chat = ({
                       }`}
                     >
                       <span>{msg.content}</span>
+                      <div className={styles.timestamp}>{formatTimeAgo(Number.parseInt(msg.createdAt))}</div>
                     </div>
                   </div>
                 );

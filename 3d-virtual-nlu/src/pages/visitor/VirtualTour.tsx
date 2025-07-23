@@ -33,6 +33,7 @@ import {
 import { vectorComponents } from "three/webgpu";
 import {
   FaAngleLeft,
+  FaBook,
   FaCompass,
   FaMap,
   FaPause,
@@ -53,6 +54,7 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { useGLTF } from "@react-three/drei";
 import axios from "axios";
 import { API_URLS } from "../../env.ts";
+import { FaBookOpen } from "react-icons/fa";
 
 /*
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -173,7 +175,7 @@ const VirtualTour = () => {
   /**
    * State để mở hộp thông tin
    */
-  const [isOpenInfo, setIsOpenInfo] = useState(true);
+  const [isOpenInfo, setIsOpenInfo] = useState(false);
 
   const [hideMap, setHideMap] = useState(false);
   const [fullMap, setFullMap] = useState(false);
@@ -768,8 +770,26 @@ const VirtualTour = () => {
       {/* Hộp thông tin */}
       {isOpenInfo && (
         <div className={styles.info_box_container}>
-          <div className={styles.overlay} onClick={toggleInformation}/>
+          <div className={styles.overlay} onClick={toggleInformation} />
           <div className={styles.info_box}>
+            <h2
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                justifyContent: "center",
+              }}
+            >
+              <FaBookOpen /> Hộp thông tin <FaBookOpen />
+            </h2>
+            <p
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              ⁓º⁓º⁓º⁓º⁓º⁓
+            </p>
             {nodeToRender.description?.trim()
               ? nodeToRender.description
               : "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
@@ -851,7 +871,7 @@ const VirtualTour = () => {
         </div>
       )}
       /* Màn hình laoding */
-      {/* {isWaiting ? <Waiting percent={percent} /> : ""} */}
+      {isWaiting ? <Waiting percent={percent} /> : ""}
     </div>
   );
 };
