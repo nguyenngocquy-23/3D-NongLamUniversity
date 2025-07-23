@@ -246,6 +246,7 @@ const Chat = ({
                           style={{
                             background: `url(${msg.avatar})`,
                           }}
+                          title={msg.username}
                         >
                           {/* {msg.username.charAt(0)} */}
                         </div>
@@ -311,6 +312,7 @@ const Chat = ({
                           style={{
                             background: `url(${msg.avatar})`,
                           }}
+                          title={msg.username}
                         >
                           {/* {msg.username.charAt(0)} */}
                         </div>

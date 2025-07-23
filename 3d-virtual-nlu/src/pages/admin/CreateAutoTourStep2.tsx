@@ -73,7 +73,6 @@ const CreateAutoTourStep2 = () => {
   useEffect(() => {
     if (tourId) {
       setIsUpdate(true);
-      dispatch(goToStep(2));
     }
   }, [tourId]);
   const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
@@ -86,7 +85,6 @@ const CreateAutoTourStep2 = () => {
   useEffect(() => {
     if (tourId && autoNodes.length > 0) {
       const foundNode = autoNodes.find((node) => node.id == tourId);
-      console.log("Found autoNode:", foundNode);
       setAutoNode(foundNode);
     }
   }, [tourId, autoNodes]);
@@ -201,6 +199,9 @@ const CreateAutoTourStep2 = () => {
    */
   const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
+  useEffect(() => {
+    if (currentStep == 1) navigate("/admin/manageAutoTour");
+  }, [currentStep, navigate]);
 
   /**
    *
@@ -240,16 +241,32 @@ const CreateAutoTourStep2 = () => {
     return response.data.data.url || "";
   };
 
+  const [orderedList, setOrderedList] = useState([...autoPanoramaList]);
+
+  const handleIndexChange = (index1: number, index2: number) => {
+    if (
+      index1 < 0 ||
+      index2 < 0 ||
+      index1 >= orderedList.length ||
+      index2 >= orderedList.length
+    )
+      return;
+
+    const newList = [...orderedList];
+    [newList[index1], newList[index2]] = [newList[index2], newList[index1]];
+    setOrderedList(newList);
+  };
+
+  // Tạo mảng indexNode
+  const indexNodeArray = orderedList.map((p: any) => ({
+    nodeId: p.id,
+    duration: p.duration,
+  }));
+
   const handleUpdateAutoTour = async () => {
     const tourName = `${autoPanoramaList[0]?.name || ""} - ${
       autoPanoramaList[autoPanoramaList.length - 1]?.name || ""
     }`;
-
-    // Tạo mảng indexNode
-    const indexNodeArray = autoPanoramaList.map((p: any) => ({
-      nodeId: p.id,
-      duration: p.duration,
-    }));
 
     // Chuyển thành chuỗi JSON
     const indexNode = JSON.stringify(indexNodeArray);
@@ -260,8 +277,16 @@ const CreateAutoTourStep2 = () => {
     }
 
     const soundUrl = await uploadToCloud(autoPanoramaList[0].soundBackground);
-
     try {
+      Swal.fire({
+        title: "Đang cập nhật...",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        toast: true,
+      });
       const response = await axios.post(API_URLS.ADMIN_UPDATE_AUTO_TOUR, {
         autoTourId: tourId,
         name: tourName,
@@ -269,6 +294,8 @@ const CreateAutoTourStep2 = () => {
         status: status,
         soundBackground: soundUrl,
       });
+
+      Swal.close();
       if (response.data?.statusCode === 1000) {
         Swal.fire({
           icon: "success",
@@ -514,23 +541,42 @@ const CreateAutoTourStep2 = () => {
         </div>
         {/* Hộp node */}
         <div className={styles.node_list}>
-          {autoPanoramaList.map((pano) => (
+          {orderedList.map((pano, index) => (
             <div
               key={pano.id}
               className={`${styles.node_item} ${
                 currentSelectId === pano.id ? styles.active : ""
               }`}
-              onClick={() => {
-                setOpenConfigTour(pano.id);
-                handleSelectNode(pano.id);
-              }}
               title={pano.name}
             >
               <img
                 src={pano.url}
                 alt={pano.name}
                 className={styles.node_image}
+                onClick={() => {
+                  setOpenConfigTour(pano.id);
+                  handleSelectNode(pano.id);
+                }}
               />
+              <div className={styles.node_index_box}>
+                <button
+                  className={styles.node_index_button}
+                  onClick={() => handleIndexChange(index, index - 1)}
+                  disabled={index === 0}
+                >
+                  ▲
+                </button>
+
+                <span className={styles.node_index_value}>{index + 1}</span>
+
+                <button
+                  className={styles.node_index_button}
+                  onClick={() => handleIndexChange(index, index + 1)}
+                  disabled={index === orderedList.length - 1}
+                >
+                  ▼
+                </button>
+              </div>
             </div>
           ))}
         </div>
