@@ -53,4 +53,16 @@ public class ContactDao {
                     .execute() > 0;
         });
     }
+
+    public int countAllContact() {
+        String sql = """
+                SELECT COUNT(*) 
+                FROM contacts
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .mapTo(Integer.class)
+                    .one();
+        });
+    }
 }

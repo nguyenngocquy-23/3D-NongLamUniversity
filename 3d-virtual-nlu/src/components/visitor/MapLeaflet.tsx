@@ -268,7 +268,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
                 spaceId == space.id ? styles.pulse : ""
               }"
               style="background: url(${space.url});
-                    ${spaceId == space.id ? "border: 3px solid blue;" : ""}">
+                    ${spaceId == space.id ? "border: 3px solid #3cbe22ff;" : ""}">
               </div>`,
               iconSize: [40, 40],
               iconAnchor: [20, 20],

@@ -51,8 +51,6 @@ public class SpaceDao {
         });
     }
 
-
-
     public List<SpaceFullResponse> getSpacesByPage(PageRequest request) {
         String spaceSql = """
                 SELECT s.id, f.name as fieldName, s.fieldId, s.code, s.name, s.description, s.url, s.status, s.location, s.masterNodeId, n.name as masterNodeName

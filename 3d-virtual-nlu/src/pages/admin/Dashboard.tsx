@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { useEffect } from "react";
+import { MdOutlineContactMail } from "react-icons/md";
 
 const Dashboard = () => {
   const data = useSelector((state: RootState) => state.data.dashboard);
@@ -34,7 +35,14 @@ const Dashboard = () => {
     {
       title: "Người đăng ký (tháng)",
       icon: <FaUserPlus />,
-      value: data.numRegister,
+      value: data.numMonthRegister,
+      color: "#9c27b0",
+      size: "medium",
+    },
+    {
+      title: "Số tài khoản",
+      icon: <FaUsers />,
+      value: data.numAllRegister,
       color: "#9c27b0",
       size: "medium",
     },
@@ -60,33 +68,46 @@ const Dashboard = () => {
       size: "small",
     },
     {
-      title: "Tour bị báo cáo",
-      icon: <FaExclamationTriangle />,
-      value: data.numReport,
-      color: "#e91e63",
+      title: "Lượt liên hệ",
+      icon: <MdOutlineContactMail />,
+      value: data.numContact,
+      color: "#1ee92fff",
       size: "small",
     },
+    // {
+    //   title: "Tour bị báo cáo",
+    //   icon: <FaExclamationTriangle />,
+    //   value: data.numReport,
+    //   color: "#e91e63",
+    //   size: "small",
+    // },
   ];
 
   return (
     <div className={styles.dashboard_container}>
-      <div className={styles.stat_grid}>
-        {stats.map((stat, index) => (
-          <div
-            key={index}
-            className={`${styles.stat_card} ${styles[stat.size]}`}
-            style={{ borderLeft: `5px solid ${stat.color}` }}
-          >
-            <div className={styles.stat_icon} style={{ color: stat.color }}>
-              {stat.icon}
-            </div>
-            <div className={styles.stat_info}>
-              <p className={styles.stat_title}>{stat.title}</p>
-              <p className={styles.stat_value}>{stat.value.toLocaleString()}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      {["large", "medium", "small"].map((size) => (
+        <div key={size} className={`${styles.stat_row} ${styles[size]}`}>
+          {stats
+            .filter((stat) => stat.size === size)
+            .map((stat, index) => (
+              <div
+                key={index}
+                className={styles.stat_card}
+                style={{ borderLeft: `5px solid ${stat.color}` }}
+              >
+                <div className={styles.stat_icon} style={{ color: stat.color }}>
+                  {stat.icon}
+                </div>
+                <div className={styles.stat_info}>
+                  <p className={styles.stat_title}>{stat.title}</p>
+                  <p className={styles.stat_value}>
+                    {stat.value.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+        </div>
+      ))}
     </div>
   );
 };

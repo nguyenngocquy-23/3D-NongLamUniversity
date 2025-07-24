@@ -576,7 +576,7 @@ const CreateAutoTourStep2 = () => {
                   marginRight: "1rem",
                   textAlign: "center",
                   padding: "0.5rem 1rem",
-                  backgroundColor: "#0f0",
+                  backgroundColor: "#62f046",
                 }}
                 onClick={() => {
                   setIsAddTour(true);
@@ -590,7 +590,7 @@ const CreateAutoTourStep2 = () => {
                   marginRight: "1rem",
                   textAlign: "center",
                   padding: "0.5rem 1rem",
-                  backgroundColor: status == 0 ? "#f00" : "#0f0",
+                  backgroundColor: status == 0 ? "#f0464fff" : "#62f046",
                 }}
                 onClick={() => {
                   setStatus(status === 1 ? 0 : 1);

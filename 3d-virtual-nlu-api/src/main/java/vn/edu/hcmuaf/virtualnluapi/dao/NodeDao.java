@@ -639,6 +639,24 @@ public class NodeDao {
         );
     }
 
+    public int getHighestNumViewOfNode() {
+        String sql = "SELECT id FROM nodes group by id order by sum(numView) DESC limit 1";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
+
+    public int getLowestNumViewOfNode() {
+        String sql = "SELECT id FROM nodes group by id order by sum(numView) ASC limit 1";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
+
     public int countAllView() {
         String sql = "SELECT SUM(numView) FROM nodes";
         return ConnectionPool.getConnection().withHandle(handle ->
@@ -713,8 +731,6 @@ public class NodeDao {
             return true;
         });
     }
-
-
 
     public List<Integer> getSubNodeByMasterNodeId (int nodeId) {
             /**

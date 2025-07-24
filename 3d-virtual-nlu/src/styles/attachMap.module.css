@@ -28,7 +28,7 @@
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    background-color: #007bff;
+    background-color: #62f046;
     color: white;
     transition: background-color 0.2s ease;
 }
@@ -39,7 +39,7 @@
 }
 
 .controlPanel button:hover:not(:disabled) {
-    background-color: #0056b3;
+    background-color: #4bd430;
 }
 
 .controlPanel select {

@@ -232,6 +232,32 @@ public class UserDao {
         }
     }
 
+    public int countMonthRegister() {
+        String sql = """
+                    SELECT COUNT(*)
+                    FROM users
+                    WHERE roleId = 1 AND createdAt >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .mapTo(Integer.class)
+                    .one();
+        });
+    }
+
+    public int countAllRegister() {
+        String sql = """
+                    SELECT COUNT(*)
+                    FROM users
+                    WHERE roleId = 1
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .mapTo(Integer.class)
+                    .one();
+        });
+    }
+
 
 //    public List<String> getAllAdminEmail() {
 //        return ConnectionPool.getConnection().withHandle(n -> {

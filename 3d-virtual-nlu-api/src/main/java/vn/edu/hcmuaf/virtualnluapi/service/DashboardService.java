@@ -23,33 +23,41 @@ public class DashboardService {
     private FieldDao fieldDao;
     @Inject
     private SpaceDao spaceDao;
+    @Inject
+    private ContactDao contactDao;
 
     public DashboardResponse statistical() {
         int numCurrentAccess = nodeDao.countAllView();
 //        int numFreeAccess = userDao.countFreeAccess();
-//        int numRegister = userDao.countRegisterUser();
+        int numMonthRegister = userDao.countMonthRegister();
+        int numAllRegister = userDao.countAllRegister();
+        int highestViewNodeId = nodeDao.getHighestNumViewOfNode();
+        int lowestViewNodeId = nodeDao.getLowestNumViewOfNode();
 
         int numTour = nodeDao.countAllNodes();
         int numAutoTour = nodeDao.countAllAutoNodes();
         int numTourWaitingApprovel = nodeDao.countApprovingNodes();
 
         int numComment = commentDao.countAllComments();
-//        int numReport = commentDao.countReports();
 
         int numField = fieldDao.countAllFields();
         int numSpace = spaceDao.countAllSpaces();
+        int numContact = contactDao.countAllContact();
 
         return DashboardResponse.builder()
                 .numCurrentAccess(numCurrentAccess)
-                .numFreeAccess(23894)
-                .numRegister(100)
+                .numFreeAccess(230)
+                .numMonthRegister(numMonthRegister)
+                .numAllRegister(numAllRegister)
                 .numAutoTour(numAutoTour)
                 .numTour(numTour)
                 .numTourWaitingApprovel(numTourWaitingApprovel)
                 .numComment(numComment)
-                .numReport(1)
                 .numField(numField)
                 .numSpace(numSpace)
+                .numContact(numContact)
+                .highestViewNodeId(highestViewNodeId)
+                .lowestViewNodeId(lowestViewNodeId)
                 .build();
     }
 

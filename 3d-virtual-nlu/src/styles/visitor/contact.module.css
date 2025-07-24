@@ -36,7 +36,7 @@
   border-radius: 8px;
   font-size: 16px;
   resize: vertical;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.8);
   color: #fff;
 }
 
@@ -47,7 +47,7 @@
 .button {
   padding: 12px;
   font-size: 16px;
-  background-color: #0070f3;
+  background-color: #62f046;
   color: #fff;
   border: none;
   border-radius: 2rem;
@@ -56,5 +56,5 @@
 }
 
 .button:hover {
-  background-color: #0059c1;
+  background-color: #4bd430;
 }

@@ -6,7 +6,7 @@
   right: 0;
   width: calc(100%);
   height: 250px;
-  background-color: brown;
+  background-color: #62f046;
   text-align: center;
   border-radius: 10px;
   padding: 10px;
@@ -28,14 +28,14 @@
 
 /* Thumb – phần trượt */
 .container::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00fff0 0%, #00d2ff 50%, #007cf0 100%);
+  background: linear-gradient(180deg, #a8ff78 0%, #78ff6e 50%, #28a745 100%);
     border-radius: 15px;
 }
 
 /* Hover – đổi màu nhẹ */
 .container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #00d2ff, #3a47d5);
-    box-shadow: inset 0 0 1px #3a47d5;
+  background: linear-gradient(180deg, #78ff6e, #1e7e34);
+  box-shadow: inset 0 0 1px #1e7e34;
 }
 
 .search_input{
