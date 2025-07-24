@@ -899,7 +899,7 @@ const SpaceDetail = () => {
                   textureCurrent={currentPanorama?.url ?? "/khoa.jpg"}
                   yawOffsetCurrent={currentPanorama?.config.yawOffset ?? 0}
                   onPointerDown={handleScenePointerDown}
-                  lightIntensity={1}
+                  lightIntensity={currentPanorama?.config.lightIntensity ?? 1}
                   onTextureReady={() => setIsTextureReady(true)}
                 />
 
@@ -920,10 +920,13 @@ const SpaceDetail = () => {
                       <GroundHotspot
                         key={hotspot.id}
                         onNavigate={(targetNodeId, cameraTargetPosition) => {
-                          const isNumericString = /^\d+$/.test(hotspot.id);
-                          if (isNumericString) {
+                          if (isInteger(hotspot.id)) {
                             return;
                           }
+                          // const isNumericString = /^\d+$/.test(hotspot.id);
+                          // if (isNumericString) {
+                          //   return;
+                          // }
                           handleHotspotNavigate(
                             targetNodeId,
                             cameraTargetPosition
@@ -1052,11 +1055,19 @@ const SpaceDetail = () => {
                       hotspotId={currentHotspotId}
                       setHotspotId={setCurrentHotspotId}
                       onPropsChange={handleOnPropsChange}
-                      limitNav={true}
+                      limitNav={false}
                     />
                   </motion.div>
                 )}
               </AnimatePresence>
+              <div className={styles.update_link_tour}>
+                <span
+                  className={styles.update_link_tour_btn}
+                  onClick={handleUpdateTourInSpace}
+                >
+                  Lưu
+                </span>
+              </div>
 
               {/* <div
                 className={`${styles.task_container} ${
@@ -1096,7 +1107,8 @@ const SpaceDetail = () => {
                 >
                   Lưu
                 </span>
-              </div> */}
+              </div> 
+              */}
             </div>
           ) : currentSpace.masterNodeId ? (
             <div className={styles.space_preview_tour}>

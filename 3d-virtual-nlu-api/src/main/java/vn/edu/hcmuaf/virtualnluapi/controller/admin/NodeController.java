@@ -30,39 +30,7 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> createNode(List<NodeCreateRequest> reqs) {
-        /**
-         * Input: Insert danh sách node
-         * Output: Trả về resultIdList:
-         * [
-         * {
-         * tempId: id tạm trên NodeCreateRequest.
-         * realId: id thực trong DB
-         * }
-         * ]
-         */
-        List<NodeIdMapResponse> resultIdList = nodeService.createNode(reqs);
-        Map<String, Integer> idMap = resultIdList.stream().collect(Collectors.toMap(NodeIdMapResponse::getTempId, NodeIdMapResponse::getRealId));
-        updatesIds(reqs, idMap);
-        boolean result = true;
-        for (NodeCreateRequest req : reqs) {
-            try {
-                if (req.getNavHotspots() != null && !req.getNavHotspots().isEmpty()) {
-                    hotspotService.insertNavigation(req.getNavHotspots(), req.getId());
-                }
-                if (req.getInfoHotspots() != null && !req.getInfoHotspots().isEmpty()) {
-                    hotspotService.insertInformation(req.getInfoHotspots(), req.getId());
-                }
-                if (req.getMediaHotspots() != null && !req.getMediaHotspots().isEmpty()) {
-                    hotspotService.insertMedia(req.getMediaHotspots(), req.getId());
-                }
-                if (req.getModelHotspots() != null && !req.getModelHotspots().isEmpty()) {
-                    hotspotService.insertModel(req.getModelHotspots(), req.getId());
-                }
-            } catch (Exception e) {
-                System.err.println("Lỗi khi insert hotspot cho node: " + req.getId() + ": " + e.getMessage());
-                result = false;
-            }
-        }
+        boolean result = nodeService.createNode(reqs);
 
         if (result) {
             return ApiResponse.<Boolean>builder().statusCode(1000).message("Tao node thanh cong").data(result).build();
@@ -88,7 +56,7 @@ public class NodeController {
     @Path("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<Boolean> updateNode(List<NodeUpdateRequest> reqs) {
+    public ApiResponse<Boolean> updateNode(NodeFullUpdateRequest reqs) {
         boolean result = false;
         try {
             result = nodeService.updateNodes(reqs);
@@ -188,7 +156,7 @@ public class NodeController {
         for(NodeLinkRequest req : reqs) {
             try {
                 if(req.getNavHotspots() != null && !req.getNavHotspots().isEmpty()) {
-                    hotspotService.insertNavigation(req.getNavHotspots(), req.getId());
+//                    hotspotService.insertNavigation(req.getNavHotspots(), req.getId());
                 }
             } catch (Exception e) {
                 System.err.println("Lỗi khi insert hotspot cho node: " + req.getId() + ": " + e.getMessage());

@@ -251,24 +251,9 @@ const panoramaSlice = createSlice({
     deletePanoramaById(state, action: PayloadAction<string>) {
       const panoramaId = action.payload;
 
-      if (state.currentSelectId === panoramaId) {
-        Swal.fire({
-          icon: "warning",
-          title: "⚠️ Node đang được hiển thị!",
-          text: `Vui lòng di chuyển sang node mới trước khi xoá node này!`,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 4000,
-          timerProgressBar: true,
-        });
-        return;
-      }
-
       state.panoramaList = state.panoramaList.filter(
         (p) => p.id !== panoramaId
       );
-      deleteHotspotByNodeId(panoramaId);
     },
     clearPanorama(state) {
       (state.panoramaList = []),

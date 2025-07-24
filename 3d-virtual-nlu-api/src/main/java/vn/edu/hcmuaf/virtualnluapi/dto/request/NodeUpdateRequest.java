@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class NodeUpdateRequest {
-    int id;
+    String id;
     String url, name, description;
     double positionX, positionY, positionZ;
     double yawOffset;

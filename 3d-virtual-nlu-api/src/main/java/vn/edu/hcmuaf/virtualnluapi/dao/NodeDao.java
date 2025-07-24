@@ -17,21 +17,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class NodeDao {
 
     @Inject
     HotspotDao hotspotDao;
-    @Inject
-    private HotspotService hotspotService;
 
-    public List<NodeIdMapResponse> insertNode(List<NodeCreateRequest> reqs) {
+    public List<NodeIdMapResponse> insertNode(Handle handle, List<NodeCreateRequest> reqs) {
         String sql = """
                 INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, yawOffset, lightIntensity, brightness, contrast, saturation, grayscale, exposure, status, numView) 
                 VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :yawOffset, :lightIntensity, :brightness, :contrast, :saturation, :grayscale, :exposure, :status, :numView)""";
-
-        return ConnectionPool.getConnection().inTransaction(handle -> {
 
             List<NodeIdMapResponse> idMapResponses = new ArrayList<>();
 
@@ -62,7 +59,6 @@ public class NodeDao {
                 idMapResponses.add(new NodeIdMapResponse(req.getId(), realId));
             }
             return idMapResponses;
-        });
     }
 
     public List<NodeFullResponse> getNodesByPage(PageRequest request) {
@@ -436,7 +432,7 @@ public class NodeDao {
         });
     }
 
-    public boolean updateNodes(List<NodeUpdateRequest> reqs) {
+    public boolean updateNodes(Handle handle, List<NodeUpdateRequest> reqs) {
         String sql = """
                 UPDATE nodes SET url = :url, name = :name, description = :description, positionX = :positionX,
                 positionY = :positionY, positionZ = :positionZ, yawOffset = :yawOffset, brightness = :brightness, contrast = :contrast,
@@ -445,7 +441,6 @@ public class NodeDao {
                 WHERE id = :id
                 """;
 
-        int totalNodeUpdated = ConnectionPool.getConnection().inTransaction(handle -> {
             int count = 0;
             for (NodeUpdateRequest req : reqs) {
                 count += handle.createUpdate(sql)
@@ -464,28 +459,32 @@ public class NodeDao {
                         .bind("lightIntensity", req.getLightIntensity())
                         .bind("status", req.getStatus())
                         .bind("updatedAt", LocalDateTime.now())
-                        .bind("id", req.getId())
+                        .bind("id", Integer.parseInt(req.getId())) //Chuyển Id về Integer.
                         .execute();
             }
-            return count;
-        });
 
-        // Sau khi cập nhật nodes xong → cập nhật hotspots
-        for (NodeUpdateRequest req : reqs) {
-            int navUpdate = hotspotService.updateNavHotspots(req.getNavHotspots(), req.getId());
-            int infoUpdate = hotspotService.updateInfoHotspots(req.getInfoHotspots(), req.getId());
-            int mediaUpdate = hotspotService.updateMediaHotspots(req.getMediaHotspots(), req.getId());
-            int modelUpdate = hotspotService.updateModelHotspots(req.getModelHotspots(), req.getId());
-
-            int totalHotspotUpdated = navUpdate + infoUpdate + mediaUpdate + modelUpdate;
-
-            // Nếu node không được update và các hotspot không thay đổi → fail
-            if (totalNodeUpdated == 0 && totalHotspotUpdated == 0) {
-                return false;
+            if(count != reqs.size()) {
+                System.err.println("Không phải tất cả các node đều được cập nhật.!");
             }
-        }
-        return true;
+
+            return count == reqs.size();
     }
+
+//        // Sau khi cập nhật nodes xong → cập nhật hotspots
+//        for (NodeUpdateRequest req : reqs) {
+//            int navUpdate = hotspotService.updateNavHotspots(req.getNavHotspots(), req.getId());
+//            int infoUpdate = hotspotService.updateInfoHotspots(req.getInfoHotspots(), req.getId());
+//            int mediaUpdate = hotspotService.updateMediaHotspots(req.getMediaHotspots(), req.getId());
+//            int modelUpdate = hotspotService.updateModelHotspots(req.getModelHotspots(), req.getId());
+//
+//            int totalHotspotUpdated = navUpdate + infoUpdate + mediaUpdate + modelUpdate;
+//
+//            // Nếu node không được update và các hotspot không thay đổi → fail
+//            if (totalNodeUpdated == 0 && totalHotspotUpdated == 0) {
+//                return false;
+//            }
+//        }
+//        return true;
 
     public List<NodeFullResponse> search(String searchKey) {
         String sql = """
@@ -741,5 +740,30 @@ public class NodeDao {
                     .execute();
             return updatedRows > 0;
         });
+    }
+
+    public boolean deleteNode(Handle handle, List<String> nodeIds) {
+        String sql = "UPDATE nodes SET status = :status WHERE id IN (<ids>)" ;
+        try {
+            //Chuyển string -> integer.
+            List<Integer> idList = nodeIds.stream().map(
+                    nodeId -> {
+                        try {
+                            return Integer.parseInt(nodeId);
+
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("NodeId không hợp lệ" + nodeId, e);
+                        }
+                    }
+
+            ).collect(Collectors.toList());
+
+            handle.createUpdate(sql).bind("status", 0).bindList("ids", idList).execute();
+            return true;
+
+        }
+        catch (Exception e) {
+           throw new RuntimeException("Lỗi khi xoá node", e);
+        }
     }
 }

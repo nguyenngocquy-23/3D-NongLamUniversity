@@ -120,8 +120,16 @@ const hotspotSlice = createSlice({
       );
     },
     deleteHotspotByNodeId: (state, action: PayloadAction<string>) => {
+      const nodeIdToDelete = action.payload;
+
       state.hotspotList = state.hotspotList.filter(
-        (h) => h.nodeId !== action.payload
+        (h) =>
+          h.nodeId !== nodeIdToDelete &&
+          !(
+            h.type === 1 &&
+            "targetNodeId" in h &&
+            h.targetNodeId === nodeIdToDelete
+          )
       );
     },
 
