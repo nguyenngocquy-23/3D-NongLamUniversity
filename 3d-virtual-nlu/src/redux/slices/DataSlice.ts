@@ -69,10 +69,11 @@ export const fetchUsers = createAsyncThunk(
 );
 
 // Fetch nodes
-export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
+export const fetchNodes = createAsyncThunk("data/fetchNodes", 
+  async ({ page, limit }: { page: number; limit: number }) => {
   const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
-    page: 0,
-    limit: perPage,
+    page: page,
+    limit: limit,
   });
   return response.data.data;
 });

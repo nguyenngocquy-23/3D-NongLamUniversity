@@ -23,7 +23,7 @@ const BoardSelectNode = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   useEffect(() => {
-    dispatch(fetchNodes());
+    dispatch(fetchNodes({ limit: perPage, page: 0 }));
   }, [dispatch]);
   const nodes = useSelector((state: RootState) => state.data.nodes);
   const autoPanoramaList = useSelector(

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useState, useEffect, useRef, useMemo } from "react";
 import styles from "../../styles/createTourStep2.module.css";
-import { FaAngleLeft, FaBook, FaX } from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight, FaBook, FaX } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
@@ -42,7 +42,11 @@ import {
 import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
 import MiniMap from "../../components/Minimap";
-import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
+import {
+  DEFAULT_ORIGINAL_Z,
+  perPage,
+  RADIUS_SPHERE,
+} from "../../utils/Constants";
 import CamControls from "../../components/visitor/CamControls";
 import ConfigAutoTour from "../../components/admin/ConfigAutoTour";
 import { useNavigate, useParams } from "react-router-dom";
@@ -78,10 +82,39 @@ const CreateAutoTourStep2 = () => {
   const nodes = useSelector((state: RootState) => state.data.nodes);
   const [isAddTour, setIsAddTour] = useState(false);
   const [selectedNodes, setSelectedNodes] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const dashboard = useSelector((state: RootState) => state.data.dashboard);
+  const [totalNode, setTotalNode] = useState(0);
+  const totalPages = Math.ceil(totalNode / perPage);
+
+  useEffect(() => {
+    if (dashboard) {
+      setTotalNode(dashboard.numTour);
+    }
+  }, [dashboard]);
+
+  const goPrev = () => {
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+    }
+  };
+
+  useEffect(() => {
+    dispatch(fetchNodes({ limit: perPage, page: currentPage - 1 }));
+  }, [currentPage]);
+
+  const goNext = () => {
+    if (currentPage < totalPages) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+    }
+  };
   const [nodeList, setNodeList] = useState<any[]>(nodes || []);
   useEffect(() => {
     if (isAddTour) {
-      dispatch(fetchNodes());
+      dispatch(fetchNodes({ limit: perPage, page: currentPage - 1 }));
       setNodeList(nodes);
     }
   }, [isAddTour, dispatch]);
@@ -91,23 +124,6 @@ const CreateAutoTourStep2 = () => {
       setNodeList(nodes);
     }
   }, [nodes]);
-
-  const handleToggleSelect = (nodeId: string) => {
-    const node = nodeList.find((n) => n.id === nodeId);
-    if (!node) return;
-
-    setSelectedNodes((prevSelected) => {
-      const isSelected = prevSelected.includes(nodeId);
-
-      if (isSelected) {
-        // dispatch(removeAutoPanorama(nodeId)); // bảo trì
-        return prevSelected.filter((id) => id !== nodeId);
-      } else {
-        // dispatch(addAutoPanorama({ node: node }));
-        return [...prevSelected, nodeId];
-      }
-    });
-  };
 
   useEffect(() => {
     if (tourId) {
@@ -148,7 +164,6 @@ const CreateAutoTourStep2 = () => {
   /**
    * Khởi tạo sphereRef: sphere ban đầu của hình cầu.
    */
-
   // ========= REDUX ================
   const { autoPanoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
@@ -255,18 +270,87 @@ const CreateAutoTourStep2 = () => {
     return response.data.data.url || "";
   };
 
-  const [orderedList, setOrderedList] = useState([...autoPanoramaList]);
+  const [orderedList, setOrderedList] = useState(() =>
+    autoPanoramaList.map((item) => ({ ...item }))
+  );
 
   useEffect(() => {
-    if (orderedList.length > 0) {
-      setSelectedNodes(orderedList);
+    if (selectedNodes.length === 0) {
+      const ids = orderedList.map((item) => item.id);
+      setSelectedNodes(ids);
     }
   }, [orderedList]);
 
+  // useEffect(() => {
+  //   if (!autoPanoramaList || autoPanoramaList.length === 0) return;
+
+  //   const currentIds = autoPanoramaList.map((i) => i.id);
+  //   const prevIds = prevAutoListRef.current;
+
+  //   const isSame =
+  //     currentIds.length === prevIds.length &&
+  //     currentIds.every((id, i) => id === prevIds[i]);
+
+  //   if (!isSame) {
+  //     prevAutoListRef.current = currentIds;
+  //     const newList = autoPanoramaList.map((item) => ({ ...item }));
+  //     console.log("Cập nhật orderedList:", newList);
+  //     setOrderedList(newList);
+  //   } else {
+  //     console.log("Không thay đổi danh sách, không cập nhật.");
+  //   }
+  // }, [autoPanoramaList]);
+  // useEffect(() => {
+  //   if (!autoPanoramaList || autoPanoramaList.length === 0) return;
+
+  //   const updatedOrderedList = orderedList.map((item) => {
+  //     const matched = autoPanoramaList.find((a) => a.id === item.id);
+  //     if (matched) {
+  //       return {
+  //         ...item,
+  //         duration: matched.duration,
+  //         soundBackground: matched.soundBackground ?? item.soundBackground,
+  //       };
+  //     }
+  //     return item;
+  //   });
+
+  //   setOrderedList(updatedOrderedList);
+  // }, [autoPanoramaList]);
+
+  const prevAutoListRef = useRef<string[]>([]);
+
   useEffect(() => {
-    if (autoPanoramaList.length > 0) {
-      setOrderedList([...autoPanoramaList]);
+    if (!autoPanoramaList || autoPanoramaList.length === 0) return;
+
+    const currentIds = autoPanoramaList.map((i) => i.id);
+    const prevIds = prevAutoListRef.current;
+
+    const isSame =
+      currentIds.length === prevIds.length &&
+      currentIds.every((id, i) => id === prevIds[i]);
+
+    if (!isSame) {
+      prevAutoListRef.current = currentIds;
+      const newList = autoPanoramaList.map((item) => ({ ...item }));
+      setOrderedList(newList);
+      return;
     }
+
+    // Nếu ID giống nhau, chỉ update duration / soundBackground
+    setOrderedList((prev) =>
+      prev.map((item) => {
+        const matched = autoPanoramaList.find((a) => a.id === item.id);
+        if (matched) {
+          return {
+            ...item,
+            duration: matched.duration,
+            soundBackground: matched.soundBackground ?? item.soundBackground,
+          };
+        }
+        return item;
+      })
+    );
   }, [autoPanoramaList]);
 
   const handleIndexChange = (index1: number, index2: number) => {
@@ -288,24 +372,6 @@ const CreateAutoTourStep2 = () => {
     nodeId: p.id,
     duration: p.duration,
   }));
-
-  useEffect(() => {
-    if (!autoPanoramaList || autoPanoramaList.length === 0) return;
-
-    const updatedOrderedList = orderedList.map((item) => {
-      const matched = autoPanoramaList.find((a) => a.id === item.id);
-      if (matched) {
-        return {
-          ...item,
-          duration: matched.duration,
-          soundBackground: matched.soundBackground ?? item.soundBackground,
-        };
-      }
-      return item;
-    });
-
-    setOrderedList(updatedOrderedList);
-  }, [autoPanoramaList]);
 
   const handleUpdateAutoTour = async () => {
     Swal.fire({
@@ -331,10 +397,12 @@ const CreateAutoTourStep2 = () => {
       return;
     }
 
-    const soundUrl = await uploadToCloud(
-      // autoPanoramaList.find((p) => p.soundBackground != "")?.soundBackground
-      orderedList[0].soundBackground
-    );
+    const soundUrl = orderedList[0].soundBackground.includes("http")
+      ? orderedList[0].soundBackground
+      : await uploadToCloud(
+          // autoPanoramaList.find((p) => p.soundBackground != "")?.soundBackground
+          orderedList[0].soundBackground
+        );
     try {
       const response = await axios.post(API_URLS.ADMIN_UPDATE_AUTO_TOUR, {
         autoTourId: tourId,
@@ -367,6 +435,23 @@ const CreateAutoTourStep2 = () => {
     } catch (error) {
       console.log("Lỗi khi xuất bản: ", error);
     }
+  };
+
+  const handleToggleSelect = (nodeId: string) => {
+    const node = nodeList.find((n) => n.id === nodeId);
+    if (!node) return;
+
+    setSelectedNodes((prevSelected) => {
+      const isSelected = prevSelected.includes(nodeId);
+
+      if (isSelected) {
+        dispatch(removeAutoPanorama(nodeId));
+        return prevSelected.filter((id) => id !== nodeId);
+      } else {
+        dispatch(addAutoPanorama({ node: node }));
+        return [...prevSelected, nodeId];
+      }
+    });
   };
 
   const [isWaiting, setIsWaiting] = useState(true);
@@ -582,7 +667,7 @@ const CreateAutoTourStep2 = () => {
                   setIsAddTour(true);
                 }}
               >
-                Thêm node
+                Thêm/ xóa node
               </button>
               <span>Trạng thái: </span>
               <button
@@ -663,7 +748,7 @@ const CreateAutoTourStep2 = () => {
           <div className={styles.overlay}>
             <div className={styles.modal}>
               <div className={styles.header}>
-                <h2 className={styles.title}>Danh sách nút panorama</h2>
+                <h2 className={styles.title}>Danh sách node</h2>
                 <button
                   className={styles.closeButton}
                   onClick={() => setIsAddTour(false)}
@@ -693,6 +778,21 @@ const CreateAutoTourStep2 = () => {
                 ) : (
                   <div className={styles.loading}>Đang tải...</div>
                 )}
+              </div>
+
+              <div className={styles.pagination}>
+                <FaAngleLeft
+                  onClick={goPrev}
+                  className={`${styles.pagination_icon} ${
+                    currentPage == 1 ? styles.disabled : ""
+                  }`}
+                />
+                <FaAngleRight
+                  onClick={goNext}
+                  className={`${styles.pagination_icon} ${
+                    currentPage == totalPages ? styles.disabled : ""
+                  }`}
+                />
               </div>
             </div>
           </div>

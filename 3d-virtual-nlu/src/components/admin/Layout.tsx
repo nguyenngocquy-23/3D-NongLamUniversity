@@ -49,7 +49,7 @@ const Layout = () => {
     dispatch(fetchFields({ limit: perPage, page: 0}));
     dispatch(fetchSpaces({ limit: perPage, page: 0 }));
     dispatch(fetchHotspotTypes());
-    dispatch(fetchNodes());
+    dispatch(fetchNodes({ limit: perPage, page: 0 }));
     dispatch(fetchIcons());
     dispatch(fetchContacts());
     dispatch(fetchAutoNode({ limit: perPage, page: 0 }));
