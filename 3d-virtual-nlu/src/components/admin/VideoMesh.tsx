@@ -78,7 +78,6 @@ const VideoMeshComponent = ({
     const isEmbedUrl =
       hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
       hotspotMedia.mediaUrl?.includes("giphy.com");
-    console.log("------VideoMeshComponent mounted with mediaUrl:", isEmbedUrl);
   }, [hotspotMedia.mediaUrl]);
 
   useEffect(() => {

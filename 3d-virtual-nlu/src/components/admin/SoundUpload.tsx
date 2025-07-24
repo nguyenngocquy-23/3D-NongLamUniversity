@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/soundUpload.module.css";
+import Swal from "sweetalert2";
 
 function SoundUpload({
   soundBackground,
@@ -10,14 +11,23 @@ function SoundUpload({
 }) {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioURL, setAudioURL] = useState<string | null>(null);
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith("audio/")) {
+      if (file.size > MAX_FILE_SIZE) {
+        Swal.fire({
+          icon: "warning",
+          title: "Lỗi",
+          text: "File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.",
+        });
+        return;
+      }
       setAudioFile(file);
       const url = URL.createObjectURL(file);
       setAudioURL(url);
-      
+
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
@@ -25,10 +35,18 @@ function SoundUpload({
         setSoundBackground(base64);
       };
       reader.onerror = () => {
-        alert("Đọc file thất bại. Vui lòng thử lại.");
+        Swal.fire({
+          icon: "warning",
+          title: "Lỗi",
+          text: "Tải file thất bại. Vui lòng thử lại.",
+        });
       };
     } else {
-      alert("Vui lòng chọn một file âm thanh hợp lệ!");
+      Swal.fire({
+        icon: "warning",
+        title: "Lỗi",
+        text: "File không hợp lệ.",
+      });
     }
   };
 

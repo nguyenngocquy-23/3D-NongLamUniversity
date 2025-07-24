@@ -425,6 +425,12 @@ const VirtualAutoTour: React.FC = () => {
     return () => clearInterval(interval);
   }, [isLoadingDone]);
 
+  useEffect(() => {
+    if (!autoNodes || autoNodes.length == 0 || !autoTour) {
+      navigate("/autoTour");
+    }
+  }, [autoNodes, autoTour, navigate]);
+
   return (
     <>
       <div
@@ -507,7 +513,7 @@ const VirtualAutoTour: React.FC = () => {
         </Canvas>
         <audio
           ref={audioRef}
-          src={autoTour.soundBackground}
+          src={autoTour?.soundBackground}
           autoPlay
           loop
           controls // <-- có thể bỏ nếu bạn không muốn người dùng điều khiển
@@ -529,9 +535,9 @@ const VirtualAutoTour: React.FC = () => {
         {/* Header chứa back */}
         <div className={styles.header_tour}>
           {isMobile ? (
-            <h4>{autoTour.name || ""}</h4>
+            <h4>{autoTour?.name || ""}</h4>
           ) : (
-            <h2>{autoTour.name || ""}</h2>
+            <h2>{autoTour?.name || ""}</h2>
           )}
           <IoIosCloseCircle
             className={styles.close_btn}

@@ -14,7 +14,6 @@ import { IoSearch } from "react-icons/io5";
 import { FaAngleLeft } from "react-icons/fa6";
 import axios from "axios";
 import { API_URLS } from "../../env";
-import { addAutoPanorama } from "../../redux/slices/PanoramaSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 import { formatTimestampToDate } from "../../utils/formatTimestamp";
 import { perPage } from "../../utils/Constants";

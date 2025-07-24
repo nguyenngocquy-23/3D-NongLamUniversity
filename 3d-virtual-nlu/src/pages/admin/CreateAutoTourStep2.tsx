@@ -203,29 +203,6 @@ const CreateAutoTourStep2 = () => {
     if (currentStep == 1) navigate("/admin/manageAutoTour");
   }, [currentStep, navigate]);
 
-  /**
-   *
-   * @param targetNodeId : Id node đích cần di chuyển.
-   * @param hotspotTargetPosition : Thay thế vị trí camera hướng đến tại vị trí hotspot mục tiêu.
-   */
-
-  const handleHotspotNavigate = (
-    targetNodeId: string,
-    hotspotTargetPosition: [number, number, number]
-  ) => {
-    if (!cameraRef.current || !controlsRef.current) return;
-
-    const camera = cameraRef.current;
-    const control = controlsRef.current;
-    const originalFov = camera.fov;
-    const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-
-    const [x, y, z] = hotspotTargetPosition;
-
-    // === Bước 2: Zoom vào
-    handleSelectNode(targetNodeId);
-  };
-
   const [cameraAngle, setCameraAngle] = useState(0);
 
   const [isTextureReady, setIsTextureReady] = useState(false);
@@ -263,9 +240,38 @@ const CreateAutoTourStep2 = () => {
     duration: p.duration,
   }));
 
+  useEffect(() => {
+    if (!autoPanoramaList || autoPanoramaList.length === 0) return;
+
+    const updatedOrderedList = orderedList.map((item) => {
+      const matched = autoPanoramaList.find((a) => a.id === item.id);
+      if (matched) {
+        return {
+          ...item,
+          duration: matched.duration,
+          soundBackground: matched.soundBackground ?? item.soundBackground,
+        };
+      }
+      return item;
+    });
+
+    setOrderedList(updatedOrderedList);
+  }, [autoPanoramaList]);
+
   const handleUpdateAutoTour = async () => {
-    const tourName = `${autoPanoramaList[0]?.name || ""} - ${
-      autoPanoramaList[autoPanoramaList.length - 1]?.name || ""
+    Swal.fire({
+      title: "Đang cập nhật...",
+      showConfirmButton: false,
+      showCancelButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+      toast: true,
+    });
+    const tourName = `${orderedList[0]?.name || ""} - ${
+      orderedList[orderedList.length - 1]?.name || ""
     }`;
 
     // Chuyển thành chuỗi JSON
@@ -276,17 +282,11 @@ const CreateAutoTourStep2 = () => {
       return;
     }
 
-    const soundUrl = await uploadToCloud(autoPanoramaList[0].soundBackground);
+    const soundUrl = await uploadToCloud(
+      // autoPanoramaList.find((p) => p.soundBackground != "")?.soundBackground
+      orderedList[0].soundBackground
+    );
     try {
-      Swal.fire({
-        title: "Đang cập nhật...",
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-        toast: true,
-      });
       const response = await axios.post(API_URLS.ADMIN_UPDATE_AUTO_TOUR, {
         autoTourId: tourId,
         name: tourName,
@@ -522,6 +522,19 @@ const CreateAutoTourStep2 = () => {
           </div>
           {isUpdate && (
             <div className={styles.toggle_status}>
+              <button
+                style={{
+                  marginRight: "1rem",
+                  textAlign: "center",
+                  padding: "0.5rem 1rem",
+                  backgroundColor: "#0f0",
+                }}
+                // onClick={() => {
+                //   setStatus(status === 1 ? 0 : 1);
+                // }}
+              >
+                Thêm tour
+              </button>
               <span>Trạng thái: </span>
               <button
                 style={{
@@ -589,6 +602,7 @@ const CreateAutoTourStep2 = () => {
         {openConfigTour && (
           <div className={styles.config_tour}>
             <ConfigAutoTour
+              orderedList={orderedList}
               setOpenConfigTour={setOpenConfigTour}
               soundBackgroundProp={autoNode?.soundBackground}
             />
