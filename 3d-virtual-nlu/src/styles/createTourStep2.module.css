@@ -549,6 +549,110 @@ back_btn:hover {
   align-items: center;
 }
 
-.active{
+.active {
   opacity: 1;
 }
+
+/* css for box add tour */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  /* Mờ nền */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  backdrop-filter: blur(5px);
+  /* Nền mờ */
+}
+
+.modal {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 800px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.title {
+  font-size: 20px;
+  color: #333;
+  margin: 0;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #333;
+}
+
+.node_container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.tour {
+  width: 120px;
+  height: 80px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.tour:hover {
+  transform: scale(1.05);
+}
+
+.selected {
+  border: 3px solid #0bf345;
+}
+
+.blur {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.name {
+  position: absolute;
+  bottom: 5px;
+  left: 8px;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  z-index: 1;
+}
+
+.loading {
+  text-align: center;
+  color: #000;
+  font-size: 16px;
+}
+
+/* end css box add tour */

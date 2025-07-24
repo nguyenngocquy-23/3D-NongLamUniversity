@@ -1,14 +1,16 @@
 import * as THREE from "three";
 import { useState, useEffect, useRef, useMemo } from "react";
 import styles from "../../styles/createTourStep2.module.css";
-import { FaAngleLeft, FaBook } from "react-icons/fa6";
+import { FaAngleLeft, FaBook, FaX } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/Store";
+import { AppDispatch, RootState } from "../../redux/Store";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { Environment, Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
+  addAutoPanorama,
   clearPanorama,
+  removeAutoPanorama,
   selectPanorama,
 } from "../../redux/slices/PanoramaSlice";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
@@ -52,9 +54,11 @@ import {
 } from "../../components/admin/UploadFile";
 import Waiting from "../../components/Waiting";
 import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
+import { fetchNodes } from "../../redux/slices/DataSlice";
 
 const CreateAutoTourStep2 = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<any>(null);
@@ -70,11 +74,47 @@ const CreateAutoTourStep2 = () => {
 
   const { tourId } = useParams();
   const [isUpdate, setIsUpdate] = useState(false);
+
+  const nodes = useSelector((state: RootState) => state.data.nodes);
+  const [isAddTour, setIsAddTour] = useState(false);
+  const [selectedNodes, setSelectedNodes] = useState<any[]>([]);
+  const [nodeList, setNodeList] = useState<any[]>(nodes || []);
+  useEffect(() => {
+    if (isAddTour) {
+      dispatch(fetchNodes());
+      setNodeList(nodes);
+    }
+  }, [isAddTour, dispatch]);
+
+  useEffect(() => {
+    if (nodes && nodes.length > 0) {
+      setNodeList(nodes);
+    }
+  }, [nodes]);
+
+  const handleToggleSelect = (nodeId: string) => {
+    const node = nodeList.find((n) => n.id === nodeId);
+    if (!node) return;
+
+    setSelectedNodes((prevSelected) => {
+      const isSelected = prevSelected.includes(nodeId);
+
+      if (isSelected) {
+        // dispatch(removeAutoPanorama(nodeId)); // bảo trì
+        return prevSelected.filter((id) => id !== nodeId);
+      } else {
+        // dispatch(addAutoPanorama({ node: node }));
+        return [...prevSelected, nodeId];
+      }
+    });
+  };
+
   useEffect(() => {
     if (tourId) {
       setIsUpdate(true);
     }
   }, [tourId]);
+
   const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
 
   // const [autoNode, setAutoNode] = useState(null);
@@ -110,9 +150,6 @@ const CreateAutoTourStep2 = () => {
    */
 
   // ========= REDUX ================
-
-  const dispatch = useDispatch();
-
   const { autoPanoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
@@ -219,6 +256,18 @@ const CreateAutoTourStep2 = () => {
   };
 
   const [orderedList, setOrderedList] = useState([...autoPanoramaList]);
+
+  useEffect(() => {
+    if (orderedList.length > 0) {
+      setSelectedNodes(orderedList);
+    }
+  }, [orderedList]);
+
+  useEffect(() => {
+    if (autoPanoramaList.length > 0) {
+      setOrderedList([...autoPanoramaList]);
+    }
+  }, [autoPanoramaList]);
 
   const handleIndexChange = (index1: number, index2: number) => {
     if (
@@ -529,11 +578,11 @@ const CreateAutoTourStep2 = () => {
                   padding: "0.5rem 1rem",
                   backgroundColor: "#0f0",
                 }}
-                // onClick={() => {
-                //   setStatus(status === 1 ? 0 : 1);
-                // }}
+                onClick={() => {
+                  setIsAddTour(true);
+                }}
               >
-                Thêm tour
+                Thêm node
               </button>
               <span>Trạng thái: </span>
               <button
@@ -599,6 +648,7 @@ const CreateAutoTourStep2 = () => {
             <FaBook />
           </button>
         )}
+        {/* Hộp cấu hình tour */}
         {openConfigTour && (
           <div className={styles.config_tour}>
             <ConfigAutoTour
@@ -606,6 +656,45 @@ const CreateAutoTourStep2 = () => {
               setOpenConfigTour={setOpenConfigTour}
               soundBackgroundProp={autoNode?.soundBackground}
             />
+          </div>
+        )}
+        {/* Hộp thêm tour */}
+        {isAddTour && (
+          <div className={styles.overlay}>
+            <div className={styles.modal}>
+              <div className={styles.header}>
+                <h2 className={styles.title}>Danh sách nút panorama</h2>
+                <button
+                  className={styles.closeButton}
+                  onClick={() => setIsAddTour(false)}
+                >
+                  <FaX />
+                </button>
+              </div>
+
+              <div className={styles.node_container}>
+                {nodeList.length > 0 ? (
+                  nodeList.map((node) => {
+                    const isSelected = selectedNodes.includes(node.id);
+                    return (
+                      <div
+                        key={node.id}
+                        className={`${styles.tour} ${
+                          isSelected ? styles.selected : ""
+                        }`}
+                        onClick={() => handleToggleSelect(node.id)}
+                        style={{ backgroundImage: `url(${node.url})` }}
+                      >
+                        <div className={styles.blur} />
+                        <span className={styles.name}>{node.name}</span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className={styles.loading}>Đang tải...</div>
+                )}
+              </div>
+            </div>
           </div>
         )}
         {isWaiting ? <Waiting percent={percent} /> : ""}
