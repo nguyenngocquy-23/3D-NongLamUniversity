@@ -41,7 +41,7 @@ public class HotspotDao {
         return true;
 
         } catch (Exception e) {
-            System.err.println("Error in InsertHotspotNavigation: " + e.getMessage());
+                System.err.println("Error in InsertHotspotNavigation: " + e.getMessage());
             return false;
         }
 }

@@ -34,6 +34,7 @@ import {
 import {
   clearHotspotNavigation,
   deleteHotspotByNodeId,
+  deleteHotspotHaveDatabase,
 } from "../redux/slices/HotspotSlice";
 import { FaSave } from "react-icons/fa";
 import ImageSelect from "./SelectPanorama";
@@ -118,7 +119,12 @@ const MiniMap: React.FC<MiniMapProps> = ({
 
         Swal.fire("Xoá thành công!", "", "success");
         dispatch(deletePanoramaById(id));
-        dispatch(deleteHotspotByNodeId(id));
+
+        if (isInteger(id)) {
+          dispatch(deleteHotspotHaveDatabase(id));
+        } else {
+          dispatch(deleteHotspotByNodeId(id));
+        }
 
         // typeDisplay === "update" && isInteger(id)
         //   ? dispatch(

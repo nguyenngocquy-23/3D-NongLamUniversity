@@ -274,6 +274,7 @@ public class NodeService {
                 for (HotspotNavCreateRequest navCreateRequest : req.getNavHotspots()) {
                     String oldTarget = navCreateRequest.getTargetNodeId();
                     if (idMapResponse.containsKey(oldTarget)) {
+                        navCreateRequest.setTargetNodeId(String.valueOf(idMapResponse.get(oldTarget)));
                     }
                 }
             }

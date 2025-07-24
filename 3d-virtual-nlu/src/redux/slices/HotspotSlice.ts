@@ -409,6 +409,19 @@ const hotspotSlice = createSlice({
       }
     },
 
+    deleteHotspotHaveDatabase: (state, action: PayloadAction<string>) => {
+      const nodeId = action.payload;
+
+      state.hotspotList.forEach((h) => {
+        if (
+          h.nodeId === nodeId ||
+          (h.type === 1 && "targetNodeId" in h && h.targetNodeId === nodeId)
+        ) {
+          h.status = 0;
+        }
+      });
+    },
+
     addHotspotPosition: (
       state,
       action: PayloadAction<{
@@ -475,6 +488,7 @@ export const {
   updateCornerPoint,
   updateCornerHotspotMedia,
   removeHotspot,
+  deleteHotspotHaveDatabase,
   updateHotspotStatus,
   addHotspotPosition,
   addHotspotsFromResponse,

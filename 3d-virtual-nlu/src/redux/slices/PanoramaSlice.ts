@@ -133,7 +133,9 @@ const panoramaSlice = createSlice({
       state,
       action: PayloadAction<{ originalFileName: string; url: string }>
     ) {
-      if (state.panoramaList.length < 5 && state.spaceId !== null) {
+      //  Giới hạn = 5 => lỗi cập nhật. Panorama + thêm các pano
+      // if (state.panoramaList.length < 5 && state.spaceId !== null) {
+      if (state.spaceId !== null) {
         const newPanorama: PanoramaItem = {
           id: nanoid(),
           url: action.payload.url,
