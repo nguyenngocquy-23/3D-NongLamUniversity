@@ -87,6 +87,7 @@ const CreateTourStep2 = () => {
   >([]);
   const [assignable, setAssignable] = useState(false);
   const [validIcon, setValidIcon] = useState(true);
+  const [isValidated, setIsValidated] = useState(true);
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
   >(null);
@@ -348,7 +349,7 @@ const CreateTourStep2 = () => {
       case 1:
         return (
           <>
-            <Task1 />
+            <Task1 setIsValidated={setIsValidated} />
           </>
         );
       case 2:
@@ -589,6 +590,8 @@ const CreateTourStep2 = () => {
                 onTaskClick={handleOpenTask}
                 setPreOpenTask={setPreTaskIndex}
                 saveLinkNode={false}
+                isValidated={isValidated}
+                setIsValidated={setIsValidated}
               />
             </motion.div>
           )}

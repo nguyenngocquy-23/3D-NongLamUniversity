@@ -7,6 +7,8 @@
   display: inline-block;
   width: 100px;
   margin-right: 1rem;
+  display: flex;
+  align-items: center;
 }
 
 .name_input,
@@ -15,7 +17,7 @@
 }
 
 .name_input {
- flex: 1;
+  flex: 1;
   border-radius: 8px;
   padding: 0.5rem;
   font-size: 1rem;
@@ -27,4 +29,17 @@
 .descript_input {
   width: 70%;
   height: 100px;
+}
+
+.error {
+  border: 1px solid red;
+}
+
+.guide_icon {
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+.guide_icon:hover {
+  color: #267026;
 }

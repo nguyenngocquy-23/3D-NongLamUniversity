@@ -4,8 +4,13 @@ import { RootState } from "../../../redux/Store";
 import { updatePanoConfig } from "../../../redux/slices/PanoramaSlice";
 import { useEffect, useState } from "react";
 import Description from "../../Description";
+import { FaQuestionCircle } from "react-icons/fa";
 
-const Task1 = () => {
+const Task1 = ({
+  setIsValidated,
+}: {
+  setIsValidated: (isValid: boolean) => void;
+}) => {
   const [content, setContent] = useState<string>("");
 
   const dispatch = useDispatch();
@@ -26,13 +31,22 @@ const Task1 = () => {
       })
     );
   };
+
   return (
     <div className={styles.task1}>
-      <div className={styles.contain_input} style={{display: "flex"}}>
-        <label className={styles.label}>Tên:</label>
+      <div className={styles.contain_input} style={{ display: "flex" }}>
+        <label className={styles.label}>
+          Tên:
+          <FaQuestionCircle
+            className={styles.guide_icon}
+            title="Tên không được để trống và dưới 50 ký tự."
+          />
+        </label>
         <input
           type="text"
-          className={styles.name_input}
+          className={`${styles.name_input} ${
+            name.length > 50 || name.length == 0 ? styles.error : ""
+          }`}
           placeholder="Tên không gian"
           value={name}
           onChange={(e) => handleChange("name", e.target.value)}
