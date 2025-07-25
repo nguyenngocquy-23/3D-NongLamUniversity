@@ -24,12 +24,20 @@ import {
 } from "../utils/Constants";
 import { GiQueenCrown } from "react-icons/gi";
 import { TiTick } from "react-icons/ti";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import TrackingNode from "./admin/minimap/TrackingNode";
 import {
   getFilteredHotspotNavigationById,
   getFilteredHotspotNavigationOfMaster,
   getFilteredHotspotNavigations,
+  getHotspotLinkMap,
 } from "../redux/slices/Selectors";
 import {
   clearHotspotNavigation,
@@ -163,6 +171,29 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const masterPanorama = panoramaList.find(
     (h) => h.config.status == 2 || h.config.status == 3
   );
+  const linkMap = useSelector(getHotspotLinkMap); // Lấy ra được 1 tập hợp Map.
+  const panoramaSubItemIds = panaramaListInTour
+    .filter((p) => p.config.status === 1)
+    .map((p) => p.id);
+
+  /**
+   * Hàm dùng cho việc kiểm tra đã đủ liên kết chưa.
+   */
+  const isFullConnected = useMemo(() => {
+    if (!masterPanorama || !linkMap.has(masterPanorama.id)) return false;
+
+    // Master phải trỏ đến tất cả slave
+    const fromMaster = linkMap.get(masterPanorama.id) ?? new Set();
+    const toAllSlaves = panoramaSubItemIds.every((pId) => fromMaster.has(pId));
+
+    // Mỗi slave phải có hotspot trỏ ngược về master
+    const allSlavesPointBack = panoramaSubItemIds.every((pId) => {
+      const links = linkMap.get(pId);
+      return links?.has(masterPanorama.id);
+    });
+
+    return toAllSlaves && allSlavesPointBack;
+  }, [linkMap, masterPanorama, panoramaSubItemIds]);
 
   /**
    * Là danh sách các hostpot navigation từ Master Node.
@@ -309,21 +340,35 @@ const MiniMap: React.FC<MiniMapProps> = ({
    * 1. targetNodeId của nó phải có giá trị.
    * 2. hotspot của node đó hoặc hotspot trỏ đến node đó. (2 chiều)
    */
-  const hotspotNavigationFromNode = (nodeId: string) => {
-    const selector = getFilteredHotspotNavigationById(nodeId);
-    return selector;
-  };
+  // const hotspotNavigationFromNode = (nodeId: string) => {
+  //   const selector = getFilteredHotspotNavigationById(nodeId);
+  //   return selector;
+  // };
+  const allHotspotNav = useSelector(getFilteredHotspotNavigations);
+  const getNavigationForNode = useCallback(
+    (nodeId: string) => {
+      return allHotspotNav.filter(
+        (h) => h.nodeId === nodeId || h.targetNodeId === nodeId
+      );
+    },
+    [allHotspotNav]
+  );
 
   /**
-   * Nếu nodeStatus = 2 (Master)
+   * Kiểm tra đã đủ hotspot navigation chưa.
    * @param nodeId
    * @param nodeStatus
-   * @returns
+   * status 1 = 2 là full.
+   * status 2 = Số lượng status 1 *
    */
-  const checkFullhotspotNavigation = (nodeId: string, nodeStatus: number) => {
-    const limit = 2 * limitNavigation(nodeStatus === 2);
-    return hotspotNavigationFromNode(nodeId).length === limit;
-  };
+
+  const checkFullhotspotNavigation = useCallback(
+    (nodeId: string, nodeStatus: number) => {
+      const limit = 2 * limitNavigation(nodeStatus === 2);
+      return getNavigationForNode(nodeId).length === limit;
+    },
+    [getNavigationForNode]
+  );
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);

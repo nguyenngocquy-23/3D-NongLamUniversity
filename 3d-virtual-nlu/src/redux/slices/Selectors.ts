@@ -8,6 +8,7 @@ import {
 } from "./HotspotSlice";
 
 const selectHotspotList = (state: RootState) => state.hotspots.hotspotList;
+console.log("Hotspot List: ", selectHotspotList.length);
 const spaceList = (state: RootState) => state.data.spaces;
 const panoramaList = (state: RootState) => state.panoramas.panoramaList;
 const iconList = (state: RootState) => state.data.icons;
@@ -127,3 +128,26 @@ export const getListSpaceFromFieldId = (fieldId: string) =>
   createSelector([spaceList], (list) =>
     list.filter((l) => l.fieldId === fieldId)
   );
+
+/**
+ * Map <string, Set<string>>
+ * string: (key) là nodeId
+ * Set<string>: (value) là tập hợp targetNodeId nó trỏ tới.
+ *
+ * Ví dụ:
+ * Master A và 2 slaves B,C
+ * => Map sẽ có key A và tập 2 con B,C.
+ */
+
+export const getHotspotLinkMap = createSelector(
+  [getFilteredHotspotNavigations],
+  (list) => {
+    const map = new Map<string, Set<string>>();
+    list.forEach((hotspot) => {
+      const { nodeId, targetNodeId } = hotspot;
+      if (!map.has(nodeId)) map.set(nodeId, new Set());
+      map.get(nodeId)?.add(targetNodeId!); // targetNodeId đã được lọc != null rồi
+    });
+    return map;
+  }
+);

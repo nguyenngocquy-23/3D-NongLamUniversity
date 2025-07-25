@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styles from "../../../styles/tasklistCT/task3.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/Store";
@@ -56,9 +56,11 @@ const Task3 = ({
   /**
    * Lấy ra danh sách hotspot navigation hiện tại của currentPanorama.
    */
-  const hotspotNavigationFromNode = useSelector(
-    getFilteredHotspotNavigationById(currentPanorama?.id || "")
+  const selectorListHotspotNav = useMemo(
+    () => getFilteredHotspotNavigationById(currentPanorama?.id || ""),
+    [currentPanorama?.id]
   );
+  const hotspotNavigationFromNode = useSelector(selectorListHotspotNav);
   /**
    * Tour sẽ có n (=n<6) panorama (max).
    * => Master Panorama có thể có n-1 hotspot navigation đến node con.
@@ -114,7 +116,7 @@ const Task3 = ({
                 padding: "0.5rem 1rem",
               }}
             >
-              {isAssignable ? "Quay lại" : "Chọn vị trí"}
+              {isAssignable ? "Quay lại" : `Chọn vị trí`}
             </button>
           ) : (
             <button
