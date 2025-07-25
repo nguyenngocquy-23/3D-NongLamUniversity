@@ -133,7 +133,9 @@ const panoramaSlice = createSlice({
       state,
       action: PayloadAction<{ originalFileName: string; url: string }>
     ) {
-      if (state.panoramaList.length < 5 && state.spaceId !== null) {
+      //  Giới hạn = 5 => lỗi cập nhật. Panorama + thêm các pano
+      // if (state.panoramaList.length < 5 && state.spaceId !== null) {
+      if (state.spaceId !== null) {
         const newPanorama: PanoramaItem = {
           id: nanoid(),
           url: action.payload.url,
@@ -251,24 +253,9 @@ const panoramaSlice = createSlice({
     deletePanoramaById(state, action: PayloadAction<string>) {
       const panoramaId = action.payload;
 
-      if (state.currentSelectId === panoramaId) {
-        Swal.fire({
-          icon: "warning",
-          title: "⚠️ Node đang được hiển thị!",
-          text: `Vui lòng di chuyển sang node mới trước khi xoá node này!`,
-          toast: true,
-          position: "top-end",
-          showConfirmButton: false,
-          timer: 4000,
-          timerProgressBar: true,
-        });
-        return;
-      }
-
       state.panoramaList = state.panoramaList.filter(
         (p) => p.id !== panoramaId
       );
-      deleteHotspotByNodeId(panoramaId);
     },
     clearPanorama(state) {
       (state.panoramaList = []),

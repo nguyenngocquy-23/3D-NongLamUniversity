@@ -10,6 +10,7 @@ import {
   selectPanorama,
   setMasterPanorama,
   setSpaceId,
+  updatePanoConfig,
 } from "../redux/slices/PanoramaSlice";
 import { RiEdit2Line } from "react-icons/ri";
 import { MdAdsClick, MdClear, MdZoomInMap, MdZoomOutMap } from "react-icons/md";
@@ -30,7 +31,11 @@ import {
   getFilteredHotspotNavigationOfMaster,
   getFilteredHotspotNavigations,
 } from "../redux/slices/Selectors";
-import { clearHotspotNavigation } from "../redux/slices/HotspotSlice";
+import {
+  clearHotspotNavigation,
+  deleteHotspotByNodeId,
+  deleteHotspotHaveDatabase,
+} from "../redux/slices/HotspotSlice";
 import { FaSave } from "react-icons/fa";
 import ImageSelect from "./SelectPanorama";
 import { AnimatePresence, motion } from "framer-motion";
@@ -48,16 +53,19 @@ import { isValidAspectRatio } from "../utils/ValidPanorama";
 import axios, { AxiosError } from "axios";
 import { API_URLS } from "../env";
 import { buildImageUrlWithQuality } from "../utils/getCloudinaryURL";
+import { isInteger } from "../utils/TourNodeRequestMapper";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
   angleCurrent: number;
   currentTour?: string;
+  locked?: boolean;
 };
 const MiniMap: React.FC<MiniMapProps> = ({
   currentPanorama,
   angleCurrent,
   currentTour,
+  locked,
 }) => {
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
@@ -79,6 +87,20 @@ const MiniMap: React.FC<MiniMapProps> = ({
   };
 
   const deletePanoramaItem = (id: string) => {
+    if (currentPanorama.id === id) {
+      Swal.fire({
+        icon: "warning",
+        title: "⚠️ Node đang được hiển thị!",
+        text: `Vui lòng di chuyển sang node mới trước khi xoá node này!`,
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+
     Swal.fire({
       title: "Hành động này sẽ không thể hoàn tác?",
       showCancelButton: true,
@@ -99,9 +121,16 @@ const MiniMap: React.FC<MiniMapProps> = ({
 
         Swal.fire("Xoá thành công!", "", "success");
         dispatch(deletePanoramaById(id));
+
+        if (isInteger(id)) {
+          dispatch(deleteHotspotHaveDatabase(id));
+        } else {
+          dispatch(deleteHotspotByNodeId(id));
+        }
       }
     });
   };
+
   const inputRef = useRef<HTMLInputElement>(null);
   const onChooseFile = () => {
     inputRef.current?.click();
@@ -115,9 +144,16 @@ const MiniMap: React.FC<MiniMapProps> = ({
     (state: RootState) => state.panoramas
   );
 
+  const filterPanoramaList = panoramaList.filter((p) => p.config.status !== 0);
+  /** Filter ra các panos khác tour (Khi update)
+   * + status = 2 # với node hiện tại.
+   * + status = 0
+   */
   const panaramaListInTour = currentTour
-    ? panoramaList.filter((p) => p.config.status !== 2 || p.id == currentTour)
-    : panoramaList; //Filter ra các panos khác tour.
+    ? filterPanoramaList.filter(
+        (p) => p.config.status !== 2 || p.id == currentTour
+      )
+    : filterPanoramaList; //Filter ra các panos khác tour.
 
   const { spaces } = useSelector((state: RootState) => state.data);
 
@@ -133,6 +169,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
    * - Đã có targetNodeId!
    */
   const hotspotFromMaster = useSelector(getFilteredHotspotNavigationOfMaster);
+
   // 1 angle1 lưu default và 1 angle2 xoay khác truyền vào radar
   // 2 angle đều duoc hiện ở camcontrol nhưng k set andle2 giá trị của angle1 để
   // hướng mặc định của radar là 310-50 -> angle?
@@ -285,6 +322,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const handleZoomMap = () => {
+    if (locked) return;
     setIsExpanded((prev) => !prev);
   };
 
@@ -480,7 +518,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
       >
         {!isExpanded && (
           <motion.div layoutId="minimap" className={styles.minimap_header}>
-            {panoramaList.map((item) => (
+            {filterPanoramaList.map((item) => (
               <div key={item.id} className={styles.node}>
                 <div
                   className={` ${styles.node_view}  ${
@@ -660,7 +698,9 @@ const MiniMap: React.FC<MiniMapProps> = ({
 
                         <span
                           className={styles.delete_panorama_item}
-                          onClick={() => deletePanoramaItem(item.id)}
+                          onClick={() => {
+                            deletePanoramaItem(item.id);
+                          }}
                         >
                           <MdClear />
                         </span>
@@ -706,7 +746,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
               </div>
               <div className={styles.tour_tracking}>
                 <TrackingNode
-                  panoramaList={panoramaList}
+                  panoramaList={panaramaListInTour}
                   hotspotNavigations={hotspotNavigations}
                   imageRef={imageRef}
                 />

@@ -45,7 +45,7 @@ export interface NodeCreateRequest {
  * Định dạng theo BackendAPI.
  */
 export interface NodeUpdateRequest {
-  id: number;
+  id: string;
   url: string;
   name: string;
   description: string;
@@ -272,6 +272,9 @@ export interface NodeExpandResponse {
   fieldName: string;
   spaceName: string;
   userId: string;
+  userName: string;
+  email: string;
+  avatar: string;
   url: string;
   name: string;
   description: string;
@@ -312,7 +315,6 @@ export interface HotspotNavResponse {
   allowBackgroundColor: number;
   opacity: number;
   targetNodeId: string;
-  iconType: number;
 }
 
 export interface HotspotInfoResponse {
@@ -381,7 +383,6 @@ export interface HotspotModelResponse {
   name: string;
   description: string;
   colorCode: string;
-  iconType: number;
 }
 
 export class TourNodeRequestMapper {
@@ -626,7 +627,7 @@ export class TourNodeRequestMapper {
         }));
 
       return {
-        id: Number.parseInt(pano.id, 10),
+        id: pano.id,
         url: pano.url,
         name: pano.config.name,
         description: pano.config.description,
@@ -682,6 +683,7 @@ export class TourNodeRequestMapper {
     });
   }
 
+  //Map từ server về panoramas redux.
   static mapToPanoramaAndHotspots(
     nodes: NodeResponse[] | NodeExpandResponse[]
   ): {
@@ -733,7 +735,7 @@ export class TourNodeRequestMapper {
           opacity: h.opacity,
           scale: h.scale,
           targetNodeId: String(h.targetNodeId),
-          iconType: h.iconType,
+          // iconType: h.iconType,
         } as HotspotNavigation);
       });
 
@@ -756,8 +758,10 @@ export class TourNodeRequestMapper {
           allowBackgroundColor: h.allowBackgroundColor == 0 ? false : true,
           opacity: h.opacity,
           content: h.content,
+
           backgroundColorContent:
             stringToRgba(h.backgroundColorContent) ?? initialRgba,
+
           borderColorContent: h.borderColorContent,
           borderSizeContent: h.borderSizeContent,
         } as HotspotInformation);
@@ -826,7 +830,10 @@ export class TourNodeRequestMapper {
  * @param value : chuỗi dạng số "123"
  * @returns Kiểm tra xem nó có là chuỗi dạng số không
  */
-export const isInteger = (value: string): boolean => {
-  const parsed = parseInt(value, 10);
-  return parsed.toString() === value;
-};
+// export const isInteger = (value: string): boolean => {
+//   const parsed = parseInt(value, 10);
+//   return parsed.toString() === value;
+// };
+
+export const isInteger = (value: string): boolean =>
+  /^(0|[1-9]\d*)$/.test(value);

@@ -30,39 +30,7 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> createNode(List<NodeCreateRequest> reqs) {
-        /**
-         * Input: Insert danh sách node
-         * Output: Trả về resultIdList:
-         * [
-         * {
-         * tempId: id tạm trên NodeCreateRequest.
-         * realId: id thực trong DB
-         * }
-         * ]
-         */
-        List<NodeIdMapResponse> resultIdList = nodeService.createNode(reqs);
-        Map<String, Integer> idMap = resultIdList.stream().collect(Collectors.toMap(NodeIdMapResponse::getTempId, NodeIdMapResponse::getRealId));
-        updatesIds(reqs, idMap);
-        boolean result = true;
-        for (NodeCreateRequest req : reqs) {
-            try {
-                if (req.getNavHotspots() != null && !req.getNavHotspots().isEmpty()) {
-                    hotspotService.insertNavigation(req.getNavHotspots(), req.getId());
-                }
-                if (req.getInfoHotspots() != null && !req.getInfoHotspots().isEmpty()) {
-                    hotspotService.insertInformation(req.getInfoHotspots(), req.getId());
-                }
-                if (req.getMediaHotspots() != null && !req.getMediaHotspots().isEmpty()) {
-                    hotspotService.insertMedia(req.getMediaHotspots(), req.getId());
-                }
-                if (req.getModelHotspots() != null && !req.getModelHotspots().isEmpty()) {
-                    hotspotService.insertModel(req.getModelHotspots(), req.getId());
-                }
-            } catch (Exception e) {
-                System.err.println("Lỗi khi insert hotspot cho node: " + req.getId() + ": " + e.getMessage());
-                result = false;
-            }
-        }
+        boolean result = nodeService.createNode(reqs);
 
         if (result) {
             return ApiResponse.<Boolean>builder().statusCode(1000).message("Tao node thanh cong").data(result).build();
@@ -88,7 +56,7 @@ public class NodeController {
     @Path("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public ApiResponse<Boolean> updateNode(List<NodeUpdateRequest> reqs) {
+    public ApiResponse<Boolean> updateNode(NodeFullUpdateRequest reqs) {
         boolean result = false;
         try {
             result = nodeService.updateNodes(reqs);
@@ -184,20 +152,10 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> updateLinkNode(List<NodeLinkRequest> reqs) {
-        boolean result = true;
-        for(NodeLinkRequest req : reqs) {
-            try {
-                if(req.getNavHotspots() != null && !req.getNavHotspots().isEmpty()) {
-                    hotspotService.insertNavigation(req.getNavHotspots(), req.getId());
-                }
-            } catch (Exception e) {
-                System.err.println("Lỗi khi insert hotspot cho node: " + req.getId() + ": " + e.getMessage());
-                result = false;
-            }
-        }
+        boolean result = nodeService.updateLinkNode(reqs);
 
         if (result) {
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Cập nhật thành công").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Cập nhật node thành công").data(result).build();
         } else {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Lỗi cập nhật").data(result).build();
         }
@@ -262,11 +220,22 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> changeStatusNode(StatusRequest req) {
-        boolean result = nodeService.changeStatus(req);
-        if (result) {
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai space thanh cong").data(result).build();
-        } else {
-            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai space").data(result).build();
+
+        try {
+            boolean result = nodeService.changeStatusAtomic(req);
+
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(1000)
+                    .message("Thay đổi trạng thái tour và hotspot thành công!")
+                    .data(result)
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(5000)
+                    .message("Thay đổi trạng thái thất bại")
+                    .data(false)
+                    .build();
         }
     }
 

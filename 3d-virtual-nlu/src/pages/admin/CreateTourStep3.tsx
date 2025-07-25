@@ -320,6 +320,7 @@ const CreateTourStep3: React.FC = () => {
             <MiniMap
               currentPanorama={currentPanorama}
               angleCurrent={cameraAngle}
+              locked={true}
             />
           )}
         </Canvas>

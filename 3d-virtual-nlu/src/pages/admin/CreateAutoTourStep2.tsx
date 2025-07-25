@@ -39,7 +39,6 @@ import {
 } from "../../redux/slices/StepSlice";
 import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
-import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import CamControls from "../../components/visitor/CamControls";
 import ConfigAutoTour from "../../components/admin/ConfigAutoTour";

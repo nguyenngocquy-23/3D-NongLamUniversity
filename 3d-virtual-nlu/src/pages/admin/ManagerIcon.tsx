@@ -446,6 +446,7 @@ const ManagerIcon = () => {
                   status={selectedIcon.isActive}
                   apiUrl={API_URLS.ADMIN_CHANGE_ICON_STATUS}
                   type="icon"
+                  editable={true}
                 />
               </div>
             )}

@@ -18,11 +18,19 @@
   border-radius: 10px;
 }
 
-.toggle:hover {
+.toggle_open_feature:hover {
   transform: translateY(-5px);
+  scale: 1.1;
 }
 
-.toggle {
+.toggle_open_feature {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: #267026;
   position: absolute;
   bottom: 0;
   left: 50%;

@@ -2,11 +2,14 @@ package vn.edu.hcmuaf.virtualnluapi.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jdbi.v3.core.Handle;
+import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dao.HotspotDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotMediaResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotModelResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @ApplicationScoped
@@ -15,20 +18,37 @@ public class HotspotService {
     @Inject
     private HotspotDao hotspotDao;
 
-    public boolean insertNavigation(List<HotspotNavCreateRequest> reqs, String nodeId) {
-        return hotspotDao.insertHotspotNavigation(reqs, nodeId);
+    public boolean insertNavigation(Handle handle, List<HotspotNavCreateRequest> reqs, String nodeId) {
+        return hotspotDao.insertHotspotNavigation(handle, reqs, nodeId);
     }
 
-    public boolean insertInformation(List<HotspotInfoCreateRequest> reqs, String nodeId) {
-        return hotspotDao.insertHotspotInformation(reqs, nodeId);
+    public boolean insertInformation(Handle handle,List<HotspotInfoCreateRequest> reqs, String nodeId) {
+        return hotspotDao.insertHotspotInformation(handle, reqs, nodeId);
     }
 
-    public boolean insertMedia(List<HotspotMediaCreateRequest> reqs, String nodeId) {
-        return hotspotDao.insertHotspotMedia(reqs, nodeId);
+    public boolean insertMedia(Handle handle, List<HotspotMediaCreateRequest> reqs, String nodeId) {
+        return hotspotDao.insertHotspotMedia(handle,reqs, nodeId);
     }
 
-    public boolean insertModel(List<HotspotModelCreateRequest> req, String nodeId) {
-        return hotspotDao.insertHotspotModel(req, nodeId);
+    public boolean insertModel(Handle handle, List<HotspotModelCreateRequest> req, String nodeId) {
+        return hotspotDao.insertHotspotModel(handle,req, nodeId);
+    }
+
+    public boolean insertNavigationForLinkNode(List<HotspotNavCreateRequest> reqs, String nodeId) {
+        try {
+            return ConnectionPool.getConnection().inTransaction(
+                    handle -> {
+                        boolean result = hotspotDao.insertHotspotNavigation(handle, reqs, nodeId);
+                        if (!result) {
+                            throw new IllegalStateException("Failed to insert navigation for hotspots.");
+                        }
+                        return true;
+                    }
+            );
+        } catch (Exception ex) {
+            System.err.println("Transaction failed: " + ex.getMessage());
+            return false;
+        }
     }
 
 
@@ -41,20 +61,20 @@ public class HotspotService {
         return hotspotDao.getMediaByNodeId(nodeId);
     }
 
-    public int updateNavHotspots(List<HotspotNavUpdateRequest> navHotspots, int nodeId) {
-        return hotspotDao.updateNavHotspots(navHotspots, nodeId);
+    public int updateNavHotspots(Handle handle, List<HotspotNavUpdateRequest> navHotspots, int nodeId) {
+        return hotspotDao.updateNavHotspots(handle, navHotspots, nodeId);
     }
 
-    public int updateInfoHotspots(List<HotspotInfoUpdateRequest> infoHotspots, int nodeId) {
-        return hotspotDao.updateInfoHotspots(infoHotspots, nodeId);
+    public int updateInfoHotspots(Handle handle,List<HotspotInfoUpdateRequest> infoHotspots, int nodeId) {
+        return hotspotDao.updateInfoHotspots(handle, infoHotspots, nodeId);
     }
 
-    public int updateMediaHotspots(List<HotspotMediaUpdateRequest> mediaHotspots, int nodeId) {
-        return hotspotDao.updateMediaHotspots(mediaHotspots, nodeId);
+    public int updateMediaHotspots(Handle handle, List<HotspotMediaUpdateRequest> mediaHotspots, int nodeId) {
+        return hotspotDao.updateMediaHotspots(handle, mediaHotspots, nodeId);
     }
 
-    public int updateModelHotspots(List<HotspotModelUpdateRequest> modelHotspots, int id) {
-        return hotspotDao.updateModelHotspots(modelHotspots, id);
+    public int updateModelHotspots(Handle handle, List<HotspotModelUpdateRequest> modelHotspots, int id) {
+        return hotspotDao.updateModelHotspots(handle, modelHotspots, id);
     }
 
     public HotspotModelResponse getModelById(int hotspotId) {
@@ -110,4 +130,5 @@ public class HotspotService {
             return -1;
         }
     }
+
 }

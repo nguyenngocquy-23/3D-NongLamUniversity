@@ -64,19 +64,19 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
             dispatch(fetchIcons());
             break;
 
-        case "node":
-          dispatch(
-            updatePanoConfig({
-              id: `${id}`,
-              config: {
-                status: newToggle,
-              },
-            })
-          );
-          break;
+          case "node":
+            dispatch(
+              updatePanoConfig({
+                id: `${id}`,
+                config: {
+                  status: toggle.current,
+                },
+              })
+            );
+            break;
 
-        default:
-          break;
+          default:
+            break;
         }
       } else {
         Swal.fire({
@@ -89,7 +89,6 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
           timerProgressBar: true,
           toast: true,
         });
-
       }
     } catch (err) {
       Swal.fire({
@@ -116,7 +115,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
         checked={toggle.current == 1}
         title={toggle.current == 0 ? "Kích hoạt" : "Vô hiệu hóa"}
         onChange={id > 0 ? handleToggleStatus : undefined}
-        disabled={loading || !editable}
+        disabled={loading}
         style={{
           cursor: loading ? "not-allowed" : "pointer",
           opacity: loading ? 0.6 : 1,

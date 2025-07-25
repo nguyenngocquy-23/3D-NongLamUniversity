@@ -120,8 +120,16 @@ const hotspotSlice = createSlice({
       );
     },
     deleteHotspotByNodeId: (state, action: PayloadAction<string>) => {
+      const nodeIdToDelete = action.payload;
+
       state.hotspotList = state.hotspotList.filter(
-        (h) => h.nodeId !== action.payload
+        (h) =>
+          h.nodeId !== nodeIdToDelete &&
+          !(
+            h.type === 1 &&
+            "targetNodeId" in h &&
+            h.targetNodeId === nodeIdToDelete
+          )
       );
     },
 
@@ -345,31 +353,65 @@ const hotspotSlice = createSlice({
       }
     },
 
-    removeHotspot: (state, action: PayloadAction<{ hotspotId: string }>) => {
-      const index = state.hotspotList.findIndex(
-        (h) => h.id == action.payload.hotspotId
-      );
-      if (index !== -1) {
-        const hotspot = state.hotspotList.find(
-          (h) => h.id == action.payload.hotspotId
-        );
-        console.log("removeHotspot hotspot: ", action.payload.hotspotId);
-        if (!hotspot) return; // Nếu không tìm thấy thì thoát
+    // removeHotspot: (state, action: PayloadAction<{ hotspotId: string }>) => {
+    //   const index = state.hotspotList.findIndex(
+    //     (h) => h.id == action.payload.hotspotId
+    //   );
+    //   if (index !== -1) {
+    //     const hotspot = state.hotspotList.find(
+    //       (h) => h.id == action.payload.hotspotId
+    //     );
+    //     console.log("removeHotspot hotspot: ", action.payload.hotspotId);
+    //     if (!hotspot) return; // Nếu không tìm thấy thì thoát
 
-        // Duyệt từng nodeId trong hotspotPositions
-        state.hotspotPositions = state.hotspotPositions
-          .map((node) => ({
-            ...node,
-            hotspotPositions: node.hotspotPositions
-              .filter((h) => !(h.id == hotspot.id))
-              .filter((h) => h.position[0] != hotspot.positionX),
-          }))
-          // Xóa luôn node nếu mảng vị trí rỗng sau filter
-          .filter((node) => node.hotspotPositions.length > 0);
-        state.hotspotList = state.hotspotList.filter(
-          (h) => h.id != action.payload.hotspotId
+    //     // Duyệt từng nodeId trong hotspotPositions
+    //     state.hotspotPositions = state.hotspotPositions
+    //       .map((node) => ({
+    //         ...node,
+    //         hotspotPositions: node.hotspotPositions
+    //           .filter((h) => !(h.id == hotspot.id))
+    //           .filter((h) => h.position[0] != hotspot.positionX),
+    //       }))
+    //       // Xóa luôn node nếu mảng vị trí rỗng sau filter
+    //       .filter((node) => node.hotspotPositions.length > 0);
+    //     state.hotspotList = state.hotspotList.filter(
+    //       (h) => h.id != action.payload.hotspotId
+    //     );
+    //   }
+    // },
+    removeHotspot: (state, action: PayloadAction<{ hotspotId: string }>) => {
+      const { hotspotId } = action.payload;
+
+      // Tìm hotspot cần xóa
+      const hotspot = state.hotspotList.find((h) => h.id === hotspotId);
+      if (!hotspot) {
+        console.warn(
+          `Hotspot với ID ${hotspotId} không tồn tại trong danh sách.`
         );
+        return;
       }
+
+      console.log("Đang xóa hotspot: ", hotspotId);
+
+      // Cập nhật hotspotPositions: xóa hotspot ra khỏi node tương ứng
+      state.hotspotPositions = state.hotspotPositions
+        .map((node) => {
+          const filteredHotspots = node.hotspotPositions.filter(
+            (h) =>
+              h.id !== hotspot.id &&
+              Array.isArray(h.position) &&
+              h.position[0] !== hotspot.positionX
+          );
+
+          return {
+            ...node,
+            hotspotPositions: filteredHotspots,
+          };
+        })
+        .filter((node) => node.hotspotPositions.length > 0); // Bỏ node nếu không còn hotspot nào
+
+      // Xóa khỏi hotspotList
+      state.hotspotList = state.hotspotList.filter((h) => h.id !== hotspotId);
     },
 
     updateHotspotStatus: (
@@ -399,6 +441,19 @@ const hotspotSlice = createSlice({
           .filter((node) => node.hotspotPositions.length > 0);
         hotspot.status = 0; // Cập nhật trạng thái hotspot thành 0
       }
+    },
+
+    deleteHotspotHaveDatabase: (state, action: PayloadAction<string>) => {
+      const nodeId = action.payload;
+
+      state.hotspotList.forEach((h) => {
+        if (
+          h.nodeId === nodeId ||
+          (h.type === 1 && "targetNodeId" in h && h.targetNodeId === nodeId)
+        ) {
+          h.status = 0;
+        }
+      });
     },
 
     addHotspotPosition: (
@@ -467,6 +522,7 @@ export const {
   updateCornerPoint,
   updateCornerHotspotMedia,
   removeHotspot,
+  deleteHotspotHaveDatabase,
   updateHotspotStatus,
   addHotspotPosition,
   addHotspotsFromResponse,
