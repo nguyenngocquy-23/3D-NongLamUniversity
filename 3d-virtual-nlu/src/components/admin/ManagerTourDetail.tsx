@@ -110,8 +110,10 @@ const ManagerTourDetail: React.FC = () => {
   const [approveForm, setApproveForm] = useState<boolean>(false);
 
   const [fieldId, setFieldId] = useState<string | null>(null);
+
   const [originalMasterNode, setOriginalMasterNode] =
     useState<PanoramaItemForApprove | null>(null);
+
   const [messageRefuse, setMessageRefuse] = useState<string>("");
 
   useEffect(() => {
