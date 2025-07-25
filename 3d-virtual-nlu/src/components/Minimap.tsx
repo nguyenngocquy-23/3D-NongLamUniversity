@@ -610,9 +610,11 @@ const MiniMap: React.FC<MiniMapProps> = ({
                 </div>
               </div>
             ))}
-            <span className={styles.minimap_setting} onClick={handleZoomMap}>
-              <IoSettings />
-            </span>
+            {!locked && (
+              <span className={styles.minimap_setting} onClick={handleZoomMap}>
+                <IoSettings />
+              </span>
+            )}
           </motion.div>
         )}
 
