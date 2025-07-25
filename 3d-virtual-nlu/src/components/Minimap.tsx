@@ -59,11 +59,13 @@ type MiniMapProps = {
   currentPanorama: PanoramaItem;
   angleCurrent: number;
   currentTour?: string;
+  locked?: boolean;
 };
 const MiniMap: React.FC<MiniMapProps> = ({
   currentPanorama,
   angleCurrent,
   currentTour,
+  locked,
 }) => {
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
@@ -320,6 +322,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const handleZoomMap = () => {
+    if (locked) return;
     setIsExpanded((prev) => !prev);
   };
 

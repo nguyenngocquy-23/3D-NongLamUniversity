@@ -34,6 +34,23 @@ public class HotspotService {
         return hotspotDao.insertHotspotModel(handle,req, nodeId);
     }
 
+    public boolean insertNavigationForLinkNode(List<HotspotNavCreateRequest> reqs, String nodeId) {
+        try {
+            return ConnectionPool.getConnection().inTransaction(
+                    handle -> {
+                        boolean result = hotspotDao.insertHotspotNavigation(handle, reqs, nodeId);
+                        if (!result) {
+                            throw new IllegalStateException("Failed to insert navigation for hotspots.");
+                        }
+                        return true;
+                    }
+            );
+        } catch (Exception ex) {
+            System.err.println("Transaction failed: " + ex.getMessage());
+            return false;
+        }
+    }
+
 
     public List<HotspotModelResponse> getModelByNodeId(int nodeId) {
         return hotspotDao.getModelByNodeId(nodeId);

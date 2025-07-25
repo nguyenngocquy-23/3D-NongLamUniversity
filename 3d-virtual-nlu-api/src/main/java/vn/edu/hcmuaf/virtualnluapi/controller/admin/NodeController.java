@@ -152,20 +152,10 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> updateLinkNode(List<NodeLinkRequest> reqs) {
-        boolean result = true;
-        for(NodeLinkRequest req : reqs) {
-            try {
-                if(req.getNavHotspots() != null && !req.getNavHotspots().isEmpty()) {
-//                    hotspotService.insertNavigation(req.getNavHotspots(), req.getId());
-                }
-            } catch (Exception e) {
-                System.err.println("Lỗi khi insert hotspot cho node: " + req.getId() + ": " + e.getMessage());
-                result = false;
-            }
-        }
+        boolean result = nodeService.updateLinkNode(reqs);
 
         if (result) {
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Cập nhật thành công").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Cập nhật node thành công").data(result).build();
         } else {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Lỗi cập nhật").data(result).build();
         }

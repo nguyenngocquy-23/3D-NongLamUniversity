@@ -280,10 +280,11 @@ public class NodeDao {
         String sql = """
                   SELECT n.id, n.userId, s.id as spaceId, s.name as spaceName, f.id as fieldId, f.name as fieldName, n.name, n.description, n.url, n.updatedAt,
                 n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity,
-                n.numView
+                n.numView, u.username, u.email, u.avatar 
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
+                LEFT JOIN users u ON n.userId = u.id
                 WHERE n.id = :nodeId
                 """;
         NodeExpandResponse nodeExpandResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
@@ -310,10 +311,11 @@ public class NodeDao {
     public NodeExpandResponse getCustomNodeByNodeId(int nodeId) {
         String sql = """
                  SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, s.name as spaceName, f.name as fieldName, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity, u.username, u.email, u.avatar 
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
+                LEFT JOIN users u ON n.userId = u.id
                 WHERE n.id = :nodeId
                 """;
         NodeExpandResponse nodeExpandResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
@@ -758,7 +760,7 @@ public class NodeDao {
 
             ).collect(Collectors.toList());
 
-            handle.createUpdate(sql).bind("status", 0).bindList("ids", idList).execute();
+            handle.createUpdate(sql).bind("status", -1).bindList("ids", idList).execute();
             return true;
 
         }

@@ -18,32 +18,77 @@ import java.util.List;
 public class HotspotDao {
 
     public boolean insertHotspotNavigation(Handle handle, List<HotspotNavCreateRequest> req, String nodeId) {
-    String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, status, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity) " + "VALUES(:nodeId, :type, :iconId, :status, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity)";
-    String sqlInsertNavigation = "INSERT INTO hotspot_navigations(hotspotId, targetNodeId) " + "VALUES(:hotspotId, :targetNodeId)";
+        String sqlInsertHotspot = """
+        INSERT INTO hotspots(
+            nodeId, type, iconId, status, positionX, positionY, positionZ,
+            pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity
+        ) VALUES (
+            :nodeId, :type, :iconId, :status, :posX, :posY, :posZ,
+            :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity
+        )
+        """;
+
+        String sqlInsertNavigation = """
+        INSERT INTO hotspot_navigations(hotspotId, targetNodeId)
+        VALUES(:hotspotId, :targetNodeId)
+        """;
 
         try {
-        PreparedBatch hotspotBatch = handle.prepareBatch(sqlInsertHotspot);
-        for (HotspotNavCreateRequest navReq : req) {
-            hotspotBatch.bind("nodeId", Integer.valueOf(nodeId)).bind("type", navReq.getType()).bind("iconId", navReq.getIconId()).bind("status", 1).bind("posX", navReq.getPositionX()).bind("posY", navReq.getPositionY()).bind("posZ", navReq.getPositionZ()).bind("pitchX", navReq.getPitchX()).bind("yawY", navReq.getYawY()).bind("rollZ", navReq.getRollZ()).bind("scale", navReq.getScale()).bind("color", navReq.getColor()).bind("backgroundColor", navReq.getBackgroundColor()).bind("allowBackgroundColor", navReq.getAllowBackgroundColor()).bind("opacity", navReq.getOpacity()).add();
-        }
+            if (req == null || req.isEmpty()) {
+                System.err.println("insertHotspotNavigation: danh sách req trống.");
+                return false;
+            }
 
-        List<Integer> generateIds = hotspotBatch.executePreparedBatch().mapTo(Integer.class).list();
-        if (generateIds.size() != req.size()) {
-            throw new IllegalStateException("[HotspotDao - insertMultipeNav] : Mismatch between hotspot and id return.");
-        }
+            PreparedBatch hotspotBatch = handle.prepareBatch(sqlInsertHotspot);
+            for (HotspotNavCreateRequest navReq : req) {
+                hotspotBatch
+                        .bind("nodeId", Integer.valueOf(nodeId))
+                        .bind("type", navReq.getType())
+                        .bind("iconId", navReq.getIconId())
+                        .bind("status", 1)
+                        .bind("posX", navReq.getPositionX())
+                        .bind("posY", navReq.getPositionY())
+                        .bind("posZ", navReq.getPositionZ())
+                        .bind("pitchX", navReq.getPitchX())
+                        .bind("yawY", navReq.getYawY())
+                        .bind("rollZ", navReq.getRollZ())
+                        .bind("scale", navReq.getScale())
+                        .bind("color", navReq.getColor())
+                        .bind("backgroundColor", navReq.getBackgroundColor())
+                        .bind("allowBackgroundColor", navReq.getAllowBackgroundColor())
+                        .bind("opacity", navReq.getOpacity())
+                        .add();
+            }
 
-        PreparedBatch navigationBatch = handle.prepareBatch(sqlInsertNavigation);
+            List<Integer> generateIds = hotspotBatch.executePreparedBatch().mapTo(Integer.class).list();
 
-        for (int i = 0; i < generateIds.size(); i++) {
-            navigationBatch.bind("hotspotId", generateIds.get(i)).bind("targetNodeId", Integer.valueOf(req.get(i).getTargetNodeId())).add();
-        }
-        navigationBatch.execute();
-        return true;
+            if (generateIds == null || generateIds.size() != req.size()) {
+                throw new IllegalStateException("[HotspotDao - insertMultipleNav] : Mismatch between hotspot count and generated IDs.");
+            }
+
+            PreparedBatch navigationBatch = handle.prepareBatch(sqlInsertNavigation);
+
+            for (int i = 0; i < generateIds.size(); i++) {
+                navigationBatch
+                        .bind("hotspotId", generateIds.get(i))
+                        .bind("targetNodeId", Integer.valueOf(req.get(i).getTargetNodeId()))
+                        .add();
+            }
+
+            int[] insertedNavs = navigationBatch.execute();
+
+            if (insertedNavs.length != req.size()) {
+                throw new IllegalStateException("[HotspotDao - insertMultipleNav] : Không insert đủ hotspot_navigations.");
+            }
+
+            return true;
 
         } catch (Exception e) {
-                System.err.println("Error in InsertHotspotNavigation: " + e.getMessage());
+            System.err.println("❌ Error in insertHotspotNavigation: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
+
 }
 
 

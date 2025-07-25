@@ -272,6 +272,9 @@ export interface NodeExpandResponse {
   fieldName: string;
   spaceName: string;
   userId: string;
+  userName: string;
+  email: string;
+  avatar: string;
   url: string;
   name: string;
   description: string;

@@ -14,7 +14,7 @@ import java.util.List;
 public class NodeExpandResponse {
     int id;
     int spaceId, fieldId, userId, numView;
-    String url, name, description, spaceName, fieldName;
+    String url, name, description, spaceName, fieldName, userName, avatar,email;
     double positionX, positionY, positionZ;
     double yawOffset;
     double lightIntensity, brightness, contrast, saturation, grayscale, exposure;

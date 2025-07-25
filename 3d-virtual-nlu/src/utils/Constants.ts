@@ -18,6 +18,7 @@ export const perPage = 10;
 export const MAX_DESCRIPTION = 300; //kích thước mô tả tối đa
 
 const statusNodeMap: Record<number, string> = {
+  //-1 : xoá tour
   0: "Tạm ngưng",
   1: "Hoạt động",
   2: "Hoạt động",

@@ -264,6 +264,29 @@ public class NodeService {
         }
     }
 
+    public boolean updateLinkNode(List<NodeLinkRequest> reqs) {
+        boolean result = true;
+
+        for (NodeLinkRequest req : reqs) {
+            try {
+                if (req.getNavHotspots() != null && !req.getNavHotspots().isEmpty()) {
+                    boolean insertSuccess = hotspotService.insertNavigationForLinkNode(req.getNavHotspots(), req.getId());
+
+                    if (!insertSuccess) {
+                        System.err.println("Insert hotspot navigation failed for node: " + req.getId());
+                        result = false;
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Lỗi khi insert hotspot cho node: " + req.getId() + ": " + e.getMessage());
+                e.printStackTrace();
+                result = false;
+            }
+        }
+
+        return result;
+    }
+
 
     private void updatesIds(List<NodeCreateRequest> reqs, Map<String, Integer> idMapResponse) {
         for (NodeCreateRequest req : reqs) {

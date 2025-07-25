@@ -8,7 +8,7 @@ import {
   RADIUS_SPHERE,
 } from "../../utils/Constants";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { FaAngleRight, FaAngleUp, FaComment, FaEye } from "react-icons/fa6";
 import { useNavigate, useParams } from "react-router-dom";
@@ -82,7 +82,8 @@ import { diffNode } from "../../utils/DiffNodeForUpdate";
  * Data đại diện của MasterNodeId có thêm:
  * 1. updatedAt : Ngày cập nhật
  */
-interface PanoramaItemExpandField extends PanoramaItem {
+export interface PanoramaItemExpandField extends PanoramaItem {
+  userId: string;
   fieldId: string;
   numView: number;
   updatedAt: number;
@@ -278,25 +279,6 @@ const TourDetail = () => {
   const hotspotModels = useSelector(getFilteredHotspotModelInList);
   const hotspotMedias = useSelector(getFilteredHotspotMediaInList);
 
-  // Version of Quy 1.2.
-  // const handleFetchNode = async (nodeId: string) => {
-  //   if (!nodeId) {
-  //     console.warn("Missing nodeId from URL");
-  //     return;
-  //   }
-  //   try {
-  //     const response = await axios.post(API_URLS.NODE_BY_ID, {
-  //       nodeId: nodeId,
-  //     });
-  //     if (response.data) {
-  //       console.log("Node data fetched successfully:", response.data.data);
-  //       setNode(response.data.data);
-  //     }
-  //   } catch (err: any) {
-  //     console.error(err);
-  //   }
-  // };
-
   //Version of Kien replace 1.2, 1.1
   useEffect(() => {
     if (!nodeId) return;
@@ -324,6 +306,7 @@ const TourDetail = () => {
           ...currentTour,
           fieldId: mainNode?.fieldId,
           numView: mainNode?.numView,
+          userId: mainNode?.userId,
           updatedAt: mainNode?.updatedAt,
         };
         setOriginalMasterNode(currentTourExpandField);
@@ -801,6 +784,7 @@ const TourDetail = () => {
               currentPanorama={currentNodeView}
               angleCurrent={cameraAngle}
               currentTour={nodeId}
+              locked={false}
             />
           )}
 
@@ -829,72 +813,83 @@ const TourDetail = () => {
 
           {isUpdateTour && (
             <>
-              {isTextureReady &&
-                hotspotInformations
-                  .filter(
-                    (hotspot) =>
-                      // hotspot.nodeId == node.id && hotspot.status == 1 //Version of Quy
-                      hotspot.nodeId == currentNodeView.id &&
-                      hotspot.status == 1 //Version of Kien
-                  )
-                  .map((hotspot) => (
-                    <GroundHotspotInfo
-                      key={hotspot.id}
-                      hotspotInfo={hotspot}
-                      setCurrentHotspotId={setCurrentHotspotId}
-                    />
-                  ))}
-              {isTextureReady &&
-                hotspotNavigations
-                  .filter(
-                    (hotspot) =>
-                      // hotspot.nodeId == node.id && hotspot.status == 1 //Version of Quy
-                      hotspot.nodeId == currentNodeView.id &&
-                      hotspot.status == 1 //Version of Kien
-                  )
-                  .map((hotspot) => (
-                    <GroundHotspot
-                      key={hotspot.id}
-                      onNavigate={(targetNodeId, cameraTargetPosition) =>
-                        handleHotspotNavigate(
-                          targetNodeId,
-                          cameraTargetPosition
-                        )
-                      }
-                      hotspotNavigation={hotspot}
-                      setCurrentHotspotId={setCurrentHotspotId}
-                    />
-                  ))}
-              {isTextureReady &&
-                hotspotModels
-                  .filter(
-                    (hotspot) =>
-                      // hotspot.nodeId == node.id && hotspot.status == 1 // version of Quy
-                      hotspot.nodeId == currentNodeView.id &&
-                      hotspot.status == 1 // version of Kien
-                  )
-                  .map((hotspot) => (
-                    <GroundHotspotModel
-                      key={hotspot.id}
-                      hotspotModel={hotspot}
-                      setCurrentHotspotId={setCurrentHotspotId}
-                    />
-                  ))}
-              {isTextureReady &&
-                hotspotMedias
-                  .filter(
-                    (hotspot) =>
-                      // hotspot.nodeId == node.id && hotspot.status == 1 // version of Quy
-                      hotspot.nodeId == currentNodeView.id &&
-                      hotspot.status == 1 // version of Kien
-                  )
-                  .map((hotspot) => (
-                    <VideoMeshComponent
-                      key={hotspot.id}
-                      hotspotMedia={hotspot}
-                      setCurrentHotspotId={setCurrentHotspotId}
-                    />
-                  ))}
+              <Suspense fallback={null}>
+                {isTextureReady &&
+                  hotspotInformations
+                    .filter(
+                      (hotspot) =>
+                        // hotspot.nodeId == node.id && hotspot.status == 1 //Version of Quy
+                        hotspot.nodeId == currentNodeView.id &&
+                        hotspot.status == 1 //Version of Kien
+                    )
+                    .map((hotspot) => (
+                      <GroundHotspotInfo
+                        key={hotspot.id}
+                        hotspotInfo={hotspot}
+                        setCurrentHotspotId={setCurrentHotspotId}
+                      />
+                    ))}
+              </Suspense>
+
+              <Suspense fallback={null}>
+                {isTextureReady &&
+                  hotspotNavigations
+                    .filter(
+                      (hotspot) =>
+                        // hotspot.nodeId == node.id && hotspot.status == 1 //Version of Quy
+                        hotspot.nodeId == currentNodeView.id &&
+                        hotspot.status == 1 //Version of Kien
+                    )
+                    .map((hotspot) => (
+                      <GroundHotspot
+                        key={hotspot.id}
+                        onNavigate={(targetNodeId, cameraTargetPosition) =>
+                          handleHotspotNavigate(
+                            targetNodeId,
+                            cameraTargetPosition
+                          )
+                        }
+                        hotspotNavigation={hotspot}
+                        setCurrentHotspotId={setCurrentHotspotId}
+                      />
+                    ))}
+              </Suspense>
+
+              <Suspense fallback={null}>
+                {isTextureReady &&
+                  hotspotModels
+                    .filter(
+                      (hotspot) =>
+                        // hotspot.nodeId == node.id && hotspot.status == 1 // version of Quy
+                        hotspot.nodeId == currentNodeView.id &&
+                        hotspot.status == 1 // version of Kien
+                    )
+                    .map((hotspot) => (
+                      <GroundHotspotModel
+                        key={hotspot.id}
+                        hotspotModel={hotspot}
+                        setCurrentHotspotId={setCurrentHotspotId}
+                      />
+                    ))}
+              </Suspense>
+
+              <Suspense fallback={null}>
+                {isTextureReady &&
+                  hotspotMedias
+                    .filter(
+                      (hotspot) =>
+                        // hotspot.nodeId == node.id && hotspot.status == 1 // version of Quy
+                        hotspot.nodeId == currentNodeView.id &&
+                        hotspot.status == 1 // version of Kien
+                    )
+                    .map((hotspot) => (
+                      <VideoMeshComponent
+                        key={hotspot.id}
+                        hotspotMedia={hotspot}
+                        setCurrentHotspotId={setCurrentHotspotId}
+                      />
+                    ))}
+              </Suspense>
             </>
           )}
         </Canvas>

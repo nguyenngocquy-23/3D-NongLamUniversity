@@ -463,6 +463,7 @@ const CreateTourStep2 = () => {
             <MiniMap
               currentPanorama={currentPanorama}
               angleCurrent={cameraAngle}
+              locked={false}
             />
           )}
 
