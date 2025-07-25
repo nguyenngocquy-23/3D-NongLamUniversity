@@ -826,4 +826,19 @@ public class NodeDao {
            throw new RuntimeException("Lỗi khi xoá node", e);
         }
     }
+
+    public List<NodeFullResponse> getFailNodeByUser(UserIdRequest request) {
+        String sql = """
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                FROM nodes n
+                JOIN spaces s ON n.spaceId = s.id
+                JOIN fields f ON s.fieldId = f.id
+                WHERE n.userId = :userId and n.status = 4
+                ORDER BY n.updatedAt DESC
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+                .bind("userId", request.getUserId())
+                .mapToBean(NodeFullResponse.class).list());
+    }
 }

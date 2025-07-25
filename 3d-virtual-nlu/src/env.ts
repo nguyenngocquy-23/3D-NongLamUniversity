@@ -25,6 +25,7 @@ export const API_URLS = {
   UPLOAD_CLOUD: `${DOMAIN}/v1/admin/cloud/upload`,
 
   GET_MASTER_NODES: `${DOMAIN}/node/master`,
+  GET_FEEDBACK_BY_NODE_ID: `${DOMAIN}/feedback/byId`,
   GET_ALL_MODEL: `${DOMAIN}/v1/admin/hotspot/getAllModel`,
   INCREASE_NUM_DOWNLOAD_MODEL: `${DOMAIN}/v1/admin/hotspot/countDownloadModel`,
   GET_ALL_SPACES: `${DOMAIN}/space`,
@@ -34,6 +35,7 @@ export const API_URLS = {
   GET_FULL_TOUR: `${DOMAIN}/node/nodeListByMasterId`,
   GET_DEFAULT_NODE: `${DOMAIN}/node/default`,
   PRIVATE_NODE_OF_USER: `${DOMAIN}/node/privateByUser`,
+  FAIL_NODE_OF_USER: `${DOMAIN}/node/failByUser`,
   NODE_OF_USER: `${DOMAIN}/node/byUser`,
   NODE_BY_ID: `${DOMAIN}/node/byId`,
   NUM_VIEW_OF_USER: `${DOMAIN}/node/getNumOfUser`,
@@ -46,6 +48,7 @@ export const API_URLS = {
 
   SEND_CONTACT: `${DOMAIN}/contact/send`,
   ADMIN_FEEDBACK_CONTACT: `${DOMAIN}/v1/admin/contact/feedback`,
+  ADMIN_APPROVE_TOUR: `${DOMAIN}/v1/admin/approveTour`,
 
   SEARCH_FIELDS: `${DOMAIN}/admin/field/search`,
   SEARCH_SPACES: `${DOMAIN}/admin/space/search`,
@@ -71,6 +74,7 @@ export const API_URLS = {
   ADMIN_GET_FIELDS_BY_PAGE: `${DOMAIN}/admin/field/byPage`,
   ADMIN_GET_ALL_NODE_IMAGES: `${DOMAIN}/v1/admin/node/getNodeImg`,
   ADMIN_GET_ALL_CONTACTS: `${DOMAIN}/v1/admin/contact/getAll`,
+  ADMIN_GET_FEEDBACK: `${DOMAIN}/v1/admin/feedback/getAll`,
 
   ADMIN_CREATE_NODES: `${DOMAIN}/v1/admin/node/insert`,
   ADMIN_UPDATE_NODES: `${DOMAIN}/v1/admin/node/update`,

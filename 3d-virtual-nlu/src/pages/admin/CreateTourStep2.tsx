@@ -349,7 +349,7 @@ const CreateTourStep2 = () => {
       case 1:
         return (
           <>
-            <Task1 setIsValidated={setIsValidated} />
+            <Task1 />
           </>
         );
       case 2:

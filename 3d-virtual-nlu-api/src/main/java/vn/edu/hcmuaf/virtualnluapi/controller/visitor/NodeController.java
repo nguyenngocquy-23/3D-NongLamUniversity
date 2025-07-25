@@ -135,6 +135,15 @@ public class NodeController {
     }
 
     @POST
+    @Path("/failByUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getFailNodeByUser(UserIdRequest request) {
+        List<NodeFullResponse> result = nodeService.getFailNodeByUser(request);
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node theo nguoi tao thanh cong").data(result).build();
+    }
+
+    @POST
     @Path("/changeStatus")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)

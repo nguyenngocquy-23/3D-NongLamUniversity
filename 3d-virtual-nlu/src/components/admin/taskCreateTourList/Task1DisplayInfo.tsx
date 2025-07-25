@@ -6,11 +6,7 @@ import { useEffect, useState } from "react";
 import Description from "../../Description";
 import { FaQuestionCircle } from "react-icons/fa";
 
-const Task1 = ({
-  setIsValidated,
-}: {
-  setIsValidated: (isValid: boolean) => void;
-}) => {
+const Task1 = () => {
   const [content, setContent] = useState<string>("");
 
   const dispatch = useDispatch();

@@ -77,6 +77,7 @@ import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL";
 import { FaAngleDoubleUp } from "react-icons/fa";
 import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import { diffNode } from "../../utils/DiffNodeForUpdate";
+import _Draggable from "gsap/Draggable";
 
 /**
  * Data đại diện của MasterNodeId có thêm:
@@ -203,14 +204,6 @@ const TourDetail = () => {
       case 3:
         return (
           <>
-            {/* <TaskUpdate3
-              isAssignable={assignable}
-              setAssignable={setAssignable}
-              setCurrentHotspotType={setCurrentHotspotType}
-              onPropsChange={handleOnPropsChange}
-              // currentPanorama={node}
-              currentPanorama={currentNodeView}
-            /> */}
             <Task3
               isAssignable={assignable}
               setAssignable={setAssignable}
@@ -702,6 +695,40 @@ const TourDetail = () => {
     handleSelectNode(targetNodeId);
   };
 
+  const [feedback, setFeedback] = useState<any>(null);
+
+  useEffect(() => {
+    if (!currentNodeView) return;
+    if (currentNodeView.config.status == 4) {
+      setIsUpdateTour(true);
+      const fetchFeedback = async () => {
+        try {
+          const response = await axios.post(
+            `${API_URLS.GET_FEEDBACK_BY_NODE_ID}`,
+            {
+              nodeId: currentNodeView.id,
+            }
+          );
+          const data = response.data.data;
+          if (data) {
+            const feedbacks = JSON.parse(data.feedbackList) as string[];
+            const feedback = {
+              feedbackList: feedbacks,
+              moreFeedback: data.moreFeedback,
+              createdAt: formatTimeAgo(data.createdAt),
+            };
+            setFeedback(feedback);
+          } else {
+            setFeedback(null);
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy phản hồi:", error);
+        }
+      };
+      fetchFeedback();
+    }
+  }, [currentNodeView]);
+
   // Version of quy
   // if (!node || !comments) {
   //   return null;
@@ -864,7 +891,8 @@ const TourDetail = () => {
 
         {/* Version of Quy */}
         {/* {node.status == 3 ? ( */}
-        {currentNodeView.status == 3 ? (
+        {currentNodeView.config.status == 3 ||
+        currentNodeView.config.status == 4 ? (
           ""
         ) : isFullPreview || isUpdateTour ? (
           <span className={styles.toggle_open_feature}>
@@ -881,7 +909,7 @@ const TourDetail = () => {
           <div>
             <div className={styles.info}>
               <div className={styles.sub_info}>
-                <span className={styles.name}>Cập nhật </span>
+                <span className={styles.name}>Cập nhật</span>
                 <span className={styles.des}>
                   {/* {formatTimeAgo(node.updatedAt)}  */}
                   {originalMasterNode?.updatedAt
@@ -979,17 +1007,18 @@ const TourDetail = () => {
                 onClick={() => handleOpenMenu()}
               />
             </div>
-
-            <button
-              className={styles.cancel_update_btn}
-              onClick={() => {
-                setIsUpdateTour(false);
-                setIsFullPreview(false);
-              }}
-            >
-              Huỷ
-            </button>
-
+            {/* {currentNodeView.config.status == 4 && ( */}
+            <div className={styles.feedback_container}>
+              <h3>Phản hồi </h3> {feedback && <p className={styles.approve_time}>{feedback.createdAt}</p>}
+              {feedback &&
+                feedback.feedbackList.map((f: any, index: any) => (
+                  <div key={index} className={styles.feedback_item}>
+                    <p>{f}</p>
+                  </div>
+                ))}
+              {feedback && <p>Thêm: {feedback.moreFeedback}</p>}
+            </div>
+            {/* )}F */}
             <AnimatePresence>
               {isMenuVisible && (
                 <motion.div

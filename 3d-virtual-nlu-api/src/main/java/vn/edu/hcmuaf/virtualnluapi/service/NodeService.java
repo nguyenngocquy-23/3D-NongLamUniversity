@@ -380,6 +380,15 @@ public class NodeService {
             throw new RuntimeException("Lỗi khi update hotspot cho node: " + req.getId(), e);
         }
     }
+
+    public List<NodeFullResponse> getFailNodeByUser(UserIdRequest request) {
+        try {
+            return nodeDao.getFailNodeByUser(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
 
 
