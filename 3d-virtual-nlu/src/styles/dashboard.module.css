@@ -3,6 +3,9 @@
   background-color: #f5f7fa;
   width: 100%;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .dashboard_title {
@@ -11,12 +14,14 @@
   margin-bottom: 24px;
 }
 
-.stat_grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+/* Mỗi hàng (large, medium, small) */
+.stat_row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
+/* Card chung */
 .stat_card {
   background: white;
   padding: 16px;
@@ -25,36 +30,21 @@
   display: flex;
   align-items: center;
   transition: transform 0.2s ease;
+  min-width: 220px;
 }
 
+/* Hover effect giữ nguyên */
 .stat_card:hover {
   transform: translateY(-4px);
 }
 
-.large {
-  grid-column: span 2;
-  height: 140px;
-}
-
-.medium {
-  grid-column: span 1;
-  height: 120px;
-}
-
-.small {
-  grid-column: span 1;
-  height: 100px;
-}
-
-.stat_card:hover {
-  transform: translateY(-4px);
-}
-
+/* Icon */
 .stat_icon {
   font-size: 30px;
   margin-right: 16px;
 }
 
+/* Text inside card */
 .stat_info {
   display: flex;
   flex-direction: column;
@@ -72,8 +62,34 @@
   color: black;
 }
 
-.stat_grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+/* Size-specific style */
+.large .stat_card {
+  flex: 1 1 100%; /* full width */
+  height: 140px;
+}
+
+.medium .stat_card {
+  flex: 1 1 calc(33.333% - 20px); /* 3 per row */
+  height: 120px;
+}
+
+.small .stat_card {
+  flex: 1 1 calc(25% - 20px); /* 4 per row */
+  height: 100px;
+}
+
+/* Optional: Responsive fallback */
+@media (max-width: 768px) {
+  .medium .stat_card,
+  .small .stat_card {
+    flex: 1 1 calc(50% - 20px);
+  }
+}
+
+@media (max-width: 480px) {
+  .medium .stat_card,
+  .small .stat_card,
+  .large .stat_card {
+    flex: 1 1 100%;
+  }
 }

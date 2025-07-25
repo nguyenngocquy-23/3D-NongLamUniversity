@@ -8,13 +8,16 @@ import { RootState } from "../redux/Store";
 import { FaMessage, FaXmark } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { AFTER_DOMAIN, API_URLS } from "../env";
+import { formatTimeAgo } from "../utils/formatDateTime";
 
 const Chat = ({
   nodeId,
   setAccessing,
+  setIsOpenChat,
 }: {
   nodeId: number;
   setAccessing: (value: any) => void;
+  setIsOpenChat: (value: boolean) => void;
 }) => {
   // const { roomId, userId } = useParams(); // Lấy roomId & userId từ URL
   const user = useSelector((state: RootState) => state.auth.user);
@@ -166,6 +169,7 @@ const Chat = ({
 
   const handleOpenChatBox = () => {
     setIsOpenBox((preState) => !preState);
+    setIsOpenChat(isOpenBox ? false : true);
   };
 
   const handleCheckFillInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,7 +189,6 @@ const Chat = ({
     if (!isLoadingMore) {
       nodeMessagesRef.current.scrollTop = nodeMessagesRef.current.scrollHeight;
     }
-    // Nếu đang load tin nhắn cũ, ta đã xử lý scroll riêng rồi trong loadMessages()
   }, [messages.length, isSelectOption]);
 
   return (
@@ -243,6 +246,7 @@ const Chat = ({
                           style={{
                             background: `url(${msg.avatar})`,
                           }}
+                          title={msg.username}
                         >
                           {/* {msg.username.charAt(0)} */}
                         </div>
@@ -254,6 +258,7 @@ const Chat = ({
                       }`}
                     >
                       <span>{msg.content}</span>
+                      <div className={styles.timestamp}>{formatTimeAgo(Number.parseInt(msg.createdAt))}</div>
                     </div>
                   </div>
                 );
@@ -266,7 +271,7 @@ const Chat = ({
                   type="text"
                   value={inputMessage}
                   onChange={handleCheckFillInput}
-                  placeholder="Compose your message..."
+                  placeholder="Soạn tin nhắn..."
                 />
                 <button
                   className={`${styles.sendChatBtn} ${
@@ -307,6 +312,7 @@ const Chat = ({
                           style={{
                             background: `url(${msg.avatar})`,
                           }}
+                          title={msg.username}
                         >
                           {/* {msg.username.charAt(0)} */}
                         </div>
@@ -318,6 +324,7 @@ const Chat = ({
                       }`}
                     >
                       <span>{msg.content}</span>
+                      <div className={styles.timestamp}>{formatTimeAgo(Number.parseInt(msg.createdAt))}</div>
                     </div>
                   </div>
                 );
@@ -330,7 +337,7 @@ const Chat = ({
                   type="text"
                   value={inputMessage}
                   onChange={handleCheckFillInput}
-                  placeholder="Compose your message..."
+                  placeholder="Soạn tin nhắn..."
                 />
                 <button
                   className={`${styles.sendChatBtn} ${

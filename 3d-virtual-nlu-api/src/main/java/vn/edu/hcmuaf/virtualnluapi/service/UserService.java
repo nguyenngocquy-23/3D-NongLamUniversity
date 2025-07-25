@@ -40,7 +40,7 @@ public class UserService {
     }
 
     public User getUserByUserName(String username) {
-        try{
+        try {
             return userDao.findByUsername(username);
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,7 +53,7 @@ public class UserService {
     }
 
     public User findById(int userId) {
-        try{
+        try {
             return userDao.findById(userId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,7 +86,9 @@ public class UserService {
         }
         User user = userDao.findByUsername(request.getUsername());
         if (user != null) {
-            return false;
+            if (user.getEmail() == request.getEmail()) {
+                return false;
+            }
         }
         oldUser.setEmail(request.getEmail());
         oldUser.setUsername(request.getUsername());
@@ -125,7 +127,7 @@ public class UserService {
             return false;
         }
         try {
-            if(user.getStatus() == SystemConstant.ACTIVATED) {
+            if (user.getStatus() == SystemConstant.ACTIVATED) {
                 return userDao.toggleLockStatus(request.getUserId(), SystemConstant.LOCKED);
             } else {
                 return userDao.toggleLockStatus(request.getUserId(), SystemConstant.ACTIVATED);

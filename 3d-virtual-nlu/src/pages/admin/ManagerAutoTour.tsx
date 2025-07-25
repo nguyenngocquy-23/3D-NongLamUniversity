@@ -53,7 +53,6 @@ const ManagerAutoTour = () => {
 
   const dashboard = useSelector((state: RootState) => state.data.dashboard);
   const [autoNodeList, setAutoNodeList] = useState<any[]>(autoNodes || []);
-  console.log("autoNodes", autoNodes, autoNodeList);
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
@@ -68,25 +67,26 @@ const ManagerAutoTour = () => {
   }, [dispatch]);
 
   const handleDetail = async (nodeId: number) => {
-    const node = autoNodes.find((node) => node.id === nodeId);
-    if (!node) {
+    const autoNode = autoNodes.find((node) => node.id === nodeId);
+    if (!autoNode) {
       console.error("Node not found");
       return;
     }
-    const indexNode = JSON.parse(node.indexNode) as {
+    const indexNode = JSON.parse(autoNode.indexNode) as {
       nodeId: number;
       duration: number;
     }[];
     for (const item of indexNode) {
-      const node = await axios.post(API_URLS.NODE_BY_ID, {
+      const subNode = await axios.post(API_URLS.NODE_BY_ID, {
         nodeId: item.nodeId,
       });
       dispatch(
         addAutoPanorama({
           node: {
-            ...node.data.data,
+            ...subNode.data.data,
           },
           duration: item.duration, // ghi đè duration từ indexNode
+          soundBackground: autoNode.soundBackground || "",
         })
       );
     }

@@ -59,6 +59,7 @@ export const API_URLS = {
   ADMIN_GET_ALL_NODES: `${DOMAIN}/v1/admin/node`,
   ADMIN_GET_NODES_BY_PAGE: `${DOMAIN}/v1/admin/node/byPage`,
   ADMIN_GET_AUTO_TOURS: `${DOMAIN}/v1/admin/node/getAutoTour`,
+  GET_AUTO_TOURS: `${DOMAIN}/node/getAutoTour`,
   ADMIN_GET_MASTER_NODES_OF_SPACE: `${DOMAIN}/v1/admin/node/masterNodeList`,
   ADMIN_GET_ALL_SPACES: `${DOMAIN}/admin/space`,
   ADMIN_GET_SPACES_BY_PAGE: `${DOMAIN}/admin/space/byPage`,

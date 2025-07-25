@@ -44,17 +44,6 @@ export default function Introduce() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log(
-      "Images:",
-      images.length,
-      " - - ",
-      selectedIndex,
-      " - - ",
-      images[selectedIndex]
-    );
-  }, [selectedIndex]);
-
-  useEffect(() => {
     const fetchSpace = async () => {
       try {
         const response = await axios.get(API_URLS.GET_ALL_SPACES);

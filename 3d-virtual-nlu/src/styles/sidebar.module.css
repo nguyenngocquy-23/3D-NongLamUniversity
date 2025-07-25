@@ -124,6 +124,10 @@
   font-size: 0.8rem;
 }
 
+.side_bar a {
+  position: relative;
+}
+
 .visit {
   position: relative;
 }
@@ -160,4 +164,20 @@
   background: rgba(0, 0, 0, 0.1);
   border-radius: 0.5rem;
   color: #f7f4f4;
+}
+
+.notification {
+  position: absolute;
+  top: 50%;
+  right: -0.5rem;
+  transform: translateY(-50%);
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  width: 1.2rem;
+  height: 1.2rem;
+  font-size: 0.8rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

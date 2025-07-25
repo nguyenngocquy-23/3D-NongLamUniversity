@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { useNavigate, useParams } from "react-router-dom";
@@ -21,6 +21,19 @@ import { IoIosCloseCircle } from "react-icons/io";
 import { FaAngleDoubleRight } from "react-icons/fa";
 import FooterTour from "../../components/visitor/FooterTour";
 import CommentBox from "../../components/visitor/CommentBox";
+import {
+  HotspotNavigation,
+  HotspotInformation,
+  HotspotModel,
+  HotspotMedia,
+} from "../../redux/slices/HotspotSlice";
+import VideoMeshComponent from "../../components/admin/VideoMesh";
+import GroundHotspot from "../../components/visitor/GroundHotspot";
+import GroundHotspotInfo from "../../components/visitor/GroundHotspotInfo";
+import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
+import { fetchIcons } from "../../redux/slices/DataSlice";
+import Waiting from "../../components/Waiting";
+import { FaBookOpen } from "react-icons/fa6";
 
 const VirtualAutoTour: React.FC = () => {
   const userJson = sessionStorage.getItem("user");
@@ -32,12 +45,15 @@ const VirtualAutoTour: React.FC = () => {
   const { tourId } = useParams();
 
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    dispatch(fetchIcons());
+  }, [dispatch]);
   const { autoPanoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
   const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
   const autoTour = autoNodes.find((tour) => tour.id == tourId);
-  console.log("autoTour", tourId, autoTour);
   // Panorama hiện tại.
   const currentPanorama = autoPanoramaList.find(
     (pano) => pano.id === currentSelectId
@@ -71,7 +87,9 @@ const VirtualAutoTour: React.FC = () => {
   ); // Giữ lại đối tượng
 
   const [accessing, setAccessing] = useState(0);
-  const [isOpenInfo, setIsOpenInfo] = useState(true);
+  const [isOpenInfo, setIsOpenInfo] = useState(false);
+  const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
+  const [isTextureReady, setIsTextureReady] = useState(false);
 
   const [windowSize, setWindowSize] = useState({
     width: window.innerWidth,
@@ -128,16 +146,6 @@ const VirtualAutoTour: React.FC = () => {
   };
 
   const toggleInformation = () => {
-    const divInfo = document.querySelector<HTMLElement>(`.${styles.info_box}`);
-    if (!divInfo) return;
-
-    if (isOpenInfo) {
-      divInfo.style.display = "none";
-      divInfo.style.bottom = "-100px";
-    } else {
-      divInfo.style.display = "block";
-      divInfo.style.bottom = "50px";
-    }
     setIsOpenInfo(!isOpenInfo);
   };
 
@@ -173,8 +181,11 @@ const VirtualAutoTour: React.FC = () => {
     positionY,
     positionZ,
   ];
+
   const handleSelectNode = (id: string) => {
+    setIsTextureReady(false);
     dispatch(selectPanorama(id));
+    setCurrentHotspotId(null);
   };
 
   /**
@@ -305,9 +316,9 @@ const VirtualAutoTour: React.FC = () => {
   }, [autoTour, volume]);
 
   useEffect(() => {
-    const step = 0.02;
+    const step = 0.05;
     const minVolume = 0;
-    const maxVolume = 2;
+    const maxVolume = 1;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp") {
@@ -326,6 +337,99 @@ const VirtualAutoTour: React.FC = () => {
       audioRef.current.volume = volume;
     }
   }, [volume]);
+
+  const hotspotNavigations = useMemo(
+    () =>
+      currentPanorama?.navHotspots?.filter(
+        (hotspot: any): hotspot is HotspotNavigation => hotspot.type === 1
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotInfos = useMemo(
+    () =>
+      currentPanorama?.infoHotspots?.filter(
+        (hotspot: any): hotspot is HotspotInformation => hotspot.type === 2
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotModels = useMemo(
+    () =>
+      currentPanorama?.modelHotspots?.filter(
+        (hotspot: any): hotspot is HotspotModel => hotspot.type === 4
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotMedias = useMemo(
+    () =>
+      currentPanorama?.mediaHotspots?.filter(
+        (hotspot: any): hotspot is HotspotMedia => hotspot.type === 3
+      ) ?? [],
+    [currentPanorama]
+  );
+  const [isWaiting, setIsWaiting] = useState(true);
+  const [percent, setPercent] = useState(0);
+  const [isLoadingDone, setIsLoadingDone] = useState(false);
+
+  useEffect(() => {
+    if (
+      !hotspotModels ||
+      !hotspotMedias ||
+      !hotspotNavigations ||
+      !hotspotInfos
+    ) {
+      setIsLoadingDone(false);
+      return;
+    } else {
+      setIsLoadingDone(true);
+    }
+  }, [
+    hotspotModels.length,
+    hotspotMedias.length,
+    hotspotNavigations.length,
+    hotspotInfos.length,
+    isLoadingDone,
+  ]);
+
+  useEffect(() => {
+    let progress = 0;
+
+    const interval = setInterval(() => {
+      if (!isLoadingDone) {
+        // Loading giả lập, chỉ cho đến 90%
+        if (progress < 90) {
+          progress += Math.random() * 5; // tăng chậm lại để mượt
+          if (progress > 90) progress = 90;
+          setPercent(Math.floor(progress));
+        }
+      } else {
+        // Task thật xong, tăng nốt phần còn lại đến 100%
+        if (progress < 100) {
+          progress += Math.random() * 10;
+          if (progress > 100) progress = 100;
+          setPercent(Math.floor(progress));
+        }
+
+        // Nếu đã 100% thì clear interval
+        if (progress >= 100) {
+          clearInterval(interval);
+          requestAnimationFrame(() => {
+            setTimeout(() => setIsWaiting(false), 500);
+          });
+        }
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [isLoadingDone]);
+
+  useEffect(() => {
+    if (!autoNodes || autoNodes.length == 0 || !autoTour) {
+      navigate("/autoTour");
+    }
+  }, [autoNodes, autoTour, navigate]);
 
   return (
     <>
@@ -354,6 +458,7 @@ const VirtualAutoTour: React.FC = () => {
             textureCurrent={currentPanoramaUrl ?? "/khoa.jpg"}
             yawOffsetCurrent={currentPanorama?.yawOffset ?? 0}
             lightIntensity={lightIntensity}
+            onTextureReady={() => setIsTextureReady(true)}
           />
           <CamControls
             sphereRef={sphereRef}
@@ -362,10 +467,53 @@ const VirtualAutoTour: React.FC = () => {
             autoRotate={isRotation}
             autoRotateSpeed={speedRotate}
           />
+          {isTextureReady &&
+            hotspotNavigations
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
+                <GroundHotspot
+                  key={hotspot.id}
+                  onNavigate={() => {}}
+                  setCurrentHotspotId={setCurrentHotspotId}
+                  hotspotNavigation={hotspot}
+                />
+              ))}
+
+          {isTextureReady &&
+            hotspotInfos
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
+                <GroundHotspotInfo
+                  key={hotspot.id}
+                  setCurrentHotspotId={setCurrentHotspotId}
+                  hotspotInfo={hotspot}
+                />
+              ))}
+          {isTextureReady &&
+            hotspotModels
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
+                <GroundHotspotModel
+                  key={hotspot.id}
+                  setCurrentHotspotId={setCurrentHotspotId}
+                  hotspotModel={hotspot}
+                />
+              ))}
+
+          {isTextureReady &&
+            hotspotMedias
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
+                <VideoMeshComponent
+                  key={hotspot.id}
+                  hotspotMedia={hotspot}
+                  setCurrentHotspotId={setCurrentHotspotId}
+                />
+              ))}
         </Canvas>
         <audio
           ref={audioRef}
-          src={autoTour.soundBackground}
+          src={autoTour?.soundBackground}
           autoPlay
           loop
           controls // <-- có thể bỏ nếu bạn không muốn người dùng điều khiển
@@ -387,9 +535,9 @@ const VirtualAutoTour: React.FC = () => {
         {/* Header chứa back */}
         <div className={styles.header_tour}>
           {isMobile ? (
-            <h4>{autoTour.name || ""}</h4>
+            <h4>{autoTour?.name || ""}</h4>
           ) : (
-            <h2>{autoTour.name || ""}</h2>
+            <h2>{autoTour?.name || ""}</h2>
           )}
           <IoIosCloseCircle
             className={styles.close_btn}
@@ -406,11 +554,34 @@ const VirtualAutoTour: React.FC = () => {
           ""
         )}
         {/* Hộp thông tin */}
-        <div className={styles.info_box} onClick={toggleInformation}>
-          {currentPanorama.description == ""
-            ? "Trống"
-            : currentPanorama.description}
-        </div>
+        {isOpenInfo && (
+          <div className={styles.info_box_container}>
+            <div className={styles.overlay} onClick={toggleInformation} />
+            <div className={styles.info_box}>
+              <h2
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  justifyContent: "center",
+                }}
+              >
+                <FaBookOpen /> Hộp thông tin <FaBookOpen />
+              </h2>
+              <p
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                ⁓º⁓º⁓º⁓º⁓º⁓
+              </p>
+              {currentPanorama.descriptionescription?.trim()
+                ? currentPanorama.description
+                : "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
+            </div>
+          </div>
+        )}
         {/* Hộp node */}
         {openNodeList && (
           <div
@@ -446,6 +617,7 @@ const VirtualAutoTour: React.FC = () => {
           <FaAngleDoubleRight className={styles.arrow} />
         </button>
       </div>
+      {isWaiting ? <Waiting percent={percent} /> : ""}
     </>
   );
 };

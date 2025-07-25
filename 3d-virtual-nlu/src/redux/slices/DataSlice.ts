@@ -9,6 +9,7 @@ interface DataState {
   messages: any[];
   fields: any[];
   spaces: any[];
+  allSpaces: any[];
   nodes: any[];
   autoNodes: any[];
   models: any[];
@@ -31,6 +32,7 @@ const initialState: DataState = {
   messages: [],
   fields: [],
   spaces: [],
+  allSpaces: [],
   nodes: [],
   autoNodes: [],
   models: [],
@@ -67,10 +69,11 @@ export const fetchUsers = createAsyncThunk(
 );
 
 // Fetch nodes
-export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
+export const fetchNodes = createAsyncThunk("data/fetchNodes", 
+  async ({ page, limit }: { page: number; limit: number }) => {
   const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
-    page: 0,
-    limit: perPage,
+    page: page,
+    limit: limit,
   });
   return response.data.data;
 });
@@ -184,7 +187,7 @@ export const fetchFields = createAsyncThunk(
   }
 );
 
-// Fetch space
+// Fetch space by page
 export const fetchSpaces = createAsyncThunk(
   "data/fetchSpaces",
   async ({ limit, page }: { limit: number; page: number }) => {
@@ -200,6 +203,19 @@ export const fetchSpaces = createAsyncThunk(
     }));
 
     return parsedSpaces;
+  }
+);
+
+// Fetch all space
+export const fetchAllSpaces = createAsyncThunk(
+  "data/fetchAllSpaces",
+  async () => {
+    try {
+      const response = await axios.get(API_URLS.GET_ALL_SPACES);
+      return response.data.data;
+    } catch (error: any) {
+      console.error(error);
+    }
   }
 );
 
@@ -288,12 +304,12 @@ const dataSlice = createSlice({
         location: string;
       }>
     ) => {
-      const index = state.spaces.findIndex(
+      const index = state.allSpaces.findIndex(
         (h) => h.id === action.payload.spaceId
       );
       if (index !== -1) {
-        const space = state.spaces[index];
-        space.location = action.payload.location;
+        const allSpace = state.allSpaces[index];
+        allSpace.location = action.payload.location;
       }
     },
 
@@ -417,6 +433,17 @@ const dataSlice = createSlice({
         state.fields = action.payload;
       })
       .addCase(fetchFields.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchAllSpaces.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchAllSpaces.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.allSpaces = action.payload;
+      })
+      .addCase(fetchAllSpaces.rejected, (state) => {
         state.status = "failed";
       })
 

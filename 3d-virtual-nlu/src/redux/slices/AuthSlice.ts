@@ -228,7 +228,6 @@ export const fetchUser = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      console.log('username :', username)
       const userResponse = await axios.post(
         API_URLS.USER,
         { username: username,

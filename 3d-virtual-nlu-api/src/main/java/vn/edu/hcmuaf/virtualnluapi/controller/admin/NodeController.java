@@ -134,7 +134,7 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<List<AutoTourResponse>> getAutoTour(PageRequest request) {
-        List<AutoTourResponse> result = nodeService.getAutoTour(request);
+        List<AutoTourResponse> result = nodeService.getAllAutoTour(request);
         return ApiResponse.<List<AutoTourResponse>>builder().statusCode(1000).message("Lay danh sach tour tu dong thanh cong").data(result).build();
     }
 

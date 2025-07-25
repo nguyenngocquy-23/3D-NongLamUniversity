@@ -18,9 +18,18 @@
   border-radius: 10px;
 }
 
-.toggle_open_feature:hover {
-  transform: translateY(-5px);
-  scale: 1.1;
+@keyframes floatUpDown {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
 }
 
 .toggle_open_feature {
@@ -32,12 +41,19 @@
   border-radius: 50%;
   background-color: #267026;
   position: absolute;
+  font-size: 1.5rem;
   bottom: 0;
   left: 50%;
   z-index: 100;
   cursor: pointer;
   transition: all 0.3s ease;
+  animation: floatUpDown 1.5s ease-in-out infinite;
 }
+
+.toggle:hover {
+  transform: translateY(-12px);
+}
+
 
 .tourCanvas {
   border-radius: 10px;

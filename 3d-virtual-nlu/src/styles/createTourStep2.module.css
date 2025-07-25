@@ -4,27 +4,12 @@
   padding: 100px;
 }
 
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    /* transform: scale(0); */
-  }
-
-  100% {
-    opacity: 1;
-    /* transform: scale(1); */
-  }
-}
-
 .previewTour {
   position: relative;
   width: 100%;
   height: 100%;
   z-index: 10;
-  animation: fadeIn 1.5s ease-in-out;
   overflow: hidden;
-  /* border-radius: 10px; */
-  /* margin-bottom: 20px; */
 }
 
 .header_tour {
@@ -311,15 +296,15 @@ back_btn:hover {
 /* Thumb – phần trượt */
 .task_container::-webkit-scrollbar-thumb,
 .update_hotspot_container::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00fff0 0%, #00d2ff 50%, #007cf0 100%);
+  background: linear-gradient(180deg, #a8ff78 0%, #78ff6e 50%, #28a745 100%);
   border-radius: 15px;
 }
 
 /* Hover – đổi màu nhẹ */
 .task_container::-webkit-scrollbar-thumb:hover,
 .update_hotspot_container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #00d2ff, #3a47d5);
-  box-shadow: inset 0 0 1px #3a47d5;
+  background: linear-gradient(180deg, #78ff6e, #1e7e34);
+  box-shadow: inset 0 0 1px #1e7e34;
 }
 
 .publish_tour_button {
@@ -366,13 +351,36 @@ back_btn:hover {
   border-radius: 0.5rem;
 }
 
+.node_list::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Track – nền sau */
+.node_list::-webkit-scrollbar-track {
+  background-color: white;
+}
+
+/* Thumb – phần trượt */
+.node_list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a8ff78 0%, #78ff6e 50%, #28a745 100%);
+  border-radius: 15px;
+}
+
+/* Hover – đổi màu nhẹ */
+.node_list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #78ff6e, #1e7e34);
+  box-shadow: inset 0 0 1px #1e7e34;
+}
+
 .node_item {
   width: 100px;
   height: 60px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
   opacity: 0.8;
+  position: relative;
 }
 
 .node_item:hover {
@@ -382,7 +390,7 @@ back_btn:hover {
 
 .node_image {
   width: 100px;
-  height: 60px;
+  height: 100%;
   border-radius: 5px;
 }
 
@@ -458,12 +466,245 @@ back_btn:hover {
   }
 }
 
-.info_box {
-  position: absolute;
-  display: none;
-  width: 200px;
-  height: 200px;
-  overflow-y: auto;
-  bottom: -100px;
-  right: 10px;
+.info_box_container {
+  position: relative;
+  z-index: 100000005;
 }
+
+.info_box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  background-color: rgba(255, 255, 255, 0.95);
+  /* Hộp sáng mờ */
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 90%;
+  z-index: 1001;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Overlay nền mờ */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  /* Lớp nền mờ */
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+  /* Tùy chọn: hiệu ứng làm mờ */
+}
+
+/* Hiệu ứng hiện lên */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.node_index_box {
+  position: absolute;
+  top: 0;
+  right: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.node_index_button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  width: 100%;
+  color: white;
+}
+
+.node_index_button:hover {
+  transform: scale(1.1);
+}
+
+.node_index_button:focus {
+  outline: none;
+  border: none;
+  color: #0bf345;
+}
+
+.node_index_box button:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.node_index_value {
+  font-size: 14px;
+  font-weight: bold;
+  color: black;
+  text-align: center;
+  line-height: 1;
+  width: 30px;
+  height: 30px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.active {
+  opacity: 1;
+}
+
+/* css for box add tour */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  /* Mờ nền */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  backdrop-filter: blur(5px);
+  /* Nền mờ */
+}
+
+.modal {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 800px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.title {
+  font-size: 20px;
+  color: #333;
+  margin: 0;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #333;
+}
+
+.node_container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.tour {
+  width: 120px;
+  height: 80px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.tour:hover {
+  transform: scale(1.05);
+}
+
+.selected {
+  border: 3px solid #0bf345;
+}
+
+.blur {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.name {
+  position: absolute;
+  bottom: 5px;
+  left: 8px;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  z-index: 1;
+}
+
+.loading {
+  text-align: center;
+  color: #000;
+  font-size: 16px;
+}
+
+.pagination {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 95%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #333;
+}
+
+.pagination_icon {
+  font-size: 1.2rem;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pagination_icon:hover {
+  opacity: 0.7;
+  color: #0bf345;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* end css box add tour */

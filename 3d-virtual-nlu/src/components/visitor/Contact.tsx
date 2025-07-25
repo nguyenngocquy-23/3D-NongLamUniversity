@@ -80,7 +80,11 @@ export default function Contact() {
   };
 
   return (
-    <div id="contact" className={styles.contactContainer}>
+    <div id="contact" className={styles.contact_container}>
+      <div className={`${styles.contact_image} ${styles.contact_image_left}`} />
+      <div
+        className={`${styles.contact_image} ${styles.contact_image_right}`}
+      />
       <h2 className={styles.title}>Liên hệ với chúng tôi</h2>
       <form onSubmit={handleSubmit} className={styles.form}>
         <input

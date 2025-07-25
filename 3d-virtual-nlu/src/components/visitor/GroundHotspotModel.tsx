@@ -261,21 +261,15 @@ const GroundHotspotModel = ({
                 <button
                   className={styles.button_detail}
                   onClick={() => {
-                    user && user.role == 2
-                      ? navigate("/admin/model", {
-                          state: {
-                            title: hotspotModel.name,
-                            description: hotspotModel.description,
-                            modelUrl: hotspotModel.modelUrl,
-                          },
-                        })
-                      : navigate(`/model/${hotspotModel.id}`, {
-                          state: {
-                            title: hotspotModel.name,
-                            description: hotspotModel.description,
-                            modelUrl: hotspotModel.modelUrl,
-                          },
-                        });
+                    user &&
+                      currentStep != 2 && currentStep != 3 &&
+                      navigate(`/model/${hotspotModel.id}`, {
+                        state: {
+                          title: hotspotModel.name,
+                          description: hotspotModel.description,
+                          modelUrl: hotspotModel.modelUrl,
+                        },
+                      });
                   }}
                 >
                   Xem chi tiết

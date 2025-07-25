@@ -529,10 +529,53 @@ public class NodeDao {
         }
     }
 
+    public List<AutoTourResponse> getAllAutoTour(PageRequest request) {
+        String sql = """
+                SELECT at.id, at.name, at.indexNode, at.soundBackground , at.status, at.updatedAt
+                FROM auto_tours at
+                ORDER BY at.updatedAt DESC
+                LIMIT :limit OFFSET :offset
+                """;
+
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            List<AutoTourResponse> result = handle.createQuery(sql)
+                    .bind("limit", request.getLimit())
+                    .bind("offset", request.getPage() * request.getLimit())
+                    .mapToBean(AutoTourResponse.class)
+                    .list();
+
+            // Gọi service lấy URL theo nodeId đầu tiên trong indexNode
+            for (AutoTourResponse item : result) {
+                try {
+                    Gson gson = new Gson();
+                    List<Map<String, Object>> indexList = gson.fromJson(
+                            item.getIndexNode(),
+                            new TypeToken<List<Map<String, Object>>>() {
+                            }.getType()
+                    );
+
+                    if (!indexList.isEmpty()) {
+                        Number nodeIdNum = (Number) indexList.get(0).get("nodeId");
+                        int firstNodeId = nodeIdNum.intValue(); // Ép kiểu đúng
+
+                        String url = getNodeById(NodeIdRequest.builder().nodeId(firstNodeId).build()).getUrl();
+
+                        item.setThumbNail(url);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return result;
+        });
+    }
+
     public List<AutoTourResponse> getAutoTour(PageRequest request) {
         String sql = """
                 SELECT at.id, at.name, at.indexNode, at.soundBackground , at.status, at.updatedAt
                 FROM auto_tours at
+                WHERE status = 1
                 ORDER BY at.updatedAt DESC
                 LIMIT :limit OFFSET :offset
                 """;
@@ -597,6 +640,24 @@ public class NodeDao {
         return ConnectionPool.getConnection().withHandle(handle ->
                 handle.createQuery(sql)
                         .bind("userId", request.getUserId())
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
+
+    public int getHighestNumViewOfNode() {
+        String sql = "SELECT id FROM nodes group by id order by sum(numView) DESC limit 1";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapTo(int.class)
+                        .one()
+        );
+    }
+
+    public int getLowestNumViewOfNode() {
+        String sql = "SELECT id FROM nodes group by id order by sum(numView) ASC limit 1";
+        return ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
                         .mapTo(int.class)
                         .one()
         );
@@ -676,8 +737,6 @@ public class NodeDao {
             return true;
         });
     }
-
-
 
     public List<Integer> getSubNodeByMasterNodeId (int nodeId) {
             /**

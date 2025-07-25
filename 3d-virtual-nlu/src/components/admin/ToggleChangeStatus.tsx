@@ -63,7 +63,6 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
           case "icon":
             dispatch(fetchIcons());
             break;
-
           case "node":
             dispatch(
               updatePanoConfig({
@@ -74,7 +73,6 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
               })
             );
             break;
-
           default:
             break;
         }

@@ -1,14 +1,16 @@
 import * as THREE from "three";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import styles from "../../styles/createTourStep2.module.css";
-import { FaAngleLeft, FaBook } from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight, FaBook, FaX } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/Store";
+import { AppDispatch, RootState } from "../../redux/Store";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { Environment, Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
+  addAutoPanorama,
   clearPanorama,
+  removeAutoPanorama,
   selectPanorama,
 } from "../../redux/slices/PanoramaSlice";
 import UpdateCameraOnResize from "../../components/UpdateCameraOnResize";
@@ -39,7 +41,12 @@ import {
 } from "../../redux/slices/StepSlice";
 import Swal from "sweetalert2";
 import { CREATE_TOUR_STEPS } from "../../features/CreateTour";
-import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
+import MiniMap from "../../components/Minimap";
+import {
+  DEFAULT_ORIGINAL_Z,
+  perPage,
+  RADIUS_SPHERE,
+} from "../../utils/Constants";
 import CamControls from "../../components/visitor/CamControls";
 import ConfigAutoTour from "../../components/admin/ConfigAutoTour";
 import { useNavigate, useParams } from "react-router-dom";
@@ -50,9 +57,12 @@ import {
   CloudinaryUploadResp,
 } from "../../components/admin/UploadFile";
 import Waiting from "../../components/Waiting";
+import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
+import { fetchNodes } from "../../redux/slices/DataSlice";
 
 const CreateAutoTourStep2 = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<any>(null);
@@ -68,12 +78,59 @@ const CreateAutoTourStep2 = () => {
 
   const { tourId } = useParams();
   const [isUpdate, setIsUpdate] = useState(false);
+
+  const nodes = useSelector((state: RootState) => state.data.nodes);
+  const [isAddTour, setIsAddTour] = useState(false);
+  const [selectedNodes, setSelectedNodes] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const dashboard = useSelector((state: RootState) => state.data.dashboard);
+  const [totalNode, setTotalNode] = useState(0);
+  const totalPages = Math.ceil(totalNode / perPage);
+
+  useEffect(() => {
+    if (dashboard) {
+      setTotalNode(dashboard.numTour);
+    }
+  }, [dashboard]);
+
+  const goPrev = () => {
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+    }
+  };
+
+  useEffect(() => {
+    dispatch(fetchNodes({ limit: perPage, page: currentPage - 1 }));
+  }, [currentPage]);
+
+  const goNext = () => {
+    if (currentPage < totalPages) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+    }
+  };
+  const [nodeList, setNodeList] = useState<any[]>(nodes || []);
+  useEffect(() => {
+    if (isAddTour) {
+      dispatch(fetchNodes({ limit: perPage, page: currentPage - 1 }));
+      setNodeList(nodes);
+    }
+  }, [isAddTour, dispatch]);
+
+  useEffect(() => {
+    if (nodes && nodes.length > 0) {
+      setNodeList(nodes);
+    }
+  }, [nodes]);
+
   useEffect(() => {
     if (tourId) {
       setIsUpdate(true);
-      dispatch(goToStep(2));
     }
   }, [tourId]);
+
   const autoNodes = useSelector((state: RootState) => state.data.autoNodes);
 
   // const [autoNode, setAutoNode] = useState(null);
@@ -89,7 +146,9 @@ const CreateAutoTourStep2 = () => {
   }, [tourId, autoNodes]);
 
   useEffect(() => {
-    if (autoNode) setStatus(autoNode?.status);
+    if (autoNode?.status !== status) {
+      setStatus(autoNode.status);
+    }
   }, [autoNode]);
 
   const [status, setStatus] = useState(autoNode?.status); // State để điều khiển cursor
@@ -105,37 +164,45 @@ const CreateAutoTourStep2 = () => {
   /**
    * Khởi tạo sphereRef: sphere ban đầu của hình cầu.
    */
-
   // ========= REDUX ================
-
-  const dispatch = useDispatch();
-
-  const hotspotNavigations = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotNavigation => hotspot.type === 1
-    )
-  );
-  const hotspotInfos = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotInformation => hotspot.type === 2
-    )
-  );
-  const hotspotModels = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotModel => hotspot.type === 4
-    )
-  );
-  const hotspotMedias = useSelector((state: RootState) =>
-    state.hotspots.hotspotList.filter(
-      (hotspot): hotspot is HotspotMedia => hotspot.type === 3
-    )
-  );
-
   const { autoPanoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
-  const currentPanorama = autoPanoramaList.find(
-    (pano) => pano.id === currentSelectId
+
+  const currentPanorama = useMemo(() => {
+    return autoPanoramaList.find((pano) => pano.id === currentSelectId);
+  }, [autoPanoramaList, currentSelectId]);
+
+  const hotspotNavigations = useMemo(
+    () =>
+      currentPanorama?.navHotspots?.filter(
+        (hotspot: any): hotspot is HotspotNavigation => hotspot.type === 1
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotInfos = useMemo(
+    () =>
+      currentPanorama?.infoHotspots?.filter(
+        (hotspot: any): hotspot is HotspotInformation => hotspot.type === 2
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotModels = useMemo(
+    () =>
+      currentPanorama?.modelHotspots?.filter(
+        (hotspot: any): hotspot is HotspotModel => hotspot.type === 4
+      ) ?? [],
+    [currentPanorama]
+  );
+
+  const hotspotMedias = useMemo(
+    () =>
+      currentPanorama?.mediaHotspots?.filter(
+        (hotspot: any): hotspot is HotspotMedia => hotspot.type === 3
+      ) ?? [],
+    [currentPanorama]
   );
 
   const handleSelectNode = (id: string) => {
@@ -184,29 +251,9 @@ const CreateAutoTourStep2 = () => {
    */
   const [currentHotspotId, setCurrentHotspotId] = useState<string | null>(null);
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
-
-  /**
-   *
-   * @param targetNodeId : Id node đích cần di chuyển.
-   * @param hotspotTargetPosition : Thay thế vị trí camera hướng đến tại vị trí hotspot mục tiêu.
-   */
-
-  const handleHotspotNavigate = (
-    targetNodeId: string,
-    hotspotTargetPosition: [number, number, number]
-  ) => {
-    if (!cameraRef.current || !controlsRef.current) return;
-
-    const camera = cameraRef.current;
-    const control = controlsRef.current;
-    const originalFov = camera.fov;
-    const zoomTarget = 45; // Hiệu ứng zoom in đến vị trí mong muốn.
-
-    const [x, y, z] = hotspotTargetPosition;
-
-    // === Bước 2: Zoom vào
-    handleSelectNode(targetNodeId);
-  };
+  useEffect(() => {
+    if (currentStep == 1) navigate("/admin/manageAutoTour");
+  }, [currentStep, navigate]);
 
   const [cameraAngle, setCameraAngle] = useState(0);
 
@@ -223,16 +270,124 @@ const CreateAutoTourStep2 = () => {
     return response.data.data.url || "";
   };
 
-  const handleUpdateAutoTour = async () => {
-    const tourName = `${autoPanoramaList[0]?.name || ""} - ${
-      autoPanoramaList[autoPanoramaList.length - 1]?.name || ""
-    }`;
+  const [orderedList, setOrderedList] = useState(() =>
+    autoPanoramaList.map((item) => ({ ...item }))
+  );
 
-    // Tạo mảng indexNode
-    const indexNodeArray = autoPanoramaList.map((p: any) => ({
-      nodeId: p.id,
-      duration: p.duration,
-    }));
+  useEffect(() => {
+    if (selectedNodes.length === 0) {
+      const ids = orderedList.map((item) => item.id);
+      setSelectedNodes(ids);
+    }
+  }, [orderedList]);
+
+  // useEffect(() => {
+  //   if (!autoPanoramaList || autoPanoramaList.length === 0) return;
+
+  //   const currentIds = autoPanoramaList.map((i) => i.id);
+  //   const prevIds = prevAutoListRef.current;
+
+  //   const isSame =
+  //     currentIds.length === prevIds.length &&
+  //     currentIds.every((id, i) => id === prevIds[i]);
+
+  //   if (!isSame) {
+  //     prevAutoListRef.current = currentIds;
+  //     const newList = autoPanoramaList.map((item) => ({ ...item }));
+  //     console.log("Cập nhật orderedList:", newList);
+  //     setOrderedList(newList);
+  //   } else {
+  //     console.log("Không thay đổi danh sách, không cập nhật.");
+  //   }
+  // }, [autoPanoramaList]);
+  // useEffect(() => {
+  //   if (!autoPanoramaList || autoPanoramaList.length === 0) return;
+
+  //   const updatedOrderedList = orderedList.map((item) => {
+  //     const matched = autoPanoramaList.find((a) => a.id === item.id);
+  //     if (matched) {
+  //       return {
+  //         ...item,
+  //         duration: matched.duration,
+  //         soundBackground: matched.soundBackground ?? item.soundBackground,
+  //       };
+  //     }
+  //     return item;
+  //   });
+
+  //   setOrderedList(updatedOrderedList);
+  // }, [autoPanoramaList]);
+
+  const prevAutoListRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    if (!autoPanoramaList || autoPanoramaList.length === 0) return;
+
+    const currentIds = autoPanoramaList.map((i) => i.id);
+    const prevIds = prevAutoListRef.current;
+
+    const isSame =
+      currentIds.length === prevIds.length &&
+      currentIds.every((id, i) => id === prevIds[i]);
+
+    if (!isSame) {
+      prevAutoListRef.current = currentIds;
+      const newList = autoPanoramaList.map((item) => ({ ...item }));
+      setOrderedList(newList);
+      return;
+    }
+
+    // Nếu ID giống nhau, chỉ update duration / soundBackground
+    setOrderedList((prev) =>
+      prev.map((item) => {
+        const matched = autoPanoramaList.find((a) => a.id === item.id);
+        if (matched) {
+          return {
+            ...item,
+            duration: matched.duration,
+            soundBackground: matched.soundBackground ?? item.soundBackground,
+          };
+        }
+        return item;
+      })
+    );
+  }, [autoPanoramaList]);
+
+  const handleIndexChange = (index1: number, index2: number) => {
+    if (
+      index1 < 0 ||
+      index2 < 0 ||
+      index1 >= orderedList.length ||
+      index2 >= orderedList.length
+    )
+      return;
+
+    const newList = [...orderedList];
+    [newList[index1], newList[index2]] = [newList[index2], newList[index1]];
+    setOrderedList(newList);
+  };
+
+  // Tạo mảng indexNode
+  const indexNodeArray = orderedList.map((p: any) => ({
+    nodeId: p.id,
+    duration: p.duration,
+  }));
+
+  const handleUpdateAutoTour = async () => {
+    Swal.fire({
+      title: "Đang cập nhật...",
+      showConfirmButton: false,
+      showCancelButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+      toast: true,
+    });
+    const tourName = `${orderedList[0]?.name || ""} - ${
+      orderedList[orderedList.length - 1]?.name || ""
+    }`;
 
     // Chuyển thành chuỗi JSON
     const indexNode = JSON.stringify(indexNodeArray);
@@ -242,8 +397,12 @@ const CreateAutoTourStep2 = () => {
       return;
     }
 
-    const soundUrl = await uploadToCloud(autoPanoramaList[0].soundBackground);
-
+    const soundUrl = orderedList[0].soundBackground.includes("http")
+      ? orderedList[0].soundBackground
+      : await uploadToCloud(
+          // autoPanoramaList.find((p) => p.soundBackground != "")?.soundBackground
+          orderedList[0].soundBackground
+        );
     try {
       const response = await axios.post(API_URLS.ADMIN_UPDATE_AUTO_TOUR, {
         autoTourId: tourId,
@@ -252,13 +411,17 @@ const CreateAutoTourStep2 = () => {
         status: status,
         soundBackground: soundUrl,
       });
+
+      Swal.close();
       if (response.data?.statusCode === 1000) {
         Swal.fire({
           icon: "success",
           title: "Thành công",
           text: "Cập nhật thành công",
-        }).then(() => {
-          navigate(-1);
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
         });
       } else {
         Swal.fire({
@@ -272,6 +435,23 @@ const CreateAutoTourStep2 = () => {
     } catch (error) {
       console.log("Lỗi khi xuất bản: ", error);
     }
+  };
+
+  const handleToggleSelect = (nodeId: string) => {
+    const node = nodeList.find((n) => n.id === nodeId);
+    if (!node) return;
+
+    setSelectedNodes((prevSelected) => {
+      const isSelected = prevSelected.includes(nodeId);
+
+      if (isSelected) {
+        dispatch(removeAutoPanorama(nodeId));
+        return prevSelected.filter((id) => id !== nodeId);
+      } else {
+        dispatch(addAutoPanorama({ node: node }));
+        return [...prevSelected, nodeId];
+      }
+    });
   };
 
   const [isWaiting, setIsWaiting] = useState(true);
@@ -290,7 +470,13 @@ const CreateAutoTourStep2 = () => {
     } else {
       setIsLoadingDone(true);
     }
-  }, [hotspotModels, hotspotMedias, hotspotNavigations, hotspotInfos]);
+  }, [
+    hotspotModels.length,
+    hotspotMedias.length,
+    hotspotNavigations.length,
+    hotspotInfos.length,
+    isLoadingDone,
+  ]);
 
   useEffect(() => {
     let progress = 0;
@@ -386,13 +572,11 @@ const CreateAutoTourStep2 = () => {
 
           {isTextureReady &&
             hotspotNavigations
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
                 <GroundHotspot
                   key={hotspot.id}
-                  onNavigate={(targetNodeId, cameraTargetPosition) =>
-                    handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-                  }
+                  onNavigate={() => {}}
                   setCurrentHotspotId={setCurrentHotspotId}
                   hotspotNavigation={hotspot}
                 />
@@ -400,8 +584,8 @@ const CreateAutoTourStep2 = () => {
 
           {isTextureReady &&
             hotspotInfos
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
                 <GroundHotspotInfo
                   key={hotspot.id}
                   setCurrentHotspotId={setCurrentHotspotId}
@@ -410,8 +594,8 @@ const CreateAutoTourStep2 = () => {
               ))}
           {isTextureReady &&
             hotspotModels
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
                 <GroundHotspotModel
                   key={hotspot.id}
                   setCurrentHotspotId={setCurrentHotspotId}
@@ -421,8 +605,8 @@ const CreateAutoTourStep2 = () => {
 
           {isTextureReady &&
             hotspotMedias
-              .filter((hotspot) => hotspot.nodeId === currentSelectId)
-              .map((hotspot) => (
+              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+              .map((hotspot: any) => (
                 <VideoMeshComponent
                   key={hotspot.id}
                   hotspotMedia={hotspot}
@@ -472,13 +656,26 @@ const CreateAutoTourStep2 = () => {
           </div>
           {isUpdate && (
             <div className={styles.toggle_status}>
+              <button
+                style={{
+                  marginRight: "1rem",
+                  textAlign: "center",
+                  padding: "0.5rem 1rem",
+                  backgroundColor: "#62f046",
+                }}
+                onClick={() => {
+                  setIsAddTour(true);
+                }}
+              >
+                Thêm/ xóa node
+              </button>
               <span>Trạng thái: </span>
               <button
                 style={{
                   marginRight: "1rem",
                   textAlign: "center",
                   padding: "0.5rem 1rem",
-                  backgroundColor: status == 0 ? "#f00" : "#0f0",
+                  backgroundColor: status == 0 ? "#f0464fff" : "#62f046",
                 }}
                 onClick={() => {
                   setStatus(status === 1 ? 0 : 1);
@@ -491,23 +688,42 @@ const CreateAutoTourStep2 = () => {
         </div>
         {/* Hộp node */}
         <div className={styles.node_list}>
-          {autoPanoramaList.map((pano) => (
+          {orderedList.map((pano, index) => (
             <div
               key={pano.id}
               className={`${styles.node_item} ${
                 currentSelectId === pano.id ? styles.active : ""
               }`}
-              onClick={() => {
-                setOpenConfigTour(pano.id);
-                handleSelectNode(pano.id);
-              }}
               title={pano.name}
             >
               <img
                 src={pano.url}
                 alt={pano.name}
                 className={styles.node_image}
+                onClick={() => {
+                  setOpenConfigTour(pano.id);
+                  handleSelectNode(pano.id);
+                }}
               />
+              <div className={styles.node_index_box}>
+                <button
+                  className={styles.node_index_button}
+                  onClick={() => handleIndexChange(index, index - 1)}
+                  disabled={index === 0}
+                >
+                  ▲
+                </button>
+
+                <span className={styles.node_index_value}>{index + 1}</span>
+
+                <button
+                  className={styles.node_index_button}
+                  onClick={() => handleIndexChange(index, index + 1)}
+                  disabled={index === orderedList.length - 1}
+                >
+                  ▼
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -517,12 +733,68 @@ const CreateAutoTourStep2 = () => {
             <FaBook />
           </button>
         )}
+        {/* Hộp cấu hình tour */}
         {openConfigTour && (
           <div className={styles.config_tour}>
             <ConfigAutoTour
+              orderedList={orderedList}
               setOpenConfigTour={setOpenConfigTour}
               soundBackgroundProp={autoNode?.soundBackground}
             />
+          </div>
+        )}
+        {/* Hộp thêm tour */}
+        {isAddTour && (
+          <div className={styles.overlay}>
+            <div className={styles.modal}>
+              <div className={styles.header}>
+                <h2 className={styles.title}>Danh sách node</h2>
+                <button
+                  className={styles.closeButton}
+                  onClick={() => setIsAddTour(false)}
+                >
+                  <FaX />
+                </button>
+              </div>
+
+              <div className={styles.node_container}>
+                {nodeList.length > 0 ? (
+                  nodeList.map((node) => {
+                    const isSelected = selectedNodes.includes(node.id);
+                    return (
+                      <div
+                        key={node.id}
+                        className={`${styles.tour} ${
+                          isSelected ? styles.selected : ""
+                        }`}
+                        onClick={() => handleToggleSelect(node.id)}
+                        style={{ backgroundImage: `url(${node.url})` }}
+                      >
+                        <div className={styles.blur} />
+                        <span className={styles.name}>{node.name}</span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className={styles.loading}>Đang tải...</div>
+                )}
+              </div>
+
+              <div className={styles.pagination}>
+                <FaAngleLeft
+                  onClick={goPrev}
+                  className={`${styles.pagination_icon} ${
+                    currentPage == 1 ? styles.disabled : ""
+                  }`}
+                />
+                <FaAngleRight
+                  onClick={goNext}
+                  className={`${styles.pagination_icon} ${
+                    currentPage == totalPages ? styles.disabled : ""
+                  }`}
+                />
+              </div>
+            </div>
           </div>
         )}
         {isWaiting ? <Waiting percent={percent} /> : ""}

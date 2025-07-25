@@ -17,9 +17,14 @@ public class UserDao {
     }
 
     public User findByUsername(String username) {
+        String sql = """
+                SELECT id, username, password, email, roleId, status, avatar, createdAt 
+                FROM users 
+                WHERE username = :username
+                """;
         Optional<User> user = ConnectionPool.getConnection().withHandle(handle ->
-                handle.createQuery("SELECT * FROM users WHERE username = ?")
-                        .bind(0, username).mapToBean(User.class).stream().findFirst()
+                handle.createQuery(sql)
+                        .bind("username", username).mapToBean(User.class).stream().findFirst()
         );
         return user.orElse(null);
     }
@@ -146,7 +151,7 @@ public class UserDao {
 
     public List<User> getAllUser() {
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("select id, username, email, status, createdAt from users where roleId = 1")
+            return handle.createQuery("select id, username, email, status, avatar, createdAt from users where roleId = 1")
                     .mapToBean(User.class)
                     .list();
         });
@@ -230,6 +235,32 @@ public class UserDao {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public int countMonthRegister() {
+        String sql = """
+                    SELECT COUNT(*)
+                    FROM users
+                    WHERE roleId = 1 AND createdAt >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .mapTo(Integer.class)
+                    .one();
+        });
+    }
+
+    public int countAllRegister() {
+        String sql = """
+                    SELECT COUNT(*)
+                    FROM users
+                    WHERE roleId = 1
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .mapTo(Integer.class)
+                    .one();
+        });
     }
 
 

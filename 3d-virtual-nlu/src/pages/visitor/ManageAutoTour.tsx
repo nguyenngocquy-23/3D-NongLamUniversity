@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/visitor/autoTour.module.css";
+import stylesPagination from "../../styles/managerSpace.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {
@@ -21,7 +22,7 @@ const ManageAutoTour = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(-1);
 
   // For example
   const [totalNode, setTotalNode] = useState(0);
@@ -45,28 +46,25 @@ const ManageAutoTour = () => {
   useEffect(() => {
     const handleSearch = async () => {
       if (!debouncedSearch) return;
-      const response = await axios.post(
-        `${API_URLS.SEARCH_AUTO_NODES}`,
-        {
-          searchKey: debouncedSearch,
-        }
-      );
+      const response = await axios.post(`${API_URLS.SEARCH_AUTO_NODES}`, {
+        searchKey: debouncedSearch,
+      });
       setAutoNodeList(response.data.data);
     };
     handleSearch();
   }, [debouncedSearch]);
 
-   useEffect(() => {
-      const handleChangePage = async () => {
-        if(currentPage === 0) return;
-        const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
-          page: currentPage,
-          limit: perPage,
-        });
-        setAutoNodeList(response.data.data);
-      };
-      handleChangePage();
-    }, [currentPage]);
+  useEffect(() => {
+    const handleChangePage = async () => {
+      if (currentPage === -1) return;
+      const response = await axios.post(API_URLS.GET_AUTO_TOURS, {
+        page: currentPage,
+        limit: perPage,
+      });
+      setAutoNodeList(response.data.data);
+    };
+    handleChangePage();
+  }, [currentPage]);
 
   const handleDetail = async (nodeId: number) => {
     const node = autoNodes.find((node) => node.id === nodeId);
@@ -148,13 +146,15 @@ const ManageAutoTour = () => {
             <div style={{ color: "black" }}>Danh sách trống...</div>
           )}
           {search.length === 0 && (
-            <div className={styles.pagination}>
+            <div className={stylesPagination.pagination}>
               {[...Array(totalPages)].map((_, index) => {
                 return (
                   <button
                     key={index}
-                    className={`${styles.page_btn} ${
-                      currentPage === index ? styles.active : ""
+                    className={`${stylesPagination.page_btn} ${
+                      currentPage === index || (index == 0 && currentPage == -1)
+                        ? stylesPagination.active
+                        : ""
                     }`}
                     onClick={() => setCurrentPage(index)}
                   >

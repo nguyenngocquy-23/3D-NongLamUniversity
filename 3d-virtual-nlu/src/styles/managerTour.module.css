@@ -262,9 +262,9 @@
 }
 
 .active {
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
+    background-color: #0e9013;
+    color: white;
+    font-weight: bold;
 }
 
 .back_btn {

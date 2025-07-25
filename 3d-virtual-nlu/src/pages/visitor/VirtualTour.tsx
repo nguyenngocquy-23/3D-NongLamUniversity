@@ -33,6 +33,7 @@ import {
 import { vectorComponents } from "three/webgpu";
 import {
   FaAngleLeft,
+  FaBook,
   FaCompass,
   FaMap,
   FaPause,
@@ -53,6 +54,7 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { useGLTF } from "@react-three/drei";
 import axios from "axios";
 import { API_URLS } from "../../env.ts";
+import { FaAngleDoubleLeft, FaBookOpen } from "react-icons/fa";
 
 /*
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -156,6 +158,8 @@ const VirtualTour = () => {
 
   const [accessing, setAccessing] = useState(0);
 
+  const [isOpenBox, setIsOpenBox] = useState(false);
+
   /**
    * Lớp chờ để ẩn các tiến trình render
    * Tạo cảm giác loading cho người dùng
@@ -171,7 +175,7 @@ const VirtualTour = () => {
   /**
    * State để mở hộp thông tin
    */
-  const [isOpenInfo, setIsOpenInfo] = useState(true);
+  const [isOpenInfo, setIsOpenInfo] = useState(false);
 
   const [hideMap, setHideMap] = useState(false);
   const [fullMap, setFullMap] = useState(false);
@@ -249,16 +253,6 @@ const VirtualTour = () => {
   };
 
   const toggleInformation = () => {
-    const divInfo = document.querySelector<HTMLElement>(`.${styles.info_box}`);
-    if (!divInfo) return;
-
-    if (isOpenInfo) {
-      divInfo.style.display = "none";
-      divInfo.style.bottom = "-100px";
-    } else {
-      divInfo.style.display = "block";
-      divInfo.style.bottom = "50px";
-    }
     setIsOpenInfo(!isOpenInfo);
   };
   // Hàm bật/tắt âm thanh
@@ -349,7 +343,7 @@ const VirtualTour = () => {
     if (isMenuPin) return;
     const mouse = event.clientX;
 
-    const threshold = 200;
+    const threshold = 300;
 
     if (mouse > threshold) {
       setIsMenuVisible(false);
@@ -698,9 +692,18 @@ const VirtualTour = () => {
         imageVersion={imageVersion}
       />
       <div className={styles.header_tour}>
-        <h2>NLU360</h2>
+        <h2 className={styles.tour_name}>{nodeToRender.name}</h2>
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
+      {!isMobile ? (
+        <button
+          className={styles.thumbnail_menu_button}
+        >
+          <FaAngleDoubleLeft />
+        </button>
+      ) : (
+        ""
+      )}
       {fullMap || hoverMap || !isMenuVisible ? (
         ""
       ) : (
@@ -723,7 +726,7 @@ const VirtualTour = () => {
           </motion.div>
         </AnimatePresence>
       )}
-      {!isOpenRadar && (
+      {!isOpenRadar && !isOpenBox && (
         <button
           className={styles.open_radar_button}
           title="Mở la bàn"
@@ -733,7 +736,11 @@ const VirtualTour = () => {
         </button>
       )}
       {/* Hộp chat sửa wss */}
-      <Chat nodeId={nodeToRender.id} setAccessing={setAccessing} />
+      <Chat
+        nodeId={nodeToRender.id}
+        setAccessing={setAccessing}
+        setIsOpenChat={setIsOpenBox}
+      />
       {/* Footer chứa các tính năng */}
       {isMobile ? (
         <>
@@ -770,10 +777,34 @@ const VirtualTour = () => {
         />
       )}
       {/* Hộp thông tin */}
-      <div className={styles.info_box} onClick={toggleInformation}>
-        {nodeToRender.description ??
-          "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
-      </div>
+      {isOpenInfo && (
+        <div className={styles.info_box_container}>
+          <div className={styles.overlay} onClick={toggleInformation} />
+          <div className={styles.info_box}>
+            <h2
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                justifyContent: "center",
+              }}
+            >
+              <FaBookOpen /> Hộp thông tin <FaBookOpen />
+            </h2>
+            <p
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              ⁓º⁓º⁓º⁓º⁓º⁓
+            </p>
+            {nodeToRender.description?.trim()
+              ? nodeToRender.description
+              : "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
+          </div>
+        </div>
+      )}
       {isComment && user ? (
         <CommentBox
           userId={user.id}

@@ -101,7 +101,7 @@ const Space = () => {
   );
 
   const [spaceList, setSpaceList] = useState<any[]>(spaces || []);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(-1);
   const [totalSpace, setTotalSpace] = useState(0);
   const [isChecked, setIsChecked] = useState(false); //logic việc hiển thị chọn/thêm không gian.
 
@@ -158,7 +158,7 @@ const Space = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
-      if (currentPage === 0) return;
+      if (currentPage == -1) return;
       const response = await axios.post(API_URLS.ADMIN_GET_SPACES_BY_PAGE, {
         page: currentPage,
         limit: perPage,
@@ -426,7 +426,10 @@ const Space = () => {
                     <button
                       key={index}
                       className={`${styles.page_btn} ${
-                        currentPage === index ? styles.active : ""
+                        currentPage === index ||
+                        (index == 0 && currentPage == -1)
+                          ? styles.active
+                          : ""
                       }`}
                       onClick={() => setCurrentPage(index)}
                     >

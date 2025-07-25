@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/visitor/manageModel.module.css";
+import stylesPagination from "../../styles/managerSpace.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {
@@ -13,7 +14,6 @@ import { IoSearch } from "react-icons/io5";
 import { FaAngleLeft } from "react-icons/fa6";
 import axios from "axios";
 import { API_URLS } from "../../env";
-import { addAutoPanorama } from "../../redux/slices/PanoramaSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 import { formatTimestampToDate } from "../../utils/formatTimestamp";
 import { perPage } from "../../utils/Constants";
@@ -24,7 +24,7 @@ const ManageModel = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(-1);
 
   // For example
   const [totalModel, setTotalModel] = useState(0);
@@ -76,7 +76,7 @@ const ManageModel = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
-      if(currentPage === 0) return;
+      if (currentPage === -1) return;
       const response = await axios.post(API_URLS.GET_ALL_MODEL, {
         page: currentPage,
         limit: perPage,
@@ -140,13 +140,15 @@ const ManageModel = () => {
           )}
         </div>
         {search.length === 0 && (
-          <div className={styles.pagination}>
+          <div className={stylesPagination.pagination}>
             {[...Array(totalPages)].map((_, index) => {
               return (
                 <button
                   key={index}
-                  className={`${styles.page_btn} ${
-                    currentPage === index ? styles.active : ""
+                  className={`${stylesPagination.page_btn} ${
+                    currentPage === index || (index == 0 && currentPage == -1)
+                      ? stylesPagination.active
+                      : ""
                   }`}
                   onClick={() => setCurrentPage(index)}
                 >

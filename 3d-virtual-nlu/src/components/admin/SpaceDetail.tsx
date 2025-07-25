@@ -125,7 +125,6 @@ const SpaceDetail = () => {
 
   useEffect(() => {
     if (!spaceId) return;
-
     if (reduxSpace) {
       setCurrentSpace(reduxSpace);
     } else {
@@ -529,6 +528,18 @@ const SpaceDetail = () => {
       setEditInformation(false);
       return;
     }
+
+    Swal.fire({
+      title: "Đang cập nhật...",
+      showConfirmButton: false,
+      showCancelButton: false,
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+      toast: true,
+    });
 
     //Nếu có thay đổi => gửi API.
     try {

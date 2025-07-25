@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 
-import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeExpandResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 import vn.edu.hcmuaf.virtualnluapi.service.NodeService;
 
 import java.util.List;
@@ -171,5 +168,14 @@ public class NodeController {
     public ApiResponse<Integer> getNumOfUser(UserIdRequest request) {
         int result = nodeService.getNumOfUser(request);
         return ApiResponse.<Integer>builder().statusCode(1000).message("Cap nhat luot truy cap thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/getAutoTour")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<AutoTourResponse>> getAutoTour(PageRequest request) {
+        List<AutoTourResponse> result = nodeService.getAutoTour(request);
+        return ApiResponse.<List<AutoTourResponse>>builder().statusCode(1000).message("Lay danh sach tour tu dong thanh cong").data(result).build();
     }
 }

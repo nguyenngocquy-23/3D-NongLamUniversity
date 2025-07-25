@@ -11,12 +11,15 @@ import lombok.experimental.FieldDefaults;
 public class DashboardResponse {
     int numCurrentAccess;
     int numFreeAccess;
-    int numRegister;
+    int numMonthRegister;
+    int numAllRegister;
     int numTour;
     int numAutoTour;
     int numComment;
     int numTourWaitingApprovel;
-    int numReport;
     int numField;
     int numSpace;
+    int numContact;
+    int highestViewNodeId;
+    int lowestViewNodeId;
 }

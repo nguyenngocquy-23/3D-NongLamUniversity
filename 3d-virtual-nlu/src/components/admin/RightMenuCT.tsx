@@ -8,6 +8,7 @@ import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
 import { RootState } from "../../redux/Store";
 import axios from "axios";
 import { API_URLS } from "../../env";
+import { useEffect } from "react";
 /**
  * - Nhận thấy rằng step 2 & step 3 chia sẻ cùng UI.
  */
@@ -26,6 +27,8 @@ interface RightMenuProps {
   isUpdateTour?: boolean;
   handleUpdateTour?: () => void;
   saveLinkNode: boolean;
+  isValidated?: boolean;
+  setIsValidated?: (isValid: boolean) => void;
 }
 
 const RightMenuCreateTour: React.FC<RightMenuProps> = ({
@@ -36,8 +39,39 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
   isUpdateTour,
   handleUpdateTour,
   saveLinkNode,
+  isValidated,
+  setIsValidated,
 }) => {
   const dispatch = useDispatch();
+  const handleNextStep = () => {
+    if (!isValidated) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng hoàn thành các trường bắt buộc trước khi tiếp tục!",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: true,
+        timer: 3000,
+      });
+      return;
+    }
+    dispatch(nextStep());
+  };
+  const { panoramaList, currentSelectId } = useSelector(
+    (state: RootState) => state.panoramas
+  );
+
+  useEffect(() => {
+    if (panoramaList.length === 0) return;
+    const isValid = panoramaList.every(
+      (p) => p.config.name !== "" && p.config.name?.length <= 50
+    );
+    console.log("panoramaList", isValid, panoramaList);
+
+    setIsValidated?.(isValid);
+  }, [panoramaList, setIsValidated]);
+
   return (
     <>
       <ul>
@@ -57,6 +91,9 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
               }}
             >
               <span className={styles.taskName}>{task.title}</span>
+              {task.id == 1 && !isValidated && (
+                <span className={styles.validate_task1} />
+              )}
             </li>
           );
         })}
@@ -75,7 +112,7 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
             padding: "0.5rem 1rem",
           }}
           onClick={() => {
-            isUpdateTour ? handleUpdateTour?.() : dispatch(nextStep());
+            isUpdateTour ? handleUpdateTour?.() : handleNextStep();
           }}
         >
           {isUpdateTour ? "Cập nhật" : "Tiếp tục"}

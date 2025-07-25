@@ -76,6 +76,7 @@
 
 .name_option {
     margin-left: 30px;
+    color: white;
 }
 
 .option_button:hover {
@@ -95,6 +96,7 @@
     transition: all .5s ease;
     outline: none !important;
     background-color: transparent;
+    color: white;
 }
 
 .model_info {

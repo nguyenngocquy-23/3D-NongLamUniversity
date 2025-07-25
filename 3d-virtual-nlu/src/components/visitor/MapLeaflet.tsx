@@ -12,7 +12,12 @@ import styles from "../../styles/visitor/map.module.css";
 import { AROUND_MAP, perPage } from "../../utils/Constants";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { fetchSpaces, removeLocation, setDefaultNode } from "../../redux/slices/DataSlice";
+import {
+  fetchAllSpaces,
+  fetchSpaces,
+  removeLocation,
+  setDefaultNode,
+} from "../../redux/slices/DataSlice";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { API_URLS } from "../../env";
@@ -107,16 +112,16 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
   spaces: propsSpaces,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const listSpaces = useSelector((state: RootState) => state.data.spaces);
+  const listSpaces = useSelector((state: RootState) => state.data.allSpaces);
 
   useEffect(() => {
     if (!propsSpaces || propsSpaces.length === 0) {
-      dispatch(fetchSpaces({ limit: perPage, page: 0 }));
+      dispatch(fetchAllSpaces());
     }
   }, [dispatch, propsSpaces]);
 
-  const spacesToUse =
-    propsSpaces && propsSpaces.length > 0 ? propsSpaces : listSpaces;
+  const spacesToUse = (!setPoints ? propsSpaces : listSpaces) ?? [];
+  // propsSpaces && propsSpaces.length > 0 ? propsSpaces : listSpaces;
 
   const maker = spacesToUse.filter(
     (s) => s.location !== null && s.location !== ""
@@ -190,7 +195,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
   };
 
   const handleSelectSpace = async (spaceId: number) => {
-    const nodeId = propsSpaces?.find((h:any) => h.id === spaceId).masterNodeId;
+    const nodeId = propsSpaces?.find((h: any) => h.id === spaceId).masterNodeId;
 
     try {
       const response = await axios.post(API_URLS.NODE_BY_ID, {
@@ -263,7 +268,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
                 spaceId == space.id ? styles.pulse : ""
               }"
               style="background: url(${space.url});
-                    ${spaceId == space.id ? "border: 3px solid blue;" : ""}">
+                    ${spaceId == space.id ? "border: 3px solid #3cbe22ff;" : ""}">
               </div>`,
               iconSize: [40, 40],
               iconAnchor: [20, 20],
@@ -276,7 +281,11 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
                 // icon={isRemove ? customIcon : new L.Icon.Default()}
                 eventHandlers={{
                   click: () => {
-                    isRemove ? handleRemove(space.id) : handleSelectSpace(space.id);
+                    isRemove
+                      ? handleRemove(space.id)
+                      : !setPoints
+                      ? handleSelectSpace(space.id)
+                      : "";
                   },
                 }}
               >
