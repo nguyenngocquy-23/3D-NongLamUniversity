@@ -314,6 +314,12 @@ const MiniMap: React.FC<MiniMapProps> = ({
     return selector;
   };
 
+  /**
+   * Nếu nodeStatus = 2 (Master)
+   * @param nodeId
+   * @param nodeStatus
+   * @returns
+   */
   const checkFullhotspotNavigation = (nodeId: string, nodeStatus: number) => {
     const limit = 2 * limitNavigation(nodeStatus === 2);
     return hotspotNavigationFromNode(nodeId).length === limit;
