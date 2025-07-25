@@ -132,7 +132,7 @@ const LeftMenuTour = ({
   return (
     <div className={`${styles.left_menu}`}>
       <div className={styles.header}>
-        <h2>NLU Tour</h2>
+        <h2 style={{marginBottom: '0.5rem'}}>Danh sách Tour</h2>
         <div className={styles.search_box}>
           <label htmlFor="input" className={styles.label}>
             <IoSearch className={styles.search_icon} />
@@ -140,7 +140,7 @@ const LeftMenuTour = ({
           <input
             type="text"
             className={styles.input_seach}
-            placeholder="Tên không gian.."
+            placeholder="Nhập tên tour.."
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
@@ -176,7 +176,7 @@ const LeftMenuTour = ({
             >
               <span className={styles.nodeName}>{node.name}</span>
               {viewHistoryList.includes(node.id) && (
-                <span className={styles.visited}>
+                <span className={styles.visited} title="Đã xem">
                   <FaCheck />
                 </span>
               )}

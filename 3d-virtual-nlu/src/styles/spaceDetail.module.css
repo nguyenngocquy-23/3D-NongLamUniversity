@@ -21,7 +21,8 @@
   cursor: pointer;
 }
 .space_header .space_icon_back:hover {
-  box-shadow: 5px 5px 5px 5px #00000065;
+  /* box-shadow: 5px 5px 5px 5px #00000065; */
+  opacity: 0.8;
   animation: all 1s ease-in;
 }
 

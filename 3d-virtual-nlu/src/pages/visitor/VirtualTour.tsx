@@ -54,7 +54,7 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { useGLTF } from "@react-three/drei";
 import axios from "axios";
 import { API_URLS } from "../../env.ts";
-import { FaBookOpen } from "react-icons/fa";
+import { FaAngleDoubleLeft, FaBookOpen } from "react-icons/fa";
 
 /*
  * Nhằm mục đích tái sử dụng Virtual Tour.
@@ -692,9 +692,18 @@ const VirtualTour = () => {
         imageVersion={imageVersion}
       />
       <div className={styles.header_tour}>
-        <h2>{nodeToRender.name}</h2>
+        <h2 className={styles.tour_name}>{nodeToRender.name}</h2>
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
+      {!isMobile ? (
+        <button
+          className={styles.thumbnail_menu_button}
+        >
+          <FaAngleDoubleLeft />
+        </button>
+      ) : (
+        ""
+      )}
       {fullMap || hoverMap || !isMenuVisible ? (
         ""
       ) : (

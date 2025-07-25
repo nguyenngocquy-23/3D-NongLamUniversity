@@ -90,6 +90,14 @@
   animation: blinkAndDisappear 10s forwards;
 }
 
+.back_login{
+  border-radius: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+
+}
+
 @keyframes blinkAndDisappear {
 
   0%,

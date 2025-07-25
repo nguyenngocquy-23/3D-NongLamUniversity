@@ -17,9 +17,14 @@ public class UserDao {
     }
 
     public User findByUsername(String username) {
+        String sql = """
+                SELECT id, username, password, email, roleId, status, avatar, createdAt 
+                FROM users 
+                WHERE username = :username
+                """;
         Optional<User> user = ConnectionPool.getConnection().withHandle(handle ->
-                handle.createQuery("SELECT * FROM users WHERE username = ?")
-                        .bind(0, username).mapToBean(User.class).stream().findFirst()
+                handle.createQuery(sql)
+                        .bind("username", username).mapToBean(User.class).stream().findFirst()
         );
         return user.orElse(null);
     }

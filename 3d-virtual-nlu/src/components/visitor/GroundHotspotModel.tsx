@@ -262,7 +262,7 @@ const GroundHotspotModel = ({
                   className={styles.button_detail}
                   onClick={() => {
                     user &&
-                      user.role == 1 &&
+                      currentStep != 2 && currentStep != 3 &&
                       navigate(`/model/${hotspotModel.id}`, {
                         state: {
                           title: hotspotModel.name,

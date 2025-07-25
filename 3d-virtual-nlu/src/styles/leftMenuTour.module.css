@@ -65,8 +65,8 @@
   width: 1.5rem;
   height: 1.5rem;
   transform: translate(-50%, 50%);
-  background-color: rgb(215, 250, 225);
-  color: red;
+  background-color: white;
+  color: #4bd430;
   border-radius: 50%;
   display: flex;
   justify-content: center;

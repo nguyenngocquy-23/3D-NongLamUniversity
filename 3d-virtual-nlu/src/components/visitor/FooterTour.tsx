@@ -49,7 +49,7 @@ const FooterTour = ({
     <div className={styles.footer_tour}>
       <i>
         Số lượng truy cập hiện tại:{" "}
-        {user ? accessing : <Link to={"/login"}>Đăng nhập để xem</Link>}
+        {user ? accessing : <Link className={styles.back_login} to={"/login"}>Đăng nhập để xem</Link>}
       </i>
       <div className="contain_extension" style={{ display: "flex" }}>
         {setOpenNodeList && 

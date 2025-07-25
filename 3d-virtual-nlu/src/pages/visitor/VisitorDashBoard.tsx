@@ -34,8 +34,12 @@ interface ApiResponse<T> {
 }
 
 const VisitorDashBoard = () => {
-  const userJson = sessionStorage.getItem("user");
-  const user = userJson ? JSON.parse(userJson) : null;
+  // const userJson = sessionStorage.getItem("user");
+  // const user = userJson ? JSON.parse(userJson) : null;
+  const [user, setUser] = useState(() => {
+    const userJson = sessionStorage.getItem("user");
+    return userJson ? JSON.parse(userJson) : null;
+  });
 
   const [username, setUsername] = useState(user.username || "");
   const [email, setEmail] = useState(user.email || "");
@@ -192,6 +196,13 @@ const VisitorDashBoard = () => {
       email: email,
     });
     if (response.data.data) {
+      const updatedUser = {
+        ...user,
+        username: username,
+        email: email,
+      };
+      sessionStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
       Swal.fire({
         icon: "success",
         title: "Thành công",
