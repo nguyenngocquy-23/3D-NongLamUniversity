@@ -19,7 +19,7 @@ export function stringToRgba(color: string): rgbaColor | null {
   if (!color) return null;
 
   const regex =
-    /rgba?\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d*\.?\d+)\s*\)/;
+    /rgba?\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d*\.?\d+)\s*\)/i;
   if (!color) return null;
 
   const match = color.match(regex);
@@ -30,6 +30,6 @@ export function stringToRgba(color: string): rgbaColor | null {
     r: parseInt(match[1], 10),
     g: parseInt(match[2], 10),
     b: parseInt(match[3], 10),
-    a: parseInt(match[4]),
+    a: parseFloat(match[4]),
   };
 }

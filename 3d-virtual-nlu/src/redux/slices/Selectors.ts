@@ -52,7 +52,9 @@ export const getFilteredHotspotNavigations = createSelector(
   (hotspotList): HotspotNavigation[] => {
     return hotspotList.filter(
       (h): h is HotspotNavigation =>
-        h.type === 1 && !!(h as HotspotNavigation).targetNodeId
+        h.type === 1 &&
+        h.status !== 0 &&
+        !!(h as HotspotNavigation).targetNodeId
     );
   }
 );

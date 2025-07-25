@@ -2,7 +2,10 @@ import { Html } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../../styles/optionHotspot.module.css";
-import { removeHotspot, updateHotspotStatus } from "../../../redux/slices/HotspotSlice";
+import {
+  removeHotspot,
+  updateHotspotStatus,
+} from "../../../redux/slices/HotspotSlice";
 import Swal from "sweetalert2";
 
 const OptionHotspot = ({
@@ -48,7 +51,7 @@ const OptionHotspot = ({
         if (isNaN(Number(hotspotId))) {
           dispatch(removeHotspot({ hotspotId }));
         } else {
-          dispatch(updateHotspotStatus({hotspotId}));
+          dispatch(updateHotspotStatus({ hotspotId }));
         }
         onClose();
 

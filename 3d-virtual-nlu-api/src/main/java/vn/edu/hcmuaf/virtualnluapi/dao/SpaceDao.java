@@ -116,7 +116,7 @@ public class SpaceDao {
                 , s.createdAt, s.updatedAt
                 FROM spaces s
                 JOIN fields f ON s.fieldId = f.id
-                JOIN nodes n ON s.masterNodeId = n.id
+                LEFT JOIN nodes n ON s.masterNodeId = n.id
                 WHERE s.id = :id
                 """;
 

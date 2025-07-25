@@ -32,7 +32,14 @@
   }
 }
 
-.toggle {
+.toggle_open_feature {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: #267026;
   position: absolute;
   font-size: 1.5rem;
   bottom: 0;

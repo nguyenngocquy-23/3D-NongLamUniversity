@@ -4,6 +4,7 @@ import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.reflect.TypeToken;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.PreparedBatch;
 import vn.edu.hcmuaf.virtualnluapi.connection.Connection;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
@@ -16,21 +17,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class NodeDao {
 
     @Inject
     HotspotDao hotspotDao;
-    @Inject
-    private HotspotService hotspotService;
 
-    public List<NodeIdMapResponse> insertNode(List<NodeCreateRequest> reqs) {
+    public List<NodeIdMapResponse> insertNode(Handle handle, List<NodeCreateRequest> reqs) {
         String sql = """
                 INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, yawOffset, lightIntensity, brightness, contrast, saturation, grayscale, exposure, status, numView) 
                 VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :yawOffset, :lightIntensity, :brightness, :contrast, :saturation, :grayscale, :exposure, :status, :numView)""";
-
-        return ConnectionPool.getConnection().inTransaction(handle -> {
 
             List<NodeIdMapResponse> idMapResponses = new ArrayList<>();
 
@@ -61,7 +59,6 @@ public class NodeDao {
                 idMapResponses.add(new NodeIdMapResponse(req.getId(), realId));
             }
             return idMapResponses;
-        });
     }
 
     public List<NodeFullResponse> getNodesByPage(PageRequest request) {
@@ -206,6 +203,9 @@ public class NodeDao {
         }
 
         List<NodeFullResponse> preloadNodes = new ArrayList<>();
+
+
+
         for (Integer i : targetNodeIds) {
             NodeFullResponse node = getNodeById(new NodeIdRequest(i));
             if (node != null) preloadNodes.add(node);
@@ -280,10 +280,11 @@ public class NodeDao {
         String sql = """
                   SELECT n.id, n.userId, s.id as spaceId, s.name as spaceName, f.id as fieldId, f.name as fieldName, n.name, n.description, n.url, n.updatedAt,
                 n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity,
-                n.numView
+                n.numView, u.username, u.email, u.avatar 
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
+                LEFT JOIN users u ON n.userId = u.id
                 WHERE n.id = :nodeId
                 """;
         NodeExpandResponse nodeExpandResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
@@ -310,10 +311,11 @@ public class NodeDao {
     public NodeExpandResponse getCustomNodeByNodeId(int nodeId) {
         String sql = """
                  SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, s.name as spaceName, f.name as fieldName, n.name, n.description, n.url, n.updatedAt,
-                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity, u.username, u.email, u.avatar 
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
+                LEFT JOIN users u ON n.userId = u.id
                 WHERE n.id = :nodeId
                 """;
         NodeExpandResponse nodeExpandResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
@@ -348,7 +350,7 @@ public class NodeDao {
                 FROM nodes n
                 JOIN spaces s ON n.spaceId = s.id
                 JOIN fields f ON s.fieldId = f.id
-                WHERE n.id = :nodeId
+                WHERE n.id = :nodeId AND n.status IN (1,2)
                 """;
         NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
                 .bind("nodeId", request.getNodeId())
@@ -368,13 +370,14 @@ public class NodeDao {
         return nodeFullResponse;
     }
 
-    public boolean changeStatus(StatusRequest request) {
-        String sql = "UPDATE nodes SET status = :status, updatedAt = :updatedAt WHERE id = :nodeId";
-        int rowsUpdated = ConnectionPool.getConnection().withHandle(handle -> handle.createUpdate(sql)
+    public boolean changeStatus(Handle handle, StatusRequest request) {
+        String sqlSetStatusNode = "UPDATE nodes SET status = :status, updatedAt = :updatedAt WHERE id = :nodeId";
+
+        int rowsUpdated = handle.createUpdate(sqlSetStatusNode)
                 .bind("status", request.getStatus())
                 .bind("updatedAt", LocalDateTime.now())
                 .bind("nodeId", request.getId())
-                .execute());
+                .execute();
         return rowsUpdated > 0;
     }
 
@@ -431,7 +434,7 @@ public class NodeDao {
         });
     }
 
-    public boolean updateNodes(List<NodeUpdateRequest> reqs) {
+    public boolean updateNodes(Handle handle, List<NodeUpdateRequest> reqs) {
         String sql = """
                 UPDATE nodes SET url = :url, name = :name, description = :description, positionX = :positionX,
                 positionY = :positionY, positionZ = :positionZ, yawOffset = :yawOffset, brightness = :brightness, contrast = :contrast,
@@ -440,7 +443,6 @@ public class NodeDao {
                 WHERE id = :id
                 """;
 
-        int totalNodeUpdated = ConnectionPool.getConnection().inTransaction(handle -> {
             int count = 0;
             for (NodeUpdateRequest req : reqs) {
                 count += handle.createUpdate(sql)
@@ -459,28 +461,32 @@ public class NodeDao {
                         .bind("lightIntensity", req.getLightIntensity())
                         .bind("status", req.getStatus())
                         .bind("updatedAt", LocalDateTime.now())
-                        .bind("id", req.getId())
+                        .bind("id", Integer.parseInt(req.getId())) //Chuyển Id về Integer.
                         .execute();
             }
-            return count;
-        });
 
-        // Sau khi cập nhật nodes xong → cập nhật hotspots
-        for (NodeUpdateRequest req : reqs) {
-            int navUpdate = hotspotService.updateNavHotspots(req.getNavHotspots(), req.getId());
-            int infoUpdate = hotspotService.updateInfoHotspots(req.getInfoHotspots(), req.getId());
-            int mediaUpdate = hotspotService.updateMediaHotspots(req.getMediaHotspots(), req.getId());
-            int modelUpdate = hotspotService.updateModelHotspots(req.getModelHotspots(), req.getId());
-
-            int totalHotspotUpdated = navUpdate + infoUpdate + mediaUpdate + modelUpdate;
-
-            // Nếu node không được update và các hotspot không thay đổi → fail
-            if (totalNodeUpdated == 0 && totalHotspotUpdated == 0) {
-                return false;
+            if(count != reqs.size()) {
+                System.err.println("Không phải tất cả các node đều được cập nhật.!");
             }
-        }
-        return true;
+
+            return count == reqs.size();
     }
+
+//        // Sau khi cập nhật nodes xong → cập nhật hotspots
+//        for (NodeUpdateRequest req : reqs) {
+//            int navUpdate = hotspotService.updateNavHotspots(req.getNavHotspots(), req.getId());
+//            int infoUpdate = hotspotService.updateInfoHotspots(req.getInfoHotspots(), req.getId());
+//            int mediaUpdate = hotspotService.updateMediaHotspots(req.getMediaHotspots(), req.getId());
+//            int modelUpdate = hotspotService.updateModelHotspots(req.getModelHotspots(), req.getId());
+//
+//            int totalHotspotUpdated = navUpdate + infoUpdate + mediaUpdate + modelUpdate;
+//
+//            // Nếu node không được update và các hotspot không thay đổi → fail
+//            if (totalNodeUpdated == 0 && totalHotspotUpdated == 0) {
+//                return false;
+//            }
+//        }
+//        return true;
 
     public List<NodeFullResponse> search(String searchKey) {
         String sql = """
@@ -795,5 +801,30 @@ public class NodeDao {
                     .execute();
             return updatedRows > 0;
         });
+    }
+
+    public boolean deleteNode(Handle handle, List<String> nodeIds) {
+        String sql = "UPDATE nodes SET status = :status WHERE id IN (<ids>)" ;
+        try {
+            //Chuyển string -> integer.
+            List<Integer> idList = nodeIds.stream().map(
+                    nodeId -> {
+                        try {
+                            return Integer.parseInt(nodeId);
+
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("NodeId không hợp lệ" + nodeId, e);
+                        }
+                    }
+
+            ).collect(Collectors.toList());
+
+            handle.createUpdate(sql).bind("status", -1).bindList("ids", idList).execute();
+            return true;
+
+        }
+        catch (Exception e) {
+           throw new RuntimeException("Lỗi khi xoá node", e);
+        }
     }
 }

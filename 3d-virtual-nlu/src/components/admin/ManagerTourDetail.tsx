@@ -23,6 +23,7 @@ import {
   PanoramaConfig,
   PanoramaItem,
   selectPanorama,
+  setSpaceId,
   smartUpdatePanoramasFromResponse,
 } from "../../redux/slices/PanoramaSlice.ts";
 import {
@@ -76,9 +77,19 @@ import Space from "../../pages/admin/ManagerSpace.tsx";
 import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones.ts";
 import { TiEdit } from "react-icons/ti";
 import { FaSave } from "react-icons/fa";
+import { GrSecure } from "react-icons/gr";
 
 interface PanoramaItemWithField extends PanoramaItem {
   fieldId: string;
+}
+interface PanoramaItemForApprove extends PanoramaItem {
+  userId: string;
+  fieldId: string;
+  numView: number;
+  updatedAt: number;
+  email: string;
+  userName: string;
+  avatar: string;
 }
 
 const ManagerTourDetail: React.FC = () => {
@@ -93,8 +104,15 @@ const ManagerTourDetail: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   // Lấy danh sách fields từ Redux
   const fields = useSelector((state: RootState) => state.data.fields);
+  const userId = useSelector((state: RootState) => state.auth.user.id);
+  const users = useSelector((state: RootState) => state.data.users);
+  const [authorId, setAuthorId] = useState<string | null>(null);
+  const [approveForm, setApproveForm] = useState<boolean>(false);
 
   const [fieldId, setFieldId] = useState<string | null>(null);
+  const [originalMasterNode, setOriginalMasterNode] =
+    useState<PanoramaItemForApprove | null>(null);
+  const [messageRefuse, setMessageRefuse] = useState<string>("");
 
   useEffect(() => {
     if (!nodeId) return;
@@ -109,6 +127,7 @@ const ManagerTourDetail: React.FC = () => {
         const mainNode = nodes.find((node) => node.id == nodeId);
         if (mainNode) {
           setFieldId(mainNode.fieldId);
+          setAuthorId(mainNode.userId);
 
           try {
             const response = await axios.post(
@@ -148,6 +167,20 @@ const ManagerTourDetail: React.FC = () => {
           TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
         dispatch(addPanoramasFromResponse(panoramaList));
         dispatch(addHotspotsFromResponse(hotspotList));
+        dispatch(setSpaceId(mainNode?.spaceId ?? "0"));
+
+        //Set giá trị api cho biến originalMasterNode
+        const currentTourExpandField = {
+          ...currentTour,
+          fieldId: mainNode?.fieldId,
+          numView: mainNode?.numView,
+          userId: mainNode?.userId,
+          updatedAt: mainNode?.updatedAt,
+          userName: mainNode?.userName,
+          email: mainNode?.email,
+          avatar: mainNode?.avatar,
+        };
+        setOriginalMasterNode(currentTourExpandField);
       })
       .catch((err) => {
         console.warn("Lỗi không lấy được node", err);
@@ -177,9 +210,10 @@ const ManagerTourDetail: React.FC = () => {
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
   >(null);
-  const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
 
+  const [basicProps, setBasicProps] = useState<BaseHotspot | null>(null);
   const [viewMode, setViewMode] = useState<number>(1);
+  const [approveStatus, setApproveStatus] = useState<number>(2); //AproveStatus: 2 - Đồng ý. ApproveStatus: 4: Từ chối.
   const [editInformation, setEditInformation] = useState<boolean>(false);
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
     []
@@ -301,6 +335,88 @@ const ManagerTourDetail: React.FC = () => {
       const response = await axios.patch(
         `${API_URLS.ADMIN_UPDATE_OVERVIEW_TOUR_BY_MASTERID}/${nodeId}`,
         changeFields
+      );
+
+      if (response.data.statusCode === 1000) {
+        Swal.fire({
+          title: "Thành công",
+          text: `${response.data?.message}`,
+          icon: "success",
+          toast: true,
+          timer: 2000,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+        const nodes: NodeExpandResponse[] = response.data.data;
+
+        const mainNode = nodes.find((node) => node.id == nodeId);
+        if (mainNode) {
+          setFieldId(mainNode.fieldId);
+
+          try {
+            const response = await axios.post(
+              API_URLS.ADMIN_GET_SPACE_OF_FIELD,
+              {
+                fieldId: mainNode.fieldId,
+              }
+            );
+            if (response.data.statusCode === 1000) {
+              setListSpace(response.data.data);
+              setOriginalListSpace(response.data.data);
+            } else {
+              console.warn("Lỗi dữ liệu space", response.data.message);
+              //fallback lấy mỗi cái đang active đủ dùng.
+              setListSpace([
+                { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+              ]);
+              setOriginalListSpace([
+                { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+              ]);
+            }
+          } catch (err) {
+            console.warn("Lỗi khi gọi API space", err);
+            //fallback lấy mỗi cái đang active đủ dùng.
+            setListSpace([
+              { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+            ]);
+            setOriginalListSpace([
+              { id: Number(mainNode.spaceId), name: mainNode.spaceName },
+            ]);
+          }
+        }
+
+        const { panoramaList } =
+          TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
+        dispatch(smartUpdatePanoramasFromResponse(panoramaList)); // chỉ cập nhật node.
+
+        setEditInformation(false);
+      } else {
+        Swal.fire({
+          title: "Thất bại",
+          text: `${response.data?.message || ""}`,
+          icon: "error",
+          toast: true,
+          timer: 2000,
+          position: "top-end",
+          showConfirmButton: false,
+        });
+      }
+    } catch (error: any) {
+      console.error("Lỗi khi cập nhật tour:", error);
+      Swal.fire("Lỗi kết nối", error?.message || "Không rõ lý do", "error");
+    }
+  };
+
+  /**
+   *
+   * Xử lý cập nhật phê duyệt.
+   */
+  const handleApproveTour = async (status: number, message: string) => {
+    //Gọi api change status
+    try {
+      const response = await axios.patch(
+        `${API_URLS.ADMIN_CHANGE_NODE_STATUS}`
+        // { nodeId, status: toggle.current }
       );
 
       if (response.data.statusCode === 1000) {
@@ -613,15 +729,35 @@ const ManagerTourDetail: React.FC = () => {
                   <div className={stylesOverview.label_information}>
                     Trạng thái:{" "}
                   </div>
-                  <div className={stylesOverview.content_information}>
-                    <StatusToggle
-                      id={currentTour.id}
-                      status={currentTour.config.status}
-                      apiUrl={`${API_URLS.ADMIN_CHANGE_NODE_STATUS}`}
-                      type="node"
-                      editable={editInformation}
-                    />
-                  </div>
+
+                  {currentTour.config.status === 3 ? (
+                    <div className={stylesOverview.content_information}>
+                      {/* <StatusToggle
+                        id={currentTour.id}
+                        status={currentTour.config.status}
+                        apiUrl={`${API_URLS.ADMIN_CHANGE_NODE_STATUS}`}
+                        type="node"
+                        editable={editInformation}
+                      /> */}
+                      <button
+                        className={stylesOverview.edit_information_btn}
+                        onClick={() => setApproveForm(true)}
+                      >
+                        {" "}
+                        Chờ phê duyệt <GrSecure />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={stylesOverview.content_information}>
+                      <StatusToggle
+                        id={currentTour.id}
+                        status={currentTour.config.status}
+                        apiUrl={`${API_URLS.ADMIN_CHANGE_NODE_STATUS}`}
+                        type="node"
+                        editable={editInformation}
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className={styles.overview_information}>
                   <label
@@ -779,10 +915,12 @@ const ManagerTourDetail: React.FC = () => {
                   setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
                 }}
               />
+
               <MiniMap
                 currentPanorama={currentNodeView}
                 angleCurrent={cameraAngle}
                 currentTour={nodeId}
+                locked={userId !== authorId}
               />
 
               {isTextureReady &&
@@ -833,86 +971,164 @@ const ManagerTourDetail: React.FC = () => {
                   ))}
             </Canvas>
 
-            <div className={styles.toggle_right_menu}>
-              <IoMdMenu
-                className={styles.show_menu}
-                onClick={() => handleOpenMenu()}
-              />
-            </div>
-
-            <AnimatePresence>
-              {isMenuVisible && (
-                <motion.div
-                  initial={{ x: 300, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: 300, opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className={`${styles.rightMenu} `}
-                >
-                  <div className={styles.rightTitle}>
-                    <FaAngleRight
-                      className={styles.close_menu_btn}
-                      onClick={handleOpenMenu}
-                    />
-                    <h2>Cấu hình</h2>
-                  </div>
-
-                  <RightMenuCreateTour
-                    tasks={tasks}
-                    openTaskIndex={openTaskIndex}
-                    onTaskClick={handleOpenTask}
-                    setPreOpenTask={setPreTaskIndex}
-                    saveLinkNode={false}
+            {userId === authorId ? (
+              <>
+                <div className={styles.toggle_right_menu}>
+                  <IoMdMenu
+                    className={styles.show_menu}
+                    onClick={() => handleOpenMenu()}
                   />
-                </motion.div>
-              )}
-            </AnimatePresence>
-            {/* tasks */}
-            <AnimatePresence>
-              {isMenuVisible &&
-                openTaskIndex !== null &&
-                currentHotspotId === null && (
-                  <motion.div
-                    initial={{ y: 1000, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 1000, opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className={`${styles.task_container}`}
-                  >
-                    <TaskContainerCT
-                      id={preTaskIndex}
-                      name={
-                        tasks.find((t) => t.id === preTaskIndex)?.title || ""
-                      }
+                </div>
+                <AnimatePresence>
+                  {isMenuVisible && (
+                    <motion.div
+                      initial={{ x: 300, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: 300, opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className={`${styles.rightMenu} `}
                     >
-                      {preTaskIndex
-                        ? getTaskContentById(openTaskIndex ?? preTaskIndex)
-                        : ""}
-                    </TaskContainerCT>
-                  </motion.div>
-                )}
-            </AnimatePresence>
-            <AnimatePresence>
-              {currentHotspotId !== null && (
-                <motion.div
-                  initial={{ y: 1000, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: 1000, opacity: 0 }}
-                  transition={{ duration: 1 }}
-                  className={`${styles.update_hotspot_container} `}
-                >
-                  <UpdateHotspot
-                    hotspotId={currentHotspotId}
-                    setHotspotId={setCurrentHotspotId}
-                    onPropsChange={handleOnPropsChange}
-                    limitNav={true}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+                      <div className={styles.rightTitle}>
+                        <FaAngleRight
+                          className={styles.close_menu_btn}
+                          onClick={handleOpenMenu}
+                        />
+                        <h2>Cấu hình</h2>
+                      </div>
+
+                      <RightMenuCreateTour
+                        tasks={tasks}
+                        openTaskIndex={openTaskIndex}
+                        onTaskClick={handleOpenTask}
+                        setPreOpenTask={setPreTaskIndex}
+                        saveLinkNode={false}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {/* tasks */}
+                <AnimatePresence>
+                  {isMenuVisible &&
+                    openTaskIndex !== null &&
+                    currentHotspotId === null && (
+                      <motion.div
+                        initial={{ y: 1000, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 1000, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className={`${styles.task_container}`}
+                      >
+                        <TaskContainerCT
+                          id={preTaskIndex}
+                          name={
+                            tasks.find((t) => t.id === preTaskIndex)?.title ||
+                            ""
+                          }
+                        >
+                          {preTaskIndex
+                            ? getTaskContentById(openTaskIndex ?? preTaskIndex)
+                            : ""}
+                        </TaskContainerCT>
+                      </motion.div>
+                    )}
+                </AnimatePresence>
+                <AnimatePresence>
+                  {currentHotspotId !== null && (
+                    <motion.div
+                      initial={{ y: 1000, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: 1000, opacity: 0 }}
+                      transition={{ duration: 1 }}
+                      className={`${styles.update_hotspot_container} `}
+                    >
+                      <UpdateHotspot
+                        hotspotId={currentHotspotId}
+                        setHotspotId={setCurrentHotspotId}
+                        onPropsChange={handleOnPropsChange}
+                        limitNav={true}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            ) : (
+              ""
+            )}
           </div>
         )}
       </div>
+      {approveForm ? (
+        <div className={styles.approve_container}>
+          <div className={styles.approve_form}>
+            <div className={styles.approve_form_options}>
+              <span>Tuỳ chọn : </span>
+              <div className={styles.radio_container}>
+                <label className={styles.radio_item} htmlFor="acceptApprove">
+                  <input
+                    id="acceptApprove"
+                    type="radio"
+                    name="radioApprove"
+                    value="acceptApprove"
+                    checked={approveStatus === 2}
+                    onChange={() => {
+                      if (approveStatus !== 2) setApproveStatus(2);
+                    }}
+                  />
+                  <span className={styles.radio_name}>Duyệt</span>
+                </label>
+                <label className={styles.radio_item} htmlFor="refuseApprove">
+                  <input
+                    id="refuseApprove"
+                    type="radio"
+                    name="radioApprove"
+                    value="refuseApprove"
+                    checked={approveStatus === 4}
+                    onChange={() => {
+                      if (approveStatus !== 4) setApproveStatus(4);
+                    }}
+                  />
+                  <span className={styles.radio_name}>Từ chối</span>
+                </label>
+              </div>
+            </div>
+            {approveStatus === 4 && (
+              <div className={styles.approve_form_message}>
+                <label
+                  className={stylesOverview.label_information}
+                  htmlFor="message"
+                >
+                  Phản hồi:{" "}
+                </label>
+                <textarea
+                  id="message"
+                  value={messageRefuse}
+                  onChange={(e) => setMessageRefuse(e.target.value)}
+                  rows={5}
+                  cols={40}
+                  placeholder="Tối đa 300 ký tự."
+                  className={stylesOverview.description_content}
+                />
+              </div>
+            )}
+            <div className={styles.approve_btn}>
+              <button
+                className={stylesOverview.edit_information_btn}
+                onClick={() => setApproveForm(false)}
+              >
+                Huỷ
+              </button>
+              {/* <button
+                className={stylesOverview.edit_information_btn}
+                onClick={handleApproveTour(approveStatus, messageRefuse)}
+              > */}
+              {/* Xác nhận
+              </button> */}
+            </div>
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
     </div>
   );
 };

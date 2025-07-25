@@ -139,7 +139,7 @@ public class NodeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> changeStatus(StatusRequest request) {
-        boolean result = nodeService.changeStatus(request);
+        boolean result = nodeService.changeStatusAtomic(request);
         return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat trang thai thanh cong").data(result).build();
     }
 

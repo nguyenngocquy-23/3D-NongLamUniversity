@@ -19,6 +19,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 import { perPage } from "../../utils/Constants";
 import axios from "axios";
 import { API_URLS } from "../../env";
+import { goToStep } from "../../redux/slices/StepSlice";
 
 export interface NodeObject {
   id: number;
@@ -147,6 +148,9 @@ const ManagerTour = () => {
           <Link
             to="/admin/createTour"
             className={`${styles.tour_add} ${styles.tour_box}`}
+            onClick={() => {
+              dispatch(goToStep(1));
+            }}
           >
             Thêm tour mới
           </Link>
