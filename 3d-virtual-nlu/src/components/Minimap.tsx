@@ -125,17 +125,6 @@ const MiniMap: React.FC<MiniMapProps> = ({
         } else {
           dispatch(deleteHotspotByNodeId(id));
         }
-
-        // typeDisplay === "update" && isInteger(id)
-        //   ? dispatch(
-        //       updatePanoConfig({
-        //         id: id,
-        //         config: {
-        //           status: 0,
-        //         },
-        //       })
-        //     )
-        //   : dispatch(deletePanoramaById(id));
       }
     });
   };

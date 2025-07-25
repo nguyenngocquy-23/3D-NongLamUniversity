@@ -93,6 +93,8 @@ const ManagerTourDetail: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   // Lấy danh sách fields từ Redux
   const fields = useSelector((state: RootState) => state.data.fields);
+  const userId = useSelector((state: RootState) => state.auth.user.id);
+  const [authorId, setAuthorId] = useState<string | null>(null);
 
   const [fieldId, setFieldId] = useState<string | null>(null);
 
@@ -839,6 +841,8 @@ const ManagerTourDetail: React.FC = () => {
                 onClick={() => handleOpenMenu()}
               />
             </div>
+
+            {currentTour}
 
             <AnimatePresence>
               {isMenuVisible && (

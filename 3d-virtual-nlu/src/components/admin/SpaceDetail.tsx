@@ -14,13 +14,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import {
   addPanoramasFromResponse,
+  clearPanorama,
   selectPanorama,
+  setPanoramas,
 } from "../../redux/slices/PanoramaSlice";
 import {
   addHotspotPosition,
   addHotspotsFromResponse,
   addNavigationHotspot,
   BaseHotspot,
+  clearHotspot,
   HotspotNavigation,
 } from "../../redux/slices/HotspotSlice";
 import UpdateHotspot from "./taskCreateTourList/UpdateHotspot";
@@ -102,6 +105,9 @@ const SpaceDetail = () => {
       })
       .then((res) => {
         const nodes = res.data.data;
+
+        dispatch(clearPanorama());
+        dispatch(clearHotspot());
         const { panoramaList, hotspotList } =
           TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
 
@@ -913,30 +919,29 @@ const SpaceDetail = () => {
                   onAngleChange={setCameraAngle}
                 />
 
-                {isTextureReady &&
-                  hotspotNavigations
-                    .filter((hotspot) => hotspot.nodeId === currentSelectId)
-                    .map((hotspot) => (
-                      <GroundHotspot
-                        key={hotspot.id}
-                        onNavigate={(targetNodeId, cameraTargetPosition) => {
-                          if (isInteger(hotspot.id)) {
-                            return;
-                          }
-                          // const isNumericString = /^\d+$/.test(hotspot.id);
-                          // if (isNumericString) {
-                          //   return;
-                          // }
-                          handleHotspotNavigate(
-                            targetNodeId,
-                            cameraTargetPosition
-                          );
-                        }}
-                        setCurrentHotspotId={setCurrentHotspotId}
-                        hotspotNavigation={hotspot}
-                        blockUpdate={isInteger(hotspot.id)} //Nếu id dạng số => là của tour => không thể cập nhật.
-                      />
-                    ))}
+                {hotspotNavigations
+                  .filter((hotspot) => hotspot.nodeId === currentSelectId)
+                  .map((hotspot) => (
+                    <GroundHotspot
+                      key={hotspot.id}
+                      onNavigate={(targetNodeId, cameraTargetPosition) => {
+                        if (isInteger(hotspot.id)) {
+                          return;
+                        }
+                        // const isNumericString = /^\d+$/.test(hotspot.id);
+                        // if (isNumericString) {
+                        //   return;
+                        // }
+                        handleHotspotNavigate(
+                          targetNodeId,
+                          cameraTargetPosition
+                        );
+                      }}
+                      setCurrentHotspotId={setCurrentHotspotId}
+                      hotspotNavigation={hotspot}
+                      blockUpdate={isInteger(hotspot.id)} //Nếu id dạng số => là của tour => không thể cập nhật.
+                    />
+                  ))}
 
                 {isTextureReady &&
                   hotspotInfos
