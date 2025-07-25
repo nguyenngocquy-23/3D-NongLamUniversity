@@ -84,7 +84,12 @@ public class NodeService {
     }
 
     public List<NodeExpandResponse> getNodeListByMasterId(int nodeId) {
-        return nodeDao.getListNodeByMasterId(nodeId);
+        try {
+            return nodeDao.getListNodeByMasterId(nodeId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

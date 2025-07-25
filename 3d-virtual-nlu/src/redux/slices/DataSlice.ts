@@ -114,7 +114,9 @@ export const fetchNodeOfUser = createAsyncThunk(
 export const fetchAutoNode = createAsyncThunk(
   "data/fetchAutoNode",
   async ({ limit, page }: { limit: number; page: number }) => {
-    const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
+    const userJson = sessionStorage.getItem("user");
+    const user = userJson ? JSON.parse(userJson) : null;
+    const response = await axios.post(user.roleId == 1 ? API_URLS.GET_AUTO_TOURS : API_URLS.ADMIN_GET_AUTO_TOURS, {
       page: page,
       limit: limit,
     });

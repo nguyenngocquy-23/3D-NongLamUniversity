@@ -113,6 +113,7 @@ const ManagerTourDetail: React.FC = () => {
   const [originalMasterNode, setOriginalMasterNode] =
     useState<PanoramaItemForApprove | null>(null);
   const [messageRefuse, setMessageRefuse] = useState<string>("");
+  const [isValidated, setIsValidated] = useState(true);
 
   useEffect(() => {
     if (!nodeId) return;
@@ -1002,6 +1003,8 @@ const ManagerTourDetail: React.FC = () => {
                         onTaskClick={handleOpenTask}
                         setPreOpenTask={setPreTaskIndex}
                         saveLinkNode={false}
+                        isValidated={isValidated}
+                        setIsValidated={setIsValidated}
                       />
                     </motion.div>
                   )}

@@ -156,6 +156,7 @@ const TourDetail = () => {
   >([]);
   const [cameraAngle, setCameraAngle] = useState(0);
   const [isTextureReady, setIsTextureReady] = useState(false);
+  const [isValidated, setIsValidated] = useState(true);
 
   const {
     positionX = 0,
@@ -174,39 +175,6 @@ const TourDetail = () => {
     imageRef.current[currentNodeView?.url ?? ""]?.objectUrl ??
     currentNodeView?.url ??
     "/khoa.jpg";
-
-  // Version of Quy 1.1.
-
-  // useEffect(() => {
-  //   if (nodeId) {
-  //     handleFetchNode(nodeId || "");
-  //   }
-  // }, [nodeId]);
-  // const { panoramaList, currentSelectId } = useSelector(
-  //   (state: RootState) => state.panoramas
-  // );
-  // useEffect(() => {
-  //   if (node) {
-  //     dispatch(fetchPreloadNodes(Number.parseInt(node.id)));
-  //   }
-  // }, [node]);
-
-  // const preloadNodes = useSelector(
-  //   (state: RootState) => state.data.preloadNodes
-  // );
-
-  // useEffect(() => {
-  //   if (preloadNodes && node) {
-  //     const nodes = [node, ...preloadNodes];
-  //     dispatch(clearPanorama());
-  //     dispatch(clearHotspot());
-  //     const { panoramaList, hotspotList } =
-  //       TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
-
-  //     dispatch(addPanoramasFromResponse(panoramaList));
-  //     dispatch(addHotspotsFromResponse(hotspotList));
-  //   }
-  // }, [preloadNodes, node, dispatch]);
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
@@ -1047,6 +1015,8 @@ const TourDetail = () => {
                     isUpdateTour={true}
                     handleUpdateTour={handleUpdateTour}
                     saveLinkNode={false}
+                    isValidated={isValidated}
+                    setIsValidated={setIsValidated}
                   />
                 </motion.div>
               )}

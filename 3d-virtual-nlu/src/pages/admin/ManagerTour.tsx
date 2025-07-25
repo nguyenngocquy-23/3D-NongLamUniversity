@@ -104,6 +104,7 @@ const ManagerTour = () => {
 
   // Chon space
   const handleSelectNode = (node: any) => {
+    console.log("Chọn không gian thành công", node);
     navigate(`${location.pathname}/${node.id}`, { state: node });
   };
 

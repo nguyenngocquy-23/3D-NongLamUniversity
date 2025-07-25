@@ -108,7 +108,6 @@ const LeftMenuTour = ({
 
     const { scrollTop, scrollHeight, clientHeight } = list;
     if (scrollTop + clientHeight >= scrollHeight) {
-      console.log(page , "page");
       setPage((prev) => prev + 1);
     }
   };
@@ -122,7 +121,7 @@ const LeftMenuTour = ({
   }, [listMasterNode.length]);
 
   const handleSelectNode = (id: number) => {
-    const activeNode = listMasterNode.find((h) => h.id === id);
+    const activeNode = nodeList.find((h) => h.id === id);
     dispatch(setDefaultNode(activeNode));
   };
 

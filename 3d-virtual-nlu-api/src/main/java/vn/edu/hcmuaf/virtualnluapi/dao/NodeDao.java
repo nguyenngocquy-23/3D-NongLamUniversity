@@ -227,6 +227,10 @@ public class NodeDao {
         /**
          * Truy xuất sql cho danh sách targetNodeId dựa vào hotspot navigation..
          */
+        List<NodeExpandResponse> listNodesOfTour = new ArrayList<>();
+
+        NodeExpandResponse mainNode = getFullNodeByNodeId(nodeId);
+        listNodesOfTour.add(mainNode);
         String getTargetNodeIdSQL = """
                 SELECT hn.targetNodeId FROM hotspots h JOIN hotspot_navigations hn ON h.id = hn.hotspotId 
                   WHERE h.nodeId = :nodeId AND h.type = 1
@@ -234,7 +238,6 @@ public class NodeDao {
 
         String getNodeStatusSQL = """
                 SELECT id, status FROM nodes WHERE id IN (<ids>)
-                
                 """;
 
         //Danh sách targetNodeId.
@@ -246,7 +249,7 @@ public class NodeDao {
         );
 
         if (targetNodeIds == null || targetNodeIds.isEmpty()) {
-            return new ArrayList<>();
+            return listNodesOfTour;
         }
 
         List<NodeStatusResponse> nodesWithStatus = ConnectionPool.getConnection().withHandle(
@@ -255,10 +258,6 @@ public class NodeDao {
                                 rs.getByte("status")
                         )).list()
         );
-
-        List<NodeExpandResponse> listNodesOfTour = new ArrayList<>();
-        NodeExpandResponse mainNode = getFullNodeByNodeId(nodeId);
-        listNodesOfTour.add(mainNode);
 
         for(NodeStatusResponse item : nodesWithStatus) {
             if(item.getStatus() == 1) {
