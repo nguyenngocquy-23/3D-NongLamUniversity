@@ -44,6 +44,7 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
   setIsValidated,
 }) => {
   const dispatch = useDispatch();
+
   const handleNextStep = () => {
     if (!isValidated) {
       Swal.fire({
@@ -82,9 +83,7 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
    * + status = 0
    */
 
-  const masterPanorama = panoramaList.find(
-    (h) => h.config.status == 2 || h.config.status == 3
-  );
+  const masterPanorama = panoramaList.find((h) => h.config.status > 1);
   const linkMap = useSelector(getHotspotLinkMap); // Lấy ra được 1 tập hợp Map.
   const panoramaSubItemIds = panoramaList
     .filter((p) => p.config.status === 1)

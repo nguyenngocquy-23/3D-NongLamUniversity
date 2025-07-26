@@ -168,32 +168,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const spaceItem = spaces.find((s) => s.id === Number(spaceId));
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
-  const masterPanorama = panoramaList.find(
-    (h) => h.config.status == 2 || h.config.status == 3
-  );
-  const linkMap = useSelector(getHotspotLinkMap); // Lấy ra được 1 tập hợp Map.
-  const panoramaSubItemIds = panaramaListInTour
-    .filter((p) => p.config.status === 1)
-    .map((p) => p.id);
-
-  /**
-   * Hàm dùng cho việc kiểm tra đã đủ liên kết chưa.
-   */
-  const isFullConnected = useMemo(() => {
-    if (!masterPanorama || !linkMap.has(masterPanorama.id)) return false;
-
-    // Master phải trỏ đến tất cả slave
-    const fromMaster = linkMap.get(masterPanorama.id) ?? new Set();
-    const toAllSlaves = panoramaSubItemIds.every((pId) => fromMaster.has(pId));
-
-    // Mỗi slave phải có hotspot trỏ ngược về master
-    const allSlavesPointBack = panoramaSubItemIds.every((pId) => {
-      const links = linkMap.get(pId);
-      return links?.has(masterPanorama.id);
-    });
-
-    return toAllSlaves && allSlavesPointBack;
-  }, [linkMap, masterPanorama, panoramaSubItemIds]);
+  const masterPanorama = panoramaList.find((h) => h.config.status > 1);
 
   /**
    * Là danh sách các hostpot navigation từ Master Node.
