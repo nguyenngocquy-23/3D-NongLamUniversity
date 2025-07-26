@@ -460,7 +460,6 @@ public class HotspotDao {
         //id là id của node
         String sqlSetHotspotNavsStatus = "UPDATE hotspots  h JOIN hotspot_navigations hn ON h.id = hn.hotspotId SET h.status = :status, h.updatedAt = :updatedAt WHERE hn.targetNodeId = :id";
 
-
         int rowsUpdated = handle.createUpdate(sqlSetHotspotNavsStatus)
                 .bind("status", request.getStatus())
                 .bind("updatedAt", LocalDateTime.now())

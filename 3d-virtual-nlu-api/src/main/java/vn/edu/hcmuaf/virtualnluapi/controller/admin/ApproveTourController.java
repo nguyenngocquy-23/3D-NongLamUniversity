@@ -25,6 +25,6 @@ public class ApproveTourController {
     @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> approveTour(ApproveTourRequest request) {
         boolean result = approveTourService.approveTour(request);
-        return ApiResponse.<Boolean>builder().statusCode(1000).message("duyet tour thanh cong").data(result).build();
+        return ApiResponse.<Boolean>builder().statusCode(1000).message("duyệt tour thanh cong").data(result).build();
     }
 }

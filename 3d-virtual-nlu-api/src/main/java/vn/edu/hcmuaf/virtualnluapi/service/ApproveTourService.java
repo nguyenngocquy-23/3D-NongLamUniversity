@@ -25,15 +25,32 @@ public class ApproveTourService {
     @Inject
     NodeDao nodeDao;
 
+    @Inject
+    MailService mailService;
+
     public boolean approveTour(ApproveTourRequest request) {
         return ConnectionPool.getConnection().inTransaction(handle -> {
             try {
-                boolean changeStatus = nodeDao.changeStatus(handle, StatusRequest.builder()
-                        .id(request.getNodeId())
-                        .status((byte) 4)
-                        .build());
+                boolean changeStatus = false;
+                if(request.getFeedbackList().equals("")){
+                    changeStatus = nodeDao.changeStatus(handle, StatusRequest.builder()
+                            .id(request.getNodeId())
+                            .status((byte) 2)
+                            .build());
+                }else{
+                    changeStatus = nodeDao.changeStatus(handle, StatusRequest.builder()
+                            .id(request.getNodeId())
+                            .status((byte) 4)
+                            .build());
+                }
                 if(changeStatus){
-                    return approveTourDao.approveTour(handle, request);
+                    if(request.getFeedbackList().equals("")){
+                        mailService.sendMailApproveTourSuccess(request);
+                        return true;
+                    }else{
+                        mailService.sendMailApproveTourFail(request);
+                        return approveTourDao.approveTour(handle, request);
+                    }
                 }else{
                     return false;
                 }

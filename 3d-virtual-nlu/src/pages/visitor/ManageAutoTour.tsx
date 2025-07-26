@@ -78,6 +78,7 @@ const ManageAutoTour = () => {
     }[];
     console.log("indexNode", indexNode);
     for (const item of indexNode) {
+      if(item.nodeId == null) continue;
       const node = await axios.post(API_URLS.NODE_BY_ID, {
         nodeId: item.nodeId,
       });

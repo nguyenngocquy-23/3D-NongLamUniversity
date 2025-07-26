@@ -375,12 +375,28 @@ const VirtualTour = () => {
   }, []);
 
   useEffect(() => {
-    if (mapRef.current) {
-      setTimeout(() => {
-        mapRef.current!.invalidateSize();
-      }, 300); // chờ animation transition xong
-    }
-  }, [fullMap, hoverMap]);
+    const timeout = setTimeout(() => {
+      mapRef.current?.invalidateSize();
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [fullMap]);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper || !mapRef.current) return;
+
+    const handleTransitionEnd = () => {
+      mapRef.current?.invalidateSize();
+    };
+
+    wrapper.addEventListener("transitionend", handleTransitionEnd);
+
+    return () => {
+      wrapper.removeEventListener("transitionend", handleTransitionEnd);
+    };
+  }, []);
 
   const preloadNodes = useSelector(
     (state: RootState) => state.data.preloadNodes
@@ -696,9 +712,7 @@ const VirtualTour = () => {
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
       {!isMobile ? (
-        <button
-          className={styles.thumbnail_menu_button}
-        >
+        <button className={styles.thumbnail_menu_button}>
           <FaAngleDoubleLeft />
         </button>
       ) : (
@@ -819,6 +833,7 @@ const VirtualTour = () => {
         ""
       ) : (
         <div
+          ref={wrapperRef}
           className={`${fullMap ? styles.full_map : styles.map_box}`}
           onMouseEnter={() => setHoverMap(true)}
           onMouseLeave={() => {

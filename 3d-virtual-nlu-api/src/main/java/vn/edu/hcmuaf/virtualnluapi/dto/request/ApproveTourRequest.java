@@ -13,5 +13,5 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class ApproveTourRequest {
     int nodeId;
-    String feedbackList, moreFeedback;
+    String email, feedbackList, moreFeedback;
 }

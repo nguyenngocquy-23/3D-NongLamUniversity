@@ -40,7 +40,7 @@ const FieldCard: React.FC<FieldCardProps> = ({ field }) => {
             <div
               className={styles.status}
               style={{
-                backgroundColor: "#0e9013",
+                backgroundColor: "#267026",
               }}
             >
               <span>Hoạt động</span>

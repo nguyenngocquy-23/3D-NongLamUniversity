@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import {
   MapContainer,
@@ -268,7 +268,9 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
                 spaceId == space.id ? styles.pulse : ""
               }"
               style="background: url(${space.url});
-                    ${spaceId == space.id ? "border: 3px solid #3cbe22ff;" : ""}">
+                    ${
+                      spaceId == space.id ? "border: 3px solid #3cbe22ff;" : ""
+                    }">
               </div>`,
               iconSize: [40, 40],
               iconAnchor: [20, 20],

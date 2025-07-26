@@ -103,6 +103,7 @@
   background-color: #fff;
   border-radius: 50%;
   transform: translate(50%, 50%);
+  cursor: pointer;
 }
 
 .space_choose_master_sl {

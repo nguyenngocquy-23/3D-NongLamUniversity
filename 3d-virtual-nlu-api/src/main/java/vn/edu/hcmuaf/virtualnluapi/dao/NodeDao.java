@@ -112,7 +112,7 @@ public class NodeDao {
     }
 
     public int countApprovingNodes() {
-        String sql = "SELECT COUNT(*) FROM nodes WHERE status = 3 or status = 4";
+        String sql = "SELECT COUNT(*) FROM nodes WHERE status = 3";
         return ConnectionPool.getConnection().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)

@@ -891,8 +891,8 @@ const TourDetail = () => {
 
         {/* Version of Quy */}
         {/* {node.status == 3 ? ( */}
-        {currentNodeView.config.status == 3 ||
-        currentNodeView.config.status == 4 ? (
+        {(currentNodeView.config.status == 3 ||
+        currentNodeView.config.status == 4) ? (
           ""
         ) : isFullPreview || isUpdateTour ? (
           <span className={styles.toggle_open_feature}>
@@ -999,6 +999,7 @@ const TourDetail = () => {
             ""
           )}
         </div>
+
         {isUpdateTour && (
           <>
             <div className={styles.toggle_right_menu}>
@@ -1007,18 +1008,21 @@ const TourDetail = () => {
                 onClick={() => handleOpenMenu()}
               />
             </div>
-            {/* {currentNodeView.config.status == 4 && ( */}
-            <div className={styles.feedback_container}>
-              <h3>Phản hồi </h3> {feedback && <p className={styles.approve_time}>{feedback.createdAt}</p>}
-              {feedback &&
-                feedback.feedbackList.map((f: any, index: any) => (
-                  <div key={index} className={styles.feedback_item}>
-                    <p>{f}</p>
-                  </div>
-                ))}
-              {feedback && <p>Thêm: {feedback.moreFeedback}</p>}
-            </div>
-            {/* )}F */}
+            {currentNodeView.config.status == 4 && (
+              <div className={styles.feedback_container}>
+                <h3>Phản hồi </h3>{" "}
+                {feedback && (
+                  <p className={styles.approve_time}>{feedback.createdAt}</p>
+                )}
+                {feedback &&
+                  feedback.feedbackList.map((f: any, index: any) => (
+                    <div key={index} className={styles.feedback_item}>
+                      <p>{f}</p>
+                    </div>
+                  ))}
+                {feedback && <p>Thêm: {feedback.moreFeedback}</p>}
+              </div>
+            )}
             <AnimatePresence>
               {isMenuVisible && (
                 <motion.div

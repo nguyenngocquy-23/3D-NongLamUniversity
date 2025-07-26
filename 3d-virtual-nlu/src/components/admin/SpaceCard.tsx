@@ -170,7 +170,7 @@ const SpaceCard: React.FC<SpaceCardProps> = ({ space, setSelectedSpace }) => {
               <div
                 className={styles.status}
                 style={{
-                  backgroundColor: "#0e9013",
+                  backgroundColor: "#267026",
                 }}
               >
                 <span>Hoạt động</span>

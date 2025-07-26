@@ -7,6 +7,7 @@ import { AppDispatch } from "../../redux/Store";
 import { fetchContacts } from "../../redux/slices/DataSlice";
 import Swal from "sweetalert2";
 import { API_URLS } from "../../env";
+import { FaQuestionCircle } from "react-icons/fa";
 
 const FeedbackBox = ({
   contactId,
@@ -85,15 +86,20 @@ const FeedbackBox = ({
           {/* Nội dung liên hệ hiện tại */}
           <div className={styles.contact_content}>
             <label htmlFor="replyTextarea" className={styles.reply_label}>
-              Nội dung liên hệ: 
-            </label> <br />
-             {currentContent}
+              Nội dung liên hệ:
+            </label>{" "}
+            <br />
+            {currentContent}
           </div>
           <hr />
           {/* Phản hồi */}
           <div className={styles.reply_section}>
             <label htmlFor="replyTextarea" className={styles.reply_label}>
-              Phản hồi:
+              Phản hồi:{" "}
+              <FaQuestionCircle
+                className={styles.guide_icon}
+                title="Nội dung phải trên 10 ký tự."
+              />
             </label>
             <textarea
               id="replyTextarea"
@@ -107,7 +113,7 @@ const FeedbackBox = ({
             <button
               className={styles.reply_button}
               onClick={() => handleFeedback(contactId, email)}
-              disabled={feedback.length < 10}
+              disabled={feedback.trim().length < 10}
             >
               Gửi phản hồi
             </button>

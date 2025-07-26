@@ -78,10 +78,21 @@ const TypeModel = ({
           />
         </div>
         {modelUrl && (
-          <ModelPreviewWithSnapshot
-            modelUrl={modelUrl}
-            onThumbnailSaved={handleThumbnailSaved}
-          />
+          <>
+            <ModelPreviewWithSnapshot
+              modelUrl={modelUrl}
+              onThumbnailSaved={handleThumbnailSaved}
+            />
+            <i style={{ margin: "0 auto", fontSize: "12px" }}>
+              Dùng{" "}
+              <img
+                style={{ width: "40px", verticalAlign: "middle" }}
+                src={`${import.meta.env.BASE_URL}key_move.png`}
+                alt="Arrow keys"
+              />
+              để di chuyển mô hình
+            </i>
+          </>
         )}
         <div className={styles.row_config} style={{ display: "flex" }}>
           <label className={styles.label}>Tên mô hình:</label>

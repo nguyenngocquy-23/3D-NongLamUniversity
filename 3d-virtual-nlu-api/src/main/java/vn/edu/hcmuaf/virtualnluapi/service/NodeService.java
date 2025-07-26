@@ -119,7 +119,7 @@ public class NodeService {
             if (request.getStatus() == 0) {
                 hotspotResult = hotspotDao.changeStatusForHotspotNav(handle, request);
             }
-            if (!nodeResult || !hotspotResult) {
+            if (!nodeResult) {
                 throw new RuntimeException("Failed to update both node and hotspot. Rollback.");
             }
             return true;

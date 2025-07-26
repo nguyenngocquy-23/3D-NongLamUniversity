@@ -203,6 +203,8 @@ const ManagerTourDetail: React.FC = () => {
 
   const hotspots = useSelector((state: RootState) => state.hotspots);
 
+  const auth = useSelector((state: RootState) => state.auth.user);
+
   const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
   const hotspotInformations = useSelector(getFilteredHotspotInformationInList);
   const hotspotModels = useSelector(getFilteredHotspotModelInList);
@@ -453,14 +455,15 @@ const ManagerTourDetail: React.FC = () => {
     try {
       const response = await axios.post(`${API_URLS.ADMIN_APPROVE_TOUR}`, {
         nodeId: Number(nodeId),
-        feedbackList: JSON.stringify(selectedFeedbackList),
-        moreFeedback: messageRefuse,
+        email: originalMasterNode?.email,
+        feedbackList: approveStatus == 2 ? "" : JSON.stringify(selectedFeedbackList),
+        moreFeedback: approveStatus == 2 ? "" : messageRefuse,
       });
 
       if (response.data.data) {
         Swal.fire({
           title: "Phê duyệt thành công",
-          text: `${response.data?.message}`,
+          text: "Phê duyệt thành công",
           icon: "success",
           toast: true,
           timer: 2000,
@@ -470,7 +473,7 @@ const ManagerTourDetail: React.FC = () => {
       } else {
         Swal.fire({
           title: "Thất bại",
-          text: `${response.data?.message || ""}`,
+          text: "Phê duyệt thất bại.",
           icon: "error",
           toast: true,
           timer: 2000,
@@ -858,6 +861,8 @@ const ManagerTourDetail: React.FC = () => {
                         Huỷ
                       </button>
                     </>
+                  ) : auth.roleId != originalMasterNode?.userId ? (
+                    ""
                   ) : (
                     <button
                       className={stylesOverview.edit_information_btn}
@@ -883,7 +888,7 @@ const ManagerTourDetail: React.FC = () => {
               }}
               className={styles.tourCanvas}
             >
-              <Perf />
+              {/* <Perf /> */}
               <UpdateCameraOnResize />
               <Environment preset="studio" background={false} />
               <axesHelper args={[10]} position={[0, -90, 0]} />

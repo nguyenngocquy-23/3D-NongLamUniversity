@@ -142,7 +142,7 @@ const ManagerAutoTour = () => {
   return (
     <div className={styles.container}>
       <div className={styles.tour_features}>
-        <button className={styles.back_btn} onClick={() => navigate(-1)}>
+        <button className={styles.back_btn} onClick={() => navigate("/admin/tours")}>
           <FaAngleLeft />
         </button>
         <div className={`${styles.tour_search_box} ${styles.tour_box}`}>

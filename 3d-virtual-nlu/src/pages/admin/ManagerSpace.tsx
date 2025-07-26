@@ -569,29 +569,6 @@ const Space = () => {
                 </span>
               </div>
 
-              <div className={`${styles.space_information_item} `}>
-                <span>Ngày khởi tạo: </span>
-                <span className={styles.space_space_list}>
-                  {selectedSpace.createdAt === null
-                    ? "Chưa có"
-                    : format(
-                        new Date(selectedSpace.createdAt),
-                        "dd/MM/yyyy HH:mm"
-                      )}
-                </span>
-              </div>
-
-              <div className={`${styles.space_information_item} `}>
-                <span>Cập nhật gần nhất: </span>
-                <span className={styles.space_node_list}>
-                  {selectedSpace.updatedAt === null
-                    ? "Chưa có"
-                    : format(
-                        new Date(selectedSpace.updatedAt),
-                        "dd/MM/yyyy HH:mm"
-                      )}
-                </span>
-              </div>
               {selectedSpace.id !== 0 && selectedSpace.status === 1 && (
                 <div className={styles.space_select_master}>
                   <span>Chọn làm không gian chính: </span>

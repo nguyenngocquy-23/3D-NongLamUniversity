@@ -161,7 +161,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
   const masterPanorama = panoramaList.find(
-    (h) => h.config.status == 2 || h.config.status == 3
+    (h) => h.config.status > 1
   );
 
   /**
