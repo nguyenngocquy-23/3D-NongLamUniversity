@@ -262,7 +262,9 @@ const VirtualTour = () => {
 
   // Hàm để đọc văn bản
   const readText = () => {
-    const textInfo = document.querySelector(`.${styles.info_box}`)?.textContent;
+    const textInfo =
+      nodeToRender.description ??
+      "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh";
 
     if (!textInfo) {
       return;
@@ -696,9 +698,7 @@ const VirtualTour = () => {
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
       {!isMobile ? (
-        <button
-          className={styles.thumbnail_menu_button}
-        >
+        <button className={styles.thumbnail_menu_button}>
           <FaAngleDoubleLeft />
         </button>
       ) : (

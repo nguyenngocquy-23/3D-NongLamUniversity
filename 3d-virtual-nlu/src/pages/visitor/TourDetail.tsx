@@ -45,9 +45,6 @@ import UpdateHotspot from "../../components/admin/taskCreateTourList/UpdateHotsp
 import { useSequentialTasks } from "../../hooks/useSequentialTasks";
 import { tasks } from "../admin/CreateTourStep2";
 import { IoMdMenu } from "react-icons/io";
-import TaskUpdate1 from "../../components/admin/taskCreateTourList/Task1UpdateInfo";
-import TaskUpdate2 from "../../components/admin/taskCreateTourList/Task2UpdateConfig";
-import TaskUpdate3 from "../../components/admin/taskCreateTourList/Task3UpdateHotspot";
 import {
   isInteger,
   NodeExpandResponse,
@@ -722,9 +719,6 @@ const TourDetail = () => {
   };
 
   // Version of quy
-  // if (!node || !comments) {
-  //   return null;
-  // }
 
   // Version of Kien
   if (!currentTour || !comments) {

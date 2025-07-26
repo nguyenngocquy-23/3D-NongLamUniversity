@@ -56,39 +56,49 @@ const BoardUploader = () => {
 
   return (
     <div className={styles.upPanosSection}>
+      <div className={styles.header_form}>
+        <h2 className={styles.header_label}>Phân loại tour</h2>
+        <hr className={styles.divider} />
+        <div className={styles.classify_container}>
+          <div className={styles.item}>
+            <label className={styles.label}>Lĩnh vực:</label>
+            <select
+              className={styles.custom_select}
+              name="field"
+              id="field"
+              onChange={handleSelectField}
+            >
+              <option value="">-- Chọn lĩnh vực --</option>
+              {fields.map((field) => (
+                <option key={field.id} value={field.id}>
+                  {field.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.item}>
+            <label className={styles.label}>Không gian:</label>
+            <select
+              className={styles.custom_select}
+              name="space"
+              id="space"
+              onChange={handleSelectSpace}
+            >
+              <option value="0">-- Chọn không gian --</option>
+              {listSpace.map((space) => (
+                <option key={space.id} value={space.id}>
+                  {space.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
       <div className={styles.leftForm}>
-        <div className={styles.item}>
-          <label className={styles.label}>Lĩnh vực:</label>
-          <select
-            className={styles.custom_select}
-            name="field"
-            id="field"
-            onChange={handleSelectField}
-          >
-            <option value="">-- Chọn lĩnh vực --</option>
-            {fields.map((field) => (
-              <option key={field.id} value={field.id}>
-                {field.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className={styles.item}>
-          <label className={styles.label}>Không gian:</label>
-          <select
-            className={styles.custom_select}
-            name="space"
-            id="space"
-            onChange={handleSelectSpace}
-          >
-            <option value="0">-- Chọn không gian --</option>
-            {listSpace.map((space) => (
-              <option key={space.id} value={space.id}>
-                {space.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <h2 className={styles.header_label}>Tải ảnh lên</h2>
+        <hr className={styles.divider} />
         <div className={styles.panosCard}>
           <UploadFile className={"upload_panos"} />
         </div>
