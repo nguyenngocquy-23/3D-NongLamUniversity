@@ -333,7 +333,7 @@ const VirtualTour = () => {
     const mouseY = event.clientY;
 
     const thresholdX = window.innerWidth * 0.05;
-    const thresholdY = window.innerHeight * 0.5;
+    const thresholdY = window.innerHeight * 0.4;
     if (mouseX < thresholdX && mouseY < thresholdY && !hoverMap) {
       setIsMenuVisible(true);
     }
@@ -367,34 +367,77 @@ const VirtualTour = () => {
       speechSynthesis.speak(newUtterance);
     }
   }, [isMuted]);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const invalidateTimers: ReturnType<typeof setTimeout>[] = [];
 
-  useEffect(() => {
-    setTimeout(() => {
-      window.dispatchEvent(new Event("resize"));
-    }, 50);
-  }, []);
+  const clearTimers = () => {
+    invalidateTimers.forEach(clearTimeout);
+    invalidateTimers.length = 0;
+  };
 
+  const forceFixMap = () => {
+    const map = mapRef.current;
+    const wrapper = wrapperRef.current;
+    if (!map || !wrapper) return;
+
+    const isVisible =
+      wrapper.offsetParent !== null &&
+      wrapper.offsetWidth > 0 &&
+      wrapper.offsetHeight > 0;
+
+    if (!isVisible) return;
+
+    clearTimers();
+
+    [100, 300, 600].forEach((ms) => {
+      const t = setTimeout(() => {
+        map.invalidateSize();
+        map.setView(map.getCenter());
+      }, ms);
+      invalidateTimers.push(t);
+    });
+  };
+
+  // Khi fullMap thay đổi (zoom map to)
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      mapRef.current?.invalidateSize();
-    }, 500);
-    return () => clearTimeout(timeout);
+    forceFixMap();
   }, [fullMap]);
 
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  // Khi map ẩn/hiện lại
+  useEffect(() => {
+    if (!hideMap) {
+      forceFixMap();
+    }
+  }, [hideMap]);
 
+  // Khi CSS transition (width/height) hoàn tất
   useEffect(() => {
     const wrapper = wrapperRef.current;
-    if (!wrapper || !mapRef.current) return;
+    if (!wrapper) return;
 
-    const handleTransitionEnd = () => {
-      mapRef.current?.invalidateSize();
+    const onTransitionEnd = () => {
+      forceFixMap();
     };
 
-    wrapper.addEventListener("transitionend", handleTransitionEnd);
+    wrapper.addEventListener("transitionend", onTransitionEnd);
+    return () => {
+      wrapper.removeEventListener("transitionend", onTransitionEnd);
+    };
+  }, []);
+
+  // ResizeObserver để bắt mọi thay đổi chiều rộng/thời điểm DOM ổn định
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      forceFixMap();
+    });
+
+    resizeObserver.observe(wrapper);
 
     return () => {
-      wrapper.removeEventListener("transitionend", handleTransitionEnd);
+      resizeObserver.disconnect();
     };
   }, []);
 
@@ -857,6 +900,7 @@ const VirtualTour = () => {
                 spaceId={nodeToRender.spaceId}
                 mapRef={mapRef}
                 spaces={spaces}
+                hoverMap={hoverMap}
               />
               {fullMap ? (
                 <button
