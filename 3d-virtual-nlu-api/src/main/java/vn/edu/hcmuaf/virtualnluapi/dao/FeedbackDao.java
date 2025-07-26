@@ -31,6 +31,8 @@ public class FeedbackDao {
                 SELECT feedbackList, moreFeedback, createdAt
                 FROM approve_tours
                 WHERE nodeId = :nodeId
+                ORDER BY createdAt DESC
+                LIMIT 1
                 """;
         return ConnectionPool.getConnection().withHandle(handle -> {
             return handle.createQuery(sql)

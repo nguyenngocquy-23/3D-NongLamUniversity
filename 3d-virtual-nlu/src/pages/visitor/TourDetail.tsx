@@ -10,7 +10,13 @@ import {
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { FaAngleRight, FaAngleUp, FaComment, FaEye } from "react-icons/fa6";
+import {
+  FaAngleRight,
+  FaAngleUp,
+  FaComment,
+  FaEye,
+  FaX,
+} from "react-icons/fa6";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -78,6 +84,8 @@ import { FaAngleDoubleUp } from "react-icons/fa";
 import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import { diffNode } from "../../utils/DiffNodeForUpdate";
 import _Draggable from "gsap/Draggable";
+import { IoWarning } from "react-icons/io5";
+import { CiWarning } from "react-icons/ci";
 
 /**
  * Data đại diện của MasterNodeId có thêm:
@@ -158,6 +166,7 @@ const TourDetail = () => {
   const [cameraAngle, setCameraAngle] = useState(0);
   const [isTextureReady, setIsTextureReady] = useState(false);
   const [isValidated, setIsValidated] = useState(true);
+  const [isOpenFeedback, setIsOpenFeedback] = useState(true);
 
   const {
     positionX = 0,
@@ -726,6 +735,8 @@ const TourDetail = () => {
         }
       };
       fetchFeedback();
+    }else{
+      setIsUpdateTour(false);
     }
   }, [currentNodeView]);
 
@@ -891,8 +902,8 @@ const TourDetail = () => {
 
         {/* Version of Quy */}
         {/* {node.status == 3 ? ( */}
-        {(currentNodeView.config.status == 3 ||
-        currentNodeView.config.status == 4) ? (
+        {currentNodeView.config.status == 3 ||
+        currentNodeView.config.status == 4 ? (
           ""
         ) : isFullPreview || isUpdateTour ? (
           <span className={styles.toggle_open_feature}>
@@ -1008,16 +1019,45 @@ const TourDetail = () => {
                 onClick={() => handleOpenMenu()}
               />
             </div>
-            {currentNodeView.config.status == 4 && (
+            {currentNodeView.config.status == 4 && !isOpenFeedback && (
+              <button
+                className={styles.view_feedback_button}
+                onClick={() => setIsOpenFeedback((prev) => !prev)}
+                title="Xem phản hồi"
+              >
+                <IoWarning/>
+              </button>
+            )}
+            {currentNodeView.config.status == 4 && isOpenFeedback && (
               <div className={styles.feedback_container}>
-                <h3>Phản hồi </h3>{" "}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <h3>Phản hồi </h3>
+                  <FaX
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setIsOpenFeedback(false)}
+                  />
+                </div>
                 {feedback && (
                   <p className={styles.approve_time}>{feedback.createdAt}</p>
                 )}
                 {feedback &&
                   feedback.feedbackList.map((f: any, index: any) => (
                     <div key={index} className={styles.feedback_item}>
-                      <p>{f}</p>
+                      <p
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          color: "red",
+                        }}
+                      >
+                        ⚠ {f}
+                      </p>
                     </div>
                   ))}
                 {feedback && <p>Thêm: {feedback.moreFeedback}</p>}
