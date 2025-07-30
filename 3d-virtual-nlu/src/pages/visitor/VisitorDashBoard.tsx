@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "../../styles/visitor/dashboard.module.css";
 import {
-  FaChartColumn,
   FaEye,
   FaEyeSlash,
   FaHourglassHalf,
@@ -15,12 +14,10 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { RiEdit2Line } from "react-icons/ri";
 import { API_URLS } from "../../env";
 import {
-  fetchCommentOfNode,
   fetchNodeOfUser,
   fetchPrivateNodeOfUser,
 } from "../../redux/slices/DataSlice";
 import { FaMapMarkedAlt, FaShareAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 
 interface CloudinaryUploadResp {
   originalFileName?: string;
@@ -286,13 +283,11 @@ const VisitorDashBoard = () => {
       return;
     }
 
-    const response = await axios.post(API_URLS.CHANGE_PASSWORD,
-      {
-        userId: user.id,
-        password: password,
-        newPassword: newPassword,
-      }
-    );
+    const response = await axios.post(API_URLS.CHANGE_PASSWORD, {
+      userId: user.id,
+      password: password,
+      newPassword: newPassword,
+    });
     if (response.data.data) {
       Swal.fire({
         icon: "success",

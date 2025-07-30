@@ -457,7 +457,9 @@ const Space = () => {
 
               {selectedSpace.id !== 0 && (
                 <div className={styles.space_feautures_inner}>
-                  <div className={`${styles.space_information_item} `}>
+                  <div
+                    className={`${styles.space_information_item} ${styles.show_on_large}`}
+                  >
                     <Link
                       to={`./${selectedSpace.id}`}
                       className={styles.space_feature_detail}
@@ -467,7 +469,9 @@ const Space = () => {
                       <TfiNewWindow />
                     </Link>
                   </div>
-                  <div className={`${styles.space_information_item} `}>
+                  <div
+                    className={`${styles.space_information_item} ${styles.show_on_large}`}
+                  >
                     <span>Trạng thái: </span>
                     <StatusToggle
                       id={selectedSpace.id}

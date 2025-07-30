@@ -8,7 +8,8 @@ import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
 import { RootState } from "../../redux/Store";
 import axios from "axios";
 import { API_URLS } from "../../env";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { getHotspotLinkMap } from "../../redux/slices/Selectors";
 /**
  * - Nhận thấy rằng step 2 & step 3 chia sẻ cùng UI.
  */
@@ -43,6 +44,7 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
   setIsValidated,
 }) => {
   const dispatch = useDispatch();
+
   const handleNextStep = () => {
     if (!isValidated) {
       Swal.fire({
@@ -56,11 +58,52 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
       });
       return;
     }
+    if (!isFullConnected) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng kiểm tra lại các điểm tương tác đến các ảnh trong cùng tour!",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: true,
+        timer: 3000,
+      });
+      return;
+    }
+
     dispatch(nextStep());
   };
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
+
+  const filterPanoramaList = panoramaList.filter((p) => p.config.status !== 0);
+  /** Filter ra các panos khác tour (Khi update)
+   * + status = 2 # với node hiện tại.
+   * + status = 0
+   */
+
+  const masterPanorama = panoramaList.find((h) => h.config.status > 1);
+  const linkMap = useSelector(getHotspotLinkMap); // Lấy ra được 1 tập hợp Map.
+  const panoramaSubItemIds = panoramaList
+    .filter((p) => p.config.status === 1)
+    .map((p) => p.id);
+
+  const isFullConnected = useMemo(() => {
+    if (!masterPanorama || !linkMap.has(masterPanorama.id)) return false;
+
+    // Master phải trỏ đến tất cả slave
+    const fromMaster = linkMap.get(masterPanorama.id) ?? new Set();
+    const toAllSlaves = panoramaSubItemIds.every((pId) => fromMaster.has(pId));
+
+    // Mỗi slave phải có hotspot trỏ ngược về master
+    const allSlavesPointBack = panoramaSubItemIds.every((pId) => {
+      const links = linkMap.get(pId);
+      return links?.has(masterPanorama.id);
+    });
+
+    return toAllSlaves && allSlavesPointBack;
+  }, [linkMap, masterPanorama, panoramaSubItemIds]);
 
   useEffect(() => {
     if (panoramaList.length === 0) return;
