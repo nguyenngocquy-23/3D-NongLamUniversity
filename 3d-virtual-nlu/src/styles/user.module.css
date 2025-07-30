@@ -115,7 +115,7 @@
 }
 
 .completed {
-    background-color: #16eb48;
+    background-color: #267026;
     color: white;
 }
 
@@ -177,14 +177,14 @@
 
 /* Thumb – phần trượt */
 .icon_list::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00fff0 0%, #00d2ff 50%, #007cf0 100%);
+    background: linear-gradient(180deg, #a8ff78 0%, #78ff6e 50%, #28a745 100%);
     border-radius: 15px;
 }
 
 /* Hover – đổi màu nhẹ */
 .icon_list::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #00d2ff, #3a47d5);
-    box-shadow: inset 0 0 1px #3a47d5;
+    background: linear-gradient(180deg, #78ff6e, #1e7e34);
+    box-shadow: inset 0 0 1px #1e7e34;
 }
 
 .icon_item.selected:hover {
@@ -229,7 +229,7 @@
 }
 
 .status_active {
-    background-color: #16eb48;
+    background-color: #4bd430;
 }
 
 .icon_info {
@@ -414,8 +414,6 @@
 .icon_node_list {
     font-weight: bold;
 }
-
-.icon_navigation_list_icon:hover {}
 
 .icon_navigation_add_icon {
     font-size: 0.8rem;

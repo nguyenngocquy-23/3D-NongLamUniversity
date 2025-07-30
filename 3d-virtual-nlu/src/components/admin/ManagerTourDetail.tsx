@@ -118,6 +118,7 @@ const ManagerTourDetail: React.FC = () => {
   const [originalMasterNode, setOriginalMasterNode] =
     useState<PanoramaItemForApprove | null>(null);
   const [messageRefuse, setMessageRefuse] = useState<string>("");
+  const [isValidated, setIsValidated] = useState(true);
 
   useEffect(() => {
     if (!nodeId) return;
@@ -207,6 +208,8 @@ const ManagerTourDetail: React.FC = () => {
 
   const hotspots = useSelector((state: RootState) => state.hotspots);
 
+  const auth = useSelector((state: RootState) => state.auth.user);
+
   const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
   const hotspotInformations = useSelector(getFilteredHotspotInformationInList);
   const hotspotModels = useSelector(getFilteredHotspotModelInList);
@@ -223,6 +226,43 @@ const ManagerTourDetail: React.FC = () => {
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
     []
   );
+  const [feedbackList, setFeedbackList] = useState<any[]>([]);
+  const [selectedFeedbackList, setSelectedFeedbackList] = useState<string[]>(
+    []
+  );
+
+  const toggleFeedback = (id: string) => {
+    const feedback = feedbackList.find((f) => f.id.toString() == id);
+    if (!feedback) return;
+
+    const content = feedback.content;
+
+    setSelectedFeedbackList(
+      (prev) =>
+        prev.includes(content)
+          ? prev.filter((c) => c != content) // Bỏ nếu đã có
+          : [...prev, content] // Thêm nếu chưa có
+    );
+  };
+
+  useEffect(() => {
+    if (approveStatus === 4) {
+      const handleFetchFeedback = async () => {
+        try {
+          const response = await axios.get(API_URLS.ADMIN_GET_FEEDBACK);
+          if (response.data.data) {
+            setFeedbackList(response.data.data);
+          } else {
+            console.warn("Lỗi khi lấy feedback", response.data.message);
+          }
+        } catch (error) {
+          console.error("Lỗi khi gọi API feedback", error);
+        }
+      };
+      handleFetchFeedback();
+    }
+  }, [approveStatus]);
+
   const [originalListSpace, setOriginalListSpace] = useState<
     { id: number; name: string }[]
   >([]);
@@ -590,71 +630,29 @@ const ManagerTourDetail: React.FC = () => {
    *
    * Xử lý cập nhật phê duyệt.
    */
-  const handleApproveTour = async (status: number, message: string) => {
-    //Gọi api change status
+  const handleApproveTour = async () => {
     try {
-      const response = await axios.patch(
-        `${API_URLS.ADMIN_CHANGE_NODE_STATUS}`
-        // { nodeId, status: toggle.current }
-      );
+      const response = await axios.post(`${API_URLS.ADMIN_APPROVE_TOUR}`, {
+        nodeId: Number(nodeId),
+        email: originalMasterNode?.email,
+        feedbackList: approveStatus == 2 ? "" : JSON.stringify(selectedFeedbackList),
+        moreFeedback: approveStatus == 2 ? "" : messageRefuse,
+      });
 
-      if (response.data.statusCode === 1000) {
+      if (response.data.data) {
         Swal.fire({
-          title: "Thành công",
-          text: `${response.data?.message}`,
+          title: "Phê duyệt thành công",
+          text: "Phê duyệt thành công",
           icon: "success",
           toast: true,
           timer: 2000,
           position: "top-end",
           showConfirmButton: false,
         });
-        const nodes: NodeExpandResponse[] = response.data.data;
-
-        const mainNode = nodes.find((node) => node.id == nodeId);
-        if (mainNode) {
-          setFieldId(mainNode.fieldId);
-
-          try {
-            const response = await axios.post(
-              API_URLS.ADMIN_GET_SPACE_OF_FIELD,
-              {
-                fieldId: mainNode.fieldId,
-              }
-            );
-            if (response.data.statusCode === 1000) {
-              setListSpace(response.data.data);
-              setOriginalListSpace(response.data.data);
-            } else {
-              console.warn("Lỗi dữ liệu space", response.data.message);
-              //fallback lấy mỗi cái đang active đủ dùng.
-              setListSpace([
-                { id: Number(mainNode.spaceId), name: mainNode.spaceName },
-              ]);
-              setOriginalListSpace([
-                { id: Number(mainNode.spaceId), name: mainNode.spaceName },
-              ]);
-            }
-          } catch (err) {
-            console.warn("Lỗi khi gọi API space", err);
-            //fallback lấy mỗi cái đang active đủ dùng.
-            setListSpace([
-              { id: Number(mainNode.spaceId), name: mainNode.spaceName },
-            ]);
-            setOriginalListSpace([
-              { id: Number(mainNode.spaceId), name: mainNode.spaceName },
-            ]);
-          }
-        }
-
-        const { panoramaList } =
-          TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
-        dispatch(smartUpdatePanoramasFromResponse(panoramaList)); // chỉ cập nhật node.
-
-        setEditInformation(false);
       } else {
         Swal.fire({
           title: "Thất bại",
-          text: `${response.data?.message || ""}`,
+          text: "Phê duyệt thất bại.",
           icon: "error",
           toast: true,
           timer: 2000,
@@ -663,7 +661,7 @@ const ManagerTourDetail: React.FC = () => {
         });
       }
     } catch (error: any) {
-      console.error("Lỗi khi cập nhật tour:", error);
+      console.error("Lỗi khi phê duyệt tour:", error);
       Swal.fire("Lỗi kết nối", error?.message || "Không rõ lý do", "error");
     }
   };
@@ -1042,6 +1040,8 @@ const ManagerTourDetail: React.FC = () => {
                         Huỷ
                       </button>
                     </>
+                  ) : auth.roleId != originalMasterNode?.userId ? (
+                    ""
                   ) : (
                     <button
                       className={stylesOverview.edit_information_btn}
@@ -1194,6 +1194,8 @@ const ManagerTourDetail: React.FC = () => {
                         onTaskClick={handleOpenTask}
                         setPreOpenTask={setPreTaskIndex}
                         saveLinkNode={false}
+                        isValidated={isValidated}
+                        setIsValidated={setIsValidated}
                       />
                     </motion.div>
                   )}
@@ -1249,11 +1251,11 @@ const ManagerTourDetail: React.FC = () => {
           </div>
         )}
       </div>
+      {/* Phê duyệt */}
       {approveForm ? (
         <div className={styles.approve_container}>
           <div className={styles.approve_form}>
             <div className={styles.approve_form_options}>
-              <span>Tuỳ chọn : </span>
               <div className={styles.radio_container}>
                 <label className={styles.radio_item} htmlFor="acceptApprove">
                   <input
@@ -1284,23 +1286,51 @@ const ManagerTourDetail: React.FC = () => {
               </div>
             </div>
             {approveStatus === 4 && (
-              <div className={styles.approve_form_message}>
-                <label
-                  className={stylesOverview.label_information}
-                  htmlFor="message"
-                >
-                  Phản hồi:{" "}
-                </label>
-                <textarea
-                  id="message"
-                  value={messageRefuse}
-                  onChange={(e) => setMessageRefuse(e.target.value)}
-                  rows={5}
-                  cols={40}
-                  placeholder="Tối đa 300 ký tự."
-                  className={stylesOverview.description_content}
-                />
-              </div>
+              <>
+                <div className={styles.approve_form_message}>
+                  <label
+                    className={stylesOverview.label_information}
+                    htmlFor="message"
+                  >
+                    Phản hồi:
+                  </label>
+                  <div className={stylesOverview.feedback_list}>
+                    {feedbackList.length > 0 &&
+                      feedbackList.map((feedback) => {
+                        const isSelected = selectedFeedbackList.includes(
+                          feedback.content
+                        );
+
+                        return (
+                          <div
+                            key={feedback.id}
+                            className={`${stylesOverview.feedback_item} ${
+                              isSelected ? stylesOverview.selected : ""
+                            }`}
+                            onClick={() =>
+                              toggleFeedback(feedback.id.toString())
+                            }
+                          >
+                            <p className={stylesOverview.feedback_content}>
+                              {feedback.content}
+                            </p>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+                <div className={styles.approve_form_message}>
+                  <textarea
+                    id="message"
+                    value={messageRefuse}
+                    onChange={(e) => setMessageRefuse(e.target.value)}
+                    rows={4}
+                    cols={40}
+                    placeholder="Mô tả thêm(Tối đa 300 ký tự):"
+                    className={stylesOverview.description_content}
+                  />
+                </div>
+              </>
             )}
             <div className={styles.approve_btn}>
               <button
@@ -1309,12 +1339,15 @@ const ManagerTourDetail: React.FC = () => {
               >
                 Huỷ
               </button>
-              {/* <button
+              <button
                 className={stylesOverview.edit_information_btn}
-                onClick={handleApproveTour(approveStatus, messageRefuse)}
-              > */}
-              {/* Xác nhận
-              </button> */}
+                onClick={() => {
+                  handleApproveTour();
+                  setApproveForm(false);
+                }}
+              >
+                Xác nhận
+              </button>
             </div>
           </div>
         </div>

@@ -168,7 +168,9 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const spaceItem = spaces.find((s) => s.id === Number(spaceId));
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
-  const masterPanorama = panoramaList.find((h) => h.config.status > 1);
+  const masterPanorama = panoramaList.find(
+    (h) => h.config.status > 1
+  );
 
   /**
    * Là danh sách các hostpot navigation từ Master Node.

@@ -59,6 +59,8 @@ import {
 import Waiting from "../../components/Waiting";
 import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
 import { fetchNodes } from "../../redux/slices/DataSlice";
+import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
+import { FaQuestionCircle } from "react-icons/fa";
 
 const CreateAutoTourStep2 = () => {
   const navigate = useNavigate();
@@ -368,10 +370,12 @@ const CreateAutoTourStep2 = () => {
   };
 
   // Tạo mảng indexNode
-  const indexNodeArray = orderedList.map((p: any) => ({
-    nodeId: p.id,
-    duration: p.duration,
-  }));
+  const indexNodeArray = orderedList
+    .filter((p: any) => p.id != null) // lọc bỏ p.id null hoặc undefined
+    .map((p: any) => ({
+      nodeId: p.id,
+      duration: p.duration,
+    }));
 
   const handleUpdateAutoTour = async () => {
     Swal.fire({
@@ -641,6 +645,37 @@ const CreateAutoTourStep2 = () => {
           </div>
           <span className={styles.number_step}>{currentStep}</span>
           <div className={styles.toggle_next_step_3}>
+            {isUpdate && (
+              <div className={styles.toggle_status}>
+                <span>Trạng thái: </span>
+                <button
+                  style={{
+                    marginRight: "1rem",
+                    textAlign: "center",
+                    padding: "0.5rem 1rem",
+                    backgroundColor: status == 0 ? "#f0464fff" : "#62f046",
+                  }}
+                  onClick={() => {
+                    setStatus(status === 1 ? 0 : 1);
+                  }}
+                >
+                  {status == 0 ? "Tạm ngưng" : "Hoạt động"}
+                </button>
+              </div>
+            )}
+            <button
+              style={{
+                marginRight: "1rem",
+                textAlign: "center",
+                padding: "0.5rem 1rem",
+                backgroundColor: "#62f046",
+              }}
+              onClick={() => {
+                setIsAddTour(true);
+              }}
+            >
+              Thêm/ xóa node
+            </button>
             <button
               style={{
                 marginRight: "1rem",
@@ -654,37 +689,6 @@ const CreateAutoTourStep2 = () => {
               {isUpdate ? "Cập nhật" : "Tiếp tục"}
             </button>
           </div>
-          {isUpdate && (
-            <div className={styles.toggle_status}>
-              <button
-                style={{
-                  marginRight: "1rem",
-                  textAlign: "center",
-                  padding: "0.5rem 1rem",
-                  backgroundColor: "#62f046",
-                }}
-                onClick={() => {
-                  setIsAddTour(true);
-                }}
-              >
-                Thêm/ xóa node
-              </button>
-              <span>Trạng thái: </span>
-              <button
-                style={{
-                  marginRight: "1rem",
-                  textAlign: "center",
-                  padding: "0.5rem 1rem",
-                  backgroundColor: status == 0 ? "#f0464fff" : "#62f046",
-                }}
-                onClick={() => {
-                  setStatus(status === 1 ? 0 : 1);
-                }}
-              >
-                {status == 0 ? "Tạm ngưng" : "Hoạt động"}
-              </button>
-            </div>
-          )}
         </div>
         {/* Hộp node */}
         <div className={styles.node_list}>
@@ -697,7 +701,7 @@ const CreateAutoTourStep2 = () => {
               title={pano.name}
             >
               <img
-                src={pano.url}
+                src={transformUrlToThumbnailBig(pano.url)}
                 alt={pano.name}
                 className={styles.node_image}
                 onClick={() => {
@@ -748,7 +752,13 @@ const CreateAutoTourStep2 = () => {
           <div className={styles.overlay}>
             <div className={styles.modal}>
               <div className={styles.header}>
-                <h2 className={styles.title}>Danh sách node</h2>
+                <h2 className={styles.title}>
+                  Danh sách node{" "}
+                  <FaQuestionCircle
+                    className={styles.guide_icon}
+                    title="Các node có viền xanh là đã chọn. Nhấn vào để chọn hoặc bỏ chọn."
+                  />
+                </h2>
                 <button
                   className={styles.closeButton}
                   onClick={() => setIsAddTour(false)}
@@ -757,36 +767,45 @@ const CreateAutoTourStep2 = () => {
                 </button>
               </div>
 
-              <div className={styles.node_container}>
-                {nodeList.length > 0 ? (
-                  nodeList.map((node) => {
-                    const isSelected = selectedNodes.includes(node.id);
-                    return (
-                      <div
-                        key={node.id}
-                        className={`${styles.tour} ${
-                          isSelected ? styles.selected : ""
-                        }`}
-                        onClick={() => handleToggleSelect(node.id)}
-                        style={{ backgroundImage: `url(${node.url})` }}
-                      >
-                        <div className={styles.blur} />
-                        <span className={styles.name}>{node.name}</span>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className={styles.loading}>Đang tải...</div>
-                )}
-              </div>
-
-              <div className={styles.pagination}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
                 <FaAngleLeft
                   onClick={goPrev}
                   className={`${styles.pagination_icon} ${
                     currentPage == 1 ? styles.disabled : ""
                   }`}
                 />
+                <div className={styles.node_container}>
+                  {nodeList.length > 0 ? (
+                    nodeList.map((node) => {
+                      const isSelected = selectedNodes.includes(node.id);
+                      return (
+                        <div
+                          key={node.id}
+                          className={`${styles.tour} ${
+                            isSelected ? styles.selected : ""
+                          }`}
+                          onClick={() => handleToggleSelect(node.id)}
+                          style={{
+                            backgroundImage: `url(${transformUrlToThumbnailBig(
+                              node.url
+                            )})`,
+                          }}
+                        >
+                          <div className={styles.blur} />
+                          <span className={styles.name}>{node.name}</span>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className={styles.loading}>Đang tải...</div>
+                  )}
+                </div>
                 <FaAngleRight
                   onClick={goNext}
                   className={`${styles.pagination_icon} ${

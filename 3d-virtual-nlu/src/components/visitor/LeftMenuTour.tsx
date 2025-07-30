@@ -108,7 +108,6 @@ const LeftMenuTour = ({
 
     const { scrollTop, scrollHeight, clientHeight } = list;
     if (scrollTop + clientHeight >= scrollHeight) {
-      console.log(page, "page");
       setPage((prev) => prev + 1);
     }
   };

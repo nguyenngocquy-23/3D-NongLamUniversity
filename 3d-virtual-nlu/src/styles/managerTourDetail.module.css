@@ -75,15 +75,16 @@
   background-color: #eee;
   box-sizing: border-box;
   box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
-  padding: 0.1rem;
   font-size: 14px;
   margin-bottom: 10px;
   z-index: 2;
+  width: 100%;
 }
 .radio_container .radio_item {
   flex: 1 1 auto;
   text-align: center;
   cursor: pointer;
+  border-radius: 0;
 }
 .radio_container .radio_item input {
   display: none;

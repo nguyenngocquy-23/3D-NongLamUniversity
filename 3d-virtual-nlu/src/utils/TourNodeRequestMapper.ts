@@ -152,7 +152,6 @@ export interface HotspotModelCreateRequest {
   thumbnailUrl: string;
   name: string;
   description: string;
-  colorCode: string;
 }
 
 export interface HotspotNavUpdateRequest {
@@ -239,7 +238,6 @@ export interface HotspotModelUpdateRequest {
   thumbnailUrl: string;
   name: string;
   description: string;
-  colorCode: string;
 }
 
 export interface NodeResponse {
@@ -382,7 +380,6 @@ export interface HotspotModelResponse {
   thumbnailUrl: string;
   name: string;
   description: string;
-  colorCode: string;
 }
 
 export class TourNodeRequestMapper {
@@ -488,7 +485,6 @@ export class TourNodeRequestMapper {
           name: h.name,
           description: h.description,
           autoRotate: h.autoRotate,
-          colorCode: h.colorCode,
         }));
 
       return {
@@ -623,7 +619,6 @@ export class TourNodeRequestMapper {
           name: h.name,
           description: h.description,
           autoRotate: h.autoRotate,
-          colorCode: h.colorCode,
         }));
 
       return {
@@ -816,7 +811,6 @@ export class TourNodeRequestMapper {
           thumbnailUrl: h.thumbnailUrl,
           name: h.name,
           description: h.description,
-          colorCode: h.colorCode,
         } as HotspotModel);
       });
     }

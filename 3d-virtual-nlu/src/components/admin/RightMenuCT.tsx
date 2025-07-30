@@ -108,10 +108,8 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
   useEffect(() => {
     if (panoramaList.length === 0) return;
     const isValid = panoramaList.every(
-      (p) => p.config.name !== "" && p.config.name?.length <= 50
+      (p) => p.config.name != "" && p.config.name?.length <= 50
     );
-    console.log("panoramaList", isValid, panoramaList);
-
     setIsValidated?.(isValid);
   }, [panoramaList, setIsValidated]);
 

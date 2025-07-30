@@ -112,7 +112,7 @@ public class NodeDao {
     }
 
     public int countApprovingNodes() {
-        String sql = "SELECT COUNT(*) FROM nodes WHERE status = 3 or status = 4";
+        String sql = "SELECT COUNT(*) FROM nodes WHERE status = 3";
         return ConnectionPool.getConnection().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)
@@ -227,6 +227,10 @@ public class NodeDao {
         /**
          * Truy xuất sql cho danh sách targetNodeId dựa vào hotspot navigation..
          */
+        List<NodeExpandResponse> listNodesOfTour = new ArrayList<>();
+
+        NodeExpandResponse mainNode = getFullNodeByNodeId(nodeId);
+        listNodesOfTour.add(mainNode);
         String getTargetNodeIdSQL = """
                 SELECT hn.targetNodeId FROM hotspots h JOIN hotspot_navigations hn ON h.id = hn.hotspotId 
                   WHERE h.nodeId = :nodeId AND h.type = 1
@@ -234,7 +238,6 @@ public class NodeDao {
 
         String getNodeStatusSQL = """
                 SELECT id, status FROM nodes WHERE id IN (<ids>)
-                
                 """;
         List<NodeExpandResponse> listNodesOfTour = new ArrayList<>();
         NodeExpandResponse mainNode = getFullNodeByNodeId(nodeId);
@@ -825,5 +828,20 @@ public class NodeDao {
         catch (Exception e) {
            throw new RuntimeException("Lỗi khi xoá node", e);
         }
+    }
+
+    public List<NodeFullResponse> getFailNodeByUser(UserIdRequest request) {
+        String sql = """
+                SELECT n.id, n.userId, s.id as spaceId, f.id as fieldId, n.name, n.description, n.url, n.updatedAt,
+                n.status, n.brightness, n.contrast, n.saturation, n.grayscale, n.exposure, n.positionX, n.positionY, n.positionZ,n.yawOffset, n.lightIntensity
+                FROM nodes n
+                JOIN spaces s ON n.spaceId = s.id
+                JOIN fields f ON s.fieldId = f.id
+                WHERE n.userId = :userId and n.status = 4
+                ORDER BY n.updatedAt DESC
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+                .bind("userId", request.getUserId())
+                .mapToBean(NodeFullResponse.class).list());
     }
 }

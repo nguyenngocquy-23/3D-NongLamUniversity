@@ -23,6 +23,7 @@ const statusNodeMap: Record<number, string> = {
   1: "Hoạt động",
   2: "Hoạt động",
   3: "Chờ duyệt",
+  4: "Duyệt lỗi",
 };
 const statusSpaceMap: Record<number, string> = {
   0: "Tạm ngưng",

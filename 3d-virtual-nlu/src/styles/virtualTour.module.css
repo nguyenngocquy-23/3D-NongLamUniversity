@@ -143,7 +143,7 @@
   position: absolute;
   bottom: 40px;
   z-index: 100000001;
-  transition: all 0.5s ease;
+  transition: width 0.3s ease,height 0.3s ease;
 }
 
 .full_map {
@@ -175,7 +175,7 @@
 .full_button {
   position: absolute;
   z-index: 3;
-  background-color: #62f046;
+  background-color: #267026;
   color: white;
   transition: all 0.3s ease;
 }
@@ -214,7 +214,7 @@
 .open_radar_button {
   position: absolute;
   z-index: 3;
-  background-color: #62f046;
+  background-color: #267026;
   color: white;
   width: 40px;
   height: 40px;
@@ -244,7 +244,7 @@
 .play_button {
   position: absolute;
   z-index: 3;
-  background-color: #62f046;
+  background-color: #267026;
   color: white;
   width: 40px;
   height: 40px;

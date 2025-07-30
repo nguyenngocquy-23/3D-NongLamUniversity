@@ -3,6 +3,7 @@ import styles from "../../styles/visitor/tours.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {
+  fetchFailNodeOfUser,
   fetchNodeOfUser,
   fetchPrivateNodeOfUser,
 } from "../../redux/slices/DataSlice";
@@ -23,11 +24,15 @@ const VisitorTours = () => {
   useEffect(() => {
     dispatch(fetchNodeOfUser(user.id));
     dispatch(fetchPrivateNodeOfUser(user.id));
+    dispatch(fetchFailNodeOfUser(user.id));
   }, [dispatch]);
 
   const nodes = useSelector((state: RootState) => state.data.nodeOfUser);
   const privateNodes = useSelector(
     (state: RootState) => state.data.privateNodeOfUser
+  );
+  const failNodes = useSelector(
+    (state: RootState) => state.data.failNodeOfUser
   );
   const [searchData, setSearchData] = useState(nodes);
   useEffect(() => {
@@ -54,6 +59,9 @@ const VisitorTours = () => {
   };
   const handlePrivateNode = () => {
     setSearchData(privateNodes);
+  };
+  const handleFailNode = () => {
+    setSearchData(failNodes);
   };
 
   return (
@@ -96,6 +104,24 @@ const VisitorTours = () => {
           {!privateNodes ? (
             ""
           ) : privateNodes.length > 0 ? (
+            <span className={styles.point} />
+          ) : (
+            ""
+          )}
+        </button>
+        <button
+          className={`${styles.task_button} ${
+            isActive == 2 ? styles.actived : ""
+          }`}
+          onClick={() => {
+            handleFailNode();
+            setIsActive(2);
+          }}
+        >
+          Tour Lỗi
+          {!failNodes ? (
+            ""
+          ) : failNodes.length > 0 ? (
             <span className={styles.point} />
           ) : (
             ""

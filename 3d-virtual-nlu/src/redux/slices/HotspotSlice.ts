@@ -44,7 +44,6 @@ export interface HotspotModel extends BaseHotspot {
   name: string;
   description: string;
   autoRotate: number; //0 = false, 1= true.
-  colorCode: string;
 }
 
 interface HotspotPositions {

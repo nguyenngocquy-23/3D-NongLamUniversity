@@ -10,7 +10,13 @@ import {
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { FaAngleRight, FaAngleUp, FaComment, FaEye } from "react-icons/fa6";
+import {
+  FaAngleRight,
+  FaAngleUp,
+  FaComment,
+  FaEye,
+  FaX,
+} from "react-icons/fa6";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -75,6 +81,9 @@ import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL";
 import { FaAngleDoubleUp } from "react-icons/fa";
 import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import { diffNode } from "../../utils/DiffNodeForUpdate";
+import _Draggable from "gsap/Draggable";
+import { IoWarning } from "react-icons/io5";
+import { CiWarning } from "react-icons/ci";
 import { IoReturnDownBack } from "react-icons/io5";
 
 /**
@@ -155,6 +164,8 @@ const TourDetail = () => {
   >([]);
   const [cameraAngle, setCameraAngle] = useState(0);
   const [isTextureReady, setIsTextureReady] = useState(false);
+  const [isValidated, setIsValidated] = useState(true);
+  const [isOpenFeedback, setIsOpenFeedback] = useState(true);
 
   const {
     positionX = 0,
@@ -718,6 +729,42 @@ const TourDetail = () => {
     handleSelectNode(targetNodeId);
   };
 
+  const [feedback, setFeedback] = useState<any>(null);
+
+  useEffect(() => {
+    if (!currentNodeView) return;
+    if (currentNodeView.config.status == 4) {
+      setIsUpdateTour(true);
+      const fetchFeedback = async () => {
+        try {
+          const response = await axios.post(
+            `${API_URLS.GET_FEEDBACK_BY_NODE_ID}`,
+            {
+              nodeId: currentNodeView.id,
+            }
+          );
+          const data = response.data.data;
+          if (data) {
+            const feedbacks = JSON.parse(data.feedbackList) as string[];
+            const feedback = {
+              feedbackList: feedbacks,
+              moreFeedback: data.moreFeedback,
+              createdAt: formatTimeAgo(data.createdAt),
+            };
+            setFeedback(feedback);
+          } else {
+            setFeedback(null);
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy phản hồi:", error);
+        }
+      };
+      fetchFeedback();
+    }else{
+      setIsUpdateTour(false);
+    }
+  }, [currentNodeView]);
+
   // Version of quy
 
   // Version of Kien
@@ -877,7 +924,8 @@ const TourDetail = () => {
 
         {/* Version of Quy */}
         {/* {node.status == 3 ? ( */}
-        {currentNodeView.status == 3 ? (
+        {currentNodeView.config.status == 3 ||
+        currentNodeView.config.status == 4 ? (
           ""
         ) : isFullPreview || isUpdateTour ? (
           <span className={styles.toggle_open_feature}>
@@ -894,7 +942,7 @@ const TourDetail = () => {
           <div>
             <div className={styles.info}>
               <div className={styles.sub_info}>
-                <span className={styles.name}>Cập nhật </span>
+                <span className={styles.name}>Cập nhật</span>
                 <span className={styles.des}>
                   {/* {formatTimeAgo(node.updatedAt)}  */}
                   {originalMasterNode?.updatedAt
@@ -985,6 +1033,83 @@ const TourDetail = () => {
 
         {isUpdateTour && (
           <>
+            <div className={styles.toggle_right_menu}>
+              <IoMdMenu
+                className={styles.show_menu}
+                onClick={() => handleOpenMenu()}
+              />
+            </div>
+            {currentNodeView.config.status == 4 && !isOpenFeedback && (
+              <button
+                className={styles.view_feedback_button}
+                onClick={() => setIsOpenFeedback((prev) => !prev)}
+                title="Xem phản hồi"
+              >
+                <IoWarning/>
+              </button>
+            )}
+            {currentNodeView.config.status == 4 && isOpenFeedback && (
+              <div className={styles.feedback_container}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <h3>Phản hồi </h3>
+                  <FaX
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setIsOpenFeedback(false)}
+                  />
+                </div>
+                {feedback && (
+                  <p className={styles.approve_time}>{feedback.createdAt}</p>
+                )}
+                {feedback &&
+                  feedback.feedbackList.map((f: any, index: any) => (
+                    <div key={index} className={styles.feedback_item}>
+                      <p
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          color: "red",
+                        }}
+                      >
+                        ⚠ {f}
+                      </p>
+                    </div>
+                  ))}
+                {feedback && <p>Thêm: {feedback.moreFeedback}</p>}
+              </div>
+            )}
+            <AnimatePresence>
+              {isMenuVisible && (
+                <motion.div
+                  initial={{ x: 300, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: 300, opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className={`${stylesRightMenu.rightMenu} `}
+                >
+                  <div className={stylesRightMenu.rightTitle}>
+                    <FaAngleRight
+                      className={stylesRightMenu.close_menu_btn}
+                      onClick={handleOpenMenu}
+                    />
+                    <h2>Cấu hình</h2>
+                  </div>
+
+                  <RightMenuCreateTour
+                    tasks={tasks}
+                    openTaskIndex={openTaskIndex}
+                    onTaskClick={handleOpenTask}
+                    setPreOpenTask={setPreTaskIndex}
+                    isUpdateTour={true}
+                    handleUpdateTour={handleUpdateTour}
+                    saveLinkNode={false}
+                    isValidated={isValidated}
+                    setIsValidated={setIsValidated}/>
             {currentNodeView.config.status === 2 &&
             currentNodeView.id !== nodeId ? (
               <button

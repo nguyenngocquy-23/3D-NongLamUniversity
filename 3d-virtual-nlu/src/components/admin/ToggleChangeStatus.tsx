@@ -5,6 +5,7 @@ import { AppDispatch } from "../../redux/Store";
 import {
   fetchFields,
   fetchIcons,
+  fetchNodes,
   fetchSpaces,
 } from "../../redux/slices/DataSlice";
 import styles from "../../styles/toggleChangeStatus.module.css";
@@ -36,7 +37,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
   }, [id, status]);
 
   const handleToggleStatus = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    toggle.current = e.target.checked ? 1 : 0;
+    toggle.current = !e.target.checked ? 0 : type=="node" ? 2 : 1;
     setLoading(true);
     try {
       const response = await axios.post(apiUrl, { id, status: toggle.current });
@@ -57,7 +58,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
             break;
 
           case "space":
-            dispatch(fetchSpaces({ limit: perPage, page: 0 }));
+            dispatch(fetchIcons());
             break;
 
           case "icon":
@@ -72,6 +73,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
                 },
               })
             );
+            // dispatch(fetchNodes({ limit: perPage, page: 0 }));
             break;
           default:
             break;
@@ -110,7 +112,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
       <input
         id="checkbox"
         type="checkbox"
-        checked={toggle.current == 1}
+        checked={toggle.current > 0}
         title={toggle.current == 0 ? "Kích hoạt" : "Vô hiệu hóa"}
         onChange={id > 0 ? handleToggleStatus : undefined}
         disabled={loading}
