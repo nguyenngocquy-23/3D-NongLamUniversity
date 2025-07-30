@@ -24,12 +24,20 @@ import {
 } from "../utils/Constants";
 import { GiQueenCrown } from "react-icons/gi";
 import { TiTick } from "react-icons/ti";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import TrackingNode from "./admin/minimap/TrackingNode";
 import {
   getFilteredHotspotNavigationById,
   getFilteredHotspotNavigationOfMaster,
   getFilteredHotspotNavigations,
+  getHotspotLinkMap,
 } from "../redux/slices/Selectors";
 import {
   clearHotspotNavigation,
@@ -160,9 +168,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
   const spaceItem = spaces.find((s) => s.id === Number(spaceId));
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
-  const masterPanorama = panoramaList.find(
-    (h) => h.config.status == 2 || h.config.status == 3
-  );
+  const masterPanorama = panoramaList.find((h) => h.config.status > 1);
 
   /**
    * Là danh sách các hostpot navigation từ Master Node.
@@ -309,15 +315,35 @@ const MiniMap: React.FC<MiniMapProps> = ({
    * 1. targetNodeId của nó phải có giá trị.
    * 2. hotspot của node đó hoặc hotspot trỏ đến node đó. (2 chiều)
    */
-  const hotspotNavigationFromNode = (nodeId: string) => {
-    const selector = getFilteredHotspotNavigationById(nodeId);
-    return selector;
-  };
+  // const hotspotNavigationFromNode = (nodeId: string) => {
+  //   const selector = getFilteredHotspotNavigationById(nodeId);
+  //   return selector;
+  // };
+  const allHotspotNav = useSelector(getFilteredHotspotNavigations);
+  const getNavigationForNode = useCallback(
+    (nodeId: string) => {
+      return allHotspotNav.filter(
+        (h) => h.nodeId === nodeId || h.targetNodeId === nodeId
+      );
+    },
+    [allHotspotNav]
+  );
 
-  const checkFullhotspotNavigation = (nodeId: string, nodeStatus: number) => {
-    const limit = 2 * limitNavigation(nodeStatus === 2);
-    return hotspotNavigationFromNode(nodeId).length === limit;
-  };
+  /**
+   * Kiểm tra đã đủ hotspot navigation chưa.
+   * @param nodeId
+   * @param nodeStatus
+   * status 1 = 2 là full.
+   * status 2 = Số lượng status 1 *
+   */
+
+  const checkFullhotspotNavigation = useCallback(
+    (nodeId: string, nodeStatus: number) => {
+      const limit = 2 * limitNavigation(nodeStatus === 2);
+      return getNavigationForNode(nodeId).length === limit;
+    },
+    [getNavigationForNode]
+  );
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -559,9 +585,11 @@ const MiniMap: React.FC<MiniMapProps> = ({
                 </div>
               </div>
             ))}
-            <span className={styles.minimap_setting} onClick={handleZoomMap}>
-              <IoSettings />
-            </span>
+            {!locked && (
+              <span className={styles.minimap_setting} onClick={handleZoomMap}>
+                <IoSettings />
+              </span>
+            )}
           </motion.div>
         )}
 

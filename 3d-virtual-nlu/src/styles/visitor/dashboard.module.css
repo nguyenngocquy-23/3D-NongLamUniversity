@@ -1,12 +1,9 @@
 .container {
-  width: 98vw;
+  width: 100vw;
   min-height: 80vh;
   height: 100%;
-  margin: 0.5rem auto;
   padding: 1rem;
-  border-radius: 10px;
-  background-color: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(8px);
+  background-color: #f5f5f5;
   display: flex;
   gap: 10px;
 }
@@ -84,7 +81,9 @@
 .profile {
   padding: 1rem;
   border-radius: 10px;
-  background: linear-gradient(to bottom, #fff, rgba(255, 2, 2, 0));
+  /* background: linear-gradient(to bottom, #fff, rgba(255, 2, 2, 0));
+   */
+  background-color: #fff;
   width: 45%;
 }
 
@@ -117,7 +116,7 @@
 
 .profile .button {
   padding: 0.5rem 1rem;
-  background-color: #62f046;
+  background-color: #267026;
   color: white;
   border: none;
   border-radius: 5px;
@@ -155,7 +154,7 @@
   right: 0;
   width: 30px;
   height: 30px;
-  background-color: #62f046;
+  background-color: #267026;
   color: white;
   font-size: 14px;
   font-weight: 500;

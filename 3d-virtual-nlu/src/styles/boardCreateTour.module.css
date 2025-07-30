@@ -4,6 +4,38 @@
   width: 100%;
   height: 100%;
   transition: all 0.3s ease-in-out;
+  display: flex;
+  gap: 1rem;
+}
+
+.header_form {
+  background-color: #e4e4e4;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.header_label {
+  color: #000;
+}
+.divider {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 1rem 0;
+  width: 100%;
+}
+.classify_container {
+}
+
+.leftForm {
+  flex: 1;
+  background-color: #e4e4e4;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  padding: 1rem;
 }
 
 .panoPreview {

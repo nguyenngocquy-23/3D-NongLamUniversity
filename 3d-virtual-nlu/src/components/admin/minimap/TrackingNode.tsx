@@ -59,16 +59,69 @@ const Flow: React.FC<FlowProps> = ({
     ];
   }, [masterPanorama, panoramaListExceptMasterNode]);
 
+  // const edges = React.useMemo(() => {
+  //   const result: any[] = [];
+  //   const handledPairs = new Set<string>();
+
+  //   return hotspotNavigations.map((item) => ({
+  //     id: item.id,
+  //     source: item.nodeId,
+  //     target: item.targetNodeId,
+  //     markerEnd: { type: MarkerType.Arrow, color: "#fff000", strokeWidth: 3 },
+  //     style: {
+  //       stroke: "#000",
+  //     },
+  //   }));
+
+  // }, [hotspotNavigations]);
   const edges = React.useMemo(() => {
-    return hotspotNavigations.map((item) => ({
-      id: item.id,
-      source: item.nodeId,
-      target: item.targetNodeId,
-      markerEnd: { type: MarkerType.Arrow, color: "#fff000", strokeWidth: 3 },
-      style: {
-        stroke: "#000",
-      },
-    }));
+    const result: any[] = [];
+    const handledPairs = new Set<string>();
+
+    hotspotNavigations.forEach((item) => {
+      const key = `${item.nodeId}-${item.targetNodeId}`;
+      const reverseKey = `${item.targetNodeId}-${item.nodeId}`;
+
+      // Nếu đã xử lý cặp ngược lại → bỏ qua
+      if (handledPairs.has(reverseKey)) return;
+
+      // Tìm hotspot ngược chiều (nếu có)
+      const reverseHotspot = hotspotNavigations.find(
+        (h) => h.nodeId === item.targetNodeId && h.targetNodeId === item.nodeId
+      );
+
+      const isBidirectional = !!reverseHotspot;
+
+      if (isBidirectional) {
+        result.push({
+          id: `${item.id}-${reverseHotspot.id}`,
+          source: item.nodeId,
+          target: item.targetNodeId,
+          style: {
+            stroke: "#267026",
+            strokeWidth: 2,
+          },
+        });
+
+        handledPairs.add(key);
+      } else {
+        result.push({
+          id: item.id,
+          source: item.nodeId,
+          target: item.targetNodeId,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: "#ff0033",
+          },
+          style: {
+            stroke: "#ff0033",
+            strokeWidth: 2,
+          },
+        });
+      }
+    });
+
+    return result;
   }, [hotspotNavigations]);
 
   return (

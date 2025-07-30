@@ -24,7 +24,6 @@ import Verify from "./pages/auths/Verify.tsx";
 import VisitorDashBoard from "./pages/visitor/VisitorDashBoard.tsx";
 import VisitorManage from "./pages/visitor/Manage.tsx";
 import VisitorCreateTour from "./pages/visitor/CreateTour.tsx";
-import VisitorProfile from "./pages/visitor/Profile.tsx";
 import VisitorTours from "./pages/visitor/Tours.tsx";
 import TourDetail from "./pages/visitor/TourDetail.tsx";
 import AttachMap from "./pages/admin/AttachMap.tsx";
@@ -56,7 +55,6 @@ function RouterConfig() {
         <Route index element={<VisitorDashBoard />} />
         <Route path="createTour" element={<VisitorCreateTour />} />
         <Route path="tours" element={<VisitorTours />} />
-        <Route path="profile" element={<VisitorProfile />} />
         <Route path="tour/:nodeId" element={<TourDetail />} />
       </Route>
       {/* admin */}
@@ -72,7 +70,10 @@ function RouterConfig() {
         <Route path="icons" element={<ManagerIcon />} />
         <Route path="createTour" element={<CreateTour />} />
         <Route path="manageAutoTour" element={<ManagerAutoTour />} />
-        <Route path="manageAutoTour/:tourId" element={<CreateAutoTourStep2 />} />
+        <Route
+          path="manageAutoTour/:tourId"
+          element={<CreateAutoTourStep2 />}
+        />
         <Route path="createAutoTour" element={<CreateAutoTour />} />
         <Route path="createTour/2" element={<CreateTourStep2 />} />
         <Route path="createTour/3" element={<CreateTourStep3 />} />

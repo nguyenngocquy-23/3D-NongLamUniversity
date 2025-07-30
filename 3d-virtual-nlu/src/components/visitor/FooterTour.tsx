@@ -49,12 +49,20 @@ const FooterTour = ({
     <div className={styles.footer_tour}>
       <i>
         Số lượng truy cập hiện tại:{" "}
-        {user ? accessing : <Link className={styles.back_login} to={"/login"}>Đăng nhập để xem</Link>}
+        {user ? (
+          accessing
+        ) : (
+          <Link className={styles.back_login} to={"/login"}>
+            Đăng nhập để xem
+          </Link>
+        )}
       </i>
       <div className="contain_extension" style={{ display: "flex" }}>
-        {setOpenNodeList && 
-          <p className={styles.sound_guide}>Dùng mũi tên ↑↓ để điều chỉnh âm thanh nền</p>
-        }
+        {setOpenNodeList && (
+          <p className={styles.sound_guide}>
+            Dùng mũi tên ↑↓ để điều chỉnh âm thanh nền
+          </p>
+        )}
         {setOpenNodeList && (
           <FaLayerGroup
             className={styles.info_btn}
@@ -95,16 +103,25 @@ const FooterTour = ({
           }}
           title="Tiếp tục xoay"
         />
-        <FaLanguage className={styles.info_btn} onClick={toggleInformation} />
+
         {isMuted ? (
-          <IoMdVolumeOff className={styles.info_btn} onClick={toggleMute}
-          title="Tắt tiếng" />
+          <IoMdVolumeOff
+            className={styles.info_btn}
+            onClick={toggleMute}
+            title="Tắt tiếng"
+          />
         ) : (
-          <IoMdVolumeHigh className={styles.info_btn} onClick={toggleMute} 
-          title="Bật tiếng" />
+          <IoMdVolumeHigh
+            className={styles.info_btn}
+            onClick={toggleMute}
+            title="Bật tiếng"
+          />
         )}
-        <FaInfoCircle className={styles.info_btn} onClick={toggleInformation} 
-        title="Mô tả" />
+        <FaInfoCircle
+          className={styles.info_btn}
+          onClick={toggleInformation}
+          title="Mô tả"
+        />
         {isFullscreen ? (
           <MdFullscreenExit
             className={styles.fullscreen_btn}

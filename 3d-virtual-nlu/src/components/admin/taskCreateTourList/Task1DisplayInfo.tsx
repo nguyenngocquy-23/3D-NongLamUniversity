@@ -9,7 +9,7 @@ import { FaQuestionCircle } from "react-icons/fa";
 const Task1 = ({
   setIsValidated,
 }: {
-  setIsValidated: (isValid: boolean) => void;
+  setIsValidated?: (isValid: boolean) => void;
 }) => {
   const [content, setContent] = useState<string>("");
 
