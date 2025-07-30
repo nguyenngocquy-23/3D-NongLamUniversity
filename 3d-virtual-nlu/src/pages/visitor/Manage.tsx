@@ -36,9 +36,11 @@ const VisitorManage = () => {
         )}
       </AnimatePresence>
 
-      <span className={styles.toggle} onClick={() => setIsOpen(!isOpen)}>
-        {isOpen ? <FaCaretUp /> : <FaCaretDown />}
-      </span>
+      {!isOpen && (
+        <span className={styles.toggle} onClick={() => setIsOpen(!isOpen)}>
+          <FaCaretDown />
+        </span>
+      )}
 
       <div className={styles.content}>
         <Outlet />

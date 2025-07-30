@@ -247,17 +247,16 @@
 }
 
 /* Trong file .module.css */
-@media (min-width: 1440px) {
+/* @media (min-width: 1440px) {
   .show_on_large {
     display: block;
   }
 }
 
 /* Mặc định ẩn */
-.show_on_large {
+/* .show_on_large {
   display: none;
-}
-
+} */
 .custom_select {
   appearance: none;
   /* ẩn mũi tên mặc định */
