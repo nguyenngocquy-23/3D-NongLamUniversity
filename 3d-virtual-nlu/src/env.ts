@@ -9,6 +9,7 @@ export const DEFAULT_AVATAR =
 export const API_URLS = {
   BASE: `${DOMAIN}`,
   LOGIN: `${DOMAIN}/login`,
+  LOGIN_BY_GOOGLE: `${DOMAIN}/login/google`,
   LOGOUT: `${DOMAIN}/authenticate/logout`,
   REGISTER: `${DOMAIN}/register`,
   CREATE_ADMIN: `${DOMAIN}/register/createAdmin`,

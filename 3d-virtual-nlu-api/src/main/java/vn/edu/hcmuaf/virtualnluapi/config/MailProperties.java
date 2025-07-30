@@ -20,5 +20,6 @@ public class MailProperties {
     public static final int port = Integer.parseInt(properties.getProperty("mail.smtp.port"));
     public static final String user = properties.getProperty("mail.user");
     public static final String password = properties.getProperty("mail.password");
+    public static final String CLIENT_ID = properties.getProperty("mail.client_id_google_login");
 
 }
