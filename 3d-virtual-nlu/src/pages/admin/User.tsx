@@ -149,9 +149,10 @@ function User() {
                 }
               }}
               title={row.status == 2 ? "khóa tài khoản" : "mở tài khoản"}
+              style={{ backgroundColor: row.status == 0 ? "red" : "green" }}
             >
               {row.status === 0 ? (
-                <FaLock style={{ color: "red" }} />
+                <FaLock />
               ) : (
                 <FaUnlock />
               )}

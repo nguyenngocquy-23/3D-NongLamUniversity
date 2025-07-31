@@ -583,7 +583,7 @@ const VirtualAutoTour: React.FC = () => {
           </div>
         )}
         {/* Hộp node */}
-        {openNodeList && (
+        {openNodeList && ( 
           <div
             className={styles.node_list}
             style={{ bottom: isMobile ? "1rem" : "" }}

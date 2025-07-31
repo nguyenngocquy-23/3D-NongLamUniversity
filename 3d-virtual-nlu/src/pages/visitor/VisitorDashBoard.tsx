@@ -341,6 +341,7 @@ const VisitorDashBoard = () => {
             type="email"
             placeholder="Email"
             value={email}
+            disabled
             onChange={(e) => setEmail(e.target.value)}
           />
           <button className={styles.button} onClick={handleChangeProfile}>
@@ -354,6 +355,7 @@ const VisitorDashBoard = () => {
               type={showPass ? "text" : "password"}
               placeholder="Mật khẩu"
               value={password}
+              disabled={user.password == null || user.password == ""}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
@@ -369,15 +371,24 @@ const VisitorDashBoard = () => {
             type={showPass ? "text" : "password"}
             placeholder="Mật khẩu mới"
             value={newPassword}
+            disabled={user.password == null || user.password == ""}
             onChange={(e) => setNewPassword(e.target.value)}
           />
           <input
             type={showPass ? "text" : "password"}
             placeholder="Nhập lại mật khẩu mới"
             value={confirmPassword}
+            disabled={user.password == null || user.password == ""}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          <button className={styles.button} onClick={handleChangePassword}>
+          <button
+            className={styles.button}
+            onClick={handleChangePassword}
+            style={{
+              pointerEvents:
+                user.password == null || user.password === "" ? "none" : "auto",
+            }}
+          >
             Đổi mật khẩu
           </button>
         </div>
