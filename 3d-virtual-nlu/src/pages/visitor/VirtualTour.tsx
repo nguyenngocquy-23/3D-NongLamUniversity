@@ -262,7 +262,9 @@ const VirtualTour = () => {
 
   // Hàm để đọc văn bản
   const readText = () => {
-    const textInfo = document.querySelector(`.${styles.info_box}`)?.textContent;
+    const textInfo =
+      nodeToRender.description ??
+      "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh";
 
     if (!textInfo) {
       return;
@@ -333,7 +335,7 @@ const VirtualTour = () => {
     const mouseY = event.clientY;
 
     const thresholdX = window.innerWidth * 0.05;
-    const thresholdY = window.innerHeight * 0.5;
+    const thresholdY = window.innerHeight * 0.4;
     if (mouseX < thresholdX && mouseY < thresholdY && !hoverMap) {
       setIsMenuVisible(true);
     }
@@ -367,20 +369,79 @@ const VirtualTour = () => {
       speechSynthesis.speak(newUtterance);
     }
   }, [isMuted]);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const invalidateTimers: ReturnType<typeof setTimeout>[] = [];
 
+  const clearTimers = () => {
+    invalidateTimers.forEach(clearTimeout);
+    invalidateTimers.length = 0;
+  };
+
+  const forceFixMap = () => {
+    const map = mapRef.current;
+    const wrapper = wrapperRef.current;
+    if (!map || !wrapper) return;
+
+    const isVisible =
+      wrapper.offsetParent !== null &&
+      wrapper.offsetWidth > 0 &&
+      wrapper.offsetHeight > 0;
+
+    if (!isVisible) return;
+
+    clearTimers();
+
+    [100, 300, 600].forEach((ms) => {
+      const t = setTimeout(() => {
+        map.invalidateSize();
+        map.setView(map.getCenter());
+      }, ms);
+      invalidateTimers.push(t);
+    });
+  };
+
+  // Khi fullMap thay đổi (zoom map to)
   useEffect(() => {
-    setTimeout(() => {
-      window.dispatchEvent(new Event("resize"));
-    }, 50);
+    forceFixMap();
+  }, [fullMap]);
+
+  // Khi map ẩn/hiện lại
+  useEffect(() => {
+    if (!hideMap) {
+      forceFixMap();
+    }
+  }, [hideMap]);
+
+  // Khi CSS transition (width/height) hoàn tất
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const onTransitionEnd = () => {
+      forceFixMap();
+    };
+
+    wrapper.addEventListener("transitionend", onTransitionEnd);
+    return () => {
+      wrapper.removeEventListener("transitionend", onTransitionEnd);
+    };
   }, []);
 
+  // ResizeObserver để bắt mọi thay đổi chiều rộng/thời điểm DOM ổn định
   useEffect(() => {
-    if (mapRef.current) {
-      setTimeout(() => {
-        mapRef.current!.invalidateSize();
-      }, 300); // chờ animation transition xong
-    }
-  }, [fullMap, hoverMap]);
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      forceFixMap();
+    });
+
+    resizeObserver.observe(wrapper);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   const preloadNodes = useSelector(
     (state: RootState) => state.data.preloadNodes
@@ -696,9 +757,7 @@ const VirtualTour = () => {
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
       {!isMobile ? (
-        <button
-          className={styles.thumbnail_menu_button}
-        >
+        <button className={styles.thumbnail_menu_button}>
           <FaAngleDoubleLeft />
         </button>
       ) : (
@@ -819,6 +878,7 @@ const VirtualTour = () => {
         ""
       ) : (
         <div
+          ref={wrapperRef}
           className={`${fullMap ? styles.full_map : styles.map_box}`}
           onMouseEnter={() => setHoverMap(true)}
           onMouseLeave={() => {
@@ -842,6 +902,7 @@ const VirtualTour = () => {
                 spaceId={nodeToRender.spaceId}
                 mapRef={mapRef}
                 spaces={spaces}
+                hoverMap={hoverMap}
               />
               {fullMap ? (
                 <button

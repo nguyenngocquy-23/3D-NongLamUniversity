@@ -5,6 +5,7 @@ import vn.edu.hcmuaf.virtualnluapi.config.SystemConstant;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,7 +50,13 @@ public class UserDao {
         try {
             int result = ConnectionPool.getConnection().inTransaction(handle ->
                     handle.createUpdate(sql)
-                            .bindBean(user)
+                            .bind("roleId", SystemConstant.USER_ROLE_ID)
+                            .bind("email", user.getEmail())
+                            .bind("username", user.getUsername())
+                            .bind("password", user.getPassword())
+                            .bind("status", SystemConstant.ACTIVATED)
+                            .bind("avatar", user.getAvatar())
+                            .bind("createdAt", LocalDateTime.now())
                             .execute()
             );
             return result > 0;
@@ -261,6 +268,19 @@ public class UserDao {
                     .mapTo(Integer.class)
                     .one();
         });
+    }
+
+    public User findByEmail(String email) {
+        String sql = """
+                SELECT id, username, email, roleId, status, avatar, createdAt 
+                FROM users 
+                WHERE email = :email
+                """;
+        Optional<User> user = ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("email", email).mapToBean(User.class).stream().findFirst()
+        );
+        return user.orElse(null);
     }
 
 

@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchUsers } from "../../redux/slices/DataSlice";
 import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
+import { getStatusNode } from "../../utils/Constants";
 
 interface NodeItemProps {
   onclick: () => void;
@@ -32,10 +33,10 @@ export const NodeItem = ({ onclick, node }: NodeItemProps) => {
 
   useEffect(() => {
     if (users && users.length > 0) {
-      const user = users.find((u) => u.id == node.userId);
-      setUser(user && null);
+      const foundUser = users.find((u) => u.id === node.userId);
+      setUser(foundUser || null);
     }
-  }, [users]);
+  }, [users, node.userId]);
 
   return (
     <div className={styles.node_wrapper} onClick={onclick}>
@@ -88,18 +89,15 @@ export const NodeItem = ({ onclick, node }: NodeItemProps) => {
                 : styles.status_wait
             }`}
           >
-            {node.status == 0 ? (
-              <span>Tạm ngưng</span>
-            ) : node.status == 2 ? (
-              <span>Hoạt động</span>
-            ) : (
-              <span>Chờ duyệt</span>
-            )}
+            {getStatusNode(node.status)}
           </div>
         </div>
         <div className={styles.footer}>
           <div className={styles.by_user_wrapper}>
-            <img src={user == null ? currentUser.avatar : user.avatar} alt="thumbnail-user" />
+            <img
+              src={user == null ? currentUser.avatar : user.avatar}
+              alt="thumbnail-user"
+            />
             <p>{user == null ? "admin" : user.username}</p>
           </div>
           <span className={styles.time}>

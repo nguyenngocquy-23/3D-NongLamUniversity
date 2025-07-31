@@ -183,15 +183,20 @@ back_btn:hover {
 .toggle_next_step_3 {
   position: absolute;
   right: 0;
+  width: 50%;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-right: 1rem;
 }
 
 .toggle_status {
-  position: absolute;
-  right: 10rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .done_button {
-  margin-top: 10px;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -633,6 +638,7 @@ back_btn:hover {
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
+  flex: 1 1;
 }
 
 .tour {
@@ -677,20 +683,9 @@ back_btn:hover {
   font-size: 16px;
 }
 
-.pagination {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 95%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #333;
-}
-
 .pagination_icon {
   font-size: 1.2rem;
+  color: black;
   width: 30px;
   height: 30px;
   cursor: pointer;

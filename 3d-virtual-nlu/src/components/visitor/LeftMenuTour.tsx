@@ -108,7 +108,6 @@ const LeftMenuTour = ({
 
     const { scrollTop, scrollHeight, clientHeight } = list;
     if (scrollTop + clientHeight >= scrollHeight) {
-      console.log(page , "page");
       setPage((prev) => prev + 1);
     }
   };
@@ -122,7 +121,7 @@ const LeftMenuTour = ({
   }, [listMasterNode.length]);
 
   const handleSelectNode = (id: number) => {
-    const activeNode = listMasterNode.find((h) => h.id === id);
+    const activeNode = nodeList.find((h) => h.id === id);
     dispatch(setDefaultNode(activeNode));
   };
 
@@ -132,7 +131,7 @@ const LeftMenuTour = ({
   return (
     <div className={`${styles.left_menu}`}>
       <div className={styles.header}>
-        <h2 style={{marginBottom: '0.5rem'}}>Danh sách Tour</h2>
+        <h2 style={{ marginBottom: "0.5rem" }}>Danh sách Tour</h2>
         <div className={styles.search_box}>
           <label htmlFor="input" className={styles.label}>
             <IoSearch className={styles.search_icon} />

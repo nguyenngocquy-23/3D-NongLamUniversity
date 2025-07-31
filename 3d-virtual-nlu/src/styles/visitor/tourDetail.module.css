@@ -39,7 +39,7 @@
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  background-color: #267026;
+  background-color: rgba(0, 0, 0, 0.5);
   position: absolute;
   font-size: 1.5rem;
   bottom: 0;
@@ -53,7 +53,6 @@
 .toggle:hover {
   transform: translateY(-12px);
 }
-
 
 .tourCanvas {
   border-radius: 10px;
@@ -265,16 +264,13 @@
 
 .cancel_update_btn {
   position: absolute;
+  color: #fff;
   top: 0;
   left: 0;
+  font-style: italic;
   padding: 0.5rem;
-  transform: translate(50%, 50%);
-  background-color: #fff;
-  filter: brightness(0.8);
-}
-
-.cancel_update_btn:hover {
-  filter: brightness(1);
+  border-radius: 0.5rem;
+  background-color: #0000003b;
 }
 
 .toggle_right_menu:hover {
@@ -391,4 +387,52 @@
   max-height: 80vh;
   overflow: hidden;
   overflow-y: auto;
+}
+.view_feedback_button{
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 24px;
+}
+
+.feedback_container{
+  width: 30%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 10px;
+  border-radius: 10px;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: transform 1s ease-in-out;
+}
+
+.feedback_item {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.3s;
+}
+
+.feedback_item p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* Optional: styling for moreFeedback and createdAt */
+.feedback_container .approve_time {
+  font-size: 0.85rem;
+  color: #f1f1f1;
 }

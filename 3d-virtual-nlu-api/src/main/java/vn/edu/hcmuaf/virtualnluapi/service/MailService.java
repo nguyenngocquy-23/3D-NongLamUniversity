@@ -7,6 +7,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import vn.edu.hcmuaf.virtualnluapi.config.MailProperties;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.ApproveTourRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FeedbackContactRequest;
 import vn.edu.hcmuaf.virtualnluapi.entity.EmailVerification;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
@@ -60,6 +61,29 @@ public class MailService {
                 .append("<p>Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi đã nhận được yêu cầu của bạn.</p>")
                 .append("<p>Nội dung phản hồi: </p>")
                 .append("<blockquote>").append(request.getContent()).append("</blockquote>")
+                .append("<p>Nếu có thắc mắc. Vui lòng liên hệ với chúng tôi qua email này.</p>")
+                .append("<p>Trân trọng,</p><p>Đội ngũ hỗ trợ <strong>3dtour.io.vn/3dtour/</strong>.</p>");
+        sendMail(request.getEmail(), subject, content.toString());
+    }
+
+    public void sendMailApproveTourFail(ApproveTourRequest request) {
+        String subject = "Phản hồi phê duyệt Tour từ VirtualTour.NLU.edu.vn";
+        StringBuilder content = new StringBuilder();
+        content.append("<p>Chào bạn,</p>")
+                .append("<p>Chúng tôi đã nhận được yêu cầu phê duyệt của bạn. <p style='color:red;'>Tour phê duyệt thất bại.</p></p>")
+                .append("<p>Nội dung phản hồi: </p>")
+                .append("<blockquote>").append(request.getMoreFeedback()).append("</blockquote>")
+                .append("<p>Nếu có thắc mắc. Vui lòng liên hệ với chúng tôi qua email này.</p>")
+                .append("<p>Trân trọng,</p><p>Đội ngũ hỗ trợ <strong>3dtour.io.vn/3dtour/</strong>.</p>");
+        sendMail(request.getEmail(), subject, content.toString());
+    }
+
+    public void sendMailApproveTourSuccess(ApproveTourRequest request) {
+        String subject = "Phản hồi phê duyệt Tour từ VirtualTour.NLU.edu.vn";
+        StringBuilder content = new StringBuilder();
+        content.append("<p>Chào bạn,</p>")
+                .append("<p>Chúng tôi đã nhận được yêu cầu phê duyệt của bạn. <p style='color:green;'>Tour phê duyệt thành công.</p></p>")
+                .append("<p>Vui lòng kiểm tra tour trên website của chúng tôi</p>")
                 .append("<p>Nếu có thắc mắc. Vui lòng liên hệ với chúng tôi qua email này.</p>")
                 .append("<p>Trân trọng,</p><p>Đội ngũ hỗ trợ <strong>3dtour.io.vn/3dtour/</strong>.</p>");
         sendMail(request.getEmail(), subject, content.toString());

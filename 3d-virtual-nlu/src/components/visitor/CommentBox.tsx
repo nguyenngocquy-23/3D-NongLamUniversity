@@ -169,7 +169,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
                       </small>
                     </div>
                     <div>
-                      {user.username == 'admin' ? (
+                      {user.username == "admin" ? (
                         <>
                           <button
                             className={styles.reply_btn}
@@ -177,6 +177,20 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
                           >
                             Gỡ
                           </button>
+                          {comment.userId == userId &&
+                          (formatTimeAgo(comment.updatedAt) == "Bây giờ" ||
+                            formatTimeAgo(comment.updatedAt).includes(
+                              "phút"
+                            )) ? (
+                            <button
+                              className={styles.reply_btn}
+                              onClick={() => setEdittedCommentId(comment.id)}
+                            >
+                              Chỉnh sửa
+                            </button>
+                          ) : (
+                            ""
+                          )}
                           <button
                             className={styles.reply_btn}
                             onClick={() =>
@@ -265,7 +279,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
                           </small>
                         </div>
                         <div>
-                          {user.username == 'admin' ? (
+                          {user.username == "admin" ? (
                             <>
                               <button
                                 className={styles.reply_btn}
@@ -350,8 +364,9 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
             <div className={styles.reply_box}>
               <div style={{ display: "flex", alignItems: "center" }}>
                 <IoMdReturnRight style={{ marginRight: "5px" }} />
-                <i>{parent.username}</i> : {parent.content}
+                <i>{parent.username}</i> :
               </div>
+              <p className={styles.parent_content}>{parent.content}</p>
               <button
                 className={styles.reply_btn}
                 style={{ color: "white" }}
@@ -365,7 +380,7 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
           )}
           <input
             className={styles.input}
-            placeholder={parent ? "Phản hồi bình luận..." : "Nhập bình luận..."}
+            placeholder={parent ? "Trả lời bình luận..." : "Nhập bình luận..."}
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />

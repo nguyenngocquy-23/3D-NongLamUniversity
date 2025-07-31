@@ -3,7 +3,7 @@ import axios from "axios";
 import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../Store";
-import { API_URLS } from "../../env";
+import { API_URLS, DEFAULT_AVATAR } from "../../env";
 
 // Kiểu dữ liệu người dùng
 export interface User {
@@ -220,6 +220,31 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+
+// Thunk đăng nhập bằng googl
+export const loginWithGoogle = createAsyncThunk(
+  "auth/loginWithGoogle",
+  async (idToken: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(API_URLS.LOGIN_BY_GOOGLE, idToken, {
+        headers: { "Content-Type": "text/plain" },
+      });
+
+      const user = response.data.data.user;
+      if(user.avatar === null || user.avatar === "") {
+        user.avatar = DEFAULT_AVATAR;
+      }
+      return {
+        user: user,
+        token: response.data.data.token,
+      };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Google login failed");
+    }
+  }
+);
+
+
 // Thunk cập nhật user
 export const fetchUser = createAsyncThunk(
   "auth/fetchUser",
@@ -267,9 +292,6 @@ export const logoutUser = createAsyncThunk(
       sessionStorage.removeItem("user");
       sessionStorage.removeItem("token");
       await axios.post(API_URLS.LOGOUT, { token });
-
-
-      // Xoá sessionStorage
       return;
     } catch (error: any) {
       return rejectWithValue(
@@ -320,6 +342,23 @@ const authSlice = createSlice({
         sessionStorage.setItem("token", action.payload.token);
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      
+      // LOGIN GOOGLE
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        sessionStorage.setItem("user", JSON.stringify(action.payload.user));
+        sessionStorage.setItem("token", action.payload.token);
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })

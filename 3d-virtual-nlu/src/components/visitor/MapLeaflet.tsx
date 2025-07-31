@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import {
   MapContainer,
@@ -49,6 +49,7 @@ interface MapLeafletProps {
   setPoints?: React.Dispatch<React.SetStateAction<any[]>>;
   spaceId?: number;
   spaces?: any[];
+  hoverMap?: boolean;
 }
 
 // Component con để lắng nghe sự kiện click trên map
@@ -110,6 +111,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
   setPoints,
   spaceId,
   spaces: propsSpaces,
+  hoverMap,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const listSpaces = useSelector((state: RootState) => state.data.allSpaces);
@@ -228,6 +230,22 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
       });
     }
   };
+  
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const space = spacesToUse.find((s) => s.id === spaceId);
+    const location = JSON.parse(space.location);
+    const lat = location[0];
+    const lng = location[1];
+
+    const timeout = setTimeout(() => {
+      map.invalidateSize();
+      map.setView([lat, lng]);
+    }, 300); // match với CSS transition nếu có
+
+    return () => clearTimeout(timeout);
+  }, [hoverMap]);
 
   if (spacesToUse.length == 0) {
     return null;
@@ -268,7 +286,9 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
                 spaceId == space.id ? styles.pulse : ""
               }"
               style="background: url(${space.url});
-                    ${spaceId == space.id ? "border: 3px solid #3cbe22ff;" : ""}">
+                    ${
+                      spaceId == space.id ? "border: 3px solid #3cbe22ff;" : ""
+                    }">
               </div>`,
               iconSize: [40, 40],
               iconAnchor: [20, 20],

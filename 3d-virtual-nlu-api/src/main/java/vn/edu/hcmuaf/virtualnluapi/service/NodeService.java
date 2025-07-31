@@ -84,7 +84,12 @@ public class NodeService {
     }
 
     public List<NodeExpandResponse> getNodeListByMasterId(int nodeId) {
-        return nodeDao.getListNodeByMasterId(nodeId);
+        try {
+            return nodeDao.getListNodeByMasterId(nodeId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 
@@ -114,7 +119,7 @@ public class NodeService {
             if (request.getStatus() == 0) {
                 hotspotResult = hotspotDao.changeStatusForHotspotNav(handle, request);
             }
-            if (!nodeResult || !hotspotResult) {
+            if (!nodeResult) {
                 throw new RuntimeException("Failed to update both node and hotspot. Rollback.");
             }
             return true;
@@ -373,6 +378,15 @@ public class NodeService {
             throw new RuntimeException("Lỗi khi update hotspot cho node: " + req.getId(), e);
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi update hotspot cho node: " + req.getId(), e);
+        }
+    }
+
+    public List<NodeFullResponse> getFailNodeByUser(UserIdRequest request) {
+        try {
+            return nodeDao.getFailNodeByUser(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

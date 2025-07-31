@@ -10,7 +10,13 @@ import {
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { FaAngleRight, FaAngleUp, FaComment, FaEye } from "react-icons/fa6";
+import {
+  FaAngleRight,
+  FaAngleUp,
+  FaComment,
+  FaEye,
+  FaX,
+} from "react-icons/fa6";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,9 +51,6 @@ import UpdateHotspot from "../../components/admin/taskCreateTourList/UpdateHotsp
 import { useSequentialTasks } from "../../hooks/useSequentialTasks";
 import { tasks } from "../admin/CreateTourStep2";
 import { IoMdMenu } from "react-icons/io";
-import TaskUpdate1 from "../../components/admin/taskCreateTourList/Task1UpdateInfo";
-import TaskUpdate2 from "../../components/admin/taskCreateTourList/Task2UpdateConfig";
-import TaskUpdate3 from "../../components/admin/taskCreateTourList/Task3UpdateHotspot";
 import {
   isInteger,
   NodeExpandResponse,
@@ -67,6 +70,7 @@ import {
   getFilteredHotspotMediaInList,
   getFilteredHotspotModelInList,
   getFilteredHotspotNavigationInList,
+  getHotspotLinkMap,
 } from "../../redux/slices/Selectors";
 import { AnimatePresence, motion } from "framer-motion";
 import Task1 from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
@@ -77,6 +81,10 @@ import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL";
 import { FaAngleDoubleUp } from "react-icons/fa";
 import Task3 from "../../components/admin/taskCreateTourList/Task3AddHotspot";
 import { diffNode } from "../../utils/DiffNodeForUpdate";
+import _Draggable from "gsap/Draggable";
+import { IoWarning } from "react-icons/io5";
+import { CiWarning } from "react-icons/ci";
+import { IoReturnDownBack } from "react-icons/io5";
 
 /**
  * Data đại diện của MasterNodeId có thêm:
@@ -156,6 +164,8 @@ const TourDetail = () => {
   >([]);
   const [cameraAngle, setCameraAngle] = useState(0);
   const [isTextureReady, setIsTextureReady] = useState(false);
+  const [isValidated, setIsValidated] = useState(true);
+  const [isOpenFeedback, setIsOpenFeedback] = useState(true);
 
   const {
     positionX = 0,
@@ -174,39 +184,6 @@ const TourDetail = () => {
     imageRef.current[currentNodeView?.url ?? ""]?.objectUrl ??
     currentNodeView?.url ??
     "/khoa.jpg";
-
-  // Version of Quy 1.1.
-
-  // useEffect(() => {
-  //   if (nodeId) {
-  //     handleFetchNode(nodeId || "");
-  //   }
-  // }, [nodeId]);
-  // const { panoramaList, currentSelectId } = useSelector(
-  //   (state: RootState) => state.panoramas
-  // );
-  // useEffect(() => {
-  //   if (node) {
-  //     dispatch(fetchPreloadNodes(Number.parseInt(node.id)));
-  //   }
-  // }, [node]);
-
-  // const preloadNodes = useSelector(
-  //   (state: RootState) => state.data.preloadNodes
-  // );
-
-  // useEffect(() => {
-  //   if (preloadNodes && node) {
-  //     const nodes = [node, ...preloadNodes];
-  //     dispatch(clearPanorama());
-  //     dispatch(clearHotspot());
-  //     const { panoramaList, hotspotList } =
-  //       TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
-
-  //     dispatch(addPanoramasFromResponse(panoramaList));
-  //     dispatch(addHotspotsFromResponse(hotspotList));
-  //   }
-  // }, [preloadNodes, node, dispatch]);
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
@@ -228,21 +205,12 @@ const TourDetail = () => {
       case 2:
         return (
           <>
-            {/* <TaskUpdate2 cameraRef={cameraRef} /> */}
             <Task2 cameraRef={cameraRef} controlsRef={controlsRef} />
           </>
         );
       case 3:
         return (
           <>
-            {/* <TaskUpdate3
-              isAssignable={assignable}
-              setAssignable={setAssignable}
-              setCurrentHotspotType={setCurrentHotspotType}
-              onPropsChange={handleOnPropsChange}
-              // currentPanorama={node}
-              currentPanorama={currentNodeView}
-            /> */}
             <Task3
               isAssignable={assignable}
               setAssignable={setAssignable}
@@ -262,10 +230,6 @@ const TourDetail = () => {
    * end logc update tour step 2
    */
 
-  /**
-   * Cho update tour same step3
-   */
-  const panoramas = useSelector((state: RootState) => state.panoramas);
   const hotspots = useSelector((state: RootState) => state.hotspots);
 
   useEffect(() => {
@@ -332,7 +296,6 @@ const TourDetail = () => {
                   quality: "8K",
                   lastUsed: Date.now(),
                 };
-                console.log("✅ Cached ảnh 360:", node.url);
               };
             })
             .catch((err) => {
@@ -386,7 +349,6 @@ const TourDetail = () => {
 
   const handleUpdateTour = async () => {
     if (panoramaList.length === 0) {
-      alert("spaceId bị null hay panorama không chứa giá trị..");
       Swal.fire({
         title: "Không thể cập nhật",
         text: "Danh sách ảnh của bạn đang rỗng, không thể cập nhật!",
@@ -396,6 +358,18 @@ const TourDetail = () => {
         timer: 3000,
         timerProgressBar: true,
         showConfirmButton: false,
+      });
+      return;
+    }
+    if (!isFullConnected) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng kiểm tra lại các điểm tương tác đến các ảnh trong cùng tour!",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: true,
+        timer: 3000,
       });
       return;
     }
@@ -463,6 +437,27 @@ const TourDetail = () => {
       console.log("Lỗi khi cập nhật: ", error);
     }
   };
+
+  const linkMap = useSelector(getHotspotLinkMap); // Lấy ra được 1 tập hợp Map.
+  const panoramaSubItemIds = panoramaList
+    .filter((p) => p.config.status === 1)
+    .map((p) => p.id);
+
+  const isFullConnected = useMemo(() => {
+    if (!currentTour || !linkMap.has(currentTour.id)) return false;
+
+    // Master phải trỏ đến tất cả slave
+    const fromMaster = linkMap.get(currentTour.id) ?? new Set();
+    const toAllSlaves = panoramaSubItemIds.every((pId) => fromMaster.has(pId));
+
+    // Mỗi slave phải có hotspot trỏ ngược về master
+    const allSlavesPointBack = panoramaSubItemIds.every((pId) => {
+      const links = linkMap.get(pId);
+      return links?.has(currentTour.id);
+    });
+
+    return toAllSlaves && allSlavesPointBack;
+  }, [linkMap, currentTour, panoramaSubItemIds]);
 
   useEffect(() => {
     dispatch(fetchCommentOfNode(parseInt(nodeId || "", 10)));
@@ -702,7 +697,6 @@ const TourDetail = () => {
             name: "",
             description: "",
             autoRotate: 0,
-            colorCode: "",
             thumbnailUrl: "",
           })
         );
@@ -734,10 +728,43 @@ const TourDetail = () => {
     handleSelectNode(targetNodeId);
   };
 
+  const [feedback, setFeedback] = useState<any>(null);
+
+  useEffect(() => {
+    if (!currentNodeView) return;
+    if (currentNodeView.config.status == 4) {
+      setIsUpdateTour(true);
+      const fetchFeedback = async () => {
+        try {
+          const response = await axios.post(
+            `${API_URLS.GET_FEEDBACK_BY_NODE_ID}`,
+            {
+              nodeId: currentNodeView.id,
+            }
+          );
+          const data = response.data.data;
+          if (data) {
+            const feedbacks = JSON.parse(data.feedbackList) as string[];
+            const feedback = {
+              feedbackList: feedbacks,
+              moreFeedback: data.moreFeedback,
+              createdAt: formatTimeAgo(data.createdAt),
+            };
+            setFeedback(feedback);
+          } else {
+            setFeedback(null);
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy phản hồi:", error);
+        }
+      };
+      fetchFeedback();
+    } else {
+      setIsUpdateTour(false);
+    }
+  }, [currentNodeView]);
+
   // Version of quy
-  // if (!node || !comments) {
-  //   return null;
-  // }
 
   // Version of Kien
   if (!currentTour || !comments) {
@@ -896,7 +923,8 @@ const TourDetail = () => {
 
         {/* Version of Quy */}
         {/* {node.status == 3 ? ( */}
-        {currentNodeView.status == 3 ? (
+        {currentNodeView.config.status == 3 ||
+        currentNodeView.config.status == 4 ? (
           ""
         ) : isFullPreview || isUpdateTour ? (
           <span className={styles.toggle_open_feature}>
@@ -913,7 +941,7 @@ const TourDetail = () => {
           <div>
             <div className={styles.info}>
               <div className={styles.sub_info}>
-                <span className={styles.name}>Cập nhật </span>
+                <span className={styles.name}>Cập nhật</span>
                 <span className={styles.des}>
                   {/* {formatTimeAgo(node.updatedAt)}  */}
                   {originalMasterNode?.updatedAt
@@ -925,8 +953,6 @@ const TourDetail = () => {
                 <span className={styles.name}>Trạng thái</span>
                 <span className={styles.des}>
                   {/* getStatusText */}
-                  {/* {node.status == 2 ? "Đang hoạt động" : "Ngưng hoạt động"} */}
-
                   {getStatusNode(currentTour.config.status)}
                 </span>
               </div>
@@ -1003,6 +1029,7 @@ const TourDetail = () => {
             ""
           )}
         </div>
+
         {isUpdateTour && (
           <>
             <div className={styles.toggle_right_menu}>
@@ -1011,17 +1038,50 @@ const TourDetail = () => {
                 onClick={() => handleOpenMenu()}
               />
             </div>
-
-            <button
-              className={styles.cancel_update_btn}
-              onClick={() => {
-                setIsUpdateTour(false);
-                setIsFullPreview(false);
-              }}
-            >
-              Huỷ
-            </button>
-
+            {currentNodeView.config.status == 4 && !isOpenFeedback && (
+              <button
+                className={styles.view_feedback_button}
+                onClick={() => setIsOpenFeedback((prev) => !prev)}
+                title="Xem phản hồi"
+              >
+                <IoWarning />
+              </button>
+            )}
+            {currentNodeView.config.status == 4 && isOpenFeedback && (
+              <div className={styles.feedback_container}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <h3>Phản hồi </h3>
+                  <FaX
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setIsOpenFeedback(false)}
+                  />
+                </div>
+                {feedback && (
+                  <p className={styles.approve_time}>{feedback.createdAt}</p>
+                )}
+                {feedback &&
+                  feedback.feedbackList.map((f: any, index: any) => (
+                    <div key={index} className={styles.feedback_item}>
+                      <p
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          color: "red",
+                        }}
+                      >
+                        ⚠ {f}
+                      </p>
+                    </div>
+                  ))}
+                {feedback && <p>Thêm: {feedback.moreFeedback}</p>}
+              </div>
+            )}
             <AnimatePresence>
               {isMenuVisible && (
                 <motion.div
@@ -1047,54 +1107,107 @@ const TourDetail = () => {
                     isUpdateTour={true}
                     handleUpdateTour={handleUpdateTour}
                     saveLinkNode={false}
+                    isValidated={isValidated}
+                    setIsValidated={setIsValidated}
                   />
                 </motion.div>
               )}
             </AnimatePresence>
+            {currentNodeView.config.status === 2 &&
+            currentNodeView.id !== nodeId ? (
+              <button
+                className={styles.cancel_update_btn}
+                onClick={() => {
+                  if (nodeId) handleSelectNode(nodeId);
+                }}
+              >
+                Quay về tour hiện tại <IoReturnDownBack />
+              </button>
+            ) : (
+              <>
+                <div className={styles.toggle_right_menu}>
+                  <IoMdMenu
+                    className={styles.show_menu}
+                    onClick={handleOpenMenu}
+                  />
+                </div>
 
-            <AnimatePresence>
-              {isMenuVisible &&
-                openTaskIndex !== null &&
-                currentHotspotId === null && (
-                  <motion.div
-                    initial={{ y: 800, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 800, opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className={`${stylesRightMenu.task_container}`}
-                  >
-                    <TaskContainerCT
-                      id={preTaskIndex}
-                      name={
-                        tasks.find((t) => t.id === preTaskIndex)?.title || ""
-                      }
+                <AnimatePresence>
+                  {isMenuVisible && (
+                    <motion.div
+                      initial={{ x: 300, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: 300, opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className={stylesRightMenu.rightMenu}
                     >
-                      {preTaskIndex
-                        ? getTaskContentById(openTaskIndex ?? preTaskIndex)
-                        : ""}
-                    </TaskContainerCT>
-                  </motion.div>
-                )}
-            </AnimatePresence>
-            {/* Hộp chỉnh sửa hotspot */}
-            <AnimatePresence>
-              {currentHotspotId !== null && (
-                <motion.div
-                  initial={{ y: 800, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: 800, opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className={`${stylesRightMenu.update_hotspot_container} `}
-                >
-                  <UpdateHotspot
-                    hotspotId={currentHotspotId}
-                    setHotspotId={setCurrentHotspotId}
-                    onPropsChange={handleOnPropsChange}
-                    limitNav={false}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+                      <div className={stylesRightMenu.rightTitle}>
+                        <FaAngleRight
+                          className={stylesRightMenu.close_menu_btn}
+                          onClick={handleOpenMenu}
+                        />
+                        <h2>Cấu hình</h2>
+                      </div>
+
+                      <RightMenuCreateTour
+                        tasks={tasks}
+                        openTaskIndex={openTaskIndex}
+                        onTaskClick={handleOpenTask}
+                        setPreOpenTask={setPreTaskIndex}
+                        isUpdateTour={true}
+                        handleUpdateTour={handleUpdateTour}
+                        saveLinkNode={false}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {isMenuVisible &&
+                    openTaskIndex !== null &&
+                    currentHotspotId === null && (
+                      <motion.div
+                        initial={{ y: 800, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 800, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className={stylesRightMenu.task_container}
+                      >
+                        <TaskContainerCT
+                          id={preTaskIndex}
+                          name={
+                            tasks.find((t) => t.id === preTaskIndex)?.title ||
+                            ""
+                          }
+                        >
+                          {preTaskIndex
+                            ? getTaskContentById(openTaskIndex ?? preTaskIndex)
+                            : ""}
+                        </TaskContainerCT>
+                      </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {currentHotspotId !== null && (
+                    <motion.div
+                      initial={{ y: 800, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: 800, opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className={stylesRightMenu.update_hotspot_container}
+                    >
+                      <UpdateHotspot
+                        hotspotId={currentHotspotId}
+                        setHotspotId={setCurrentHotspotId}
+                        onPropsChange={handleOnPropsChange}
+                        limitNav={false}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            )}
           </>
         )}
       </div>

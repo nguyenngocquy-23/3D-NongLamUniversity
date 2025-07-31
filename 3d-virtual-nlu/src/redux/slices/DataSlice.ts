@@ -18,6 +18,7 @@ interface DataState {
   preloadNodes: any[];
   nodeOfUser: any[];
   privateNodeOfUser: any[];
+  failNodeOfUser: any[];
   defaultNode: any;
   trackNodes: any[];
   icons: any[];
@@ -40,6 +41,7 @@ const initialState: DataState = {
   masterNodes: [],
   nodeOfUser: [],
   privateNodeOfUser: [],
+  failNodeOfUser: [],
   defaultNode: null,
   trackNodes: [],
   preloadNodes: [],
@@ -114,7 +116,9 @@ export const fetchNodeOfUser = createAsyncThunk(
 export const fetchAutoNode = createAsyncThunk(
   "data/fetchAutoNode",
   async ({ limit, page }: { limit: number; page: number }) => {
-    const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
+    const userJson = sessionStorage.getItem("user");
+    const user = userJson ? JSON.parse(userJson) : null;
+    const response = await axios.post(user.roleId == 1 ? API_URLS.GET_AUTO_TOURS : API_URLS.ADMIN_GET_AUTO_TOURS, {
       page: page,
       limit: limit,
     });
@@ -139,6 +143,17 @@ export const fetchPrivateNodeOfUser = createAsyncThunk(
   "data/fetchPrivateNodeOfUser",
   async (userId: number) => {
     const response = await axios.post(API_URLS.PRIVATE_NODE_OF_USER, {
+      userId: userId,
+    });
+    return response.data.data;
+  }
+);
+
+// Fetch fail nodes of user
+export const fetchFailNodeOfUser = createAsyncThunk(
+  "data/fetchFailNodeOfUser",
+  async (userId: number) => {
+    const response = await axios.post(API_URLS.FAIL_NODE_OF_USER, {
       userId: userId,
     });
     return response.data.data;
@@ -512,6 +527,17 @@ const dataSlice = createSlice({
         state.privateNodeOfUser = action.payload;
       })
       .addCase(fetchPrivateNodeOfUser.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchFailNodeOfUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchFailNodeOfUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.failNodeOfUser = action.payload;
+      })
+      .addCase(fetchFailNodeOfUser.rejected, (state) => {
         state.status = "failed";
       })
 

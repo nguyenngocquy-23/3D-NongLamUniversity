@@ -28,7 +28,7 @@
     border: none;
     outline: none;
     background-color: transparent;
-    color: #62f046;
+    color: #267026;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -119,7 +119,7 @@
 }
 .reply_button {
     padding: 10px 16px;
-    background-color: #62f046;
+    background-color: #267026;
     color: white;
     border: none;
     border-radius: 6px;

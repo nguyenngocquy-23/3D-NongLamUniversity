@@ -98,6 +98,7 @@ const ConfigAutoTour = ({
             className={styles.input}
             type="text"
             value={name}
+            disabled={true}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nhập tên node"
           />
@@ -107,6 +108,7 @@ const ConfigAutoTour = ({
           <textarea
             className={styles.textarea}
             value={description}
+            disabled={true}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Thêm mô tả chi tiết"
           />

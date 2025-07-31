@@ -7,15 +7,89 @@ import axios from "axios";
 import { ApiResponse, CloudinaryUploadResp } from "../UploadFile";
 import { API_URLS } from "../../../env";
 import Swal from "sweetalert2";
+import { GLTFLoader } from "three/examples/jsm/Addons.js";
 
 type Props = {
   modelUrl: string;
   onThumbnailSaved: (url: string) => void; // callback về cho cha
 };
 
-const Model = ({ url }: { url: string }) => {
-  const gltf = useGLTF(url);
-  return <primitive object={gltf.scene} dispose={null} />;
+const SafeModel = ({
+  url,
+  setError,
+}: {
+  url: string;
+  setError: (error: boolean) => void;
+}) => {
+  const [gltf, setGltf] = useState<any>(null);
+  const [isError, setIsError] = useState<string | null>(null);
+
+  const [position, setPosition] = useState<[number, number, number]>([0, 0, 0]);
+
+  useEffect(() => {
+    const step = 0.1;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      setPosition((prev) => {
+        const [x, y, z] = prev;
+        switch (e.key) {
+          case "ArrowUp":
+            return [x, y + step, z];
+          case "ArrowDown":
+            return [x, y - step, z];
+          case "ArrowLeft":
+            return [x - step, y, z];
+          case "ArrowRight":
+            return [x + step, y, z];
+          default:
+            return prev;
+        }
+      });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    if (!url) return;
+    const loader = new GLTFLoader();
+
+    loader.load(
+      url,
+      (data) => setGltf(data),
+      undefined,
+      (err) => {
+        setIsError("Mô hình lỗi. Không thể tải mô hình.");
+        setError(true);
+      }
+    );
+  }, [url]);
+
+  if (isError)
+    return (
+      <Html>
+        <div
+          style={{
+            color: "red",
+            width: "200px",
+            textAlign: "center",
+            transform: "translateX(-50%)",
+          }}
+        >
+          {isError}
+        </div>
+      </Html>
+    );
+  if (!gltf) return <Html>Đang tải mô hình...</Html>;
+
+  return (
+    <primitive
+      object={gltf.scene}
+      position={position}
+      scale={[0.5, 0.5, 0.5]}
+    />
+  );
 };
 
 const SnapshotHelper = ({
@@ -41,7 +115,7 @@ const SnapshotHelper = ({
           whiteSpace: "nowrap",
           top: 100,
           right: 0,
-          color: "black",
+          color: "white",
           padding: "0.5rem 1rem",
           zIndex: 1,
         }}
@@ -56,6 +130,7 @@ const ModelPreviewWithSnapshot = ({ modelUrl, onThumbnailSaved }: Props) => {
   const [snapshot, setSnapshot] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [isSave, setIsSave] = useState(false);
+  const [error, setError] = useState(false);
 
   const uploadToCloud = async (snapshot: string) => {
     const formData = new FormData();
@@ -105,7 +180,7 @@ const ModelPreviewWithSnapshot = ({ modelUrl, onThumbnailSaved }: Props) => {
         >
           <ambientLight intensity={0.8} />
           <directionalLight position={[3, 3, 3]} />
-          <Model url={modelUrl} />
+          <SafeModel url={modelUrl} setError={setError} />
           <OrbitControls />
           <SnapshotHelper onSnapshotReady={setSnapshot} />
         </Canvas>

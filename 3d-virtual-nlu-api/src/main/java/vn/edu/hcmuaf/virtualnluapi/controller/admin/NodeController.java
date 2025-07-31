@@ -178,7 +178,6 @@ public class NodeController {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-
     public ApiResponse<List<NodeExpandResponse>> updateNodeOverviewById(@PathParam("id") int id, NodeUpdateOverviewRequest request) {
 
         boolean result = nodeService.updateNodePartial(id, request);

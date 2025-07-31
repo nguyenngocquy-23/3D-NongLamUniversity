@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, useEffect } from "react";
+import React, { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import styles from "../../styles/managerTourDetail.module.css";
 import stylesOverview from "../../styles/spaceDetail.module.css";
 import * as THREE from "three";
@@ -27,7 +27,12 @@ import {
   smartUpdatePanoramasFromResponse,
 } from "../../redux/slices/PanoramaSlice.ts";
 import {
+  addHotspotPosition,
   addHotspotsFromResponse,
+  addInformationHotspot,
+  addMediaHotspot,
+  addModelHotspot,
+  addNavigationHotspot,
   BaseHotspot,
   clearHotspot,
 } from "../../redux/slices/HotspotSlice.ts";
@@ -38,7 +43,7 @@ import {
 } from "../../utils/TourNodeRequestMapper.ts";
 import { IoChevronBack } from "react-icons/io5";
 import { CiEdit } from "react-icons/ci";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, ThreeEvent } from "@react-three/fiber";
 import {
   DEFAULT_ORIGINAL_Z,
   MAX_DESCRIPTION,
@@ -113,6 +118,7 @@ const ManagerTourDetail: React.FC = () => {
   const [originalMasterNode, setOriginalMasterNode] =
     useState<PanoramaItemForApprove | null>(null);
   const [messageRefuse, setMessageRefuse] = useState<string>("");
+  const [isValidated, setIsValidated] = useState(true);
 
   useEffect(() => {
     if (!nodeId) return;
@@ -202,6 +208,8 @@ const ManagerTourDetail: React.FC = () => {
 
   const hotspots = useSelector((state: RootState) => state.hotspots);
 
+  const auth = useSelector((state: RootState) => state.auth.user);
+
   const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
   const hotspotInformations = useSelector(getFilteredHotspotInformationInList);
   const hotspotModels = useSelector(getFilteredHotspotModelInList);
@@ -218,6 +226,43 @@ const ManagerTourDetail: React.FC = () => {
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
     []
   );
+  const [feedbackList, setFeedbackList] = useState<any[]>([]);
+  const [selectedFeedbackList, setSelectedFeedbackList] = useState<string[]>(
+    []
+  );
+
+  const toggleFeedback = (id: string) => {
+    const feedback = feedbackList.find((f) => f.id.toString() == id);
+    if (!feedback) return;
+
+    const content = feedback.content;
+
+    setSelectedFeedbackList(
+      (prev) =>
+        prev.includes(content)
+          ? prev.filter((c) => c != content) // Bỏ nếu đã có
+          : [...prev, content] // Thêm nếu chưa có
+    );
+  };
+
+  useEffect(() => {
+    if (approveStatus === 4) {
+      const handleFetchFeedback = async () => {
+        try {
+          const response = await axios.get(API_URLS.ADMIN_GET_FEEDBACK);
+          if (response.data.data) {
+            setFeedbackList(response.data.data);
+          } else {
+            console.warn("Lỗi khi lấy feedback", response.data.message);
+          }
+        } catch (error) {
+          console.error("Lỗi khi gọi API feedback", error);
+        }
+      };
+      handleFetchFeedback();
+    }
+  }, [approveStatus]);
+
   const [originalListSpace, setOriginalListSpace] = useState<
     { id: number; name: string }[]
   >([]);
@@ -275,6 +320,26 @@ const ManagerTourDetail: React.FC = () => {
   const [currentHotspotType, setCurrentHotspotType] = useState(1);
   const [validIcon, setValidIcon] = useState(true);
   const [cameraAngle, setCameraAngle] = useState(0);
+  const hotspotPosition = useSelector(
+    (state: RootState) => state.hotspots.hotspotPositions
+  );
+  const [currentPoints, setCurrentPoints] = useState<
+    [number, number, number][]
+  >([]);
+
+  const {
+    positionX = 0,
+    positionY = 0,
+    positionZ = DEFAULT_ORIGINAL_Z,
+    lightIntensity = 1,
+    autoRotate = 0,
+    speedRotate = 0,
+    brightness = 1,
+    contrast = 1,
+    saturation = 1.2,
+    grayscale = 0,
+    exposure = 1,
+  } = currentNodeView?.config ?? {};
 
   const handleSelectField = async (event: any) => {
     const fieldId = event?.target.value;
@@ -407,75 +472,187 @@ const ManagerTourDetail: React.FC = () => {
     }
   };
 
+  const handleScenePointerDown = (
+    e: ThreeEvent<PointerEvent>,
+    point: THREE.Vector3
+  ) => {
+    if (!currentHotspotType || !assignable) {
+      return;
+    }
+    const limit = (basicProps?.scale || 1) * 5 + 5;
+    const minX = point.x - limit;
+    const maxX = point.x + limit;
+    const minY = point.y - limit;
+    const maxY = point.y + limit;
+    const minZ = point.z - limit;
+    const maxZ = point.z + limit;
+
+    const isNear = hotspotPosition
+      .filter((h) => h.nodeId === currentSelectId)
+      .some((h) =>
+        h.hotspotPositions.some(
+          (hotspot) =>
+            hotspot.position[0] > minX &&
+            hotspot.position[0] < maxX &&
+            hotspot.position[1] > minY &&
+            hotspot.position[1] < maxY &&
+            hotspot.position[2] > minZ &&
+            hotspot.position[2] < maxZ
+        )
+      );
+    if (isNear) {
+      Swal.fire({
+        title: "Cảnh báo",
+        text: "Các hotspot không được nằm gần nhau",
+        icon: "warning",
+        showCancelButton: false,
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
+      return;
+    }
+    if (!validIcon) {
+      Swal.fire({
+        title: "Cảnh báo",
+        text: "Vui lòng chọn Icon trước khi click",
+        icon: "warning",
+        showCancelButton: false,
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    const newPoints = [...currentPoints, [point.x, point.y, point.z]] as [
+      number,
+      number,
+      number
+    ][];
+
+    // Với hotspot loại 3: thu thập 4 điểm và dispatch khi đủ
+    if (currentHotspotType === 3) {
+      setCurrentPoints(newPoints);
+
+      if (newPoints.length === 4) {
+        const updatedProps: BaseHotspot = {
+          ...(basicProps as Required<BaseHotspot>),
+          positionX: point.x,
+          positionY: point.y,
+          positionZ: point.z,
+        };
+
+        dispatch(
+          addMediaHotspot({
+            ...updatedProps,
+            type: 3,
+            mediaType: "",
+            mediaUrl: "",
+            caption: "",
+            cornerPointList: JSON.stringify(newPoints),
+          })
+        );
+
+        setAssignable(false);
+        setCurrentHotspotType(1);
+        setCurrentPoints([]);
+      }
+      return;
+    }
+
+    // Với hotspot loại 1, 2, 4
+    const updatedProps: BaseHotspot = {
+      ...(basicProps as Required<BaseHotspot>),
+      positionX: point.x,
+      positionY: point.y,
+      positionZ: point.z,
+    };
+
+    switch (currentHotspotType) {
+      case 1:
+        dispatch(
+          addNavigationHotspot({
+            ...updatedProps,
+            type: 1,
+            targetNodeId: "",
+          })
+        );
+        break;
+
+      case 2:
+        dispatch(
+          addInformationHotspot({
+            ...updatedProps,
+            type: 2,
+            content: "",
+            backgroundColorContent: { r: 0, g: 0, b: 0, a: 0 },
+            borderColorContent: "",
+            borderSizeContent: 0,
+          })
+        );
+        break;
+
+      case 4:
+        dispatch(
+          addModelHotspot({
+            ...updatedProps,
+            type: 4,
+            modelUrl: "",
+            name: "",
+            description: "",
+            autoRotate: 0,
+            colorCode: "",
+            thumbnailUrl: "",
+          })
+        );
+        break;
+    }
+    dispatch(
+      addHotspotPosition({
+        nodeId: currentSelectId ? currentSelectId : "",
+        hotspotPosition: {
+          id: updatedProps.id,
+          position: [point.x, point.y, point.z],
+        },
+      })
+    );
+
+    if ([1, 2, 4].includes(currentHotspotType)) {
+      setAssignable(false);
+      setCurrentHotspotType(1);
+    }
+  };
+
   /**
    *
    * Xử lý cập nhật phê duyệt.
    */
-  const handleApproveTour = async (status: number, message: string) => {
-    //Gọi api change status
+  const handleApproveTour = async () => {
     try {
-      const response = await axios.patch(
-        `${API_URLS.ADMIN_CHANGE_NODE_STATUS}`
-        // { nodeId, status: toggle.current }
-      );
+      const response = await axios.post(`${API_URLS.ADMIN_APPROVE_TOUR}`, {
+        nodeId: Number(nodeId),
+        email: originalMasterNode?.email,
+        feedbackList: approveStatus == 2 ? "" : JSON.stringify(selectedFeedbackList),
+        moreFeedback: approveStatus == 2 ? "" : messageRefuse,
+      });
 
-      if (response.data.statusCode === 1000) {
+      if (response.data.data) {
         Swal.fire({
-          title: "Thành công",
-          text: `${response.data?.message}`,
+          title: "Phê duyệt thành công",
+          text: "Phê duyệt thành công",
           icon: "success",
           toast: true,
           timer: 2000,
           position: "top-end",
           showConfirmButton: false,
         });
-        const nodes: NodeExpandResponse[] = response.data.data;
-
-        const mainNode = nodes.find((node) => node.id == nodeId);
-        if (mainNode) {
-          setFieldId(mainNode.fieldId);
-
-          try {
-            const response = await axios.post(
-              API_URLS.ADMIN_GET_SPACE_OF_FIELD,
-              {
-                fieldId: mainNode.fieldId,
-              }
-            );
-            if (response.data.statusCode === 1000) {
-              setListSpace(response.data.data);
-              setOriginalListSpace(response.data.data);
-            } else {
-              console.warn("Lỗi dữ liệu space", response.data.message);
-              //fallback lấy mỗi cái đang active đủ dùng.
-              setListSpace([
-                { id: Number(mainNode.spaceId), name: mainNode.spaceName },
-              ]);
-              setOriginalListSpace([
-                { id: Number(mainNode.spaceId), name: mainNode.spaceName },
-              ]);
-            }
-          } catch (err) {
-            console.warn("Lỗi khi gọi API space", err);
-            //fallback lấy mỗi cái đang active đủ dùng.
-            setListSpace([
-              { id: Number(mainNode.spaceId), name: mainNode.spaceName },
-            ]);
-            setOriginalListSpace([
-              { id: Number(mainNode.spaceId), name: mainNode.spaceName },
-            ]);
-          }
-        }
-
-        const { panoramaList } =
-          TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
-        dispatch(smartUpdatePanoramasFromResponse(panoramaList)); // chỉ cập nhật node.
-
-        setEditInformation(false);
       } else {
         Swal.fire({
           title: "Thất bại",
-          text: `${response.data?.message || ""}`,
+          text: "Phê duyệt thất bại.",
           icon: "error",
           toast: true,
           timer: 2000,
@@ -484,7 +661,7 @@ const ManagerTourDetail: React.FC = () => {
         });
       }
     } catch (error: any) {
-      console.error("Lỗi khi cập nhật tour:", error);
+      console.error("Lỗi khi phê duyệt tour:", error);
       Swal.fire("Lỗi kết nối", error?.message || "Không rõ lý do", "error");
     }
   };
@@ -863,6 +1040,8 @@ const ManagerTourDetail: React.FC = () => {
                         Huỷ
                       </button>
                     </>
+                  ) : auth.roleId != originalMasterNode?.userId ? (
+                    ""
                   ) : (
                     <button
                       className={stylesOverview.edit_information_btn}
@@ -888,17 +1067,23 @@ const ManagerTourDetail: React.FC = () => {
               }}
               className={styles.tourCanvas}
             >
-              <Perf />
               <UpdateCameraOnResize />
               <Environment preset="studio" background={false} />
               <axesHelper args={[10]} position={[0, -90, 0]} />
               <TourScene
                 radius={RADIUS_SPHERE}
                 sphereRef={sphereRef}
+                // imageRef={imageRef}
                 textureCurrent={currentNodeView.url}
-                yawOffsetCurrent={currentNodeView.config.yawOffset}
-                lightIntensity={1}
+                yawOffsetCurrent={currentNodeView.config.yawOffset ?? 0}
+                onPointerDown={handleScenePointerDown}
                 onTextureReady={() => setIsTextureReady(true)}
+                lightIntensity={lightIntensity}
+                brightness={brightness}
+                contrast={contrast}
+                saturation={saturation}
+                grayscale={grayscale}
+                exposure={exposure}
               />
               <CamControls
                 controlsRef={controlsRef}
@@ -923,16 +1108,23 @@ const ManagerTourDetail: React.FC = () => {
                 locked={userId !== authorId}
               />
 
-              {isTextureReady &&
-                hotspotInformations
-                  .filter((hotspot) => hotspot.nodeId == currentNodeView.id)
-                  .map((hotspot) => (
-                    <GroundHotspotInfo
-                      key={hotspot.id}
-                      hotspotInfo={hotspot}
-                      setCurrentHotspotId={setCurrentHotspotId}
-                    />
-                  ))}
+              <Suspense fallback={null}>
+                {isTextureReady &&
+                  hotspotInformations
+                    .filter(
+                      (hotspot) =>
+                        hotspot.nodeId == currentNodeView.id &&
+                        hotspot.status == 1
+                    )
+                    .map((hotspot) => (
+                      <GroundHotspotInfo
+                        key={hotspot.id}
+                        hotspotInfo={hotspot}
+                        setCurrentHotspotId={setCurrentHotspotId}
+                      />
+                    ))}
+              </Suspense>
+
               {isTextureReady &&
                 hotspotNavigations
                   .filter((hotspot) => hotspot.nodeId == currentNodeView.id)
@@ -1002,6 +1194,8 @@ const ManagerTourDetail: React.FC = () => {
                         onTaskClick={handleOpenTask}
                         setPreOpenTask={setPreTaskIndex}
                         saveLinkNode={false}
+                        isValidated={isValidated}
+                        setIsValidated={setIsValidated}
                       />
                     </motion.div>
                   )}
@@ -1057,11 +1251,11 @@ const ManagerTourDetail: React.FC = () => {
           </div>
         )}
       </div>
+      {/* Phê duyệt */}
       {approveForm ? (
         <div className={styles.approve_container}>
           <div className={styles.approve_form}>
             <div className={styles.approve_form_options}>
-              <span>Tuỳ chọn : </span>
               <div className={styles.radio_container}>
                 <label className={styles.radio_item} htmlFor="acceptApprove">
                   <input
@@ -1092,23 +1286,51 @@ const ManagerTourDetail: React.FC = () => {
               </div>
             </div>
             {approveStatus === 4 && (
-              <div className={styles.approve_form_message}>
-                <label
-                  className={stylesOverview.label_information}
-                  htmlFor="message"
-                >
-                  Phản hồi:{" "}
-                </label>
-                <textarea
-                  id="message"
-                  value={messageRefuse}
-                  onChange={(e) => setMessageRefuse(e.target.value)}
-                  rows={5}
-                  cols={40}
-                  placeholder="Tối đa 300 ký tự."
-                  className={stylesOverview.description_content}
-                />
-              </div>
+              <>
+                <div className={styles.approve_form_message}>
+                  <label
+                    className={stylesOverview.label_information}
+                    htmlFor="message"
+                  >
+                    Phản hồi:
+                  </label>
+                  <div className={stylesOverview.feedback_list}>
+                    {feedbackList.length > 0 &&
+                      feedbackList.map((feedback) => {
+                        const isSelected = selectedFeedbackList.includes(
+                          feedback.content
+                        );
+
+                        return (
+                          <div
+                            key={feedback.id}
+                            className={`${stylesOverview.feedback_item} ${
+                              isSelected ? stylesOverview.selected : ""
+                            }`}
+                            onClick={() =>
+                              toggleFeedback(feedback.id.toString())
+                            }
+                          >
+                            <p className={stylesOverview.feedback_content}>
+                              {feedback.content}
+                            </p>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+                <div className={styles.approve_form_message}>
+                  <textarea
+                    id="message"
+                    value={messageRefuse}
+                    onChange={(e) => setMessageRefuse(e.target.value)}
+                    rows={4}
+                    cols={40}
+                    placeholder="Mô tả thêm(Tối đa 300 ký tự):"
+                    className={stylesOverview.description_content}
+                  />
+                </div>
+              </>
             )}
             <div className={styles.approve_btn}>
               <button
@@ -1117,12 +1339,15 @@ const ManagerTourDetail: React.FC = () => {
               >
                 Huỷ
               </button>
-              {/* <button
+              <button
                 className={stylesOverview.edit_information_btn}
-                onClick={handleApproveTour(approveStatus, messageRefuse)}
-              > */}
-              {/* Xác nhận
-              </button> */}
+                onClick={() => {
+                  handleApproveTour();
+                  setApproveForm(false);
+                }}
+              >
+                Xác nhận
+              </button>
             </div>
           </div>
         </div>
