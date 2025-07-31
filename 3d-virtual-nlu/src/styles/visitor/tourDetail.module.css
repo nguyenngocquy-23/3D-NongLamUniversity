@@ -54,7 +54,6 @@
   transform: translateY(-12px);
 }
 
-
 .tourCanvas {
   border-radius: 10px;
 }
@@ -265,16 +264,13 @@
 
 .cancel_update_btn {
   position: absolute;
+  color: #fff;
   top: 0;
   left: 0;
+  font-style: italic;
   padding: 0.5rem;
-  transform: translate(50%, 50%);
-  background-color: #fff;
-  filter: brightness(0.8);
-}
-
-.cancel_update_btn:hover {
-  filter: brightness(1);
+  border-radius: 0.5rem;
+  background-color: #0000003b;
 }
 
 .toggle_right_menu:hover {
@@ -392,7 +388,6 @@
   overflow: hidden;
   overflow-y: auto;
 }
-
 .view_feedback_button{
   position: absolute;
   left: 1rem;

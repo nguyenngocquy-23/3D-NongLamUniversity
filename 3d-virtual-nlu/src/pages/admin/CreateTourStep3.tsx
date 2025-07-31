@@ -265,6 +265,9 @@ const CreateTourStep3: React.FC = () => {
             controlsRef={controlsRef}
             autoRotate={false}
             autoRotateSpeed={0}
+            onAngleChange={(angle) => {
+              setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
+            }}
           />
           {isTextureReady &&
             hotspotNavigations

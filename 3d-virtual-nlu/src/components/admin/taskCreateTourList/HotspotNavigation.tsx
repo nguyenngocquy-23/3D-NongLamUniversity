@@ -7,10 +7,7 @@ import {
 } from "../../../redux/slices/HotspotSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/Store";
-import {
-  getFilteredHotspotNavigationById,
-  getListTargetNodeFromUpdateHotspotNavigation,
-} from "../../../redux/slices/Selectors";
+import { getListTargetNodeFromUpdateHotspotNavigation } from "../../../redux/slices/Selectors";
 
 interface TypeNavigationProps {
   hotspotNav: any;

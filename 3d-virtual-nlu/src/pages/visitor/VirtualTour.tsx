@@ -262,7 +262,9 @@ const VirtualTour = () => {
 
   // Hàm để đọc văn bản
   const readText = () => {
-    const textInfo = document.querySelector(`.${styles.info_box}`)?.textContent;
+    const textInfo =
+      nodeToRender.description ??
+      "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh";
 
     if (!textInfo) {
       return;

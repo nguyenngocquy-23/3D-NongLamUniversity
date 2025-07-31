@@ -51,9 +51,6 @@ import UpdateHotspot from "../../components/admin/taskCreateTourList/UpdateHotsp
 import { useSequentialTasks } from "../../hooks/useSequentialTasks";
 import { tasks } from "../admin/CreateTourStep2";
 import { IoMdMenu } from "react-icons/io";
-import TaskUpdate1 from "../../components/admin/taskCreateTourList/Task1UpdateInfo";
-import TaskUpdate2 from "../../components/admin/taskCreateTourList/Task2UpdateConfig";
-import TaskUpdate3 from "../../components/admin/taskCreateTourList/Task3UpdateHotspot";
 import {
   isInteger,
   NodeExpandResponse,
@@ -73,6 +70,7 @@ import {
   getFilteredHotspotMediaInList,
   getFilteredHotspotModelInList,
   getFilteredHotspotNavigationInList,
+  getHotspotLinkMap,
 } from "../../redux/slices/Selectors";
 import { AnimatePresence, motion } from "framer-motion";
 import Task1 from "../../components/admin/taskCreateTourList/Task1DisplayInfo";
@@ -86,6 +84,7 @@ import { diffNode } from "../../utils/DiffNodeForUpdate";
 import _Draggable from "gsap/Draggable";
 import { IoWarning } from "react-icons/io5";
 import { CiWarning } from "react-icons/ci";
+import { IoReturnDownBack } from "react-icons/io5";
 
 /**
  * Data đại diện của MasterNodeId có thêm:
@@ -206,7 +205,6 @@ const TourDetail = () => {
       case 2:
         return (
           <>
-            {/* <TaskUpdate2 cameraRef={cameraRef} /> */}
             <Task2 cameraRef={cameraRef} controlsRef={controlsRef} />
           </>
         );
@@ -232,10 +230,6 @@ const TourDetail = () => {
    * end logc update tour step 2
    */
 
-  /**
-   * Cho update tour same step3
-   */
-  const panoramas = useSelector((state: RootState) => state.panoramas);
   const hotspots = useSelector((state: RootState) => state.hotspots);
 
   useEffect(() => {
@@ -302,7 +296,6 @@ const TourDetail = () => {
                   quality: "8K",
                   lastUsed: Date.now(),
                 };
-                console.log("✅ Cached ảnh 360:", node.url);
               };
             })
             .catch((err) => {
@@ -356,7 +349,6 @@ const TourDetail = () => {
 
   const handleUpdateTour = async () => {
     if (panoramaList.length === 0) {
-      alert("spaceId bị null hay panorama không chứa giá trị..");
       Swal.fire({
         title: "Không thể cập nhật",
         text: "Danh sách ảnh của bạn đang rỗng, không thể cập nhật!",
@@ -366,6 +358,18 @@ const TourDetail = () => {
         timer: 3000,
         timerProgressBar: true,
         showConfirmButton: false,
+      });
+      return;
+    }
+    if (!isFullConnected) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng kiểm tra lại các điểm tương tác đến các ảnh trong cùng tour!",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: true,
+        timer: 3000,
       });
       return;
     }
@@ -433,6 +437,27 @@ const TourDetail = () => {
       console.log("Lỗi khi cập nhật: ", error);
     }
   };
+
+  const linkMap = useSelector(getHotspotLinkMap); // Lấy ra được 1 tập hợp Map.
+  const panoramaSubItemIds = panoramaList
+    .filter((p) => p.config.status === 1)
+    .map((p) => p.id);
+
+  const isFullConnected = useMemo(() => {
+    if (!currentTour || !linkMap.has(currentTour.id)) return false;
+
+    // Master phải trỏ đến tất cả slave
+    const fromMaster = linkMap.get(currentTour.id) ?? new Set();
+    const toAllSlaves = panoramaSubItemIds.every((pId) => fromMaster.has(pId));
+
+    // Mỗi slave phải có hotspot trỏ ngược về master
+    const allSlavesPointBack = panoramaSubItemIds.every((pId) => {
+      const links = linkMap.get(pId);
+      return links?.has(currentTour.id);
+    });
+
+    return toAllSlaves && allSlavesPointBack;
+  }, [linkMap, currentTour, panoramaSubItemIds]);
 
   useEffect(() => {
     dispatch(fetchCommentOfNode(parseInt(nodeId || "", 10)));
@@ -672,7 +697,6 @@ const TourDetail = () => {
             name: "",
             description: "",
             autoRotate: 0,
-            colorCode: "",
             thumbnailUrl: "",
           })
         );
@@ -735,15 +759,12 @@ const TourDetail = () => {
         }
       };
       fetchFeedback();
-    }else{
+    } else {
       setIsUpdateTour(false);
     }
   }, [currentNodeView]);
 
   // Version of quy
-  // if (!node || !comments) {
-  //   return null;
-  // }
 
   // Version of Kien
   if (!currentTour || !comments) {
@@ -932,8 +953,6 @@ const TourDetail = () => {
                 <span className={styles.name}>Trạng thái</span>
                 <span className={styles.des}>
                   {/* getStatusText */}
-                  {/* {node.status == 2 ? "Đang hoạt động" : "Ngưng hoạt động"} */}
-
                   {getStatusNode(currentTour.config.status)}
                 </span>
               </div>
@@ -1025,7 +1044,7 @@ const TourDetail = () => {
                 onClick={() => setIsOpenFeedback((prev) => !prev)}
                 title="Xem phản hồi"
               >
-                <IoWarning/>
+                <IoWarning />
               </button>
             )}
             {currentNodeView.config.status == 4 && isOpenFeedback && (
@@ -1094,50 +1113,101 @@ const TourDetail = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-
-            <AnimatePresence>
-              {isMenuVisible &&
-                openTaskIndex !== null &&
-                currentHotspotId === null && (
-                  <motion.div
-                    initial={{ y: 800, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 800, opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className={`${stylesRightMenu.task_container}`}
-                  >
-                    <TaskContainerCT
-                      id={preTaskIndex}
-                      name={
-                        tasks.find((t) => t.id === preTaskIndex)?.title || ""
-                      }
-                    >
-                      {preTaskIndex
-                        ? getTaskContentById(openTaskIndex ?? preTaskIndex)
-                        : ""}
-                    </TaskContainerCT>
-                  </motion.div>
-                )}
-            </AnimatePresence>
-            {/* Hộp chỉnh sửa hotspot */}
-            <AnimatePresence>
-              {currentHotspotId !== null && (
-                <motion.div
-                  initial={{ y: 800, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: 800, opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className={`${stylesRightMenu.update_hotspot_container} `}
-                >
-                  <UpdateHotspot
-                    hotspotId={currentHotspotId}
-                    setHotspotId={setCurrentHotspotId}
-                    onPropsChange={handleOnPropsChange}
-                    limitNav={false}
+            {currentNodeView.config.status === 2 &&
+            currentNodeView.id !== nodeId ? (
+              <button
+                className={styles.cancel_update_btn}
+                onClick={() => {
+                  if (nodeId) handleSelectNode(nodeId);
+                }}
+              >
+                Quay về tour hiện tại <IoReturnDownBack />
+              </button>
+            ) : (
+              <>
+                <div className={styles.toggle_right_menu}>
+                  <IoMdMenu
+                    className={styles.show_menu}
+                    onClick={handleOpenMenu}
                   />
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </div>
+
+                <AnimatePresence>
+                  {isMenuVisible && (
+                    <motion.div
+                      initial={{ x: 300, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: 300, opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className={stylesRightMenu.rightMenu}
+                    >
+                      <div className={stylesRightMenu.rightTitle}>
+                        <FaAngleRight
+                          className={stylesRightMenu.close_menu_btn}
+                          onClick={handleOpenMenu}
+                        />
+                        <h2>Cấu hình</h2>
+                      </div>
+
+                      <RightMenuCreateTour
+                        tasks={tasks}
+                        openTaskIndex={openTaskIndex}
+                        onTaskClick={handleOpenTask}
+                        setPreOpenTask={setPreTaskIndex}
+                        isUpdateTour={true}
+                        handleUpdateTour={handleUpdateTour}
+                        saveLinkNode={false}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {isMenuVisible &&
+                    openTaskIndex !== null &&
+                    currentHotspotId === null && (
+                      <motion.div
+                        initial={{ y: 800, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 800, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className={stylesRightMenu.task_container}
+                      >
+                        <TaskContainerCT
+                          id={preTaskIndex}
+                          name={
+                            tasks.find((t) => t.id === preTaskIndex)?.title ||
+                            ""
+                          }
+                        >
+                          {preTaskIndex
+                            ? getTaskContentById(openTaskIndex ?? preTaskIndex)
+                            : ""}
+                        </TaskContainerCT>
+                      </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {currentHotspotId !== null && (
+                    <motion.div
+                      initial={{ y: 800, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: 800, opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className={stylesRightMenu.update_hotspot_container}
+                    >
+                      <UpdateHotspot
+                        hotspotId={currentHotspotId}
+                        setHotspotId={setCurrentHotspotId}
+                        onPropsChange={handleOnPropsChange}
+                        limitNav={false}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            )}
           </>
         )}
       </div>
