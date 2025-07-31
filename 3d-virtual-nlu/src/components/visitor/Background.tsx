@@ -6,44 +6,23 @@ const Background: React.FC = () => {
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // useEffect(() => {
-  //   const video = videoRef.current;
-  //   if (!video) return;
-
-  //   const handleCanPlay = () => {
-  //     // ✅ Khi video đã tải đủ → mới bắt đầu phát
-  //     video.play().catch((err) => {
-  //       console.warn("Autoplay bị chặn:", err);
-  //     });
-  //   };
-
-  //   video.addEventListener("canplaythrough", handleCanPlay);
-
-  //   return () => video.removeEventListener("canplaythrough", handleCanPlay);
-  // }, []);
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const prepareVideo = async () => {
-      try {
-        await video.play(); // Tạm play để có thể decode
-        await video.pause(); // Ngừng lại trước khi hiển thị
+    fetch(`${import.meta.env.BASE_URL}background.webm`)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const blobUrl = URL.createObjectURL(blob);
+        video.src = blobUrl;
+        video.load();
 
-        // ✅ Decode trước để đảm bảo render mượt
-        const maybeDecode = (video as any).decode?.bind(video);
-        if (maybeDecode) {
-          await maybeDecode(); // ✅ Gọi decode() nếu tồn tại
-        }
-
-        // ✅ Phát lại mượt mà
-        await video.play();
-      } catch (err) {
-        console.warn("Video load failed:", err);
-      }
-    };
-
-    prepareVideo();
+        video.oncanplaythrough = () => {
+          video.play().catch((err) => {
+            console.warn("Autoplay bị chặn:", err);
+          });
+        };
+      });
   }, []);
 
   return (
