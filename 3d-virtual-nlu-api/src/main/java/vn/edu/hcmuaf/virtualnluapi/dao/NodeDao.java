@@ -239,9 +239,6 @@ public class NodeDao {
         String getNodeStatusSQL = """
                 SELECT id, status FROM nodes WHERE id IN (<ids>)
                 """;
-        List<NodeExpandResponse> listNodesOfTour = new ArrayList<>();
-        NodeExpandResponse mainNode = getFullNodeByNodeId(nodeId);
-        listNodesOfTour.add(mainNode);
 
         //Danh sách targetNodeId.
         List<Integer> targetNodeIds = ConnectionPool.getConnection().withHandle(

@@ -63,6 +63,7 @@ import {
   PanoramaItem,
   selectPanorama,
   setSpaceId,
+  updatePanoConfig,
 } from "../../redux/slices/PanoramaSlice";
 import { Environment } from "@react-three/drei";
 import {
@@ -464,7 +465,7 @@ const TourDetail = () => {
   }, [dispatch]);
 
   const handleChangeStatus = async (node: any) => {
-    if (node.status == 2) {
+    if (node.config.status == 2) {
       const result = await Swal.fire({
         title: "Bạn có chắc chắn",
         text: "Việc ngưng hoạt động có thể ảnh hưởng tới các node khác",
@@ -482,13 +483,13 @@ const TourDetail = () => {
 
     const response = await axios.post(API_URLS.CHANGE_NODE_STATUS, {
       id: node.id,
-      status: node.status,
+      status: node.config.status == 0 ? 2 : 0,
     });
     if (response.data.data) {
       Swal.fire({
         title: "Thành công",
         text: `${
-          node.status == 0 ? "Mở hoạt động" : "Ngưng hoạt động"
+          node.config.status == 0 ? "Mở hoạt động" : "Ngưng hoạt động"
         } thành công`,
         icon: "success",
         position: "top-end",
@@ -497,7 +498,13 @@ const TourDetail = () => {
         timerProgressBar: true,
         showConfirmButton: false,
       });
-      // handleFetchNode(node.id);  --- Version of Quy 1.3
+      // handleFetchNode(node.id);  //--- Version of Quy 1.3
+      dispatch(
+        updatePanoConfig({
+          id: node.id,
+          config: { status: node.config.status == 0 ? 2 : 0 },
+        })
+      ); //--- Version of Kien 1.3
     } else {
       Swal.fire({
         title: "Thất bại",
@@ -759,8 +766,6 @@ const TourDetail = () => {
         }
       };
       fetchFeedback();
-    } else {
-      setIsUpdateTour(false);
     }
   }, [currentNodeView]);
 
@@ -934,6 +939,7 @@ const TourDetail = () => {
               onClick={() => {
                 setIsFullPreview(false);
                 setIsUpdateTour(false);
+                if(nodeId)handleSelectNode(nodeId);
               }}
             />
           </span>

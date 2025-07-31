@@ -61,7 +61,7 @@
   transform: translateX(-50%);
   font-size: 25px;
   cursor: pointer;
-  color: #444;
+  color: white;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -97,6 +97,7 @@
   display: flex;
   gap: 0.5rem;
   padding: 1rem;
+  align-items: center;
 }
 
 .back_btn {

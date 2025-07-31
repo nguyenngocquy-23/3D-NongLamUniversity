@@ -588,7 +588,7 @@ const VirtualAutoTour: React.FC = () => {
             className={styles.node_list}
             style={{ bottom: isMobile ? "1rem" : "" }}
           >
-            {autoPanoramaList.map((pano) => (
+            {autoPanoramaList.filter((a) => a.id != undefined).map((pano) => (
               <div
                 key={pano.id}
                 className={`${styles.node_item} ${

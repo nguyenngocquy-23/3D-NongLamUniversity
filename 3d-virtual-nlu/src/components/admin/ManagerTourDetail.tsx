@@ -604,7 +604,6 @@ const ManagerTourDetail: React.FC = () => {
             name: "",
             description: "",
             autoRotate: 0,
-            colorCode: "",
             thumbnailUrl: "",
           })
         );
