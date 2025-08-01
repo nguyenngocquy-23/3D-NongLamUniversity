@@ -93,6 +93,8 @@ import { IoReturnDownBack } from "react-icons/io5";
 export interface PanoramaItemExpandField extends PanoramaItem {
   userId: string;
   fieldId: string;
+  spaceName: string;
+  fieldName: string;
   numView: number;
   updatedAt: number;
 }
@@ -269,6 +271,8 @@ const TourDetail = () => {
           ...currentTour,
           fieldId: mainNode?.fieldId,
           numView: mainNode?.numView,
+          spaceName: mainNode?.spaceName,
+          fieldName: mainNode?.fieldName,
           userId: mainNode?.userId,
           updatedAt: mainNode?.updatedAt,
         };
@@ -811,6 +815,8 @@ const TourDetail = () => {
                 angleCurrent={cameraAngle}
                 currentTour={nodeId}
                 locked={false}
+                spaceName={originalMasterNode?.spaceName ?? null}
+                fieldName={originalMasterNode?.fieldName ?? null}
               />
             )}
 

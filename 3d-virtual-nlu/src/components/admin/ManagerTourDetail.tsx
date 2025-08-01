@@ -100,6 +100,8 @@ interface PanoramaItemForApprove extends PanoramaItem {
   numView: number;
   updatedAt: number;
   email: string;
+  spaceName: string;
+  fieldName: string;
   userName: string;
   avatar: string;
 }
@@ -194,6 +196,8 @@ const ManagerTourDetail: React.FC = () => {
           userId: mainNode?.userId,
           updatedAt: mainNode?.updatedAt,
           userName: mainNode?.userName,
+          spaceName: mainNode?.spaceName,
+          fieldName: mainNode?.fieldName,
           email: mainNode?.email,
           avatar: mainNode?.avatar,
         };
@@ -1257,6 +1261,8 @@ const ManagerTourDetail: React.FC = () => {
                 angleCurrent={cameraAngle}
                 currentTour={nodeId}
                 locked={userId !== authorId}
+                spaceName={originalMasterNode?.spaceName ?? null}
+                fieldName={originalMasterNode?.fieldName ?? null}
               />
 
               <Suspense fallback={null}>
