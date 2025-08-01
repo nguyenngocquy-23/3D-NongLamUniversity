@@ -230,11 +230,12 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
       });
     }
   };
-  
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     const space = spacesToUse.find((s) => s.id === spaceId);
+    //
     const location = JSON.parse(space.location);
     const lat = location[0];
     const lng = location[1];

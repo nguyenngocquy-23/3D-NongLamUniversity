@@ -6,20 +6,38 @@ const Background: React.FC = () => {
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // useEffect(() => {
+  //   const video = videoRef.current;
+  //   if (!video) return;
+
+  //   const handleCanPlay = () => {
+  //     // ✅ Khi video đã tải đủ → mới bắt đầu phát
+  //     video.play().catch((err) => {
+  //       console.warn("Autoplay bị chặn:", err);
+  //     });
+  //   };
+
+  //   video.addEventListener("canplaythrough", handleCanPlay);
+
+  //   return () => video.removeEventListener("canplaythrough", handleCanPlay);
+  // }, []);
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const handleCanPlay = () => {
-      // ✅ Khi video đã tải đủ → mới bắt đầu phát
-      video.play().catch((err) => {
-        console.warn("Autoplay bị chặn:", err);
+    fetch(`${import.meta.env.BASE_URL}backgroundv1.mp4`)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const blobUrl = URL.createObjectURL(blob);
+        video.src = blobUrl;
+        video.load();
+
+        video.oncanplaythrough = () => {
+          video.play().catch((err) => {
+            console.warn("Autoplay bị chặn:", err);
+          });
+        };
       });
-    };
-
-    video.addEventListener("canplaythrough", handleCanPlay);
-
-    return () => video.removeEventListener("canplaythrough", handleCanPlay);
   }, []);
 
   return (
@@ -44,7 +62,7 @@ const Background: React.FC = () => {
           className={styles.video}
         >
           <source
-            src={`${import.meta.env.BASE_URL}background.mp4?v=1`}
+            src={`${import.meta.env.BASE_URL}backgroundv1.mp4`}
             type="video/mp4"
           />
           Trình duyệt không hỗ trợ video.
