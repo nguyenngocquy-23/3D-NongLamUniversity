@@ -37,7 +37,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
   }, [id, status]);
 
   const handleToggleStatus = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    toggle.current = !e.target.checked ? 0 : type=="node" ? 2 : 1;
+    toggle.current = !e.target.checked ? 0 : type == "node" ? 2 : 1;
     setLoading(true);
     try {
       const response = await axios.post(apiUrl, { id, status: toggle.current });
@@ -59,12 +59,14 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
 
           case "space":
             dispatch(fetchIcons());
+            dispatch(fetchSpaces({ limit: perPage, page: 0 }));
             break;
 
           case "icon":
             dispatch(fetchIcons());
             break;
           case "node":
+            dispatch(fetchNodes({ limit: perPage, page: 0 }));
             dispatch(
               updatePanoConfig({
                 id: `${id}`,
@@ -73,7 +75,6 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
                 },
               })
             );
-            // dispatch(fetchNodes({ limit: perPage, page: 0 }));
             break;
           default:
             break;

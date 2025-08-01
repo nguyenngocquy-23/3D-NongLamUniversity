@@ -31,7 +31,7 @@ public class SpaceDao {
                     .bind("name", req.getName())
                     .bind("code", req.getCode())
                     .bind("description", req.getDescription())
-                    .bind("status", 3)
+                    .bind("status", 1)
                     .bind("url", req.getUrl())
                     .bind("createdAt", LocalDateTime.now())
                     .bind("updatedAt", LocalDateTime.now())

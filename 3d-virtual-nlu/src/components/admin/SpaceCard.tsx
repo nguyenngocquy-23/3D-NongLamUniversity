@@ -133,6 +133,7 @@ const SpaceCard: React.FC<SpaceCardProps> = ({ space, setSelectedSpace }) => {
           className={
             space.status === 2 ? styles.space_title_master : styles.space_title
           }
+          title={space.name ?? "Tên không gian"}
         >
           {space.name}
         </span>

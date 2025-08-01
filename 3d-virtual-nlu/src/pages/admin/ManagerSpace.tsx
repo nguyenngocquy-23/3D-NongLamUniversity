@@ -141,6 +141,13 @@ const Space = () => {
   useEffect(() => {
     if (spaces && spaces.length > 0) {
       setSpaceList(spaces);
+
+      if (selectedSpace?.id) {
+        const updatedSpace = spaces.find((s) => s.id === selectedSpace.id);
+        if (updatedSpace) {
+          setSelectedSpace(updatedSpace);
+        }
+      }
     }
   }, [spaces]);
 

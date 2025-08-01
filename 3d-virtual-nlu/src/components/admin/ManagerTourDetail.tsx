@@ -2,21 +2,12 @@ import React, { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import styles from "../../styles/managerTourDetail.module.css";
 import stylesOverview from "../../styles/spaceDetail.module.css";
 import * as THREE from "three";
-import {
-  FaAngleDown,
-  FaAngleLeft,
-  FaAngleRight,
-  FaAngleUp,
-  FaRegEye,
-} from "react-icons/fa6";
+import { FaAngleRight, FaRegEye } from "react-icons/fa6";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store.ts";
-import { NodeItem } from "./NodeItem.tsx";
-import SearchBar from "../../features/SearchBar.tsx";
 import axios from "axios";
 import { API_URLS } from "../../env.ts";
-import { Perf } from "r3f-perf";
 import {
   addPanorama,
   addPanoramasFromResponse,
@@ -1195,7 +1186,7 @@ const ManagerTourDetail: React.FC = () => {
                         Huỷ
                       </button>
                     </>
-                  ) : auth.roleId != originalMasterNode?.userId ? (
+                  ) : auth.id != originalMasterNode?.userId ? (
                     ""
                   ) : (
                     <button
