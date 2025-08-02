@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/user.module.css";
-import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { MdAdminPanelSettings } from "react-icons/md";
@@ -91,6 +89,7 @@ function ManagerContact() {
       ),
       sortable: true,
       width: "180px",
+      center: true,
     },
     {
       name: "Tác vụ",
@@ -110,6 +109,7 @@ function ManagerContact() {
         </button>
       ),
       width: "120px",
+      center: true,
     },
   ];
 

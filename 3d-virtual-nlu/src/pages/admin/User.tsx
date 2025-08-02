@@ -10,7 +10,7 @@ import { MdAdminPanelSettings } from "react-icons/md";
 import { Datatable } from "../../components/admin/DataTable";
 import { fetchUsers } from "../../redux/slices/DataSlice";
 import { API_URLS } from "../../env";
-import { IoSearch } from "react-icons/io5";
+import { IoMailUnread, IoSearch } from "react-icons/io5";
 import { formatTimestampToDate } from "../../utils/formatDateTime";
 
 interface User {
@@ -157,24 +157,17 @@ function User() {
               )}
             </button>
           ) : (
-            <span
-              style={{
-                padding: "0.3rem ",
-                backgroundColor: "orange",
-                borderRadius: "5px",
-              }}
-            >
-              Đang xác thực
-            </span>
+            <span className={styles.verify_pending}>Chờ xác thực</span>
           )
         ) : (
           <MdAdminPanelSettings
-            style={{ margin: "auto", fontSize: "25px", color: "#009879" }}
+            style={{ margin: "auto", fontSize: "25px", color: "#267026" }}
             title="Admin nè"
           />
         ),
       sortable: true,
       width: "150px",
+      center: true,
     },
   ];
 
