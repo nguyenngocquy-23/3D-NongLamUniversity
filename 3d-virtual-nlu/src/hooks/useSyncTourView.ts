@@ -18,7 +18,7 @@ const useSyncTourViews = () => {
       ).then(() => {
         sessionStorage.removeItem("tour-views");
       });
-    }, 1 * 60 * 1000); // 10 phút
+    }, 10 * 60 * 1000); // 10 phút
 
     return () => clearInterval(interval);
   }, []);

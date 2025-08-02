@@ -230,12 +230,15 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
       });
     }
   };
-  
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     const space = spacesToUse.find((s) => s.id === spaceId);
-    const location = JSON.parse(space.location);
+    const location =
+      space.location == ""
+        ? [centerPosition[0], centerPosition[1]]
+        : JSON.parse(space.location);
     const lat = location[0];
     const lng = location[1];
 
@@ -277,7 +280,10 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
 
       {maker.length > 0
         ? maker.map((space: any) => {
-            const location = JSON.parse(space.location);
+            const location =
+              space.location == ""
+                ? [centerPosition[0], centerPosition[1]]
+                : JSON.parse(space.location);
             const lat = location[0];
             const lng = location[1];
             const defaultIcon = L.divIcon({
@@ -297,11 +303,11 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
               <Marker
                 key={space.id}
                 position={{ lat: lat, lng: lng }}
-                icon={isRemove ? customIcon : defaultIcon}
+                icon={isRemove && space.status != 2 ? customIcon : defaultIcon}
                 // icon={isRemove ? customIcon : new L.Icon.Default()}
                 eventHandlers={{
                   click: () => {
-                    isRemove
+                    isRemove && space.status != 2
                       ? handleRemove(space.id)
                       : !setPoints
                       ? handleSelectSpace(space.id)

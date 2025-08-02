@@ -50,11 +50,11 @@ public class UserDao {
         try {
             int result = ConnectionPool.getConnection().inTransaction(handle ->
                     handle.createUpdate(sql)
-                            .bind("roleId", SystemConstant.USER_ROLE_ID)
+                            .bind("roleId", user.getRoleId())
                             .bind("email", user.getEmail())
                             .bind("username", user.getUsername())
                             .bind("password", user.getPassword())
-                            .bind("status", SystemConstant.ACTIVATED)
+                            .bind("status", user.getStatus())
                             .bind("avatar", user.getAvatar())
                             .bind("createdAt", LocalDateTime.now())
                             .execute()

@@ -35,6 +35,7 @@ interface Space {
   fieldId: number | null;
   fieldName: string;
   code: string;
+  location: string;
   masterNodeId: number | null;
   masterNodeName: string | null;
   name: string | null;
@@ -65,6 +66,7 @@ const emptySpace: Space = {
   masterNodeName: null,
   description: "",
   status: 1,
+  location: "",
   createdAt: null,
   updatedAt: null,
 };
@@ -317,6 +319,19 @@ const Space = () => {
     event: React.ChangeEvent<HTMLInputElement>,
     id: number
   ) => {
+    if (selectedSpace?.location == null) {
+      Swal.fire({
+        icon: "warning",
+        title: "Không thể chọn không gian chính",
+        text: "Vui lòng gán vị trí cho không gian trên bản đồ trước.",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 5000,
+        timerProgressBar: true,
+      })
+      return;
+    }
     const checked = event.target.checked;
 
     if (!event.target.checked) {

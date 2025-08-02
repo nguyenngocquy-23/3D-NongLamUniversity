@@ -334,11 +334,11 @@ const dataSlice = createSlice({
         spaceId: number;
       }>
     ) => {
-      const index = state.spaces.findIndex(
+      const index = state.allSpaces.findIndex(
         (h) => h.id === action.payload.spaceId
       );
       if (index !== -1) {
-        const space = state.spaces[index];
+        const space = state.allSpaces[index];
         space.location = null;
       }
     },
