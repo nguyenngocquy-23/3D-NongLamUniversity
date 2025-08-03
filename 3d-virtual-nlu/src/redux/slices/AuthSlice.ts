@@ -390,6 +390,19 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
+      
+      // CREATE ADMIN ACCOUNT
+      .addCase(createAdminAccount.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(createAdminAccount.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(createAdminAccount.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
 
       // VERIFY
       .addCase(verifyUser.pending, (state) => {

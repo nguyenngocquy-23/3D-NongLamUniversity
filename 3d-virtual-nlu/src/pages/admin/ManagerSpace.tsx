@@ -193,6 +193,7 @@ const Space = () => {
       navigate("/unauthorized");
     }
   }, [currentUser, navigate]);
+
   const handleSelectField = (event: any) => {
     const fieldId = event?.target.value;
     setFieldId(fieldId);
@@ -259,7 +260,21 @@ const Space = () => {
           icon: "error",
           title: `Tạo không gian thất bại ${error}`,
           toast: true,
-          position: "bottom-end",
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+        return;
+      }
+
+      if(req.fieldId == null || req.url === "") {
+        Swal.fire({
+          icon: "error",
+          title: `Tạo không gian thất bại`,
+          text: "Vui lòng điền đầy đủ thông tin.",
+          toast: true,
+          position: "top-end",
           showConfirmButton: false,
           timer: 4000,
           timerProgressBar: true,
@@ -275,17 +290,18 @@ const Space = () => {
           icon: "success",
           title: `${response.data.message}`,
           toast: true,
-          position: "bottom-end",
+          position: "top-end",
           showConfirmButton: false,
           timer: 4000,
           timerProgressBar: true,
         });
+        dispatch(fetchSpaces({ limit: perPage, page: currentPage }));
       } else if (response.data.statusCode === 5000) {
         Swal.fire({
           icon: "error",
           title: `${response.data.message}`,
           toast: true,
-          position: "bottom-end",
+          position: "top-end",
           showConfirmButton: false,
           timer: 4000,
           timerProgressBar: true,
@@ -295,7 +311,7 @@ const Space = () => {
           icon: "error",
           title: `Không thể tạo không gian`,
           toast: true,
-          position: "bottom-end",
+          position: "top-end",
           showConfirmButton: false,
           timer: 4000,
           timerProgressBar: true,
@@ -306,7 +322,7 @@ const Space = () => {
         icon: "error",
         title: `Tạo không gian thất bại ${err}`,
         toast: true,
-        position: "bottom-end",
+        position: "top-end",
         showConfirmButton: false,
         timer: 4000,
         timerProgressBar: true,
