@@ -23,7 +23,7 @@
   /* background-color: antiquewhite; */
   font-size: 25px;
   color: black;
-  top: 0;
+  top: -1rem;
   left: 50%;
   z-index: 10;
   cursor: pointer;

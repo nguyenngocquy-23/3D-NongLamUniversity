@@ -69,9 +69,14 @@
   transition: all 0.3s ease;
 }
 
+.toggle_open {
+  color: black;
+}
+
 .nav_active {
   background-color: #28b728;
 }
+
 /* 
 .container .show {
   box-shadow: 1px 2px 5px rgba(255, 255, 255, 0.5);

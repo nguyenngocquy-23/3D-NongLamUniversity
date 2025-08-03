@@ -87,7 +87,7 @@
 .sound_guide {
   opacity: 0.8;
   margin-right: 2rem;
-  animation: blinkAndDisappear 10s forwards;
+  animation: blinkAndDisappear 20s forwards;
 }
 
 .back_login{

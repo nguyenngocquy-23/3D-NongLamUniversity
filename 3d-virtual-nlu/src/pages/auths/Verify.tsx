@@ -2,8 +2,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import styles from "../../styles/login.module.css";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../redux/Store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/Store";
 import { verifyUser } from "../../redux/slices/AuthSlice";
 
 const Verify = () => {
@@ -15,6 +15,7 @@ const Verify = () => {
   const inputRefs = useRef<HTMLInputElement[]>([]);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+  const { isLoading, error } = useSelector((state: RootState) => state.auth);
 
   // Đếm ngược thời gian
   useEffect(() => {
@@ -74,7 +75,7 @@ const Verify = () => {
           icon: "success",
           title: "Xác thực thành công",
         }).then(() => {
-          sessionStorage.removeItem("userId")
+          sessionStorage.removeItem("userId");
           navigate("/login");
         });
       } else {
@@ -129,8 +130,12 @@ const Verify = () => {
               />
             ))}
           </div>
-          <button type="submit" className={styles.loginBtn}>
-            Xác thực
+          <button
+            type="submit"
+            className={styles.loginBtn}
+            disabled={isLoading}
+          >
+            {isLoading ? "Đang xác thực..." : "Xác thực"}
           </button>
         </form>
         <p>Còn lại: {formatTime(timeLeft)}</p>

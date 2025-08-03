@@ -195,7 +195,7 @@ const CreateAccount = () => {
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? "Logging in..." : "Đăng ký"}
+            {isLoading ? "Đang đăng ký..." : "Đăng ký"}
           </button>
         </form>
       </div>
