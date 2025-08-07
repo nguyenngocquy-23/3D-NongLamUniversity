@@ -211,7 +211,7 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
             })}
           </div>
         </div>
-        <div className={styles.row_container}>
+        {/* <div className={styles.row_container}>
           <label className={styles.label}>Độ to:</label>
           <div
             className={styles.scale_icon_content}
@@ -230,7 +230,7 @@ const TypeMedia = ({ hotspotMedia, isOpenTypeMedia }: TypeMediaProps) => {
               <progress max="2" value={scale}></progress>
             </div>
           </div>
-        </div>
+        </div> */}
         <div className={styles.row_container}>
           <label className={styles.label}>Thể loại:</label>
           <div>
