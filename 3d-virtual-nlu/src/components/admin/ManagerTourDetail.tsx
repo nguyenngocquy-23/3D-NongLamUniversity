@@ -2,20 +2,12 @@ import React, { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import styles from "../../styles/managerTourDetail.module.css";
 import stylesOverview from "../../styles/spaceDetail.module.css";
 import * as THREE from "three";
-import {
-  FaAngleDown,
-  FaAngleLeft,
-  FaAngleRight,
-  FaAngleUp,
-} from "react-icons/fa6";
+import { FaAngleRight, FaRegEye } from "react-icons/fa6";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store.ts";
-import { NodeItem } from "./NodeItem.tsx";
-import SearchBar from "../../features/SearchBar.tsx";
 import axios from "axios";
 import { API_URLS } from "../../env.ts";
-import { Perf } from "r3f-perf";
 import {
   addPanorama,
   addPanoramasFromResponse,
@@ -37,11 +29,12 @@ import {
   clearHotspot,
 } from "../../redux/slices/HotspotSlice.ts";
 import {
+  isInteger,
   NodeExpandResponse,
   NodeResponse,
   TourNodeRequestMapper,
 } from "../../utils/TourNodeRequestMapper.ts";
-import { IoChevronBack } from "react-icons/io5";
+import { IoChevronBack, IoReturnDownBack } from "react-icons/io5";
 import { CiEdit } from "react-icons/ci";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import {
@@ -75,6 +68,7 @@ import {
   getFilteredHotspotMediaInList,
   getFilteredHotspotModelInList,
   getFilteredHotspotNavigationInList,
+  getHotspotLinkMap,
 } from "../../redux/slices/Selectors.ts";
 import StatusToggle from "./ToggleChangeStatus.tsx";
 import { ApiResponse } from "./UploadFile.tsx";
@@ -83,6 +77,10 @@ import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones.ts";
 import { TiEdit } from "react-icons/ti";
 import { FaSave } from "react-icons/fa";
 import { GrSecure } from "react-icons/gr";
+import { goToStep } from "../../redux/slices/StepSlice.ts";
+import { useImageCache } from "../../contexts/ImageCacheContext.tsx";
+import { buildImageUrlWithQuality } from "../../utils/getCloudinaryURL.ts";
+import { diffNode } from "../../utils/DiffNodeForUpdate.ts";
 
 interface PanoramaItemWithField extends PanoramaItem {
   fieldId: string;
@@ -93,6 +91,8 @@ interface PanoramaItemForApprove extends PanoramaItem {
   numView: number;
   updatedAt: number;
   email: string;
+  spaceName: string;
+  fieldName: string;
   userName: string;
   avatar: string;
 }
@@ -101,6 +101,7 @@ const ManagerTourDetail: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { nodeId } = useParams();
+  const imageRef = useImageCache();
 
   const sphereRef = useRef<THREE.Mesh | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -115,6 +116,10 @@ const ManagerTourDetail: React.FC = () => {
   const [approveForm, setApproveForm] = useState<boolean>(false);
 
   const [fieldId, setFieldId] = useState<string | null>(null);
+  const [originalResponse, setOriginalResponse] = useState<
+    NodeResponse[] | NodeExpandResponse[]
+  >([]);
+
   const [originalMasterNode, setOriginalMasterNode] =
     useState<PanoramaItemForApprove | null>(null);
   const [messageRefuse, setMessageRefuse] = useState<string>("");
@@ -129,6 +134,7 @@ const ManagerTourDetail: React.FC = () => {
       })
       .then(async (resp) => {
         const nodes: NodeExpandResponse[] = resp.data.data;
+        setOriginalResponse(nodes);
 
         const mainNode = nodes.find((node) => node.id == nodeId);
         if (mainNode) {
@@ -147,7 +153,6 @@ const ManagerTourDetail: React.FC = () => {
               setOriginalListSpace(response.data.data);
             } else {
               console.warn("Lỗi dữ liệu space", response.data.message);
-              //fallback lấy mỗi cái đang active đủ dùng.
               setListSpace([
                 { id: Number(mainNode.spaceId), name: mainNode.spaceName },
               ]);
@@ -157,7 +162,6 @@ const ManagerTourDetail: React.FC = () => {
             }
           } catch (err) {
             console.warn("Lỗi khi gọi API space", err);
-            //fallback lấy mỗi cái đang active đủ dùng.
             setListSpace([
               { id: Number(mainNode.spaceId), name: mainNode.spaceName },
             ]);
@@ -183,10 +187,43 @@ const ManagerTourDetail: React.FC = () => {
           userId: mainNode?.userId,
           updatedAt: mainNode?.updatedAt,
           userName: mainNode?.userName,
+          spaceName: mainNode?.spaceName,
+          fieldName: mainNode?.fieldName,
           email: mainNode?.email,
           avatar: mainNode?.avatar,
         };
         setOriginalMasterNode(currentTourExpandField);
+
+        nodes.forEach((node) => {
+          if (!node.url || imageRef.current[node.url]) return;
+
+          const highResURL = buildImageUrlWithQuality(node.url, "8K");
+
+          fetch(highResURL, { mode: "cors" })
+            .then((res) => res.blob())
+            .then((blob) => {
+              const objectUrl = URL.createObjectURL(blob);
+              const img = new Image();
+              img.crossOrigin = "anonymous";
+              img.src = objectUrl;
+
+              img.onload = () => {
+                imageRef.current[node.url] = {
+                  img,
+                  objectUrl,
+                  quality: "8K",
+                  lastUsed: Date.now(),
+                };
+              };
+            })
+            .catch((err) => {
+              console.warn(
+                "⚠️ Không preload được ảnh 360 cho node:",
+                node.id,
+                err
+              );
+            });
+        });
       })
       .catch((err) => {
         console.warn("Lỗi không lấy được node", err);
@@ -604,7 +641,6 @@ const ManagerTourDetail: React.FC = () => {
             name: "",
             description: "",
             autoRotate: 0,
-            colorCode: "",
             thumbnailUrl: "",
           })
         );
@@ -635,7 +671,8 @@ const ManagerTourDetail: React.FC = () => {
       const response = await axios.post(`${API_URLS.ADMIN_APPROVE_TOUR}`, {
         nodeId: Number(nodeId),
         email: originalMasterNode?.email,
-        feedbackList: approveStatus == 2 ? "" : JSON.stringify(selectedFeedbackList),
+        feedbackList:
+          approveStatus == 2 ? "" : JSON.stringify(selectedFeedbackList),
         moreFeedback: approveStatus == 2 ? "" : messageRefuse,
       });
 
@@ -705,29 +742,116 @@ const ManagerTourDetail: React.FC = () => {
     handleSelectNode(targetNodeId);
   };
 
+  // const handleUpdateTour = async () => {
+  //   if (panoramaList.length === 0) {
+  //     alert("spaceId bị null hay panorama không chứa giá trị..");
+  //     return;
+  //   }
+  //   try {
+  //     //Step1: Mapping dữ liệu Redux với Request bên backend.
+  //     const payload = TourNodeRequestMapper.mapOneNodeUpdateRequest(
+  //       panoramaList,
+  //       hotspots.hotspotList
+  //     );
+
+  //     // Step2: Gửi lên backend
+  //     const response = await axios.post(API_URLS.ADMIN_UPDATE_NODES, payload);
+  //     if (response.data.data) {
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Thành công",
+  //         text: "Cập nhật thành công",
+  //       }).then(() => {
+  //         // setIsUpdateTour(false);
+  //         // dispatch(fetchMasterNodes());
+  //       });
+  //     } else {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Thất bại",
+  //         text:
+  //           "Cập nhật thất bại: " +
+  //           (response.data?.message || "Không rõ lý do"),
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.log("Lỗi khi cập nhật: ", error);
+  //   }
+  // };
   const handleUpdateTour = async () => {
     if (panoramaList.length === 0) {
-      alert("spaceId bị null hay panorama không chứa giá trị..");
+      Swal.fire({
+        title: "Không thể cập nhật",
+        text: "Danh sách ảnh của bạn đang rỗng, không thể cập nhật!",
+        icon: "warning",
+        position: "top-end",
+        toast: true,
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+      return;
+    }
+    if (!isFullConnected) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng kiểm tra lại các điểm tương tác đến các ảnh trong cùng tour!",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: true,
+        timer: 3000,
+      });
       return;
     }
     try {
-      //Step1: Mapping dữ liệu Redux với Request bên backend.
-      const payload = TourNodeRequestMapper.mapOneNodeUpdateRequest(
-        panoramaList,
-        hotspots.hotspotList
+      //Step1: Mapping dữ liệu Redux với API backend:
+      //1. Panorama mới : map thành createNodeRequest.
+      //2. Panorama cũ : map về oneNodeUpdateRequest.
+
+      //Lọc danh sách panorama mới:
+      const createPanoramas = panoramaList.filter((p) => !isInteger(p.id));
+
+      const createPanoramasId = new Set(createPanoramas.map((p) => p.id));
+
+      const hotspotsOfCreatePanoramas = hotspots.hotspotList.filter((h) =>
+        createPanoramasId.has(h.nodeId)
+      );
+      const updatePanoramas = panoramaList.filter((p) => isInteger(p.id));
+      const updateHotspots = hotspots.hotspotList.filter(
+        (h) => !createPanoramasId.has(h.nodeId)
       );
 
+      const payloadCreate = TourNodeRequestMapper.mapOneNodeCreateRequest(
+        createPanoramas,
+        hotspotsOfCreatePanoramas,
+        userId
+      );
+
+      const payloadUpdate = TourNodeRequestMapper.mapOneNodeUpdateRequest(
+        updatePanoramas,
+        updateHotspots
+      );
+      //Step2: Là lúc check với thằng diff rồi.
+      const diff = diffNode(originalResponse, payloadUpdate);
+
+      const finalPayload = {
+        toCreate: payloadCreate,
+        toUpdate: diff.toUpdate,
+        toDelete: diff.toDelete,
+      };
+
       // Step2: Gửi lên backend
-      const response = await axios.post(API_URLS.ADMIN_UPDATE_NODES, payload);
+      const response = await axios.post(
+        API_URLS.ADMIN_UPDATE_NODES,
+        finalPayload
+      );
       if (response.data.data) {
         Swal.fire({
           icon: "success",
           title: "Thành công",
           text: "Cập nhật thành công",
-        }).then(() => {
-          // setIsUpdateTour(false);
-          // dispatch(fetchMasterNodes());
-        });
+        }).then(() => {});
       } else {
         Swal.fire({
           icon: "error",
@@ -741,6 +865,27 @@ const ManagerTourDetail: React.FC = () => {
       console.log("Lỗi khi cập nhật: ", error);
     }
   };
+
+  const linkMap = useSelector(getHotspotLinkMap); // Lấy ra được 1 tập hợp Map.
+  const panoramaSubItemIds = panoramaList
+    .filter((p) => p.config.status === 1)
+    .map((p) => p.id);
+
+  const isFullConnected = useMemo(() => {
+    if (!currentTour || !linkMap.has(currentTour.id)) return false;
+
+    // Master phải trỏ đến tất cả slave
+    const fromMaster = linkMap.get(currentTour.id) ?? new Set();
+    const toAllSlaves = panoramaSubItemIds.every((pId) => fromMaster.has(pId));
+
+    // Mỗi slave phải có hotspot trỏ ngược về master
+    const allSlavesPointBack = panoramaSubItemIds.every((pId) => {
+      const links = linkMap.get(pId);
+      return links?.has(currentTour.id);
+    });
+
+    return toAllSlaves && allSlavesPointBack;
+  }, [linkMap, currentTour, panoramaSubItemIds]);
 
   const getTaskContentById = (id: number): React.ReactNode => {
     switch (id) {
@@ -782,7 +927,10 @@ const ManagerTourDetail: React.FC = () => {
       <div className={styles.header}>
         <IoChevronBack
           className={styles.tour_icon_back}
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            navigate(-1);
+            dispatch(goToStep(1));
+          }}
         />
         <p className={styles.tour_title}>{currentTour.config.name}</p>
         <div className={styles.tour_mode}>
@@ -795,22 +943,27 @@ const ManagerTourDetail: React.FC = () => {
                 checked={viewMode === 1}
                 onChange={() => {
                   if (viewMode !== 1) setViewMode(1);
+                  dispatch(goToStep(1));
                 }}
               />
               <span className={styles.radio_name}>Tổng quan</span>
             </label>
-            <label className={styles.radio_item}>
-              <input
-                type="radio"
-                name="radio"
-                value="config_canvas"
-                checked={viewMode === 2}
-                onChange={() => {
-                  if (viewMode !== 2) setViewMode(2);
-                }}
-              />
-              <span className={styles.radio_name}>Cấu hình</span>
-            </label>
+            {(currentTour.config.status == 2 ||
+              currentTour.config.status == 3) && (
+              <label className={styles.radio_item}>
+                <input
+                  type="radio"
+                  name="radio"
+                  value="config_canvas"
+                  checked={viewMode === 2}
+                  onChange={() => {
+                    if (viewMode !== 2) setViewMode(2);
+                    dispatch(goToStep(2));
+                  }}
+                />
+                <span className={styles.radio_name}>Cấu hình</span>
+              </label>
+            )}
           </div>
         </div>
       </div>
@@ -909,13 +1062,6 @@ const ManagerTourDetail: React.FC = () => {
 
                   {currentTour.config.status === 3 ? (
                     <div className={stylesOverview.content_information}>
-                      {/* <StatusToggle
-                        id={currentTour.id}
-                        status={currentTour.config.status}
-                        apiUrl={`${API_URLS.ADMIN_CHANGE_NODE_STATUS}`}
-                        type="node"
-                        editable={editInformation}
-                      /> */}
                       <button
                         className={stylesOverview.edit_information_btn}
                         onClick={() => setApproveForm(true)}
@@ -1040,7 +1186,7 @@ const ManagerTourDetail: React.FC = () => {
                         Huỷ
                       </button>
                     </>
-                  ) : auth.roleId != originalMasterNode?.userId ? (
+                  ) : auth.id != originalMasterNode?.userId ? (
                     ""
                   ) : (
                     <button
@@ -1073,7 +1219,7 @@ const ManagerTourDetail: React.FC = () => {
               <TourScene
                 radius={RADIUS_SPHERE}
                 sphereRef={sphereRef}
-                // imageRef={imageRef}
+                imageRef={imageRef}
                 textureCurrent={currentNodeView.url}
                 yawOffsetCurrent={currentNodeView.config.yawOffset ?? 0}
                 onPointerDown={handleScenePointerDown}
@@ -1106,6 +1252,8 @@ const ManagerTourDetail: React.FC = () => {
                 angleCurrent={cameraAngle}
                 currentTour={nodeId}
                 locked={userId !== authorId}
+                spaceName={originalMasterNode?.spaceName ?? null}
+                fieldName={originalMasterNode?.fieldName ?? null}
               />
 
               <Suspense fallback={null}>
@@ -1125,22 +1273,24 @@ const ManagerTourDetail: React.FC = () => {
                     ))}
               </Suspense>
 
-              {isTextureReady &&
-                hotspotNavigations
-                  .filter((hotspot) => hotspot.nodeId == currentNodeView.id)
-                  .map((hotspot) => (
-                    <GroundHotspot
-                      key={hotspot.id}
-                      onNavigate={(targetNodeId, cameraTargetPosition) =>
-                        handleHotspotNavigate(
-                          targetNodeId,
-                          cameraTargetPosition
-                        )
-                      }
-                      hotspotNavigation={hotspot}
-                      setCurrentHotspotId={setCurrentHotspotId}
-                    />
-                  ))}
+              <Suspense fallback={null}>
+                {isTextureReady &&
+                  hotspotNavigations
+                    .filter((hotspot) => hotspot.nodeId == currentNodeView.id)
+                    .map((hotspot) => (
+                      <GroundHotspot
+                        key={hotspot.id}
+                        onNavigate={(targetNodeId, cameraTargetPosition) =>
+                          handleHotspotNavigate(
+                            targetNodeId,
+                            cameraTargetPosition
+                          )
+                        }
+                        hotspotNavigation={hotspot}
+                        setCurrentHotspotId={setCurrentHotspotId}
+                      />
+                    ))}
+              </Suspense>
               {isTextureReady &&
                 hotspotModels
                   .filter((hotspot) => hotspot.nodeId == currentNodeView.id)
@@ -1163,7 +1313,103 @@ const ManagerTourDetail: React.FC = () => {
                   ))}
             </Canvas>
 
-            {userId === authorId ? (
+            {(currentNodeView.config.status === 2 &&
+              currentNodeView.id != nodeId) ||
+            userId !== authorId ? (
+              <button
+                className={styles.cancel_update_btn}
+                onClick={() => {
+                  if (nodeId) handleSelectNode(nodeId);
+                }}
+              >
+                Chế độ xem <FaRegEye />
+              </button>
+            ) : (
+              <>
+                <div className={styles.toggle_right_menu}>
+                  <IoMdMenu
+                    className={styles.show_menu}
+                    onClick={() => handleOpenMenu()}
+                  />
+                </div>
+                <AnimatePresence>
+                  {isMenuVisible && (
+                    <motion.div
+                      initial={{ x: 300, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: 300, opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className={`${styles.rightMenu} `}
+                    >
+                      <div className={styles.rightTitle}>
+                        <FaAngleRight
+                          className={styles.close_menu_btn}
+                          onClick={handleOpenMenu}
+                        />
+                        <h2>Cấu hình</h2>
+                      </div>
+
+                      <RightMenuCreateTour
+                        tasks={tasks}
+                        openTaskIndex={openTaskIndex}
+                        onTaskClick={handleOpenTask}
+                        setPreOpenTask={setPreTaskIndex}
+                        saveLinkNode={false}
+                        isValidated={isValidated}
+                        setIsValidated={setIsValidated}
+                        isUpdateTour={true}
+                        handleUpdateTour={handleUpdateTour}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <AnimatePresence>
+                  {isMenuVisible &&
+                    openTaskIndex !== null &&
+                    currentHotspotId === null && (
+                      <motion.div
+                        initial={{ y: 1000, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 1000, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className={`${styles.task_container}`}
+                      >
+                        <TaskContainerCT
+                          id={preTaskIndex}
+                          name={
+                            tasks.find((t) => t.id === preTaskIndex)?.title ||
+                            ""
+                          }
+                        >
+                          {preTaskIndex
+                            ? getTaskContentById(openTaskIndex ?? preTaskIndex)
+                            : ""}
+                        </TaskContainerCT>
+                      </motion.div>
+                    )}
+                </AnimatePresence>
+                <AnimatePresence>
+                  {currentHotspotId !== null && (
+                    <motion.div
+                      initial={{ y: 1000, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: 1000, opacity: 0 }}
+                      transition={{ duration: 1 }}
+                      className={`${styles.update_hotspot_container} `}
+                    >
+                      <UpdateHotspot
+                        hotspotId={currentHotspotId}
+                        setHotspotId={setCurrentHotspotId}
+                        onPropsChange={handleOnPropsChange}
+                        limitNav={true}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            )}
+
+            {/* {userId === authorId ? (
               <>
                 <div className={styles.toggle_right_menu}>
                   <IoMdMenu
@@ -1200,7 +1446,6 @@ const ManagerTourDetail: React.FC = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
-                {/* tasks */}
                 <AnimatePresence>
                   {isMenuVisible &&
                     openTaskIndex !== null &&
@@ -1247,7 +1492,7 @@ const ManagerTourDetail: React.FC = () => {
               </>
             ) : (
               ""
-            )}
+            )} */}
           </div>
         )}
       </div>
