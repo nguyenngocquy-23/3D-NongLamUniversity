@@ -345,7 +345,9 @@ const GroundHotspotInfo = ({
         </mesh>
       )}
 
-      {isOpenHotspotOption && currentStep == 2 && !blockUpdate ? (
+      {isOpenHotspotOption &&
+      (currentStep === 2 || currentStep === 4) &&
+      !blockUpdate ? (
         <OptionHotspot
           hotspotId={hotspotInfo.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
