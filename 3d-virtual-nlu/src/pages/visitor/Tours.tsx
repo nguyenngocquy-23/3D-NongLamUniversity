@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/visitor/tours.module.css";
+import stylesContainer from "../../styles/visitor/tourDetail.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {

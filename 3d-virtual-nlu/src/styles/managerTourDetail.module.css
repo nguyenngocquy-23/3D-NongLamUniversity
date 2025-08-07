@@ -301,3 +301,17 @@
   border-radius: 0.5rem;
   background-color: #ffffff;
 }
+
+.cancel_update_btn {
+  position: absolute;
+  color: #fff;
+  top: 0;
+  left: 0;
+  font-style: italic;
+  padding: 0.5rem;
+  background-color: #00000069;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}

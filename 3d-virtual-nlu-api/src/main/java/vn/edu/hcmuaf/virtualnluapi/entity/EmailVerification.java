@@ -16,5 +16,4 @@ public class EmailVerification {
     private int userId;
     private String token;
     private Timestamp expiredAt;
-
 }

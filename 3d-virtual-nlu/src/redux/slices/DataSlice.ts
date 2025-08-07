@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { API_URLS } from "../../env";
 import { safeParseJsonArray } from "../../utils/ParseJsonArray";
-import { perPage } from "../../utils/Constants";
 
 interface DataState {
   users: any[];
@@ -71,14 +70,16 @@ export const fetchUsers = createAsyncThunk(
 );
 
 // Fetch nodes
-export const fetchNodes = createAsyncThunk("data/fetchNodes", 
+export const fetchNodes = createAsyncThunk(
+  "data/fetchNodes",
   async ({ page, limit }: { page: number; limit: number }) => {
-  const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
-    page: page,
-    limit: limit,
-  });
-  return response.data.data;
-});
+    const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
+      page: page,
+      limit: limit,
+    });
+    return response.data.data;
+  }
+);
 
 // Fetch master nodes
 export const fetchMasterNodes = createAsyncThunk(
@@ -118,10 +119,15 @@ export const fetchAutoNode = createAsyncThunk(
   async ({ limit, page }: { limit: number; page: number }) => {
     const userJson = sessionStorage.getItem("user");
     const user = userJson ? JSON.parse(userJson) : null;
-    const response = await axios.post(user.roleId == 1 ? API_URLS.GET_AUTO_TOURS : API_URLS.ADMIN_GET_AUTO_TOURS, {
-      page: page,
-      limit: limit,
-    });
+    const response = await axios.post(
+      user.roleId == 1
+        ? API_URLS.GET_AUTO_TOURS
+        : API_URLS.ADMIN_GET_AUTO_TOURS,
+      {
+        page: page,
+        limit: limit,
+      }
+    );
     return response.data.data;
   }
 );

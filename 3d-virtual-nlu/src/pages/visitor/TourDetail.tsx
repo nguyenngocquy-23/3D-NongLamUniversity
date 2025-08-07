@@ -94,6 +94,8 @@ import { IoReturnDownBack } from "react-icons/io5";
 export interface PanoramaItemExpandField extends PanoramaItem {
   userId: string;
   fieldId: string;
+  spaceName: string;
+  fieldName: string;
   numView: number;
   updatedAt: number;
 }
@@ -181,10 +183,10 @@ const TourDetail = () => {
     grayscale = 0,
     exposure = 1,
   } = currentNodeView?.config ?? {};
-  const currentNodeViewUrl =
-    imageRef.current[currentNodeView?.url ?? ""]?.objectUrl ??
-    currentNodeView?.url ??
-    "/khoa.jpg";
+  // const currentNodeViewUrl =
+  //   imageRef.current[currentNodeView?.url ?? ""]?.objectUrl ??
+  //   currentNodeView?.url ??
+  //   "/khoa.jpg";
 
   const handleOpenMenu = () => {
     setIsMenuVisible((preState) => !preState);
@@ -244,7 +246,6 @@ const TourDetail = () => {
   const hotspotModels = useSelector(getFilteredHotspotModelInList);
   const hotspotMedias = useSelector(getFilteredHotspotMediaInList);
 
-  //Version of Kien replace 1.2, 1.1
   useEffect(() => {
     if (!nodeId) return;
 
@@ -271,6 +272,8 @@ const TourDetail = () => {
           ...currentTour,
           fieldId: mainNode?.fieldId,
           numView: mainNode?.numView,
+          spaceName: mainNode?.spaceName,
+          fieldName: mainNode?.fieldName,
           userId: mainNode?.userId,
           updatedAt: mainNode?.updatedAt,
         };
@@ -485,6 +488,7 @@ const TourDetail = () => {
       id: node.id,
       status: node.config.status == 0 ? 2 : 0,
     });
+    alert(node.config.status);
     if (response.data.data) {
       Swal.fire({
         title: "Thành công",
@@ -784,7 +788,7 @@ const TourDetail = () => {
             fov: 75,
             near: 0.1,
             far: 1000,
-            position: [0, 0, 0.0000001],
+            position: [0, 0, DEFAULT_ORIGINAL_Z],
           }}
           className={styles.tourCanvas}
         >
@@ -795,10 +799,6 @@ const TourDetail = () => {
             radius={RADIUS_SPHERE}
             sphereRef={sphereRef}
             imageRef={imageRef}
-            //Version of Quy
-            // textureCurrent={node.url}
-            // yawOffsetCurrent={node.yawOffset ?? 0}
-            //Version of Kien
             textureCurrent={currentNodeView.url}
             yawOffsetCurrent={currentNodeView.config.yawOffset ?? 0}
             onPointerDown={handleScenePointerDown}
@@ -811,27 +811,27 @@ const TourDetail = () => {
             exposure={exposure}
           />
 
-          {currentNodeView && isUpdateTour && (
-            <MiniMap
-              currentPanorama={currentNodeView}
-              angleCurrent={cameraAngle}
-              currentTour={nodeId}
-              locked={false}
-            />
-          )}
+          {currentNodeView &&
+            isUpdateTour &&
+            !(
+              currentNodeView.config.status === 2 &&
+              currentNodeView.id !== nodeId
+            ) && (
+              <MiniMap
+                currentPanorama={currentNodeView}
+                angleCurrent={cameraAngle}
+                currentTour={nodeId}
+                locked={false}
+                spaceName={originalMasterNode?.spaceName ?? null}
+                fieldName={originalMasterNode?.fieldName ?? null}
+              />
+            )}
 
           <CamControls
             controlsRef={controlsRef}
             targetPosition={targetPosition}
             cameraRef={cameraRef}
             sphereRef={sphereRef}
-            // Version of Quy
-            // autoRotate={node.isRotation}
-            // autoRotateSpeed={
-            //   node || node.speedRotate == 0 ? 0.2 : node.speedRotate
-            // }
-
-            // Version of Kien
             autoRotate={currentNodeView.isRotation}
             autoRotateSpeed={
               currentNodeView || currentNodeView.speedRotate == 0
@@ -868,7 +868,6 @@ const TourDetail = () => {
                   hotspotNavigations
                     .filter(
                       (hotspot) =>
-                        // hotspot.nodeId == node.id && hotspot.status == 1 //Version of Quy
                         hotspot.nodeId == currentNodeView.id &&
                         hotspot.status == 1 //Version of Kien
                     )
@@ -926,8 +925,6 @@ const TourDetail = () => {
           )}
         </Canvas>
 
-        {/* Version of Quy */}
-        {/* {node.status == 3 ? ( */}
         {currentNodeView.config.status == 3 ||
         currentNodeView.config.status == 4 ? (
           ""
@@ -944,7 +941,7 @@ const TourDetail = () => {
             />
           </span>
         ) : (
-          <div>
+          <div className={styles.feature_container}>
             <div className={styles.info}>
               <div className={styles.sub_info}>
                 <span className={styles.name}>Cập nhật</span>

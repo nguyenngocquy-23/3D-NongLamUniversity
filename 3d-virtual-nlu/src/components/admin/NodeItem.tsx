@@ -1,4 +1,4 @@
-import { FaMehRollingEyes } from "react-icons/fa";
+import { FaMehRollingEyes, FaRegUserCircle } from "react-icons/fa";
 import { NodeObject } from "../../pages/admin/ManagerTour";
 import styles from "../../styles/nodeItem.module.css";
 import { FaRegCommentDots } from "react-icons/fa6";
@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { fetchUsers } from "../../redux/slices/DataSlice";
 import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
 import { getStatusNode } from "../../utils/Constants";
+import { RxUpdate } from "react-icons/rx";
 
 interface NodeItemProps {
   onclick: () => void;
@@ -40,14 +41,6 @@ export const NodeItem = ({ onclick, node }: NodeItemProps) => {
 
   return (
     <div className={styles.node_wrapper} onClick={onclick}>
-      {/* <div className={styles.node_content_left}>
-        <img
-          src={node.url}
-          alt="thumbnail-node"
-          aria-placeholder="backgroundNL.jpg"
-        />
-      </div> */}
-
       <div
         className={styles.node_card}
         style={{
@@ -58,14 +51,43 @@ export const NodeItem = ({ onclick, node }: NodeItemProps) => {
         }}
       />
       <div className={styles.node_content}>
-        <div className={styles.name}>
-          <span>
-            [{node.id}] - {node?.name}
+        <span className={styles.node_id}>#{node.id}</span>
+        {/* <span className={styles.space_field_label}>{node.fieldName}</span> */}
+        <span className={styles.node_title} title={node.name}>
+          {node.name}
+        </span>
+
+        <div className={styles.node_author}>
+          <img
+            src={user == null ? currentUser.avatar : user.avatar}
+            alt="thumbnail-user"
+            className={styles.node_thumbnail}
+          />
+          <p>{user == null ? "admin" : user.username}</p>
+        </div>
+
+        <div className={styles.footer}>
+          <div
+            className={`${styles.status} ${
+              node.status == 0
+                ? styles.status_stop
+                : node.status == 2
+                ? styles.status_open
+                : styles.status_wait
+            }`}
+          >
+            {getStatusNode(node.status)}
+          </div>
+
+          <span className={styles.space_updated_at}>
+            <RxUpdate />{" "}
+            {node.updatedAt !== null &&
+              format(new Date(node.updatedAt), "dd/MM/yyyy ")}
           </span>
         </div>
 
-        <div className={styles.label}>
-          <div className={styles.num_react}>
+        {/* <div className={styles.label}> */}
+        {/* <div className={styles.num_react}>
             <GoEye />
             1.5K
           </div>
@@ -79,8 +101,8 @@ export const NodeItem = ({ onclick, node }: NodeItemProps) => {
           <div className={styles.num_react}>
             <MdNavigation />
             500
-          </div>
-          <div
+          </div> */}
+        {/* <div
             className={`${styles.status} ${
               node.status == 0
                 ? styles.status_stop
@@ -91,8 +113,8 @@ export const NodeItem = ({ onclick, node }: NodeItemProps) => {
           >
             {getStatusNode(node.status)}
           </div>
-        </div>
-        <div className={styles.footer}>
+        </div> */}
+        {/* <div className={styles.footer}>
           <div className={styles.by_user_wrapper}>
             <img
               src={user == null ? currentUser.avatar : user.avatar}
@@ -103,7 +125,7 @@ export const NodeItem = ({ onclick, node }: NodeItemProps) => {
           <span className={styles.time}>
             {format(new Date(node.updatedAt), "dd/MM/yyyy ")}
           </span>
-        </div>
+        </div> */}
       </div>
     </div>
   );

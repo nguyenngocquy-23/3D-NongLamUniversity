@@ -68,12 +68,16 @@ type MiniMapProps = {
   angleCurrent: number;
   currentTour?: string;
   locked?: boolean;
+  spaceName?: string | null;
+  fieldName?: string | null;
 };
 const MiniMap: React.FC<MiniMapProps> = ({
   currentPanorama,
   angleCurrent,
   currentTour,
   locked,
+  spaceName,
+  fieldName,
 }) => {
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
@@ -164,13 +168,10 @@ const MiniMap: React.FC<MiniMapProps> = ({
     : filterPanoramaList; //Filter ra các panos khác tour.
 
   const { spaces } = useSelector((state: RootState) => state.data);
-
   const spaceItem = spaces.find((s) => s.id === Number(spaceId));
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
-  const masterPanorama = panoramaList.find(
-    (h) => h.config.status > 1
-  );
+  const masterPanorama = panoramaList.find((h) => h.config.status > 1);
 
   /**
    * Là danh sách các hostpot navigation từ Master Node.
@@ -656,12 +657,13 @@ const MiniMap: React.FC<MiniMapProps> = ({
                 <div className={styles.tour_information_item}>
                   <span>
                     Lĩnh vực:{" "}
-                    {spaceItem ? spaceItem.fieldName : "Không tìm thấy"}{" "}
+                    {fieldName ?? spaceItem?.fieldName ?? "Không tìm thấy"}
                   </span>
                 </div>
                 <div className={styles.tour_information_item}>
                   <span>
-                    Không gian: {spaceItem ? spaceItem.name : "Không tìm thấy"}
+                    Không gian:{" "}
+                    {spaceName ?? spaceItem?.name ?? "Không tìm thấy"}
                   </span>
                 </div>
                 <div className={`${styles.tour_information_item} `}>

@@ -56,6 +56,11 @@
   font-size: 1.5rem;
   display: flex;
   align-items: center;
+  max-width: 98%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
   gap: 0.5rem;
 }
 
