@@ -66,8 +66,8 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
       ) : (
         ""
       )}
-      <span className={styles.toggle} onClick={handleToggle}>
-        {isOpen ? <FaCaretUp /> : <FaCaretDown />}
+      <span className={styles.toggle} onClick={handleToggle} style={{bottom: isOpen ? "-10px" : "-20px"}}>
+        {isOpen ? <FaCaretUp /> : <FaCaretDown className={styles.toggle_open} />}
       </span>
 
       {isOpen && (

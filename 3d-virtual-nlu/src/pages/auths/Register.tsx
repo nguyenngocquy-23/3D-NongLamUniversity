@@ -199,13 +199,13 @@ const Register: React.FC = () => {
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? "Logging in..." : "Đăng ký"}
+            {isLoading ? "Đang đăng ký..." : "Đăng ký"}
           </button>
         </form>
         <p>
-          Đã có tài khoản?
+          Đã có tài khoản?{" "}
           <Link className={styles.link} to="/login">
-            Đăng nhập!
+             Đăng nhập!
           </Link>
         </p>
       </div>

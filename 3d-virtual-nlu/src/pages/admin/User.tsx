@@ -47,9 +47,12 @@ function User() {
 
   // Cập nhật searchData mỗi khi users thay đổi
   useEffect(() => {
-    if (users.length > 0) {
+    if (currentUser.roleId == 2 && users.length > 0) {
       setSearchData(users); // Chỉ cập nhật khi users có dữ liệu
+    } else if (currentUser.roleId == 3 && users.length > 0) {
+      setSearchData(users.filter((u) => u.roleId == 1)); // Chỉ cập nhật khi users có dữ liệu
     }
+
     setLoading(false); // Kết thúc trạng thái tải
   }, [users]);
 
@@ -137,7 +140,7 @@ function User() {
     {
       name: "Trạng thái",
       cell: (row: User) =>
-        row.roleId === 0 ? (
+        row.roleId === 1 ? (
           row.status != 1 ? (
             <button
               className={styles.status_button}
@@ -149,12 +152,9 @@ function User() {
                 }
               }}
               title={row.status == 2 ? "khóa tài khoản" : "mở tài khoản"}
+              style={{ backgroundColor: row.status == 0 ? "red" : "green" }}
             >
-              {row.status === 0 ? (
-                <FaLock style={{ color: "red" }} />
-              ) : (
-                <FaUnlock />
-              )}
+              {row.status === 0 ? <FaLock /> : <FaUnlock />}
             </button>
           ) : (
             <span
@@ -168,10 +168,26 @@ function User() {
             </span>
           )
         ) : (
-          <MdAdminPanelSettings
-            style={{ margin: "auto", fontSize: "25px", color: "#009879" }}
-            title="Admin nè"
-          />
+          <>
+            <button
+              className={styles.status_button}
+              onClick={() => {
+                if (row.status == 2) {
+                  toggleLockStatus(row.id, true);
+                } else if (row.status == 0) {
+                  toggleLockStatus(row.id, false);
+                }
+              }}
+              title={row.status == 2 ? "khóa tài khoản" : "mở tài khoản"}
+              style={{ backgroundColor: row.status == 0 ? "red" : "green" }}
+            >
+              {row.status === 0 ? <FaLock /> : <FaUnlock />}
+            </button>
+            <MdAdminPanelSettings
+              style={{ marginLeft: "0.5rem", fontSize: "25px", color: "#009879" }}
+              title="Quản trị viên"
+            />
+          </>
         ),
       sortable: true,
       width: "150px",

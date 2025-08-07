@@ -20,28 +20,7 @@ const VisitorManage = () => {
 
   return (
     <div className={styles.container}>
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            key="nav"
-            layout
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className={styles.nav}
-          >
-            <NavTour setIsOpenNav={setIsOpen} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {!isOpen && (
-        <span className={styles.toggle} onClick={() => setIsOpen(!isOpen)}>
-          <FaCaretDown />
-        </span>
-      )}
-
+      <NavTour setIsOpenNav={setIsOpen} />
       <div className={styles.content}>
         <Outlet />
       </div>

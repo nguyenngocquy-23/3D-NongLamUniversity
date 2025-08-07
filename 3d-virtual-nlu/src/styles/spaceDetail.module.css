@@ -210,8 +210,11 @@
   transition: all 0.3s ease;
 }
 
+.edit_information_btn:focus {
+  outline: none;
+}
 .edit_information_btn:hover {
-  color: #267026;
+  color: #ccc;
 }
 
 .description_content {

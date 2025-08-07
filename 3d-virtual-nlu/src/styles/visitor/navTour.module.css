@@ -61,7 +61,7 @@
   transform: translateX(-50%);
   font-size: 25px;
   cursor: pointer;
-  color: #444;
+  color: white;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -69,9 +69,14 @@
   transition: all 0.3s ease;
 }
 
+.toggle_open {
+  color: black;
+}
+
 .nav_active {
   background-color: #28b728;
 }
+
 /* 
 .container .show {
   box-shadow: 1px 2px 5px rgba(255, 255, 255, 0.5);
@@ -97,6 +102,7 @@
   display: flex;
   gap: 0.5rem;
   padding: 1rem;
+  align-items: center;
 }
 
 .back_btn {

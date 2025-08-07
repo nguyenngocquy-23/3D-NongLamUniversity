@@ -75,7 +75,11 @@ const CommentBox = ({ setIsComment, userId, nodeId }: CommentProp) => {
   };
 
   const handleUpdateComment = async (commentId: number) => {
-    if (!updateContent.trim()) return;
+    if (!updateContent.trim()) {
+      setEdittedCommentId(0);
+      setUpdateContent("");
+      return;
+    }
 
     try {
       const response = await axios.post(API_URLS.EDIT_COMMENT, {

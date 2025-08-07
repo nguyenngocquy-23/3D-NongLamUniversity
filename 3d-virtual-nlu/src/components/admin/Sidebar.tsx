@@ -45,7 +45,7 @@ const Sidebar: React.FC<SideBarProps> = ({
   };
 
   const note_contact = useSelector((state: RootState) => state.data.contacts); 
-  const note_contact_not_feedback = note_contact.filter(
+  const note_contact_not_feedback = note_contact?.filter(
     (contact) => contact.status == 0
   ).length;
 

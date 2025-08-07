@@ -377,6 +377,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
     }
     dispatch(nextStep());
   };
+  
   return (
     <div className={`${styles.uploadWrapper}`}>
       <input
