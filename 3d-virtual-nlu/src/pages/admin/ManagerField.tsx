@@ -354,6 +354,7 @@ const Field = () => {
                 status={selectedField.status}
                 apiUrl={API_URLS.ADMIN_CHANGE_FIELD_STATUS}
                 type="field"
+                currentPage={currentPage}
               />
             </div>
 

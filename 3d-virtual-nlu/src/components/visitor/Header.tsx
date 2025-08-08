@@ -109,7 +109,7 @@ const Header: React.FC = () => {
 
       {(mobileNavOpen || !isMobile) && (
         <nav className={isMobile ? style.nav_mobile : style.nav}>
-          <ScrollLink
+          {/* <ScrollLink
             to="campusMap"
             className={style.navLink}
             offset={-60}
@@ -118,7 +118,7 @@ const Header: React.FC = () => {
             onClick={() => setMobileNavOpen(false)}
           >
             Sơ đồ trường
-          </ScrollLink>
+          </ScrollLink> */}
 
           <ScrollLink
             to="introduce"

@@ -34,6 +34,7 @@ import TaskContainerCT from "./TaskContainerCT";
 import {
   DEFAULT_ORIGINAL_Z,
   MAX_DESCRIPTION,
+  perPage,
   RADIUS_SPHERE,
 } from "../../utils/Constants";
 import { Environment } from "@react-three/drei";
@@ -71,6 +72,7 @@ import {
 } from "../../redux/slices/Selectors";
 import { AnimatePresence, motion } from "framer-motion";
 import { IoMdMenu } from "react-icons/io";
+import { fetchSpaces } from "../../redux/slices/DataSlice";
 const SpaceDetail = () => {
   const navigate = useNavigate();
 
@@ -92,7 +94,7 @@ const SpaceDetail = () => {
   const [fields, setFields] = useState<Field[] | null>([]);
 
   useEffect(() => {
-    dispatch(goToStep(4)); //
+    dispatch(goToStep(4));
   }, [dispatch]);
 
   //=== LẤY DANH SÁCH CÁC TOUR CÓ TRONG 1 SPACE => REDUX.
@@ -561,7 +563,18 @@ const SpaceDetail = () => {
         });
         const updatedSpace = response.data.data;
         setCurrentSpace(updatedSpace);
-
+        dispatch(
+          fetchSpaces({
+            limit: perPage,
+            page: 0,
+          })
+        );
+        dispatch(
+          fetchSpaces({
+            limit: perPage,
+            page: 1,
+          })
+        );
         setEditInformation(false);
       } else {
         Swal.fire({

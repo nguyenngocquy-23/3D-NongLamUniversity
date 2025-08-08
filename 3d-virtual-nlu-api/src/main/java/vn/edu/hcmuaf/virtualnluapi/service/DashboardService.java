@@ -31,8 +31,8 @@ public class DashboardService {
 //        int numFreeAccess = userDao.countFreeAccess();
         int numMonthRegister = userDao.countMonthRegister();
         int numAllRegister = userDao.countAllRegister();
-        int highestViewNodeId = nodeDao.getHighestNumViewOfNode();
-        int lowestViewNodeId = nodeDao.getLowestNumViewOfNode();
+//        int highestViewNodeId = nodeDao.getHighestNumViewOfNode();
+//        int lowestViewNodeId = nodeDao.getLowestNumViewOfNode();
 
         int numTour = nodeDao.countAllNodes();
         int numAutoTour = nodeDao.countAllAutoNodes();
@@ -56,8 +56,8 @@ public class DashboardService {
                 .numField(numField)
                 .numSpace(numSpace)
                 .numContact(numContact)
-                .highestViewNodeId(highestViewNodeId)
-                .lowestViewNodeId(lowestViewNodeId)
+//                .highestViewNodeId(highestViewNodeId)
+//                .lowestViewNodeId(lowestViewNodeId)
                 .build();
     }
 
