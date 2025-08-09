@@ -15,5 +15,4 @@ public class Message {
     private int id, userId, nodeId;
     private String content;
     private Timestamp createdAt;
-
 }
