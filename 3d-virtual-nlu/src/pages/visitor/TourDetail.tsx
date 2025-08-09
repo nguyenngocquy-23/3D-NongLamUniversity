@@ -63,6 +63,7 @@ import {
   PanoramaItem,
   selectPanorama,
   setSpaceId,
+  updatePanoConfig,
 } from "../../redux/slices/PanoramaSlice";
 import { Environment } from "@react-three/drei";
 import {
@@ -93,6 +94,8 @@ import { IoReturnDownBack } from "react-icons/io5";
 export interface PanoramaItemExpandField extends PanoramaItem {
   userId: string;
   fieldId: string;
+  spaceName: string;
+  fieldName: string;
   numView: number;
   updatedAt: number;
 }
@@ -269,6 +272,8 @@ const TourDetail = () => {
           ...currentTour,
           fieldId: mainNode?.fieldId,
           numView: mainNode?.numView,
+          spaceName: mainNode?.spaceName,
+          fieldName: mainNode?.fieldName,
           userId: mainNode?.userId,
           updatedAt: mainNode?.updatedAt,
         };
@@ -481,7 +486,7 @@ const TourDetail = () => {
 
     const response = await axios.post(API_URLS.CHANGE_NODE_STATUS, {
       id: node.id,
-      status: node.status,
+      status: node.config.status == 0 ? 2 : 0,
     });
     alert(node.config.status);
     if (response.data.data) {
@@ -497,7 +502,13 @@ const TourDetail = () => {
         timerProgressBar: true,
         showConfirmButton: false,
       });
-      // handleFetchNode(node.id);  --- Version of Quy 1.3
+      // handleFetchNode(node.id);  //--- Version of Quy 1.3
+      dispatch(
+        updatePanoConfig({
+          id: node.id,
+          config: { status: node.config.status == 0 ? 2 : 0 },
+        })
+      ); //--- Version of Kien 1.3
     } else {
       Swal.fire({
         title: "Thất bại",
@@ -811,6 +822,8 @@ const TourDetail = () => {
                 angleCurrent={cameraAngle}
                 currentTour={nodeId}
                 locked={false}
+                spaceName={originalMasterNode?.spaceName ?? null}
+                fieldName={originalMasterNode?.fieldName ?? null}
               />
             )}
 
@@ -923,6 +936,7 @@ const TourDetail = () => {
               onClick={() => {
                 setIsFullPreview(false);
                 setIsUpdateTour(false);
+                if(nodeId)handleSelectNode(nodeId);
               }}
             />
           </span>
@@ -1021,6 +1035,87 @@ const TourDetail = () => {
 
         {isUpdateTour && (
           <>
+            <div className={styles.toggle_right_menu}>
+              <IoMdMenu
+                className={styles.show_menu}
+                onClick={() => handleOpenMenu()}
+              />
+            </div>
+            {currentNodeView.config.status == 4 && !isOpenFeedback && (
+              <button
+                className={styles.view_feedback_button}
+                onClick={() => setIsOpenFeedback((prev) => !prev)}
+                title="Xem phản hồi"
+              >
+                <IoWarning />
+              </button>
+            )}
+            {currentNodeView.config.status == 4 && isOpenFeedback && (
+              <div className={styles.feedback_container}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <h3>Phản hồi </h3>
+                  <FaX
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setIsOpenFeedback(false)}
+                  />
+                </div>
+                {feedback && (
+                  <p className={styles.approve_time}>{feedback.createdAt}</p>
+                )}
+                {feedback &&
+                  feedback.feedbackList.map((f: any, index: any) => (
+                    <div key={index} className={styles.feedback_item}>
+                      <p
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          color: "red",
+                        }}
+                      >
+                        ⚠ {f}
+                      </p>
+                    </div>
+                  ))}
+                {feedback && <p>Thêm: {feedback.moreFeedback}</p>}
+              </div>
+            )}
+            <AnimatePresence>
+              {isMenuVisible && (
+                <motion.div
+                  initial={{ x: 300, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: 300, opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className={`${stylesRightMenu.rightMenu} `}
+                >
+                  <div className={stylesRightMenu.rightTitle}>
+                    <FaAngleRight
+                      className={stylesRightMenu.close_menu_btn}
+                      onClick={handleOpenMenu}
+                    />
+                    <h2>Cấu hình</h2>
+                  </div>
+
+                  <RightMenuCreateTour
+                    tasks={tasks}
+                    openTaskIndex={openTaskIndex}
+                    onTaskClick={handleOpenTask}
+                    setPreOpenTask={setPreTaskIndex}
+                    isUpdateTour={true}
+                    handleUpdateTour={handleUpdateTour}
+                    saveLinkNode={false}
+                    isValidated={isValidated}
+                    setIsValidated={setIsValidated}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
             {currentNodeView.config.status === 2 &&
             currentNodeView.id !== nodeId ? (
               <button

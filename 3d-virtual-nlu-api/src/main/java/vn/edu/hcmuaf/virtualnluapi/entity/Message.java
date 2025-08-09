@@ -14,5 +14,6 @@ import java.sql.Timestamp;
 public class Message {
     private int id, userId, nodeId;
     private String content;
+    private byte status;
     private Timestamp createdAt;
 }

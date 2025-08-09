@@ -12,6 +12,5 @@ import java.sql.Timestamp;
 public class HotspotModel {
     int hotspotId;
     String modelUrl, thumbnailUrl, name, description;
-    boolean autoRotate;
     int numDownload;
 }

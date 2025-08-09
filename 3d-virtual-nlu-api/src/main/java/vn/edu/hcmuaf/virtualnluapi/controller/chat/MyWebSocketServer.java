@@ -29,7 +29,7 @@ public class MyWebSocketServer {
     public void onOpen(Session session,
                        @PathParam("nodeId") String nodeId,
                        @PathParam("userId") String userId) {
-        if ("global".equals(nodeId)) {
+        if (nodeId.equals("global")) {
             globalSessions.put(userId, session);
             System.out.println("User " + userId + " connected to GLOBAL chat");
         } else {

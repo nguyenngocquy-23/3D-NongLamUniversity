@@ -11,6 +11,7 @@ import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
   clearPanorama,
   selectPanorama,
+  setSpaceId,
 } from "../../redux/slices/PanoramaSlice";
 import RightMenuCreateTour from "../../components/admin/RightMenuCT";
 import TaskContainerCT from "../../components/admin/TaskContainerCT";
@@ -320,7 +321,6 @@ const CreateTourStep2 = () => {
             name: "",
             description: "",
             autoRotate: 0,
-            colorCode: "",
             thumbnailUrl: "",
           })
         );
@@ -413,6 +413,7 @@ const CreateTourStep2 = () => {
         dispatch(clearPanorama());
         dispatch(clearHotspot());
         dispatch(prevStep());
+        dispatch(setSpaceId("0"));
       }
     });
   };

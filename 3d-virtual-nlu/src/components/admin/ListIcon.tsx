@@ -22,7 +22,7 @@ const ListIcon = ({
     const searchTerm = event.target.value.toLowerCase().trim();
     const newData = icons.filter((row) => {
       return (
-        row?.type === typeIcon && row.name.toLowerCase().includes(searchTerm)
+        row?.type === typeIcon && row.name.toLowerCase().includes(searchTerm) && row?.isActive == 1
       );
     });
     setSearchData(newData);
@@ -30,7 +30,7 @@ const ListIcon = ({
 
   useEffect(() => {
     if (icons.length > 0) {
-      const filteredIcons = icons.filter((i) => i?.type === typeIcon);
+      const filteredIcons = icons.filter((i) => i?.type === typeIcon && i?.isActive == 1);
       setSearchData(filteredIcons); // Chỉ cập nhật khi users có dữ liệu
     }
     setLoading(false); // Kết thúc trạng thái tải

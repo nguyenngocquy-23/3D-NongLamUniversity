@@ -71,7 +71,7 @@ public class EmailVerificationService {
         boolean flag = false;
         EmailVerification verification = emailVerificationDAO.findByUserId(userId);
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        if (verification != null && now.before(verification.getExpiredAt())) {
+        if (verification != null && now.before(verification.getExpiredAt()) && verification.getToken().equals(token)) {
             flag = userDao.activatedUser(userId);
         }
         if (flag)

@@ -15,9 +15,19 @@ export const useAutoTour = (
   };
 
   const runTourStep = (index: number) => {
-    if (index >= panoramaList.length) return;
+    let nextValidIndex = index;
+    while (
+      nextValidIndex < panoramaList.length &&
+      (panoramaList[nextValidIndex].status === 0 ||
+        panoramaList[nextValidIndex].status === -1||
+        panoramaList[nextValidIndex].status === undefined)
+    ) {
+      nextValidIndex++;
+    }
 
-    const currentNode = panoramaList[index];
+    if (nextValidIndex >= panoramaList.length) return;
+
+    const currentNode = panoramaList[nextValidIndex];
     if (!currentNode) return;
 
     handleHotspotNavigate(currentNode.id, [
@@ -26,13 +36,15 @@ export const useAutoTour = (
       currentNode.positionZ,
     ]);
 
-    tourIndexRef.current = index;
+    tourIndexRef.current = nextValidIndex;
 
     clearAutoTimer();
+
     timeoutRef.current = setTimeout(() => {
-      runTourStep(index + 1);
+      runTourStep(nextValidIndex + 1); // tiếp tục với node sau
     }, currentNode.duration * 1000);
   };
+
 
   const startAutoTour = () => {
     if (!panoramaList || panoramaList.length === 0) return;

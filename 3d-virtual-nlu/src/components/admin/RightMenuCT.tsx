@@ -54,7 +54,6 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
         toast: true,
         position: "top-end",
         showConfirmButton: true,
-        timer: 3000,
       });
       return;
     }
@@ -66,7 +65,6 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
         toast: true,
         position: "top-end",
         showConfirmButton: true,
-        timer: 3000,
       });
       return;
     }

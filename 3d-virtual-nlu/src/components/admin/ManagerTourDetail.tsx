@@ -2,21 +2,12 @@ import React, { useRef, useState, useMemo, useEffect, Suspense } from "react";
 import styles from "../../styles/managerTourDetail.module.css";
 import stylesOverview from "../../styles/spaceDetail.module.css";
 import * as THREE from "three";
-import {
-  FaAngleDown,
-  FaAngleLeft,
-  FaAngleRight,
-  FaAngleUp,
-  FaRegEye,
-} from "react-icons/fa6";
+import { FaAngleRight, FaRegEye } from "react-icons/fa6";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store.ts";
-import { NodeItem } from "./NodeItem.tsx";
-import SearchBar from "../../features/SearchBar.tsx";
 import axios from "axios";
 import { API_URLS } from "../../env.ts";
-import { Perf } from "r3f-perf";
 import {
   addPanorama,
   addPanoramasFromResponse,
@@ -100,6 +91,8 @@ interface PanoramaItemForApprove extends PanoramaItem {
   numView: number;
   updatedAt: number;
   email: string;
+  spaceName: string;
+  fieldName: string;
   userName: string;
   avatar: string;
 }
@@ -194,6 +187,8 @@ const ManagerTourDetail: React.FC = () => {
           userId: mainNode?.userId,
           updatedAt: mainNode?.updatedAt,
           userName: mainNode?.userName,
+          spaceName: mainNode?.spaceName,
+          fieldName: mainNode?.fieldName,
           email: mainNode?.email,
           avatar: mainNode?.avatar,
         };
@@ -1191,7 +1186,7 @@ const ManagerTourDetail: React.FC = () => {
                         Huỷ
                       </button>
                     </>
-                  ) : auth.roleId != originalMasterNode?.userId ? (
+                  ) : auth.id != originalMasterNode?.userId ? (
                     ""
                   ) : (
                     <button
@@ -1257,6 +1252,8 @@ const ManagerTourDetail: React.FC = () => {
                 angleCurrent={cameraAngle}
                 currentTour={nodeId}
                 locked={userId !== authorId}
+                spaceName={originalMasterNode?.spaceName ?? null}
+                fieldName={originalMasterNode?.fieldName ?? null}
               />
 
               <Suspense fallback={null}>

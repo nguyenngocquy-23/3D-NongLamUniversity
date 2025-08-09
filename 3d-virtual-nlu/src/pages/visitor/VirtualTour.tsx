@@ -160,6 +160,12 @@ const VirtualTour = () => {
 
   const [isOpenBox, setIsOpenBox] = useState(false);
 
+  useEffect(() => {
+    if(isOpenBox) {
+      setIsOpenRadar(false);
+    }
+  }, [isOpenBox]);
+
   /**
    * Lớp chờ để ẩn các tiến trình render
    * Tạo cảm giác loading cho người dùng
