@@ -300,7 +300,12 @@ const Space = () => {
           timer: 4000,
           timerProgressBar: true,
         });
-        dispatch(fetchSpaces({ limit: perPage, page: currentPage }));
+        dispatch(
+          fetchSpaces({
+            limit: perPage,
+            page: currentPage == -1 ? 0 : currentPage,
+          })
+        );
       } else if (response.data.statusCode === 5000) {
         Swal.fire({
           icon: "error",
@@ -367,6 +372,13 @@ const Space = () => {
         id,
         status: 2,
       });
+
+      dispatch(
+        fetchSpaces({
+          limit: perPage,
+          page: currentPage == -1 ? 0 : currentPage,
+        })
+      );
       console.log("Cập nhật thành công");
     } catch (error) {
       console.error("Lỗi khi cập nhật:", error);
@@ -514,6 +526,7 @@ const Space = () => {
                       status={selectedSpace.status}
                       apiUrl={API_URLS.ADMIN_CHANGE_SPACE_STATUS}
                       type="space"
+                      currentPage={currentPage}
                     />
                   </div>
                 </div>
