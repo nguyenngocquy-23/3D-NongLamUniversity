@@ -35,6 +35,7 @@ interface Space {
   fieldId: number | null;
   fieldName: string;
   code: string;
+  location: string;
   masterNodeId: number | null;
   masterNodeName: string | null;
   name: string | null;
@@ -44,9 +45,7 @@ interface Space {
   updatedAt: number | null;
 }
 
-type SpaceEditRequest = {
-  spaceId: Space["id"];
-} & Pick<Space, "name" | "code">;
+type SpaceEditRequest = Pick<Space, "id" | "name" | "code">;
 
 //Khi tạo, spaceId sẽ là 0.
 type SpaceCreateRequest = Pick<
@@ -65,6 +64,7 @@ const emptySpace: Space = {
   masterNodeName: null,
   description: "",
   status: 1,
+  location: "",
   createdAt: null,
   updatedAt: null,
 };
@@ -198,6 +198,7 @@ const Space = () => {
       navigate("/unauthorized");
     }
   }, [currentUser, navigate]);
+
   const handleSelectField = (event: any) => {
     const fieldId = event?.target.value;
     setFieldId(fieldId);
@@ -264,7 +265,21 @@ const Space = () => {
           icon: "error",
           title: `Tạo không gian thất bại ${error}`,
           toast: true,
-          position: "bottom-end",
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+        return;
+      }
+
+      if (req.fieldId == null || req.url === "") {
+        Swal.fire({
+          icon: "error",
+          title: `Tạo không gian thất bại`,
+          text: "Vui lòng điền đầy đủ thông tin.",
+          toast: true,
+          position: "top-end",
           showConfirmButton: false,
           timer: 4000,
           timerProgressBar: true,
@@ -280,17 +295,18 @@ const Space = () => {
           icon: "success",
           title: `${response.data.message}`,
           toast: true,
-          position: "bottom-end",
+          position: "top-end",
           showConfirmButton: false,
           timer: 4000,
           timerProgressBar: true,
         });
+        dispatch(fetchSpaces({ limit: perPage, page: currentPage }));
       } else if (response.data.statusCode === 5000) {
         Swal.fire({
           icon: "error",
           title: `${response.data.message}`,
           toast: true,
-          position: "bottom-end",
+          position: "top-end",
           showConfirmButton: false,
           timer: 4000,
           timerProgressBar: true,
@@ -300,7 +316,7 @@ const Space = () => {
           icon: "error",
           title: `Không thể tạo không gian`,
           toast: true,
-          position: "bottom-end",
+          position: "top-end",
           showConfirmButton: false,
           timer: 4000,
           timerProgressBar: true,
@@ -311,7 +327,7 @@ const Space = () => {
         icon: "error",
         title: `Tạo không gian thất bại ${err}`,
         toast: true,
-        position: "bottom-end",
+        position: "top-end",
         showConfirmButton: false,
         timer: 4000,
         timerProgressBar: true,
@@ -324,6 +340,19 @@ const Space = () => {
     event: React.ChangeEvent<HTMLInputElement>,
     id: number
   ) => {
+    if (selectedSpace?.location == null) {
+      Swal.fire({
+        icon: "warning",
+        title: "Không thể chọn không gian chính",
+        text: "Vui lòng gán vị trí cho không gian trên bản đồ trước.",
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 5000,
+        timerProgressBar: true,
+      });
+      return;
+    }
     const checked = event.target.checked;
 
     if (!event.target.checked) {
@@ -539,7 +568,7 @@ const Space = () => {
                       onClick={() => {
                         selectedSpace.id !== 0 &&
                           handleRename({
-                            spaceId: selectedSpace.id,
+                            id: selectedSpace.id,
                             name: inputSpaceName ?? "",
                             code: nameCode ?? "",
                           });

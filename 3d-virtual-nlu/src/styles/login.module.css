@@ -94,27 +94,27 @@ input::placeholder {
   padding: 0.75rem;
   border: none;
   border-radius: 5px;
-  background: #50f373;
+  background: #267026;
   color: #fff;
   font-size: 1rem;
   cursor: pointer;
   transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
   transition: transform 0.5s ease;
+  margin-bottom: 0.5rem;
 }
 
 .loginBtn:hover {
   transform: perspective(1000px) scale(1.1);
-  background: #23c045;
+  background: #349e34;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .link {
-  text-decoration: none;
-  color: #6fa9ff;
+  color: white;
   line-height: 2;
   transform: scale(1);
   transition: all 0.5s ease;
-  margin-left: 0.5rem;
+  font-style: italic;
 }
 
 .link:hover {

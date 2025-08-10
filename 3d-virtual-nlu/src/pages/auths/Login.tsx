@@ -1,4 +1,3 @@
-// src/components/LoginForm.tsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../../styles/login.module.css";
@@ -7,7 +6,7 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { loginUser, loginWithGoogle } from "../../redux/slices/AuthSlice";
-import { FaRegUser, FaUser } from "react-icons/fa6";
+import { FaRegUser } from "react-icons/fa6";
 import { CiLock } from "react-icons/ci";
 import Swal from "sweetalert2";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";

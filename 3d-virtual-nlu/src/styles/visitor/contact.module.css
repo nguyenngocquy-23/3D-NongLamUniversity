@@ -124,3 +124,9 @@
 .contact_image_right:hover {
   transform: translateY(-50%) rotateY(-35deg) scale(1.05);
 }
+
+@media (max-width: 1068px) {
+  .contact_image{
+    display: none;
+  }
+}

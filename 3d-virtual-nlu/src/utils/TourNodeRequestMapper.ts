@@ -484,7 +484,6 @@ export class TourNodeRequestMapper {
           thumbnailUrl: h.thumbnailUrl,
           name: h.name,
           description: h.description,
-          autoRotate: h.autoRotate,
         }));
 
       return {
@@ -618,7 +617,6 @@ export class TourNodeRequestMapper {
           thumbnailUrl: h.thumbnailUrl,
           name: h.name,
           description: h.description,
-          autoRotate: h.autoRotate,
         }));
 
       return {

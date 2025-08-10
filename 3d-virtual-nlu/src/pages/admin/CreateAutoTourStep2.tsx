@@ -273,7 +273,7 @@ const CreateAutoTourStep2 = () => {
   };
 
   const [orderedList, setOrderedList] = useState(() =>
-    autoPanoramaList.map((item) => ({ ...item }))
+    autoPanoramaList.filter((p: any) => p.id != undefined).map((item) => ({ ...item }))
   );
 
   useEffect(() => {
@@ -653,7 +653,7 @@ const CreateAutoTourStep2 = () => {
                     marginRight: "1rem",
                     textAlign: "center",
                     padding: "0.5rem 1rem",
-                    backgroundColor: status == 0 ? "#f0464fff" : "#62f046",
+                    backgroundColor: status == 0 ? "#f0464fff" : "#267026",
                   }}
                   onClick={() => {
                     setStatus(status === 1 ? 0 : 1);
@@ -668,7 +668,7 @@ const CreateAutoTourStep2 = () => {
                 marginRight: "1rem",
                 textAlign: "center",
                 padding: "0.5rem 1rem",
-                backgroundColor: "#62f046",
+                backgroundColor: "#267026",
               }}
               onClick={() => {
                 setIsAddTour(true);
@@ -692,7 +692,7 @@ const CreateAutoTourStep2 = () => {
         </div>
         {/* Hộp node */}
         <div className={styles.node_list}>
-          {orderedList.map((pano, index) => (
+          {orderedList.filter((p: any) =>p.id != undefined).map((pano, index) => (
             <div
               key={pano.id}
               className={`${styles.node_item} ${
@@ -701,7 +701,7 @@ const CreateAutoTourStep2 = () => {
               title={pano.name}
             >
               <img
-                src={transformUrlToThumbnailBig(pano.url)}
+                src={transformUrlToThumbnailBig(pano.url || "")}
                 alt={pano.name}
                 className={styles.node_image}
                 onClick={() => {

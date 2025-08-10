@@ -11,6 +11,7 @@ import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
   clearPanorama,
   selectPanorama,
+  setSpaceId,
 } from "../../redux/slices/PanoramaSlice";
 import RightMenuCreateTour from "../../components/admin/RightMenuCT";
 import TaskContainerCT from "../../components/admin/TaskContainerCT";
@@ -216,19 +217,19 @@ const CreateTourStep2 = () => {
             hotspot.position[2] < maxZ
         )
       );
-    if (isNear) {
-      Swal.fire({
-        title: "Cảnh báo",
-        text: "Các hotspot không được nằm gần nhau",
-        icon: "warning",
-        showCancelButton: false,
-        toast: true,
-        timer: 2000,
-        position: "top-end",
-        showConfirmButton: false,
-      });
-      return;
-    }
+    // if (isNear) {
+    //   Swal.fire({
+    //     title: "Cảnh báo",
+    //     text: "Các hotspot không được nằm gần nhau",
+    //     icon: "warning",
+    //     showCancelButton: false,
+    //     toast: true,
+    //     timer: 2000,
+    //     position: "top-end",
+    //     showConfirmButton: false,
+    //   });
+    //   return;
+    // }
     if (!validIcon) {
       Swal.fire({
         title: "Cảnh báo",
@@ -320,7 +321,6 @@ const CreateTourStep2 = () => {
             name: "",
             description: "",
             autoRotate: 0,
-            colorCode: "",
             thumbnailUrl: "",
           })
         );
@@ -413,6 +413,7 @@ const CreateTourStep2 = () => {
         dispatch(clearPanorama());
         dispatch(clearHotspot());
         dispatch(prevStep());
+        dispatch(setSpaceId("0"));
       }
     });
   };
@@ -473,7 +474,7 @@ const CreateTourStep2 = () => {
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
-            autoRotate={autoRotate === 1 ? true : false}
+            autoRotate={false}
             autoRotateSpeed={speedRotate}
             onAngleChange={(angle) => {
               setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)

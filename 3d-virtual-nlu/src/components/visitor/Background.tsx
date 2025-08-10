@@ -24,7 +24,6 @@ const Background: React.FC = () => {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
     fetch(`${import.meta.env.BASE_URL}backgroundv1.mp4`)
       .then((res) => res.blob())
       .then((blob) => {

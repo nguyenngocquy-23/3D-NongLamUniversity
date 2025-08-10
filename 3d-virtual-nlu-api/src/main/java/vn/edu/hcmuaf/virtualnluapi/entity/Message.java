@@ -16,5 +16,4 @@ public class Message {
     private String content;
     private byte status;
     private Timestamp createdAt;
-
 }

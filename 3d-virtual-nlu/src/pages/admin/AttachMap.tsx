@@ -5,9 +5,16 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import Swal from "sweetalert2";
-import { attachLocation, fetchAllSpaces, fetchSpaces, setDefaultNode } from "../../redux/slices/DataSlice";
+import {
+  attachLocation,
+  fetchAllSpaces,
+  fetchSpaces,
+  setDefaultNode,
+} from "../../redux/slices/DataSlice";
 import { API_URLS } from "../../env";
 import { perPage } from "../../utils/Constants";
+import { FaQuestion } from "react-icons/fa6";
+import { FaQuestionCircle } from "react-icons/fa";
 
 const AttachMap = () => {
   /**
@@ -35,7 +42,7 @@ const AttachMap = () => {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchAllSpaces())
+    dispatch(fetchAllSpaces());
   }, [dispatch]);
 
   const handleSubmit = async () => {
@@ -164,7 +171,17 @@ const AttachMap = () => {
           Lưu
         </button>
         <button onClick={() => setIsRemove((pre) => !pre)} disabled={isSaving}>
-          {isRemove ? "Hủy" : "Gỡ nhãn"}
+          {isRemove ? (
+            "Hủy"
+          ) : (
+            <span>
+              Gỡ nhãn{" "}
+              <FaQuestionCircle
+                className={styles.guide_icon}
+                title="Không được phép gỡ không gian trung tâm."
+              />
+            </span>
+          )}
         </button>
       </div>
     </div>

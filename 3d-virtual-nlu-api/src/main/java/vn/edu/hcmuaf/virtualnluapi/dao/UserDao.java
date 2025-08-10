@@ -50,11 +50,11 @@ public class UserDao {
         try {
             int result = ConnectionPool.getConnection().inTransaction(handle ->
                     handle.createUpdate(sql)
-                            .bind("roleId", SystemConstant.USER_ROLE_ID)
+                            .bind("roleId", user.getRoleId())
                             .bind("email", user.getEmail())
                             .bind("username", user.getUsername())
                             .bind("password", user.getPassword())
-                            .bind("status", SystemConstant.ACTIVATED)
+                            .bind("status", user.getStatus())
                             .bind("avatar", user.getAvatar())
                             .bind("createdAt", LocalDateTime.now())
                             .execute()
@@ -157,8 +157,13 @@ public class UserDao {
     }
 
     public List<User> getAllUser() {
+        String sql = """
+                SELECT id, username, roleId, email, status, avatar, createdAt 
+                FROM users 
+                WHERE roleId in (1,3)
+                """;
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("select id, username, email, status, avatar, createdAt from users where roleId = 1")
+            return handle.createQuery(sql)
                     .mapToBean(User.class)
                     .list();
         });
