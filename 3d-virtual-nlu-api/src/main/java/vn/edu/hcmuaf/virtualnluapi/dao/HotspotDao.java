@@ -128,7 +128,7 @@ public class HotspotDao {
      */
     public boolean insertHotspotModel(Handle handle,  List<HotspotModelCreateRequest> req, String nodeId) {
         String sqlInsertHotspot = "INSERT INTO hotspots(nodeId, type, iconId, status, positionX, positionY, positionZ, pitchX, yawY, rollZ, scale, color, backgroundColor, allowBackgroundColor, opacity, createdAt, updatedAt) " + "VALUES(:nodeId, :type, :iconId, :status, :posX, :posY, :posZ, :pitchX, :yawY, :rollZ, :scale, :color, :backgroundColor, :allowBackgroundColor, :opacity, :createdAt, :updatedAt)";
-        String sqlInsertNavigation = "INSERT INTO hotspot_models(hotspotId, modelUrl, thumbnailUrl, name, description, numDownload) " + "VALUES(:hotspotId, :modelUrl, :name, :description, 0)";
+        String sqlInsertNavigation = "INSERT INTO hotspot_models(hotspotId, modelUrl, thumbnailUrl, name, description, numDownload) " + "VALUES(:hotspotId, :modelUrl, :thumbnailUrl, :name, :description, 0)";
 
         try {
             PreparedBatch hotspotBatch = handle.prepareBatch(sqlInsertHotspot);
