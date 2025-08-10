@@ -45,9 +45,7 @@ interface Space {
   updatedAt: number | null;
 }
 
-type SpaceEditRequest = {
-  spaceId: Space["id"];
-} & Pick<Space, "name" | "code">;
+type SpaceEditRequest = Pick<Space, "id" | "name" | "code">;
 
 //Khi tạo, spaceId sẽ là 0.
 type SpaceCreateRequest = Pick<
@@ -275,7 +273,7 @@ const Space = () => {
         return;
       }
 
-      if(req.fieldId == null || req.url === "") {
+      if (req.fieldId == null || req.url === "") {
         Swal.fire({
           icon: "error",
           title: `Tạo không gian thất bại`,
@@ -352,7 +350,7 @@ const Space = () => {
         showConfirmButton: false,
         timer: 5000,
         timerProgressBar: true,
-      })
+      });
       return;
     }
     const checked = event.target.checked;
@@ -570,7 +568,7 @@ const Space = () => {
                       onClick={() => {
                         selectedSpace.id !== 0 &&
                           handleRename({
-                            spaceId: selectedSpace.id,
+                            id: selectedSpace.id,
                             name: inputSpaceName ?? "",
                             code: nameCode ?? "",
                           });

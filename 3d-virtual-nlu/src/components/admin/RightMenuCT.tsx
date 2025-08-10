@@ -88,6 +88,8 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
     .map((p) => p.id);
 
   const isFullConnected = useMemo(() => {
+    // Nếu không có slave → coi như đã full connected
+    if (panoramaSubItemIds.length === 0) return true;
     if (!masterPanorama || !linkMap.has(masterPanorama.id)) return false;
 
     // Master phải trỏ đến tất cả slave
