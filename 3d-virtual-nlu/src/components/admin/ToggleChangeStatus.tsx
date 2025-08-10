@@ -19,6 +19,7 @@ type StatusToggleProps = {
   apiUrl: string; // URL để gọi PUT hoặc POST cập nhật status
   type: string;
   editable?: boolean;
+  currentPage?: number;
 };
 
 const StatusToggle: React.FC<StatusToggleProps> = ({
@@ -27,6 +28,7 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
   apiUrl,
   type,
   editable,
+  currentPage,
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -54,19 +56,20 @@ const StatusToggle: React.FC<StatusToggleProps> = ({
         });
         switch (type) {
           case "field":
-            dispatch(fetchFields({ limit: perPage, page: 0 }));
+            dispatch(fetchFields({ limit: perPage, page: currentPage && currentPage != -1 ? currentPage : 0 }));
             break;
 
           case "space":
             dispatch(fetchIcons());
-            dispatch(fetchSpaces({ limit: perPage, page: 0 }));
+            dispatch(fetchSpaces({ limit: perPage, page: currentPage && currentPage != -1 ? currentPage : 0 }));
             break;
 
           case "icon":
             dispatch(fetchIcons());
             break;
+            
           case "node":
-            dispatch(fetchNodes({ limit: perPage, page: 0 }));
+            dispatch(fetchNodes({ limit: perPage, page: currentPage ?? 0 }));
             dispatch(
               updatePanoConfig({
                 id: `${id}`,
