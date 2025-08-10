@@ -939,10 +939,6 @@ const SpaceDetail = () => {
                         if (isInteger(hotspot.id)) {
                           return;
                         }
-                        // const isNumericString = /^\d+$/.test(hotspot.id);
-                        // if (isNumericString) {
-                        //   return;
-                        // }
                         handleHotspotNavigate(
                           targetNodeId,
                           cameraTargetPosition
