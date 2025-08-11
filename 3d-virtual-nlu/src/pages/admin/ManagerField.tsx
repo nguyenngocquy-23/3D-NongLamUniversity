@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/managerField.module.css";
+import stylesPagination from "../../styles/managerSpace.module.css";
 
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 
-import { fetchUsers } from "../../redux/slices/DataSlice";
+import { fetchFields, fetchUsers } from "../../redux/slices/DataSlice";
 
 import FieldCard from "../../components/admin/FieldCard";
 import { IoSearch } from "react-icons/io5";
@@ -18,28 +19,37 @@ import Space from "./ManagerSpace";
 import { RiEdit2Line } from "react-icons/ri";
 import StatusToggle from "../../components/admin/ToggleChangeStatus";
 import { TfiNewWindow } from "react-icons/tfi";
-import { a } from "framer-motion/client";
-import { IoIosCloseCircle } from "react-icons/io";
+import { API_URLS } from "../../env";
+import { IoIosCloseCircle, IoIosWarning, IoMdExit } from "react-icons/io";
+import { RemoveVietnameseTones } from "../../utils/RemoveVietnameseTones";
+import axios from "axios";
+import { validateName } from "../../utils/ValidateInputName";
+import { format } from "date-fns";
+import { useDebounce } from "../../hooks/useDebounce";
+import { perPage } from "../../utils/Constants";
 
 interface Field {
   id: number;
-  name: string;
+  name: string | null;
   code: string;
   status: number;
-  updatedAt: string;
+  createdAt: number | null;
+  updatedAt: number | null;
   listSpace: Space[];
 }
+interface FieldCreateRequest extends Pick<Field, "id" | "name" | "code"> {}
 
 const emptyField: Field = {
   id: 0, // ID giả để phân biệt với các field thật
-  name: "null",
+  name: null,
   code: "",
   status: 1,
-  updatedAt: "",
+  createdAt: null,
+  updatedAt: null,
   listSpace: [],
 };
 
-const Field: React.FC<Field> = () => {
+const Field = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
@@ -47,16 +57,54 @@ const Field: React.FC<Field> = () => {
 
   const fields = useSelector((state: RootState) => state.data.fields) || [];
   const spaces = useSelector((state: RootState) => state.data.spaces) || [];
+  const dashboard = useSelector((state: RootState) => state.data.dashboard);
+
   const [selectedField, setSelectedField] = useState<Field | null>(null);
-  const [searchData, setSearchData] = useState<Field[]>([]);
-  const [openModel, setOpenModel] = useState(false);
+  const [fieldList, setFieldList] = useState<any[]>(fields || []);
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500); // custom hook
+
+  const [currentPage, setCurrentPage] = useState(-1);
+
+  const [totalField, setTotalField] = useState(0);
+  const totalPages = Math.ceil(totalField / perPage);
+
+  useEffect(() => {
+    const handleSearch = async () => {
+      if (!debouncedSearch) return;
+      const response = await axios.post(`${API_URLS.SEARCH_FIELDS}`, {
+        searchKey: debouncedSearch,
+      });
+      setFieldList(response.data.data);
+    };
+    handleSearch();
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (fields && fields.length > 0) {
+      setFieldList(fields);
+    }
+  }, [fields]);
+
+  useEffect(() => {
+    if (dashboard) {
+      setTotalField(dashboard.numField);
+    }
+  }, [dashboard]);
+
+  useEffect(() => {
+    if (search === "") {
+      setFieldList(fields);
+    }
+  }, [search]);
 
   const dispatch = useDispatch<AppDispatch>();
   useEffect(() => {
     if (
       currentUser == undefined ||
       currentUser == null ||
-      (currentUser && currentUser.roleId !== 2)
+      (currentUser && currentUser.roleId !== 2 && currentUser.roleId !== 3)
     ) {
       navigate("/unauthorized");
     } else {
@@ -65,10 +113,22 @@ const Field: React.FC<Field> = () => {
     }
   }, [currentUser, navigate, dispatch]);
 
+  useEffect(() => {
+    const handleChangePage = async () => {
+      if (currentPage === -1) return;
+      const response = await axios.post(API_URLS.ADMIN_GET_FIELDS_BY_PAGE, {
+        page: currentPage,
+        limit: perPage,
+      });
+      setFieldList(response.data.data);
+    };
+    handleChangePage();
+  }, [currentPage]);
+
   // Cập nhật searchData mỗi khi users thay đổi
   useEffect(() => {
     if (fields.length > 0) {
-      setSearchData(fields); // Chỉ cập nhật khi users có dữ liệu
+      setFieldList(fields); // Chỉ cập nhật khi users có dữ liệu
     }
     setLoading(false); // Kết thúc trạng thái tải
 
@@ -82,47 +142,95 @@ const Field: React.FC<Field> = () => {
     }
   }, [fields, spaces]);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const searchTerm = event.target.value.toLowerCase();
-    const newData = fields.filter((row) => {
-      return (
-        row.name.toLowerCase().includes(searchTerm),
-        row.code.toLowerCase().includes(searchTerm)
-      );
-    });
-    setSearchData(newData);
-  };
   /**
    * Chỉnh sửa lĩnh vực
    */
-
   const [isEditing, setIsEditing] = useState(false);
 
   const [statusField, setStatusField] = useState(
     (selectedField?.status ?? 0) > 0 ? true : false
   );
 
+  /**
+   * Chỉnh sửa tên cho lĩnh vực
+   */
+
   const handleEditInput = () => {
     if (!isEditing) setIsEditing(true);
   };
-  // const handleRename = () => {
-  //     if (!masterPanorama) return;
 
-  //     const trimmedName = masterNameInput.trim();
-  //     if (!trimmedName) return; // tránh tên trống
+  /**
+   * Xử lý phần chỉnh sửa tên cho lĩnh vực.
+   */
+  const handleRename = async (req: FieldCreateRequest) => {
+    try {
+      const nameCheck = validateName(req.name);
+      if (!nameCheck.valid) {
+        setError(nameCheck.error);
+        return;
+      }
 
-  //     dispatch(
-  //       renameMasterAndUpdateSlaves({
-  //         id: masterPanorama.id,
-  //         newName: trimmedName,
-  //       })
-  //     );
-  //     setIsEditing(false);
-  //   };
+      let response;
 
-  // useEffect(() => {
-  //   setStatusField((selectedField?.status ?? 0) > 0);
-  // }, [selectedField]);
+      if (req.id === 0) {
+        response = await axios.post(API_URLS.ADMIN_CREATE_FIELDS, req);
+        setSelectedField(emptyField);
+        setInputFieldName("");
+        setFieldCode("");
+      } else {
+        response = await axios.post(API_URLS.ADMIN_CHANGE_NAME_FIELD, req);
+      }
+
+      /**
+       * Xử lý sau khi có api trả về:
+       * + dispatch vào redux cho đồng bộ
+       */
+
+      if (response.data.statusCode === 1000 || response.status === 200) {
+        dispatch(fetchFields({ limit: perPage, page: 0 }));
+        setError("");
+      } else {
+        setError(response.data.message || "Lỗi không xác định");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Có lỗi xảy ra");
+    }
+    setIsEditing(false);
+  };
+
+  /**
+   *  */
+  useEffect(() => {
+    setStatusField((selectedField?.status ?? 0) > 0);
+    setInputFieldName(selectedField?.name || "");
+    setFieldCode(selectedField?.code || "");
+    setIsEditing(false);
+    setError("");
+  }, [selectedField]);
+
+  const [inputFieldName, setInputFieldName] = useState<string | null>(
+    selectedField?.name || null
+  );
+
+  /**
+   * Validate cho input name.
+   */
+  const [fieldCode, setFieldCode] = useState(selectedField?.code);
+
+  const fieldCodeList = fields.map((field) => field.code);
+
+  const handleChangeFieldName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const fieldCodeNew = RemoveVietnameseTones(value);
+
+    if (fieldCodeList.includes(fieldCodeNew)) {
+      setError("Tên đã tồn tại, vui lòng chọn tên mới !");
+    } else {
+      setError("");
+    }
+    setInputFieldName(value);
+    setFieldCode(fieldCodeNew);
+  };
 
   return (
     <>
@@ -135,6 +243,7 @@ const Field: React.FC<Field> = () => {
               id="input"
               placeholder="Tìm kiếm lĩnh vực..."
               className={styles.field_search_input}
+              onChange={(e) => setSearch(e.target.value)}
             />
             <label htmlFor="input" className={styles.label_for_search}>
               <IoSearch className={styles.search_icon} />
@@ -157,18 +266,16 @@ const Field: React.FC<Field> = () => {
 
           <button
             className={`${styles.field_add} ${styles.field_box}`}
-            onClick={() => setSelectedField(emptyField)}
+            onClick={() => {
+              setSelectedField(emptyField);
+            }}
           >
             Thêm lĩnh vực
           </button>
         </div>
-        <hr className={styles.break} />
-        <div className={styles.field_quantity}>
-          Kết quả: {fields.length} lĩnh vực.
-        </div>
 
         <div className={styles.field_list}>
-          {fields.map((field) => {
+          {fieldList.map((field) => {
             const listSpace = spaces.filter((s) => s.fieldId === field.id);
             return (
               <div
@@ -182,46 +289,42 @@ const Field: React.FC<Field> = () => {
           })}
         </div>
 
-        {/* <input
-        type="text"
-        ti              tle="Keyword trong tên"
-        onChange={handleSearch}
-        placeholder="Tìm kiếm..."
-        className={stylesCommon.search_input}
-      /> */}
-        {/* <h2>Danh Sách Lĩnh vực</h2> */}
-        {loading && <p>Đang tải...</p>}
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {/* <button
-        className={stylesCommon.addRow}
-        onClick={() => {
-          setOpenModel(true);
-          }}
-          >
-          ➕ Thêm dòng
-          </button>
-          {openModel ? (
-            <CustomModal
-            onClose={() => setOpenModel(false)}
-            title="Tạo Lĩnh vực"
-            fields={field}
-            apiUrl="http://localhost:8080/api/admin/field" // URL API
-            />
-            ) : (
-              ""
-      )}
-      
-      <Datatable columns={columns} searchData={searchData!} loading={loading} /> */}
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div className={styles.field_quantity}>
+            Kết quả: {search == "" ? totalField : fieldList.length} lĩnh vực.
+          </div>
+          {search.length === 0 && (
+            <div className={stylesPagination.pagination}>
+              {[...Array(totalPages)].map((_, index) => {
+                return (
+                  <button
+                    key={index}
+                    className={`${stylesPagination.page_btn} ${
+                      currentPage === index || (index == 0 && currentPage == -1)
+                        ? stylesPagination.active
+                        : ""
+                    }`}
+                    onClick={() => setCurrentPage(index)}
+                  >
+                    {index + 1}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {selectedField && (
         <div className={styles.field_edit_by_id}>
-          <IoIosCloseCircle
+          <IoMdExit
             className={styles.close_btn}
             onClick={() => setSelectedField(null)}
           />
           <div className={styles.field_item}>
-            <FieldCard field={selectedField} />
+            <FieldCard
+              field={{ ...selectedField, name: selectedField.name ?? "" }}
+            />
           </div>
 
           <div className={styles.field_edit_content}>
@@ -246,59 +349,83 @@ const Field: React.FC<Field> = () => {
             </div>
             <div className={`${styles.field_information_item} `}>
               <span>Trạng thái: </span>
-              {/* <div
-                className={styles.field_status_toggle}
-                onClick={() => {
-                  setStatusField((preState) => !preState);
-                }}
-              >
-                <input
-                  id="checkbox"
-                  type="checkbox"
-                  checked={statusField}
-                ></input>
-              </div> */}
               <StatusToggle
                 id={selectedField.id}
                 status={selectedField.status}
-                apiUrl="http://localhost:8080/api/admin/field/changeStatus"
+                apiUrl={API_URLS.ADMIN_CHANGE_FIELD_STATUS}
+                type="field"
+                currentPage={currentPage}
               />
             </div>
 
             <div className={`${styles.field_information_item} `}>
               <span>Tên lĩnh vực : </span>
+
               <div className={styles.field_input_name_container}>
                 <input
                   type="text"
                   id="input"
                   required
-                  value={selectedField.name}
-                  onChange={(e) => e.target.value}
+                  readOnly={!isEditing}
+                  value={inputFieldName ?? ""}
+                  onChange={handleChangeFieldName}
                 />
+
                 {!isEditing ? (
                   <RiEdit2Line
                     className={styles.field_input_name_edit}
                     onClick={handleEditInput}
                   />
+                ) : error ? (
+                  <IoIosWarning className={styles.field_input_name_warning} />
                 ) : (
                   <FaSave
                     className={styles.field_input_name_edit}
-                    // onClick={handleRename}
+                    onClick={() => {
+                      selectedField.id !== 0 &&
+                        handleRename({
+                          id: selectedField.id,
+                          name: inputFieldName ?? "",
+                          code: fieldCode ?? "",
+                        });
+                    }}
                   />
                 )}
 
                 <div className={styles.underline}></div>
               </div>
+              {error && (
+                <p className={styles.field_input_name_error}>{error}</p>
+              )}
+            </div>
+
+            <div className={`${styles.field_information_item} `}>
+              <span>Mã lĩnh vực: </span>
+              <span className={styles.field_code}>{fieldCode}</span>
             </div>
 
             <div className={`${styles.field_information_item} `}>
               <span>Ngày khởi tạo: </span>
-              <span className={styles.field_space_list}>abcdz</span>
+              <span className={styles.field_space_list}>
+                {selectedField.createdAt === null
+                  ? "Chưa có"
+                  : format(
+                      new Date(selectedField.createdAt),
+                      "dd/MM/yyyy HH:mm"
+                    )}
+              </span>
             </div>
 
             <div className={`${styles.field_information_item} `}>
               <span>Cập nhật gần nhất: </span>
-              <span className={styles.field_space_list}>abcdz</span>
+              <span className={styles.field_space_list}>
+                {selectedField.updatedAt === null
+                  ? "Chưa có"
+                  : format(
+                      new Date(selectedField.updatedAt),
+                      "dd/MM/yyyy HH:mm"
+                    )}
+              </span>
             </div>
           </div>
 
@@ -309,9 +436,19 @@ const Field: React.FC<Field> = () => {
                 Xoá lĩnh vực{" "}
               </button>
             ) : (
-              <button className={styles.field_add_change_btn}>
+              <button
+                className={styles.field_add_change_btn}
+                disabled={!!error}
+                onClick={() =>
+                  handleRename({
+                    id: selectedField.id,
+                    name: inputFieldName ?? "",
+                    code: fieldCode ?? "",
+                  })
+                }
+              >
                 {" "}
-                Thêm lĩnh vực{" "}
+                Hoàn tất{" "}
               </button>
             )}
           </div>

@@ -1,99 +1,131 @@
-import { OrbitControls, useTexture } from "@react-three/drei";
+import { FaMehRollingEyes, FaRegUserCircle } from "react-icons/fa";
+import { NodeObject } from "../../pages/admin/ManagerTour";
 import styles from "../../styles/nodeItem.module.css";
-import * as THREE from "three";
-import { useState } from "react";
-import { formatTimestampToDate } from "../../utils/formatTimestamp";
-
-interface NodeProps {
-  panoramaURL: string;
-}
-
-const Node: React.FC<NodeProps> = ({ panoramaURL }) => {
-  const texture = useTexture(panoramaURL);
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.repeat.x = -1;
-
-  return (
-    <mesh>
-      <sphereGeometry args={[100, 128, 128]} />
-      <meshBasicMaterial map={texture} side={THREE.BackSide} />
-    </mesh>
-  );
-};
+import { FaRegCommentDots } from "react-icons/fa6";
+import { GoEye } from "react-icons/go";
+import { format } from "date-fns";
+import { CiImageOn } from "react-icons/ci";
+import { MdNavigation } from "react-icons/md";
+import { AppDispatch, RootState } from "../../redux/Store";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { fetchUsers } from "../../redux/slices/DataSlice";
+import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
+import { getStatusNode } from "../../utils/Constants";
+import { RxUpdate } from "react-icons/rx";
 
 interface NodeItemProps {
   onclick: () => void;
-  id: number;
-  userId: number;
-  status: number;
-  name: string;
-  fieldName: string;
-  spaceName: string;
-  description: string;
-  url: string;
-  updatedAt: number;
+  node: NodeObject;
 }
 
-export const NodeItem = ({
-  onclick,
-  id,
-  userId,
-  status,
-  name,
-  fieldName,
-  spaceName,
-  description,
-  url,
-  updatedAt,
-}: NodeItemProps) => {
-  const [isShow, setIsShow] = useState(false);
+export const NodeItem = ({ onclick, node }: NodeItemProps) => {
+  const currentUserJson = sessionStorage.getItem("user");
+  const currentUser = currentUserJson ? JSON.parse(currentUserJson) : null;
+  const dispatch = useDispatch<AppDispatch>();
 
-  const handleMouseEnter = () => {
-    setIsShow(true);
-  };
-  const handleMouseLeave = () => {
-    setIsShow(false);
-  };
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
+
+  const users = useSelector((state: RootState) => state.data.users);
+
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    if (users && users.length > 0) {
+      const foundUser = users.find((u) => u.id === node.userId);
+      setUser(foundUser || null);
+    }
+  }, [users, node.userId]);
+
   return (
-    <div className={styles.container} onClick={onclick}>
+    <div className={styles.node_wrapper} onClick={onclick}>
       <div
-        className={styles.info}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <img src={url} alt="" />
-        <div className={styles.name}>
-          <span>
-            {name} #{id}
-          </span>
+        className={styles.node_card}
+        style={{
+          backgroundImage: `url(${transformUrlToThumbnailBig(node.url)})`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
+      />
+      <div className={styles.node_content}>
+        <span className={styles.node_id}>#{node.id}</span>
+        {/* <span className={styles.space_field_label}>{node.fieldName}</span> */}
+        <span className={styles.node_title} title={node.name}>
+          {node.name}
+        </span>
+
+        <div className={styles.node_author}>
+          <img
+            src={user == null ? currentUser.avatar : user.avatar}
+            alt="thumbnail-user"
+            className={styles.node_thumbnail}
+          />
+          <p>{user == null ? "admin" : user.username}</p>
         </div>
 
         <div className={styles.footer}>
           <div
             className={`${styles.status} ${
-              status === 0 ? styles.status_stop : styles.status_open
+              node.status == 0
+                ? styles.status_stop
+                : node.status == 2
+                ? styles.status_open
+                : styles.status_wait
             }`}
           >
-            {status == 0 ? (
-              <span>Hoạt động</span>
-            ) : status == 1 ? (
-              <span>Tạm ngưng</span>
-            ) : (
-              <span>Đang hoạt động</span>
-            )}
+            {getStatusNode(node.status)}
           </div>
-          {/* <b>{formatTimestampToDate(updatedAt)}</b> */}
+
+          <span className={styles.space_updated_at}>
+            <RxUpdate />{" "}
+            {node.updatedAt !== null &&
+              format(new Date(node.updatedAt), "dd/MM/yyyy ")}
+          </span>
         </div>
-        <hr />
-        <div className={styles.by_user}>
+
+        {/* <div className={styles.label}> */}
+        {/* <div className={styles.num_react}>
+            <GoEye />
+            1.5K
+          </div>
+          <div className={styles.num_react}>
+            <FaRegCommentDots />
+            540
+          </div>
+          <div className={styles.num_react}>
+            <CiImageOn />5
+          </div>
+          <div className={styles.num_react}>
+            <MdNavigation />
+            500
+          </div> */}
+        {/* <div
+            className={`${styles.status} ${
+              node.status == 0
+                ? styles.status_stop
+                : node.status == 2
+                ? styles.status_open
+                : styles.status_wait
+            }`}
+          >
+            {getStatusNode(node.status)}
+          </div>
+        </div> */}
+        {/* <div className={styles.footer}>
           <div className={styles.by_user_wrapper}>
-            <img src="/avatar.jpg" alt="" />
-            <p>
-              <ins>Người tạo: </ins>
-              {userId}
-            </p>
+            <img
+              src={user == null ? currentUser.avatar : user.avatar}
+              alt="thumbnail-user"
+            />
+            <p>{user == null ? "admin" : user.username}</p>
           </div>
-        </div>
+          <span className={styles.time}>
+            {format(new Date(node.updatedAt), "dd/MM/yyyy ")}
+          </span>
+        </div> */}
       </div>
     </div>
   );

@@ -14,3 +14,8 @@ body {
 body::-webkit-scrollbar {
   display: none;
 }
+
+/* Ghi đè thẳng */
+.swal2-container {
+  z-index: 999999 !important;
+}

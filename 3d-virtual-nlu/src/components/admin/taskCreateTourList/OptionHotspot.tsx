@@ -2,8 +2,10 @@ import { Html } from "@react-three/drei";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../../styles/optionHotspot.module.css";
-import { RootState } from "../../../redux/Store";
-import { removeHotspot } from "../../../redux/slices/HotspotSlice";
+import {
+  removeHotspot,
+  updateHotspotStatus,
+} from "../../../redux/slices/HotspotSlice";
 import Swal from "sweetalert2";
 
 const OptionHotspot = ({
@@ -23,7 +25,7 @@ const OptionHotspot = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        onClose(); // 👈 đóng khi click ngoài
+        onClose();
       }
     };
 
@@ -46,7 +48,11 @@ const OptionHotspot = ({
     }).then((result) => {
       if (result.isConfirmed) {
         setCurrentHotspotId(null);
-        dispatch(removeHotspot({ hotspotId }));
+        if (isNaN(Number(hotspotId))) {
+          dispatch(removeHotspot({ hotspotId }));
+        } else {
+          dispatch(updateHotspotStatus({ hotspotId }));
+        }
         onClose();
 
         Swal.fire({
@@ -82,11 +88,11 @@ const OptionHotspot = ({
             handleEdit();
           }}
         >
-          ✏️ Cập nhật
+          Cập nhật
         </div>
 
         <div className={styles.remove_option} onClick={handleDelete}>
-          🗑️ Xóa
+          Xóa
         </div>
       </div>
     </Html>

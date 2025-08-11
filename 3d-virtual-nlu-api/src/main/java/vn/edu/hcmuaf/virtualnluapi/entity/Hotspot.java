@@ -3,6 +3,7 @@ package vn.edu.hcmuaf.virtualnluapi.entity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,7 +17,7 @@ public class Hotspot {
     double pitchX, yawY, rollZ;
     byte type;
     float scale;
-    LocalDateTime createdAt, updatedAt;
+    Timestamp createdAt, updatedAt;
     int nodeId;
     int iconId;
     boolean status;

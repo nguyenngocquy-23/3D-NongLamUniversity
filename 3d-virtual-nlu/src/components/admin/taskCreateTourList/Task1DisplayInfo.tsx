@@ -2,9 +2,15 @@ import { useDispatch, useSelector } from "react-redux";
 import styles from "../../../styles/tasklistCT/task1.module.css";
 import { RootState } from "../../../redux/Store";
 import { updatePanoConfig } from "../../../redux/slices/PanoramaSlice";
+import { useEffect, useState } from "react";
+import Description from "../../Description";
+import { FaQuestionCircle } from "react-icons/fa";
 
 const Task1 = () => {
+  const [content, setContent] = useState<string>("");
+
   const dispatch = useDispatch();
+
   const { panoramaList, currentSelectId } = useSelector(
     (state: RootState) => state.panoramas
   );
@@ -21,13 +27,22 @@ const Task1 = () => {
       })
     );
   };
+
   return (
     <div className={styles.task1}>
-      <div className={styles.contain_input}>
-        <label className={styles.label}>Tên:</label>
+      <div className={styles.contain_input} style={{ display: "flex" }}>
+        <label className={styles.label}>
+          Tên:
+          <FaQuestionCircle
+            className={styles.guide_icon}
+            title="Tên không được để trống và dưới 50 ký tự."
+          />
+        </label>
         <input
           type="text"
-          className={styles.name_input}
+          className={`${styles.name_input} ${
+            name.length > 50 || name.length == 0 ? styles.error : ""
+          }`}
           placeholder="Tên không gian"
           value={name}
           onChange={(e) => handleChange("name", e.target.value)}
@@ -35,11 +50,11 @@ const Task1 = () => {
       </div>
       <div className={styles.contain_input}>
         <label className={styles.label}>Giới thiệu:</label>
-        <textarea
-          className={styles.descript_input}
-          placeholder="Mô tả không gian.."
+        <Description
           value={description}
-          onChange={(e) => handleChange("description", e.target.value)}
+          onChange={(html) => {
+            setContent(html);
+          }}
         />
       </div>
     </div>

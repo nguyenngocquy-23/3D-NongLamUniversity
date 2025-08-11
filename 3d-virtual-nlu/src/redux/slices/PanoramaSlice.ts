@@ -1,5 +1,9 @@
 import { createSlice, PayloadAction, nanoid } from "@reduxjs/toolkit";
 import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
+import { useSelector } from "react-redux";
+import { RootState } from "../Store";
+import Swal from "sweetalert2";
+import { deleteHotspotByNodeId } from "./HotspotSlice";
 
 export interface PanoramaConfig {
   /**
@@ -15,9 +19,13 @@ export interface PanoramaConfig {
   positionX: number;
   positionY: number;
   positionZ: number;
-  autoRotate: number;
-  speedRotate: number;
+  yawOffset: number;
   lightIntensity: number;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  grayscale: number;
+  exposure: number;
   status: number;
 }
 
@@ -28,16 +36,26 @@ export interface PanoramaItem {
   config: PanoramaConfig;
 }
 
+export interface AutoPanoramaItem {
+  id: string;
+  url: string;
+  config: PanoramaConfig;
+  duration: number;
+  soundBackground: string;
+}
+
 interface PanoramaState {
-  panoramaList: PanoramaItem[];
-  currentSelectedPosition: number;
+  panoramaList: PanoramaItem[] | any[];
+  autoPanoramaList: AutoPanoramaItem[] | any[];
+  currentAngleMaster: number;
   currentSelectId: string | null;
   spaceId: string | null;
 }
 
 const initialState: PanoramaState = {
   panoramaList: [],
-  currentSelectedPosition: 0,
+  autoPanoramaList: [],
+  currentAngleMaster: 0,
   currentSelectId: null,
   spaceId: null,
 };
@@ -54,6 +72,8 @@ const panoramaSlice = createSlice({
       state,
       action: PayloadAction<Array<{ originalFileName: string; url: string }>>
     ) {
+      const userJson = sessionStorage.getItem("user");
+      const user = userJson ? JSON.parse(userJson) : null;
       const panoramas = action.payload.map((item, index) => ({
         id: nanoid(),
         url: item.url,
@@ -64,31 +84,74 @@ const panoramaSlice = createSlice({
           positionX: 0,
           positionY: 0,
           positionZ: DEFAULT_ORIGINAL_Z,
+          yawOffset: 0,
           autoRotate: 0,
           speedRotate: 0,
           lightIntensity: 1,
-          status: index === 0 ? 2 : 1,
+          brightness: 0,
+          contrast: 1,
+          saturation: 1,
+          grayscale: 0,
+          exposure: 1,
+          status: index === 0 ? (user.roleId == 2 ? 2 : 3) : 1,
         },
       }));
       state.panoramaList = panoramas;
       state.currentSelectId = panoramas[0]?.id || null;
-      state.currentSelectedPosition = 0;
     },
 
-    addPanorama(state, action: PayloadAction<string>) {
-      if (state.panoramaList.length < 5 && state.spaceId !== null) {
+    addAutoPanorama(
+      state,
+      action: PayloadAction<{
+        node: any;
+        duration?: number;
+        soundBackground?: string;
+      }>
+    ) {
+      const existing = state.autoPanoramaList.find(
+        (p) => p.originalNodeId === action.payload.node.id
+      );
+      if (!existing) {
+        state.autoPanoramaList.push({
+          ...action.payload.node,
+          duration: action.payload.duration || 5,
+          soundBackground: action.payload.soundBackground || "",
+          originalNodeId: action.payload.node.id,
+        });
+      }
+      state.currentSelectId = state.autoPanoramaList[0]?.id || null;
+    },
+
+    removeAutoPanorama(state, action: PayloadAction<string>) {
+      state.autoPanoramaList = state.autoPanoramaList.filter(
+        (p) => p.originalNodeId !== action.payload
+      );
+    },
+
+    //Upload thêm panorama khi trong tour.
+    addPanorama(
+      state,
+      action: PayloadAction<{ originalFileName: string; url: string }>
+    ) {
+      //  Giới hạn = 5 => lỗi cập nhật. Panorama + thêm các pano
+      // if (state.panoramaList.length < 5 && state.spaceId !== null) {
+      if (state.spaceId !== null) {
         const newPanorama: PanoramaItem = {
           id: nanoid(),
-          url: action.payload,
+          url: action.payload.url,
           spaceId: state.spaceId,
           config: {
-            name: "",
+            name: action.payload.originalFileName,
             description: "",
             positionX: 0,
             positionY: 0,
             positionZ: DEFAULT_ORIGINAL_Z,
-            autoRotate: 0,
-            speedRotate: 0,
+            yawOffset: 0,
+            brightness: 0,
+            contrast: 1,
+            saturation: 1,
+            grayscale: 0,
+            exposure: 1,
             lightIntensity: 1,
             status: 1,
           },
@@ -98,6 +161,30 @@ const panoramaSlice = createSlice({
         // nếu cần thiết, nên cho nó là cái được chọn luôn.
         // state.currentSelectId = newPanorama.id;
       }
+    },
+
+    addPanoramasFromResponse(state, action: PayloadAction<PanoramaItem[]>) {
+      const panoramas = action.payload;
+
+      state.panoramaList = panoramas;
+
+      // Ưu tiên chọn panorama đầu tiên có status = 2 (master), nếu không thì chọn đầu tiên
+      const master = panoramas.find((p) => p.config.status === 2);
+      state.currentSelectId = master?.id || panoramas[0]?.id || null;
+    },
+
+    smartUpdatePanoramasFromResponse(
+      state,
+      action: PayloadAction<PanoramaItem[]>
+    ) {
+      const incoming = action.payload;
+      const incomingMap = new Map(incoming.map((p) => [p.id, p]));
+
+      // Cập nhật từng panorama theo id
+      state.panoramaList = state.panoramaList.map((old) => {
+        const updated = incomingMap.get(old.id);
+        return updated ? { ...old, ...updated } : old;
+      });
     },
     selectPanorama(state, action: PayloadAction<string>) {
       // state.currentSelectedPosition = action.payload;
@@ -122,6 +209,23 @@ const panoramaSlice = createSlice({
         };
       }
     },
+
+    updateAutoPanoConfig(
+      state,
+      action: PayloadAction<{
+        id: string;
+        duration: number;
+        soundBackground: string;
+      }>
+    ) {
+      const { id, duration, soundBackground } = action.payload;
+      const pano = state.autoPanoramaList.find((p) => p.id === id);
+      if (pano) {
+        pano.duration = duration;
+        pano.soundBackground = soundBackground;
+      }
+    },
+
     renameMasterAndUpdateSlaves(
       state,
       action: PayloadAction<{ id: string; newName: string }>
@@ -143,17 +247,21 @@ const panoramaSlice = createSlice({
         }
       }
     },
-    // deletePanorame(state, action: PayloadAction<number>) {
-    //   const deleted = state.panoramaList.splice(action.payload, 1);
-    //   if (state.currentSelectedPosition >= state.panoramaList.length) {
-    //     s;
-    //   }
-    // },
+    updateCurrentAngleMaster(state, action: PayloadAction<number>) {
+      state.currentAngleMaster = action.payload;
+    },
+    deletePanoramaById(state, action: PayloadAction<string>) {
+      const panoramaId = action.payload;
+
+      state.panoramaList = state.panoramaList.filter(
+        (p) => p.id !== panoramaId
+      );
+    },
     clearPanorama(state) {
       (state.panoramaList = []),
-        (state.currentSelectedPosition = 0),
-        (state.currentSelectId = null),
-        (state.spaceId = null);
+        (state.autoPanoramaList = []),
+        (state.currentAngleMaster = 0),
+        (state.currentSelectId = null);
     },
   },
 });
@@ -161,11 +269,18 @@ const panoramaSlice = createSlice({
 export const {
   setSpaceId,
   setPanoramas,
+  addAutoPanorama,
+  removeAutoPanorama,
   addPanorama,
+  addPanoramasFromResponse,
   selectPanorama,
   setMasterPanorama,
   updatePanoConfig,
+  updateAutoPanoConfig,
   renameMasterAndUpdateSlaves,
+  updateCurrentAngleMaster,
   clearPanorama,
+  deletePanoramaById,
+  smartUpdatePanoramasFromResponse,
 } = panoramaSlice.actions;
 export default panoramaSlice.reducer;

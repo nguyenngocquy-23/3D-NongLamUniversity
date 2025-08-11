@@ -10,8 +10,11 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults (level = AccessLevel.PRIVATE)
 public class HotspotNavigationResponse {
+    int id;
+    int nodeId;
     byte type;
     int iconId;
+    byte status;
     double positionX, positionY, positionZ;
     double pitchX, yawY, rollZ;
     float scale;
@@ -19,4 +22,5 @@ public class HotspotNavigationResponse {
     byte allowBackgroundColor;
     float opacity;
     int targetNodeId;
+    int iconType;
 }

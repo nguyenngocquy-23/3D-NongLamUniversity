@@ -10,8 +10,11 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults (level = AccessLevel.PRIVATE)
 public class HotspotMediaResponse {
+    int id;
+    int nodeId;
     byte type;
     int iconId;
+    byte status;
     double positionX, positionY, positionZ;
     double pitchX, yawY, rollZ;
     float scale;

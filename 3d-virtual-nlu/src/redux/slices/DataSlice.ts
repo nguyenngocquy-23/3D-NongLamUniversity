@@ -1,22 +1,30 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { API_URLS } from "../../env";
+import { safeParseJsonArray } from "../../utils/ParseJsonArray";
 
 interface DataState {
   users: any[];
   messages: any[];
   fields: any[];
   spaces: any[];
+  allSpaces: any[];
   nodes: any[];
+  autoNodes: any[];
+  models: any[];
   hotspotTypes: any[];
   masterNodes: any[];
   preloadNodes: any[];
-  activeNode: any;
   nodeOfUser: any[];
+  privateNodeOfUser: any[];
+  failNodeOfUser: any[];
   defaultNode: any;
   trackNodes: any[];
   icons: any[];
+  contacts: any[];
   commentOfNode: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
+  dashboard: any;
 }
 
 const initialState: DataState = {
@@ -24,17 +32,23 @@ const initialState: DataState = {
   messages: [],
   fields: [],
   spaces: [],
+  allSpaces: [],
   nodes: [],
+  autoNodes: [],
+  models: [],
   hotspotTypes: [],
   masterNodes: [],
   nodeOfUser: [],
+  privateNodeOfUser: [],
+  failNodeOfUser: [],
   defaultNode: null,
-  activeNode: null,
   trackNodes: [],
   preloadNodes: [],
   icons: [],
+  contacts: [],
   commentOfNode: [],
   status: "idle",
+  dashboard: null,
 };
 
 // Fetch users
@@ -42,7 +56,7 @@ export const fetchUsers = createAsyncThunk(
   "data/fetchUsers",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://localhost:8080/api/user", {
+      const response = await axios.get(API_URLS.USER, {
         headers: { Authorization: sessionStorage.getItem("token") },
       });
       return response.data.data;
@@ -56,18 +70,25 @@ export const fetchUsers = createAsyncThunk(
 );
 
 // Fetch nodes
-export const fetchNodes = createAsyncThunk("data/fetchNodes", async () => {
-  const response = await axios.post(
-    "http://localhost:8080/api/v1/admin/node/all"
-  );
-  return response.data.data;
-});
+export const fetchNodes = createAsyncThunk(
+  "data/fetchNodes",
+  async ({ page, limit }: { page: number; limit: number }) => {
+    const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
+      page: page,
+      limit: limit,
+    });
+    return response.data.data;
+  }
+);
 
 // Fetch master nodes
 export const fetchMasterNodes = createAsyncThunk(
   "data/fetchMasterNodes",
-  async () => {
-    const response = await axios.post("http://localhost:8080/api/node/master");
+  async ({ page, limit }: { page: number; limit: number }) => {
+    const response = await axios.post(API_URLS.GET_MASTER_NODES, {
+      page,
+      limit,
+    });
     return response.data.data;
   }
 );
@@ -76,7 +97,7 @@ export const fetchMasterNodes = createAsyncThunk(
 export const fetchDefaultNodes = createAsyncThunk(
   "data/fetchDefaultNodes",
   async () => {
-    const response = await axios.post("http://localhost:8080/api/node/default");
+    const response = await axios.post(API_URLS.GET_DEFAULT_NODE);
     return response.data.data;
   }
 );
@@ -85,8 +106,60 @@ export const fetchDefaultNodes = createAsyncThunk(
 export const fetchNodeOfUser = createAsyncThunk(
   "data/fetchNodeOfUser",
   async (userId: number) => {
-    console.log("userUd..", userId);
-    const response = await axios.post("http://localhost:8080/api/node/byUser", {
+    const response = await axios.post(API_URLS.NODE_OF_USER, {
+      userId: userId,
+    });
+    return response.data.data;
+  }
+);
+
+// Fetch auto tour
+export const fetchAutoNode = createAsyncThunk(
+  "data/fetchAutoNode",
+  async ({ limit, page }: { limit: number; page: number }) => {
+    const userJson = sessionStorage.getItem("user");
+    const user = userJson ? JSON.parse(userJson) : null;
+    const response = await axios.post(
+      user.roleId == 1
+        ? API_URLS.GET_AUTO_TOURS
+        : API_URLS.ADMIN_GET_AUTO_TOURS,
+      {
+        page: page,
+        limit: limit,
+      }
+    );
+    return response.data.data;
+  }
+);
+
+// Fetch model
+export const fetchModel = createAsyncThunk(
+  "data/fetchModel",
+  async ({ limit, page }: { limit: number; page: number }) => {
+    const response = await axios.post(API_URLS.GET_ALL_MODEL, {
+      page: page,
+      limit: limit,
+    });
+    return response.data.data;
+  }
+);
+
+// Fetch private nodes of user
+export const fetchPrivateNodeOfUser = createAsyncThunk(
+  "data/fetchPrivateNodeOfUser",
+  async (userId: number) => {
+    const response = await axios.post(API_URLS.PRIVATE_NODE_OF_USER, {
+      userId: userId,
+    });
+    return response.data.data;
+  }
+);
+
+// Fetch fail nodes of user
+export const fetchFailNodeOfUser = createAsyncThunk(
+  "data/fetchFailNodeOfUser",
+  async (userId: number) => {
+    const response = await axios.post(API_URLS.FAIL_NODE_OF_USER, {
       userId: userId,
     });
     return response.data.data;
@@ -98,14 +171,10 @@ export const fetchCommentOfNode = createAsyncThunk(
   "data/fetchCommentOfNode",
   async (nodeId: number) => {
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/comment/getOfNode",
-        {
-          nodeId: nodeId,
-        }
-      );
+      const response = await axios.post(API_URLS.COMMENT_OF_NODE, {
+        nodeId: nodeId,
+      });
       if (response.data.data) {
-        console.log(response.data.data);
         return response.data.data;
       }
     } catch (error: any) {
@@ -114,23 +183,75 @@ export const fetchCommentOfNode = createAsyncThunk(
   }
 );
 
-// Fetch field
-export const fetchFields = createAsyncThunk("data/fetchFields", async () => {
-  const response = await axios.get("http://localhost:8080/api/admin/field");
-  return response.data.data;
-});
-
-// Fetch space
-export const fetchSpaces = createAsyncThunk("data/fetchSpaces", async () => {
-  const response = await axios.get("http://localhost:8080/api/admin/space/all");
-  return response.data.data;
-});
-
-export const fetchActiveNode = createAsyncThunk(
-  "data/fetchActiveNodes",
+// Fetch dashboard
+export const fetchDashboard = createAsyncThunk(
+  "data/fetchDashboard",
   async () => {
-    const response = await axios.post("http://localhost:8080/api/node/default");
+    const userJson = sessionStorage.getItem("user");
+    const user = userJson ? JSON.parse(userJson) : null;
+    const response = await axios.post(API_URLS.ADMIN_GET_DASHBOARD, {
+      userId: user.id,
+    });
     return response.data.data;
+  }
+);
+
+// Fetch field
+export const fetchFields = createAsyncThunk(
+  "data/fetchFields",
+  async ({ limit, page }: { limit: number; page: number }) => {
+    const response = await axios.post(API_URLS.ADMIN_GET_FIELDS_BY_PAGE, {
+      page: page,
+      limit: limit,
+    });
+    return response.data.data;
+  }
+);
+
+// Fetch space by page
+export const fetchSpaces = createAsyncThunk(
+  "data/fetchSpaces",
+  async ({ limit, page }: { limit: number; page: number }) => {
+    const response = await axios.post(API_URLS.ADMIN_GET_SPACES_BY_PAGE, {
+      page: page,
+      limit: limit,
+    });
+    const rawSpaces = response.data.data;
+
+    const parsedSpaces = rawSpaces.map((space: any) => ({
+      ...space,
+      tourIds: safeParseJsonArray(space.tourIds),
+    }));
+
+    return parsedSpaces;
+  }
+);
+
+// Fetch all space
+export const fetchAllSpaces = createAsyncThunk(
+  "data/fetchAllSpaces",
+  async () => {
+    try {
+      const response = await axios.get(API_URLS.GET_ALL_SPACES);
+      return response.data.data;
+    } catch (error: any) {
+      console.error(error);
+    }
+  }
+);
+
+// Fetch contact
+export const fetchContacts = createAsyncThunk(
+  "data/fetchContacts",
+  async () => {
+    try {
+      const response = await axios.post(API_URLS.ADMIN_GET_ALL_CONTACTS);
+      if (response.data.data) {
+        return response.data.data;
+      }
+    } catch (error: any) {
+      console.error(error);
+    }
   }
 );
 
@@ -145,12 +266,9 @@ export const fetchPreloadNodes = createAsyncThunk(
   "data/fetchPreloadNodes",
   async (nodeId: number, thunkAPI) => {
     try {
-      const resp = await axios.post(
-        `http://localhost:8080/api/node/preloadNodeList`,
-        {
-          nodeId,
-        }
-      );
+      const resp = await axios.post(API_URLS.GET_PRELOAD_NODES, {
+        nodeId,
+      });
       return resp.data.data;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
@@ -161,7 +279,7 @@ export const fetchPreloadNodes = createAsyncThunk(
 );
 // Fetch icon
 export const fetchIcons = createAsyncThunk("data/fetchIcons", async () => {
-  const response = await axios.get("http://localhost:8080/api/v1/admin/icon");
+  const response = await axios.get(API_URLS.ADMIN_GET_ALL_ICONS);
   return response.data.data;
 });
 
@@ -169,10 +287,26 @@ export const fetchIcons = createAsyncThunk("data/fetchIcons", async () => {
 export const fetchHotspotTypes = createAsyncThunk(
   "data/fetchHotspotTypes",
   async () => {
-    const response = await axios.get(
-      "http://localhost:8080/api/admin/hotspotType"
-    );
+    const response = await axios.get(API_URLS.ADMIN_GET_HOTSPOT_TYPES);
     return response.data.data;
+  }
+);
+
+//Fetch lấy thông tin của node trong 1 spaces
+export const fetchToursFromSpace = createAsyncThunk(
+  "data/fetchToursFromSpace",
+  async (tourIds: number[], { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/admin/node/many",
+        { ids: tourIds }
+      );
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Lỗi tải danh sách node từ tourIds."
+      );
+    }
   }
 );
 
@@ -191,12 +325,12 @@ const dataSlice = createSlice({
         location: string;
       }>
     ) => {
-      const index = state.spaces.findIndex(
+      const index = state.allSpaces.findIndex(
         (h) => h.id === action.payload.spaceId
       );
       if (index !== -1) {
-        const space = state.spaces[index];
-        space.location = action.payload.location;
+        const allSpace = state.allSpaces[index];
+        allSpace.location = action.payload.location;
       }
     },
 
@@ -206,18 +340,45 @@ const dataSlice = createSlice({
         spaceId: number;
       }>
     ) => {
-      console.log("spaceId...", action.payload.spaceId);
-      const index = state.spaces.findIndex(
+      const index = state.allSpaces.findIndex(
         (h) => h.id === action.payload.spaceId
       );
       if (index !== -1) {
-        const space = state.spaces[index];
+        const space = state.allSpaces[index];
         space.location = null;
       }
+    },
+
+    changeFieldName: (
+      state,
+      action: PayloadAction<{ fieldId: number; name: string; code: string }>
+    ) => {
+      const index = state.fields.findIndex(
+        (f) => f.id === action.payload.fieldId
+      );
+      if (index !== -1) {
+        state.fields[index].name = action.payload.name;
+        state.fields[index].code = action.payload.code;
+      }
+    },
+
+    resetNodes: (state) => {
+      state.masterNodes = []; // hoặc danh sách bạn đang dùng
     },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchDashboard.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchDashboard.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.dashboard = action.payload;
+      })
+      .addCase(fetchDashboard.rejected, (state) => {
+        state.status = "failed";
+      })
+
       .addCase(fetchUsers.pending, (state) => {
         state.status = "loading";
       })
@@ -240,12 +401,34 @@ const dataSlice = createSlice({
         state.status = "failed";
       })
 
+      .addCase(fetchAutoNode.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchAutoNode.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.autoNodes = action.payload;
+      })
+      .addCase(fetchAutoNode.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchModel.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchModel.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.models = action.payload;
+      })
+      .addCase(fetchModel.rejected, (state) => {
+        state.status = "failed";
+      })
+
       .addCase(fetchMasterNodes.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchMasterNodes.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.masterNodes = action.payload;
+        state.masterNodes = [...state.masterNodes, ...action.payload];
       })
       .addCase(fetchMasterNodes.rejected, (state) => {
         state.status = "failed";
@@ -271,6 +454,17 @@ const dataSlice = createSlice({
         state.fields = action.payload;
       })
       .addCase(fetchFields.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchAllSpaces.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchAllSpaces.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.allSpaces = action.payload;
+      })
+      .addCase(fetchAllSpaces.rejected, (state) => {
         state.status = "failed";
       })
 
@@ -331,6 +525,28 @@ const dataSlice = createSlice({
         state.status = "failed";
       })
 
+      .addCase(fetchPrivateNodeOfUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchPrivateNodeOfUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.privateNodeOfUser = action.payload;
+      })
+      .addCase(fetchPrivateNodeOfUser.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchFailNodeOfUser.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchFailNodeOfUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.failNodeOfUser = action.payload;
+      })
+      .addCase(fetchFailNodeOfUser.rejected, (state) => {
+        state.status = "failed";
+      })
+
       .addCase(fetchCommentOfNode.pending, (state) => {
         state.status = "loading";
       })
@@ -340,9 +556,31 @@ const dataSlice = createSlice({
       })
       .addCase(fetchCommentOfNode.rejected, (state) => {
         state.status = "failed";
+      })
+
+      .addCase(fetchToursFromSpace.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchToursFromSpace.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.trackNodes = action.payload;
+      })
+      .addCase(fetchToursFromSpace.rejected, (state) => {
+        state.status = "failed";
+      })
+
+      .addCase(fetchContacts.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.contacts = action.payload;
+      })
+      .addCase(fetchContacts.rejected, (state) => {
+        state.status = "failed";
       });
   },
 });
-export const { attachLocation, removeLocation, setDefaultNode } =
+export const { attachLocation, removeLocation, setDefaultNode, resetNodes } =
   dataSlice.actions;
 export default dataSlice.reducer;

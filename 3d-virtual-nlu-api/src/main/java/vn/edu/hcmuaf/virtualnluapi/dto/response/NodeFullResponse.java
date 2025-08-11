@@ -22,9 +22,10 @@ public class NodeFullResponse {
     int spaceId, fieldId, userId;
     String url, name, description;
     double positionX, positionY, positionZ;
-    byte status, autoRotate;
-    double speedRotate, lightIntensity;
-    LocalDateTime updatedAt;
+    double yawOffset;
+    double lightIntensity, brightness, contrast, saturation, grayscale, exposure;
+    byte status;
+    Timestamp updatedAt;
     List<HotspotNavigationResponse> navHotspots;
     List<HotspotInformationResponse> infoHotspots;
     List<HotspotMediaResponse>  mediaHotspots;

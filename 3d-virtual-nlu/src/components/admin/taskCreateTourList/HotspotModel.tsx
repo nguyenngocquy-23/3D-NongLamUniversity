@@ -6,6 +6,7 @@ import UploadFile from "../UploadFile";
 import styles from "../../../styles/tasklistCT/task3.module.css";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
+import ModelPreviewWithSnapshot from "./PreviewModelWithSnapshot";
 
 interface TypeModelProps {
   isOpenTypeModel?: boolean;
@@ -27,6 +28,7 @@ const TypeModel = ({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const dispatch = useDispatch();
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
 
   useEffect(() => {
     setModelUrl(hotspotModel.modelUrl);
@@ -39,6 +41,7 @@ const TypeModel = ({
       updateHotspotModel({
         hotspotId: hotspotModel.id,
         modelUrl,
+        thumbnailUrl,
         name,
         description,
       })
@@ -48,6 +51,9 @@ const TypeModel = ({
   const handleUploadedFile = (url: string) => {
     setModelUrl(url);
   };
+  const handleThumbnailSaved = (url: string) => {
+    setThumbnailUrl(url);
+  };
 
   return (
     <div
@@ -56,15 +62,14 @@ const TypeModel = ({
       }`}
     >
       <div style={{ height: "75%", overflowY: "auto" }}>
-        <p>
-          <span style={{ color: "pink" }}> {hotspotModel?.positionX} </span>
-          <span style={{ color: "yellow" }}> {hotspotModel?.positionY} </span>
-          <span style={{ color: "lightblue" }}>
-            {" "}
-            {hotspotModel?.positionZ}{" "}
-          </span>
-        </p>
-        <div style={{ position: "relative", display: "flex", flex: "1", minHeight: '80px' }}>
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            flex: "1",
+            minHeight: "80px",
+          }}
+        >
           <label className={styles.label}>Tệp mô hình:</label>
           <UploadFile
             className="upload_model"
@@ -72,9 +77,27 @@ const TypeModel = ({
             onUploaded={handleUploadedFile}
           />
         </div>
-        <div style={{ display: "flex" }}>
+        {modelUrl && (
+          <>
+            <ModelPreviewWithSnapshot
+              modelUrl={modelUrl}
+              onThumbnailSaved={handleThumbnailSaved}
+            />
+            <i style={{ margin: "0 auto", fontSize: "12px" }}>
+              Dùng{" "}
+              <img
+                style={{ width: "40px", verticalAlign: "middle" }}
+                src={`${import.meta.env.BASE_URL}key_move.png`}
+                alt="Arrow keys"
+              />
+              để di chuyển mô hình
+            </i>
+          </>
+        )}
+        <div className={styles.row_config} style={{ display: "flex" }}>
           <label className={styles.label}>Tên mô hình:</label>
           <input
+            className={styles.model_name_input}
             type="text"
             name=""
             id=""
@@ -84,9 +107,10 @@ const TypeModel = ({
             }}
           />
         </div>
-        <div style={{ display: "flex" }}>
+        <div className={styles.row_config} style={{ display: "flex" }}>
           <label className={styles.label}>Mô tả:</label>
           <textarea
+            className={styles.model_description_input}
             name=""
             id=""
             value={description}
@@ -96,7 +120,12 @@ const TypeModel = ({
           />
         </div>
       </div>
-      <button onClick={() => handleUpdateModel()}>Cập nhật</button>
+      <button
+        onClick={() => handleUpdateModel()}
+        style={{ padding: "0.5rem 1rem" }}
+      >
+        Cập nhật
+      </button>
     </div>
   );
 };

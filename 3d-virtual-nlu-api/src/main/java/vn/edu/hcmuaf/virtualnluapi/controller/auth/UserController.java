@@ -27,7 +27,7 @@ public class UserController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public User userInfo(@HeaderParam("Authorization") String token, UserLoginRequest request) {
-        // check token có trong table invlaidToken không
+        // check token có trong table invalidToken không
         boolean authenticated = authenticationService.authenticate(token);
         if (!authenticated) {
             return null;
@@ -46,6 +46,19 @@ public class UserController {
             return ApiResponse.<List<User>>builder().statusCode(5000).message("loi xac thuc").data(null).build();
         }
         return ApiResponse.<List<User>>builder().statusCode(1000).message("lay danh sach thanh cong").data(users).build();
+    }
+
+    @POST
+    @Path(("/toggleLockStatus"))
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> toggleLockStatus(UserIdRequest request) {
+        boolean result = userService.toggleLockStatus(request);
+        return ApiResponse.<Boolean>builder()
+                .statusCode(result ? 1000 : 5000)
+                .message(result ? "change status successfully" : "Failed to change status")
+                .data(result)
+                .build();
     }
 
     @POST

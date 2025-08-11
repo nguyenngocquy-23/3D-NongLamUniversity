@@ -1,0 +1,42 @@
+.tracking_container {
+  width: 100%;
+  height: 100%;
+}
+
+.tracking_notes {
+  position: absolute;
+  width: 30%;
+  height: 30%;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.064);
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+}
+
+.note_title {
+  text-align: center;
+  font-weight: bold;
+}
+
+.note_content {
+  flex: 1;
+}
+
+.note_line {
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.line_preview_two {
+  width: 20%;
+  height: 2px;
+  background-color: #267026;
+}
+.line_preview_one {
+  width: 20%;
+  height: 2px;
+  background-color: #fe1544;
+}

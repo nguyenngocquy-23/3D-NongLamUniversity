@@ -14,7 +14,7 @@ ul .taskRow {
   font-weight: 700;
   padding: 16px;
   border-radius: 6px;
-  backdrop-filter: blur(7px);
+  backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,4 +22,17 @@ ul .taskRow {
 
 .taskIcon {
   margin-left: auto;
+}
+
+.validate_task1 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  background-color: #f04646;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

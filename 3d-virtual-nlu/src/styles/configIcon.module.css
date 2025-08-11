@@ -51,7 +51,50 @@ input[type="range"] {
 } */
 .config_icon_wrapper {
   display: flex;
+  /* height: 60vh;
+  overflow: hidden;
+  overflow-y: auto; */
 }
+
+.config_icon_option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.config_icon_option .radio_container {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 0.5rem;
+  background-color: #eeeeee;
+  box-sizing: border-box;
+  box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
+  padding: 0.1rem;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.config_icon_option .radio_container .radio_item {
+  flex: 1 1 auto;
+  text-align: center;
+}
+.config_icon_option .radio_container .radio_item input {
+  display: none;
+}
+.config_icon_option .radio_container .radio_item .radio_name {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0.5rem 0.5rem;
+  color: rgba(51, 65, 85, 1);
+  transition: all 0.15s ease-in-out;
+}
+.config_icon_option .radio_container .radio_item input:checked + .radio_name {
+  background-color: #fff;
+  font-weight: 600;
+}
+
 .config_icon_infor {
   display: flex;
   gap: 10px;
@@ -67,6 +110,7 @@ input[type="range"] {
   padding: 5px;
   border-radius: 10px;
   background-color: #0303034e;
+  z-index:99999999;
 }
 .edit_icon_content {
   display: flex;
@@ -128,16 +172,18 @@ input[type="range"] {
   border: none;
 }
 .color_icon_content input[type="text"] {
-  color: #524a4a;
+  /* color: #524a4a; */
   box-sizing: border-box;
   border: 1px solid #f1f1f1;
   height: 32px;
   box-shadow: 0 1px 1px 0 rgb(0 0 0 / 10%);
   display: flex;
-  font-size: 0.9 em;
+  font-size: 0.9rem;
+  font-weight: 700;
   border-radius: 0 8px 8px 0;
   border-left: 0;
   padding: 1em;
+  letter-spacing: 1.5px;
 }
 
 .allow_color_background {
@@ -295,11 +341,12 @@ input[type="range"] {
   transform-style: preserve-3d;
   perspective: 500px;
   width: 250px;
-  height: 250px;
+  /* height: 250px; */
+  height: auto;
 }
 .grid_xz_plane {
   position: absolute;
-  top: 25px;
+  /* top: 25px; */
   left: 25px;
   width: 200px;
   height: 200px;

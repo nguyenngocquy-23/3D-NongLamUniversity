@@ -6,7 +6,7 @@ import { AppDispatch, RootState } from "../../redux/Store.ts";
 import { fetchFields } from "../../redux/slices/DataSlice.ts";
 import axios from "axios";
 import UploadFile from "./UploadFile.tsx";
-import TrackingNode from "./minimap/TrackingNode.tsx";
+import { API_URLS } from "../../env.ts";
 
 const BoardUploader = () => {
   const [listSpace, setListSpace] = useState<{ id: number; name: string }[]>(
@@ -18,8 +18,13 @@ const BoardUploader = () => {
   const fields = useSelector((state: RootState) => state.data.fields);
 
   useEffect(() => {
-    dispatch(fetchFields());
+    dispatch(fetchFields({ limit: 50, page: 0 }));
   }, [dispatch]);
+
+  // Lấy field từ api
+  // useEffect(() => {
+  //   const fetchFields = await axios.get({ GET_ALL_FIELDS });
+  // }, []);
 
   // Lấy danh sách space theo field
   const handleSelectField = async (event: any) => {
@@ -27,14 +32,14 @@ const BoardUploader = () => {
 
     if (!fieldId) {
       setListSpace([]); // Nếu chọn "-- Chọn lĩnh vực --", reset danh sách spaces
+      dispatch(setSpaceId("0"));
       return;
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/admin/space/byField",
-        { fieldId: fieldId }
-      );
+      const response = await axios.post(API_URLS.ADMIN_GET_SPACE_OF_FIELD, {
+        fieldId: fieldId,
+      });
       const listSpace = response.data.data;
       setListSpace(listSpace);
       dispatch(setSpaceId("0"));
@@ -51,42 +56,49 @@ const BoardUploader = () => {
 
   return (
     <div className={styles.upPanosSection}>
+      <div className={styles.header_form}>
+        <h2 className={styles.header_label}>Phân loại tour</h2>
+        <hr className={styles.divider} />
+        <div className={styles.classify_container}>
+          <div className={styles.item}>
+            <label className={styles.label}>Lĩnh vực:</label>
+            <select
+              className={styles.custom_select}
+              name="field"
+              id="field"
+              onChange={handleSelectField}
+            >
+              <option value="">-- Chọn lĩnh vực --</option>
+              {fields.map((field) => (
+                <option key={field.id} value={field.id}>
+                  {field.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.item}>
+            <label className={styles.label}>Không gian:</label>
+            <select
+              className={styles.custom_select}
+              name="space"
+              id="space"
+              onChange={handleSelectSpace}
+            >
+              <option value="0">-- Chọn không gian --</option>
+              {listSpace.map((space) => (
+                <option key={space.id} value={space.id}>
+                  {space.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
       <div className={styles.leftForm}>
-        <div className={styles.item}>
-          <label className={styles.label}>Lĩnh vực:</label>
-          <select
-            className={styles.custom_select}
-            name="field"
-            id="field"
-            onChange={handleSelectField}
-          >
-            <option value="">-- Chọn lĩnh vực --</option>
-            {fields.map((field) => (
-              <option key={field.id} value={field.id}>
-                {field.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className={styles.item}>
-          <label className={styles.label}>Không gian:</label>
-          <select
-            className={styles.custom_select}
-            name="space"
-            id="space"
-            onChange={handleSelectSpace}
-          >
-            <option value="0">-- Chọn không gian --</option>
-            {listSpace.map((space) => (
-              <option key={space.id} value={space.id}>
-                {space.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        {/* 
-          Custom Form Upload file.
-      */}
+        <h2 className={styles.header_label}>Tải ảnh lên</h2>
+        <hr className={styles.divider} />
         <div className={styles.panosCard}>
           <UploadFile className={"upload_panos"} />
         </div>

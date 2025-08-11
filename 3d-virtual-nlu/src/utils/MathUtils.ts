@@ -33,6 +33,15 @@ export const getAngleFromXZ = (x: number, z: number): number => {
   if (degrees < 0) degrees += 360; // giá trị radian có thể âm.
   return degrees;
 };
+
+/**
+ * Lấy lại giá trị angle dựa trên yawOffset từ redux.
+ */
+export const getAngleFromYawOffset = (yawOffset: number): number => {
+  const degrees = yawOffset * (180 / Math.PI);
+  return degrees;
+};
+
 /**
  *
  * @param angle : Góc được trả về từ Redux. Ở mặc định, là vị trí 0 độ.
@@ -64,4 +73,95 @@ export function getArcAnglesThree(
   const endSvg = (startSvg + vFov) % 360;
 
   return { startSvg, endSvg };
+}
+
+/**
+ * Tính toán khoảng giá trị (min, max) cho một trục (x, y hoặc z)
+ * sao cho điểm vẫn nằm trên mặt cầu với tâm tại (0,0,0).
+ *
+ * Dựa trên phương trình tổng quát của hình cầu:
+ * x^2 + y^2 + z^2 = R^2.
+ * => Mô hình 3D (T) khiến ta phải cộng thêm 1 lượng Tx, Ty, Tz ) nữa cho từng cái x,y,z.
+ * => Giới hạn để tránh toạ độ thoát ra hình cầu bây giờ phải là:
+ * (x + Tx)^2 + (y + Ty)^2 + (z+ Tz)^2 <= 100^2 (R =100)
+ * Ví dụ: Giới hạn vị trí của x
+ * (x+ Tx) <= Căn bậc 2 của (100^2 - (y+Ty)^2 - (z+Tz)^2)
+ *
+ * @param currentPosition - Tọa độ hiện tại của điểm [x, y, z]
+ * @param axis - Trục cần tính ('x' | 'y' | 'z')
+ * @returns [min, max] giới hạn của trục đó
+ */
+export function getAxisRange(
+  currentPosition: [number, number, number],
+  axis: "positionX" | "positionY" | "positionZ",
+  fixed: number
+): [number, number] {
+  const [x, y, z] = currentPosition;
+  const R = 100; // Bán kính hình cầu
+
+  let fixed1: number, fixed2: number;
+
+  // Chọn các trục cố định dựa trên axis
+  switch (axis) {
+    case "positionX":
+      fixed1 = y;
+      fixed2 = z;
+      break;
+    case "positionY":
+      fixed1 = x;
+      fixed2 = z;
+      break;
+    case "positionZ":
+      fixed1 = x;
+      fixed2 = y;
+      break;
+  }
+
+  // Tính khoảng giới hạn cho trục được chọn
+  const discriminant = R * R - (fixed1 + fixed) ** 2 - (fixed2 + fixed) ** 2;
+  if (discriminant < 0) {
+    // Nếu discriminant âm, không có giá trị hợp lệ
+    return [0, 0];
+  }
+
+  const max = Math.sqrt(discriminant) - fixed;
+  const min = -Math.sqrt(discriminant) - fixed;
+
+  return [min, max];
+}
+
+export function limitNewPostionFor3D(
+  currentPosition: [number, number, number]
+): { x: number; y: number; z: number } {
+  const [x, y, z] = currentPosition;
+
+  const clamp = (val: number, min: number, max: number) =>
+    Math.max(min, Math.min(max, val));
+
+  return {
+    x: clamp(x, -100, 100),
+    y: clamp(y, -100, 100),
+    z: clamp(z, -100, 100),
+  };
+}
+
+const pi2 = Math.PI * 2;
+/**
+ * [0, 1] * 2PI => [0, 2PI].
+ * Hàm chuyển đổi độ xoay của texture sang radian.
+ */
+export function textureToRadian(textureVuv: number): number {
+  return textureVuv * pi2;
+}
+
+export function radianToTexture(radian: number): number {
+  return (radian % pi2) / pi2;
+}
+
+export function radianToDegree(radian: number): number {
+  return (radian * 180) / Math.PI;
+}
+
+export function degreeToRadian(degree: number): number {
+  return (degree % 360) * (Math.PI / 180);
 }

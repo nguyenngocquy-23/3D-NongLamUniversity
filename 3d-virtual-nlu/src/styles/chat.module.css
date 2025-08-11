@@ -3,6 +3,7 @@
     bottom: 20%;
     right: 20px;
     height: 100%;
+    z-index: 99999999;
 }
 
 .option {
@@ -14,7 +15,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    background-color: #1e84e4;
+    /* background-color: #1e84e4; */
+    background-color: #26702641;
     border-top-right-radius: 20px;
     border-top-left-radius: 20px;
     padding: 20px;
@@ -26,11 +28,11 @@
 }
 
 .choose_option {
-    background-color: #0e6bc2;
+    background-color: #4bd430;
 }
 
 .chat_option:hover {
-    background-color: #0e6bc2;
+    background-color: #4bd430;
     cursor: pointer;
 }
 
@@ -46,31 +48,32 @@
 }
 
 .chatContent::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+    width: 8px;
+    height: 8px;
 }
 
 /* Track – nền sau */
 .chatContent::-webkit-scrollbar-track {
-  background-color: white;
+    background-color: white;
 }
 
 /* Thumb – phần trượt */
 .chatContent::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00fff0 0%, #00d2ff 50%, #007cf0 100%);
-  border-radius: 15px;
+    background: linear-gradient(180deg, #a8ff78 0%, #78ff6e 50%, #28a745 100%);
+    border-radius: 15px;
 }
+
 /* Hover – đổi màu nhẹ */
 .chatContent::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #00d2ff, #3a47d5);
-  box-shadow: inset 0 0 1px #3a47d5;
+    background: linear-gradient(180deg, #78ff6e, #1e7e34);
+    box-shadow: inset 0 0 1px #1e7e34;
 }
 
 .chatBox {
     position: absolute;
-    right: 10px;
+    right: 0;
     bottom: -3%;
-    background-color: white;
+    /* background-color: white; */
     width: 300px;
     max-height: 0;
     height: 500px;
@@ -79,7 +82,7 @@
     transition: all .3s ease-out;
     box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.4);
     transform: translate(10px, 50px);
-} 
+}
 
 .chatBox.openBox {
     transform: translate(0);
@@ -93,9 +96,10 @@
     height: 70%;
     top: 18%;
     font-size: 16px;
-    color: #1e84e4;
+    color: #267026;
     overflow-y: auto;
     pointer-events: auto;
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .message {
@@ -105,6 +109,7 @@
     padding: 8px 12px;
     border-radius: 10px;
     word-break: break-word;
+    flex-direction: column;
 }
 
 .myMessage {
@@ -112,6 +117,7 @@
     align-self: flex-end;
     margin-left: auto;
     border-bottom-right-radius: 0;
+    font-size: 15px;
 }
 
 .otherMessage {
@@ -119,28 +125,36 @@
     align-self: flex-start;
     margin-right: auto;
     border-bottom-left-radius: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    font-size: 15px;
 }
 
-.avatar{
+.timestamp {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+    text-align: right;
+}
+
+.avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: #0e6bc2;
+    background-color: #267026;
     margin-left: 10px;
     padding: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
-    
+
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
 }
 
 
 .chatInput::placeholder {
-    color: #acacac;
+    color: white;
 }
 
 .chatInput {
@@ -153,51 +167,66 @@
     outline: none;
     border: none;
     font-size: 16px;
-    color: #333;
+    color: white;
     resize: none;
     overflow-y: auto;
 }
 
 .sendChatBtn:hover {
-    opacity: 0.8;
+    color: #4bd430;
 }
 
 .sendChatBtn.show {
-    background-color: #1e84e4;
+    opacity: 1;
+    background-color: #267026;
+    pointer-events: auto;
 }
 
 .sendChatBtn {
-    padding: 10px 10px;
+    padding: 10px;
     position: absolute;
-    bottom: 10px;
+    bottom: 5px;
     right: 10px;
     background: none;
-    margin-top: -10px;
     outline: none !important;
     border: none;
     transition: all .3s ease-in;
+    opacity: 0;
+    pointer-events: none;
 }
 
-.chatIcon:hover {
+.login_button {
+    width: 90%;
+    padding: 10px;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4bd430;
+}
+
+.chat_icon:hover {
     opacity: 0.7;
+    transform: scale(1.05);
 }
 
-.chatIcon {
+.chat_icon {
     cursor: pointer;
     position: absolute;
     bottom: -70px;
     right: 0;
     width: 40px;
     height: 40px;
+    opacity: 1;
     border-radius: 50%;
     padding: 10px;
-    background-color: #1e84e4;
+    background-color: #267026;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 30px;
     font-weight: 900;
-    transition: opacity .2s ease-in-out;
+    transition: all .2s ease;
 }
 
 .decor1,

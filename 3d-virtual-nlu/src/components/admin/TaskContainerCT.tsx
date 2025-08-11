@@ -23,10 +23,6 @@ const TaskContainerCT: React.FC<TaskContainerCTProps> = ({
   name,
   children,
 }) => {
-  const { panoramaList } = useSelector((state: RootState) => ({
-    panoramaList: state.panoramas.panoramaList,
-  }));
-  const dispatch = useDispatch<AppDispatch>();
   return (
     <div className={styles.task_container}>
       <div className={styles.task_header}>

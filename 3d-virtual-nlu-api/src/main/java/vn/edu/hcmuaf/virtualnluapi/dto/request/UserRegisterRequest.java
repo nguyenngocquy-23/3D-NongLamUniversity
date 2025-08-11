@@ -14,5 +14,5 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @ApplicationScoped
 public class UserRegisterRequest {
-    String username, password, email;
+    String username, password, email, avatar;
 }

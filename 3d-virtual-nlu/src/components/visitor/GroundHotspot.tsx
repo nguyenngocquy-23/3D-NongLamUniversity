@@ -1,4 +1,4 @@
-import { Html } from "@react-three/drei";
+import { Html, PositionalAudio, useGLTF } from "@react-three/drei";
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,6 +6,8 @@ import * as THREE from "three";
 import { RootState } from "../../redux/Store";
 import { HotspotNavigation } from "../../redux/slices/HotspotSlice";
 import OptionHotspot from "../admin/taskCreateTourList/OptionHotspot";
+import { RADIUS_SPHERE } from "../../utils/Constants";
+import SoundEffect from "../admin/taskCreateTourList/SoundEffect";
 
 type GroundHotspotProps = {
   onNavigate: (
@@ -14,72 +16,54 @@ type GroundHotspotProps = {
   ) => void;
   hotspotNavigation: HotspotNavigation;
   setCurrentHotspotId?: (val: string | null) => void;
+  blockUpdate?: boolean;
 };
 
 const GroundHotspot: React.FC<GroundHotspotProps> = ({
   onNavigate,
   hotspotNavigation,
   setCurrentHotspotId,
+  blockUpdate,
 }) => {
-  const camera = useThree();
+  const { gl } = useThree();
+  //USEREF
   const hotspotRef = useRef<THREE.Mesh>(null);
+  const maxSizeRef = useRef(10 * hotspotNavigation.scale); // ĐANG SỬ DỤNG GIÁ TRỊ CỐ ĐỊNH CHO 3D HOTSPOT
+  const groupRef = useRef<THREE.Group>(null);
+  const targetOpacity = useRef(hotspotNavigation.opacity);
+  const targetScale = useRef(hotspotNavigation.scale);
+
+  //REDUX
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
+  const { icons } = useSelector((state: RootState) => state.data);
+  const icon = icons.find((i) => i.id == hotspotNavigation.iconId);
+  const panoramaList = useSelector(
+    (state: RootState) => state.panoramas.panoramaList
+  );
+  const preloadNode = useSelector(
+    (state: RootState) => state.data.preloadNodes
+  );
 
-  const { icons, hotspotTypes } = useSelector((state: RootState) => state.data);
-  const iconUrl = icons.find((i) => i.id == hotspotNavigation.iconId).url;
-
+  //STATE
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
-
   const [isHovered, setIsHovered] = useState(false);
-  const targetOpacity = useRef(0.6);
-  const targetScale = useRef(5);
+  const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
+  const isIcon3D = icon.type === 2;
+  const [playSound, setPlaySound] = useState<() => void>(() => () => {});
 
   /**
    * Đang thử nghiệm
    */
   // const [isClicked, setIsClicked] = useState(false);
-  const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
-
-  useEffect(() => {
-    if (isHovered) {
-      targetOpacity.current = 1;
-      targetScale.current = 3;
-    } else {
-      targetOpacity.current = 0.6;
-      targetScale.current = 2;
-    }
-  }, [isHovered]);
-
-  useFrame(() => {
-    if (hotspotRef.current) {
-      const material = hotspotRef.current
-        .material as THREE.MeshStandardMaterial;
-      material.opacity += (targetOpacity.current - material.opacity) * 0.1;
-      hotspotRef.current.scale.lerp(
-        new THREE.Vector3(targetScale.current, targetScale.current, 1),
-        0.1
-      );
-    }
-  });
-
-  // const panoramaList = useSelector(
-  //   (state: RootState) => state.panoramas.panoramaList
-  // );
-
-  // const hotspot = useSelector((state: RootState) =>
-  //   state.hotspots.hotspotList.find(
-  //     (h): h is HotspotNavigation =>
-  //       h.id === hotspotNavigation.id && h.type === 1
-  //   )
-  // );
 
   /**
-   * Tập trung cho việc xử lý chỉnh sửa icon cho hotspsot.
+   * ICON 2D
    */
   useEffect(() => {
+    if (icon.type !== 1) return;
     const loadAndModifySVG = async () => {
       try {
-        const res = await fetch(iconUrl);
+        const res = await fetch(icon.url);
         let svgText = await res.text();
 
         // Thay fill nếu không có hoặc cập nhật fill hiện tại
@@ -116,64 +100,236 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
     };
 
     loadAndModifySVG();
-  }, [iconUrl, hotspotNavigation]);
+  }, [icon.url, hotspotNavigation]);
+
+  const gltf = isIcon3D ? useGLTF(icon.url) : null;
+
+  const clonedScene = useMemo(() => {
+    if (!isIcon3D || !gltf || Array.isArray(gltf) || !("scene" in gltf))
+      return null;
+
+    const scene = gltf.scene.clone(true);
+    scene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.geometry = mesh.geometry.clone();
+
+        if (mesh.material) {
+          mesh.material = (mesh.material as THREE.Material).clone();
+          if (mesh.material instanceof THREE.MeshStandardMaterial) {
+            // Tắt ánh sáng từ môi trường (ambient light, point light...)
+            // mesh.material.emissive.set("#347433"); // Chọn màu phát sáng cho hotspot
+            mesh.material.emissiveIntensity = 10; // Độ sáng tự phát
+            // mesh.material.color.set("#347433"); // Không có màu gốc (chỉ sáng bằng emissive)
+
+            // Tắt phản chiếu ánh sáng từ môi trường (nếu có)
+            mesh.material.envMap = null;
+            mesh.material.envMapIntensity = 0;
+
+            // Thêm nữa nếu muốn không chịu ảnh hưởng của ánh sáng khác
+            mesh.material.metalness = 0; // Tắt metalness nếu không muốn phản chiếu ánh sáng
+            mesh.material.roughness = 1; // Đảm bảo vật liệu không có độ nhám, tránh hiệu ứng sáng
+          }
+        }
+      }
+    });
+
+    return scene;
+  }, [isIcon3D, gltf]);
+
+  useFrame(() => {
+    if (clonedScene) {
+      clonedScene.rotation.y += 0.01;
+    }
+  });
+
+  useFrame(() => {
+    if (hotspotRef.current) {
+      const material = hotspotRef.current.material as THREE.MeshBasicMaterial;
+      material.opacity += (targetOpacity.current - material.opacity) * 0.1;
+      hotspotRef.current.scale.lerp(
+        new THREE.Vector3(targetScale.current, targetScale.current, 1),
+        0.1
+      );
+    }
+  });
+
+  useFrame((state) => {
+    if (!hotspotRef.current || isHovered) return;
+
+    const time = state.clock.getElapsedTime();
+
+    // Dao động scale: từ baseScale - amplitude → baseScale + amplitude
+    const baseScale = hotspotNavigation.scale ?? 1;
+    const amplitude = 0.2;
+    const opacityRange = [0.3, 1];
+
+    const s = baseScale + amplitude * Math.sin(time * 2);
+    hotspotRef.current.scale.set(s, s, s);
+
+    // Tính độ lệch so với baseScale (0 khi đúng base, max = amplitude)
+    const deviation = Math.abs(s - baseScale);
+    const t = deviation / amplitude; // Tỉ lệ lệch (0 → 1)
+
+    const opacity = opacityRange[1] - t * (opacityRange[1] - opacityRange[0]);
+    (hotspotRef.current.material as THREE.MeshBasicMaterial).opacity = opacity;
+  });
+
+  useEffect(() => {
+    if (isHovered) {
+      targetOpacity.current = hotspotNavigation.opacity + 0.5;
+      targetScale.current = hotspotNavigation.scale + 0.5;
+    } else {
+      targetOpacity.current = hotspotNavigation.opacity;
+      targetScale.current = hotspotNavigation.scale;
+    }
+  }, [isHovered, hotspotNavigation]);
+
+  useEffect(() => {
+    if (isHovered) {
+      targetOpacity.current += 0.5;
+    }
+  }, [isHovered]);
+  const scaleFactor = (RADIUS_SPHERE - maxSizeRef.current) / 100;
 
   return (
     <>
-      <mesh
-        ref={hotspotRef}
-        position={[
-          hotspotNavigation.positionX,
-          hotspotNavigation.positionY,
-          hotspotNavigation.positionZ,
-        ]}
-        rotation={[
-          THREE.MathUtils.degToRad(hotspotNavigation.pitchX),
-          THREE.MathUtils.degToRad(hotspotNavigation.yawY),
-          THREE.MathUtils.degToRad(hotspotNavigation.rollZ),
-        ]}
-        onPointerOver={() => {
-          setIsHovered(true);
-          console.log("🖱 Hover vào hotspot!", [
+      {isHovered && (
+        <Html
+          key="hover-hotspot"
+          position={[
             hotspotNavigation.positionX,
             hotspotNavigation.positionY,
             hotspotNavigation.positionZ,
-          ]);
-        }}
-        onPointerOut={() => {
-          setIsHovered(false);
-          console.log("Rời khỏi hotspot!");
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (hotspotNavigation && hotspotNavigation.targetNodeId) {
-            onNavigate(hotspotNavigation.targetNodeId, [
-              hotspotNavigation.positionX,
-              hotspotNavigation.positionY,
-              hotspotNavigation.positionZ,
-            ]);
-          }
-        }}
-        onContextMenu={() => {
-          // Ngăn menu mặc định
-          if (isHovered) {
+          ]}
+        >
+          <div
+            style={{
+              maxWidth: "200px",
+              background: "rgba(0,0,0,0.7)",
+              color: "white",
+              padding:
+                panoramaList.find(
+                  (pano) => pano.id == hotspotNavigation.targetNodeId
+                )?.config.name.length > 0
+                  ? "4px 8px"
+                  : "",
+              borderRadius: "4px",
+              fontSize: "10px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {
+              panoramaList.find(
+                (pano) => pano.id == hotspotNavigation.targetNodeId
+              )?.config.name
+            }
+          </div>
+        </Html>
+      )}
+      {isIcon3D && clonedScene ? (
+        <group
+          key="3d-hotspot"
+          ref={groupRef}
+          scale={hotspotNavigation.scale}
+          position={[
+            hotspotNavigation.positionX * scaleFactor,
+            hotspotNavigation.positionY * scaleFactor,
+            hotspotNavigation.positionZ * scaleFactor,
+          ]}
+          rotation={[
+            THREE.MathUtils.degToRad(hotspotNavigation.pitchX),
+            THREE.MathUtils.degToRad(hotspotNavigation.yawY),
+            THREE.MathUtils.degToRad(hotspotNavigation.rollZ),
+          ]}
+          onPointerOver={() => {
+            setIsHovered(true);
+            gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
+          }}
+          onPointerOut={() => {
+            setIsHovered(false);
+            gl.domElement.style.cursor = "default";
+          }}
+          onContextMenu={() => {
             setIsOpenHotspotOption((prev) => !prev);
-          }
-        }}
-      >
-        <planeGeometry args={[5, 5]} />
-        <meshBasicMaterial
-          map={texture}
-          transparent
-          opacity={0.6}
-          depthTest={false}
-          color={new THREE.Color(hotspotNavigation.color)}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (hotspotNavigation && hotspotNavigation.targetNodeId) {
+              onNavigate(hotspotNavigation.targetNodeId, [
+                hotspotNavigation.positionX,
+                hotspotNavigation.positionY,
+                hotspotNavigation.positionZ,
+              ]);
+            }
+          }}
+        >
+          <primitive object={clonedScene}></primitive>
 
-      {isOpenHotspotOption && currentStep != 1 ? (
+          <ambientLight color={"#fff"} intensity={0.3} />
+        </group>
+      ) : (
+        <mesh
+          key="2d-hotspot"
+          ref={hotspotRef}
+          position={[
+            hotspotNavigation.positionX,
+            hotspotNavigation.positionY,
+            hotspotNavigation.positionZ,
+          ]}
+          rotation={[
+            THREE.MathUtils.degToRad(hotspotNavigation.pitchX),
+            THREE.MathUtils.degToRad(hotspotNavigation.yawY),
+            THREE.MathUtils.degToRad(hotspotNavigation.rollZ),
+          ]}
+          scale={hotspotNavigation.scale}
+          onPointerOver={() => {
+            setIsHovered(true);
+            gl.domElement.style.cursor = "pointer"; // 👈 đổi cursor
+          }}
+          onPointerOut={() => {
+            setIsHovered(false);
+            gl.domElement.style.cursor = "default";
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (hotspotNavigation && hotspotNavigation.targetNodeId) {
+              onNavigate(hotspotNavigation.targetNodeId, [
+                hotspotNavigation.positionX,
+                hotspotNavigation.positionY,
+                hotspotNavigation.positionZ,
+              ]);
+            }
+          }}
+          onContextMenu={() => {
+            if (isHovered) {
+              setIsOpenHotspotOption((prev) => !prev);
+            }
+          }}
+        >
+          <planeGeometry
+            args={[5 * hotspotNavigation.scale, 5 * hotspotNavigation.scale]}
+          />
+          <meshStandardMaterial
+            map={texture}
+            transparent
+            opacity={hotspotNavigation.opacity}
+            depthTest={false}
+            color={new THREE.Color(hotspotNavigation.color)}
+            emissive={new THREE.Color(hotspotNavigation.color)}
+            emissiveIntensity={isHovered ? 2 : 0}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
+
+      {isOpenHotspotOption &&
+      (currentStep == 2 || currentStep == 4) &&
+      !blockUpdate ? (
         <OptionHotspot
+          key="config-hotspot"
           hotspotId={hotspotNavigation.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
           onClose={() => {
@@ -185,38 +341,8 @@ const GroundHotspot: React.FC<GroundHotspotProps> = ({
             hotspotNavigation.positionZ,
           ]}
         />
-      ) : (
-        ""
-      )}
-
-      {/* {isClicked && (
-        <Html position={position} center distanceFactor={50}>
-          <select
-            onChange={(e) => {
-              const selectedId = e.target.value;
-              if (selectedId) {
-                console.log("🔽 Đã chọn panorama:", hotspotNavigation.id);
-                dispatch(
-                  updateNavigationHotspotTarget({
-                    id: hotspotNavigation.id,
-                    targetNodeId: selectedId,
-                  })
-                );
-                setIsClicked(false);
-              }
-            }}
-          >
-            <option value="">Chọn panorama</option>
-            {panoramaList.map((pano) => (
-              <option key={pano.id} value={pano.id}>
-                {pano.config.name || "null"}
-              </option>
-            ))}
-          </select>
-        </Html>
-      )} */}
+      ) : null}
     </>
   );
 };
-
 export default GroundHotspot;

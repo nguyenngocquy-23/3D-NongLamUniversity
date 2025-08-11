@@ -1,11 +1,15 @@
-.contactContainer {
-  max-width: 600px;
+.contact_container {
+  width: 100%;
   height: auto;
   margin: 5% auto;
   padding: 30px;
   background-color: #ffffff;
   border-radius: 12px;
-  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
+  position: relative;
+  perspective: 800px;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
 .title {
@@ -18,11 +22,18 @@
 .form {
   display: flex;
   flex-direction: column;
+  max-width: 600px;
+  margin: auto;
 }
 
 .label {
   margin-bottom: 8px;
   font-weight: 500;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #fff;
 }
 
 .input,
@@ -33,6 +44,8 @@
   border-radius: 8px;
   font-size: 16px;
   resize: vertical;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
 }
 
 .textarea {
@@ -42,14 +55,78 @@
 .button {
   padding: 12px;
   font-size: 16px;
-  background-color: #0070f3;
+  background-color: #267026;
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 2rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .button:hover {
-  background-color: #0059c1;
+  background-color: #4bd430;
+}
+
+.contact_image {
+  width: 250px;
+  height: 350px;
+  background-image: url('/contact-us.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center; 
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transform-style: preserve-3d;
+  transform-origin: center;
+  border-radius: 12px;
+  background-color: transparent;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  /* background-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); */
+  transition: transform 0.5s ease;
+  animation: float 4s ease-in-out infinite;
+  z-index: 1;
+  margin-top: 15%;
+  background-origin: content-box; /* 👈 làm ảnh bắt đầu từ sau padding */
+  background-clip: content-box;
+  padding: 1rem;
+}
+
+/* 👇 THAY đổi: tách keyframe khỏi transform gốc */
+.contact_image_left {
+  left: 5%;
+  transform: translateY(-50%) rotateY(35deg) scaleX(-1);
+}
+
+.contact_image_right {
+  right: 5%;
+  transform: translateY(-50%) rotateY(-35deg);
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    translate: 0 -50%;
+  }
+
+  50% {
+    translate: 0 -60%;
+  }
+}
+
+/* 👇 Hover giữ rotateY và scale lên */
+.contact_image_left:hover {
+  transform: translateY(-50%) rotateY(35deg) scale(1.05);
+}
+
+.contact_image_right:hover {
+  transform: translateY(-50%) rotateY(-35deg) scale(1.05);
+}
+
+@media (max-width: 1068px) {
+  .contact_image{
+    display: none;
+  }
 }

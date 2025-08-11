@@ -43,11 +43,11 @@ const ShadowScreen: React.FC<CurvedScreenProps> = ({
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     tex.image = canvas;
-    tex.needsUpdate = true;
+    // tex.needsUpdate = true;
   });
 
   texture.minFilter = THREE.NearestFilter;
-  texture.needsUpdate = true;
+  // texture.needsUpdate = true;
   texture.flipY = false;
 
   const geometry = useMemo(() => {

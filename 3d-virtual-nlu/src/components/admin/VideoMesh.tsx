@@ -1,23 +1,35 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import OptionHotspot from "./taskCreateTourList/OptionHotspot";
 import { HotspotMedia } from "../../redux/slices/HotspotSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
+import { Html } from "@react-three/drei";
+import { useThree, useFrame } from "@react-three/fiber";
 
 interface VideoMeshProps {
   hotspotMedia: HotspotMedia;
   setCurrentHotspotId?: (val: string | null) => void;
+  blockUpdate?: boolean;
 }
 const VideoMeshComponent = ({
   hotspotMedia,
   setCurrentHotspotId,
+  blockUpdate,
 }: VideoMeshProps) => {
   const [isOpenHotspotOption, setIsOpenHotspotOption] = useState(false);
-  const [texture, setTexture] = useState<THREE.VideoTexture | THREE.Texture | null>(null);
+   const [isHovered, setIsHovered] = useState(false);
+  const [texture, setTexture] = useState<
+    THREE.VideoTexture | THREE.Texture | null
+  >(null);
   const [cornerPointes, setCornerPointes] = useState(
     JSON.parse(hotspotMedia.cornerPointList) as [number, number, number][]
   );
+  useEffect(() => {
+    if (hotspotMedia.cornerPointList) {
+      setCornerPointes(JSON.parse(hotspotMedia.cornerPointList));
+    }
+  }, [hotspotMedia.cornerPointList]);
   const [isPaused, setIsPaused] = useState(false);
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
 
@@ -63,51 +75,66 @@ const VideoMeshComponent = ({
   };
 
   useEffect(() => {
+    const isEmbedUrl =
+      hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
+      hotspotMedia.mediaUrl?.includes("giphy.com");
+  }, [hotspotMedia.mediaUrl]);
+
+  useEffect(() => {
+    const isEmbedUrl =
+      hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
+      hotspotMedia.mediaUrl?.includes("giphy.com/embed");
+
     if (
       cornerPointes.length === 4 &&
       hotspotMedia.mediaUrl &&
       hotspotMedia.mediaType === "VIDEO"
     ) {
-      const video = document.createElement("video");
-      video.src = hotspotMedia.mediaUrl;
-      video.crossOrigin = "anonymous";
-      video.muted = false;
-      video.playsInline = true;
-      video.loop = true;
-      video.autoplay = true;
-      video.style.display = "none";
-      video.style.pointerEvents = "none";
-      document.body.appendChild(video);
+      if (!isEmbedUrl) {
+        const video = document.createElement("video");
+        video.src = hotspotMedia.mediaUrl;
+        video.crossOrigin = "anonymous";
+        video.muted = false;
+        video.playsInline = true;
+        video.loop = true;
+        video.autoplay = true;
+        video.style.display = "none";
+        video.style.pointerEvents = "none";
+        document.body.appendChild(video);
 
-      const handleCanPlay = () => {
-        const tex = new THREE.VideoTexture(video);
-        tex.minFilter = THREE.LinearFilter;
-        tex.magFilter = THREE.LinearFilter;
-        tex.colorSpace = "srgb";
-        tex.image.width = video.videoWidth;
-        tex.image.height = video.videoHeight;
-        tex.needsUpdate = true;
+        const handleCanPlay = () => {
+          const tex = new THREE.VideoTexture(video);
+          tex.minFilter = THREE.LinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+          tex.colorSpace = "srgb";
+          tex.image.width = video.videoWidth;
+          tex.image.height = video.videoHeight;
+          tex.needsUpdate = true;
 
-        setTexture(tex);
+          setTexture(tex);
 
-        if (!isPaused) {
-          video.play().catch((err) => console.warn("Video play error:", err));
-        } else {
+          if (!isPaused) {
+            video.play().catch((err) => console.warn("Video play error:", err));
+          } else {
+            video.pause();
+          }
+        };
+
+        video.addEventListener("canplaythrough", handleCanPlay);
+        video.load();
+
+        return () => {
+          video.removeEventListener("canplaythrough", handleCanPlay);
           video.pause();
-        }
-      };
-
-      video.addEventListener("canplaythrough", handleCanPlay);
-      video.load();
-
-      return () => {
-        video.removeEventListener("canplaythrough", handleCanPlay);
-        video.pause();
-        video.src = "";
-        video.remove();
-        texture?.dispose();
-        setTexture(null);
-      };
+          video.src = "";
+          video.remove();
+          texture?.dispose();
+          setTexture(null);
+        };
+      } else {
+        // ✅ Trường hợp là embed link (YouTube/Vimeo)
+        setTexture(null); // không dùng texture
+      }
     } else {
       const image = new Image();
       image.crossOrigin = "anonymous";
@@ -143,15 +170,36 @@ const VideoMeshComponent = ({
   if (cornerPointes.length !== 4) return null;
 
   // Tạo geometry và material bằng useMemo để tránh tạo lại quá nhiều lần
-  const geometry = useMemo(() => createCustomGeometry(cornerPointes), [cornerPointes]);
-  const center = useMemo(() => getCenterOfPoints(cornerPointes), [cornerPointes]);
+  const geometry = useMemo(
+    () => createCustomGeometry(cornerPointes),
+    [cornerPointes]
+  );
+  const center = useMemo(
+    () => getCenterOfPoints(cornerPointes),
+    [cornerPointes]
+  );
 
   const material = useMemo(() => {
     return new THREE.MeshBasicMaterial({
       map: texture || null,
       color: texture ? 0xffffff : 0x888888,
       side: THREE.DoubleSide,
-      transparent: false,
+      transparent:
+        (!texture && currentStep == 2) ||
+        hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
+        hotspotMedia.mediaUrl?.includes("giphy.com/embed")
+          ? true
+          : false,
+      opacity:
+        !texture &&
+        currentStep == 2 &&
+        (hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
+          hotspotMedia.mediaUrl?.includes("giphy.com/embed"))
+          ? 0.3
+          : hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
+            hotspotMedia.mediaUrl?.includes("giphy.com/embed")
+          ? 0
+          : 1,
     });
   }, [texture]);
 
@@ -163,8 +211,55 @@ const VideoMeshComponent = ({
     };
   }, [geometry, material]);
 
+  const htmlGroupRef = useRef<THREE.Group>(null);
+  const { camera } = useThree();
+
+  useFrame(() => {
+    if (htmlGroupRef.current) {
+      const obj = htmlGroupRef.current;
+      obj.lookAt(camera.position);
+    }
+  });
+
+  const size = useMemo(() => {
+    if (!htmlGroupRef.current) return new THREE.Vector3(1, 1, 1); // fallback
+    const box = new THREE.Box3().setFromObject(htmlGroupRef.current);
+    const dimensions = new THREE.Vector3();
+    box.getSize(dimensions);
+    return dimensions;
+  }, [hotspotMedia]);
+
+  const distanceFactor = Math.min(size.x, size.y) * 15;
+
+  /**
+   * Tạo HTML cho iframe YouTube
+   * Sử dụng dangerouslySetInnerHTML để chèn iframe vào HTML
+   * dùng useMemo để tránh tạo lại HTML mỗi lần render
+   */
+  const iframeHtml = useMemo(() => {
+    return {
+      __html: hotspotMedia.mediaUrl, // Đã chứa iframe
+    };
+  }, [hotspotMedia.mediaUrl]);
+
   return (
     <>
+      {isHovered && hotspotMedia.caption.length > 0 && (
+        <Html position={[center[0] - 20, center[1] - 10, center[2]]}>
+          <div
+            style={{
+              width: '200px',
+              background: "rgba(0,0,0,0.7)",
+              color: "white",
+              padding: "4px 8px",
+              borderRadius: "4px",
+              fontSize: "10px",
+            }}
+          >
+            {hotspotMedia.caption}
+          </div>
+        </Html>
+      )}
       <mesh
         geometry={geometry}
         material={material}
@@ -172,6 +267,14 @@ const VideoMeshComponent = ({
         castShadow
         receiveShadow
         visible={true}
+        onPointerEnter={(e) => {
+          e.stopPropagation();
+          setIsHovered(true);
+        }}
+        onPointerLeave={(e) => {
+          e.stopPropagation();
+          setIsHovered(false);
+        }}
         onPointerDown={(e) => {
           if (e.button !== 2) {
             setIsPaused((prev) => !prev);
@@ -183,12 +286,39 @@ const VideoMeshComponent = ({
           setIsOpenHotspotOption(true);
         }}
       />
-      {isOpenHotspotOption && currentStep !== 3  && currentStep != 1 && (
+      {!texture &&
+      (hotspotMedia.mediaUrl?.includes("youtube.com/embed") ||
+        hotspotMedia.mediaUrl?.includes("giphy.com/embed")) ? (
+        <group ref={htmlGroupRef} position={[center[0], center[1], center[2]]}>
+          <Html
+            transform
+            distanceFactor={distanceFactor}
+            // rotation={[0, Math.PI / 2, 0]}
+            // position={[center[0], center[1], center[2]]}
+          >
+            <div
+              dangerouslySetInnerHTML={iframeHtml}
+              style={{
+                width: "100%",
+                height: "100%",
+                pointerEvents: "auto",
+              }}
+            />
+          </Html>
+        </group>
+      ) : (
+        ""
+      )}
+      {isOpenHotspotOption && currentStep == 2 && !blockUpdate && (
         <OptionHotspot
           hotspotId={hotspotMedia.id}
           setCurrentHotspotId={setCurrentHotspotId ?? (() => {})}
           onClose={() => setIsOpenHotspotOption(false)}
-          position={[hotspotMedia.positionX, hotspotMedia.positionY, hotspotMedia.positionZ]}
+          position={[
+            hotspotMedia.positionX,
+            hotspotMedia.positionY,
+            hotspotMedia.positionZ,
+          ]}
         />
       )}
     </>

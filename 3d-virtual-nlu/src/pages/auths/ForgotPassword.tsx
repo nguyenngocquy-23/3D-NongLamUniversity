@@ -78,7 +78,7 @@ const ForgotPassword: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="Enter your email"
+              placeholder="Email đăng ký tài khoản"
               className={styles.inputField}
             />
           </div>
@@ -87,9 +87,9 @@ const ForgotPassword: React.FC = () => {
           </button>
         </form>
         <p>
-          Remembered password?
+          Đã nhớ mật khẩu?
           <Link className={styles.link} to="/login">
-            Login here!
+            Đăng nhập lại!
           </Link>
         </p>
       </div>

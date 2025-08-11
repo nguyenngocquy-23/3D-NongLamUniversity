@@ -1,15 +1,13 @@
 package vn.edu.hcmuaf.virtualnluapi.controller.admin;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.SpaceService;
@@ -23,14 +21,25 @@ public class SpaceController {
     @Inject
     SpaceService spaceService;
 
-    @POST
+
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<SpaceFullResponse>> getAllSpaces() {
+        List<SpaceFullResponse> result = spaceService.getAllSpaces();
+        return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Lay danh sach space thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/create")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> createSpace(SpaceCreateRequest req) {
         boolean result = spaceService.createSpace(req);
         if (result) {
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Tao space thanh cong").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Tạo không gian thành công!").data(result).build();
         } else {
-            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi tao space").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Tạo không gian thất bại!").data(result).build();
         }
     }
 
@@ -42,30 +51,42 @@ public class SpaceController {
         return ApiResponse.<List<SpaceResponse>>builder().statusCode(1000).message("Lay danh sach ten space thanh cong").data(result).build();
     }
 
-
-    @GET
-    @Path("/all")
+    @POST
+    @Path("/byPage")
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<SpaceFullResponse>> getAllSpaces() {
-        List<SpaceFullResponse> result = spaceService.getAllSpaces();
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<SpaceFullResponse>> getSpacesByPage(PageRequest request) {
+        List<SpaceFullResponse> result = spaceService.getSpacesByPage(request);
         return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Lay danh sach space thanh cong").data(result).build();
     }
 
     @POST
+    @Path("/byId")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<SpaceFullResponse> getSpaceById(SpaceIdRequest request) {
+        SpaceFullResponse result = spaceService.getSpaceById(request);
+        return ApiResponse.<SpaceFullResponse>builder().statusCode(1000).message("Đã lấy được space!").data(result).build();
+    }
+
+
+    @POST
     @Path("/changeStatus")
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<Boolean> changeStatusField(StatusRequest req) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeStatusSpace(StatusRequest req) {
         boolean result = spaceService.changeStatusSpace(req);
         if (result) {
-            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai field thanh cong").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai space thanh cong").data(result).build();
         } else {
-            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai field").data(result).build();
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai space").data(result).build();
         }
     }
 
     @POST
     @Path("/attachLocation")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> attachLocation(List<AttachLocationRequest> request) {
         boolean result = spaceService.attachLocation(request);
         if (result) {
@@ -78,6 +99,7 @@ public class SpaceController {
     @POST
     @Path("/removeLocation")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<Boolean> removeLocation(SpaceIdRequest request) {
         boolean result = spaceService.removeLocation(request);
         if (result) {
@@ -85,5 +107,79 @@ public class SpaceController {
         } else {
             return ApiResponse.<Boolean>builder().statusCode(5000).message("Gan location trang thai field").data(result).build();
         }
+    }
+
+    @POST
+    @Path("/setMasterSpace")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeMasterSpace(StatusRequest req) {
+        boolean result = spaceService.changeStatusSpaceMaster(req);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai field thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai field").data(result).build();
+        }
+    }
+
+    @POST
+    @Path("/setMasterNodeById")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeMasterNode(SpaceChangeMasterRequest req) {
+        boolean result = spaceService.setMasterNode(req);
+        if (result) {
+            return ApiResponse.<Boolean>builder().statusCode(1000).message("Thay doi trang thai field thanh cong").data(result).build();
+        } else {
+            return ApiResponse.<Boolean>builder().statusCode(5000).message("Loi thay doi trang thai field").data(result).build();
+        }
+    }
+
+
+    /**
+     * Cập nhật tên lĩnh vực.
+     * +> True, không chỉ gửi true/false, cần cập nhật lại thời gian cập nhật lĩnh vực trên FE.
+     */
+    @POST
+    @Path("/changeName")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeNameField(ChangeNameRequest req) {
+        try {
+            boolean result = spaceService.changeNameSpace(req);
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(1000)
+                    .message("Thay đổi tên field thành công")
+                    .data(result)
+                    .build();
+        } catch (IllegalStateException e) {
+            return ApiResponse.<Boolean>builder()
+                    .statusCode(5000)
+                    .message("Lỗi thay đổi tên field: " + e.getMessage())
+                    .data(null)
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<SpaceFullResponse>> searchField(SearchRequest request) {
+        List<SpaceFullResponse> result = spaceService.search(request.getSearchKey());
+        return ApiResponse.<List<SpaceFullResponse>>builder().statusCode(1000).message("Tim kiem thanh cong").data(result).build();
+    }
+
+
+    @PATCH
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<SpaceFullResponse> updateSpaceById(@PathParam("id") int id, SpaceUpdateRequest request) {
+
+        SpaceFullResponse result = spaceService.updateSpacePartial(id, request);
+        if (result != null) {
+            return ApiResponse.<SpaceFullResponse>builder().statusCode(1000).message("Cập nhật thành công!").data(result).build();
+        } else {
+            return ApiResponse.<SpaceFullResponse>builder().statusCode(5000).message("Cập nhật thất bại!").data(result).build();
+        }
+
     }
 }

@@ -11,6 +11,6 @@ import java.sql.Timestamp;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class HotspotModel {
     int hotspotId;
-    String modelUrl, name, description, colorCode;
-    boolean autoRotate;
+    String modelUrl, thumbnailUrl, name, description;
+    int numDownload;
 }

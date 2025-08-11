@@ -1,79 +1,124 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/visitor/introduce.module.css";
+import { useDeviceInfo } from "../../contexts/DeviceInfoContext";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/Store";
+import { API_URLS } from "../../env";
+import axios from "axios";
 
-const images = [
-  {
-    src: "/khoa.jpg",
-    title: "Khoa Công nghệ thông tin",
-    description: "Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.Mô tả không gian.",
-  },
-  {
-    src: "https://picsum.photos/id/1012/400/300",
-    title: "Không gian 2",
-    description: "Mô tả không gian 2.",
-  },
-  {
-    src: "https://picsum.photos/id/1013/400/300",
-    title: "Không gian 3",
-    description: "Mô tả không gian 3.",
-  },
-  {
-    src: "https://picsum.photos/id/1015/400/300",
-    title: "Không gian 4",
-    description: "Mô tả không gian 4.",
-  },
-  {
-    src: "https://picsum.photos/id/1016/400/300",
-    title: "Không gian 5",
-    description: "Mô tả không gian 5.",
-  },
-];
+// const images = [
+//   {
+//     url: `${import.meta.env.BASE_URL}thienly.jpg`,
+//     title: "Toàn Thiên Lý",
+//     description:
+//       "Và tòa nhà điều hành của trường, được xem là tòa nhà biểu tượng cho trường. Nơi tiếp nhận và giải quyết các vấn đè của sinh viên.",
+//   },
+//   {
+//     url: `${import.meta.env.BASE_URL}phuongvy.jpg`,
+//     title: "Giảng đường Phượng Vỹ",
+//     description:
+//       "Nơi tổ chức các hoạt động ngoại khóa và chương trình của đoàn hội trường.",
+//   },
+//   {
+//     url: `${import.meta.env.BASE_URL}rangdong.jpg`,
+//     title: "Giảng đường Rạng Đông",
+//     description: "Giảng đường có diện tích lớn nhất trường.",
+//   },
+//   {
+//     url: `${import.meta.env.BASE_URL}backgroundNL.jpg`,
+//     title: "Khuôn viên trước tòa Thiên Lý",
+//     description:
+//       "Nơi diễn ra các hoạt động ngoài trời của trường, như lễ tốt nghiệp, các buổi giao lưu văn nghệ.",
+//   },
+//   {
+//     url: `${import.meta.env.BASE_URL}thuvienthunk.jpg`,
+//     title: "Thư viện",
+//     description:
+//       "Nơi trau dồi thêm các kiến thức và nơi họp nhóm lý tưởng cho các sinh viên.",
+//   },
+// ];
 
 export default function Introduce() {
-  const [selectedIndex, setSelectedIndex] = useState(2); // mặc định ảnh giữa
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [images, setImages] = useState<any>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
+    const fetchSpace = async () => {
+      try {
+        const response = await axios.get(API_URLS.GET_ALL_SPACES);
+        const data = response.data?.data || [];
+        const formattedImages = data.map((space: any) => ({
+          url: space.url,
+          title: space.name,
+          description: space.description,
+        }));
+        setImages(formattedImages);
+      } catch (error) {
+        console.error("Lỗi fetchSpace:", error);
+      } finally {
+        setIsLoading(false); // kết thúc loading dù thành công hay lỗi
+      }
+    };
+
+    fetchSpace();
+  }, []);
+
+  useEffect(() => {
+    if (images.length === 0) return;
+
     const timer = setTimeout(() => {
       setSelectedIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 2000);
 
-    return () => clearTimeout(timer); // clear timeout khi unmount hoặc khi selectedIndex thay đổi
-  }, [selectedIndex]);
+    return () => clearTimeout(timer);
+  }, [selectedIndex, images.length]);
+
+  if (isLoading) {
+    return <div>Đang tải ảnh...</div>;
+  }
+
+  if (!images.length) {
+    return <div>Không có ảnh nào để hiển thị</div>;
+  }
   return (
-    <div id="introduce" className={styles.virtualTourContainer}>
+    <div id="introduce" className={styles.virtual_tour_container}>
       <div
-        className={styles.vtBackground}
+        className={styles.vt_background}
         style={{
-          filter: "blur(4px) brightness(0.7)",
-          pointerEvents: "none",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: `url(${images[selectedIndex].src})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          zIndex: 0,
+          backgroundImage: `url(${images[selectedIndex]?.url})`,
         }}
       ></div>
-
       <div className={styles.carousel}>
-        {images.map((img, i) => (
-          <img
-            key={i}
-            src={img.src}
-            alt={img.title}
-            className={`${styles.carouselImage} ${
-              i === selectedIndex ? styles.activeImage : ""
-            }`}
-            onClick={() => setSelectedIndex(i)}
-          />
-        ))}
+        {images.map((img: any, i: number) => {
+          const total = images.length;
+          const position = (i - selectedIndex + total) % total;
+
+          let className = styles.carousel_image;
+
+          // Chỉ render 5 ảnh gần selectedIndex (±2)
+          if (position === 0) className += ` ${styles.active_image}`;
+          else if (position === 1 || position === total - 1)
+            className += ` ${styles.near_image}`;
+          else if (position === 2 || position === total - 2)
+            className += ` ${styles.far_image}`;
+          else return null; // Không render ảnh quá xa
+
+          return (
+            <img
+              key={i}
+              src={img.url}
+              alt={img.title}
+              className={className}
+              onClick={() => setSelectedIndex(i)}
+            />
+          );
+        })}
       </div>
 
-      <div className={styles.infoPanel}>
-        <h2>{images[selectedIndex].title}</h2>
-        <p>{images[selectedIndex].description}</p>
+      <div className={styles.info_panel}>
+        <h2>{images[selectedIndex]?.title}</h2>
+        <p>{images[selectedIndex]?.description}</p>
       </div>
     </div>
   );

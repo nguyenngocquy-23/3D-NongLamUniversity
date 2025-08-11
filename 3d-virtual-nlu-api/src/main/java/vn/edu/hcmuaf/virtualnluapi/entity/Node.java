@@ -2,6 +2,7 @@ package vn.edu.hcmuaf.virtualnluapi.entity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -12,7 +13,8 @@ import java.time.LocalDateTime;
 public class Node {
     int id, spaceId;
     String url, name, description;
-    double positionX,positionY,positionZ, lightIntensity, speedRotate;
-    byte status, autoRotate;
-    LocalDateTime createdAt, updatedAt;
+    double positionX,positionY,positionZ, yawOffset;
+    double lightIntensity, brightness, contrast, saturation, grayscale, exposure;
+    byte status;
+    Timestamp createdAt, updatedAt;
 }

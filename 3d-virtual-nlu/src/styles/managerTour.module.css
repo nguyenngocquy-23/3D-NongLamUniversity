@@ -3,7 +3,6 @@
   height: 100%;
   border-radius: 8px;
   position: relative;
-  padding: 0 20px;
   /* padding-top: 30px; */
   box-sizing: border-box;
 }
@@ -39,6 +38,7 @@
   transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
   display: flex;
   padding-top: 20px;
+  gap: 1rem;
 }
 
 .show {
@@ -89,13 +89,219 @@
   background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0.3));
 }
 
-.list_tour {
-}
-
 .list_tour .list_tour_main {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
   gap: 3.5%;
   margin-left: 20px;
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+}
+
+.tour_item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tour_features {
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  margin: 1rem;
+  background-color: transparent;
+  gap: 1rem;
+}
+
+.tour_box {
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border-radius: 1rem;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
+}
+
+.tour_search_box {
+  padding-left: 1rem;
+}
+
+.tour_search_box input {
+  width: 170px;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  caret-color: #267026;
+  background-color: #fff;
+  color: black;
+}
+
+.tour_search_box .label_for_search {
+  cursor: text;
+  padding: 0px 12px;
+}
+
+.search_icon {
+  width: 13px;
+}
+
+.border {
+  height: 40%;
+  width: 1.3px;
+  background-color: rgb(223, 223, 223);
+}
+
+.mic_search {
+  padding: 0px 15px 0px 12px;
+  border: none;
+  background-color: transparent;
+  height: 40px;
+  cursor: pointer;
+  transition-duration: 0.3s;
+}
+
+.mic_icon {
+  width: 12px;
+}
+
+.mic_search:hover {
+  background-color: rgb(230, 255, 230);
+  transition-duration: 0.3s;
+}
+
+/* LỌC */
+.tour_filter_box {
+  gap: 0.5rem;
+  padding: 1rem;
+  color: #000;
+}
+
+.tour_box:hover {
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.tour_box button {
+  background-color: transparent;
+  border: none;
+  color: #000;
+}
+
+.tour_sort_box {
+  color: #000;
+  padding: 1rem;
+  gap: 0.5rem;
+}
+
+.tour_add {
+  color: #000;
+  padding: 1rem;
+  text-decoration: none;
+}
+
+.tour_add:hover {
+  color: #267026;
+}
+
+.break {
+  height: 2px;
+  border: none;
+  background-color: #267026;
+  margin: 0 1rem 1rem 1rem;
+}
+
+.tour_quantity {
+  color: #848484;
+  font-style: italic;
+  margin: 1rem;
+  position: absolute;
+}
+
+.tour_list {
+  display: grid;
+  max-height: 420px;
+  margin: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  justify-items: center;
+  gap: 1rem;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.tour_list::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Track – nền sau */
+.tour_list::-webkit-scrollbar-track {
+  background-color: white;
+}
+
+/* Thumb – phần trượt */
+.tour_list::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a8ff78 0%, #78ff6e 50%, #28a745 100%);
+  border-radius: 15px;
+}
+
+/* Hover – đổi màu nhẹ */
+.tour_list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #78ff6e, #1e7e34);
+  box-shadow: inset 0 0 1px #1e7e34;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.page_btn {
+  padding: 8px 12px;
+  margin: 0 4px;
+  border: none;
+  background-color: #eee;
+  cursor: pointer;
+  color: black;
+}
+
+.page_btn:focus {
+  outline: none;
+  border: none;
+}
+
+.page_btn:hover {
+  background-color: #ddd;
+}
+
+.active {
+    background-color: #0e9013;
+    color: white;
+    font-weight: bold;
+}
+
+.back_btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color: black;
+  transition: all 0.3s ease;
+}
+
+.back_btn:hover {
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
 }

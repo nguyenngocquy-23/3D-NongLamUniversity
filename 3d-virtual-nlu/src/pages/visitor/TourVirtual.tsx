@@ -89,7 +89,6 @@ const TourVirtual = () => {
     setCursor("grab"); // Khi thả chuột, đổi cursor thành grab
   };
 
-
   const toggleFullscreen = () => {
     const canvas = document.querySelector<HTMLCanvasElement>(
       `.${styles.virtual_tour}`
@@ -506,7 +505,7 @@ const TourVirtual = () => {
           </ul>
         </div>
         {/* Hộp feedback */}
-        <Chat />
+        {/* <Chat /> */}
         {/* Hộp thông tin */}
         <div className={styles.infoBox} onClick={toggleInfomation}>
           Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông

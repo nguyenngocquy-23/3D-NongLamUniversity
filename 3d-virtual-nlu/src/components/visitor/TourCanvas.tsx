@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import React, { useRef } from "react";
+import React, { Ref, Suspense, useEffect, useRef, useState } from "react";
 import VideoMeshComponent from "../admin/VideoMesh";
 import UpdateCameraOnResize from "../UpdateCameraOnResize";
 import CamControls from "./CamControls";
@@ -12,7 +12,12 @@ import * as THREE from "three";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/Store";
 import { setDefaultNode } from "../../redux/slices/DataSlice";
-import gsap from "gsap";
+import { Environment } from "@react-three/drei";
+import { DEFAULT_ORIGINAL_Z } from "../../utils/Constants";
+import Radar from "./Radar";
+import { Perf } from "r3f-perf";
+import { ImageCacheMap } from "../../contexts/ImageCacheContext";
+import { div } from "three/src/nodes/TSL.js";
 const TourCanvas = React.memo(
   ({
     windowSize,
@@ -25,6 +30,11 @@ const TourCanvas = React.memo(
     hotspotInformations,
     hotspotModels,
     hotspotMedias,
+    setTargetPosition,
+    isOpenRadar,
+    setIsOpenRadar,
+    imageRef,
+    imageVersion,
   }: {
     windowSize: { width: number; height: number };
     cursor: string;
@@ -37,63 +47,72 @@ const TourCanvas = React.memo(
     hotspotInformations: any[];
     hotspotModels: any[];
     hotspotMedias: any[];
+    setTargetPosition: (position: [number, number, number]) => void;
+    isOpenRadar: boolean;
+    setIsOpenRadar: (val: boolean) => void;
+    imageRef: React.RefObject<ImageCacheMap>;
+    imageVersion: number;
   }) => {
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const controlsRef = useRef<any>(null); //OrbitControls
     const dispatch = useDispatch();
-    const preloadNodes = useSelector(
+
+    const preloadNodesRedux = useSelector(
       (state: RootState) => state.data.preloadNodes
     );
+    const preloadNodesRef = useRef<any[]>([]);
+    const preloadNavigatesRef = useRef<any[]>([]);
 
+    useEffect(() => {
+      if (defaultNode.status === 2) {
+        const defaultHotspots = defaultNode.navHotspots || [];
+        const preloadHotspots = preloadNodesRedux
+          .filter((node) => node.status != 2)
+          .flatMap((node) => node.navHotspots || []);
+
+        // Gộp và loại bỏ trùng dựa trên targetNodeId
+        const merged = [...defaultHotspots, ...preloadHotspots];
+        const uniqueHotspots = Array.from(
+          new Map(
+            merged
+              .filter((h) => h.targetNodeId !== defaultNode.id) // <== loại trùng với node master
+              .map((h) => [h.targetNodeId, h])
+          ).values()
+        );
+
+        preloadNavigatesRef.current = uniqueHotspots;
+        preloadNodesRef.current = [defaultNode, ...preloadNodesRedux];
+      }
+    }, [defaultNode, preloadNodesRedux, preloadNavigatesRef]);
+
+    const [cameraAngle, setCameraAngle] = useState(0);
     const handleSelectNode = (id: number) => {
-      const activeNode = preloadNodes.find((h) => h.id === id);
+      setIsTextureReady(false);
+      const activeNode = preloadNodesRedux.find((h) => h.id === id);
       dispatch(setDefaultNode(activeNode));
     };
 
+    /**
+     *
+     * @param targetNodeId : Id node đích cần di chuyển.
+     * @param hotspotTargetPosition : Thay thế vị trí camera hướng đến tại vị trí hotspot mục tiêu.
+     */
     const handleHotspotNavigate = (
       targetNodeId: string,
       hotspotTargetPosition: [number, number, number]
     ) => {
       if (!cameraRef.current || !controlsRef.current) return;
+
       const camera = cameraRef.current;
-      const control = controlsRef.current;
-      const originalFov = camera.fov;
-      const zoomTarget = 45;
 
       const [x, y, z] = hotspotTargetPosition;
 
-      // === Bước 1: Tạo điểm cần nhìn đến (hotspot)
-      const targetLookAt = new THREE.Vector3(x, 0, z);
-
-      // === Bước 2: Animation tạm thời "quay" camera bằng cách move lookAt
-      const tempTarget = targetLookAt.clone();
-
-      gsap.to(camera.rotation, {
-        duration: 0.2,
-        ease: "power2.inOut",
-        onUpdate: () => {
-          camera.lookAt(tempTarget);
-          control.update();
-        },
-        onComplete: () => {
-          gsap.to(camera, {
-            fov: zoomTarget,
-            duration: 1.0,
-            ease: "power2.inOut",
-            onUpdate: () => {
-              handleSelectNode(Number(targetNodeId));
-              camera.updateProjectionMatrix();
-            },
-            onComplete: () => {
-              camera.fov = originalFov;
-              camera.lookAt(0, 0, 0); // về
-              camera.updateProjectionMatrix();
-              control.update();
-            },
-          });
-        },
-      });
+      // === Bước 2: Zoom vào
+      handleSelectNode(Number(targetNodeId));
     };
+
+    const [isTextureReady, setIsTextureReady] = useState<boolean>(false);
+
     return (
       <Canvas
         camera={{
@@ -101,44 +120,93 @@ const TourCanvas = React.memo(
           aspect: windowSize.width / windowSize.height,
           near: 0.1,
           far: 1000,
-          position: [0, 0, 0.0000001],
+          position: [0, 0, DEFAULT_ORIGINAL_Z],
         }}
         className={styles.tourCanvas}
       >
+        <Environment preset="studio" background={false} />
+        {/* <Perf /> */}
         <UpdateCameraOnResize />
         <TourScene
           radius={radius}
           sphereRef={sphereRef}
+          imageRef={imageRef}
+          nodeId={defaultNode.id}
           textureCurrent={defaultNode.url ?? "/khoa.jpg"}
+          yawOffsetCurrent={defaultNode.yawOffset ?? 0}
           lightIntensity={defaultNode.lightIntensity}
+          onTextureReady={() => setIsTextureReady(true)}
+          imageVersion={imageVersion}
         />
+        {isOpenRadar && defaultNode && (
+          <Radar
+            currentPanorama={defaultNode}
+            angleCurrent={cameraAngle}
+            panoramaList={preloadNodesRef.current}
+            navigateList={preloadNavigatesRef.current}
+            setIsOpenRadar={setIsOpenRadar}
+            imageRef={imageRef}
+          />
+        )}
         <CamControls
           controlsRef={controlsRef}
           targetPosition={targetPosition}
           cameraRef={cameraRef}
           sphereRef={sphereRef}
           autoRotate={isRotation}
-          autoRotateSpeed={defaultNode.speedRotate}
+          autoRotateSpeed={
+            defaultNode || defaultNode.speedRotate == 0
+              ? 0.2
+              : defaultNode.speedRotate
+          }
+          onAngleChange={(angle) => {
+            setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
+          }}
         />
+        <Suspense fallback={null}>
+          {isTextureReady &&
+            hotspotInformations.map((hotspot) => (
+              <GroundHotspotInfo
+                key={hotspot.id}
+                hotspotInfo={hotspot}
+                blockUpdate={true}
+              />
+            ))}
+        </Suspense>
+        <Suspense fallback={null}>
+          {isTextureReady &&
+            hotspotNavigations.map((hotspot) => (
+              <GroundHotspot
+                key={hotspot.id}
+                onNavigate={(targetNodeId, cameraTargetPosition) =>
+                  handleHotspotNavigate(targetNodeId, cameraTargetPosition)
+                }
+                hotspotNavigation={hotspot}
+                blockUpdate={true}
+              />
+            ))}
+        </Suspense>
 
-        {hotspotInformations.map((hotspot, index) => (
-          <GroundHotspotInfo key={index} hotspotInfo={hotspot} />
-        ))}
-        {hotspotNavigations.map((hotspot, index) => (
-          <GroundHotspot
-            key={index}
-            onNavigate={(targetNodeId, cameraTargetPosition) =>
-              handleHotspotNavigate(targetNodeId, cameraTargetPosition)
-            }
-            hotspotNavigation={hotspot}
-          />
-        ))}
-        {hotspotModels.map((hotspot, index) => (
-          <GroundHotspotModel key={index} hotspotModel={hotspot} />
-        ))}
-        {hotspotMedias.map((hotspot, index) => (
-          <VideoMeshComponent key={index} hotspotMedia={hotspot} />
-        ))}
+        <Suspense fallback={null}>
+          {isTextureReady &&
+            hotspotModels.map((hotspot) => (
+              <GroundHotspotModel
+                key={hotspot.id}
+                hotspotModel={hotspot}
+                blockUpdate={true}
+              />
+            ))}
+        </Suspense>
+        <Suspense fallback={null}>
+          {isTextureReady &&
+            hotspotMedias.map((hotspot) => (
+              <VideoMeshComponent
+                key={hotspot.id}
+                hotspotMedia={hotspot}
+                blockUpdate={true}
+              />
+            ))}
+        </Suspense>
       </Canvas>
     );
   }

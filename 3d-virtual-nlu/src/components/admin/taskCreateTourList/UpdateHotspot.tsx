@@ -15,7 +15,7 @@ interface UpdateHotspotProps {
   hotspotId: string | null;
   setHotspotId: (value: string | null) => void;
   onPropsChange: (value: BaseHotspot) => void;
-  setChangeCorner: (value: boolean) => void;
+  limitNav: boolean;
 }
 
 // Component cho Task3
@@ -23,28 +23,27 @@ const UpdateHotspot = ({
   hotspotId,
   setHotspotId,
   onPropsChange,
-  setChangeCorner,
+  limitNav,
 }: UpdateHotspotProps) => {
   const propHotspot = useSelector(
     (state: RootState) => state.hotspots.hotspotList
-  ).find((h) => h.id == hotspotId);
+  ).find((h) => h.id === hotspotId);
+
+  const iconObj = useSelector((state: RootState) => state.data.icons).find(
+    (i) => i.id === propHotspot?.iconId
+  );
 
   const [isUpdate, setIsUpdate] = useState(true);
   /**
    * Vấn đề phải đợi select đủ dữ liệu mới render
    * Tránh truyền null/ underfine khi chưa có dữ liệu
    */
-  if (!propHotspot) {
+  if (!propHotspot || propHotspot === undefined) {
     return null;
   }
   const currentType = propHotspot?.type; // State để lưu index của type đang mở
 
   return (
-    // <div
-    //   className={`${styleCTs.task_container} ${
-    //     hotspotId != null ? styleCTs.show : ""
-    //   }`}
-    // >
     <div className={styleCTs.task_content}>
       <div className={styles.select_header}>
         <FaAngleLeft
@@ -52,20 +51,30 @@ const UpdateHotspot = ({
             setHotspotId(null);
           }}
         />
+        <h3>Cập nhật</h3>
       </div>
       <div className={styles.task3}>
         {currentType != 3 ? (
           <>
-            <ConfigIcon
-              propHotspot={propHotspot}
-              isUpdate={isUpdate}
-              onPropsChange={onPropsChange}
-              currentHotspotType={currentType ?? null}
-            />
+            {propHotspot && propHotspot !== undefined && (
+              <ConfigIcon
+                type={iconObj.type}
+                propHotspot={propHotspot}
+                isUpdate={isUpdate}
+                onPropsChange={onPropsChange}
+                currentHotspotType={propHotspot.type ?? null}
+              />
+            )}
+
             {(() => {
               switch (currentType) {
                 case 1:
-                  return <TypeNavigation hotspotNav={propHotspot} />;
+                  return (
+                    <TypeNavigation
+                      hotspotNav={propHotspot}
+                      limitNav={limitNav}
+                    />
+                  );
                 case 2:
                   return <TypeInfomation hotspotInfo={propHotspot} />;
                 case 4:
@@ -77,14 +86,10 @@ const UpdateHotspot = ({
           </>
         ) : (
           <>
-            <TypeMedia
-              setChangeCorner={setChangeCorner}
-              hotspotMedia={propHotspot}
-            />
+            <TypeMedia hotspotMedia={propHotspot} />
           </>
         )}
       </div>
-      {/* </div> */}
     </div>
   );
 };

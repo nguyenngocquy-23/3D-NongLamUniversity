@@ -3,6 +3,7 @@ import axios from "axios";
 import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../Store";
+import { API_URLS, DEFAULT_AVATAR } from "../../env";
 
 // Kiểu dữ liệu người dùng
 export interface User {
@@ -32,14 +33,51 @@ const initialState: AuthState = {
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (
-    { username, email, password }: { username: string; email: string; password: string },
+    { username, email, password, avatar }: { username: string; email: string; password: string; avatar: string },
     thunkAPI
   ) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/register", {
+      const response = await axios.post(API_URLS.REGISTER, {
         username,
         email,
         password,
+        avatar,
+      });
+
+      if (!response.data) {
+        throw new Error(
+          response.data.message || "Invalid username or password"
+        );
+      }
+      sessionStorage.setItem("userId", response.data);
+      return response.data;
+    } catch (error: any) {
+      if (error.code === "ERR_NETWORK") {
+        return thunkAPI.rejectWithValue(
+          "Không thể kết nối đến server. Vui lòng thử lại sau."
+        );
+      }
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message ||
+          "Tài khoản hoặc mật khẩu không hợp lệ. Vui lòng thử lại."
+      );
+    }
+  }
+);
+
+// Thunk tạo tài khoản admin
+export const createAdminAccount = createAsyncThunk(
+  "auth/createAdminAccount",
+  async (
+    { username, email, password, avatar }: { username: string; email: string; password: string; avatar: string },
+    thunkAPI
+  ) => {
+    try {
+      const response = await axios.post(API_URLS.CREATE_ADMIN, {
+        username,
+        email,
+        password,
+        avatar,
       });
 
       if (!response.data) {
@@ -71,7 +109,7 @@ export const verifyUser = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/authenticate/verifyEmail", {
+      const response = await axios.post(API_URLS.VERIFY, {
         userId,
         token,
       });
@@ -104,7 +142,7 @@ export const forgotPassword = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/user/forgotPassword", {
+      const response = await axios.post(API_URLS.FORGOT_PASSWORD, {
         email
       });
 
@@ -136,7 +174,7 @@ export const loginUser = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/login", {
+      const response = await axios.post(API_URLS.LOGIN, {
         username,
         password,
       });
@@ -148,7 +186,7 @@ export const loginUser = createAsyncThunk(
       }
 
       const userResponse = await axios.post(
-        "http://localhost:8080/api/user",
+        API_URLS.USER,
         { username },
         {
           headers: {
@@ -182,6 +220,31 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+
+// Thunk đăng nhập bằng googl
+export const loginWithGoogle = createAsyncThunk(
+  "auth/loginWithGoogle",
+  async (idToken: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(API_URLS.LOGIN_BY_GOOGLE, idToken, {
+        headers: { "Content-Type": "text/plain" },
+      });
+
+      const user = response.data.data.user;
+      if(user.avatar === null || user.avatar === "") {
+        user.avatar = DEFAULT_AVATAR;
+      }
+      return {
+        user: user,
+        token: response.data.data.token,
+      };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Google login failed");
+    }
+  }
+);
+
+
 // Thunk cập nhật user
 export const fetchUser = createAsyncThunk(
   "auth/fetchUser",
@@ -190,9 +253,8 @@ export const fetchUser = createAsyncThunk(
     thunkAPI
   ) => {
     try {
-      console.log('username :', username)
       const userResponse = await axios.post(
-        "http://localhost:8080/api/user",
+        API_URLS.USER,
         { username: username,
           password: null
          },
@@ -229,10 +291,7 @@ export const logoutUser = createAsyncThunk(
       const token = sessionStorage.getItem("token");
       sessionStorage.removeItem("user");
       sessionStorage.removeItem("token");
-      await axios.post("http://localhost:8080/api/authenticate/logout", { token });
-
-
-      // Xoá sessionStorage
+      await axios.post(API_URLS.LOGOUT, { token });
       return;
     } catch (error: any) {
       return rejectWithValue(
@@ -248,7 +307,7 @@ export const refreshToken = createAsyncThunk(
   async (token: string, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/authenticate/refresh",
+        API_URLS.REFRESH_TOKEN,
         {
           token,
         }
@@ -286,6 +345,23 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
+      
+      // LOGIN GOOGLE
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        sessionStorage.setItem("user", JSON.stringify(action.payload.user));
+        sessionStorage.setItem("token", action.payload.token);
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
 
       // FETCH USER
       .addCase(fetchUser.pending, (state) => {
@@ -311,6 +387,19 @@ const authSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(registerUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      
+      // CREATE ADMIN ACCOUNT
+      .addCase(createAdminAccount.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(createAdminAccount.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(createAdminAccount.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })

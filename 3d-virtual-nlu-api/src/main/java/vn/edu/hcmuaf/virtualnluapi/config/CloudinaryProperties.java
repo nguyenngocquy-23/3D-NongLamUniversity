@@ -19,5 +19,4 @@ public class CloudinaryProperties {
     public static final String apiKey = properties.getProperty("cloudinary.api_key");
     public static final String apiSecret = properties.getProperty("cloudinary.api_secret");
     public static final String uploadPanoFolder = properties.getProperty("cloudinary.folder_upload_pano");
-
 }

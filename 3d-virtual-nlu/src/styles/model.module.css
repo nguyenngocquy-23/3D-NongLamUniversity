@@ -1,8 +1,7 @@
 .container {
     position: fixed;
     top: 0;
-    /* left: -20vw; */
-    width: 98vw;
+    width: 100vw;
     height: 100%;
     z-index: 10000;
 }
@@ -33,11 +32,11 @@
     71% {
         transform: translateY(0);
     }
-    
+
     80% {
         transform: translateY(-15px);
     }
-    
+
     88% {
         transform: translateY(0);
     }
@@ -51,25 +50,21 @@
     }
 }
 
-.canvas{
+.canvas {
     /* background: radial-gradient(rgba(255, 255, 255, 1), rgba(0, 0, 0, 1)); */
     background: #242B33;
     position: absolute !important;
     top: 0;
     left: 20%;
     width: 80% !important;
-    border-bottom-right-radius: 10px;
-    border-top-right-radius: 10px;
     /* animation: bounceOnFall 1.5s ease-out; */
 }
 
 .option {
     position: relative;
     width: 20%;
-    height: 100% ;
+    height: 100%;
     background-color: #1A1E21;
-    border-bottom-left-radius: 10px;
-    border-top-left-radius: 10px;
 }
 
 .icon {
@@ -81,6 +76,7 @@
 
 .name_option {
     margin-left: 30px;
+    color: white;
 }
 
 .option_button:hover {
@@ -100,9 +96,10 @@
     transition: all .5s ease;
     outline: none !important;
     background-color: transparent;
+    color: white;
 }
 
-.model_info{
+.model_info {
     position: absolute;
     top: 20%;
     left: 50%;
@@ -111,11 +108,12 @@
     z-index: 2;
 }
 
-.name{
+.name {
     font-size: 50px;
     font-weight: 800;
 }
-.avatar{
+
+.avatar {
     width: 150px;
     height: 150px;
     transform: translateX(-75px);
@@ -130,7 +128,228 @@
     background-size: contain !important;
 }
 
-.username{
+.username {
     position: absolute;
     bottom: -40px;
+    white-space: nowrap;
+}
+
+.share_container {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    z-index: 1;
+}
+
+.share_button:focus {
+    border: none;
+    outline: none;
+}
+
+.share_button:hover {
+    background-color: #3A3F43;
+}
+
+.share_button {
+    border: none;
+    outline: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #1A1E21;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.edit_model_container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1rem;
+    opacity: 0;
+    width: 15rem;
+    height: 15rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    border-top-left-radius: 1rem;
+    border-bottom-left-radius: 1rem;
+}
+
+.label {
+    margin-right: 1rem;
+}
+
+.active {
+    background-color: #3A3F43;
+}
+
+.open_edit {
+    opacity: 1;
+}
+
+.vertical_slider {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100px;
+    height: 6px;
+    background: #ddd;
+    border-radius: 4px;
+    outline: none;
+    transform: rotate(-90deg);
+    /* Hoặc 270deg cũng được */
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+}
+
+.vertical_slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    font-size: 16px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    content: '☀️';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+}
+
+.vertical_slider::-moz-range-thumb {
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+
+@media screen and (max-width: 768px) {
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    .canvas {
+        position: relative !important;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        flex: 1;
+    }
+
+    .option {
+        width: 100%;
+        height: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .option_button:hover {
+        width: auto;
+        opacity: 0.7;
+    }
+
+    .option_button {
+        width: auto;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .icon {
+        position: static;
+        transform: none;
+        margin-right: 0.5rem;
+    }
+
+    .name_option {
+        margin-left: 0;
+    }
+
+    .model_info p {
+        display: none;
+    }
+
+    .model_info {
+        position: static;
+        width: 100%;
+        height: auto;
+        text-align: left;
+    }
+
+    .name {
+        font-size: 1.5rem;
+        word-break: break-word;
+    }
+
+    .description {
+        font-size: 1rem;
+    }
+
+    .avatar {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none;
+        background: none !important;
+        border: none !important;
+    }
+
+    .username {
+        position: static;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .share_container {
+        position: absolute;
+        flex-direction: row;
+        justify-content: center;
+        gap: 1rem;
+        bottom: 1rem;
+    }
+
+    .share_button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .share_icon {
+        font-size: 1.2rem;
+        color: white;
+    }
+
+    .edit_model_container {
+        position: static;
+        width: 100%;
+        height: auto;
+        padding: 1rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 0;
+        display: none;
+    }
+
+    .open_edit {
+        display: block;
+    }
 }

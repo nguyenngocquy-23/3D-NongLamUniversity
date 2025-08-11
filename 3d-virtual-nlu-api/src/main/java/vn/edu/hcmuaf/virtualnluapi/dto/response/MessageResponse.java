@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Builder
@@ -13,6 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class MessageResponse {
     int userId;
-    String username,content;
-    LocalDateTime createdAt;
+    String avatar, username,content;
+    Timestamp createdAt;
 }

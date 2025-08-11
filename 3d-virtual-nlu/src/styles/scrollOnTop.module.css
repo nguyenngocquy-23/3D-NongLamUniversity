@@ -1,6 +1,5 @@
 .button:hover {
     box-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);
-
 }
 
 @keyframes loopOn {
@@ -32,7 +31,7 @@
     padding: 10px 15px;
     font-size: 20px;
     border-radius: 50%;
-    background-color: #007bff;
+    background-color: #267026;
     color: #fff;
     border: none;
     cursor: pointer;

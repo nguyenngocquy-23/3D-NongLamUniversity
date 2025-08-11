@@ -5,6 +5,7 @@ import vn.edu.hcmuaf.virtualnluapi.config.SystemConstant;
 import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,9 +18,14 @@ public class UserDao {
     }
 
     public User findByUsername(String username) {
+        String sql = """
+                SELECT id, username, password, email, roleId, status, avatar, createdAt 
+                FROM users 
+                WHERE username = :username
+                """;
         Optional<User> user = ConnectionPool.getConnection().withHandle(handle ->
-                handle.createQuery("SELECT * FROM users WHERE username = ?")
-                        .bind(0, username).mapToBean(User.class).stream().findFirst()
+                handle.createQuery(sql)
+                        .bind("username", username).mapToBean(User.class).stream().findFirst()
         );
         return user.orElse(null);
     }
@@ -33,19 +39,24 @@ public class UserDao {
     }
 
     public User findById(int id) {
-        Optional<User> user = ConnectionPool.getConnection().withHandle(handle ->
+        return ConnectionPool.getConnection().withHandle(handle ->
                 handle.createQuery("select * from users where id = ?")
-                        .bind(0, id).mapToBean(User.class).stream().findFirst());
-        return user.orElse(null);
+                        .bind(0, id).mapToBean(User.class).one());
     }
 
     public boolean insert(User user) {
-        String sql = "INSERT INTO users (roleId, email, username, password, status, createdAt ) " +
-                "VALUES(:roleId, :email, :username, :password, :status , :createdAt)";
+        String sql = "INSERT INTO users (roleId, email, username, password, status, avatar, createdAt ) " +
+                "VALUES(:roleId, :email, :username, :password, :status, :avatar , :createdAt)";
         try {
             int result = ConnectionPool.getConnection().inTransaction(handle ->
                     handle.createUpdate(sql)
-                            .bindBean(user)
+                            .bind("roleId", user.getRoleId())
+                            .bind("email", user.getEmail())
+                            .bind("username", user.getUsername())
+                            .bind("password", user.getPassword())
+                            .bind("status", user.getStatus())
+                            .bind("avatar", user.getAvatar())
+                            .bind("createdAt", LocalDateTime.now())
                             .execute()
             );
             return result > 0;
@@ -146,8 +157,13 @@ public class UserDao {
     }
 
     public List<User> getAllUser() {
+        String sql = """
+                SELECT id, username, roleId, email, status, avatar, createdAt 
+                FROM users 
+                WHERE roleId in (1,3)
+                """;
         return ConnectionPool.getConnection().withHandle(handle -> {
-            return handle.createQuery("select id, username, email, status, createdAt from users where roleId = 1")
+            return handle.createQuery(sql)
                     .mapToBean(User.class)
                     .list();
         });
@@ -218,6 +234,60 @@ public class UserDao {
             return false;
         }
     }
+
+    public boolean toggleLockStatus(int userId, int locked) {
+        try {
+            int result = ConnectionPool.getConnection().inTransaction(handle ->
+                    handle.createUpdate("UPDATE users SET status = :status WHERE id = :id")
+                            .bind("status", locked)
+                            .bind("id", userId)
+                            .execute());
+            return result > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public int countMonthRegister() {
+        String sql = """
+                    SELECT COUNT(*)
+                    FROM users
+                    WHERE roleId = 1 AND createdAt >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .mapTo(Integer.class)
+                    .one();
+        });
+    }
+
+    public int countAllRegister() {
+        String sql = """
+                    SELECT COUNT(*)
+                    FROM users
+                    WHERE roleId = 1
+                """;
+        return ConnectionPool.getConnection().withHandle(handle -> {
+            return handle.createQuery(sql)
+                    .mapTo(Integer.class)
+                    .one();
+        });
+    }
+
+    public User findByEmail(String email) {
+        String sql = """
+                SELECT id, username, email, roleId, status, avatar, createdAt 
+                FROM users 
+                WHERE email = :email
+                """;
+        Optional<User> user = ConnectionPool.getConnection().withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("email", email).mapToBean(User.class).stream().findFirst()
+        );
+        return user.orElse(null);
+    }
+
 
 //    public List<String> getAllAdminEmail() {
 //        return ConnectionPool.getConnection().withHandle(n -> {

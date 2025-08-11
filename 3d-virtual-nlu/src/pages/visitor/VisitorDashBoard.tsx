@@ -1,34 +1,426 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import styles from "../../styles/visitor/dashboard.module.css";
-import { FaChartColumn } from "react-icons/fa6";
+import {
+  FaEye,
+  FaEyeSlash,
+  FaHourglassHalf,
+  FaRegCommentDots,
+} from "react-icons/fa6";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import Swal from "sweetalert2";
+import { fetchUser } from "../../redux/slices/AuthSlice";
+import { AppDispatch, RootState } from "../../redux/Store";
+import { RiEdit2Line } from "react-icons/ri";
+import { API_URLS } from "../../env";
+import {
+  fetchNodeOfUser,
+  fetchPrivateNodeOfUser,
+} from "../../redux/slices/DataSlice";
+import { FaMapMarkedAlt, FaShareAlt } from "react-icons/fa";
+
+interface CloudinaryUploadResp {
+  originalFileName?: string;
+  url?: string;
+}
+
+interface ApiResponse<T> {
+  statusCode: number;
+  message: string;
+  data: T;
+}
 
 const VisitorDashBoard = () => {
+  // const userJson = sessionStorage.getItem("user");
+  // const user = userJson ? JSON.parse(userJson) : null;
+  const [user, setUser] = useState(() => {
+    const userJson = sessionStorage.getItem("user");
+    return userJson ? JSON.parse(userJson) : null;
+  });
+
+  const [username, setUsername] = useState(user.username || "");
+  const [email, setEmail] = useState(user.email || "");
+
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
+
+  const dispatch = useDispatch<AppDispatch>();
+  const [avatar, setAvatar] = useState(user.avatar || "");
+
+  useEffect(() => {
+    dispatch(fetchNodeOfUser(user.id));
+    dispatch(fetchPrivateNodeOfUser(user.id));
+  }, [dispatch]);
+
+  const nodes = useSelector((state: RootState) => state.data.nodeOfUser);
+  const privateNodes = useSelector(
+    (state: RootState) => state.data.privateNodeOfUser
+  );
+
+  const [totalComments, setTotalComments] = useState<number | null>(null);
+  const [totalViews, setTotalViews] = useState<number | null>(null);
+  const [totalDownloads, setTotalDownloads] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchTotalComments = async () => {
+      try {
+        const response = await axios.post(API_URLS.NUM_COMMENT_OF_USER, {
+          userId: user.id,
+        });
+        setTotalComments(response.data.data); // hoặc response.data nếu trả về số trực tiếp
+      } catch (error) {
+        console.error("Lỗi khi lấy tổng số comment:", error);
+      }
+    };
+
+    const fetchTotalViews = async () => {
+      try {
+        const response = await axios.post(API_URLS.NUM_VIEW_OF_USER, {
+          userId: user.id,
+        });
+        setTotalViews(response.data.data); // hoặc response.data nếu trả về số trực tiếp
+      } catch (error) {
+        console.error("Lỗi khi lấy tổng số view:", error);
+      }
+    };
+
+    const fetchTotalDownloads = async () => {
+      try {
+        const response = await axios.post(API_URLS.NUM_DOWNLOAD_MODEL_OF_USER, {
+          userId: user.id,
+        });
+        setTotalDownloads(response.data.data); // hoặc response.data nếu trả về số trực tiếp
+      } catch (error) {
+        console.error("Lỗi khi lấy tổng số view:", error);
+      }
+    };
+
+    fetchTotalComments();
+    fetchTotalViews();
+    fetchTotalDownloads();
+  }, [user.id]);
+
+  const handleFileChange = async (e: any) => {
+    console.log("handle file change");
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const resp = await axios.post<ApiResponse<CloudinaryUploadResp>>(
+        API_URLS.UPLOAD_CLOUD,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      if (resp.data.statusCode === 200) {
+        const item = resp.data.data!;
+        if (item.originalFileName && item.url) {
+          setAvatar(item.url);
+          // Gửi lên server hoặc xử lý tiếp
+          const response = await axios.post(API_URLS.CHANGE_AVATAR, {
+            userId: user.id,
+            avatar: item.url,
+          });
+          if (response.data.data) {
+            Swal.fire({
+              title: "Thành công",
+              text: "Cập nhật ảnh đại diện thành công",
+              icon: "success",
+              position: "top-end",
+              toast: true,
+              timer: 2000,
+              timerProgressBar: true,
+              showConfirmButton: false,
+            });
+            dispatch(fetchUser(user.username));
+          }
+        }
+      } else {
+        Swal.fire({
+          title: "Thất bại",
+          text: "Cập nhật ảnh đại diện thất bại",
+          icon: "warning",
+          position: "top-end",
+          toast: true,
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+        });
+        return;
+      }
+    } catch (error: any) {
+      Swal.fire({
+        title: "Thất bại",
+        text: "Cập nhật ảnh đại diện thất bại",
+        icon: "warning",
+        position: "top-end",
+        toast: true,
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+
+      console.error("[UploadFile Error:]", error.message);
+    }
+  };
+
+  const handleChangeProfile = async () => {
+    if (username.trim() == "" || email.trim() == "") {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng nhập đầy đủ thông tin",
+      });
+      return;
+    }
+    if (username.trim() == user.username && email.trim() == user.email) {
+      Swal.fire({
+        icon: "info",
+        title: "Không có gì thay đổi",
+        text: "Vui lòng nhập thông tin mới",
+      });
+      return;
+    }
+
+    const response = await axios.post(API_URLS.CHANGE_PROFILE, {
+      userId: user.id,
+      username: username,
+      email: email,
+    });
+    if (response.data.data) {
+      const updatedUser = {
+        ...user,
+        username: username,
+        email: email,
+      };
+      sessionStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Cập nhật thông tin thành công",
+      });
+      dispatch(fetchUser(username));
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Tên tài khoản hoặc email đã tồn tại",
+      });
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (password.trim() == "" || newPassword.trim() == "") {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng nhập đầy đủ thông tin",
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      return;
+    }
+    if (password.length < 6 || newPassword.length < 6) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Mật khẩu có độ dài từ 6 ký tự",
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      return;
+    }
+    const passwordPatern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W]).+$/;
+    if (!passwordPatern.test(newPassword)) {
+      Swal.fire({
+        icon: "error",
+        title: "Mật khẩu chưa hợp lệ",
+        text: "Chứa chữ in hoa, số và ký tự đặc biệt",
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      return;
+    }
+    if (password.trim() == newPassword.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Cảnh báo",
+        text: "Mật khẩu đã tồn tại",
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      return;
+    }
+    if (confirmPassword.trim() != newPassword.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Xác nhận mật khẩu không chính xác",
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      return;
+    }
+
+    const response = await axios.post(API_URLS.CHANGE_PASSWORD, {
+      userId: user.id,
+      password: password,
+      newPassword: newPassword,
+    });
+    if (response.data.data) {
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Đổi mật khẩu thành công",
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+      setPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Đổi mật khẩu thất bại.",
+        text: "Kiểm tra lại mật khẩu",
+        toast: true,
+        timer: 2000,
+        position: "top-end",
+        showConfirmButton: false,
+        timerProgressBar: true,
+      });
+    }
+  };
   return (
     <div className={styles.container}>
-      <div className={styles.category}>
-        <FaChartColumn />
-        <span className={styles.title}>Số tour</span>
-        <span>2</span>
+      <div className={styles.profile}>
+        <div
+          className={styles.avatar_image}
+          style={{
+            background: `url(${avatar})`,
+          }}
+        >
+          <label className={styles.custom_file_input}>
+            <RiEdit2Line />
+            <input type="file" accept="image/*" onChange={handleFileChange} />
+          </label>
+        </div>
+        <div className={styles.account_info}>
+          <h2 className={styles.title}>Thông tin tài khoản</h2>
+          <input
+            type="text"
+            placeholder="Tên tài khoản"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            disabled
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <button className={styles.button} onClick={handleChangeProfile}>
+            Lưu thông tin
+          </button>
+        </div>
+        <div className={styles.change_password}>
+          <h2 className={styles.title}>Đổi mật khẩu</h2>
+          <div className={styles.password_container}>
+            <input
+              type={showPass ? "text" : "password"}
+              placeholder="Mật khẩu"
+              value={password}
+              disabled={user.password == null || user.password == ""}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className={styles.show_password}
+              onClick={() => setShowPass((pre) => !pre)}
+            >
+              {showPass ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+          <input
+            type={showPass ? "text" : "password"}
+            placeholder="Mật khẩu mới"
+            value={newPassword}
+            disabled={user.password == null || user.password == ""}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+          <input
+            type={showPass ? "text" : "password"}
+            placeholder="Nhập lại mật khẩu mới"
+            value={confirmPassword}
+            disabled={user.password == null || user.password == ""}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+          <button
+            className={styles.button}
+            onClick={handleChangePassword}
+            style={{
+              pointerEvents:
+                user.password == null || user.password === "" ? "none" : "auto",
+            }}
+          >
+            Đổi mật khẩu
+          </button>
+        </div>
       </div>
-      <div className={styles.category}>
-        <FaChartColumn />
-        <span className={styles.title}>Số lượt xem</span>
-        <span>2.000</span>
-      </div>
-      <div className={styles.category}>
-        <FaChartColumn />
-        <span className={styles.title}>Số bình luận</span>
-        <span>20</span>
-      </div>
-      <div className={styles.category}>
-        <FaChartColumn />
-        <span className={styles.title}>Số lượt chia sẻ</span>
-        <span>20</span>
-      </div>
-      <div className={styles.category}>
-        <FaChartColumn />
-        <span className={styles.title}>Đang được phê duyệt</span>
-        <span>1</span>
+      <div className={styles.dashboard}>
+        <div className={styles.category}>
+          <FaMapMarkedAlt />
+          <span className={styles.title}>Số tour hoạt động</span>
+          <span>{nodes.length}</span>
+        </div>
+        <div className={styles.category}>
+          <FaEye />
+          <span className={styles.title}>Số lượt xem</span>
+          <span>{totalViews !== null ? totalViews : "Đang tải..."}</span>
+        </div>
+        <div className={styles.category}>
+          <FaRegCommentDots />
+          <span className={styles.title}>Số bình luận</span>
+          <span>{totalComments !== null ? totalComments : "Đang tải..."}</span>
+        </div>
+        <div className={styles.category}>
+          <FaShareAlt />
+          <span className={styles.title}>Số lượt chia sẻ</span>
+          <span>
+            {totalDownloads !== null ? totalDownloads : "Đang tải..."}
+          </span>
+        </div>
+        <div className={styles.category}>
+          <FaHourglassHalf />
+          <span className={styles.title}>Đang đợi phê duyệt</span>
+          <span>{privateNodes.length}</span>
+        </div>
       </div>
     </div>
   );

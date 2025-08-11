@@ -1,24 +1,45 @@
 .contain_input {
-    display: flex;
-    margin-top: 10px;
-    width: 100%;
-    margin-bottom: 20px;
+  margin-top: 10px;
+  width: 100%;
 }
 
 .label {
-    display: inline-block;
-    width: 150px;
-    margin-right: 20px;
+  display: inline-block;
+  width: 100px;
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
 }
 
-.name_input, .descript_input {
-    padding: 5px;
+.name_input,
+.descript_input {
+  padding: 5px;
 }
+
 .name_input {
-    width: 70%;
+  flex: 1;
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .descript_input {
-    width: 70%;
-    height: 100px;
+  width: 70%;
+  height: 100px;
+}
+
+.error {
+  border: 1px solid red;
+}
+
+.guide_icon {
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+.guide_icon:hover {
+  color: #267026;
 }

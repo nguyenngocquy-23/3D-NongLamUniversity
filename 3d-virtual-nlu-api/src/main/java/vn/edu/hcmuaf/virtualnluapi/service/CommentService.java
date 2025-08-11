@@ -39,4 +39,31 @@ public class CommentService {
             return null;
         }
     }
+
+    public boolean updateComment(UpdateCommentRequest request) {
+        try {
+            return commentDao.updateComment(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean removeComment(CommentIdRequest request) {
+        try {
+            return commentDao.removeComment(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public int getNumOfUser(UserIdRequest request) {
+        try {
+            return commentDao.getNumOfUser(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

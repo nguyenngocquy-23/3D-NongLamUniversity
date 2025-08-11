@@ -1,5 +1,9 @@
 package vn.edu.hcmuaf.virtualnluapi.service;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -15,11 +19,13 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import vn.edu.hcmuaf.virtualnluapi.config.JwtProperties;
+import vn.edu.hcmuaf.virtualnluapi.config.SystemConstant;
 import vn.edu.hcmuaf.virtualnluapi.dao.EmailVerificationDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.RoleDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserLoginRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserRegisterRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.GoogleLoginResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.LoginResponse;
 import vn.edu.hcmuaf.virtualnluapi.entity.InvalidatedToken;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
@@ -30,8 +36,11 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
+
+import static vn.edu.hcmuaf.virtualnluapi.config.MailProperties.CLIENT_ID;
 
 @Slf4j
 @ApplicationScoped
@@ -116,9 +125,29 @@ public class AuthenticationService {
         User user = User.builder()
                 .username(userRegisterDTO.getUsername())
                 .password(encryptPassword)
+                .avatar(userRegisterDTO.getAvatar())
                 .status((byte) 1)
                 .email(userRegisterDTO.getEmail())
                 .roleId(roleDao.getRoleByName("USER").getId())
+                .createdAt(Timestamp.valueOf(LocalDateTime.now()))
+                .build();
+        //signup user
+        if (!userDao.insert(user)) {
+            return null;
+        }
+        return userDao.findByUsername(user.getUsername());
+    }
+
+    public User createAdminAccount(UserRegisterRequest userRegisterDTO) {
+        // encrypt Password
+        String encryptPassword = EncryptUtil.hashPassword(userRegisterDTO.getPassword());
+        User user = User.builder()
+                .username(userRegisterDTO.getUsername())
+                .password(encryptPassword)
+                .avatar(userRegisterDTO.getAvatar())
+                .status((byte) 1)
+                .email(userRegisterDTO.getEmail())
+                .roleId(SystemConstant.ADMIN_ROLE_ID)
                 .createdAt(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
         //signup user
@@ -180,6 +209,47 @@ public class AuthenticationService {
         } catch (JOSEException e) {
             log.error("Error when generate token");
             throw new RuntimeException(e);
+        }
+    }
+
+    public GoogleLoginResponse loginWithGoogle(String idTokenString) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    GsonFactory.getDefaultInstance()
+            ).setAudience(Collections.singletonList(CLIENT_ID))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+
+                String email = payload.getEmail();
+                String name = (String) payload.get("name");
+
+                User user = userDao.findByEmail(email);
+                if (user == null) {
+                    user = new User();
+                    user.setEmail(email);
+                    user.setUsername(name);
+                    user.setStatus((byte) 1);
+                    user.setRoleId(SystemConstant.USER_ROLE_ID);
+                    user.setAvatar("");
+                    user.setPassword("");
+                    userDao.insert(user);
+                }
+
+                String token = generateToken(user);
+                return new GoogleLoginResponse().builder()
+                        .token(token)
+                        .authenticated(true)
+                        .user(user)
+                        .build();
+            } else {
+                throw new RuntimeException("Invalid ID token");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Google Login error", e);
         }
     }
 }

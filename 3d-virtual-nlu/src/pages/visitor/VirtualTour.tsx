@@ -3,20 +3,19 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import Chat from "../../features/Chat.tsx";
 import { useNavigate } from "react-router-dom";
-import { IoIosCloseCircle } from "react-icons/io";
+import { IoIosCloseCircle, IoIosCompass } from "react-icons/io";
 import FooterTour from "../../components/visitor/FooterTour.tsx";
 import LeftMenuTour from "../../components/visitor/LeftMenuTour.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store.ts";
 import {
-  fetchActiveNode,
   fetchDefaultNodes,
   fetchIcons,
-  fetchMasterNodes,
   fetchPreloadNodes,
 } from "../../redux/slices/DataSlice.ts";
 import Waiting from "../../components/Waiting.tsx";
 import {
+  addHotspotsFromResponse,
   HotspotInformation,
   HotspotMedia,
   HotspotModel,
@@ -26,10 +25,38 @@ import TourCanvas from "../../components/visitor/TourCanvas.tsx";
 import { RADIUS_SPHERE } from "../../utils/Constants.ts";
 import CommentBox from "../../components/visitor/CommentBox.tsx";
 import MapLeaflet from "../../components/visitor/MapLeaflet.tsx";
-import { FaAngleLeft, FaMap, FaScreenpal, FaX } from "react-icons/fa6";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  buildImageUrlWithQuality,
+  ImageQuality,
+} from "../../utils/getCloudinaryURL.ts";
+import { vectorComponents } from "three/webgpu";
+import {
+  FaAngleLeft,
+  FaBook,
+  FaCompass,
+  FaMap,
+  FaPause,
+  FaPlay,
+  FaScreenpal,
+  FaX,
+} from "react-icons/fa6";
 import { MdOpenInFull } from "react-icons/md";
+import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper.ts";
+import { addPanoramasFromResponse } from "../../redux/slices/PanoramaSlice.ts";
+import Swal from "sweetalert2";
+import useTrackTourView from "../../hooks/useTrackTourView.ts";
+import {
+  useImageCache,
+  useModelCache,
+} from "../../contexts/ImageCacheContext.tsx";
+import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import { useGLTF } from "@react-three/drei";
+import axios from "axios";
+import { API_URLS } from "../../env.ts";
+import { FaAngleDoubleLeft, FaBookOpen } from "react-icons/fa";
 
-/**
+/*
  * Nhằm mục đích tái sử dụng Virtual Tour.
  * => Nhận vào 1 texture url (Test)
  * Chúng ta sẽ cần nhận vào 1 danh sách thông tin url để hiển thị
@@ -38,20 +65,18 @@ import { MdOpenInFull } from "react-icons/md";
  * 2. Hiển thị màn hình cho phép người dùng di chuyển tại giao diện.
  */
 const VirtualTour = () => {
+  const imageRef = useImageCache(); //Sử dụng trong context phục vụ cho việc cache lần đầu.
+  const modelRef = useModelCache();
+
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((state: RootState) => state.data.status);
   const user = useSelector((state: RootState) => state.auth.user);
-
-  useEffect(() => {
-    dispatch(fetchMasterNodes());
-    dispatch(fetchIcons());
-    dispatch(fetchDefaultNodes());
-  }, [dispatch]);
   const reduxDefaultNode = useSelector(
     (state: RootState) => state.data.defaultNode
   );
 
   const icons = useSelector((state: RootState) => state.data.icons);
+
   // Fallback: lấy từ localStorage nếu Redux chưa có dữ liệu
   const nodeToRender = useMemo(() => {
     if (reduxDefaultNode) return reduxDefaultNode;
@@ -59,9 +84,45 @@ const VirtualTour = () => {
     return stored ? JSON.parse(stored) : null;
   }, [reduxDefaultNode]);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [imageVersion, setImageVersion] = useState<number>(0);
+  const [spaces, setSpaces] = useState<any[]>([]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchSpaces = async () => {
+      try {
+        const response = await axios.get(API_URLS.GET_ALL_SPACES);
+        setSpaces(response.data.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách spaces:", error);
+      } finally {
+        //loading
+      }
+    };
+
+    fetchSpaces();
+  }, []);
+
+  useEffect(() => {
+    dispatch(fetchIcons());
+    dispatch(fetchDefaultNodes());
+  }, [dispatch]);
+
+  useTrackTourView(nodeToRender.id);
+
   useEffect(() => {
     dispatch(fetchPreloadNodes(nodeToRender.id));
   }, [nodeToRender]);
+
   const hotspotModels = useMemo(() => {
     return (nodeToRender?.modelHotspots as HotspotModel[]) || [];
   }, [nodeToRender]);
@@ -78,26 +139,14 @@ const VirtualTour = () => {
     return (nodeToRender?.infoHotspots as HotspotInformation[]) || [];
   }, [nodeToRender]);
 
-  if (
-    !hotspotModels ||
-    !hotspotMedias ||
-    !hotspotNavigations ||
-    !hotspotInformations
-  ) {
-    return null;
-  }
-
-  // const defaultNode = sessionStorage.getItem("defaultNode");
-  // let defaultNode = null;
-  // if (defaultNodeJson) defaultNode = JSON.parse(defaultNodeJson);
-
-  const [isRotation, setIsRotation] = useState(nodeToRender.autoRotate || true);
+  const [isRotation, setIsRotation] = useState(true);
 
   const [isFullscreen, setIsFullscreen] = useState(false); // Trạng thái fullscreen
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isMenuPin, setIsMenuPin] = useState(false);
 
-  const [cursor, setCursor] = useState("grab"); // State để điều khiển cursor
+  const [cursor, setCursor] = useState("grab");
 
   const [isMuted, setIsMuted] = useState(false); // Trạng thái âm thanh
 
@@ -105,7 +154,17 @@ const VirtualTour = () => {
 
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(
     null
-  ); // Giữ lại đối tượng
+  );
+
+  const [accessing, setAccessing] = useState(0);
+
+  const [isOpenBox, setIsOpenBox] = useState(false);
+
+  useEffect(() => {
+    if(isOpenBox) {
+      setIsOpenRadar(false);
+    }
+  }, [isOpenBox]);
 
   /**
    * Lớp chờ để ẩn các tiến trình render
@@ -114,9 +173,15 @@ const VirtualTour = () => {
   const [isWaiting, setIsWaiting] = useState(true);
 
   /**
+   * State lưu trạng thái đóng mở hộp radar
+   * Radar sẽ hiển thị các điểm tham quan
+   */
+  const [isOpenRadar, setIsOpenRadar] = useState(false);
+
+  /**
    * State để mở hộp thông tin
    */
-  const [isOpenInfo, setIsOpenInfo] = useState(true);
+  const [isOpenInfo, setIsOpenInfo] = useState(false);
 
   const [hideMap, setHideMap] = useState(false);
   const [fullMap, setFullMap] = useState(false);
@@ -126,19 +191,8 @@ const VirtualTour = () => {
    */
   const mapRef = useRef<L.Map | null>(null);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsWaiting(false); // ẩn trang chờ
-    }, 5000);
-
-    return () => clearTimeout(timeout);
-  }, []);
-
   const navigate = useNavigate();
   const sphereRef = useRef<THREE.Mesh | null>(null);
-  const [sphereCenter, setSphereCenter] = useState<[number, number, number]>([
-    0, 0, 0,
-  ]);
 
   const [targetPosition, setTargetPosition] = useState<
     [number, number, number] | null
@@ -148,10 +202,6 @@ const VirtualTour = () => {
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  useEffect(() => {
-    console.log("sphereRef.current trong VirtualTour:", sphereRef.current);
-  }, [sphereRef.current]);
-  // const [hoveredHotspot, setHoveredHotspot] = useState<THREE.Mesh | null>(null);
   useEffect(() => {
     let resizeTimer: number;
 
@@ -198,7 +248,6 @@ const VirtualTour = () => {
     // const canvas = canvasRef.current;
     // if(!canvas) return;
     const containerCanvas = document.querySelector(`.${styles.tourContainer}`);
-    console.log(containerCanvas);
     if (!containerCanvas) return;
     if (!isFullscreen) {
       requestFullscreen(containerCanvas); // Chuyển canvas sang fullscreen
@@ -210,16 +259,6 @@ const VirtualTour = () => {
   };
 
   const toggleInformation = () => {
-    const divInfo = document.querySelector<HTMLElement>(`.${styles.infoBox}`);
-    if (!divInfo) return;
-
-    if (isOpenInfo) {
-      divInfo.style.display = "none";
-      divInfo.style.bottom = "-100px";
-    } else {
-      divInfo.style.display = "block";
-      divInfo.style.bottom = "50px";
-    }
     setIsOpenInfo(!isOpenInfo);
   };
   // Hàm bật/tắt âm thanh
@@ -229,106 +268,470 @@ const VirtualTour = () => {
 
   // Hàm để đọc văn bản
   const readText = () => {
-    const textInfo = document.querySelector(`.${styles.infoBox}`)?.textContent;
-    console.log(textInfo);
+    const textInfo =
+      nodeToRender.description ??
+      "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh";
 
-    // Kiểm tra xem API SpeechSynthesis có sẵn không
-    if ("speechSynthesis" in window) {
-      // Kiểm tra nếu textInfo có giá trị trước khi đọc
-      if (textInfo) {
-        // Nếu không có utterance hiện tại, tạo một đối tượng mới
-        if (!utterance) {
-          const newUtterance = new SpeechSynthesisUtterance(textInfo);
-          // Bạn có thể tùy chỉnh các thuộc tính của lời nói
-          newUtterance.lang = "vi-VN"; // Chọn ngôn ngữ (ở đây là tiếng Việt)
-          newUtterance.pitch = 1; // Điều chỉnh độ cao của giọng nói
-          newUtterance.rate = 1; // Điều chỉnh tốc độ đọc
-
-          // Kiểm tra trạng thái âm thanh
-          if (isMuted) {
-            newUtterance.volume = 0; // Tắt âm thanh
-          } else {
-            newUtterance.volume = 1; // Bật âm thanh
-          }
-
-          // Lưu đối tượng utterance vào state
-          setUtterance(newUtterance);
-
-          // Khởi tạo việc đọc văn bản
-          speechSynthesis.speak(newUtterance);
-        } else {
-          // Nếu âm thanh bị tắt, tạm dừng việc phát âm thanh
-          if (isMuted) {
-            speechSynthesis.pause();
-          } else {
-            // Nếu âm thanh bật, tiếp tục phát âm thanh từ điểm dừng
-            speechSynthesis.resume();
-          }
-        }
-      } else {
-        console.error("Không tìm thấy văn bản để đọc.");
-      }
-    } else {
-      console.error("Speech synthesis API is not supported in this browser.");
+    if (!textInfo) {
+      return;
     }
+
+    if (!("speechSynthesis" in window)) {
+      return;
+    }
+
+    const speak = (voiceList: any) => {
+      const newUtterance = new SpeechSynthesisUtterance(textInfo);
+      newUtterance.pitch = 1;
+      newUtterance.rate = 1;
+      newUtterance.lang = "vi-VN";
+
+      const vietnameseVoice =
+        voiceList.find(
+          (v: any) =>
+            v.lang === "vi-VN" && v.name.toLowerCase().includes("google")
+        ) || voiceList.find((v: any) => v.lang === "vi-VN");
+
+      if (vietnameseVoice) {
+        newUtterance.voice = vietnameseVoice;
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "⚠️ Không tìm thấy giọng tiếng Việt",
+          text: "Vui lòng cài đặt giọng tiếng Việt cho trình duyệt.",
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+      }
+
+      newUtterance.volume = isMuted ? 0 : 1;
+
+      setUtterance(newUtterance);
+      speechSynthesis.speak(newUtterance);
+    };
+
+    const waitForVoices = (
+      callback: (voices: SpeechSynthesisVoice[]) => void
+    ) => {
+      const voices = speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        callback(voices);
+      } else {
+        const interval = setInterval(() => {
+          const voicesNow = speechSynthesis.getVoices();
+          if (voicesNow.length > 0) {
+            clearInterval(interval);
+            callback(voicesNow);
+          }
+        }, 100);
+      }
+    };
+
+    waitForVoices((voices) => {
+      speak(voices);
+    });
   };
 
-  const handleMouseDown = () => {
-    setCursor((prev) => (prev !== "grabbing" ? "grabbing" : prev));
-  };
-
-  const handleMouseUp = () => {
-    setCursor((prev) => (prev !== "grab" ? "grab" : prev));
-  };
-
+  //Xử lý hiển thị Menu bên trái.
   const handleMouseEnterMenu = (event: any) => {
     const mouseX = event.clientX;
     const mouseY = event.clientY;
 
     const thresholdX = window.innerWidth * 0.05;
-    const thresholdY = window.innerHeight * 0.5;
+    const thresholdY = window.innerHeight * 0.4;
     if (mouseX < thresholdX && mouseY < thresholdY && !hoverMap) {
       setIsMenuVisible(true);
     }
   };
 
   const handleCloseMenu = (event: any) => {
+    if (isMenuPin) return;
     const mouse = event.clientX;
 
-    const threshold = 200; // width cua menu
+    const threshold = 300;
+
     if (mouse > threshold) {
       setIsMenuVisible(false);
     }
   };
 
   // Gọi hàm để đọc văn bản khi thay đổi trạng thái âm thanh
-  useEffect(() => {
-    readText();
-  }, [isMuted]);
+  const hasMounted = useRef(false);
 
   useEffect(() => {
-    setTimeout(() => {
-      window.dispatchEvent(new Event("resize"));
-    }, 50);
+    if (utterance) {
+      speechSynthesis.cancel(); // Dừng tất cả
+      const newUtterance = new SpeechSynthesisUtterance(utterance.text);
+      newUtterance.voice = utterance.voice;
+      newUtterance.lang = utterance.lang;
+      newUtterance.pitch = utterance.pitch;
+      newUtterance.rate = utterance.rate;
+      newUtterance.volume = isMuted ? 0 : 1;
+
+      setUtterance(newUtterance);
+      speechSynthesis.speak(newUtterance);
+    }
+  }, [isMuted]);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const invalidateTimers: ReturnType<typeof setTimeout>[] = [];
+
+  const clearTimers = () => {
+    invalidateTimers.forEach(clearTimeout);
+    invalidateTimers.length = 0;
+  };
+
+  const forceFixMap = () => {
+    const map = mapRef.current;
+    const wrapper = wrapperRef.current;
+    if (!map || !wrapper) return;
+
+    const isVisible =
+      wrapper.offsetParent !== null &&
+      wrapper.offsetWidth > 0 &&
+      wrapper.offsetHeight > 0;
+
+    if (!isVisible) return;
+
+    clearTimers();
+
+    [100, 300, 600].forEach((ms) => {
+      const t = setTimeout(() => {
+        map.invalidateSize();
+        map.setView(map.getCenter());
+      }, ms);
+      invalidateTimers.push(t);
+    });
+  };
+
+  // Khi fullMap thay đổi (zoom map to)
+  useEffect(() => {
+    forceFixMap();
+  }, [fullMap]);
+
+  // Khi map ẩn/hiện lại
+  useEffect(() => {
+    if (!hideMap) {
+      forceFixMap();
+    }
+  }, [hideMap]);
+
+  // Khi CSS transition (width/height) hoàn tất
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const onTransitionEnd = () => {
+      forceFixMap();
+    };
+
+    wrapper.addEventListener("transitionend", onTransitionEnd);
+    return () => {
+      wrapper.removeEventListener("transitionend", onTransitionEnd);
+    };
   }, []);
 
+  // ResizeObserver để bắt mọi thay đổi chiều rộng/thời điểm DOM ổn định
   useEffect(() => {
-    if (mapRef.current) {
-      setTimeout(() => {
-        mapRef.current!.invalidateSize();
-      }, 300); // chờ animation transition xong
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      forceFixMap();
+    });
+
+    resizeObserver.observe(wrapper);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
+  const preloadNodes = useSelector(
+    (state: RootState) => state.data.preloadNodes
+  );
+
+  useEffect(() => {
+    if (preloadNodes) {
+      const nodes = [nodeToRender, ...preloadNodes];
+      const { panoramaList, hotspotList } =
+        TourNodeRequestMapper.mapToPanoramaAndHotspots(nodes);
+
+      dispatch(addPanoramasFromResponse(panoramaList));
+      dispatch(addHotspotsFromResponse(hotspotList));
     }
-  }, [fullMap, hoverMap]);
+  }, [preloadNodes, nodeToRender, dispatch]);
+
+  /**
+   *
+   *
+   *  CACHE ẢNH PHÍA CLIENT
+   *
+   */
+
+  useEffect(() => {
+    if (!nodeToRender) return;
+
+    //Sử dụng cho hàm read text.
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return; // bỏ qua lần mount đầu tiên (Strict Mode sẽ gọi 2 lần)
+    }
+    readText();
+
+    //Nạp ảnh vào RAM.
+
+    const { id, url, navHotspots, infoHotspots, modelHotspots } = nodeToRender;
+
+    const existing = imageRef.current[id];
+    if (existing && existing.quality === "8K") return; //Nếu tồn tại rồi & 8K => Tức là đã từng hiển thị thì không tải nữa.
+
+    const loadHighRes = async () => {
+      try {
+        const highResURL = buildImageUrlWithQuality(url, "8K");
+        const response = await fetch(highResURL, { mode: "cors" });
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = objectUrl;
+
+        img.onload = () => {
+          imageRef.current[id] = {
+            img,
+            objectUrl,
+            quality: "8K",
+            lastUsed: Date.now(),
+          };
+
+          if (nodeToRender.id === id) {
+            setTimeout(() => {
+              setImageVersion((v) => v + 1);
+            }, 3000); // Delay 100ms
+          }
+        };
+      } catch (err) {
+        console.warn("Không load được ảnh 360 cho nodeToRender", id, err);
+      }
+    };
+    loadHighRes();
+
+    //Nạp mô hình glb vào RAM.
+    const gltfLoader = new GLTFLoader();
+    const glbURLset = new Set<string>();
+
+    [
+      ...(navHotspots ?? []),
+      ...(infoHotspots ?? []),
+      ...(modelHotspots ?? []),
+    ].forEach((h) => {
+      if (h?.url?.endsWith(".glb")) {
+        glbURLset.add(h.url);
+      }
+    });
+
+    glbURLset.forEach((modelUrl) => {
+      if (modelRef.current[modelUrl]) return;
+      const loadModel = async () => {
+        try {
+          const response = await fetch(modelUrl);
+          const blob = await response.blob();
+          const objectUrl = URL.createObjectURL(blob);
+
+          gltfLoader.load(objectUrl, (gltf) => {
+            modelRef.current[modelUrl] = {
+              glbScene: gltf.scene,
+              objectUrl,
+              quality: "high",
+              lastUsed: Date.now(),
+            };
+            console.log("✅ Cached mô hình GLB:", modelUrl);
+          });
+        } catch (err) {
+          console.warn("⚠️ Không preload được mô hình GLB:", modelUrl, err);
+        }
+      };
+
+      loadModel();
+    });
+  }, [nodeToRender]);
+
+  const getUrlGLB = (iconId: number): string | null => {
+    //Icon phải là icon 3D
+    const iconObj = icons.find((i) => i.id === iconId && i.type === 2);
+    if (iconObj) return iconObj.url;
+    return null;
+  };
+  const [percent, setPercent] = useState(0);
+  const [isLoadingDone, setIsLoadingDone] = useState(false);
+
+  useEffect(() => {
+    if (
+      !preloadNodes ||
+      !nodeToRender ||
+      !hotspotModels ||
+      !hotspotMedias ||
+      !hotspotNavigations ||
+      !hotspotInformations
+    ) {
+      setIsLoadingDone(false);
+      return;
+    } else {
+      setIsLoadingDone(true);
+    }
+  }, [
+    preloadNodes,
+    nodeToRender,
+    hotspotModels,
+    hotspotMedias,
+    hotspotNavigations,
+    hotspotInformations,
+    imageRef,
+  ]);
+
+  useEffect(() => {
+    let progress = 0;
+
+    const interval = setInterval(() => {
+      if (!isLoadingDone) {
+        // Loading giả lập, chỉ cho đến 90%
+        if (progress < 90) {
+          progress += Math.random() * 5; // tăng chậm lại để mượt
+          if (progress > 90) progress = 90;
+          setPercent(Math.floor(progress));
+        }
+      } else {
+        // Task thật xong, tăng nốt phần còn lại đến 100%
+        if (progress < 100) {
+          progress += Math.random() * 10;
+          if (progress > 100) progress = 100;
+          setPercent(Math.floor(progress));
+        }
+
+        // Nếu đã 100% thì clear interval
+        if (progress >= 100) {
+          clearInterval(interval);
+          requestAnimationFrame(() => {
+            setTimeout(() => setIsWaiting(false), 500);
+          });
+        }
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [isLoadingDone]);
+
+  useEffect(() => {
+    if (!preloadNodes || preloadNodes.length === 0) return;
+
+    let loaded = 0;
+    const total = preloadNodes.length;
+
+    const gltfLoader = new GLTFLoader();
+    const glbURLSet = new Set<string>();
+
+    preloadNodes.forEach(async (node) => {
+      const existing = imageRef.current[node.id];
+      if (!existing) {
+        try {
+          const lowResURL = buildImageUrlWithQuality(node.url, "2K");
+
+          const response = await fetch(lowResURL, { mode: "cors" });
+          const blob = await response.blob();
+          const objectUrl = URL.createObjectURL(blob);
+
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.src = objectUrl;
+          img.onload = () => {
+            loaded++;
+            imageRef.current[node.id] = {
+              img,
+              objectUrl,
+              quality: "2K",
+              lastUsed: Date.now(),
+            };
+
+            setPercent(Math.floor((loaded / total) * 100));
+            if (loaded === total) {
+              setIsWaiting(false);
+            }
+          };
+        } catch (err) {
+          console.warn("Lỗi không thể tải reload:", node.url, err);
+        }
+
+        const { navHotspots, infoHotspots, modelHotspots } = node;
+
+        [
+          ...(navHotspots ?? []),
+          ...(infoHotspots ?? []),
+          ...(modelHotspots ?? []),
+        ].forEach((h) => {
+          //glbUrl sẽ có giá trị nếu nó là icon.
+          const glbUrl = getUrlGLB(h.iconId);
+          if (glbUrl?.endsWith(".glb")) {
+            glbURLSet.add(glbUrl);
+          }
+        });
+
+        glbURLSet.forEach((modelUrl) => {
+          if (modelRef.current[modelUrl]) return;
+
+          const loadModel = async () => {
+            try {
+              const response = await fetch(modelUrl);
+              const blob = await response.blob();
+              const objectUrl = URL.createObjectURL(blob);
+
+              gltfLoader.load(objectUrl, (gltf) => {
+                modelRef.current[modelUrl] = {
+                  glbScene: gltf.scene,
+                  objectUrl,
+                  quality: "high",
+                  lastUsed: Date.now(),
+                };
+              });
+            } catch (err) {
+              console.warn(
+                "⚠️ Không preload được GLB từ preloadNodes:",
+                modelUrl,
+                err
+              );
+            }
+          };
+
+          loadModel();
+        });
+      }
+    });
+  }, [preloadNodes]);
 
   if (!icons || icons.length === 0) {
     return (
       <>
-        <div className={styles.infoBox} style={{ display: "none" }}>
-          Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
-          Lâm Thành phố Hồ Chí Minh
+        <div className={styles.info_box} style={{ display: "none" }}>
+          {nodeToRender.description ??
+            "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
         </div>
       </>
     );
+  }
+
+  if (
+    !hotspotModels ||
+    !hotspotMedias ||
+    !hotspotNavigations ||
+    !hotspotInformations
+  ) {
+    return null;
+  }
+
+  if (!nodeToRender) {
+    return null;
   }
 
   return (
@@ -349,38 +752,124 @@ const VirtualTour = () => {
         hotspotModels={hotspotModels}
         hotspotMedias={hotspotMedias}
         isRotation={isRotation}
+        setTargetPosition={setTargetPosition}
+        isOpenRadar={isOpenRadar}
+        setIsOpenRadar={setIsOpenRadar}
+        imageRef={imageRef}
+        imageVersion={imageVersion}
       />
-      {/* Header chứa logo + close */}
-      <div className={styles.headerTour}>
-        <h2>NLU360</h2>
+      <div className={styles.header_tour}>
+        <h2 className={styles.tour_name}>{nodeToRender.name}</h2>
         <IoIosCloseCircle className={styles.close_btn} onClick={handleClose} />
       </div>
-      {/* Menu bên trái */}
-      {fullMap || hoverMap ? (
+      {!isMobile ? (
+        <button className={styles.thumbnail_menu_button}>
+          <FaAngleDoubleLeft />
+        </button>
+      ) : (
+        ""
+      )}
+      {fullMap || hoverMap || !isMenuVisible ? (
         ""
       ) : (
-        <LeftMenuTour isMenuVisible={isMenuVisible} />
+        <AnimatePresence>
+          <motion.div
+            initial={{ x: -300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 300, opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className={styles.left_tour}
+          >
+            <LeftMenuTour
+              isMenuPin={isMenuPin}
+              setIsMenuPin={setIsMenuPin}
+              isMenuVisible={isMenuVisible}
+              setIsMenuVisible={setIsMenuVisible}
+              imageRef={imageRef}
+              nodeId={nodeToRender.id}
+            />
+          </motion.div>
+        </AnimatePresence>
       )}
-      {/* Hộp feedback */}
-      <Chat nodeId={nodeToRender.id} />
-      {/* <Chat nodeId={defaultNode.id} /> */}
-      {/* Footer chứa các tính năng */}
-      <FooterTour
-        isRotation={isRotation}
-        setIsRotation={setIsRotation}
-        isMuted={isMuted}
-        isFullscreen={isFullscreen}
-        toggleInformation={toggleInformation}
-        toggleFullscreen={toggleFullscreen}
-        toggleMute={toggleMute}
-        setIsComment={setIsComment}
+      {!isOpenRadar && !isOpenBox && (
+        <button
+          className={styles.open_radar_button}
+          title="Mở la bàn"
+          onClick={() => setIsOpenRadar(true)}
+        >
+          <IoIosCompass />
+        </button>
+      )}
+      {/* Hộp chat sửa wss */}
+      <Chat
+        nodeId={nodeToRender.id}
+        setAccessing={setAccessing}
+        setIsOpenChat={setIsOpenBox}
       />
+      {/* Footer chứa các tính năng */}
+      {isMobile ? (
+        <>
+          <button
+            className={styles.pause_button}
+            style={{ display: isRotation ? "block" : "none" }}
+            onClick={() => {
+              setIsRotation(false);
+            }}
+          >
+            <FaPause />
+          </button>
+          <button
+            className={styles.play_button}
+            style={{ display: isRotation ? "none" : "block" }}
+            onClick={() => {
+              setIsRotation(true);
+            }}
+          >
+            <FaPlay />
+          </button>
+        </>
+      ) : (
+        <FooterTour
+          isRotation={isRotation}
+          setIsRotation={setIsRotation}
+          isMuted={isMuted}
+          isFullscreen={isFullscreen}
+          toggleInformation={toggleInformation}
+          toggleFullscreen={toggleFullscreen}
+          toggleMute={toggleMute}
+          setIsComment={setIsComment}
+          accessing={accessing}
+        />
+      )}
       {/* Hộp thông tin */}
-      <div className={styles.infoBox} onClick={toggleInformation}>
-        Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông
-        Lâm Thành phố Hồ Chí Minh
-      </div>
-      {/* Hộp Bình luận */}
+      {isOpenInfo && (
+        <div className={styles.info_box_container}>
+          <div className={styles.overlay} onClick={toggleInformation} />
+          <div className={styles.info_box}>
+            <h2
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                justifyContent: "center",
+              }}
+            >
+              <FaBookOpen /> Hộp thông tin <FaBookOpen />
+            </h2>
+            <p
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              ⁓º⁓º⁓º⁓º⁓º⁓
+            </p>
+            {nodeToRender.description?.trim()
+              ? nodeToRender.description
+              : "Chào mừng bạn đến với chuyến tham quan khuôn viên trường Đại học Nông Lâm Thành phố Hồ Chí Minh"}
+          </div>
+        </div>
+      )}
       {isComment && user ? (
         <CommentBox
           userId={user.id}
@@ -391,63 +880,74 @@ const VirtualTour = () => {
         ""
       )}
       {/* Bản đồ */}
-      <div
-        className={`${fullMap ? styles.full_map : styles.mapBox}`}
-        onMouseEnter={() => setHoverMap(true)}
-        onMouseLeave={() => {
-          setTimeout(() => {
-            setHoverMap(false);
-          }, 2000);
-        }}
-      >
-        {hideMap ? (
-          <button
-            className={styles.show_map_button}
-            onClick={() => setHideMap(false)}
-            title={"Mở bản đồ"}
-          >
-            <FaMap />
-          </button>
-        ) : (
-          <>
-            <MapLeaflet spaceId={nodeToRender.spaceId} mapRef={mapRef} />
-            {fullMap ? (
-              <button
-                className={styles.full_button}
-                onClick={() => setFullMap(false)}
-                title={"Thu nhỏ"}
-              >
-                <FaX />
-              </button>
-            ) : (
-              <>
+      {isMobile ? (
+        ""
+      ) : (
+        <div
+          ref={wrapperRef}
+          className={`${fullMap ? styles.full_map : styles.map_box}`}
+          onMouseEnter={() => setHoverMap(true)}
+          onMouseLeave={() => {
+            setTimeout(() => {
+              setHoverMap(false);
+            }, 2000);
+          }}
+          style={{ width: hideMap ? "10px" : "" }}
+        >
+          {hideMap ? (
+            <button
+              className={styles.show_map_button}
+              onClick={() => setHideMap(false)}
+              title={"Mở bản đồ"}
+            >
+              <FaMap />
+            </button>
+          ) : (
+            <>
+              <MapLeaflet
+                spaceId={nodeToRender.spaceId}
+                mapRef={mapRef}
+                spaces={spaces}
+                hoverMap={hoverMap}
+              />
+              {fullMap ? (
                 <button
-                  className={styles.hide_button}
-                  onClick={() => {
-                    setHideMap(true);
-                  }}
-                  title={"Ẩn bản đồ"}
+                  className={styles.full_button}
+                  onClick={() => setFullMap(false)}
+                  title={"Thu nhỏ"}
                 >
-                  <FaAngleLeft />
+                  <FaX />
                 </button>
-                {hoverMap ? (
+              ) : (
+                <>
                   <button
-                    className={styles.full_button}
-                    onClick={() => setFullMap(true)}
-                    title={"Mở rộng"}
+                    className={styles.hide_button}
+                    onClick={() => {
+                      setHideMap(true);
+                    }}
+                    title={"Ẩn bản đồ"}
                   >
-                    <MdOpenInFull />
+                    <FaAngleLeft />
                   </button>
-                ) : (
-                  ""
-                )}
-              </>
-            )}
-          </>
-        )}
-      </div>
+                  {hoverMap ? (
+                    <button
+                      className={styles.full_button}
+                      onClick={() => setFullMap(true)}
+                      title={"Mở rộng"}
+                    >
+                      <MdOpenInFull />
+                    </button>
+                  ) : (
+                    ""
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
       /* Màn hình laoding */
-      {isWaiting ? <Waiting /> : ""}
+      {isWaiting ? <Waiting percent={percent} /> : ""}
     </div>
   );
 };

@@ -1,7 +1,18 @@
 import { useEffect, useState } from "react";
-import { FaAngleLeft, FaCaretDown, FaCaretUp } from "react-icons/fa6";
+import {
+  FaAddressBook,
+  FaAngleLeft,
+  FaCaretDown,
+  FaCaretUp,
+} from "react-icons/fa6";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "../../styles/visitor/navTour.module.css";
+import { useDispatch } from "react-redux";
+import { clearPanorama } from "../../redux/slices/PanoramaSlice";
+import { resetStep } from "../../redux/slices/StepSlice";
+import { RxAvatar } from "react-icons/rx";
+import { GrGallery } from "react-icons/gr";
+import { IoIosAddCircle } from "react-icons/io";
 
 type NavTourProps = {
   setIsOpenNav: (val: any) => void;
@@ -18,6 +29,7 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isNav, setIsNav] = useState(1);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (location.pathname === "/manage") {
@@ -25,6 +37,8 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
     } else if (location.pathname === "/manage/tours") {
       setIsNav(2);
     } else if (location.pathname === "/manage/createTour") {
+      dispatch(clearPanorama());
+      dispatch(resetStep());
       setIsNav(3);
     } else if (location.pathname === "/manage/profile") {
       setIsNav(4);
@@ -37,12 +51,12 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
     <nav
       className={styles.container}
       style={{
-        height: isOpen ? "10%" : undefined,
+        height: isOpen ? "max-content" : undefined,
       }}
     >
       {isOpen ? (
         <span
-          className={styles.backBtn}
+          className={styles.back_btn}
           onClick={() => {
             navigate("/");
           }}
@@ -52,50 +66,55 @@ const NavTour = ({ setIsOpenNav }: NavTourProps) => {
       ) : (
         ""
       )}
-      <span className={styles.toggle} onClick={handleToggle}>
-        {isOpen ? <FaCaretUp /> : <FaCaretDown />}
+      <span className={styles.toggle} onClick={handleToggle} style={{bottom: isOpen ? "-10px" : "-20px"}}>
+        {isOpen ? <FaCaretUp /> : <FaCaretDown className={styles.toggle_open} />}
       </span>
 
       {isOpen && (
-        <ul
-          style={{
-            marginTop: isOpen ? undefined : "30px",
-          }}
-        >
-          <Link to={"/manage/"} onClick={() => setIsNav(1)}>
+        <ul className={styles.nav_list}>
+          <Link
+            to={"/manage/"}
+            onClick={() => setIsNav(1)}
+            className={isNav === 1 ? styles.nav_active : ""}
+          >
             <li className={`${styles.title} ${isNav == 1 ? styles.show : ""}`}>
-              <span>Thống kê</span>
+              <span className={styles.title_label}>
+                <FaAddressBook />
+                Hồ sơ
+              </span>
             </li>
           </Link>
-          <Link to={"/manage/tours"} onClick={() => setIsNav(2)}>
+          <Link
+            to={"/manage/tours"}
+            className={isNav === 2 ? styles.nav_active : ""}
+            onClick={() => setIsNav(2)}
+          >
             <li className={`${styles.title} ${isNav == 2 ? styles.show : ""}`}>
-              <span>Các tour đã tạo</span>
+              <span className={styles.title_label}>
+                <GrGallery /> Tour của bạn
+              </span>
             </li>
           </Link>
-          <Link to={"/manage/createTour"} onClick={() => setIsNav(3)}>
+          <Link
+            to={"/manage/createTour"}
+            onClick={() => setIsNav(3)}
+            className={isNav === 3 ? styles.nav_active : ""}
+          >
             <li className={`${styles.title} ${isNav == 3 ? styles.show : ""}`}>
-              <span>Tạo tour mới</span>
+              <span className={styles.title_label}>
+                {" "}
+                <IoIosAddCircle />
+                Tạo tour mới
+              </span>
             </li>
           </Link>
-          <Link to={"/manage/profile"} onClick={() => setIsNav(4)}>
+          {/* <Link to={""}>
             <li className={`${styles.title} ${isNav == 4 ? styles.show : ""}`}>
-              <span>Thông tin cá nhân</span>
+              <span >Tạo tour tự động</span>
             </li>
-          </Link>
+          </Link> */}
         </ul>
       )}
-      <div className={styles.info}>
-        {isOpen && (
-          <>
-            <img src={user.avatar !== "" || user.avatar !== null ? user.avatar : "/avatar.jpg"} alt="" />
-            <div className={styles.admin_info}>
-              <Link to="/">
-                <h5>{user.username} !</h5>
-              </Link>
-            </div>
-          </>
-        )}
-      </div>
     </nav>
   );
 };

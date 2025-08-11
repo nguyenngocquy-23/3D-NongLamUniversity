@@ -18,6 +18,7 @@ const ConfigMedia = ({
   onPropsChange,
   currentHotspotType,
   setAssignable,
+  assignable,
   setCurrentHotspotType,
 }: {
   propHotspot?: BaseHotspot;
@@ -25,6 +26,7 @@ const ConfigMedia = ({
   onPropsChange: (value: BaseHotspot) => void;
   currentHotspotType?: number | null;
   setAssignable: (value: boolean) => void;
+  assignable?: boolean;
   setCurrentHotspotType: (value: number) => void;
 }) => {
   const { panoramaList, currentSelectId } = useSelector(
@@ -71,6 +73,7 @@ const ConfigMedia = ({
         iconId !== 0 && propHotspot !== null
           ? iconId
           : hotspotTypes[(currentHotspotType ?? 1) - 1].defaultIconId,
+      status: 1,
       positionX: 0,
       positionY: 0,
       positionZ: 0,
@@ -122,7 +125,7 @@ const ConfigMedia = ({
   return (
     <>
       <div style={{ display: "flex" }}>
-        <label>Khung :</label>
+        <label className={styles.label}>Khung :</label>
         <div className={`${styles.frame} ${styles.plane_frame}`}>
           <input
             type="checkbox"
@@ -132,7 +135,7 @@ const ConfigMedia = ({
             }}
             checked={typeFrame === 0}
           />{" "}
-          chu nhat
+          <div className={styles.rectangle} />
         </div>
         <div className={`${styles.frame} ${styles.circle_frame}`}>
           <input
@@ -141,70 +144,23 @@ const ConfigMedia = ({
             onChange={() => {
               setTypeFrame(1);
             }}
+            disabled
             checked={typeFrame === 1}
           />{" "}
-          tron
+          <div className={styles.circle} />
         </div>
       </div>
       <div>
-        <div style={{ display: "flex" }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex" }}>
-              <label>Màu:</label>
-              <input
-                type="color"
-                name=""
-                id=""
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-              />
-            </div>
-            <div style={{ display: "flex" }}>
-              <label>Màu nền:</label>
-              <input
-                type="color"
-                name=""
-                id=""
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-                disabled={!allowBackgroundColor ? true : false}
-              />
-              <button
-                onClick={() => {
-                  setAllowBackgroundColor((preState) => !preState);
-                }}
-              >
-                {allowBackgroundColor ? "Tắt" : "Bật"}
-              </button>
-            </div>
-          </div>
-        </div>
-        <div style={{ display: "flex" }}>
-          <label>Độ to:</label>
-          <div>
-            <div>
-              <input
-                type="range"
-                name="scale"
-                id="scale"
-                min={0.5}
-                max={2}
-                step={0.1}
-                value={scale}
-                onChange={(e) => setScale(Number(e.target.value))}
-              />
-              <span>{Math.round(((scale - 0.5) / 1.5) * 100)}%</span>
-            </div>
-          </div>
-        </div>
-
         {typeFrame == 0 ? (
           <button
             onClick={() => {
               setAssignable(true);
-              // setCurrentPoints([]);
               setCurrentHotspotType(3);
             }}
+            style={{
+              padding: "0.5rem 1rem",
+            }}
+            disabled={assignable}
           >
             Chọn điểm
           </button>
@@ -214,6 +170,9 @@ const ConfigMedia = ({
               setAssignable(true);
               // setCurrentPoints([]);
               setCurrentHotspotType(3);
+            }}
+            style={{
+              padding: "0.5rem 1rem",
             }}
           >
             Chọn tâm

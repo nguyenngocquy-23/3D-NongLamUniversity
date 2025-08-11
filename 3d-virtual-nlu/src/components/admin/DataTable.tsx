@@ -10,7 +10,7 @@ interface DataTableProps{
 
 export const Datatable: React.FC<DataTableProps> = ({columns, searchData, loading}) => {
   return (
-    <div className={styles.dataTable}>
+    <div className={styles.dataTable} style={{marginTop: "1rem"}}>
       <DataTable
         columns={columns}
         data={[...searchData]}

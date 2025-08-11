@@ -1,7 +1,7 @@
 .container {
   width: 100vw;
   height: 100vh;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   position: relative;
   /* background: url("/backgroundNL.jpg") no-repeat center / cover;
    */
@@ -13,8 +13,6 @@
 .main_contain {
   background-color: #fff;
   backdrop-filter: blur(8px);
-  border-radius: 10px;
-  margin: 0 0.5rem 0.5rem 0;
   flex-grow: 1; /* Phần chính chiếm hết phần còn lại */
   display: flex;
   flex-direction: column;
@@ -40,10 +38,11 @@
 .content {
   flex-grow: 1;
   background: #f5f5f5;
-  padding: 0.5rem;
-  border-radius: 8px;
-  height: 100%;
+  /* border-radius: 8px; */
+  height: calc(100% - 2rem - 36px - 10px);
   display: flex;
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 
 .extension {

@@ -7,21 +7,20 @@ import {
 } from "../../../redux/slices/HotspotSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/Store";
-import {
-  getFilteredHotspotNavigationById,
-  getListTargetNodeFromUpdateHotspotNavigation,
-} from "../../../redux/slices/Selectors";
+import { getListTargetNodeFromUpdateHotspotNavigation } from "../../../redux/slices/Selectors";
 
 interface TypeNavigationProps {
   hotspotNav: any;
   isOpenTypeNavigation?: boolean;
   setAssignable?: (value: boolean) => void;
   setCurrentHotspotType?: (value: HotspotType) => void;
+  limitNav: boolean;
 }
 
 const TypeNavigation = ({
   hotspotNav,
   isOpenTypeNavigation,
+  limitNav,
 }: TypeNavigationProps) => {
   /**
    * Lấy ra danh sách panorama
@@ -44,6 +43,12 @@ const TypeNavigation = ({
   );
 
   const dispatch = useDispatch<AppDispatch>();
+
+  const options = panoramaList.map((p) => ({
+    value: p.id,
+    label: p.config.name,
+    imageUrl: p.url,
+  }));
   return (
     <div
       className={`${styles.type_navigation} ${
@@ -56,7 +61,6 @@ const TypeNavigation = ({
           onChange={(e) => {
             const selectedId = e.target.value;
             if (selectedId && hotspotNav.id) {
-              console.log("🔽 Đã chọn panorama:", selectedId);
               dispatch(
                 updateNavigationHotspotTarget({
                   id: hotspotNav.id,
@@ -65,13 +69,20 @@ const TypeNavigation = ({
               );
             }
           }}
+          className={styles.custom_select}
         >
-          <option value="">Chọn panorama</option>
-          {filteredPanoramas?.map((pano) => (
-            <option key={pano.id} value={pano.id}>
-              {pano.config.name || "null"}
-            </option>
-          ))}
+          <option value="">Chọn panorama {panoramaList.length}</option>
+          {limitNav
+            ? filteredPanoramas?.map((pano) => (
+                <option key={pano.id} value={pano.id}>
+                  {pano.config.name || "null"}
+                </option>
+              ))
+            : panoramaList?.map((pano) => (
+                <option key={pano.id} value={pano.id}>
+                  {pano.config.name || "null"}
+                </option>
+              ))}
         </select>
       </div>
     </div>

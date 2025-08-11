@@ -1,4 +1,3 @@
-
 .pause:hover,
 .play:hover,
 .close_btn:hover,
@@ -73,7 +72,7 @@
   transform: translate(-50%, -50%);
 }
 
-.footerTour {
+.footer_tour {
   bottom: 10px;
   position: absolute;
   left: 0;
@@ -82,5 +81,61 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 2;
+  z-index: 100000000;
+}
+
+.sound_guide {
+  opacity: 0.8;
+  margin-right: 2rem;
+  animation: blinkAndDisappear 20s forwards;
+}
+
+.back_login{
+  border-radius: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+
+}
+
+@keyframes blinkAndDisappear {
+
+  0%,
+  10% {
+    opacity: 0.2;
+  }
+
+  15%,
+  25% {
+    opacity: 1;
+  }
+
+  30%,
+  40% {
+    opacity: 0.2;
+  }
+
+  45%,
+  55% {
+    opacity: 1;
+  }
+
+  60%,
+  70% {
+    opacity: 0.2;
+  }
+
+  75%,
+  85% {
+    opacity: 1;
+  }
+
+  90%,
+  99% {
+    opacity: 0.2;
+  }
+
+  100% {
+    opacity: 0.2;
+  }
 }

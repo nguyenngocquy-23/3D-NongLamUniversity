@@ -10,9 +10,11 @@ import ScrollOnTop from "../../components/visitor/ScrollOnTop";
 import Introduce from "../../components/visitor/Introduce";
 import Contact from "../../components/visitor/Contact";
 import Footer from "../../components/visitor/Footer";
+import { useLocation } from "react-router-dom";
 
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
 
   useEffect(() => {
     dispatch(fetchIcons());
@@ -20,10 +22,8 @@ const Home: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <main className={styles.homeContainer}>
+    <main className={styles.home_container}>
       <Banner />
-
-      <CampusMap />
 
       <Introduce />
 
@@ -31,7 +31,7 @@ const Home: React.FC = () => {
 
       <Contact />
 
-      <Footer/>
+      <Footer />
 
       <ScrollOnTop />
     </main>

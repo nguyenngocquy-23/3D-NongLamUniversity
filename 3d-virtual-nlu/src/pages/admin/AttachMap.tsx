@@ -5,7 +5,16 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import Swal from "sweetalert2";
-import { attachLocation, fetchSpaces } from "../../redux/slices/DataSlice";
+import {
+  attachLocation,
+  fetchAllSpaces,
+  fetchSpaces,
+  setDefaultNode,
+} from "../../redux/slices/DataSlice";
+import { API_URLS } from "../../env";
+import { perPage } from "../../utils/Constants";
+import { FaQuestion } from "react-icons/fa6";
+import { FaQuestionCircle } from "react-icons/fa";
 
 const AttachMap = () => {
   /**
@@ -18,8 +27,8 @@ const AttachMap = () => {
   const [selectedSpaceId, setSelectedSpaceId] = useState(0);
   const [isAssign, setIsAssign] = useState(true);
   const [isRemove, setIsRemove] = useState(false);
+  const spaces = useSelector((state: RootState) => state.data.allSpaces);
 
-  const spaces = useSelector((state: RootState) => state.data.spaces);
   const [isSaving, setIsSaving] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -28,9 +37,13 @@ const AttachMap = () => {
     if (mapRef.current) {
       setTimeout(() => {
         mapRef.current!.invalidateSize();
-      }, 300); // chờ animation transition xong
+      }, 300);
     }
   }, []);
+
+  useEffect(() => {
+    dispatch(fetchAllSpaces());
+  }, [dispatch]);
 
   const handleSubmit = async () => {
     if (points.length === 0) {
@@ -56,7 +69,7 @@ const AttachMap = () => {
       }));
 
       const response = await axios.post(
-        "http://localhost:8080/api/admin/space/attachLocation",
+        API_URLS.ADMIN_ATTACH_SPACE_LOCATION,
         payload
       );
       if (response.data.data) {
@@ -71,7 +84,7 @@ const AttachMap = () => {
           showConfirmButton: false,
         });
         setPoints([]);
-        dispatch(fetchSpaces());
+        dispatch(fetchSpaces({ limit: perPage, page: 0 }));
       } else {
         Swal.fire({
           title: "Thất bại",
@@ -126,6 +139,7 @@ const AttachMap = () => {
         points={points}
         setPoints={setPoints}
         isRemove={isRemove}
+        spaces={spaces}
       />
       <div className={styles.controlPanel}>
         <button
@@ -157,7 +171,17 @@ const AttachMap = () => {
           Lưu
         </button>
         <button onClick={() => setIsRemove((pre) => !pre)} disabled={isSaving}>
-          {isRemove ? "Hủy" : "Gỡ nhãn"}
+          {isRemove ? (
+            "Hủy"
+          ) : (
+            <span>
+              Gỡ nhãn{" "}
+              <FaQuestionCircle
+                className={styles.guide_icon}
+                title="Không được phép gỡ không gian trung tâm."
+              />
+            </span>
+          )}
         </button>
       </div>
     </div>

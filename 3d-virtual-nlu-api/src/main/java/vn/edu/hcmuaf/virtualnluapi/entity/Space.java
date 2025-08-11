@@ -3,6 +3,7 @@ package vn.edu.hcmuaf.virtualnluapi.entity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -11,8 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Space {
-    int id, fieldId;
-    String name, description;
+    int id, fieldId, masterNodeId;
+    String name, code, description, location, url;
     byte status;
-    LocalDateTime createdAt, updatedAt;
+    Timestamp createdAt, updatedAt;
 }

@@ -1,9 +1,12 @@
+import { Html } from "@react-three/drei";
+import { useLoader } from "@react-three/fiber";
 import { useRef, useState, useEffect } from "react";
 import * as THREE from "three";
 import { DoubleSide } from "three";
 
 const HotspotPreview = ({
   iconUrl,
+  typeIcon,
   color,
   backgroundColor,
   scale,
@@ -14,6 +17,7 @@ const HotspotPreview = ({
   opacity,
 }: {
   iconUrl: string;
+  typeIcon: number;
   color: string;
   backgroundColor: string;
   scale: number;
@@ -37,8 +41,10 @@ const HotspotPreview = ({
     }
   }, [pitchX, yawY, rollZ]);
 
+  //CASE 1: 2D ICON - SVG
   useEffect(() => {
     const loadAndModifySVG = async () => {
+      if (typeIcon !== 1) return;
       try {
         const res = await fetch(iconUrl);
         let svgText = await res.text();
@@ -72,38 +78,53 @@ const HotspotPreview = ({
         console.error("Error loading or processing SVG:", err);
       }
     };
-    console.log("[HotspotPreview: " + iconUrl);
     loadAndModifySVG();
   }, [iconUrl, color]);
 
-  if (!texture) return null;
+  if (typeIcon === 1 && !texture) return null;
 
   return (
-    <group ref={groupRef} position={[0, 0, 0]} scale={scale}>
-      {allowBackgroundColor ? (
-        <mesh position={[0, 0, -0.01]}>
-          <circleGeometry args={[5, 100]} />
-          <meshBasicMaterial
-            color={new THREE.Color(backgroundColor)}
-            side={DoubleSide}
-            opacity={opacity}
-          />
-        </mesh>
-      ) : (
-        ""
-      )}
+    <>
+      {typeIcon === 1 ? (
+        <group ref={groupRef} position={[0, 0, 0]} scale={scale}>
+          {allowBackgroundColor ? (
+            <mesh position={[0, 0, -0.01]}>
+              <circleGeometry args={[5, 100]} />
+              <meshBasicMaterial
+                color={new THREE.Color(backgroundColor)}
+                side={DoubleSide}
+                opacity={opacity}
+              />
+            </mesh>
+          ) : (
+            ""
+          )}
 
-      <mesh position={[0, 0, 0]}>
-        <planeGeometry args={[5, 5]} />
-        <meshBasicMaterial
-          map={texture}
-          color={new THREE.Color(color)}
-          transparent
-          side={DoubleSide}
-          opacity={opacity}
-        />
-      </mesh>
-    </group>
+          <mesh position={[0, 0, 0]}>
+            <planeGeometry args={[5, 5]} />
+            <meshBasicMaterial
+              map={texture}
+              color={new THREE.Color(color)}
+              transparent
+              side={DoubleSide}
+              opacity={opacity}
+            />
+          </mesh>
+        </group>
+      ) : (
+        <Html>
+          <div
+            style={{
+              width: 50,
+              height: 50,
+              transform: "translate(-50%, -50%)",
+              background: `url(${iconUrl}) no-repeat center/cover`,
+              zIndex: 1,
+            }}
+          />
+        </Html>
+      )}
+    </>
   );
 };
 

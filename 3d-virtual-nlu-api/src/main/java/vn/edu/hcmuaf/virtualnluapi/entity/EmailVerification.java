@@ -13,8 +13,7 @@ import java.sql.Timestamp;
 @Builder
 public class EmailVerification {
     private int id;
-    private long userId;
+    private int userId;
     private String token;
     private Timestamp expiredAt;
-
 }

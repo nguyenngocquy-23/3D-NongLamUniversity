@@ -22,16 +22,13 @@
   /* opacity: 0.5; */
 }
 
-.headerTour {
-  top: 0;
-}
-
 .footerTour {
   bottom: 10px;
 }
 
-.headerTour {
+.header_tour {
   position: absolute;
+  top: 0;
   left: 0;
   width: 100%;
   height: auto;
@@ -39,24 +36,92 @@
   justify-content: space-between;
   align-items: center;
   z-index: 2;
-  padding: 0 20px;
+  padding: 0;
 }
 
-.infoBox {
+.header_tour .tour_name {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.2), transparent);
+  color: white;
+}
+
+.thumbnail_menu_button {
   position: absolute;
-  display: none;
-  width: 200px;
-  height: 200px;
-  overflow-y: auto;
-  bottom: -100px;
-  right: 10px;
+  top: 30%;
+  left: 0;
+  background-color: transparent;
+}
+
+
+@keyframes loopOn {
+  0% {
+    transform: translateX(10px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-5px);
+    opacity: 0;
+  }
+}
+
+.thumbnail_menu_button svg {
+  font-size: 1.5rem;
+  animation: loopOn 1s ease-in-out infinite;
+}
+
+.left_tour {
+  position: absolute;
+  top: 0;
+  width: 300px;
+  z-index: 100000002;
+}
+
+.info_box_container {
+  position: relative;
+  z-index: 100000005;
+}
+
+.info_box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  background-color: rgba(255, 255, 255, 0.95);
+  /* Hộp sáng mờ */
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 90%;
+  z-index: 1001;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Overlay nền mờ */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  /* Lớp nền mờ */
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+  /* Tùy chọn: hiệu ứng làm mờ */
 }
 
 .close_btn:hover {
   cursor: pointer;
   opacity: 0.7;
   transform: scale(1.2);
-  color: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .close_btn {
@@ -67,23 +132,23 @@
   transition: transform 0.3s ease;
 }
 
-.mapBox:hover {
+.map_box:hover {
   width: 500px;
   height: 400px;
 }
 
-.mapBox {
+.map_box {
   width: 300px;
   height: 200px;
   position: absolute;
   bottom: 40px;
-  z-index: 1;
-  transition: all .5s ease;
+  z-index: 100000001;
+  transition: width 0.3s ease,height 0.3s ease;
 }
 
 .full_map {
   position: absolute;
-  z-index: 3;
+  z-index: 100000001;
   width: 95%;
   height: 95%;
   top: 50%;
@@ -97,6 +162,7 @@
   opacity: 0.8;
   transform: scale(1.05);
 }
+
 .show_map_button:focus,
 .hide_button:focus,
 .full_button:focus {
@@ -109,9 +175,9 @@
 .full_button {
   position: absolute;
   z-index: 3;
-  background-color: #1e84e4;
+  background-color: #267026;
   color: white;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 
 .full_button {
@@ -121,15 +187,81 @@
   right: 0;
 }
 
-.show_map_button{
+.show_map_button {
   width: 40px;
   height: 40px;
   bottom: 0;
   left: 0;
 }
+
 .hide_button {
   width: 30px;
   height: 30px;
   bottom: 0;
   left: 0;
+}
+
+.open_radar_button:focus {
+  border: none;
+  outline: none;
+}
+
+.open_radar_button:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.open_radar_button {
+  position: absolute;
+  z-index: 3;
+  background-color: #267026;
+  color: white;
+  width: 40px;
+  height: 40px;
+  right: 20px;
+  bottom: 17%;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+}
+
+.pause_button:focus,
+.play_button:focus {
+  border: none;
+  outline: none;
+}
+
+.pause_button:hover,
+.play_button:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.pause_button,
+.play_button {
+  position: absolute;
+  z-index: 3;
+  background-color: #267026;
+  color: white;
+  width: 40px;
+  height: 40px;
+  right: 20px;
+  bottom: 2%;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 0;
+  z-index: 100000002;
+  padding: 0;
+}
+
+.pause_button svg,
+.play_button svg {
+  width: 22px;
+  height: 22px;
 }

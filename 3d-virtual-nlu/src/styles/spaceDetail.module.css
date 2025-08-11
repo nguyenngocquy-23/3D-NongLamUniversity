@@ -1,0 +1,539 @@
+.space_container {
+  color: #000;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+}
+
+.space_header {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-content: center;
+}
+
+.space_header .space_icon_back {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+.space_header .space_icon_back:hover {
+  /* box-shadow: 5px 5px 5px 5px #00000065; */
+  opacity: 0.8;
+  animation: all 1s ease-in;
+}
+
+.space_title {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.space_content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: calc(100% - 2rem - 0.75rem);
+}
+
+.space_left_content {
+  width: 30%;
+  border-right: 1px solid #fff;
+  padding-right: 0.5rem;
+}
+
+.space_overview {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: #e4e4e4;
+}
+
+.space_overview_left {
+  width: 200px;
+  height: 200px;
+  position: relative;
+}
+
+.space_overview_left .space_img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.space_overview_right {
+  position: relative;
+  flex: 1;
+  display: grid;
+  row-gap: 0.5rem;
+}
+
+.overview_information {
+  /* display: flex;
+  flex-direction: row;
+  gap: 0.5rem; */
+
+  display: grid;
+  grid-template-columns: 20% 1fr;
+  /* label rộng cố định */
+  align-items: center;
+}
+
+.label_information {
+  font-weight: bold;
+}
+
+.space_img_custom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  position: absolute;
+  bottom: 50%;
+  right: 50%;
+  background-color: #fff;
+  border-radius: 50%;
+  transform: translate(50%, 50%);
+  cursor: pointer;
+}
+
+.space_choose_master_sl {
+  display: flex;
+  flex-direction: column;
+}
+
+.custom_select {
+  appearance: none;
+  /* ẩn mũi tên mặc định */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  flex: 1;
+  padding: 5px 30px 5px 5px;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.443);
+  font-size: 15px;
+  outline: none;
+
+  background-image: url("/public/down.svg");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+.content_information {
+  flex: 1;
+  position: relative;
+}
+
+.content_information input[type="text"] {
+  font-size: 15px;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  padding: 5px 5px;
+  background-color: transparent;
+  outline: none;
+  width: fit-content;
+  color: #000;
+}
+
+.content_information .underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  width: 100%;
+  background-color: #267026;
+  transform: scaleX(0);
+  transition: all 0.3s ease;
+}
+
+.content_information input[type="text"]:focus~.underline,
+.content_information input[type="text"]:valid~.underline {
+  transform: scaleX(1);
+}
+
+.content_information .space_input_name_edit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(50%);
+  color: #267026;
+}
+
+.content_information .space_input_name_edit:hover {
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 10px;
+  background-color: #fff;
+  transition: ease 0.2s all;
+}
+
+.content_information .space_input_name_warning {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateY(50%);
+  color: #d90e0e;
+}
+
+.content_code {
+  margin-left: 0.5rem;
+  font-style: italic;
+}
+
+.edit_information {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit_information_btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.edit_information_btn:focus {
+  outline: none;
+}
+.edit_information_btn:hover {
+  color: #ccc;
+}
+
+.description_content {
+  resize: none;
+  flex-grow: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  font-family: sans-serif;
+  font-style: italic;
+  color: #123315;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
+  border: 1.5px solid #ccc;
+  width: 100%;
+}
+
+.description_content:focus {
+  outline: none;
+}
+
+.description_count {
+  font-size: 0.8rem;
+  font-style: italic;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}
+
+/*   */
+.space_mode {
+  display: flex;
+  gap: 0.5rem;
+  position: absolute;
+  right: 0;
+}
+
+.radio_container {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 0.5rem;
+  background-color: #eee;
+  box-sizing: border-box;
+  box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
+  padding: 0.1rem;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.radio_container .radio_item {
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.radio_container .radio_item input {
+  display: none;
+}
+
+.radio_container .radio_item .radio_name {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: none;
+  padding: 0.5rem;
+  color: rgba(51, 65, 85, 1);
+  transition: all 0.15s ease-in-out;
+}
+
+.radio_container .radio_item input:checked+.radio_name {
+  background-color: #267026;
+  color: #fff;
+  font-weight: 600;
+}
+
+.space_statistic {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: #e4e4e4;
+}
+
+.space_preview_tour {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  gap: 0.5rem;
+}
+
+.toggle_right_menu {
+  position: absolute;
+  background-color: #fffcfc7d;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  transform: translate(-50%, 50%);
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.task_container {
+  height: 70%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 10px;
+  border-radius: 10px;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  /* transform: translateY(100%); Ẩn xuống dưới hoàn toàn */
+  transition: transform 1s ease-in-out;
+  overflow: auto;
+}
+
+.update_hotspot_container {
+  width: 40vw;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  transform: translateY(100%);
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: transform 1.4s ease;
+  z-index: 2;
+}
+
+.task_container.show,
+.update_hotspot_container.show {
+  transform: translateY(0);
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  z-index: 2;
+  max-height: 80vh;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.update_hotspot_container {
+  width: 40vw;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  transform: translateY(100%);
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  transition: transform 1.4s ease;
+  z-index: 2;
+}
+
+.task_container.show,
+.update_hotspot_container.show {
+  transform: translateY(0);
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  z-index: 2;
+  max-height: 80vh;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.update_link_tour {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(-50%, -50%);
+  padding: 0.5rem;
+  color: #fff;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background-color: #4d4d4d65;
+}
+
+/* Cấu hình nối tour */
+.rightMenu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  /* ẩn menu bằng transform */
+  transition: right 1s ease;
+  z-index: 26677998;
+}
+
+.rightMenu .rightTitle {
+  margin-top: 20px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #fff;
+}
+
+.rightMenu .rightTitle .close_menu_btn {
+  cursor: pointer;
+  position: absolute;
+  left: 0;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  margin-left: 10px;
+  animation: fadeInMenu 0.5s ease;
+  z-index: 26777271;
+}
+
+.task_container {
+  width: 40vw;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  max-height: 80vh;
+  overflow: hidden;
+  overflow-y: auto;
+  backdrop-filter: blur(5px);
+  transform: translateY(100%);
+  /* Ẩn xuống dưới hoàn toàn */
+  transition: transform 1s ease-in-out;
+  z-index: 2;
+}
+
+.update_hotspot_container {
+  width: 40vw;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  z-index: 2;
+  max-height: 80vh;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.task_container::-webkit-scrollbar,
+.update_hotspot_container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Track – nền sau */
+.task_container::-webkit-scrollbar-track,
+.update_hotspot_container::-webkit-scrollbar-track {
+  background-color: white;
+}
+
+/* Thumb – phần trượt */
+.task_container::-webkit-scrollbar-thumb,
+.update_hotspot_container::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00fff0 0%, #00d2ff 50%, #007cf0 100%);
+  border-radius: 15px;
+}
+
+/* Hover – đổi màu nhẹ */
+.task_container::-webkit-scrollbar-thumb:hover,
+.update_hotspot_container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00d2ff, #3a47d5);
+  box-shadow: inset 0 0 1px #3a47d5;
+}
+
+.feedback_list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  overflow-y: auto;
+  max-height: 60vh;
+  width: fit-content;
+  background-color: #fff;
+}
+
+.feedback_item {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  background-color: #f9f9f9;
+  color: black;
+  white-space: nowrap;
+  opacity: 0.5;
+  font-size: 14px;
+}
+
+.feedback_item:hover {
+  opacity: 1;
+}
+
+.selected {
+  background-color: #267026;
+  color: #f9f9f9;
+  opacity: 1;
+}

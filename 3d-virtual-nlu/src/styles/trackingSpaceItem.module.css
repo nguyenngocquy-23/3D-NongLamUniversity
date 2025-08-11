@@ -1,0 +1,39 @@
+.tracking_item_container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #fff;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  position: relative;
+}
+
+.item_img {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid #000000;
+  object-fit: cover;
+}
+
+.item_name {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.add_link {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, 50%);
+  background-color: #1f970d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.add_link_btn {
+  color: #fff;
+}

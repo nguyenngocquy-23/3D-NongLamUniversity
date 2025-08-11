@@ -1,18 +1,13 @@
 package vn.edu.hcmuaf.virtualnluapi.controller.visitor;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.NodeIdRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.UserIdRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 
-import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.MasterNodeResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 import vn.edu.hcmuaf.virtualnluapi.service.NodeService;
 
 import java.util.List;
@@ -27,14 +22,16 @@ public class NodeController {
     @POST
     @Path("/master")
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<MasterNodeResponse>> getAllMasterNodes() {
-        List<MasterNodeResponse> result = nodeService.getAllMasterNodes();
-        return ApiResponse.<List<MasterNodeResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getAllMasterNodes(PageRequest request) {
+        List<NodeFullResponse> result = nodeService.getAllMasterNodes(request);
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
     }
 
     @POST
     @Path("/default")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<NodeFullResponse> getDefaultNode() {
         NodeFullResponse result = nodeService.getDefaultNode();
         return ApiResponse.<NodeFullResponse>builder().statusCode(1000).message("Lay danh sach node thanh cong").data(result).build();
@@ -51,6 +48,7 @@ public class NodeController {
     @POST
     @Path("/preloadNodeList")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<List<NodeFullResponse>> getPreloadNodeList(NodeIdRequest node) {
         try {
             List<NodeFullResponse> result = nodeService.getListPreloadNodeByNode(node.getNodeId());
@@ -79,8 +77,40 @@ public class NodeController {
     }
 
     @POST
+    @Path("/nodeListByMasterId")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeExpandResponse>> getNodeListByMasterId(NodeIdRequest node) {
+        try {
+            List<NodeExpandResponse> result = nodeService.getNodeListByMasterId(node.getNodeId());
+
+            return ApiResponse.<List<NodeExpandResponse>>builder()
+                    .statusCode(1000)
+                    .message("Lấy danh sách node thành công")
+                    .data(result)
+                    .build();
+
+        } catch (NumberFormatException e) {
+            return ApiResponse.<List<NodeExpandResponse>>builder()
+                    .statusCode(1001)
+                    .message("ID node không hợp lệ: " + node.getNodeId())
+                    .data(null)
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.<List<NodeExpandResponse>>builder()
+                    .statusCode(1002)
+                    .message("Đã xảy ra lỗi nội bộ: " + e.getMessage())
+                    .data(null)
+                    .build();
+        }
+    }
+
+    @POST
     @Path("/byId")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public ApiResponse<NodeFullResponse> getNodeById(NodeIdRequest request) {
         NodeFullResponse result = nodeService.getNodeById(request);
         return ApiResponse.<NodeFullResponse>builder().statusCode(1000).message("Lay node theo id thanh cong").data(result).build();
@@ -89,8 +119,72 @@ public class NodeController {
     @POST
     @Path("/byUser")
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse<List<NodeFullResponse>> getNodeByUser(UserIdRequest request) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getNodeByUser(UserIdRequest request, PageRequest pageRequest) {
         List<NodeFullResponse> result = nodeService.getNodeByUser(request);
         return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node theo nguoi tao thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/privateByUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getPrivateNodeByUser(UserIdRequest request) {
+        List<NodeFullResponse> result = nodeService.getPrivateNodeByUser(request);
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node theo nguoi tao thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/failByUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<NodeFullResponse>> getFailNodeByUser(UserIdRequest request) {
+        List<NodeFullResponse> result = nodeService.getFailNodeByUser(request);
+        return ApiResponse.<List<NodeFullResponse>>builder().statusCode(1000).message("Lay danh sach node theo nguoi tao thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/changeStatus")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> changeStatus(StatusRequest request) {
+        boolean result = nodeService.changeStatusAtomic(request);
+        return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat trang thai thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/remove")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> remove(NodeIdRequest request) {
+        boolean result = nodeService.remove(request);
+        return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat trang thai thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/increaseView")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Boolean> increaseView(List<NodeViewRequest> request) {
+        boolean result = nodeService.increaseView(request);
+        return ApiResponse.<Boolean>builder().statusCode(1000).message("Cap nhat luot truy cap thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/getNumOfUser")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<Integer> getNumOfUser(UserIdRequest request) {
+        int result = nodeService.getNumOfUser(request);
+        return ApiResponse.<Integer>builder().statusCode(1000).message("Cap nhat luot truy cap thanh cong").data(result).build();
+    }
+
+    @POST
+    @Path("/getAutoTour")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ApiResponse<List<AutoTourResponse>> getAutoTour(PageRequest request) {
+        List<AutoTourResponse> result = nodeService.getAutoTour(request);
+        return ApiResponse.<List<AutoTourResponse>>builder().statusCode(1000).message("Lay danh sach tour tu dong thanh cong").data(result).build();
     }
 }

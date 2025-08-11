@@ -3,59 +3,201 @@ import styles from "../styles/minimap.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
 import {
+  addPanorama,
+  deletePanoramaById,
   PanoramaItem,
   renameMasterAndUpdateSlaves,
   selectPanorama,
   setMasterPanorama,
+  setSpaceId,
+  updatePanoConfig,
 } from "../redux/slices/PanoramaSlice";
 import { RiEdit2Line } from "react-icons/ri";
-import { MdZoomInMap, MdZoomOutMap } from "react-icons/md";
+import { MdAdsClick, MdClear, MdZoomInMap, MdZoomOutMap } from "react-icons/md";
 import { getAngleFromXZ, getArcAnglesThree } from "../utils/MathUtils";
 import {
   DEFAULT_ANGLE_RADAR,
   DEFAULT_ANGLE_THREE,
+  MAX_QUANTITY_PANORAMA,
   RADIUS_MINIMAP_TOUR,
   RADIUS_SPHERE,
 } from "../utils/Constants";
 import { GiQueenCrown } from "react-icons/gi";
 import { TiTick } from "react-icons/ti";
-import { use, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import TrackingNode from "./admin/minimap/TrackingNode";
 import {
   getFilteredHotspotNavigationById,
   getFilteredHotspotNavigationOfMaster,
   getFilteredHotspotNavigations,
+  getHotspotLinkMap,
 } from "../redux/slices/Selectors";
-import { clearHotspotNavigation } from "../redux/slices/HotspotSlice";
+import {
+  clearHotspotNavigation,
+  deleteHotspotByNodeId,
+  deleteHotspotHaveDatabase,
+} from "../redux/slices/HotspotSlice";
 import { FaSave } from "react-icons/fa";
+import ImageSelect from "./SelectPanorama";
+import { AnimatePresence, motion } from "framer-motion";
+import { TbTournament } from "react-icons/tb";
+import { useImageCache } from "../contexts/ImageCacheContext";
+import { IoSettings } from "react-icons/io5";
+import { FaLock, FaLockOpen, FaPlus } from "react-icons/fa6";
+import Swal from "sweetalert2";
+import UploadFile, {
+  ApiResponse,
+  CloudinaryUploadResp,
+  FileUploadStatus,
+} from "./admin/UploadFile";
+import { isValidAspectRatio } from "../utils/ValidPanorama";
+import axios, { AxiosError } from "axios";
+import { API_URLS } from "../env";
+import { buildImageUrlWithQuality } from "../utils/getCloudinaryURL";
+import { isInteger } from "../utils/TourNodeRequestMapper";
 
 type MiniMapProps = {
   currentPanorama: PanoramaItem;
   angleCurrent: number;
+  currentTour?: string;
+  locked?: boolean;
+  spaceName?: string | null;
+  fieldName?: string | null;
 };
-const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
+const MiniMap: React.FC<MiniMapProps> = ({
+  currentPanorama,
+  angleCurrent,
+  currentTour,
+  locked,
+  spaceName,
+  fieldName,
+}) => {
   const handleSelectNode = (id: string) => {
     dispatch(selectPanorama(id));
   };
 
+  const handleSelectMasterNode = (nodeId: string) => {
+    dispatch(setMasterPanorama(nodeId));
+    dispatch(clearHotspotNavigation());
+    setChooseMaster(false);
+  };
+
+  const [fileStatuses, setFileStatuses] = useState<FileUploadStatus | null>(
+    null
+  );
+
+  const [chooseMaster, setChooseMaster] = useState<boolean>(false);
+  const handleChooseMaster = () => {
+    setChooseMaster((p) => !p);
+  };
+
+  const deletePanoramaItem = (id: string) => {
+    if (currentPanorama.id === id) {
+      Swal.fire({
+        icon: "warning",
+        title: "⚠️ Node đang được hiển thị!",
+        text: `Vui lòng di chuyển sang node mới trước khi xoá node này!`,
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: "Hành động này sẽ không thể hoàn tác?",
+      showCancelButton: true,
+      confirmButtonText: "Xoá",
+      cancelButtonText: "Huỷ",
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        const panorama = panoramaList.find((p) => p.id === id);
+        if (panorama) {
+          const url = panorama.url;
+          const cache = imageRef.current[url];
+          if (cache) {
+            URL.revokeObjectURL(cache.objectUrl); //
+            delete imageRef.current[url];
+          }
+        }
+
+        Swal.fire("Xoá thành công!", "", "success");
+        dispatch(deletePanoramaById(id));
+
+        if (isInteger(id)) {
+          dispatch(deleteHotspotHaveDatabase(id));
+        } else {
+          dispatch(deleteHotspotByNodeId(id));
+        }
+      }
+    });
+  };
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const onChooseFile = () => {
+    inputRef.current?.click();
+  };
+
+  const imageRef = useImageCache();
+
   const dispatch = useDispatch();
 
-  const { panoramaList } = useSelector((state: RootState) => state.panoramas);
+  const { panoramaList, spaceId } = useSelector(
+    (state: RootState) => state.panoramas
+  );
 
+  const filterPanoramaList = panoramaList.filter((p) => p.config.status !== 0);
+  /** Filter ra các panos khác tour (Khi update)
+   * + status = 2 # với node hiện tại.
+   * + status = 0
+   */
+  const panaramaListInTour = currentTour
+    ? filterPanoramaList.filter(
+        (p) => p.config.status !== 2 || p.id == currentTour
+      )
+    : filterPanoramaList; //Filter ra các panos khác tour.
+
+  const { spaces } = useSelector((state: RootState) => state.data);
+  const spaceItem = spaces.find((s) => s.id === Number(spaceId));
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
-  const masterPanorama = panoramaList.find((h) => h.config.status === 2);
+  const masterPanorama = panoramaList.find((h) => h.config.status > 1);
+
   /**
    * Là danh sách các hostpot navigation từ Master Node.
    * - Đã có targetNodeId!
    */
   const hotspotFromMaster = useSelector(getFilteredHotspotNavigationOfMaster);
+
+  // 1 angle1 lưu default và 1 angle2 xoay khác truyền vào radar
+  // 2 angle đều duoc hiện ở camcontrol nhưng k set andle2 giá trị của angle1 để
+  // hướng mặc định của radar là 310-50 -> angle?
+  // angle1 dùng để lưu vào redux
+  // control thay đổi thì thay đổi angle2 và truyền vào radar -> tính start/end angle
+  // change camcontrol thì change angle2 -> angle2 dùng cho các node trên radar ( không qua tâm hướng mặc định của nó )
+  // khi chuyển node sẽ set lại ref angle radar
+  // nhận vào giá trị ban đầu, hướng lên, và khi đã có giá trị lần 2 thì các lần khác k cần
+  // chia làm 2 tham chiếu ở lớp cha phân biệt hướng mặc định và hướng xoay.
   const { startSvg, endSvg } = getArcAnglesThree(
     DEFAULT_ANGLE_THREE,
     DEFAULT_ANGLE_RADAR,
     angleCurrent,
     100
   );
+
+  // useEffect(() => {
+  //   console.log("angleCurrent...", angleCurrent);
+  // }, [angleCurrent]);
 
   /**
    *
@@ -66,6 +208,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
    * @param endAngle : Toạ độ x,z của điểm kết thúc cánh quạt (Lấy góc so với trục x dương)
    * @returns 1 phần hình tròn: 1 phần quạt dạng radar.
    */
+
   function generateArcPath(
     cx: number,
     cz: number,
@@ -98,6 +241,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
     Z
   `;
   }
+
   /**
    *
    * @param id : targetNodeId được truyền vào
@@ -105,7 +249,9 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
    */
   const panoramaTargetUrl = (id: string) => {
     const panoramaTarget = panoramaList.find((pano) => pano.id === id);
-    return panoramaTarget?.url;
+    return (
+      imageRef.current[panoramaTarget?.url]?.objectUrl || panoramaTarget?.url
+    );
   };
 
   /**
@@ -172,29 +318,55 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
    * 1. targetNodeId của nó phải có giá trị.
    * 2. hotspot của node đó hoặc hotspot trỏ đến node đó. (2 chiều)
    */
-  const hotspotNavigationFromNode = (nodeId: string) => {
-    const selector = getFilteredHotspotNavigationById(nodeId);
-    return selector;
-  };
+  // const hotspotNavigationFromNode = (nodeId: string) => {
+  //   const selector = getFilteredHotspotNavigationById(nodeId);
+  //   return selector;
+  // };
+  const allHotspotNav = useSelector(getFilteredHotspotNavigations);
+  const getNavigationForNode = useCallback(
+    (nodeId: string) => {
+      return allHotspotNav.filter(
+        (h) => h.nodeId === nodeId || h.targetNodeId === nodeId
+      );
+    },
+    [allHotspotNav]
+  );
 
-  const checkFullhotspotNavigation = (nodeId: string, nodeStatus: number) => {
-    const limit = 2 * limitNavigation(nodeStatus === 2);
-    return hotspotNavigationFromNode(nodeId).length === limit;
-  };
+  /**
+   * Kiểm tra đã đủ hotspot navigation chưa.
+   * @param nodeId
+   * @param nodeStatus
+   * status 1 = 2 là full.
+   * status 2 = Số lượng status 1 *
+   */
+
+  const checkFullhotspotNavigation = useCallback(
+    (nodeId: string, nodeStatus: number) => {
+      const limit = 2 * limitNavigation(nodeStatus === 2);
+      return getNavigationForNode(nodeId).length === limit;
+    },
+    [getNavigationForNode]
+  );
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const handleZoomMap = () => {
+    if (locked) return;
     setIsExpanded((prev) => !prev);
   };
 
+  const handleSelectSpace = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    dispatch(setSpaceId(event.target.value));
+  };
   const handleEditInput = () => {
     if (!isEditing) setIsEditing(true);
   };
-  const handleRename = () => {
+  const handleRename = (name: string) => {
     if (!masterPanorama) return;
 
-    const trimmedName = masterNameInput.trim();
+    const trimmedName = name.trim();
     if (!trimmedName) return; // tránh tên trống
 
     dispatch(
@@ -211,6 +383,151 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
   useEffect(() => {
     setMasterNameInput(masterPanorama?.config.name || "");
   }, [masterPanorama]);
+
+  const options = panoramaList.map((p) => ({
+    value: p.id,
+    label: p.config.name,
+    imageUrl: imageRef.current[p.url]?.objectUrl || p.url,
+  }));
+
+  /**
+   * Kiểm tra file tải lên:
+   * + Tỷ lệ 16:9.
+   * + Chính xác có đuôi mong muốn
+   *
+   */
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const newFile = e.target.files?.[0];
+    if (!newFile) return;
+
+    const isValid = await isValidAspectRatio(newFile);
+
+    if (!isValid) {
+      Swal.fire({
+        icon: "warning",
+        title: "Vui lòng tải lên ảnh 360 đúng định dạng để tiếp tục",
+        text: `Ảnh không có tỉ lệ 2:1 và sẽ bị loại.`,
+        confirmButtonText: "Đồng ý",
+      });
+      return;
+    }
+    setFileStatuses({
+      file: newFile,
+      status: "uploading",
+    });
+
+    await handleUpload(newFile);
+  };
+
+  const handleUpload = async (file: File): Promise<void> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const resp = await axios.post<ApiResponse<CloudinaryUploadResp>>(
+        API_URLS.UPLOAD_CLOUD,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      if (resp.data.statusCode === 200) {
+        const item = resp.data.data!;
+        if (item.originalFileName && item.url) {
+          Swal.fire({
+            icon: "success",
+            title: "Tải ảnh thành công!!",
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true,
+          });
+          // Đánh dấu thành công
+          setFileStatuses({
+            file,
+            status: "success",
+            uploadedUrl: item.url,
+          });
+
+          dispatch(
+            addPanorama({
+              originalFileName: item.originalFileName,
+              url: item.url,
+            })
+          );
+
+          const existing = imageRef.current[item.url];
+          if (!existing || existing.quality !== "8K") {
+            try {
+              const highResURL = buildImageUrlWithQuality(item.url, "8K");
+              const response = await fetch(highResURL, { mode: "cors" });
+              const blob = await response.blob();
+              const objectUrl = URL.createObjectURL(blob);
+
+              const img = new Image();
+              img.crossOrigin = "anonymous";
+              img.src = objectUrl;
+
+              await new Promise<void>((resolve, reject) => {
+                img.onload = () => {
+                  if (item.url) {
+                    imageRef.current[item.url] = {
+                      img,
+                      objectUrl,
+                      quality: "8K",
+                      lastUsed: Date.now(),
+                    };
+                  }
+                  resolve();
+                };
+                img.onerror = reject;
+              });
+            } catch (err) {
+              console.warn("Không tải được ảnh 8K sau upload:", item.url, err);
+            }
+          }
+        }
+      } else {
+        // Đánh dấu lỗi nếu server trả về lỗi
+
+        setFileStatuses({
+          file,
+          status: "error",
+          error: resp.data.message,
+        });
+        Swal.fire({
+          icon: "error",
+          title: `Tải ảnh thất bại ${fileStatuses?.error}`,
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+      }
+    } catch (error: unknown) {
+      const err = error as AxiosError<ApiResponse<null>>;
+      const message = err.response?.data?.message || err.message;
+
+      // Đánh dấu lỗi nếu request bị lỗi
+      setFileStatuses({
+        file,
+        status: "error",
+        error: message,
+      });
+
+      Swal.fire({
+        icon: "error",
+        title: `Tải ảnh thất bại ${fileStatuses?.error}`,
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+      });
+    }
+  };
+
   return (
     <Html
       transform={false}
@@ -229,10 +546,8 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
         }}
       >
         {!isExpanded && (
-          <div className={styles.minimap_header}>
-            <MdZoomOutMap onClick={handleZoomMap} />
-            <RiEdit2Line />
-            {panoramaList.map((item) => (
+          <motion.div layoutId="minimap" className={styles.minimap_header}>
+            {filterPanoramaList.map((item) => (
               <div key={item.id} className={styles.node}>
                 <div
                   className={` ${styles.node_view}  ${
@@ -241,7 +556,7 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                   onClick={() => handleSelectNode(item.id)}
                 >
                   <img
-                    src={item.url}
+                    src={imageRef.current[item.url]?.objectUrl || item.url}
                     alt={item.config.name}
                     className={styles.thumbnail_node}
                   />
@@ -250,96 +565,54 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
                       <TiTick className={styles.node_tick} />
                     </div>
                   )}
-
-                  {item.config.status === 2 && (
-                    <div className={styles.master_node_icon_container}>
-                      <GiQueenCrown className={styles.master_node_icon} />
-                    </div>
+                  {[2, 3].includes(item.config.status) ? (
+                    currentTour ? (
+                      item.id !== currentTour ? (
+                        <div className={styles.master_node_icon_container}>
+                          <TbTournament className={styles.master_node_icon} />
+                        </div>
+                      ) : (
+                        <div className={styles.master_node_icon_container}>
+                          <GiQueenCrown className={styles.master_node_icon} />
+                        </div>
+                      )
+                    ) : (
+                      <div className={styles.master_node_icon_container}>
+                        <GiQueenCrown className={styles.master_node_icon} />
+                      </div>
+                    )
+                  ) : (
+                    ""
                   )}
-
                   <span className={styles.node_name}>{item.config.name}</span>
                 </div>
               </div>
             ))}
-          </div>
+            {!locked && (
+              <span className={styles.minimap_setting} onClick={handleZoomMap}>
+                <IoSettings />
+              </span>
+            )}
+          </motion.div>
         )}
 
         <div className={styles.minimap_preview_zoom}>
-          {isExpanded && (
-            <div
-              className={`${styles.tour_general_information} ${styles.tour_general}`}
-            >
-              <div className={styles.tour_information_item}>
-                <span>Lĩnh vực: </span>
-              </div>
-              <div className={styles.tour_information_item}>
-                <span>Không gian: {"1"}</span>
-              </div>
-              <div className={styles.tour_information_item}>
-                <span>Số lượng ảnh: {panoramaList.length}</span>
-              </div>
-              <div className={styles.tour_information_item}>
-                <span>Trung tâm tour:</span>
-                <select
-                  className={styles.custom_select}
-                  onChange={(e) => {
-                    const selectedId = e.target.value;
-                    if (selectedId) {
-                      dispatch(setMasterPanorama(selectedId));
-                      dispatch(clearHotspotNavigation());
-                    }
-                  }}
-
-                  // onChange={handleSelectSpace}
-                >
-                  <option value="0">-- Chọn ảnh --</option>
-                  {panoramaList.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.config.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className={`${styles.tour_information_item} `}>
-                <span>Tên tour : </span>
-                <div className={styles.input_container}>
-                  <input
-                    type="text"
-                    id="input"
-                    required
-                    readOnly={!isEditing}
-                    value={masterNameInput}
-                    onChange={(e) => setMasterNameInput(e.target.value)}
-                  />
-                  {!isEditing ? (
-                    <RiEdit2Line
-                      className={styles.input_edit}
-                      onClick={handleEditInput}
-                    />
-                  ) : (
-                    <FaSave
-                      className={styles.input_edit}
-                      onClick={handleRename}
-                    />
-                  )}
-
-                  <div className={styles.underline}></div>
-                </div>
-              </div>
-            </div>
-          )}
           <div
             className={
               isExpanded ? styles.minimap_content_zoom : styles.minimap_content
             }
           >
             <img
-              src={masterPanorama?.url}
+              src={
+                imageRef.current[masterPanorama?.url]?.objectUrl ||
+                masterPanorama?.url
+              }
               alt="panorama_master"
               className={
                 isExpanded ? styles.master_node_zoom : styles.master_node
               }
             />
+
             {hotspotFromMaster.map((item) => {
               const { x, y } = scalePosition(item.positionX, item.positionZ);
               return (
@@ -378,23 +651,142 @@ const MiniMap: React.FC<MiniMapProps> = ({ currentPanorama, angleCurrent }) => {
         {isExpanded && (
           <>
             <div className={styles.tour_settings}>
+              <div
+                className={`${styles.tour_general_information} ${styles.tour_general}`}
+              >
+                <div className={styles.tour_information_item}>
+                  <span>
+                    Lĩnh vực:{" "}
+                    {fieldName ?? spaceItem?.fieldName ?? "Không tìm thấy"}
+                  </span>
+                </div>
+                <div className={styles.tour_information_item}>
+                  <span>
+                    Không gian:{" "}
+                    {spaceName ?? spaceItem?.name ?? "Không tìm thấy"}
+                  </span>
+                </div>
+                <div className={`${styles.tour_information_item} `}>
+                  <span className={styles.label_information}>Tên tour : </span>
+                  <div className={styles.input_container}>
+                    {!isEditing ? (
+                      <>
+                        <input
+                          type="text"
+                          id="input"
+                          value={masterNameInput}
+                          disabled
+                        />
+
+                        <RiEdit2Line
+                          className={styles.input_edit}
+                          onClick={handleEditInput}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <input
+                          type="text"
+                          id="input"
+                          ref={inputRef}
+                          required
+                          defaultValue={masterNameInput}
+                        />
+                        <FaSave
+                          className={styles.input_edit}
+                          onClick={() => {
+                            const newName = inputRef.current?.value || "";
+                            setMasterNameInput(newName);
+                            handleRename(newName);
+                          }}
+                        />
+                      </>
+                    )}
+                    <div className={styles.underline}></div>
+                  </div>
+                </div>
+
+                <div className={styles.tour_information_item}>
+                  <span className={styles.label_information}>
+                    Danh sách ảnh: ({panaramaListInTour.length})
+                  </span>
+                  <div className={styles.list_panorama_container}>
+                    {panaramaListInTour.map((item) => (
+                      <div key={item.id} className={styles.list_panorama_item}>
+                        <img
+                          src={
+                            imageRef.current[item.url]?.objectUrl || item.url
+                          }
+                          alt={item.config.name}
+                          className={styles.thumbnail_node}
+                          onClick={
+                            chooseMaster
+                              ? () => {
+                                  handleSelectMasterNode(item.id);
+                                }
+                              : undefined
+                          }
+                        />
+
+                        <span
+                          className={styles.delete_panorama_item}
+                          onClick={() => {
+                            deletePanoramaItem(item.id);
+                          }}
+                        >
+                          <MdClear />
+                        </span>
+                        {[2, 3].includes(item.config.status) && (
+                          <span className={styles.master_panorama_item}>
+                            <GiQueenCrown />
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                    {panaramaListInTour.length < MAX_QUANTITY_PANORAMA && (
+                      <div className={styles.list_panorama_item}>
+                        <input
+                          ref={inputRef}
+                          type="file"
+                          onChange={handleFileChange}
+                          accept={".jpg , .jpeg, .avif, .webp, .png"}
+                          style={{ display: "none" }}
+                        />
+                        {fileStatuses && fileStatuses.status === "uploading" ? (
+                          <div className={styles.loaderWrapper}>
+                            <div className={styles.loader}></div>
+                          </div>
+                        ) : (
+                          <FaPlus onClick={onChooseFile} />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.tour_information_item}>
+                  <span>Chọn ảnh trung tâm</span>
+                  <div
+                    className={styles.choose_master}
+                    onClick={() => {
+                      handleChooseMaster();
+                    }}
+                  >
+                    {chooseMaster ? <FaLockOpen /> : <FaLock />}
+                  </div>
+                </div>
+              </div>
               <div className={styles.tour_tracking}>
                 <TrackingNode
-                  panoramaList={panoramaList}
+                  panoramaList={panaramaListInTour}
                   hotspotNavigations={hotspotNavigations}
+                  imageRef={imageRef}
                 />
-              </div>
-              <div className={`${styles.tour_edit} ${styles.tour_general}`}>
-                <span>Lĩnh vực: </span>
-                <span>Không gian: </span>
               </div>
             </div>
 
-            <span>
-              <MdZoomInMap
-                className={styles.zoomOutMap}
-                onClick={handleZoomMap}
-              />
+            <span className={styles.zoom_out_minimap} onClick={handleZoomMap}>
+              <MdZoomInMap />
             </span>
           </>
         )}

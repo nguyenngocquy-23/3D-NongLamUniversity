@@ -26,14 +26,38 @@ public class SpaceService {
     public List<SpaceResponse> getSpaceByFieldId(SpaceReadRequest req) {
         return spaceDao.getSpaceByFieldId(req);
     }
+
     public List<SpaceFullResponse> getAllSpaces() {
         return spaceDao.getAllSpaces();
     }
-
-    public boolean changeStatusSpace(StatusRequest req) {
-        return spaceDao.changeStatusSpace(req);
+    public List<SpaceFullResponse> getAllSpacesInVisitor() {
+        return spaceDao.getAllSpacesInVisitor();
+    }
+    public List<SpaceFullResponse> getSpacesByPage(PageRequest request) {
+        return spaceDao.getSpacesByPage(request);
     }
 
+    public SpaceFullResponse getSpaceById(SpaceIdRequest req) {
+        return spaceDao.getSpaceById(req);
+    }
+
+    public boolean changeStatusSpaceMaster(StatusRequest req) {
+        return spaceDao.changeStatusSpaceMaster(req);
+    }
+
+    public boolean changeStatusSpace(StatusRequest req) {
+        return spaceDao.changeStatus(req);
+    }
+
+
+    public boolean changeNameSpace(ChangeNameRequest req) {
+        return spaceDao.changeNameSpace(req);
+    }
+
+
+    public boolean setMasterNode(SpaceChangeMasterRequest req) {
+        return spaceDao.setMasterNode(req);
+    }
 
     public boolean attachLocation(List<AttachLocationRequest> request) {
         return spaceDao.attachLocation(request);
@@ -41,5 +65,18 @@ public class SpaceService {
 
     public boolean removeLocation(SpaceIdRequest request) {
         return spaceDao.removeLocation(request);
+    }
+
+    public SpaceFullResponse updateSpacePartial(int id , SpaceUpdateRequest request) {
+        return spaceDao.updateSpacePartial(id, request);
+    }
+
+    public List<SpaceFullResponse> search(String searchKey) {
+        try {
+            return spaceDao.search(searchKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 }

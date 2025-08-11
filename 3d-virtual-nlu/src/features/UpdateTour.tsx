@@ -9,23 +9,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../redux/Store.tsx";
 
-interface ControlsProps {
-  enableZoom?: boolean;
-}
-
-const Controls: React.FC = () => {
-  const controlsRef = useRef<OrbitControlsImpl>(null);
-
-  return (
-    <OrbitControls
-      ref={controlsRef}
-      enableZoom={false}
-      autoRotate={true}
-      autoRotateSpeed={0.5}
-    />
-  );
-};
-
 interface NodeProps {
   url: string;
   radius: number;
@@ -89,9 +72,6 @@ const Scene = ({ cameraPosition }: SceneProps) => {
 };
 
 const UpdateNode: React.FC = () => {
-  const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
-  const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
-
   const dispatch = useDispatch<AppDispatch>(); // hotspot
   const sphereRef = useRef<THREE.Mesh | null>(null);
 
@@ -113,10 +93,7 @@ const UpdateNode: React.FC = () => {
   const location = useLocation();
   const tourData = location.state;
 
-  console.log("Tour nhận được:", tourData);
-
   const handleClose = () => {
-    console.log('close manage tour')
     navigate("/admin/manageTour");
   };
 
@@ -129,22 +106,27 @@ const UpdateNode: React.FC = () => {
           aspect: window.innerWidth / window.innerHeight,
         }}
       >
-        <Node
+        {/* <Node
           url={tourData.url ?? "/khoa.jpg"}
           radius={radius}
           sphereRef={sphereRef}
           lightIntensity={tourData.lightIntensity}
+        /> */}
+        <Scene
+          cameraPosition={[
+            tourData.positionX,
+            tourData.positionY,
+            tourData.positionZ,
+          ]}
         />
-        <Scene cameraPosition={[tourData.positionX, tourData.positionY, tourData.positionZ]} />
-        <OrbitControls
-          rotateSpeed={0.5}
-          autoRotate={tourData.autoRotate}
-          autoRotateSpeed={tourData.speedRotate}
-        />
+        <OrbitControls rotateSpeed={0.5} />
       </Canvas>
       <div className={styles.header_tour}>
         <div className={styles.step_title}>
-          <FaAngleLeft className={styles.back_btn} onClick={()=>handleClose()} />
+          <FaAngleLeft
+            className={styles.back_btn}
+            onClick={() => handleClose()}
+          />
           <h2> Quay lại</h2>
         </div>
       </div>

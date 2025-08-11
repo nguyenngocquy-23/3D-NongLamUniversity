@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { registerUser } from "../../redux/slices/AuthSlice";
+import { DEFAULT_AVATAR } from "../../env";
 
 const Register: React.FC = () => {
   // Khai báo state để lưu trữ giá trị của username, password và confirmPassword
@@ -104,15 +105,16 @@ const Register: React.FC = () => {
     }
 
     try {
+      const avatar = DEFAULT_AVATAR;
       // Dispatch action đăng nhập
       const response = await dispatch(
-        registerUser({ username, email, password })
+        registerUser({ username, email, password, avatar })
       ).unwrap();
       if (response) {
-        setUsername("")
-        setEmail("")
-        setPassword("")
-        setConfirmPassword("")
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
         navigate("/verify");
       }
     } catch (err: any) {
@@ -146,7 +148,7 @@ const Register: React.FC = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              placeholder="Enter your username"
+              placeholder="Tên đăng nhập"
               className={styles.inputField}
             />
           </div>
@@ -158,7 +160,7 @@ const Register: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="Enter your email"
+              placeholder="Tài khoản email"
               className={styles.inputField}
             />
           </div>
@@ -170,7 +172,7 @@ const Register: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Enter your password"
+              placeholder="Mật khẩu"
               className={styles.inputField}
             />
             <FontAwesomeIcon
@@ -188,7 +190,7 @@ const Register: React.FC = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              placeholder="Confirm your password"
+              placeholder="Xác nhận mật khẩu"
               className={styles.inputField}
             />
           </div>
@@ -197,13 +199,13 @@ const Register: React.FC = () => {
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? "Logging in..." : "Register"}
+            {isLoading ? "Đang đăng ký..." : "Đăng ký"}
           </button>
         </form>
         <p>
-          Already have an account?
+          Đã có tài khoản?{" "}
           <Link className={styles.link} to="/login">
-            Login here!
+             Đăng nhập!
           </Link>
         </p>
       </div>

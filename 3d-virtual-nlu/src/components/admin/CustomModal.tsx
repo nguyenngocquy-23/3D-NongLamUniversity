@@ -10,6 +10,7 @@ import {
 } from "../../redux/slices/DataSlice";
 import { AppDispatch, RootState } from "../../redux/Store";
 import UploadFile from "./UploadFile";
+import { perPage } from "../../utils/Constants";
 
 interface CustomModalProps {
   onClose: () => void;
@@ -78,8 +79,8 @@ const CustomModal: React.FC<CustomModalProps> = ({
       const response = await axios.post(apiUrl, formData);
       if (response.data.statusCode === 1000 || response.status === 200) {
         handleFadeOut();
-        dispatch(fetchFields());
-        dispatch(fetchSpaces());
+        dispatch(fetchFields({page: perPage, limit: 0}));
+        dispatch(fetchSpaces({page: perPage, limit: 0}));
         dispatch(fetchIcons());
       } else {
         Swal.fire({
@@ -112,6 +113,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
         }}
         onClick={handleFadeOut}
       ></div>
+
       <div className={`${styles.monitor} ${fadeOut ? styles.fadeOut : ""}`}>
         <div className={styles.content}>
           <h1>{title}</h1>
@@ -127,9 +129,9 @@ const CustomModal: React.FC<CustomModalProps> = ({
                   className={styles.input}
                   name={field.name}
                   value={formData[field.name] || ""}
-                  onChange={handleChangeInput}
                 >
                   <option value="">-- Chọn lĩnh vực --</option>
+
                   {listFields.map((f) => (
                     <option key={f.id} value={f.id}>
                       {f.name}
@@ -141,7 +143,6 @@ const CustomModal: React.FC<CustomModalProps> = ({
                   className={styles.input}
                   name={field.name}
                   value={formData[field.name] || ""}
-                  onChange={handleChangeInput}
                   rows={4}
                 />
               ) : field.name === "iconUrl" ? (

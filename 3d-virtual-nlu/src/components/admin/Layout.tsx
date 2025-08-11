@@ -9,6 +9,9 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
 import { useLocation } from "react-router-dom"; // track url nam
 import {
+  fetchAutoNode,
+  fetchContacts,
+  fetchDashboard,
   fetchFields,
   fetchHotspotTypes,
   fetchIcons,
@@ -17,6 +20,8 @@ import {
 } from "../../redux/slices/DataSlice";
 import { scheduleTokenRefresh } from "../../utils/ScheduleRefreshToken";
 import Sidebar from "./Sidebar";
+import { perPage } from "../../utils/Constants";
+import { resetStep } from "../../redux/slices/StepSlice";
 
 const Layout = () => {
   const currentUserJson = sessionStorage.getItem("user");
@@ -25,26 +30,29 @@ const Layout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [title, setTitle] = useState("Tổng quan");
 
   useEffect(() => {
-    console.log("currentUser:", currentUser);
     if (
       currentUser == undefined ||
       currentUser == null ||
-      (currentUser && currentUser.roleId !== 2)
+      (currentUser && currentUser.roleId !== 2 && currentUser.roleId !== 3)
     ) {
-      console.log("navigate");
       navigate("/unauthorized");
       return;
     }
+    dispatch(resetStep());
   }, []);
 
   useEffect(() => {
-    dispatch(fetchFields());
-    dispatch(fetchSpaces());
+    dispatch(fetchDashboard());
+    dispatch(fetchFields({ limit: perPage, page: 0}));
+    dispatch(fetchSpaces({ limit: perPage, page: 0 }));
     dispatch(fetchHotspotTypes());
-    dispatch(fetchNodes());
+    dispatch(fetchNodes({ limit: perPage, page: 0 }));
     dispatch(fetchIcons());
+    dispatch(fetchContacts());
+    dispatch(fetchAutoNode({ limit: perPage, page: 0 }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -54,13 +62,9 @@ const Layout = () => {
     }
   }, []);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    navigate("/login");
-  };
-
   const currentStep = useSelector((state: RootState) => state.step.currentStep);
   const [isOptionFullScreen, setIsOptionFullScreen] = useState(true);
+  const [isOpenSideBar, setIsOpenSideBar] = useState(false);
 
   useEffect(() => {
     if (
@@ -77,37 +81,25 @@ const Layout = () => {
     <div className={styles.container}>
       {/* Sidebar */}
       {!isOptionFullScreen && currentUser && (
-        <Sidebar isOpenSidebar={true} currentUser={currentUser} />
+        <Sidebar
+          isOpenSidebar={isOpenSideBar}
+          currentUser={currentUser}
+          setTitle={setTitle}
+        />
       )}
       {/* Main Content */}
       <main className={styles.main_contain}>
-        {/* {isOptionFullScreen && (
-          <header className={styles.header}>
-            <div className={styles.extension}>
-              <input
-                className={styles.input_search}
-                type="text"
-                placeholder="Search..."
-              />
-              <div className={styles.sub_extension}>
-                <FaSearch />
-              </div>
-              <div className={styles.sub_extension}>
-                <FaBell />
-              </div>
-              <div className={styles.sub_extension}>
-                <FaMessage />
-              </div>
-            </div>
-            <button onClick={handleLogout}>Đăng xuất</button>
-          </header>
-        )} */}
         {!isOptionFullScreen && (
           <header className={styles.header}>
-            <h2>Tổng quan</h2>
+            <h2>{title}</h2>
           </header>
         )}
-        <section className={styles.content}>
+        <section
+          className={styles.content}
+          style={{
+            borderRadius: isOptionFullScreen ? "0" : "10px",
+          }}
+        >
           <Outlet />
         </section>
       </main>

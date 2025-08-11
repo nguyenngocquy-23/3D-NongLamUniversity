@@ -6,9 +6,12 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import vn.edu.hcmuaf.virtualnluapi.dao.FieldDao;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.ChangeNameRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
+import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 
 import java.util.List;
 
@@ -27,11 +30,31 @@ public class FieldService {
         return fieldDao.getAllFields();
     }
 
+    public List<FieldResponse> getAllFieldsInVisitor() {
+        return fieldDao.getAllFieldsInVisitor();
+    }
+
+    public List<FieldResponse> getFieldsByPage(PageRequest request) {
+        return fieldDao.getFieldsByPage(request);
+    }
+
     public FieldResponse getFieldById(int id) {
         return fieldDao.getFieldById(id);
     }
 
     public boolean changeStatusField(StatusRequest req) {
         return fieldDao.changeStatusField(req);
+    }
+    public boolean changeNameField(ChangeNameRequest req) {
+        return fieldDao.changeNameField(req);
+    }
+
+    public List<FieldResponse> search(String searchKey) {
+        try {
+            return fieldDao.search(searchKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 }

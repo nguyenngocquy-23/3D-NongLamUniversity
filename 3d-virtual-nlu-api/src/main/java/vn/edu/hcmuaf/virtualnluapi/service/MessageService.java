@@ -23,6 +23,7 @@ public class MessageService {
         for (MessageResponse message : result) {
             User user = userDAO.findById(message.getUserId());
             message.setUsername(user.getUsername());
+            message.setAvatar(user.getAvatar());
         }
         return result;
     }

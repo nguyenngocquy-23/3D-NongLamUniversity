@@ -82,7 +82,7 @@
     height: 100%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: rgba(0, 123, 255, 0.5);
+    background: rgba(27, 231, 0, 0.6);
     /* Màu tỏa ra (xanh dương nhạt) */
     animation: pulse 1.5s infinite;
     z-index: -1;

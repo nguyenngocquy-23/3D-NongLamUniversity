@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import {
   MapContainer,
@@ -9,12 +9,18 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import styles from "../../styles/visitor/map.module.css";
-import { AROUND_MAP } from "../../utils/Constants";
+import { AROUND_MAP, perPage } from "../../utils/Constants";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
-import { fetchSpaces, removeLocation } from "../../redux/slices/DataSlice";
+import {
+  fetchAllSpaces,
+  fetchSpaces,
+  removeLocation,
+  setDefaultNode,
+} from "../../redux/slices/DataSlice";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { API_URLS } from "../../env";
 
 const customIcon = L.divIcon({
   className: "",
@@ -42,6 +48,8 @@ interface MapLeafletProps {
   isRemove?: boolean;
   setPoints?: React.Dispatch<React.SetStateAction<any[]>>;
   spaceId?: number;
+  spaces?: any[];
+  hoverMap?: boolean;
 }
 
 // Component con để lắng nghe sự kiện click trên map
@@ -102,13 +110,24 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
   isRemove,
   setPoints,
   spaceId,
+  spaces: propsSpaces,
+  hoverMap,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const listSpaces = useSelector((state: RootState) => state.data.allSpaces);
+
   useEffect(() => {
-    dispatch(fetchSpaces());
-  }, [dispatch]);
-  const spaces = useSelector((state: RootState) => state.data.spaces);
-  const maker = spaces.filter((s) => s.location !== null && s.location !== "");
+    if (!propsSpaces || propsSpaces.length === 0) {
+      dispatch(fetchAllSpaces());
+    }
+  }, [dispatch, propsSpaces]);
+
+  const spacesToUse = (!setPoints ? propsSpaces : listSpaces) ?? [];
+  // propsSpaces && propsSpaces.length > 0 ? propsSpaces : listSpaces;
+
+  const maker = spacesToUse.filter(
+    (s) => s.location !== null && s.location !== ""
+  );
 
   const handleRemove = async (spaceId: number) => {
     const result = await Swal.fire({
@@ -116,12 +135,14 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
       text: "Bạn có chắc chắn muốn gỡ nhãn này?",
       icon: "warning",
       showCancelButton: true,
+      confirmButtonText: "Gỡ",
+      cancelButtonText: "Hủy",
     });
 
     if (result.isConfirmed) {
       try {
         const response = await axios.post(
-          "http://localhost:8080/api/admin/space/removeLocation",
+          API_URLS.ADMIN_REMOVE_SPACE_LOCATION,
           { spaceId: spaceId }
         );
         if (response.data.data) {
@@ -175,7 +196,61 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
     }
   };
 
-  if (spaces.length == 0) {
+  const handleSelectSpace = async (spaceId: number) => {
+    const nodeId = propsSpaces?.find((h: any) => h.id === spaceId).masterNodeId;
+
+    try {
+      const response = await axios.post(API_URLS.NODE_BY_ID, {
+        nodeId: nodeId,
+      });
+      if (response.data.data) {
+        dispatch(setDefaultNode(response.data.data));
+      } else {
+        Swal.fire({
+          title: "Thất bại",
+          text: "Không gian đang bảo trì",
+          icon: "warning",
+          toast: true,
+          timer: 2000,
+          position: "top-right",
+          showCancelButton: false,
+          showConfirmButton: false,
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Thất bại",
+        text: "Không gian đang bảo trì.",
+        icon: "warning",
+        toast: true,
+        timer: 2000,
+        position: "top-right",
+        showCancelButton: false,
+        showConfirmButton: false,
+      });
+    }
+  };
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const space = spacesToUse.find((s) => s.id === spaceId);
+    const location =
+      space.location == ""
+        ? [centerPosition[0], centerPosition[1]]
+        : JSON.parse(space.location);
+    const lat = location[0];
+    const lng = location[1];
+
+    const timeout = setTimeout(() => {
+      map.invalidateSize();
+      map.setView([lat, lng]);
+    }, 300); // match với CSS transition nếu có
+
+    return () => clearTimeout(timeout);
+  }, [hoverMap]);
+
+  if (spacesToUse.length == 0) {
     return null;
   }
 
@@ -192,21 +267,23 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
     >
       {/* 3. TileLayer OpenStreetMap */}
       <TileLayer
-        // url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="© OpenStreetMap contributors"
       />
 
       {/* 4. Marker ở centerPosition với Tooltip */}
-      <Marker position={centerPosition}>
+      {/* <Marker position={centerPosition}>
         <Tooltip direction="top" offset={[-15, -10]} className={styles.tooltip}>
           Trường Đại học Nông Lâm TP.HCM
         </Tooltip>
-      </Marker>
+      </Marker> */}
 
       {maker.length > 0
         ? maker.map((space: any) => {
-            const location = JSON.parse(space.location);
+            const location =
+              space.location == ""
+                ? [centerPosition[0], centerPosition[1]]
+                : JSON.parse(space.location);
             const lat = location[0];
             const lng = location[1];
             const defaultIcon = L.divIcon({
@@ -215,7 +292,9 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
                 spaceId == space.id ? styles.pulse : ""
               }"
               style="background: url(${space.url});
-                    ${spaceId == space.id ? "border: 3px solid blue;" : ""}">
+                    ${
+                      spaceId == space.id ? "border: 3px solid #3cbe22ff;" : ""
+                    }">
               </div>`,
               iconSize: [40, 40],
               iconAnchor: [20, 20],
@@ -224,11 +303,15 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
               <Marker
                 key={space.id}
                 position={{ lat: lat, lng: lng }}
-                icon={isRemove ? customIcon : defaultIcon}
+                icon={isRemove && space.status != 2 ? customIcon : defaultIcon}
                 // icon={isRemove ? customIcon : new L.Icon.Default()}
                 eventHandlers={{
                   click: () => {
-                    isRemove ? handleRemove(space.id) : "";
+                    isRemove && space.status != 2
+                      ? handleRemove(space.id)
+                      : !setPoints
+                      ? handleSelectSpace(space.id)
+                      : "";
                   },
                 }}
               >
@@ -240,7 +323,7 @@ const MapLeaflet: React.FC<MapLeafletProps> = ({
                   <div className={styles.customTooltip}>
                     <img src={space.url} alt="Image" />
                     <div className={styles.text}>
-                      {spaces.find((s) => s.id === space.id)?.name}
+                      {spacesToUse.find((s) => s.id === space.id)?.name}
                     </div>
                   </div>
                 </Tooltip>

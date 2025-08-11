@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-
 .minimap_container_zoom {
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
@@ -33,6 +31,18 @@
   margin-bottom: 10px;
   justify-content: end;
   align-items: center;
+}
+
+.minimap_setting {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.358);
+  color: #000;
+  cursor: pointer;
 }
 
 .node_view {
@@ -86,6 +96,7 @@
   z-index: 20;
   color: #008339;
 }
+
 .node_success .node_tick {
   width: 100%;
   height: 100%;
@@ -102,9 +113,11 @@
   justify-content: center;
   align-items: center;
 }
+
 .master_node_icon_container:active {
   border: 1px solid #f2ff00;
 }
+
 .master_node_icon {
   color: #bd1919;
   font-size: 14px;
@@ -114,6 +127,7 @@
 .node_selected {
   border: 3px solid #f2ff00;
 }
+
 .minimap_preview_zoom {
   display: flex;
   flex-direction: column;
@@ -121,8 +135,8 @@
 }
 
 .minimap_content_zoom {
-  width: 350px;
-  height: 350px;
+  width: 320px;
+  height: 320px;
   border-radius: 5%;
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
@@ -159,6 +173,7 @@
   clip-path: circle(50% at center);
   z-index: 10;
 }
+
 .master_node {
   position: absolute;
   top: 50%;
@@ -170,6 +185,7 @@
   clip-path: circle(50% at center);
   z-index: 10;
 }
+
 .slave_node_zoom {
   position: absolute;
 
@@ -189,6 +205,7 @@
   width: 30px;
   height: 30px;
 }
+
 /* .rotation_node {
   position: absolute;
   width: 100%;
@@ -200,6 +217,86 @@
   display: flex;
   gap: 10px;
 }
+
+.choose_master {
+  background-color: rgba(255, 255, 255, 0.8);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #000000;
+}
+
+.list_panorama_container {
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  gap: 0.5rem;
+  color: #000;
+}
+.list_panorama_item {
+  cursor: pointer;
+  width: 3rem;
+  height: 3rem;
+  background-color: white;
+  border-radius: 5px;
+  border: 1px solid #fff;
+  overflow: visible;
+  position: relative;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.3);
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  filter: brightness(0.8);
+  transition: filter 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.list_panorama_item:hover {
+  filter: brightness(1.1);
+  transform: scale(1.05); /* Nhẹ nhàng phóng to */
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4);
+}
+.list_panorama_item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 5px;
+  transform: scale(1.1) perspective(500px) rotateX(10deg);
+  transition: 0.3s ease;
+}
+
+.list_panorama_item .delete_panorama_item {
+  width: 0.8rem;
+  height: 0.8rem;
+  font-size: 0.8rem;
+  border-radius: 50%;
+  position: absolute;
+  color: #fff;
+  background-color: #bd1919;
+  right: 0;
+  top: 0;
+  transform: translate(50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.list_panorama_item .master_panorama_item {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
+  border-radius: 50%;
+  position: absolute;
+  color: #fbff00;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .custom_select {
   appearance: none;
   /* ẩn mũi tên mặc định */
@@ -239,6 +336,7 @@
   flex-direction: column;
   color: #fff;
   flex: 1;
+  row-gap: 0.5rem;
 }
 
 .input_container {
@@ -272,6 +370,7 @@
 .input_container input[type="text"]:valid ~ .underline {
   transform: scaleX(1);
 }
+
 .input_container .input_edit {
   position: absolute;
   top: 0;
@@ -279,6 +378,7 @@
   transform: translateY(50%);
   color: #bd1919;
 }
+
 .input_container .input_edit:hover {
   cursor: pointer;
   padding: 2px;
@@ -286,6 +386,7 @@
   background-color: #fff;
   transition: ease 0.2s all;
 }
+
 .tour_tracking {
   min-height: 250px;
   background-color: rgba(255, 255, 255, 0.199);
@@ -294,13 +395,110 @@
   padding: 12px;
   border: 2px solid #ffffff4b;
 }
-.zoomOutMap {
+
+.zoom_out_minimap {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #000;
   position: absolute;
   bottom: 0;
   right: 0;
-  transform: translate(-50%, -50%);
+  cursor: pointer;
 }
 
 .tour_edit {
   flex: 1;
+}
+
+.minimap_html {
+  width: auto !important;
+  height: auto !important;
+  position: absolute;
+  z-index: 10;
+  transform: translate(-50%, -50%) !important;
+  top: calc(50% + 35vh) !important;
+  left: calc(50% + 50vw) !important;
+}
+
+.close_buttom:focus {
+  outline: none;
+  border: none;
+}
+
+@keyframes loopOn {
+  0% {
+    transform: translateX(-5px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(10px);
+    opacity: 0;
+  }
+}
+
+.close_buttom:hover svg {
+  animation: loopOn 0.8s ease-in-out infinite;
+}
+
+.close_buttom:hover {
+  opacity: 0.7;
+  transform: scale(1.2);
+}
+
+.close_buttom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20px;
+  height: 100%;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.loaderWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.loader {
+  width: 30px;
+  height: 30px;
+  border: 6px solid;
+  border-color: rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25)
+    rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.5);
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: animloader 1s linear infinite;
+}
+
+@keyframes animloader {
+  0% {
+    border-color: rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25)
+      rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.75);
+  }
+  33% {
+    border-color: rgba(0, 128, 0, 0.75) rgba(0, 128, 0, 0.15)
+      rgba(0, 128, 0, 0.25) rgba(0, 128, 0, 0.35);
+  }
+  66% {
+    border-color: rgba(0, 128, 0, 0.35) rgba(0, 128, 0, 0.75)
+      rgba(0, 128, 0, 0.15) rgba(0, 128, 0, 0.25);
+  }
+  100% {
+    border-color: rgba(0, 128, 0, 0.25) rgba(0, 128, 0, 0.35)
+      rgba(0, 128, 0, 0.75) rgba(0, 128, 0, 0.15);
+  }
 }

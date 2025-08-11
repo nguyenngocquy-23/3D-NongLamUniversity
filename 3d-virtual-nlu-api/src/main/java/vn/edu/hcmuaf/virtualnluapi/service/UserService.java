@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import vn.edu.hcmuaf.virtualnluapi.config.SystemConstant;
 import vn.edu.hcmuaf.virtualnluapi.dao.EmailVerificationDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.RoleDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.UserDao;
@@ -39,7 +40,12 @@ public class UserService {
     }
 
     public User getUserByUserName(String username) {
-        return userDao.findByUsername(username);
+        try {
+            return userDao.findByUsername(username);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public List<User> getAllUser() {
@@ -47,7 +53,12 @@ public class UserService {
     }
 
     public User findById(int userId) {
-        return userDao.findById(userId);
+        try {
+            return userDao.findById(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public boolean forgotPassword(ForgotPasswordRequest request) {
@@ -75,7 +86,9 @@ public class UserService {
         }
         User user = userDao.findByUsername(request.getUsername());
         if (user != null) {
-            return false;
+            if (user.getEmail() == request.getEmail()) {
+                return false;
+            }
         }
         oldUser.setEmail(request.getEmail());
         oldUser.setUsername(request.getUsername());
@@ -102,6 +115,23 @@ public class UserService {
         user.setAvatar(request.getAvatar());
         try {
             return userDao.updateAvatar(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean toggleLockStatus(UserIdRequest request) {
+        User user = userDao.findById(request.getUserId());
+        if (user == null) {
+            return false;
+        }
+        try {
+            if (user.getStatus() == SystemConstant.ACTIVATED) {
+                return userDao.toggleLockStatus(request.getUserId(), SystemConstant.LOCKED);
+            } else {
+                return userDao.toggleLockStatus(request.getUserId(), SystemConstant.ACTIVATED);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return false;

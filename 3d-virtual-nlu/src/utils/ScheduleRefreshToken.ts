@@ -1,8 +1,7 @@
-import axios from "axios";
 import {jwtDecode} from "jwt-decode";
 import { logoutUser, refreshToken } from "../redux/slices/AuthSlice";
-import { formatTimestampToDate } from "./formatTimestamp";
 import { AppDispatch } from "../redux/Store";
+import { formatTimestampToDate } from "./formatDateTime";
 
 let refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -14,11 +13,10 @@ export function scheduleTokenRefresh(token: string, dispatch: AppDispatch) {
   console.log('refresh token start:', formatTimestampToDate(expiresAt));
   
   /**
-   * refresh token trước khi hết hạn 1 '
+   * refresh token trước khi hết hạn 5'
   */
  const duration = 5*60000;
  const delay = expiresAt - now - duration;
- console.log('delay:', delay);
 
   if (refreshTimer){
     console.log('refreshTimer..', refreshTimer)

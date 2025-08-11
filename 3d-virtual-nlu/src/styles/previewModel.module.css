@@ -1,0 +1,32 @@
+.model_preview_container{
+    width: 95%;
+    height: 300px;
+    position: relative;
+    display: flex;
+    margin: 0.5rem 0;
+}
+.canvas{
+    width: 60%;
+    height: 100%;
+    border: 1px solid #fff;
+}
+.snapshot_container .title{
+    position: absolute;
+    top: 0.5rem;
+}
+.snapshot_container{
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0,0,0,0.5);
+    position: relative;
+}
+.upload_button{
+    position: absolute;
+    bottom: 0;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0;
+}

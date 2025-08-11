@@ -8,6 +8,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.UserLoginRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ApiResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.GoogleLoginResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.LoginResponse;
 import vn.edu.hcmuaf.virtualnluapi.service.AuthenticationService;
 
@@ -26,4 +27,18 @@ public class LoginController {
         }
         return ApiResponse.<LoginResponse>builder().statusCode(1000).message("login success").data(loginResponse).build();
     }
+
+    @POST
+    @Path("/google")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse<GoogleLoginResponse> loginWithGoogle(String idToken) {
+        GoogleLoginResponse loginResponse = authenticationService.loginWithGoogle(idToken);
+        return ApiResponse.<GoogleLoginResponse>builder()
+                .statusCode(1000)
+                .message("Google login success")
+                .data(loginResponse)
+                .build();
+    }
+
 }

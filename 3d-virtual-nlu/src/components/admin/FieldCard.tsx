@@ -2,13 +2,15 @@ import { IoMdTime } from "react-icons/io";
 import styles from "../../styles/fieldCard.module.css";
 import { IoSettings } from "react-icons/io5";
 import Space from "../../pages/admin/ManagerSpace";
+import { format } from "date-fns";
+import { RxUpdate } from "react-icons/rx";
 
 interface Field {
   id: number;
   name: string;
   code: string;
   status: number;
-  updatedAt: string;
+  updatedAt: number | null;
   listSpace: Space[];
 }
 
@@ -21,7 +23,7 @@ const FieldCard: React.FC<FieldCardProps> = ({ field }) => {
       <div
         className={styles.field_card}
         style={{
-          backgroundImage: 'url("/backgroundNL.jpg")',
+          backgroundImage: `url(${import.meta.env.BASE_URL}backgroundNL.jpg)`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           backgroundSize: "cover",
@@ -38,7 +40,7 @@ const FieldCard: React.FC<FieldCardProps> = ({ field }) => {
             <div
               className={styles.status}
               style={{
-                backgroundColor: "#0e9013",
+                backgroundColor: "#267026",
               }}
             >
               <span>Hoạt động</span>
@@ -55,7 +57,9 @@ const FieldCard: React.FC<FieldCardProps> = ({ field }) => {
           )}
 
           <span className={styles.field_updated_at}>
-            <IoMdTime /> 7 giờ trước
+            <RxUpdate />{" "}
+            {field.updatedAt !== null &&
+              format(new Date(field.updatedAt), "dd/MM/yyyy ")}
           </span>
         </div>
       </div>
