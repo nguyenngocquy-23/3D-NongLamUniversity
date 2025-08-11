@@ -449,7 +449,11 @@ const Space = () => {
             </button>
           </div>
 
-          <div className={styles.space_list}>
+          <div
+            className={
+              spaceList.length < 5 ? styles.space_list_small : styles.space_list
+            }
+          >
             {spaceList.map((space) => {
               return (
                 <div

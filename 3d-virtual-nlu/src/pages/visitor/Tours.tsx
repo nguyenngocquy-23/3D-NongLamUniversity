@@ -12,10 +12,6 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { IoSearch } from "react-icons/io5";
 import { TiFilter } from "react-icons/ti";
 import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
-import { div } from "three/src/nodes/TSL.js";
-import { MdHideImage, MdOutlineCollections } from "react-icons/md";
-import { TbView360Number } from "react-icons/tb";
-import Empty from "../../components/Empty";
 
 const VisitorTours = () => {
   const navigate = useNavigate();
@@ -52,6 +48,7 @@ const VisitorTours = () => {
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchTerm = event.target.value.toLowerCase();
+    console.log(searchTerm);
     const newData = nodes.filter((row) => {
       return row.name.toLowerCase().includes(searchTerm);
     });
@@ -70,109 +67,90 @@ const VisitorTours = () => {
 
   return (
     <div className={styles.container}>
-      {nodes.length > 0 ? (
-        <>
-          <div className={styles.task}>
-            <div className={styles.search_box}>
-              <label htmlFor="input" className={styles.label}>
-                <IoSearch className={styles.search_icon} />
-              </label>
-              <input
-                type="text"
-                name="field"
-                id="input"
-                placeholder="Tìm kiếm tour..."
-                className={styles.search_input}
-                onChange={handleSearch}
-              />
-            </div>
-            <button
-              className={`${styles.task_button} ${
-                isActive == 0 ? styles.actived : ""
-              }`}
-              onClick={() => {
-                handlePublishNode();
-                setIsActive(0);
-              }}
-            >
-              Đã duyệt
-            </button>
-            <button
-              className={`${styles.task_button} ${
-                isActive == 1 ? styles.actived : ""
-              }`}
-              onClick={() => {
-                handlePrivateNode();
-                setIsActive(1);
-              }}
-            >
-              Chưa duyệt
-              {!privateNodes ? (
-                ""
-              ) : privateNodes.length > 0 ? (
-                <span className={styles.point} />
-              ) : (
-                ""
-              )}
-            </button>
-            <button
-              className={`${styles.task_button} ${
-                isActive == 2 ? styles.actived : ""
-              }`}
-              onClick={() => {
-                handleFailNode();
-                setIsActive(2);
-              }}
-            >
-              Tour Lỗi
-              {!failNodes ? (
-                ""
-              ) : failNodes.length > 0 ? (
-                <span className={styles.point} />
-              ) : (
-                ""
-              )}
-            </button>
-            <button className={styles.task_button}>
-              <TiFilter /> Lọc
-            </button>
-          </div>
-          {searchData.length > 0 ? (
-            <div className={styles.node_container}>
-              {searchData.map((node) => (
-                <div
-                  key={node.id}
-                  className={styles.tour}
-                  onClick={() => handleDetail(node.id)}
-                  style={{
-                    background: `url(${transformUrlToThumbnailBig(node.url)})`,
-                  }}
-                >
-                  <div className={styles.blur} />
-                  <span className={styles.name}>{node.name}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            // <div style={{ color: "black" }}>Danh sách trống...</div>
-            <div className={styles.empty}>
-              <Empty
-                typeIllustrator="empty_search"
-                title="Không có kết quả"
-                content="Không có tour nào phù hợp với kết quả tìm kiếm của bạn!"
-              />
-            </div>
-          )}
-        </>
-      ) : (
-        <div className={styles.empty}>
-          <Empty
-            typeIllustrator="empty_node"
-            title="Chưa có tour!"
-            content="Để mở khoá tính năng này, hãy tạo tour mới!"
+      <div className={styles.task}>
+        <div className={styles.search_box}>
+          <label htmlFor="input" className={styles.label}>
+            <IoSearch className={styles.search_icon} />
+          </label>
+          <input
+            type="text"
+            name="field"
+            id="input"
+            placeholder="Tìm kiếm tour..."
+            className={styles.search_input}
+            onChange={handleSearch}
           />
         </div>
-      )}
+        <button
+          className={`${styles.task_button} ${
+            isActive == 0 ? styles.actived : ""
+          }`}
+          onClick={() => {
+            handlePublishNode();
+            setIsActive(0);
+          }}
+        >
+          Đã duyệt
+        </button>
+        <button
+          className={`${styles.task_button} ${
+            isActive == 1 ? styles.actived : ""
+          }`}
+          onClick={() => {
+            handlePrivateNode();
+            setIsActive(1);
+          }}
+        >
+          Chưa duyệt
+          {!privateNodes ? (
+            ""
+          ) : privateNodes.length > 0 ? (
+            <span className={styles.point} />
+          ) : (
+            ""
+          )}
+        </button>
+        <button
+          className={`${styles.task_button} ${
+            isActive == 2 ? styles.actived : ""
+          }`}
+          onClick={() => {
+            handleFailNode();
+            setIsActive(2);
+          }}
+        >
+          Tour Lỗi
+          {!failNodes ? (
+            ""
+          ) : failNodes.length > 0 ? (
+            <span className={styles.point} />
+          ) : (
+            ""
+          )}
+        </button>
+        <button className={styles.task_button}>
+          <TiFilter /> Lọc
+        </button>
+      </div>
+      <div className={styles.node_container}>
+        {searchData.length > 0 ? (
+          searchData.map((node) => (
+            <div
+              key={node.id}
+              className={styles.tour}
+              onClick={() => handleDetail(node.id)}
+              style={{
+                background: `url(${transformUrlToThumbnailBig(node.url)})`,
+              }}
+            >
+              <div className={styles.blur} />
+              <span className={styles.name}>{node.name}</span>
+            </div>
+          ))
+        ) : (
+          <div style={{ color: "black" }}>Danh sách trống...</div>
+        )}
+      </div>
     </div>
   );
 };

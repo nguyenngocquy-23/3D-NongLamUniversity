@@ -125,7 +125,7 @@ const ManagerAutoTour = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
-      if(currentPage === 0) return;
+      if (currentPage === 0) return;
       const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
         page: currentPage,
         limit: perPage,
@@ -142,7 +142,10 @@ const ManagerAutoTour = () => {
   return (
     <div className={styles.container}>
       <div className={styles.tour_features}>
-        <button className={styles.back_btn} onClick={() => navigate("/admin/tours")}>
+        <button
+          className={styles.back_btn}
+          onClick={() => navigate("/admin/tours")}
+        >
           <FaAngleLeft />
         </button>
         <div className={`${styles.tour_search_box} ${styles.tour_box}`}>
@@ -182,7 +185,13 @@ const ManagerAutoTour = () => {
           </Link>
         </div>
       </div>
-      <div className={styles.tour_list}>
+      <div
+        className={
+          autoNodeList && autoNodeList.length < 5
+            ? styles.tour_list_small
+            : styles.tour_list
+        }
+      >
         {autoNodeList &&
           autoNodeList.map((node) => (
             <AutoNodeItem
