@@ -8,7 +8,6 @@ import {
 } from "./HotspotSlice";
 
 const selectHotspotList = (state: RootState) => state.hotspots.hotspotList;
-console.log("Hotspot List: ", selectHotspotList.length);
 const spaceList = (state: RootState) => state.data.spaces;
 const panoramaList = (state: RootState) => state.panoramas.panoramaList;
 const iconList = (state: RootState) => state.data.icons;
@@ -61,6 +60,19 @@ export const getFilteredHotspotNavigations = createSelector(
 );
 
 /**
+ * Lấy ra danh sách hospot navigation rỗng targetNodeId..
+ */
+
+export const getEmptyTargetHotspotNavigations = createSelector(
+  [selectHotspotList],
+  (hotspotList): HotspotNavigation[] =>
+    hotspotList.filter(
+      (h): h is HotspotNavigation =>
+        h.type === 1 && "targetNodeId" in h && !h.targetNodeId
+    )
+);
+
+/**
  * Lấy ra danh sách hotspot navigation của riêng thằng master panorama.
  *
  */
@@ -88,10 +100,11 @@ export const getFilteredHotspotNavigationById = (nodeId: string) =>
  * + Master node có thể là 3 hoặc 2.
  * + Slave thì chỉ có thể là 1.
  */
+
 export const getFilteredListPanoramaByStatus = (status: number) =>
   createSelector([panoramaList], (list) =>
-    list.filter((h) =>
-      status < 2 ? h.config.status > 1 : h.config.status === 1
+    list.filter((p) =>
+      status < 2 ? p.config.status > 1 : p.config.status === 1
     )
   );
 
@@ -102,22 +115,36 @@ export const getFilteredListPanoramaByStatus = (status: number) =>
  */
 
 export const getListTargetNodeFromUpdateHotspotNavigation = (
-  hotsotId: string
-) => {
-  return createSelector(
-    [selectHotspotList, panoramaList],
-    (hotspots, panoramas) => {
-      const hotspot = hotspots.find((h) => h.id == hotsotId);
-      if (!hotspot) return undefined;
-      const panorama = panoramas.find((p) => p.id == hotspot.nodeId);
-      if (!panorama) return undefined;
-      return getFilteredListPanoramaByStatus(panorama.config.status).resultFunc(
-        panoramas
-      );
-    }
-  );
-};
+  hotspotId: string
+) =>
+  createSelector([selectHotspotList, panoramaList], (hotspots, panoramas) => {
+    const hotspot = hotspots.find((h) => h.id === hotspotId);
+    if (!hotspot) return [];
 
+    const panorama = panoramas.find((p) => p.id === hotspot.nodeId);
+    if (!panorama) return [];
+
+    // Lọc panorama theo status
+    const filteredByStatus = getFilteredListPanoramaByStatus(
+      panorama.config.status
+    ).resultFunc(panoramas);
+
+    if (panorama.config.status === 1) {
+      return filteredByStatus;
+    }
+
+    // Lấy danh sách targetNodeId của các hotspotNavigation khác
+    const otherHotspotTargetIds = new Set(
+      getFilteredHotspotNavigations
+        .resultFunc(hotspots)
+        .filter((h) => h.id !== hotspotId) // loại hotspot hiện tại
+        .map((h) => h.targetNodeId) // lấy targetNodeId
+        .filter(Boolean) // chỉ giữ giá trị hợp lệ
+    );
+
+    // Loại các panorama đã là target của hotspotNavigation khác
+    return filteredByStatus.filter((p) => !otherHotspotTargetIds.has(p.id));
+  });
 /**
  * Lấy ra tất cả số liệu về Field.
  * + Thông tin cơ bản của field.

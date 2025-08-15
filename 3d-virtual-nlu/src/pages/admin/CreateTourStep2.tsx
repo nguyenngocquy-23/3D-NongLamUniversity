@@ -4,7 +4,7 @@ import styles from "../../styles/createTourStep2.module.css";
 import { FaAngleLeft, FaAngleRight, FaBook, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/Store";
+import { AppDispatch, RootState } from "../../redux/Store";
 import { Canvas, ThreeEvent, useFrame } from "@react-three/fiber";
 import { Environment, Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
@@ -54,6 +54,7 @@ import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import CamControls from "../../components/visitor/CamControls";
 import { useImageCache } from "../../contexts/ImageCacheContext.tsx";
+import { fetchAllSpaces } from "../../redux/slices/DataSlice.ts";
 
 export const tasks = [
   {
@@ -113,7 +114,7 @@ const CreateTourStep2 = () => {
 
   // ========= REDUX ================
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
   const hotspotInfos = useSelector(getFilteredHotspotInformationInList);
@@ -175,6 +176,10 @@ const CreateTourStep2 = () => {
       controlsRef.current.enabled = false; // tắt khi changeCornerMedia=true
     }
   }, [changeCornerMedia]);
+
+  useEffect(() => {
+    dispatch(fetchAllSpaces());
+  }, [dispatch]);
 
   const handleOnPropsChange = (updatedProps: BaseHotspot) => {
     setBasicProps(updatedProps);
