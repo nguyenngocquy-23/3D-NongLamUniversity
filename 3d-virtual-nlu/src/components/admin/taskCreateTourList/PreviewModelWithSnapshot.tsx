@@ -115,6 +115,7 @@ const SnapshotHelper = ({
           whiteSpace: "nowrap",
           top: 100,
           right: 0,
+          backgroundColor: "#267026",
           color: "white",
           padding: "0.5rem 1rem",
           zIndex: 1,
