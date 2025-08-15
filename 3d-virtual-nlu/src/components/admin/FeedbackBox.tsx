@@ -77,11 +77,9 @@ const FeedbackBox = ({
   return (
     <div className={styles.overlay}>
       <div className={styles.box}>
-        <div className={styles.header}>
-          <button className={styles.close_btn} onClick={handleClose}>
-            <FaX />
-          </button>
-        </div>
+        <button className={styles.close_btn} onClick={handleClose}>
+          <FaX />
+        </button>
         <div className={styles.container_content}>
           {/* Nội dung liên hệ hiện tại */}
           <div className={styles.contact_content}>
@@ -109,15 +107,16 @@ const FeedbackBox = ({
               placeholder="Nhập phản hồi tại đây..."
               rows={5}
             />
-
-            <button
-              className={styles.reply_button}
-              onClick={() => handleFeedback(contactId, email)}
-              disabled={feedback.trim().length < 10}
-            >
-              Gửi phản hồi
-            </button>
           </div>
+        </div>
+        <div className={styles.submit}>
+          <button
+            className={styles.reply_button}
+            onClick={() => handleFeedback(contactId, email)}
+            disabled={feedback.trim().length < 10}
+          >
+            Gửi phản hồi
+          </button>
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ import axios from "axios";
 import { API_URLS } from "../../env";
 import { addAutoPanorama } from "../../redux/slices/PanoramaSlice";
 import { useDebounce } from "../../hooks/useDebounce";
+import Empty from "../../components/Empty";
 
 const ManageAutoTour = () => {
   const navigate = useNavigate();
@@ -78,7 +79,7 @@ const ManageAutoTour = () => {
     }[];
     console.log("indexNode", indexNode);
     for (const item of indexNode) {
-      if(item.nodeId == null) continue;
+      if (item.nodeId == null) continue;
       const node = await axios.post(API_URLS.NODE_BY_ID, {
         nodeId: item.nodeId,
       });
@@ -144,7 +145,13 @@ const ManageAutoTour = () => {
               </div>
             ))
           ) : (
-            <div style={{ color: "black" }}>Danh sách trống...</div>
+            <div className={styles.empty}>
+              <Empty
+                typeIllustrator="empty_node"
+                title="Chưa có tour!"
+                content="Chưa có tour tự động nào"
+              />
+            </div>
           )}
           {search.length === 0 && (
             <div className={stylesPagination.pagination}>

@@ -79,7 +79,7 @@ const Register: React.FC = () => {
       Swal.fire({
         icon: "error",
         title: "Mật khẩu chưa hợp lệ",
-        text: "Chưa chữ in hoa, số và ký tự đặc biệt",
+        text: "Mật khẩu bao gồm chữ in hoa, số và ký tự đặc biệt",
         toast: true,
         timer: 2000,
         position: "top-end",
@@ -205,7 +205,7 @@ const Register: React.FC = () => {
         <p>
           Đã có tài khoản?{" "}
           <Link className={styles.link} to="/login">
-             Đăng nhập!
+            Đăng nhập!
           </Link>
         </p>
       </div>

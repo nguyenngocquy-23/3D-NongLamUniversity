@@ -872,6 +872,7 @@ const ManagerTourDetail: React.FC = () => {
     .map((p) => p.id);
 
   const isFullConnected = useMemo(() => {
+    if (panoramaSubItemIds.length === 0) return true;
     if (!currentTour || !linkMap.has(currentTour.id)) return false;
 
     // Master phải trỏ đến tất cả slave

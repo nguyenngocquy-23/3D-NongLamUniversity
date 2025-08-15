@@ -18,6 +18,7 @@ import {
 import Swal from "sweetalert2";
 import { perPage } from "../../utils/Constants.ts";
 import { useNavigate } from "react-router-dom";
+import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL.ts";
 
 const BoardSelectNode = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -74,7 +75,7 @@ const BoardSelectNode = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
-      if(currentPage === 0) return;
+      if (currentPage === 0) return;
       const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
         page: currentPage,
         limit: perPage,
@@ -117,7 +118,6 @@ const BoardSelectNode = () => {
 
   return (
     <div className={styles.select_node_container}>
-      {/* feature */}
       <div className={styles.features}>
         <button className={styles.back_btn} onClick={() => navigate(-1)}>
           <FaAngleLeft />
@@ -127,7 +127,7 @@ const BoardSelectNode = () => {
             type="text"
             name="field"
             id="input"
-            placeholder="Tìm kiếm node..."
+            placeholder="Tìm kiếm tour..."
             onChange={(e) => setSearch(e.target.value)}
             className={styles.search_input}
           />
@@ -153,6 +153,7 @@ const BoardSelectNode = () => {
           Tiếp tục
         </button>
       </div>
+
       {/* display */}
       <div className={styles.selected_node}>
         <div className={styles.quantity}>
@@ -166,7 +167,9 @@ const BoardSelectNode = () => {
                 key={node.id}
                 className={styles.display_tour}
                 onClick={() => handleToggleSelect(node.id)}
-                style={{ background: `url(${node.url})` }}
+                style={{
+                  background: `url(${transformUrlToThumbnailBig(node.url)})`,
+                }}
                 title={node.name}
               >
                 <div className={styles.remove_blur} />
@@ -187,7 +190,9 @@ const BoardSelectNode = () => {
                   isSelected ? styles.selected : ""
                 }`}
                 onClick={() => handleToggleSelect(node.id)}
-                style={{ background: `url(${node.url})` }}
+                style={{
+                  background: `url(${transformUrlToThumbnailBig(node.url)})`,
+                }}
               >
                 <div className={styles.blur} />
                 <span className={styles.name}>{node.name}</span>

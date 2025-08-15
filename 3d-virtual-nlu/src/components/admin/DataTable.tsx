@@ -2,15 +2,19 @@ import styles from "../../styles/chat.module.css";
 import DataTable from "react-data-table-component";
 import Swal from "sweetalert2";
 
-interface DataTableProps{
+interface DataTableProps {
   columns: any[];
   searchData: any[];
   loading: boolean;
 }
 
-export const Datatable: React.FC<DataTableProps> = ({columns, searchData, loading}) => {
+export const Datatable: React.FC<DataTableProps> = ({
+  columns,
+  searchData,
+  loading,
+}) => {
   return (
-    <div className={styles.dataTable} style={{marginTop: "1rem"}}>
+    <div className={styles.dataTable} style={{ marginTop: "1rem" }}>
       <DataTable
         columns={columns}
         data={[...searchData]}
@@ -22,7 +26,7 @@ export const Datatable: React.FC<DataTableProps> = ({columns, searchData, loadin
           headCells: {
             style: {
               fontSize: "17px",
-              background: "#009879",
+              background: "#267026",
               color: "#ffffff",
               textAlign: "left",
               fontWeight: "bold",

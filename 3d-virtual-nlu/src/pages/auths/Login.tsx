@@ -1,4 +1,3 @@
-// src/components/LoginForm.tsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "../../styles/login.module.css";
@@ -7,7 +6,7 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { loginUser, loginWithGoogle } from "../../redux/slices/AuthSlice";
-import { FaRegUser, FaUser } from "react-icons/fa6";
+import { FaRegUser } from "react-icons/fa6";
 import { CiLock } from "react-icons/ci";
 import Swal from "sweetalert2";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
@@ -52,20 +51,6 @@ const Login: React.FC = () => {
   // Xử lý khi form được submit
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    // if (passLengthError) {
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Mật khẩu chưa đúng",
-    //     text: "Độ dài trên 8",
-    //     toast: true,
-    //     timer: 2000,
-    //     position: "top-end",
-    //     showConfirmButton: false,
-    //     timerProgressBar:true,
-    //   });
-    //   return;
-    // }
 
     try {
       // Dispatch action đăng nhập
@@ -147,8 +132,8 @@ const Login: React.FC = () => {
 
                     if (response.user.roleId === 1) {
                       navigate("/");
-                    // } else if ([2, 3].includes(response.user.roleId)) {
-                    //   navigate("/admin");
+                      // } else if ([2, 3].includes(response.user.roleId)) {
+                      //   navigate("/admin");
                     }
                   } catch (error) {
                     console.error("Google login failed", error);
