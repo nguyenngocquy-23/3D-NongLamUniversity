@@ -220,6 +220,7 @@ const VirtualTour = () => {
   }, []);
 
   const handleClose = () => {
+    speechSynthesis.cancel();
     navigate("/");
   };
 

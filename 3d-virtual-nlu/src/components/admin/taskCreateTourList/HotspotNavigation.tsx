@@ -8,6 +8,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/Store";
 import { getListTargetNodeFromUpdateHotspotNavigation } from "../../../redux/slices/Selectors";
+import { useEffect } from "react";
 
 interface TypeNavigationProps {
   hotspotNav: any;
@@ -41,6 +42,10 @@ const TypeNavigation = ({
   const filteredPanoramas = useSelector(
     getListTargetNodeFromUpdateHotspotNavigation(hotspotNav.id)
   );
+
+  useEffect(() => {
+    console.log('panoramas',limitNav ,filteredPanoramas);
+  },[filteredPanoramas])
 
   const dispatch = useDispatch<AppDispatch>();
 

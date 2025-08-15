@@ -488,7 +488,6 @@ const TourDetail = () => {
       id: node.id,
       status: node.config.status == 0 ? 2 : 0,
     });
-    alert(node.config.status);
     if (response.data.data) {
       Swal.fire({
         title: "Thành công",
@@ -1204,7 +1203,7 @@ const TourDetail = () => {
                         hotspotId={currentHotspotId}
                         setHotspotId={setCurrentHotspotId}
                         onPropsChange={handleOnPropsChange}
-                        limitNav={false}
+                        limitNav={true}
                       />
                     </motion.div>
                   )}
