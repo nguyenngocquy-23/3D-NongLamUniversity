@@ -120,7 +120,7 @@ export const fetchAutoNode = createAsyncThunk(
     const userJson = sessionStorage.getItem("user");
     const user = userJson ? JSON.parse(userJson) : null;
     const response = await axios.post(
-      user === null || user.roleId === 1
+      user == null || user.roleId == 1
         ? API_URLS.GET_AUTO_TOURS
         : API_URLS.ADMIN_GET_AUTO_TOURS,
       {

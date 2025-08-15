@@ -208,6 +208,7 @@ const VirtualAutoTour: React.FC = () => {
   };
 
   const handleClose = () => {
+    speechSynthesis.cancel();
     navigate(-1);
   };
 
@@ -295,10 +296,11 @@ const VirtualAutoTour: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return; // bỏ qua lần mount đầu tiên (Strict Mode sẽ gọi 2 lần)
-    }
+    // if (!hasMounted.current) {
+    //   hasMounted.current = true;
+    //   return; // bỏ qua lần mount đầu tiên (Strict Mode sẽ gọi 2 lần)
+    // }
+    if (!currentPanorama) return;
 
     readText();
   }, [currentPanorama]);

@@ -9,6 +9,7 @@ import { Environment, Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
   addAutoPanorama,
+  clearAutoPanorama,
   clearPanorama,
   removeAutoPanorama,
   selectPanorama,
@@ -490,6 +491,7 @@ const CreateAutoTourStep2 = () => {
       cancelButtonText: "Hủy",
     }).then((result) => {
       if (result.isConfirmed) {
+        dispatch(clearAutoPanorama());
         navigate(-1);
         dispatch(resetStep());
       }

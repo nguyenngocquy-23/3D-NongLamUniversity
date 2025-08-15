@@ -504,7 +504,7 @@ export class TourNodeRequestMapper {
         grayscale: pano.config.grayscale,
         exposure: pano.config.exposure,
         lightIntensity: pano.config.lightIntensity,
-        status: pano.config.status,
+        status: user.roleId == 2 ? 2 : 3,
         navHotspots,
         infoHotspots,
         mediaHotspots,
