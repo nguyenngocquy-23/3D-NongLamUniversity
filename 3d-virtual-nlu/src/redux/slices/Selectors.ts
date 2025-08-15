@@ -8,7 +8,6 @@ import {
 } from "./HotspotSlice";
 
 const selectHotspotList = (state: RootState) => state.hotspots.hotspotList;
-console.log("Hotspot List: ", selectHotspotList.length);
 const spaceList = (state: RootState) => state.data.spaces;
 const panoramaList = (state: RootState) => state.panoramas.panoramaList;
 const iconList = (state: RootState) => state.data.icons;
@@ -102,12 +101,12 @@ export const getFilteredListPanoramaByStatus = (status: number) =>
  */
 
 export const getListTargetNodeFromUpdateHotspotNavigation = (
-  hotsotId: string
+  hotspotId: string
 ) => {
   return createSelector(
     [selectHotspotList, panoramaList],
     (hotspots, panoramas) => {
-      const hotspot = hotspots.find((h) => h.id == hotsotId);
+      const hotspot = hotspots.find((h) => h.id == hotspotId);
       if (!hotspot) return undefined;
       const panorama = panoramas.find((p) => p.id == hotspot.nodeId);
       if (!panorama) return undefined;

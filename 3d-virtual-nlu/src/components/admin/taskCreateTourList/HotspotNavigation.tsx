@@ -71,7 +71,7 @@ const TypeNavigation = ({
           }}
           className={styles.custom_select}
         >
-          <option value="">Chọn panorama {panoramaList.length}</option>
+          <option value="">Chọn panorama</option>
           {limitNav
             ? filteredPanoramas?.map((pano) => (
                 <option key={pano.id} value={pano.id}>
