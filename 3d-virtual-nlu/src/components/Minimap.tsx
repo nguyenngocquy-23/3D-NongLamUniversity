@@ -156,11 +156,16 @@ const MiniMap: React.FC<MiniMapProps> = ({
     (state: RootState) => state.panoramas
   );
 
-  const filterPanoramaList = panoramaList.filter((p) => p.config.status !== 0);
+  const filterPanoramaList = panoramaList.filter((p) => p.config.status != 0);
   /** Filter ra các panos khác tour (Khi update)
    * + status = 2 # với node hiện tại.
    * + status = 0
    */
+
+  useEffect(() => {
+    console.log("filterPanorama :", filterPanoramaList)
+  }, [filterPanoramaList]);
+
   const panaramaListInTour = currentTour
     ? filterPanoramaList.filter(
         (p) => p.config.status !== 2 || p.id == currentTour

@@ -340,7 +340,6 @@ function isPrimitiveModelFieldChange(
     a.modelUrl !== b.modelUrl ||
     a.thumbnailUrl !== b.thumbnailUrl ||
     a.name !== b.name ||
-    a.description !== b.description ||
-    a.colorCode !== b.colorCode
+    a.description !== b.description
   );
 }

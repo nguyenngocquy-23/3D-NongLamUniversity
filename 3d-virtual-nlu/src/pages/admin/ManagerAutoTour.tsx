@@ -57,7 +57,7 @@ const ManagerAutoTour = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(-1);
 
   const [totalAutoTour, setTotalAutoTour] = useState(0);
   const totalPages = Math.ceil(totalAutoTour / perPage);
@@ -125,7 +125,7 @@ const ManagerAutoTour = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
-      if(currentPage === 0) return;
+      if (currentPage === 0) return;
       const response = await axios.post(API_URLS.ADMIN_GET_AUTO_TOURS, {
         page: currentPage,
         limit: perPage,
@@ -142,7 +142,10 @@ const ManagerAutoTour = () => {
   return (
     <div className={styles.container}>
       <div className={styles.tour_features}>
-        <button className={styles.back_btn} onClick={() => navigate("/admin/tours")}>
+        <button
+          className={styles.back_btn}
+          onClick={() => navigate("/admin/tours")}
+        >
           <FaAngleLeft />
         </button>
         <div className={`${styles.tour_search_box} ${styles.tour_box}`}>
@@ -203,7 +206,9 @@ const ManagerAutoTour = () => {
                 <button
                   key={index}
                   className={`${styles.page_btn} ${
-                    currentPage === index ? styles.active : ""
+                    currentPage === index || (index == 0 && currentPage == -1)
+                      ? styles.active
+                      : ""
                   }`}
                   onClick={() => setCurrentPage(index)}
                 >
