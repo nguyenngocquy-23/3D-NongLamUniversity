@@ -645,7 +645,11 @@ const CreateTourStep2 = () => {
         </AnimatePresence>
 
         {/* Hướng dẫn sử dụng */}
-        <button className={styles.guide_button} title="Hướng dẫn">
+        <button
+          className={styles.guide_button}
+          title="Hướng dẫn"
+          onClick={() => window.open("https://youtu.be/b0hkZynGmy4", "_blank")}
+        >
           <FaBook />
         </button>
       </div>

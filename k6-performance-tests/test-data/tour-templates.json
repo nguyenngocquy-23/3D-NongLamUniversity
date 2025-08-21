@@ -1,0 +1,79 @@
+[
+  {
+    "name": "Test Campus Tour 1",
+    "description": "Automated test tour for performance testing",
+    "spaceId": 1,
+    "nodes": [
+      {
+        "name": "Test Node 1",
+        "description": "First test node",
+        "imageUrl": "https://res.cloudinary.com/dkoc6kbg1/image/upload/v1749780602/test-node1.jpg",
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "status": 1
+      },
+      {
+        "name": "Test Node 2",
+        "description": "Second test node",
+        "imageUrl": "https://res.cloudinary.com/dkoc6kbg1/image/upload/v1749780602/test-node2.jpg",
+        "position": { "x": 10, "y": 0, "z": 0 },
+        "status": 1
+      },
+      {
+        "name": "Test Node 3",
+        "description": "Third test node",
+        "imageUrl": "https://res.cloudinary.com/dkoc6kbg1/image/upload/v1749780602/test-node3.jpg",
+        "position": { "x": 20, "y": 0, "z": 0 },
+        "status": 1
+      }
+    ]
+  },
+  {
+    "name": "Test Building Tour 2",
+    "description": "Another automated test tour",
+    "spaceId": 2,
+    "nodes": [
+      {
+        "name": "Building Entrance",
+        "description": "Main building entrance",
+        "imageUrl": "https://res.cloudinary.com/dkoc6kbg1/image/upload/v1749780602/building-entrance.jpg",
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "status": 1
+      },
+      {
+        "name": "Main Hall",
+        "description": "Main hall area",
+        "imageUrl": "https://res.cloudinary.com/dkoc6kbg1/image/upload/v1749780602/main-hall.jpg",
+        "position": { "x": 15, "y": 0, "z": 0 },
+        "status": 1
+      }
+    ]
+  },
+  {
+    "name": "Test Department Tour 3",
+    "description": "Department tour for testing",
+    "spaceId": 3,
+    "nodes": [
+      {
+        "name": "Department Office",
+        "description": "Department office area",
+        "imageUrl": "https://res.cloudinary.com/dkoc6kbg1/image/upload/v1749780602/dept-office.jpg",
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "status": 1
+      },
+      {
+        "name": "Conference Room",
+        "description": "Department conference room",
+        "imageUrl": "https://res.cloudinary.com/dkoc6kbg1/image/upload/v1749780602/conference-room.jpg",
+        "position": { "x": 25, "y": 0, "z": 0 },
+        "status": 1
+      },
+      {
+        "name": "Faculty Lounge",
+        "description": "Faculty lounge area",
+        "imageUrl": "https://res.cloudinary.com/dkoc6kbg1/image/upload/v1749780602/faculty-lounge.jpg",
+        "position": { "x": 50, "y": 0, "z": 0 },
+        "status": 1
+      }
+    ]
+  }
+]

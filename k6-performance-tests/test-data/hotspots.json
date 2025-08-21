@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "nodeId": 10,
+    "type": "info",
+    "title": "Welcome Information",
+    "description": "Welcome to the main entrance of our campus",
+    "position": { "x": 0, "y": 0, "z": 0 },
+    "targetNodeId": 11
+  },
+  {
+    "id": 2,
+    "nodeId": 11,
+    "type": "navigation",
+    "title": "Go to Classroom",
+    "description": "Navigate to Classroom 101",
+    "position": { "x": 10, "y": 0, "z": 0 },
+    "targetNodeId": 12
+  },
+  {
+    "id": 3,
+    "nodeId": 12,
+    "type": "media",
+    "title": "Classroom Video",
+    "description": "Watch a video about this classroom",
+    "position": { "x": 20, "y": 0, "z": 0 },
+    "mediaUrl": "https://res.cloudinary.com/dkoc6kbg1/video/upload/v1749780602/classroom-video.mp4"
+  },
+  {
+    "id": 4,
+    "nodeId": 13,
+    "type": "info",
+    "title": "Library Rules",
+    "description": "Important information about library usage",
+    "position": { "x": 0, "y": 0, "z": 0 }
+  },
+  {
+    "id": 5,
+    "nodeId": 14,
+    "type": "model",
+    "title": "Computer Setup",
+    "description": "3D model of the computer setup",
+    "position": { "x": 0, "y": 0, "z": 0 },
+    "modelUrl": "https://res.cloudinary.com/dkoc6kbg1/model/upload/v1749780602/computer-setup.glb"
+  }
+]

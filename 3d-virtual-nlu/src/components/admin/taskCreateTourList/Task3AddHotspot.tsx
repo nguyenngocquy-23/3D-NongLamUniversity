@@ -103,7 +103,7 @@ const Task3 = ({
           {limitNav &&
           hotspotNavigationFromNode.length >= limitNavigation() * 2 &&
           openTypeIndex == 1 ? (
-            <span>Bạn đã đạt giới hạn.</span>
+            <span>Đã đạt giới hạn điều hướng.</span>
           ) : currentHotspotData !== null &&
             currentHotspotData.iconId === null ? (
             <button
