@@ -39,6 +39,18 @@ public class MyWebSocketServer {
             System.out.println("User " + userId + " connected to node " + nodeId);
             broadcastCount(nodeId);
         }
+
+        new Thread(() -> {
+            while (session.isOpen()) {
+                try {
+                    Thread.sleep(30000); // Ping mỗi 30 giây
+                    session.getBasicRemote().sendPing(ByteBuffer.allocate(0));
+                } catch (Exception e) {
+                    System.err.println("Ping failed: " + e.getMessage());
+                    break;
+                }
+            }
+        }).start();
 //
 //        // Ping giữ kết nối
 //        new Thread(() -> {

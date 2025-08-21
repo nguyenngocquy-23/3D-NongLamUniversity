@@ -205,6 +205,11 @@
   background-color: #ddd;
 }
 
+.active:hover {
+  background-color: #0e9013;
+  cursor: default;
+}
+
 .active {
   background-color: #007bff;
   color: white;

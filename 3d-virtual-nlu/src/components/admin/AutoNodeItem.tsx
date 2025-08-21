@@ -4,6 +4,7 @@ import { AppDispatch, RootState } from "../../redux/Store";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { fetchUsers } from "../../redux/slices/DataSlice";
+import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
 
 interface AutoNodeItemProps {
   onclick: () => void;
@@ -24,7 +25,7 @@ export const AutoNodeItem = ({ onclick, node }: AutoNodeItemProps) => {
       <div
         className={styles.node_card}
         style={{
-          backgroundImage: `url(${node.thumbNail})`,
+          backgroundImage: `url(${transformUrlToThumbnailBig(node.thumbNail)})`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           backgroundSize: "cover",

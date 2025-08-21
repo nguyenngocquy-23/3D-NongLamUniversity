@@ -57,7 +57,7 @@ const ManagerAutoTour = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(-1);
 
   const [totalAutoTour, setTotalAutoTour] = useState(0);
   const totalPages = Math.ceil(totalAutoTour / perPage);
@@ -212,7 +212,9 @@ const ManagerAutoTour = () => {
                 <button
                   key={index}
                   className={`${styles.page_btn} ${
-                    currentPage === index ? styles.active : ""
+                    currentPage === index || (index == 0 && currentPage == -1)
+                      ? styles.active
+                      : ""
                   }`}
                   onClick={() => setCurrentPage(index)}
                 >

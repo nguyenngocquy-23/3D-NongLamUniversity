@@ -38,7 +38,7 @@ const BoardSelectNode = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500); // custom hook
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(-1);
 
   // For example
   const [totalNode, setTotalNode] = useState(0);
@@ -75,7 +75,7 @@ const BoardSelectNode = () => {
 
   useEffect(() => {
     const handleChangePage = async () => {
-      if (currentPage === 0) return;
+      if (currentPage == -1) return;
       const response = await axios.post(API_URLS.ADMIN_GET_NODES_BY_PAGE, {
         page: currentPage,
         limit: perPage,
@@ -168,7 +168,12 @@ const BoardSelectNode = () => {
                 className={styles.display_tour}
                 onClick={() => handleToggleSelect(node.id)}
                 style={{
-                  background: `url(${transformUrlToThumbnailBig(node.url)})`,
+                  backgroundImage: `url(${transformUrlToThumbnailBig(
+                    node.url
+                  )})`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
+                  backgroundSize: "cover",
                 }}
                 title={node.name}
               >
@@ -191,7 +196,12 @@ const BoardSelectNode = () => {
                 }`}
                 onClick={() => handleToggleSelect(node.id)}
                 style={{
-                  background: `url(${transformUrlToThumbnailBig(node.url)})`,
+                  backgroundImage: `url(${transformUrlToThumbnailBig(
+                    node.url
+                  )})`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
+                  backgroundSize: "cover",
                 }}
               >
                 <div className={styles.blur} />
@@ -210,7 +220,9 @@ const BoardSelectNode = () => {
               <button
                 key={index}
                 className={`${styles.page_btn} ${
-                  currentPage === index ? styles.active : ""
+                  currentPage === index || (index == 0 && currentPage == -1)
+                    ? styles.active
+                    : ""
                 }`}
                 onClick={() => setCurrentPage(index)}
               >

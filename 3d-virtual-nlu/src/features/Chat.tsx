@@ -31,10 +31,10 @@ const Chat = ({
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [globalSocket, setGlobalSocket] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<
-    { avatar: string; username: string; content: string; createdAt: string }[]
+    { avatar: string; username: string; content: string; createdAt: number }[]
   >([]);
   const [globalMessages, setGlobalMessages] = useState<
-    { avatar: string; username: string; content: string; createdAt: string }[]
+    { avatar: string; username: string; content: string; createdAt: number }[]
   >([]);
   const [inputMessage, setInputMessage] = useState("");
   const [page, setPage] = useState(0);
@@ -69,7 +69,7 @@ const Chat = ({
         const [avatar, username, content] = event.data.split(": ", 3);
         setMessages((prev) => [
           ...prev,
-          { avatar, username, content, createdAt: new Date().toISOString() },
+          { avatar, username, content, createdAt: new Date().getTime() },
         ]);
       }
     };
@@ -102,7 +102,7 @@ const Chat = ({
       const [avatar, username, content] = event.data.split(": ", 3);
       setGlobalMessages((prev) => [
         ...prev,
-        { avatar, username, content, createdAt: new Date().toISOString() },
+        { avatar, username, content, createdAt: new Date().getTime() },
       ]);
     };
 
@@ -213,7 +213,7 @@ const Chat = ({
             onClick={() => handleChooseOption(0)}
           >
             <FaMessage />
-            <span>Chat</span>
+            <span title="Kênh không gian">Chat</span>
           </div>
           <div
             className={`${styles.chat_option} ${
@@ -222,7 +222,7 @@ const Chat = ({
             onClick={() => handleChooseOption(1)}
           >
             <IoIosChatboxes />
-            <span>All</span>
+            <span title="Kênh tổng">All</span>
           </div>
           <div
             className={`${styles.chat_option} ${
@@ -231,7 +231,7 @@ const Chat = ({
             onClick={() => handleChooseOption(2)}
           >
             <IoMdHelpCircle />
-            <span>Help</span>
+            <span title="Kênh trợ giúp">Help</span>
           </div>
         </div>
         {isSelectOption == 0 ? (
@@ -267,9 +267,7 @@ const Chat = ({
                       }`}
                     >
                       <span>{msg.content}</span>
-                      <div className={styles.timestamp}>
-                        {formatTimeAgo(Number.parseInt(msg.createdAt))}
-                      </div>
+                      <div className={styles.timestamp}>{formatTimeAgo(msg.createdAt)}</div>
                     </div>
                   </div>
                 );
@@ -288,6 +286,7 @@ const Chat = ({
                   className={`${styles.sendChatBtn} ${
                     isFillInput ? styles.show : ""
                   }`}
+                  title="Gửi tin nhắn"
                   onClick={sendMessage}
                 >
                   <IoMdSend />
@@ -335,9 +334,7 @@ const Chat = ({
                       }`}
                     >
                       <span>{msg.content}</span>
-                      <div className={styles.timestamp}>
-                        {formatTimeAgo(Number.parseInt(msg.createdAt))}
-                      </div>
+                      <div className={styles.timestamp}>{formatTimeAgo(msg.createdAt)}</div>
                     </div>
                   </div>
                 );
