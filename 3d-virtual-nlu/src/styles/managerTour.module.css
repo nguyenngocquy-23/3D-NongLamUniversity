@@ -226,6 +226,17 @@
   position: absolute;
 }
 
+.tour_list_small {
+  display: grid;
+  max-height: 420px;
+  margin: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, max-content));
+  justify-items: start;
+  gap: 1rem;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
 .tour_list {
   display: grid;
   max-height: 420px;

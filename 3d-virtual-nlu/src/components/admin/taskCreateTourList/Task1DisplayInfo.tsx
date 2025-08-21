@@ -48,13 +48,15 @@ const Task1 = () => {
           onChange={(e) => handleChange("name", e.target.value)}
         />
       </div>
-      <div className={styles.contain_input}>
+      <div className={styles.descript_input}>
         <label className={styles.label}>Giới thiệu:</label>
-        <Description
+        <textarea
+          className={styles.textarea}
           value={description}
-          onChange={(html) => {
-            setContent(html);
-          }}
+          rows={5}
+          cols={40}
+          onChange={(e) => handleChange("description", e.target.value)}
+          placeholder="Thêm mô tả chi tiết"
         />
       </div>
     </div>

@@ -118,7 +118,6 @@ const BoardSelectNode = () => {
 
   return (
     <div className={styles.select_node_container}>
-      {/* feature */}
       <div className={styles.features}>
         <button className={styles.back_btn} onClick={() => navigate(-1)}>
           <FaAngleLeft />
@@ -128,7 +127,7 @@ const BoardSelectNode = () => {
             type="text"
             name="field"
             id="input"
-            placeholder="Tìm kiếm node..."
+            placeholder="Tìm kiếm tour..."
             onChange={(e) => setSearch(e.target.value)}
             className={styles.search_input}
           />
@@ -154,6 +153,7 @@ const BoardSelectNode = () => {
           Tiếp tục
         </button>
       </div>
+
       {/* display */}
       <div className={styles.selected_node}>
         <div className={styles.quantity}>

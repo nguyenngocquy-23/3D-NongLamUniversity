@@ -185,7 +185,13 @@ const ManagerAutoTour = () => {
           </Link>
         </div>
       </div>
-      <div className={styles.tour_list}>
+      <div
+        className={
+          autoNodeList && autoNodeList.length < 5
+            ? styles.tour_list_small
+            : styles.tour_list
+        }
+      >
         {autoNodeList &&
           autoNodeList.map((node) => (
             <AutoNodeItem

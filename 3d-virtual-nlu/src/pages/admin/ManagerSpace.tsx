@@ -45,9 +45,7 @@ interface Space {
   updatedAt: number | null;
 }
 
-type SpaceEditRequest = {
-  spaceId: Space["id"];
-} & Pick<Space, "name" | "code">;
+type SpaceEditRequest = Pick<Space, "id" | "name" | "code">;
 
 //Khi tạo, spaceId sẽ là 0.
 type SpaceCreateRequest = Pick<
@@ -451,7 +449,11 @@ const Space = () => {
             </button>
           </div>
 
-          <div className={styles.space_list}>
+          <div
+            className={
+              spaceList.length < 5 ? styles.space_list_small : styles.space_list
+            }
+          >
             {spaceList.map((space) => {
               return (
                 <div
@@ -583,7 +585,7 @@ const Space = () => {
                       onClick={() => {
                         selectedSpace.id !== 0 &&
                           handleRename({
-                            spaceId: selectedSpace.id,
+                            id: selectedSpace.id,
                             name: inputSpaceName ?? "",
                             code: nameCode ?? "",
                           });

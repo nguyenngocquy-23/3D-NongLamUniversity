@@ -114,7 +114,7 @@ const panoramaSlice = createSlice({
       if (!existing) {
         state.autoPanoramaList.push({
           ...action.payload.node,
-          duration: action.payload.duration || 5,
+          duration: action.payload.duration || 15,
           soundBackground: action.payload.soundBackground || "",
           originalNodeId: action.payload.node.id,
         });

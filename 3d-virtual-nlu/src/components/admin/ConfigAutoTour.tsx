@@ -47,7 +47,7 @@ const ConfigAutoTour = ({
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState(5);
   const [soundBackground, setSoundBackground] = useState("");
 
   useEffect(() => {
@@ -118,22 +118,22 @@ const ConfigAutoTour = ({
           <input
             className={styles.input}
             type="number"
-            min={5}
-            max={30}
+            min={15}
+            max={40}
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
           />
         </div>
       </div>
-      {(currentPanorama.id == orderedList?.[0].id) && (
-          <div className={styles.config_item}>
-            <div className={styles.input_group}>
-              <label className={styles.label}>Nhạc nền:</label>
-              <SoundUpload
-                soundBackground={soundBackground || ""}
-                setSoundBackground={setSoundBackground}
-              />
-              <label className={styles.label}>Giọng nói:</label>
+      {currentPanorama.id == orderedList?.[0].id && (
+        <div className={styles.config_item}>
+          <div className={styles.input_group}>
+            <label className={styles.label}>Nhạc nền:</label>
+            <SoundUpload
+              soundBackground={soundBackground || ""}
+              setSoundBackground={setSoundBackground}
+            />
+            {/* <label className={styles.label}>Giọng nói:</label>
               <select
                 className={styles.custom_select}
                 onChange={(e) => {
@@ -147,10 +147,10 @@ const ConfigAutoTour = ({
                     {voice.name} ({voice.lang})
                   </option>
                 ))}
-              </select>
-            </div>
+              </select> */}
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 };

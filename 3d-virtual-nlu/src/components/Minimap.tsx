@@ -172,8 +172,9 @@ const MiniMap: React.FC<MiniMapProps> = ({
       )
     : filterPanoramaList; //Filter ra các panos khác tour.
 
-  const { spaces } = useSelector((state: RootState) => state.data);
-  const spaceItem = spaces.find((s) => s.id === Number(spaceId));
+  const { allSpaces } = useSelector((state: RootState) => state.data);
+  const spaceItem = allSpaces.find((s) => s.id === Number(spaceId));
+
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
   const masterPanorama = panoramaList.find((h) => h.config.status > 1);
