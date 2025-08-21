@@ -105,7 +105,6 @@ const VirtualTour = () => {
       } catch (error) {
         console.error("Lỗi khi lấy danh sách spaces:", error);
       } finally {
-        //loading
       }
     };
 
@@ -161,7 +160,7 @@ const VirtualTour = () => {
   const [isOpenBox, setIsOpenBox] = useState(false);
 
   useEffect(() => {
-    if(isOpenBox) {
+    if (isOpenBox) {
       setIsOpenRadar(false);
     }
   }, [isOpenBox]);
