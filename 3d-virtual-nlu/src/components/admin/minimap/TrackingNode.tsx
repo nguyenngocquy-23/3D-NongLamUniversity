@@ -26,7 +26,7 @@ const Flow: React.FC<FlowProps> = ({
   imageRef,
 }) => {
   const masterPanorama = React.useMemo(() => {
-    return panoramaList.find((h) => h.config.status === 2);
+    return panoramaList.find((h) => h.config.status > 1);
   }, [panoramaList]);
 
   const panoramaListExceptMasterNode = React.useMemo(() => {

@@ -27,8 +27,8 @@ public class NodeDao {
 
     public List<NodeIdMapResponse> insertNode(Handle handle, List<NodeCreateRequest> reqs) {
         String sql = """
-                INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, yawOffset, lightIntensity, brightness, contrast, saturation, grayscale, exposure, status, numView) 
-                VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :yawOffset, :lightIntensity, :brightness, :contrast, :saturation, :grayscale, :exposure, :status, :numView)""";
+                INSERT INTO nodes (spaceId, userId, url, name, description, positionX, positionY, positionZ, yawOffset, lightIntensity, brightness, contrast, saturation, grayscale, exposure, status, numView, createdAt, updatedAt) 
+                VALUES (:spaceId, :userId, :url, :name, :description, :positionX, :positionY, :positionZ, :yawOffset, :lightIntensity, :brightness, :contrast, :saturation, :grayscale, :exposure, :status, :numView, :createdAt, :updatedAt)""";
 
             List<NodeIdMapResponse> idMapResponses = new ArrayList<>();
 
@@ -52,6 +52,8 @@ public class NodeDao {
                         .bind("exposure", req.getExposure())
                         .bind("status", req.getStatus())
                         .bind("numView", 0)
+                        .bind("createdAt", LocalDateTime.now())
+                        .bind("updatedAt", LocalDateTime.now())
                         .executeAndReturnGeneratedKeys("id")
                         .mapTo(int.class)
                         .one();

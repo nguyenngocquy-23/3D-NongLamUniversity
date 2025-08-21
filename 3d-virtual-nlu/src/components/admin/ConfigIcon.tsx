@@ -32,11 +32,7 @@ const ConfigIcon = ({
   const [typeIcon, setTypeIcon] = useState(type ?? 1);
 
   useEffect(() => {
-    if (
-      type !== undefined &&
-      type !== null &&
-      type !== typeIcon
-    ) {
+    if (type !== undefined && type !== null && type !== typeIcon) {
       setTypeIcon(type);
     }
   }, [type]);

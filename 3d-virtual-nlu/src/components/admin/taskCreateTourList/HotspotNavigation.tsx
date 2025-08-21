@@ -43,10 +43,6 @@ const TypeNavigation = ({
     getListTargetNodeFromUpdateHotspotNavigation(hotspotNav.id)
   );
 
-  useEffect(() => {
-    console.log('panoramas',limitNav ,filteredPanoramas);
-  },[filteredPanoramas])
-
   const dispatch = useDispatch<AppDispatch>();
 
   const options = panoramaList.map((p) => ({
@@ -76,7 +72,7 @@ const TypeNavigation = ({
           }}
           className={styles.custom_select}
         >
-          <option value="">Chọn panorama {panoramaList.length}</option>
+          <option value="">Chọn node đích</option>
           {limitNav
             ? filteredPanoramas?.map((pano) => (
                 <option key={pano.id} value={pano.id}>

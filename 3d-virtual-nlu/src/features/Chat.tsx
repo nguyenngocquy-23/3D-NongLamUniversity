@@ -1,7 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import styles from "../styles/chat.module.css";
 // import { useUser } from "../Context.tsx";
-import { IoIosChatboxes, IoIosClose, IoIosCloseCircle, IoMdHelp, IoMdHelpCircle, IoMdSend } from "react-icons/io";
+import {
+  IoIosChatboxes,
+  IoIosClose,
+  IoIosCloseCircle,
+  IoMdHelp,
+  IoMdHelpCircle,
+  IoMdSend,
+} from "react-icons/io";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/Store";
@@ -67,13 +74,13 @@ const Chat = ({
       }
     };
 
-    ws.onclose = () => {
-      console.log(`User ${user?.id} disconnected from node ${nodeId}`);
-    };
+    // ws.onclose = () => {
+    //   console.log(`User ${user?.id} disconnected from node ${nodeId}`);
+    // };
 
-    ws.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
+    // ws.onerror = (error) => {
+    //   console.error("WebSocket Error:", error);
+    // };
 
     setSocket(ws);
 

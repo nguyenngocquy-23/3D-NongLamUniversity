@@ -102,7 +102,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
     if (currentPanorama.id === id) {
       Swal.fire({
         icon: "warning",
-        title: "⚠️ Node đang được hiển thị!",
+        title: "Node đang được hiển thị!",
         text: `Vui lòng di chuyển sang node mới trước khi xoá node này!`,
         toast: true,
         position: "top-end",

@@ -16,6 +16,8 @@ import { API_URLS } from "../../env";
 import { addAutoPanorama } from "../../redux/slices/PanoramaSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 import Empty from "../../components/Empty";
+import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
+import { TbView360Number } from "react-icons/tb";
 
 const ManageAutoTour = () => {
   const navigate = useNavigate();
@@ -138,9 +140,16 @@ const ManageAutoTour = () => {
                 className={styles.tour}
                 onClick={() => handleDetail(node.id)}
                 title={node.name}
-                style={{ background: `url(${node.thumbNail})` }}
+                style={{
+                  background: `url(${transformUrlToThumbnailBig(
+                    node.thumbNail
+                  )}`,
+                }}
               >
                 <div className={styles.blur} />
+                <span className={styles.illustrator_icon}>
+                  <TbView360Number />
+                </span>
                 <span className={styles.name}>{node.name}</span>
               </div>
             ))

@@ -354,47 +354,15 @@ const hotspotSlice = createSlice({
       }
     },
 
-    // removeHotspot: (state, action: PayloadAction<{ hotspotId: string }>) => {
-    //   const index = state.hotspotList.findIndex(
-    //     (h) => h.id == action.payload.hotspotId
-    //   );
-    //   if (index !== -1) {
-    //     const hotspot = state.hotspotList.find(
-    //       (h) => h.id == action.payload.hotspotId
-    //     );
-    //     console.log("removeHotspot hotspot: ", action.payload.hotspotId);
-    //     if (!hotspot) return; // Nếu không tìm thấy thì thoát
-
-    //     // Duyệt từng nodeId trong hotspotPositions
-    //     state.hotspotPositions = state.hotspotPositions
-    //       .map((node) => ({
-    //         ...node,
-    //         hotspotPositions: node.hotspotPositions
-    //           .filter((h) => !(h.id == hotspot.id))
-    //           .filter((h) => h.position[0] != hotspot.positionX),
-    //       }))
-    //       // Xóa luôn node nếu mảng vị trí rỗng sau filter
-    //       .filter((node) => node.hotspotPositions.length > 0);
-    //     state.hotspotList = state.hotspotList.filter(
-    //       (h) => h.id != action.payload.hotspotId
-    //     );
-    //   }
-    // },
     removeHotspot: (state, action: PayloadAction<{ hotspotId: string }>) => {
       const { hotspotId } = action.payload;
 
       // Tìm hotspot cần xóa
       const hotspot = state.hotspotList.find((h) => h.id === hotspotId);
       if (!hotspot) {
-        console.warn(
-          `Hotspot với ID ${hotspotId} không tồn tại trong danh sách.`
-        );
         return;
       }
 
-      console.log("Đang xóa hotspot: ", hotspotId);
-
-      // Cập nhật hotspotPositions: xóa hotspot ra khỏi node tương ứng
       state.hotspotPositions = state.hotspotPositions
         .map((node) => {
           const filteredHotspots = node.hotspotPositions.filter(
@@ -411,8 +379,29 @@ const hotspotSlice = createSlice({
         })
         .filter((node) => node.hotspotPositions.length > 0); // Bỏ node nếu không còn hotspot nào
 
-      // Xóa khỏi hotspotList
       state.hotspotList = state.hotspotList.filter((h) => h.id !== hotspotId);
+    },
+
+    removeHotspotNavigations: (
+      state,
+      action: PayloadAction<{ hotspotIds: string[] }>
+    ) => {
+      const { hotspotIds } = action.payload;
+
+      // Xóa khỏi hotspotPositions
+      state.hotspotPositions = state.hotspotPositions
+        .map((node) => ({
+          ...node,
+          hotspotPositions: node.hotspotPositions.filter(
+            (h) => !hotspotIds.includes(h.id)
+          ),
+        }))
+        .filter((node) => node.hotspotPositions.length > 0);
+
+      // Xóa khỏi hotspotList
+      state.hotspotList = state.hotspotList.filter(
+        (h) => !hotspotIds.includes(h.id)
+      );
     },
 
     updateHotspotStatus: (
@@ -523,6 +512,7 @@ export const {
   updateCornerPoint,
   updateCornerHotspotMedia,
   removeHotspot,
+  removeHotspotNavigations,
   deleteHotspotHaveDatabase,
   updateHotspotStatus,
   addHotspotPosition,
