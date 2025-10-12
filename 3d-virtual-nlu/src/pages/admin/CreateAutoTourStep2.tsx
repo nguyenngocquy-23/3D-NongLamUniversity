@@ -9,6 +9,7 @@ import { Environment, Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
 import {
   addAutoPanorama,
+  clearAutoPanorama,
   clearPanorama,
   removeAutoPanorama,
   selectPanorama,
@@ -61,6 +62,7 @@ import { TourNodeRequestMapper } from "../../utils/TourNodeRequestMapper";
 import { fetchNodes } from "../../redux/slices/DataSlice";
 import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
 import { FaQuestionCircle } from "react-icons/fa";
+import { Perf } from "r3f-perf";
 
 const CreateAutoTourStep2 = () => {
   const navigate = useNavigate();
@@ -273,7 +275,9 @@ const CreateAutoTourStep2 = () => {
   };
 
   const [orderedList, setOrderedList] = useState(() =>
-    autoPanoramaList.filter((p: any) => p.id != undefined).map((item) => ({ ...item }))
+    autoPanoramaList
+      .filter((p: any) => p.id != undefined)
+      .map((item) => ({ ...item }))
   );
 
   useEffect(() => {
@@ -282,43 +286,6 @@ const CreateAutoTourStep2 = () => {
       setSelectedNodes(ids);
     }
   }, [orderedList]);
-
-  // useEffect(() => {
-  //   if (!autoPanoramaList || autoPanoramaList.length === 0) return;
-
-  //   const currentIds = autoPanoramaList.map((i) => i.id);
-  //   const prevIds = prevAutoListRef.current;
-
-  //   const isSame =
-  //     currentIds.length === prevIds.length &&
-  //     currentIds.every((id, i) => id === prevIds[i]);
-
-  //   if (!isSame) {
-  //     prevAutoListRef.current = currentIds;
-  //     const newList = autoPanoramaList.map((item) => ({ ...item }));
-  //     console.log("Cập nhật orderedList:", newList);
-  //     setOrderedList(newList);
-  //   } else {
-  //     console.log("Không thay đổi danh sách, không cập nhật.");
-  //   }
-  // }, [autoPanoramaList]);
-  // useEffect(() => {
-  //   if (!autoPanoramaList || autoPanoramaList.length === 0) return;
-
-  //   const updatedOrderedList = orderedList.map((item) => {
-  //     const matched = autoPanoramaList.find((a) => a.id === item.id);
-  //     if (matched) {
-  //       return {
-  //         ...item,
-  //         duration: matched.duration,
-  //         soundBackground: matched.soundBackground ?? item.soundBackground,
-  //       };
-  //     }
-  //     return item;
-  //   });
-
-  //   setOrderedList(updatedOrderedList);
-  // }, [autoPanoramaList]);
 
   const prevAutoListRef = useRef<string[]>([]);
 
@@ -524,6 +491,7 @@ const CreateAutoTourStep2 = () => {
       cancelButtonText: "Hủy",
     }).then((result) => {
       if (result.isConfirmed) {
+        dispatch(clearAutoPanorama());
         navigate(-1);
         dispatch(resetStep());
       }
@@ -554,6 +522,7 @@ const CreateAutoTourStep2 = () => {
           <Environment preset="studio" background={false} />
           <axesHelper args={[10]} position={[0, -90, 0]} />
           <UpdateCameraOnResize />
+          {/* <Perf /> */}
 
           <TourScene
             nodeId={currentSelectId ?? ""}
@@ -654,6 +623,7 @@ const CreateAutoTourStep2 = () => {
                     textAlign: "center",
                     padding: "0.5rem 1rem",
                     backgroundColor: status == 0 ? "#f0464fff" : "#267026",
+                color: 'white',
                   }}
                   onClick={() => {
                     setStatus(status === 1 ? 0 : 1);
@@ -669,6 +639,7 @@ const CreateAutoTourStep2 = () => {
                 textAlign: "center",
                 padding: "0.5rem 1rem",
                 backgroundColor: "#267026",
+                color: 'white',
               }}
               onClick={() => {
                 setIsAddTour(true);
@@ -681,6 +652,7 @@ const CreateAutoTourStep2 = () => {
                 marginRight: "1rem",
                 textAlign: "center",
                 padding: "0.5rem 1rem",
+                color: 'white',
               }}
               onClick={() => {
                 isUpdate ? handleUpdateAutoTour() : dispatch(nextStep());
@@ -692,44 +664,46 @@ const CreateAutoTourStep2 = () => {
         </div>
         {/* Hộp node */}
         <div className={styles.node_list}>
-          {orderedList.filter((p: any) =>p.id != undefined).map((pano, index) => (
-            <div
-              key={pano.id}
-              className={`${styles.node_item} ${
-                currentSelectId === pano.id ? styles.active : ""
-              }`}
-              title={pano.name}
-            >
-              <img
-                src={transformUrlToThumbnailBig(pano.url || "")}
-                alt={pano.name}
-                className={styles.node_image}
-                onClick={() => {
-                  setOpenConfigTour(pano.id);
-                  handleSelectNode(pano.id);
-                }}
-              />
-              <div className={styles.node_index_box}>
-                <button
-                  className={styles.node_index_button}
-                  onClick={() => handleIndexChange(index, index - 1)}
-                  disabled={index === 0}
-                >
-                  ▲
-                </button>
+          {orderedList
+            .filter((p: any) => p.id != undefined)
+            .map((pano, index) => (
+              <div
+                key={pano.id}
+                className={`${styles.node_item} ${
+                  currentSelectId === pano.id ? styles.active : ""
+                }`}
+                title={pano.name}
+              >
+                <img
+                  src={transformUrlToThumbnailBig(pano.url || "")}
+                  alt={pano.name}
+                  className={styles.node_image}
+                  onClick={() => {
+                    setOpenConfigTour(pano.id);
+                    handleSelectNode(pano.id);
+                  }}
+                />
+                <div className={styles.node_index_box}>
+                  <button
+                    className={styles.node_index_button}
+                    onClick={() => handleIndexChange(index, index - 1)}
+                    disabled={index === 0}
+                  >
+                    ▲
+                  </button>
 
-                <span className={styles.node_index_value}>{index + 1}</span>
+                  <span className={styles.node_index_value}>{index + 1}</span>
 
-                <button
-                  className={styles.node_index_button}
-                  onClick={() => handleIndexChange(index, index + 1)}
-                  disabled={index === orderedList.length - 1}
-                >
-                  ▼
-                </button>
+                  <button
+                    className={styles.node_index_button}
+                    onClick={() => handleIndexChange(index, index + 1)}
+                    disabled={index === orderedList.length - 1}
+                  >
+                    ▼
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
         {/* Hướng dẫn sử dụng */}
         {!isUpdate && (

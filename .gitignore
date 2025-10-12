@@ -191,3 +191,5 @@ buildNumber.properties
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,maven,visualstudiocode,java,jboss,git
+
+/tests

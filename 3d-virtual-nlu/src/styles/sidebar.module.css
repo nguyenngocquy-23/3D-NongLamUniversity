@@ -31,6 +31,16 @@
   flex: 1;
 }
 
+.user_view a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.1rem;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: #ffe700 !important;
+}
+
 .side_bar_toggle {
   position: absolute;
   right: 0;

@@ -8,6 +8,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/Store";
 import { getListTargetNodeFromUpdateHotspotNavigation } from "../../../redux/slices/Selectors";
+import { useEffect } from "react";
 
 interface TypeNavigationProps {
   hotspotNav: any;
@@ -71,7 +72,7 @@ const TypeNavigation = ({
           }}
           className={styles.custom_select}
         >
-          <option value="">Chọn panorama {panoramaList.length}</option>
+          <option value="">Chọn node đích</option>
           {limitNav
             ? filteredPanoramas?.map((pano) => (
                 <option key={pano.id} value={pano.id}>

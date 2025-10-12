@@ -102,7 +102,7 @@ const MiniMap: React.FC<MiniMapProps> = ({
     if (currentPanorama.id === id) {
       Swal.fire({
         icon: "warning",
-        title: "⚠️ Node đang được hiển thị!",
+        title: "Node đang được hiển thị!",
         text: `Vui lòng di chuyển sang node mới trước khi xoá node này!`,
         toast: true,
         position: "top-end",
@@ -156,19 +156,25 @@ const MiniMap: React.FC<MiniMapProps> = ({
     (state: RootState) => state.panoramas
   );
 
-  const filterPanoramaList = panoramaList.filter((p) => p.config.status !== 0);
+  const filterPanoramaList = panoramaList.filter((p) => p.config.status != 0);
   /** Filter ra các panos khác tour (Khi update)
    * + status = 2 # với node hiện tại.
    * + status = 0
    */
+
+  useEffect(() => {
+    console.log("filterPanorama :", filterPanoramaList)
+  }, [filterPanoramaList]);
+
   const panaramaListInTour = currentTour
     ? filterPanoramaList.filter(
         (p) => p.config.status !== 2 || p.id == currentTour
       )
     : filterPanoramaList; //Filter ra các panos khác tour.
 
-  const { spaces } = useSelector((state: RootState) => state.data);
-  const spaceItem = spaces.find((s) => s.id === Number(spaceId));
+  const { allSpaces } = useSelector((state: RootState) => state.data);
+  const spaceItem = allSpaces.find((s) => s.id === Number(spaceId));
+
   const hotspotNavigations = useSelector(getFilteredHotspotNavigations);
 
   const masterPanorama = panoramaList.find((h) => h.config.status > 1);

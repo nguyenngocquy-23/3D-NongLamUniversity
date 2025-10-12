@@ -606,7 +606,10 @@ const SpaceDetail = () => {
         <div className={styles.space_header}>
           <IoChevronBack
             className={styles.space_icon_back}
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              navigate(-1);
+              dispatch(goToStep(1));
+            }}
           />
           <p className={styles.space_title}>{currentSpace.name} </p>
           <div className={styles.space_mode}>
@@ -618,7 +621,10 @@ const SpaceDetail = () => {
                   value="overview"
                   checked={isViewMode === 1}
                   onChange={() => {
-                    if (isViewMode !== 1) setIsViewMode(1);
+                    if (isViewMode !== 1) {
+                      dispatch(goToStep(1));
+                      setIsViewMode(1);
+                    }
                   }}
                 />
                 <span className={styles.radio_name}>Tổng quan</span>
@@ -630,7 +636,10 @@ const SpaceDetail = () => {
                   value="floor"
                   checked={isViewMode === 2}
                   onChange={() => {
-                    if (isViewMode !== 2) setIsViewMode(2);
+                    if (isViewMode !== 2) {
+                      setIsViewMode(2);
+                      dispatch(goToStep(2));
+                    }
                   }}
                 />
                 <span className={styles.radio_name}>Cấu hình</span>
@@ -952,10 +961,6 @@ const SpaceDetail = () => {
                         if (isInteger(hotspot.id)) {
                           return;
                         }
-                        // const isNumericString = /^\d+$/.test(hotspot.id);
-                        // if (isNumericString) {
-                        //   return;
-                        // }
                         handleHotspotNavigate(
                           targetNodeId,
                           cameraTargetPosition

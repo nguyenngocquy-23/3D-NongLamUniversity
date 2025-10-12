@@ -15,6 +15,9 @@ import axios from "axios";
 import { API_URLS } from "../../env";
 import { addAutoPanorama } from "../../redux/slices/PanoramaSlice";
 import { useDebounce } from "../../hooks/useDebounce";
+import Empty from "../../components/Empty";
+import { transformUrlToThumbnailBig } from "../../utils/getCloudinaryURL";
+import { TbView360Number } from "react-icons/tb";
 
 const ManageAutoTour = () => {
   const navigate = useNavigate();
@@ -78,7 +81,7 @@ const ManageAutoTour = () => {
     }[];
     console.log("indexNode", indexNode);
     for (const item of indexNode) {
-      if(item.nodeId == null) continue;
+      if (item.nodeId == null) continue;
       const node = await axios.post(API_URLS.NODE_BY_ID, {
         nodeId: item.nodeId,
       });
@@ -137,14 +140,27 @@ const ManageAutoTour = () => {
                 className={styles.tour}
                 onClick={() => handleDetail(node.id)}
                 title={node.name}
-                style={{ background: `url(${node.thumbNail})` }}
+                style={{
+                  background: `url(${transformUrlToThumbnailBig(
+                    node.thumbNail
+                  )}`,
+                }}
               >
                 <div className={styles.blur} />
+                <span className={styles.illustrator_icon}>
+                  <TbView360Number />
+                </span>
                 <span className={styles.name}>{node.name}</span>
               </div>
             ))
           ) : (
-            <div style={{ color: "black" }}>Danh sách trống...</div>
+            <div className={styles.empty}>
+              <Empty
+                typeIllustrator="empty_node"
+                title="Chưa có tour!"
+                content="Chưa có tour tự động nào"
+              />
+            </div>
           )}
           {search.length === 0 && (
             <div className={stylesPagination.pagination}>

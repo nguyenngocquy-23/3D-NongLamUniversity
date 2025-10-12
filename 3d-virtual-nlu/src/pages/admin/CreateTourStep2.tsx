@@ -4,7 +4,7 @@ import styles from "../../styles/createTourStep2.module.css";
 import { FaAngleLeft, FaAngleRight, FaBook, FaPlus } from "react-icons/fa6";
 import { IoMdMenu } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/Store";
+import { AppDispatch, RootState } from "../../redux/Store";
 import { Canvas, ThreeEvent, useFrame } from "@react-three/fiber";
 import { Environment, Line } from "@react-three/drei";
 import GroundHotspotModel from "../../components/visitor/GroundHotspotModel";
@@ -54,6 +54,7 @@ import MiniMap from "../../components/Minimap";
 import { DEFAULT_ORIGINAL_Z, RADIUS_SPHERE } from "../../utils/Constants";
 import CamControls from "../../components/visitor/CamControls";
 import { useImageCache } from "../../contexts/ImageCacheContext.tsx";
+import { fetchAllSpaces } from "../../redux/slices/DataSlice.ts";
 
 export const tasks = [
   {
@@ -113,7 +114,7 @@ const CreateTourStep2 = () => {
 
   // ========= REDUX ================
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const hotspotNavigations = useSelector(getFilteredHotspotNavigationInList);
   const hotspotInfos = useSelector(getFilteredHotspotInformationInList);
@@ -176,6 +177,10 @@ const CreateTourStep2 = () => {
     }
   }, [changeCornerMedia]);
 
+  useEffect(() => {
+    dispatch(fetchAllSpaces());
+  }, [dispatch]);
+
   const handleOnPropsChange = (updatedProps: BaseHotspot) => {
     setBasicProps(updatedProps);
   };
@@ -217,19 +222,19 @@ const CreateTourStep2 = () => {
             hotspot.position[2] < maxZ
         )
       );
-    if (isNear) {
-      Swal.fire({
-        title: "Cảnh báo",
-        text: "Các hotspot không được nằm gần nhau",
-        icon: "warning",
-        showCancelButton: false,
-        toast: true,
-        timer: 2000,
-        position: "top-end",
-        showConfirmButton: false,
-      });
-      return;
-    }
+    // if (isNear) {
+    //   Swal.fire({
+    //     title: "Cảnh báo",
+    //     text: "Các hotspot không được nằm gần nhau",
+    //     icon: "warning",
+    //     showCancelButton: false,
+    //     toast: true,
+    //     timer: 2000,
+    //     position: "top-end",
+    //     showConfirmButton: false,
+    //   });
+    //   return;
+    // }
     if (!validIcon) {
       Swal.fire({
         title: "Cảnh báo",
@@ -474,7 +479,7 @@ const CreateTourStep2 = () => {
             sphereRef={sphereRef}
             cameraRef={cameraRef}
             controlsRef={controlsRef}
-            autoRotate={autoRotate === 1 ? true : false}
+            autoRotate={false}
             autoRotateSpeed={speedRotate}
             onAngleChange={(angle) => {
               setCameraAngle(angle); // cameraAngle luôn là góc thật tại thời điểm hiện tại (0–360)
@@ -640,7 +645,11 @@ const CreateTourStep2 = () => {
         </AnimatePresence>
 
         {/* Hướng dẫn sử dụng */}
-        <button className={styles.guide_button} title="Hướng dẫn">
+        <button
+          className={styles.guide_button}
+          title="Hướng dẫn"
+          onClick={() => window.open("https://youtu.be/b0hkZynGmy4", "_blank")}
+        >
           <FaBook />
         </button>
       </div>

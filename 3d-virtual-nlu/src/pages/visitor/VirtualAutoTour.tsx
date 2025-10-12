@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { useNavigate, useParams } from "react-router-dom";
@@ -208,6 +208,7 @@ const VirtualAutoTour: React.FC = () => {
   };
 
   const handleClose = () => {
+    speechSynthesis.cancel();
     navigate(-1);
   };
 
@@ -295,10 +296,11 @@ const VirtualAutoTour: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return; // bỏ qua lần mount đầu tiên (Strict Mode sẽ gọi 2 lần)
-    }
+    // if (!hasMounted.current) {
+    //   hasMounted.current = true;
+    //   return; // bỏ qua lần mount đầu tiên (Strict Mode sẽ gọi 2 lần)
+    // }
+    if (!currentPanorama) return;
 
     readText();
   }, [currentPanorama]);
@@ -467,49 +469,58 @@ const VirtualAutoTour: React.FC = () => {
             autoRotate={isRotation}
             autoRotateSpeed={speedRotate}
           />
-          {isTextureReady &&
-            hotspotNavigations
-              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
-              .map((hotspot: any) => (
-                <GroundHotspot
-                  key={hotspot.id}
-                  onNavigate={() => {}}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                  hotspotNavigation={hotspot}
-                />
-              ))}
+          <Suspense fallback={null}>
+            {isTextureReady &&
+              hotspotNavigations
+                .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+                .map((hotspot: any) => (
+                  <GroundHotspot
+                    key={hotspot.id}
+                    onNavigate={() => {}}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                    hotspotNavigation={hotspot}
+                  />
+                ))}
+          </Suspense>
 
-          {isTextureReady &&
-            hotspotInfos
-              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
-              .map((hotspot: any) => (
-                <GroundHotspotInfo
-                  key={hotspot.id}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                  hotspotInfo={hotspot}
-                />
-              ))}
-          {isTextureReady &&
-            hotspotModels
-              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
-              .map((hotspot: any) => (
-                <GroundHotspotModel
-                  key={hotspot.id}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                  hotspotModel={hotspot}
-                />
-              ))}
+          <Suspense fallback={null}>
+            {isTextureReady &&
+              hotspotInfos
+                .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+                .map((hotspot: any) => (
+                  <GroundHotspotInfo
+                    key={hotspot.id}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                    hotspotInfo={hotspot}
+                  />
+                ))}
+          </Suspense>
 
-          {isTextureReady &&
-            hotspotMedias
-              .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
-              .map((hotspot: any) => (
-                <VideoMeshComponent
-                  key={hotspot.id}
-                  hotspotMedia={hotspot}
-                  setCurrentHotspotId={setCurrentHotspotId}
-                />
-              ))}
+          <Suspense fallback={null}>
+            {isTextureReady &&
+              hotspotModels
+                .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+                .map((hotspot: any) => (
+                  <GroundHotspotModel
+                    key={hotspot.id}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                    hotspotModel={hotspot}
+                  />
+                ))}
+          </Suspense>
+
+          <Suspense fallback={null}>
+            {isTextureReady &&
+              hotspotMedias
+                .filter((hotspot: any) => hotspot.nodeId === currentSelectId)
+                .map((hotspot: any) => (
+                  <VideoMeshComponent
+                    key={hotspot.id}
+                    hotspotMedia={hotspot}
+                    setCurrentHotspotId={setCurrentHotspotId}
+                  />
+                ))}
+          </Suspense>
         </Canvas>
         <audio
           ref={audioRef}
@@ -583,29 +594,31 @@ const VirtualAutoTour: React.FC = () => {
           </div>
         )}
         {/* Hộp node */}
-        {openNodeList && ( 
+        {openNodeList && (
           <div
             className={styles.node_list}
             style={{ bottom: isMobile ? "1rem" : "" }}
           >
-            {autoPanoramaList.filter((a) => a.id != undefined).map((pano) => (
-              <div
-                key={pano.id}
-                className={`${styles.node_item} ${
-                  currentSelectId === pano.id ? styles.active : ""
-                }`}
-                onClick={() => {
-                  handleSelectNode(pano.id);
-                }}
-                title={pano.name}
-              >
-                <img
-                  src={pano.url}
-                  alt={pano.name}
-                  className={styles.node_image}
-                />
-              </div>
-            ))}
+            {autoPanoramaList
+              .filter((a) => a.id != undefined)
+              .map((pano) => (
+                <div
+                  key={pano.id}
+                  className={`${styles.node_item} ${
+                    currentSelectId === pano.id ? styles.active : ""
+                  }`}
+                  onClick={() => {
+                    handleSelectNode(pano.id);
+                  }}
+                  title={pano.name}
+                >
+                  <img
+                    src={pano.url}
+                    alt={pano.name}
+                    className={styles.node_image}
+                  />
+                </div>
+              ))}
           </div>
         )}
         <button

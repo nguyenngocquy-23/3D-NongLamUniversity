@@ -9,15 +9,22 @@ import {
   MdNotifications,
 } from "react-icons/md";
 import { FaHome, FaUserCog } from "react-icons/fa";
-import { FaBookOpen, FaComment, FaMap, FaUserPlus } from "react-icons/fa6";
+import {
+  FaBookOpen,
+  FaComment,
+  FaHouseUser,
+  FaMap,
+  FaUserPlus,
+} from "react-icons/fa6";
 import { GoSidebarCollapse, GoSidebarExpand } from "react-icons/go";
-import { IoSettings } from "react-icons/io5";
+import { IoArrowUndoCircle, IoSettings } from "react-icons/io5";
 import { BiSolidCommentDetail } from "react-icons/bi";
 import { CiLogout } from "react-icons/ci";
 import { TbTournament } from "react-icons/tb";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/Store";
 import { logoutUser } from "../../redux/slices/AuthSlice";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 type SideBarProps = {
   isOpenSidebar: boolean;
@@ -44,6 +51,7 @@ const Sidebar: React.FC<SideBarProps> = ({
     navigate("/login");
   };
 
+
   const note_contact = useSelector((state: RootState) => state.data.contacts); 
   const note_contact_not_feedback = note_contact?.filter(
     (contact) => contact.status == 0
@@ -64,8 +72,12 @@ const Sidebar: React.FC<SideBarProps> = ({
               alt="avatar-admin"
             />
             <div className={styles.admin_info}>
+              <h5>Chào bạn, {currentUser.username} !</h5>
+            </div>
+            <div className={styles.user_view}>
               <Link to="/">
-                <h5>Chào bạn, {currentUser.username} !</h5>
+                Trang chủ
+                <IoArrowUndoCircle />
               </Link>
             </div>
           </>
@@ -219,11 +231,7 @@ const Sidebar: React.FC<SideBarProps> = ({
           <li
             className={`
               ${isOpen ? styles.expand_nav_item : styles.collapse_nav_item}
-            ${
-              location.pathname.includes("/contacts")
-                ? styles.click
-                : ""
-            }
+            ${location.pathname.includes("/contacts") ? styles.click : ""}
             `}
           >
             <FaComment />

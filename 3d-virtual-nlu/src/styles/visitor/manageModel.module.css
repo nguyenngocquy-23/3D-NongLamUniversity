@@ -1,265 +1,277 @@
 .container {
-    width: 100vw;
-    height: 100vh;
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(8px);
-    display: flex;
-    flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
-    height: 40vh;
-    width: 100%;
-    background: url("/model_background.png") no-repeat right;
-    background-size: contain;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    padding: 1rem;
-    box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.3);
+  height: 40vh;
+  width: 100%;
+  background: url("/model_background.png") no-repeat right;
+  background-size: contain;
+  background-color: #267026;
+  backdrop-filter: blur(8px);
+  padding: 1rem;
+  box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.3);
+  color: #fff;
 }
 
 .title {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 50px;
-    font-weight: 800;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 50px;
+  font-weight: 800;
 }
 
-.model_container{
-    flex: 1 1;
-    overflow: auto;
-    scrollbar-width: none;
-    padding: 1rem;
+.model_container {
+  flex: 1 1;
+  overflow: auto;
+  scrollbar-width: none;
+  padding: 1rem;
 }
 
 .content {
-    width: 100%;
-    border-radius: 10px;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.5rem;
+  width: 100%;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5rem;
 }
 
 .model {
-    position: relative;
-    background: linear-gradient(to bottom, #fff, rgba(255, 2, 2, 0));
-    border-radius: 1rem;
-    padding: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    display: flex;
-    transition: transform 0.3s ease;
-    cursor: pointer;
-    height: 200px;
+  position: relative;
+  background: linear-gradient(to bottom, #fff, rgba(255, 2, 2, 0));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  height: 200px;
 
-    background-position: center !important;
-    background-size: cover !important;
-    background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
 }
 
 .model:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .model:hover::before {
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0));
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.5),
+    rgba(255, 255, 255, 0)
+  );
 }
 
 .model::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0));
-    border-radius: 20px;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8),
+    rgba(255, 255, 255, 0)
+  );
+  border-radius: 20px;
 }
 
-
 .model:hover .info {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .info {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 0.5rem;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    font-size: 0.8rem;
-    opacity: 0;
-    transform: translateY(-100%);
-    transition: all 0.3s ease;
-    pointer-events: none;
-    z-index: 2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 0.8rem;
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .name {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-weight: 700;
-    max-width: 90%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 700;
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .search_box {
-    position: absolute;
-    top: 75%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 50px;
-    font-weight: 800;
-    width: 30%;
-    display: flex;
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 50px;
+  font-weight: 800;
+  width: 30%;
+  display: flex;
 }
 
 .search_box .search_input::placeholder {
-    color: #333;
+  color: #333;
 }
 
 .search_box .search_input::focus {
-    outline: none;
-    border: none;
+  outline: none;
+  border: none;
 }
 
 .search_box .search_input {
-    cursor: text;
-    padding: 0px 12px;
-    height: 30px;
-    border-radius: 20px;
-    background-color: white;
-    color: black;
-    border: none;
-    font-size: 15px;
-    flex: 1 1;
+  cursor: text;
+  padding: 0px 12px;
+  height: 30px;
+  border-radius: 20px;
+  background-color: white;
+  color: black;
+  border: none;
+  font-size: 15px;
+  flex: 1 1;
 }
 
 .label {
-    width: 30px;
-    height: 30px;
-    background-color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 10px;
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
 }
 
 .search_icon {
-    font-size: 18px;
-    font-weight: 900;
-    color: black;
+  font-size: 18px;
+  font-weight: 900;
+  color: black;
 }
 
 .back_btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all .3s ease;
-    background-color: rgba(0, 0, 0, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .back_btn:hover {
-    transform: scale(1.05);
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .back_btn:focus {
-    outline: none;
-    border: none;
+  outline: none;
+  border: none;
 }
 
 .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0.5rem auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5rem auto;
 }
 
 .page_btn {
-    padding: 8px 12px;
-    margin: 0 4px;
-    border: none;
-    background-color: #eee;
-    cursor: pointer;
-    color: black;
+  padding: 8px 12px;
+  margin: 0 4px;
+  border: none;
+  background-color: #eee;
+  cursor: pointer;
+  color: black;
 }
 
 .page_btn:focus {
-    outline: none;
-    border: none;
+  outline: none;
+  border: none;
 }
 
 .page_btn:hover {
-    background-color: #ddd;
+  background-color: #ddd;
+}
+
+.active:hover {
+  background-color: #0e9013;
+  cursor: default;
 }
 
 .active {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
 }
 
 @media screen and (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
 
-    .header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.5rem;
-    }
+  .search_box {
+    width: 80%;
+  }
 
-    .search_box {
-        width: 80%;
-    }
+  .search_input {
+    font-size: 0.9rem;
+  }
 
-    .search_input {
-        font-size: 0.9rem;
-    }
+  .title {
+    position: absolute;
+    text-align: start;
+    font-size: 1.5rem;
+    left: 1rem;
+    top: 5rem;
+    transform: translateX(10px);
+  }
 
-    .title {
-        position: absolute;
-        text-align: start;
-        font-size: 1.5rem;
-        left: 1rem;
-        top: 5rem;
-        transform: translateX(10px);
-    }
+  .content {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
 
-    .content {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
+  .model {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
 
-    .model {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 4 / 3;
-    }
+  .name {
+    display: none;
+  }
 
-    .name {
-        display: none;
-    }
-
-    .pagination {
-        flex-wrap: wrap;
-    }
+  .pagination {
+    flex-wrap: wrap;
+  }
 }

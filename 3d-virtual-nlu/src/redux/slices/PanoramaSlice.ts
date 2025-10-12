@@ -114,7 +114,7 @@ const panoramaSlice = createSlice({
       if (!existing) {
         state.autoPanoramaList.push({
           ...action.payload.node,
-          duration: action.payload.duration || 5,
+          duration: action.payload.duration || 15,
           soundBackground: action.payload.soundBackground || "",
           originalNodeId: action.payload.node.id,
         });
@@ -191,9 +191,11 @@ const panoramaSlice = createSlice({
       state.currentSelectId = action.payload;
     },
     setMasterPanorama(state, action: PayloadAction<string>) {
+      const userJson = sessionStorage.getItem("user");
+      const user = userJson ? JSON.parse(userJson) : null;
       const masterId = action.payload;
       state.panoramaList.forEach((item) => {
-        item.config.status = item.id === masterId ? 2 : 1;
+        item.config.status = item.id !== masterId ? 1 : user.roleId == 1 ? 3 : 2;
       });
     },
     updatePanoConfig(
@@ -263,6 +265,10 @@ const panoramaSlice = createSlice({
         (state.currentAngleMaster = 0),
         (state.currentSelectId = null);
     },
+    clearAutoPanorama(state) {
+      (state.autoPanoramaList = []),
+      (state.currentSelectId = null);
+    },
   },
 });
 
@@ -280,6 +286,7 @@ export const {
   renameMasterAndUpdateSlaves,
   updateCurrentAngleMaster,
   clearPanorama,
+  clearAutoPanorama,
   deletePanoramaById,
   smartUpdatePanoramasFromResponse,
 } = panoramaSlice.actions;

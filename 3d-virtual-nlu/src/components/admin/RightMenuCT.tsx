@@ -9,7 +9,14 @@ import { RootState } from "../../redux/Store";
 import axios from "axios";
 import { API_URLS } from "../../env";
 import { useEffect, useMemo } from "react";
-import { getHotspotLinkMap } from "../../redux/slices/Selectors";
+import {
+  getEmptyTargetHotspotNavigations,
+  getHotspotLinkMap,
+} from "../../redux/slices/Selectors";
+import {
+  HotspotNavigation,
+  removeHotspotNavigations,
+} from "../../redux/slices/HotspotSlice";
 /**
  * - Nhận thấy rằng step 2 & step 3 chia sẻ cùng UI.
  */
@@ -45,6 +52,10 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
 }) => {
   const dispatch = useDispatch();
 
+  const hotspotList = useSelector(
+    (state: RootState) => state.hotspots.hotspotList
+  );
+
   const handleNextStep = () => {
     if (!isValidated) {
       Swal.fire({
@@ -69,6 +80,15 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
       return;
     }
 
+    const emptyHotspots = hotspotList.filter(
+      (h): h is HotspotNavigation =>
+        h.type === 1 && (!("targetNodeId" in h) || !h.targetNodeId)
+    );
+
+    dispatch(
+      removeHotspotNavigations({ hotspotIds: emptyHotspots.map((h) => h.id) })
+    );
+
     dispatch(nextStep());
   };
   const { panoramaList, currentSelectId } = useSelector(
@@ -88,6 +108,8 @@ const RightMenuCreateTour: React.FC<RightMenuProps> = ({
     .map((p) => p.id);
 
   const isFullConnected = useMemo(() => {
+    // Nếu không có slave → coi như đã full connected
+    if (panoramaSubItemIds.length === 0) return true;
     if (!masterPanorama || !linkMap.has(masterPanorama.id)) return false;
 
     // Master phải trỏ đến tất cả slave

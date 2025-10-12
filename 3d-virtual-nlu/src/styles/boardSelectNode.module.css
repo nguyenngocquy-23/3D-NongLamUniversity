@@ -114,6 +114,7 @@
 
 .next_btn:hover {
     opacity: 0.7;
+    color: #0e9013;
 }
 
 .next_btn:focus {
@@ -123,9 +124,12 @@
 
 .next_btn {
     padding: 0.5rem 1rem;
-    background-color: #008000 !important;
     position: absolute;
     right: 1rem;
+    background-color: white;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 5rem;
+    font-size: 0.9rem;
 }
 
 .node_container {
@@ -287,6 +291,11 @@
 
 .page_btn:hover {
     background-color: #ddd;
+}
+
+.active:hover {
+  background-color: #0e9013;
+  cursor: default;
 }
 
 .active {

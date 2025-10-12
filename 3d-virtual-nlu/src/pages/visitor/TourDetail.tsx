@@ -448,6 +448,7 @@ const TourDetail = () => {
     .map((p) => p.id);
 
   const isFullConnected = useMemo(() => {
+    if (panoramaSubItemIds.length === 0) return true;
     if (!currentTour || !linkMap.has(currentTour.id)) return false;
 
     // Master phải trỏ đến tất cả slave
@@ -488,7 +489,6 @@ const TourDetail = () => {
       id: node.id,
       status: node.config.status == 0 ? 2 : 0,
     });
-    alert(node.config.status);
     if (response.data.data) {
       Swal.fire({
         title: "Thành công",
@@ -936,7 +936,7 @@ const TourDetail = () => {
               onClick={() => {
                 setIsFullPreview(false);
                 setIsUpdateTour(false);
-                if(nodeId)handleSelectNode(nodeId);
+                if (nodeId) handleSelectNode(nodeId);
               }}
             />
           </span>
@@ -1204,7 +1204,7 @@ const TourDetail = () => {
                         hotspotId={currentHotspotId}
                         setHotspotId={setCurrentHotspotId}
                         onPropsChange={handleOnPropsChange}
-                        limitNav={false}
+                        limitNav={true}
                       />
                     </motion.div>
                   )}
