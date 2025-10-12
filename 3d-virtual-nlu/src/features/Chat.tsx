@@ -52,8 +52,8 @@ const Chat = ({
   useEffect(() => {
     if (!user) return;
     setMessages([]);
-    // const wsUrl = `wss://${AFTER_DOMAIN}/chat/${nodeId}/${user?.id}`;
-    const wsUrl = `ws://${AFTER_DOMAIN}/chat/${nodeId}/${user?.id}`;
+    // const wsUrl = `ws://${AFTER_DOMAIN}/chat/${nodeId}/${user?.id}`;
+    const wsUrl = `wss://${AFTER_DOMAIN}/chat/${nodeId}/${user?.id}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -93,8 +93,8 @@ const Chat = ({
     if (!user) return;
     setGlobalMessages([]);
     const wsGlobal = new WebSocket(
-      `ws://${AFTER_DOMAIN}/chat/global/${user.id}`
-      // `wss://${AFTER_DOMAIN}/chat/global/${user.id}`
+      // `ws://${AFTER_DOMAIN}/chat/global/${user.id}`
+      `wss://${AFTER_DOMAIN}/chat/global/${user.id}`
     );
     setGlobalSocket(wsGlobal);
 

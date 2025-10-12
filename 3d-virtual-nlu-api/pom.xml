@@ -131,6 +131,13 @@
             <artifactId>google-api-client</artifactId>
             <version>1.33.2</version>
         </dependency>
+        <!--        job scheduler-->
+        <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.3.2</version>
+        </dependency>
     </dependencies>
 
     <build>

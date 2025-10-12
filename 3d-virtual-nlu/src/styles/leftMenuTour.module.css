@@ -5,6 +5,16 @@
   color: white;
 }
 
+.left_menu.mobile {
+  position: absolute;
+  top: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  width: auto;
+  height: auto;
+}
+
 .left_menu .header {
   height: 15vh;
   text-align: center;
@@ -73,6 +83,14 @@
   align-items: center;
 }
 
+.left_menu .master_container.mobile {
+  height: auto;
+  max-height: 50vh;
+  background-color: white;
+  margin-top: 1rem;
+  border-radius: 1rem;
+}
+
 .left_menu .master_container {
   list-style-type: none;
   padding: 0;
@@ -104,9 +122,21 @@
   box-shadow: inset 0 0 1px #1e7e34;
 }
 
+.left_menu .node.mobile::before {
+  content: none;
+  display: none;
+}
+
+.left_menu .node.mobile {
+  padding: 1rem 0;
+  color: #333;
+  background: none !important;
+  opacity: 1;
+  filter: none !important;
+}
 
 .left_menu .node {
-  filter: brightness(0.6);
+  filter: brightness(0.4);
   background-position: center;
   background-size: 100%;
   padding: 40px 0;
@@ -126,7 +156,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background-color: rgba(27, 22, 22, 0.2);
+  background-color: rgba(66, 64, 64, 0.2);
   transition: background-color 0.3s ease;
 }
 
@@ -140,7 +170,7 @@
 }
 
 .left_menu .node:hover::before {
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .left_menu .node .nodeName {

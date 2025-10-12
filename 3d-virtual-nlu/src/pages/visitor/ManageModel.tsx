@@ -69,6 +69,7 @@ const ManageModel = () => {
           searchKey: debouncedSearch,
         }
       );
+      console.log(response.data.data);
       setModelList(response.data.data);
     };
     handleSearch();

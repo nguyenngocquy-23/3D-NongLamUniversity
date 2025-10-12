@@ -32,7 +32,7 @@ const BoardSelectNode = () => {
   );
   const dashboard = useSelector((state: RootState) => state.data.dashboard);
 
-  const [selectedNodes, setSelectedNodes] = useState<any[]>([]);
+  const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [nodeList, setNodeList] = useState<any[]>(nodes || []);
 
   const [search, setSearch] = useState("");
@@ -162,6 +162,7 @@ const BoardSelectNode = () => {
         <div className={styles.node_list}>
           {selectedNodes.map((select) => {
             const node = autoPanoramaList.find((node) => node.id === select);
+            if (!node) return null; // Add null check
             return (
               <div
                 key={node.id}

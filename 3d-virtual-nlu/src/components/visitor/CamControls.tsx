@@ -156,6 +156,7 @@ const CamControls: React.FC<CamControlsProps> = ({
   return (
     <OrbitControls
       ref={controlsRef}
+      // enableZoom={true}          // cho phép zoom (chuột cuộn / pinch trên mobile)
       enablePan={false}
       enableDamping={true}
       dampingFactor={0.3}

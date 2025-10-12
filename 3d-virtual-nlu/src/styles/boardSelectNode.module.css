@@ -130,6 +130,7 @@
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
     border-radius: 5rem;
     font-size: 0.9rem;
+    color: black;
 }
 
 .node_container {
