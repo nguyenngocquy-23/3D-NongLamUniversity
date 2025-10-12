@@ -41,6 +41,7 @@ public class ConnectionPool {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             String url = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DB_NAME;
+            System.out.println("🔄 [DB-CONNECT] Trying connect to DB: " + url + "with host: " + HOST + " with user=" + USERNAME);
             return new Connection(Jdbi.create(url, USERNAME, PASSWORD).open());
         } catch (Exception e) {
             throw new RuntimeException("Error creating a new database connection", e);

@@ -597,7 +597,6 @@ const VirtualAutoTour: React.FC = () => {
         {openNodeList && (
           <div
             className={styles.node_list}
-            style={{ bottom: isMobile ? "1rem" : "" }}
           >
             {autoPanoramaList
               .filter((a) => a.id != undefined)
@@ -623,7 +622,7 @@ const VirtualAutoTour: React.FC = () => {
         )}
         <button
           className={styles.skip_button}
-          style={{ bottom: isMobile ? "8rem" : "" }}
+          style={{ bottom: isMobile ? "12rem" : "" }}
           onClick={skipToNext}
         >
           <FaAngleDoubleRight className={styles.arrow} /> Đi tiếp{" "}

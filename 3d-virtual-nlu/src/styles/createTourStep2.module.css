@@ -340,7 +340,7 @@ back_btn:hover {
 .node_list {
   position: absolute;
   left: 50%;
-  bottom: 3rem;
+  bottom: 5rem;
   transform: translateX(-50%);
   max-width: 80%;
   height: auto;
@@ -435,7 +435,7 @@ back_btn:hover {
 
 .skip_button {
   position: absolute;
-  bottom: 3rem;
+  bottom: 5rem;
   right: 2rem;
   padding: 0.5rem 1rem;
   background-color: transparent;

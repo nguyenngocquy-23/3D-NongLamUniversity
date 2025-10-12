@@ -26,6 +26,7 @@ interface LeftMenuProps {
   setIsMenuPin: React.Dispatch<React.SetStateAction<boolean>>;
   isMenuPin: boolean;
   nodeId: number;
+  isMobile?: boolean;
 }
 
 const LeftMenuTour = ({
@@ -35,6 +36,7 @@ const LeftMenuTour = ({
   isMenuPin,
   setIsMenuPin,
   nodeId,
+  isMobile,
 }: LeftMenuProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const listMasterNode = useSelector(
@@ -56,8 +58,10 @@ const LeftMenuTour = ({
   const scrollPositionRef = useRef<number>(0);
 
   useEffect(() => {
-    if (search === "") {
+    if (search.trim() === "" && isMobile === undefined) {
       setNodeList(listMasterNode);
+    }else{
+      setNodeList([])
     }
   }, [search]);
 
@@ -69,7 +73,7 @@ const LeftMenuTour = ({
 
   useEffect(() => {
     const handleSearch = async () => {
-      if (!debouncedSearch) return;
+      if (!debouncedSearch || debouncedSearch.trim() === "") return;
       const response = await axios.post(API_URLS.SEARCH_NODES, {
         searchKey: debouncedSearch,
       });
@@ -79,7 +83,7 @@ const LeftMenuTour = ({
   }, [debouncedSearch]);
 
   const loadNodes = async () => {
-    if (loading || !hasMore) return;
+    if (isMobile || loading || !hasMore) return;
 
     setLoading(true);
     const response = await dispatch(fetchMasterNodes({ page, limit })).unwrap();
@@ -129,9 +133,13 @@ const LeftMenuTour = ({
   const viewHistoryList = viewHistory ? JSON.parse(viewHistory) : [];
 
   return (
-    <div className={`${styles.left_menu}`}>
-      <div className={styles.header}>
-        <h2 style={{ marginBottom: "0.5rem" }}>Danh sách Tour</h2>
+    <div className={`${styles.left_menu} ${isMobile ? styles.mobile : ""}`}>
+      <div className={styles.header} style={{height: isMobile ? "auto" : "15vh"}}> 
+        {isMobile ? (
+          ""
+        ) : (
+          <h2 style={{ marginBottom: "0.5rem" }}>Danh sách Tour</h2>
+        )}
         <div className={styles.search_box}>
           <label htmlFor="input" className={styles.label}>
             <IoSearch className={styles.search_icon} />
@@ -144,17 +152,21 @@ const LeftMenuTour = ({
           />
         </div>
 
-        <div
-          className={styles.pin_header}
-          onClick={() => setIsMenuPin((prev) => !prev)}
-        >
-          {isMenuPin ? <BiSolidPin /> : <BiPin />}
-        </div>
+        {isMobile ? (
+          ""
+        ) : (
+          <div
+            className={styles.pin_header}
+            onClick={() => setIsMenuPin((prev) => !prev)}
+          >
+            {isMenuPin ? <BiSolidPin /> : <BiPin />}
+          </div>
+        )}
       </div>
       <ul
         ref={scrollRef}
         onScroll={handleScroll}
-        className={styles.master_container}
+        className={`${styles.master_container} ${isMobile ? styles.mobile : ""}`}
       >
         {nodeList.map((node) => {
           const imgUrl = transformUrlToThumbnail(node.url);
@@ -162,7 +174,7 @@ const LeftMenuTour = ({
           return (
             <li
               key={node.id}
-              className={styles.node}
+              className={`${styles.node} ${isMobile ? styles.mobile : ""}`}
               style={{
                 backgroundImage: `url(${
                   imageRef.current[node.id]?.objectUrl || imgUrl

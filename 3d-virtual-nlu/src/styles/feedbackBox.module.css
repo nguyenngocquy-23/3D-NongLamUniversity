@@ -46,7 +46,7 @@
 }
 
 .box {
-  width: max-content;
+  width: 50vw;
   height: max-content;
   background: #fff;
   padding: 20px 0;

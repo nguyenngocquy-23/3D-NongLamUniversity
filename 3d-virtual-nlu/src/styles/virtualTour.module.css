@@ -250,14 +250,14 @@
   width: 40px;
   height: 40px;
   right: 20px;
-  bottom: 2%;
+  bottom: 25%;
   border-radius: 50%;
   transition: all 0.3s ease;
   display: flex;
   justify-content: center;
   align-items: center;
   line-height: 0;
-  z-index: 100000002;
+  z-index: 10000000;
   padding: 0;
 }
 

@@ -769,7 +769,7 @@ const VirtualTour = () => {
       ) : (
         ""
       )}
-      {fullMap || hoverMap || !isMenuVisible ? (
+      {isMobile || fullMap || hoverMap || !isMenuVisible ? (
         ""
       ) : (
         <AnimatePresence>
@@ -791,6 +791,19 @@ const VirtualTour = () => {
           </motion.div>
         </AnimatePresence>
       )}
+      {isMobile ? (
+        <LeftMenuTour
+          isMenuPin={isMenuPin}
+          setIsMenuPin={setIsMenuPin}
+          isMenuVisible={true}
+          setIsMenuVisible={setIsMenuVisible}
+          imageRef={imageRef}
+          nodeId={nodeToRender.id}
+          isMobile={true}
+        />
+      ) : (
+        ""
+      )}
       {!isOpenRadar && !isOpenBox && (
         <button
           className={styles.open_radar_button}
@@ -801,11 +814,15 @@ const VirtualTour = () => {
         </button>
       )}
       {/* Hộp chat sửa wss */}
-      <Chat
-        nodeId={nodeToRender.id}
-        setAccessing={setAccessing}
-        setIsOpenChat={setIsOpenBox}
-      />
+      {isMobile ? (
+        ""
+      ) : (
+        <Chat
+          nodeId={nodeToRender.id}
+          setAccessing={setAccessing}
+          setIsOpenChat={setIsOpenBox}
+        />
+      )}
       {/* Footer chứa các tính năng */}
       {isMobile ? (
         <>
