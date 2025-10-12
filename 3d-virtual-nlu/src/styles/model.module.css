@@ -326,7 +326,7 @@
         flex-direction: row;
         justify-content: center;
         gap: 1rem;
-        bottom: 1rem;
+        bottom: 5rem;
     }
 
     .share_button {

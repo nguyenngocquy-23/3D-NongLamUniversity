@@ -1088,7 +1088,7 @@ const ManagerTourDetail: React.FC = () => {
                     className={stylesOverview.label_information}
                     htmlFor="input"
                   >
-                    Tên không gian :{" "}
+                    Tên tour :{" "}
                   </label>
                   <div className={stylesOverview.content_information}>
                     <input

@@ -430,7 +430,7 @@ public class HotspotDao {
                 JOIN hotspot_models AS m ON h.id = m.hotspotId
                 JOIN nodes as n ON n.id = h.nodeId
                 JOIN users as u ON n.userId = u.id
-                WHERE n.status = 1 AND m.name LIKE :searchKey
+                WHERE h.status = 1 AND m.name LIKE :searchKey
                 ORDER BY n.updatedAt DESC
                 LIMIT 10 OFFSET 0
                 """;
