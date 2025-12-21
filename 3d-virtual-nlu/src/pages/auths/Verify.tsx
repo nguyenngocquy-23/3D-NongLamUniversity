@@ -112,7 +112,10 @@ const Verify = () => {
   return (
     <div className={styles.container}>
       <div className={styles.loginContainer}>
-        <h2 className={styles.h2}>Nhập mã xác thực</h2>
+        <div className={styles.title}>
+          <h2 className={styles.h2}>Nhập mã xác thực</h2>
+          <i>Vui lòng nhập mã xác thực</i>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className={styles.codeInputContainer}>
             {code.map((digit, index) => (

@@ -73,10 +73,6 @@ export default function Footer() {
 
       <footer className={styles.footer}>
         <div className={styles.container}>
-          <p className={styles.text}>
-            &copy; {new Date().getFullYear()} Công ty của bạn. Mọi quyền được
-            bảo lưu.
-          </p>
           <div className={styles.links}>
             <ScrollLink
               to="introduce"
@@ -111,6 +107,10 @@ export default function Footer() {
               Khảo sát & đánh giá
             </button>
           </div>
+          <p className={styles.text}>
+            &copy; {new Date().getFullYear()} 3dtour. Hệ thống được phát triển
+            và vận hành bởi 3dtour.
+          </p>
         </div>
       </footer>
     </>

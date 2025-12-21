@@ -184,8 +184,8 @@ const TourOverview = () => {
             THAM QUAN ẢO
           </h2>
           <i className={styles.title}>
-            Chào mừng bạn đến với chuyến tham quan khuôn viên Trường Đại học
-            Nông Lâm ...
+            Chào mừng đến với chuyến tham quan khuôn viên Trường Đại học
+            Nông Lâm Thành phố Hồ Chí Minh
           </i>
         </div>
         <div className={styles.contain_canvas}>

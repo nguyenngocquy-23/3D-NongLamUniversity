@@ -8,7 +8,7 @@ import {
   faEyeDropper,
   faEyeSlash,
 } from "@fortawesome/free-solid-svg-icons";
-import { FaRegUser } from "react-icons/fa6";
+import { FaAngleLeft, FaArrowLeft, FaRegUser } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../redux/Store";
@@ -68,7 +68,20 @@ const ForgotPassword: React.FC = () => {
   return (
     <div className={styles.container} style={{ position: "relative" }}>
       <div className={styles.loginContainer}>
-        <h2 className={styles.h2}>Quên mật khẩu</h2>
+        <FaAngleLeft
+          style={{
+            position: "absolute",
+            top: "20px",
+            left: "20px",
+            cursor: "pointer",
+            fontSize: "24px",
+          }}
+          onClick={() => navigate(-1)}
+        />
+        <div className={styles.title}>
+          <h2 className={styles.h2}>Quên mật khẩu</h2>
+          <i>Vui lòng nhập thông tin</i>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <FaRegUser className={styles.icon} />
@@ -86,12 +99,6 @@ const ForgotPassword: React.FC = () => {
             Gửi
           </button>
         </form>
-        <p>
-          Đã nhớ mật khẩu?
-          <Link className={styles.link} to="/login">
-            Đăng nhập lại!
-          </Link>
-        </p>
       </div>
     </div>
   );

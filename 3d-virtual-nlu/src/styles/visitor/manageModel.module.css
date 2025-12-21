@@ -6,6 +6,7 @@
   backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 .header {
