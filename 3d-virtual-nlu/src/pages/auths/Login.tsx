@@ -76,7 +76,10 @@ const Login: React.FC = () => {
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <div className={styles.container}>
         <div className={styles.loginContainer}>
-          <h2 className={styles.h2}>Đăng nhập</h2>
+          <div className={styles.title}>
+            <h2 className={styles.h2}>Đăng nhập</h2>
+            <i>Vui lòng nhập thông tin</i>
+          </div>
           <form onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
               <FaRegUser className={styles.icon} />
@@ -110,6 +113,15 @@ const Login: React.FC = () => {
                 onClick={handleShowContent}
                 icon={showContent ? faEyeSlash : faEye}
               ></FontAwesomeIcon>
+            </div>
+            <div className={styles.rememberMe}>
+              <input
+                type="checkbox"
+                id="rememberMe"
+                name="rememberMe"
+                className={styles.greenCheckbox}
+              />
+              <label htmlFor="rememberMe">Nhớ tài khoản</label>
             </div>
             <button
               className={styles.loginBtn}
@@ -159,16 +171,18 @@ const Login: React.FC = () => {
           )} */}
             {/* <button className={styles.loginBtn} type="submit">Login</button> */}
           </form>
-          <Link className={styles.link} to="/forgotPassword">
-            Quên mật khẩu?
-          </Link>{" "}
-          <br />
-          <b>
-            Chưa có tài khoản?{" "}
-            <Link className={styles.link} to="/register">
-              Đăng ký tại đây!
-            </Link>
-          </b>
+          <div className={styles.footerText}>
+            <Link className={styles.link} to="/forgotPassword">
+              Quên mật khẩu?
+            </Link>{" "}
+            <br />
+            <b>
+              Chưa có tài khoản?{" "}
+              <Link className={styles.link} to="/register">
+                Đăng ký tại đây!
+              </Link>
+            </b>
+          </div>
         </div>
         {/* <canvas className={styles.canvas_login}></canvas> */}
       </div>

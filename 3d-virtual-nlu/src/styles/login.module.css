@@ -7,7 +7,7 @@
   height: 100vh;
   width: 100vw;
   margin: 0;
-  background: url("/backgroundNL.jpg") no-repeat center / cover;
+  background: url("/bgk-login.jpg") no-repeat center / cover;
   font-family: Arial, sans-serif;
   position: relative;
 }
@@ -35,32 +35,35 @@
 .loginContainer {
   position: absolute;
   top: 50%;
-  right: 5%;
+  right: 0;
   transform: translateY(-50%);
   background: rgba(255, 255, 255, 0.1);
-  padding: 2rem 3rem;
-  border-radius: 10px;
+  padding: 5rem;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(5px);
   transition: transform 0.5s ease;
   animation: slideDown 0.8s ease-out forwards;
-  width: 400px;
+  width: 40vw;
+  height: 100%
 }
 
-.h2 {
+.title {
   text-align: center;
-  font-size: 30px;
-  color: #333;
+  color: #fff;
   margin-bottom: 1.5rem;
+}
+
+.title h2 {
+  font-size: 30px;
 }
 
 /* Style cho các trường input */
 .inputGroup {
   margin-bottom: 1.5rem;
   position: relative;
-  border-radius: 10px;
-  border: 1px solid #333;
-  color: #333;
+  /* border-radius: 10px; */
+  border-bottom: 0.1px solid #fff;
+  color: #fff;
 }
 
 .icon {
@@ -69,7 +72,7 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  color: #333;
+  color: #fff;
 }
 
 .inputField {
@@ -78,14 +81,14 @@
   font-size: 1rem;
   border: none;
   background: transparent;
-  color: #333;
+  color: #fff;
   outline: none;
   transition: all 0.3s ease;
 }
 
 /* Style cho placeholder (nếu có) */
-input::placeholder {
-  color: rgba(0, 0, 0, 0.7);
+.inputField::placeholder {
+  color: rgba(255, 255, 255, 0.7);
   transition: opacity 0.3s ease;
 }
 
@@ -97,15 +100,15 @@ input::placeholder {
   color: #fff;
   font-size: 1rem;
   cursor: pointer;
-  transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
-  transition: transform 0.5s ease;
+  transition: all 0.5s ease;
+  margin-top: 2rem;
   margin-bottom: 0.5rem;
 }
 
 .loginBtn:hover {
-  transform: perspective(1000px) scale(1.1);
-  background: #349e34;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  background: #333;
+  opacity: 0.5;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .link {
@@ -117,8 +120,7 @@ input::placeholder {
 }
 
 .link:hover {
-  color: #78f7bc;
-  opacity: 0.8 !important;
+  opacity: 0.5 !important;
 }
 
 .eye {
@@ -165,4 +167,34 @@ input::placeholder {
 
 .codeInput:focus {
   border-color: #007bff;
+}
+
+.footerText {
+  text-align: center;
+  color: #fff;
+  margin-top: 1rem;
+}
+
+.rememberMe {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #fff;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.rememberMe input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.rememberMe label {
+  cursor: pointer;
+}
+
+.greenCheckbox {
+  accent-color: #2e7d32;
 }

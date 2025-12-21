@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import vn.edu.hcmuaf.virtualnluapi.config.CacheManager;
 import vn.edu.hcmuaf.virtualnluapi.dao.FieldDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.HotspotTypeDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
@@ -19,10 +20,27 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class HotspotTypeService {
     @Inject
-    HotspotTypeDao HotspotTypeDao;
+    HotspotTypeDao hotspotTypeDao;
+    @Inject
+    CacheManager cache;
 
     public List<HotspotType> getAllType() {
-        return HotspotTypeDao.getAllType();
+        String key = "hotspotType:all";
+
+        List<HotspotType> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
+        try {
+            List<HotspotType> result = hotspotTypeDao.getAllType();
+
+            cache.put(key, result);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 
 //    public FieldResponse getIconDefaultById(int id) {

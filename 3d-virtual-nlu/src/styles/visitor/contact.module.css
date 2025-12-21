@@ -1,106 +1,127 @@
 .contact_container {
   width: 100%;
-  height: auto;
-  margin: 5% auto;
-  padding: 30px;
-  background-color: #ffffff;
-  border-radius: 12px;
+  margin: auto;
+  padding: 80px 20px;
   position: relative;
-  perspective: 800px;
-  justify-content: center;
-  align-items: center;
-  position: relative;
+  background: linear-gradient(180deg, #ffffff, #f7f9fc);
+  overflow: hidden;
 }
 
+/* Title */
 .title {
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 28px;
-  color: #333;
+  font-size: 36px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 10px;
 }
 
+.subtitle {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 50px;
+}
+
+/* Form */
 .form {
+  max-width: 520px;
+  margin: 0 auto;
+  /* padding: 40px; */
+  border-radius: 20px;
+  /* background: rgba(255, 255, 255, 0.75); */
+  /* backdrop-filter: blur(12px); */
+  /* box-shadow: 0 30px 80px rgba(0, 0, 0, 0.08); */
   display: flex;
   flex-direction: column;
-  max-width: 600px;
-  margin: auto;
+  gap: 24px;
 }
 
+/* Form group */
+.form_group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Label */
 .label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
   margin-bottom: 8px;
-  font-weight: 500;
+}
+
+/* Input & textarea */
+.input,
+.textarea {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+  background: #fff;
+  color: #111;
+  transition: all 0.25s ease;
 }
 
 .input::placeholder,
 .textarea::placeholder {
-  color: #fff;
+  color: #aaa;
 }
 
-.input,
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #267026;
+  box-shadow: 0 0 0 4px rgba(38, 112, 38, 0.15);
+}
+
 .textarea {
-  padding: 12px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
+  min-height: 140px;
   resize: vertical;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: #fff;
 }
 
-.textarea {
-  min-height: 120px;
-}
-
+/* Button */
 .button {
-  padding: 12px;
+  margin-top: 10px;
+  padding: 14px;
   font-size: 16px;
-  background-color: #267026;
-  color: #fff;
+  font-weight: 600;
+  border-radius: 999px;
   border: none;
-  border-radius: 2rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  color: #fff;
+  background: linear-gradient(135deg, #267026, #4bd430);
+  box-shadow: 0 12px 30px rgba(75, 212, 48, 0.35);
+  transition: all 0.3s ease;
 }
 
 .button:hover {
-  background-color: #4bd430;
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(75, 212, 48, 0.45);
 }
 
+/* Mockup images */
 .contact_image {
-  width: 250px;
-  height: 350px;
+  width: 260px;
+  height: 360px;
   background-image: url('/contact-us.png');
   background-size: contain;
   background-repeat: no-repeat;
-  background-position: center; 
+  background-position: center;
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
   transform-style: preserve-3d;
-  transform-origin: center;
-  border-radius: 12px;
-  background-color: transparent;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  /* background-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); */
-  transition: transform 0.5s ease;
   animation: float 4s ease-in-out infinite;
-  z-index: 1;
-  margin-top: 15%;
-  background-origin: content-box; /* 👈 làm ảnh bắt đầu từ sau padding */
-  background-clip: content-box;
-  padding: 1rem;
+  opacity: 0.9;
 }
 
-/* 👇 THAY đổi: tách keyframe khỏi transform gốc */
 .contact_image_left {
-  left: 5%;
+  left: 4%;
   transform: translateY(-50%) rotateY(35deg) scaleX(-1);
 }
 
 .contact_image_right {
-  right: 5%;
+  right: 4%;
   transform: translateY(-50%) rotateY(-35deg);
 }
 
@@ -108,25 +129,25 @@
 
   0%,
   100% {
-    translate: 0 -50%;
+    transform: translateY(-50%) translateZ(0);
   }
 
   50% {
-    translate: 0 -60%;
+    transform: translateY(-60%) translateZ(10px);
   }
 }
 
-/* 👇 Hover giữ rotateY và scale lên */
-.contact_image_left:hover {
-  transform: translateY(-50%) rotateY(35deg) scale(1.05);
-}
-
-.contact_image_right:hover {
-  transform: translateY(-50%) rotateY(-35deg) scale(1.05);
-}
-
+/* Responsive */
 @media (max-width: 1068px) {
-  .contact_image{
+  .contact_image {
     display: none;
+  }
+
+  .form {
+    padding: 32px 24px;
+  }
+
+  .title {
+    font-size: 28px;
   }
 }

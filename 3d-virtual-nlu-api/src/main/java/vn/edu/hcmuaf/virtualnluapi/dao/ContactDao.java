@@ -1,9 +1,8 @@
 package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.CommentResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ContactResponse;
 
 import java.time.LocalDateTime;
@@ -17,7 +16,7 @@ public class ContactDao {
                 INSERT INTO contacts (userId, email, content, status, createdAt) 
                 VALUES (:userId, :email, :content, :status, :createdAt)
                 """;
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             return handle.createUpdate(sql)
                     .bind("userId", req.getUserId())
                     .bind("email", req.getEmail())
@@ -34,7 +33,7 @@ public class ContactDao {
                 FROM contacts c
                 ORDER BY c.createdAt DESC
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .mapToBean(ContactResponse.class)
                     .list();
@@ -47,7 +46,7 @@ public class ContactDao {
                 SET status = 1
                 WHERE id = :id
                 """;
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             return handle.createUpdate(sql)
                     .bind("id", request.getContactId())
                     .execute() > 0;
@@ -59,7 +58,7 @@ public class ContactDao {
                 SELECT COUNT(*) 
                 FROM contacts
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .mapTo(Integer.class)
                     .one();

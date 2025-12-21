@@ -1,7 +1,7 @@
 package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.entity.EmailVerification;
 
 import java.util.Optional;
@@ -11,7 +11,7 @@ public class EmailVerificationDao {
     public boolean insert(EmailVerification verification) {
         try {
             String sql = "INSERT INTO email_verifications(userId, token, expiredAt) VALUES (:userId, :token, :expiredAt)";
-            boolean success = ConnectionPool.getConnection().withHandle(handle -> {
+            boolean success = HikariCP.getJdbi().withHandle(handle -> {
                 return handle.createUpdate(sql)
                         .bindBean(verification)
                         .execute() > 0;
@@ -26,7 +26,7 @@ public class EmailVerificationDao {
 
     public EmailVerification findByUserId(int userId) {
         String sql = "SELECT * FROM email_verifications WHERE userId = :userId";
-        Optional<EmailVerification> verification = ConnectionPool.getConnection().withHandle(handle ->
+        Optional<EmailVerification> verification = HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .bind("userId", userId)
                         .mapToBean(EmailVerification.class)
@@ -37,7 +37,7 @@ public class EmailVerificationDao {
 
     public boolean deleteToken(EmailVerification verification) {
         String sql = "DELETE FROM email_verifications WHERE userId = :userId AND token = :token";
-        int result = ConnectionPool.getConnection().withHandle(handle ->
+        int result = HikariCP.getJdbi().withHandle(handle ->
                 handle.createUpdate(sql)
                         .bindBean(verification)
                         .execute());
@@ -46,7 +46,7 @@ public class EmailVerificationDao {
 
     public void updateToken(EmailVerification emailVerify) {
         try {
-            ConnectionPool.getConnection().inTransaction(handle ->
+            HikariCP.getJdbi().inTransaction(handle ->
                     handle.createUpdate("UPDATE email_verifications SET token = :token WHERE id = :id")
                             .bind("token", emailVerify.getToken())
                             .bind("id", emailVerify.getId())
@@ -58,7 +58,7 @@ public class EmailVerificationDao {
 
     public EmailVerification findByUserEmail(String email) {
         String sql = "SELECT ev.* FROM email_verifications ev JOIN users u ON ev.userId = u.id WHERE u.email = :email";
-        Optional<EmailVerification> verification = ConnectionPool.getConnection().withHandle(handle ->
+        Optional<EmailVerification> verification = HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .bind("email", email)
                         .mapToBean(EmailVerification.class)

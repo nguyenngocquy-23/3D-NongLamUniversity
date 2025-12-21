@@ -1,7 +1,7 @@
 package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.ChangeNameRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.FieldCreateRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.PageRequest;
@@ -15,7 +15,7 @@ import java.util.List;
 public class FieldDao {
 
     public boolean insertField(FieldCreateRequest req) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int i = handle.createUpdate("INSERT INTO fields (name, code, status, createdAt, updatedAt) VALUES (:name, :code, :status, :createdAt, :updatedAt)")
                     .bind("name", req.getName())
                     .bind("code", req.getCode())
@@ -32,7 +32,7 @@ public class FieldDao {
                 SELECT id, code, name, status, createdAt, updatedAt 
                 FROM fields
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .mapToBean(FieldResponse.class)
                     .list();
@@ -44,7 +44,7 @@ public class FieldDao {
                     FROM fields
                     WHERE status = 1
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .mapToBean(FieldResponse.class)
                     .list();
@@ -57,7 +57,7 @@ public class FieldDao {
                 FROM fields
                 LIMIT :limit OFFSET :offset
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .bind("limit", request.getLimit())
                     .bind("offset", request.getPage() * request.getLimit())
@@ -67,7 +67,7 @@ public class FieldDao {
     }
 
     public FieldResponse getFieldById(int id) {
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery("SELECT id, name FROM  fields WHERE id = :id")
                     .bind("id", id)
                     .mapToBean(FieldResponse.class)
@@ -76,7 +76,7 @@ public class FieldDao {
     }
 
     public boolean changeStatusField(StatusRequest req) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int i = handle.createUpdate("UPDATE fields SET status = :status, updatedAt = :updatedAt WHERE id = :id")
                     .bind("status", req.getStatus())
                     .bind("id", req.getId())
@@ -88,7 +88,7 @@ public class FieldDao {
 
     public boolean changeNameField(ChangeNameRequest req) {
         String updateSql = "UPDATE fields SET name = :name, code = :code, updatedAt = :updatedAt WHERE id = :id";
-        return ConnectionPool.getConnection().inTransaction(
+        return HikariCP.getJdbi().inTransaction(
                 handle -> {
                     int i = handle.createUpdate(updateSql)
                             .bind("name", req.getName()
@@ -107,7 +107,7 @@ public class FieldDao {
 
     public int countAllFields() {
         String countSql = "SELECT COUNT(*) FROM fields";
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(countSql)
                     .mapTo(Integer.class)
                     .one();
@@ -120,7 +120,7 @@ public class FieldDao {
                 FROM fields
                 WHERE name LIKE :searchKey OR code LIKE :searchKey
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(searchSql)
                     .bind("searchKey", "%" + searchKey + "%")
                     .mapToBean(FieldResponse.class)

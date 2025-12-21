@@ -2,8 +2,10 @@ package vn.edu.hcmuaf.virtualnluapi.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import vn.edu.hcmuaf.virtualnluapi.config.CacheManager;
 import vn.edu.hcmuaf.virtualnluapi.dao.IconDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
 
 import java.util.List;
@@ -13,12 +15,22 @@ import java.util.List;
 public class IconService {
     @Inject
     private IconDao iconDao;
-
-
+    @Inject
+    CacheManager cache;
 
     public List<IconResponse> getAllIcons() {
+        String key = "icon:all";
+
+        List<IconResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return iconDao.getAllIcons();
+            List<IconResponse> result = iconDao.getAllIcons();
+
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return List.of();
@@ -26,8 +38,12 @@ public class IconService {
     }
 
     public boolean createIcon(IconCreateRequest req) {
-        try{
-            return iconDao.createIcon(req);
+        try {
+            boolean ok = iconDao.createIcon(req);
+            if (ok) {
+                cache.invalidate("iconn:all");
+            }
+            return ok;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -35,8 +51,17 @@ public class IconService {
     }
 
     public List<IconResponse> search(String searchKey) {
+        String key = "icon:search:" + searchKey.toLowerCase();
+
+        List<IconResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return iconDao.search(searchKey);
+            List<IconResponse> result = iconDao.search(searchKey);
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return List.of();
@@ -45,7 +70,11 @@ public class IconService {
 
     public boolean changeStatusIcon(StatusRequest req) {
         try {
-            return iconDao.changeStatusIcon(req);
+            boolean ok = iconDao.changeStatusIcon(req);
+            if (ok) {
+                cache.invalidate("iconn:all");
+            }
+            return ok;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -54,7 +83,11 @@ public class IconService {
 
     public boolean changeNameIcon(ChangeNameRequest req) {
         try {
-            return iconDao.changeNameIcon(req);
+            boolean ok = iconDao.changeNameIcon(req);
+            if (ok) {
+                cache.invalidate("iconn:all");
+            }
+            return ok;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -63,7 +96,11 @@ public class IconService {
 
     public boolean changeThumbnail(ThumbnailRequest req) {
         try {
-            return iconDao.changeThumbnail(req);
+            boolean ok = iconDao.changeThumbnail(req);
+            if (ok) {
+                cache.invalidate("iconn:all");
+            }
+            return ok;
         } catch (Exception e) {
             e.printStackTrace();
             return false;

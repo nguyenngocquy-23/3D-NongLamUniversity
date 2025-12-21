@@ -1,5 +1,7 @@
 package vn.edu.hcmuaf.virtualnluapi.service;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.mail.*;
@@ -26,7 +28,33 @@ public class MailService {
      */
     @Inject
     UserDao userDAO;
-    private ExecutorService executorService = Executors.newFixedThreadPool(3); // Số lượng thread tùy chọn
+    private ExecutorService executorService;
+    private Session mailSession;
+
+    @PostConstruct
+    void init() {
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", String.valueOf(MailProperties.auth));
+        props.put("mail.smtp.starttls.enable", String.valueOf(MailProperties.starttls));
+        props.put("mail.smtp.host", MailProperties.host);
+        props.put("mail.smtp.port", String.valueOf(MailProperties.port));
+
+        mailSession = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(
+                        MailProperties.user,
+                        MailProperties.password
+                );
+            }
+        });
+
+        executorService = Executors.newFixedThreadPool(3);
+    }
+
+    @PreDestroy
+    void destroy() {
+        executorService.shutdown();
+    }
 
     public void sendMailResetPassword(User user, String newPassword) {
         String subject = "Thông báo: Mật khẩu đã được đổi thành công";
@@ -105,28 +133,59 @@ public class MailService {
         sendMail(user.getEmail(), subject, send.toString());
     }
 
+    //    private void sendMail(String to, String subject, String content) {
+//            Properties props = new Properties();
+//            props.put("mail.smtp.auth", String.valueOf(MailProperties.auth));
+//            props.put("mail.smtp.starttls.enable", String.valueOf(MailProperties.starttls));
+//            props.put("mail.smtp.host", MailProperties.host);
+//            props.put("mail.smtp.port", String.valueOf(MailProperties.port));
+//
+//            Session session = Session.getInstance(props, new Authenticator() {
+//                protected PasswordAuthentication getPasswordAuthentication() {
+//                    return new PasswordAuthentication(MailProperties.user, MailProperties.password);
+//                }
+//            });
+//
+//            try {
+//                MimeMessage message = new MimeMessage(session);
+//                message.setFrom(new InternetAddress(MailProperties.user));
+//                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+//                message.setSubject(subject, "UTF-8");
+//                message.setContent(content, "text/html; charset=UTF-8");
+//                Transport.send(message);
+//            } catch (MessagingException e) {
+//                e.printStackTrace();
+//            }
+//    }
     private void sendMail(String to, String subject, String content) {
-            Properties props = new Properties();
-            props.put("mail.smtp.auth", String.valueOf(MailProperties.auth));
-            props.put("mail.smtp.starttls.enable", String.valueOf(MailProperties.starttls));
-            props.put("mail.smtp.host", MailProperties.host);
-            props.put("mail.smtp.port", String.valueOf(MailProperties.port));
-
-            Session session = Session.getInstance(props, new Authenticator() {
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(MailProperties.user, MailProperties.password);
-                }
-            });
-
+        executorService.submit(() -> {
             try {
+                Properties props = new Properties();
+                props.put("mail.smtp.auth", String.valueOf(MailProperties.auth));
+                props.put("mail.smtp.starttls.enable", String.valueOf(MailProperties.starttls));
+                props.put("mail.smtp.host", MailProperties.host);
+                props.put("mail.smtp.port", String.valueOf(MailProperties.port));
+
+                Session session = Session.getInstance(props, new Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(
+                                MailProperties.user,
+                                MailProperties.password
+                        );
+                    }
+                });
+
                 MimeMessage message = new MimeMessage(session);
                 message.setFrom(new InternetAddress(MailProperties.user));
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
                 message.setSubject(subject, "UTF-8");
                 message.setContent(content, "text/html; charset=UTF-8");
+
                 Transport.send(message);
-            } catch (MessagingException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
+        });
     }
+
 }

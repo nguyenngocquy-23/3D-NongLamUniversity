@@ -6,7 +6,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.jdbi.v3.core.Handle;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.config.CacheManager;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.dao.HotspotDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
@@ -30,6 +31,8 @@ public class NodeService {
     @Inject
     HotspotService hotspotService;
 
+    @Inject
+    CacheManager cache;
 
     /**
      * Input: Insert danh sách node
@@ -43,7 +46,7 @@ public class NodeService {
      */
 
     public boolean createNode(List<NodeCreateRequest> reqs) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
 
             try {
 
@@ -55,6 +58,7 @@ public class NodeService {
                 for (NodeCreateRequest req : reqs) {
                     insertHotspotsForNode(handle, req);
                 }
+                cache.clear(); // nếu nhiều key page
                 return true;
             } catch (Exception e) {
                 throw new RuntimeException("Lỗi khi tạo node hoặc hotspot", e); // Gây rollback
@@ -62,30 +66,107 @@ public class NodeService {
         });
     }
 
-
     public List<NodeFullResponse> getNodesByPage(PageRequest request) {
-        return nodeDao.getNodesByPage(request);
+        String key = "nodes:page:" + request.getPage()
+                + ":limit:" + request.getLimit();
+
+        List<NodeFullResponse> cached =
+                cache.get(key, List.class);
+
+        if (cached != null) {
+            return cached;
+        }
+
+        List<NodeFullResponse> result =
+                nodeDao.getNodesByPage(request);
+
+        cache.put(key, result);
+        return result;
     }
 
     public List<NodeFullResponse> getAllNodes() {
-        return nodeDao.getAllNodes();
+        String key = "nodes:all";
+
+        List<NodeFullResponse> cached =
+                cache.get(key, List.class);
+
+        if (cached != null) {
+            return cached;
+        }
+
+        List<NodeFullResponse> result =
+                nodeDao.getAllNodes();
+
+        cache.put(key, result);
+        return result;
     }
 
     public List<NodeFullResponse> getAllMasterNodes(PageRequest request) {
-        return nodeDao.getAllMasterNodes(request);
+        String key = "nodes:master:page:" + request.getPage()
+                + ":size:" + request.getLimit();
+
+        List<NodeFullResponse> cached =
+                cache.get(key, List.class);
+
+        if (cached != null) {
+            return cached;
+        }
+
+        List<NodeFullResponse> result =
+                nodeDao.getAllMasterNodes(request);
+
+        cache.put(key, result);
+        return result;
     }
 
     public NodeFullResponse getDefaultNode() {
-        return nodeDao.getDefaultNode();
+        String key = "nodes:default";
+
+        NodeFullResponse cached =
+                cache.get(key, NodeFullResponse.class);
+
+        if (cached != null) {
+            return cached;
+        }
+
+        NodeFullResponse result =
+                nodeDao.getDefaultNode();
+
+        if (result != null) {
+            cache.put(key, result);
+        }
+
+        return result;
     }
 
     public List<NodeFullResponse> getListPreloadNodeByNode(int nodeId) {
-        return nodeDao.getListPreloadNodeByNode(nodeId);
+        String key = "node:preload:" + nodeId;
+
+        List<NodeFullResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
+        List<NodeFullResponse> result =
+                nodeDao.getListPreloadNodeByNode(nodeId);
+
+        cache.put(key, result);
+        return result;
     }
 
     public List<NodeExpandResponse> getNodeListByMasterId(int nodeId) {
+        String key = "node:master:" + nodeId;
+
+        List<NodeExpandResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
         try {
-            return nodeDao.getListNodeByMasterId(nodeId);
+            List<NodeExpandResponse> result =
+                    nodeDao.getListNodeByMasterId(nodeId);
+
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -94,8 +175,17 @@ public class NodeService {
 
 
     public List<NodeFullResponse> getNodeByUser(UserIdRequest request) {
+        String key = "node:user:" + request.getUserId();
+
+        List<NodeFullResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
         try {
-            return nodeDao.getNodeByUser(request);
+            List<NodeFullResponse> result =
+                    nodeDao.getNodeByUser(request);
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -103,8 +193,22 @@ public class NodeService {
     }
 
     public NodeFullResponse getNodeById(NodeIdRequest request) {
+        String key = "node:id:" + request.getNodeId();
+
+        NodeFullResponse cached =
+                cache.get(key, NodeFullResponse.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return nodeDao.getNodeById(request);
+            NodeFullResponse result =
+                    nodeDao.getNodeById(request);
+
+            if (result != null) {
+                cache.put(key, result);
+            }
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -112,7 +216,7 @@ public class NodeService {
     }
 
     public boolean changeStatusAtomic(StatusRequest request) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             boolean nodeResult = nodeDao.changeStatus(handle, request);
             boolean hotspotResult = true;
 
@@ -127,17 +231,35 @@ public class NodeService {
     }
 
     public boolean remove(NodeIdRequest request) {
+        boolean ok;
         try {
-            return nodeDao.removeNode(request);
+            ok = nodeDao.removeNode(request);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
+
+        if (ok) {
+            cache.invalidate("node:id:" + request.getNodeId());
+            cache.clear();
+        }
+        return ok;
     }
 
     public List<NodeFullResponse> getPrivateNodeByUser(UserIdRequest request) {
+        String key = "node:private:user:" + request.getUserId();
+
+        List<NodeFullResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return nodeDao.getPrivateNodeByUser(request);
+            List<NodeFullResponse> result =
+                    nodeDao.getPrivateNodeByUser(request);
+
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -145,13 +267,23 @@ public class NodeService {
     }
 
     public List<NodeFullResponse> getMasterNodeListBySpaceId(SpaceIdRequest request) {
+        String key = "node:master:space:" + request.getSpaceId();
+
+        List<NodeFullResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return nodeDao.getMasterNodeListBySpaceId(request);
+            List<NodeFullResponse> result =
+                    nodeDao.getMasterNodeListBySpaceId(request);
+
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-
     }
 
 
@@ -165,7 +297,8 @@ public class NodeService {
      * 3. Cập nhật node mới.
      */
     public boolean updateNodes(NodeFullUpdateRequest reqs) {
-        return ConnectionPool.getConnection().inTransaction(
+//        return jdbi.inTrans
+        return HikariCP.getJdbi().inTransaction(
                 handle -> {
 
                     try {
@@ -191,9 +324,8 @@ public class NodeService {
                                 updateHotspotsAfterNode(handle, req);
                             }
                         }
+                        cache.clear();
                         return true;
-
-
                     } catch (Exception e) {
                         throw new RuntimeException("Lỗi khi cập nhật nodes", e);
                     }
@@ -203,26 +335,52 @@ public class NodeService {
     }
 
     public List<NodeFullResponse> search(String searchKey) {
+        String key = "node:search:" + searchKey.toLowerCase();
+
+        List<NodeFullResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return nodeDao.search(searchKey);
+            List<NodeFullResponse> result = nodeDao.search(searchKey);
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return List.of();
         }
     }
 
     public boolean createAutoTour(AutoTourCreateRequest request) {
+        boolean ok;
         try {
-            return nodeDao.createAutoTour(request);
+            ok = nodeDao.createAutoTour(request);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
+
+        if (ok) {
+            cache.clear(); // đơn giản + an toàn
+        }
+        return ok;
     }
 
     public List<AutoTourResponse> getAllAutoTour(PageRequest request) {
+        String key = "autoTour:all:" + request.getPage() + ":" + request.getLimit();
+
+        List<AutoTourResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return nodeDao.getAllAutoTour(request);
+            List<AutoTourResponse> result =
+                    nodeDao.getAllAutoTour(request);
+
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -230,8 +388,19 @@ public class NodeService {
     }
 
     public List<AutoTourResponse> getAutoTour(PageRequest request) {
+        String key = "autoTour:public:" + request.getPage() + ":" + request.getLimit();
+
+        List<AutoTourResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return nodeDao.getAutoTour(request);
+            List<AutoTourResponse> result =
+                    nodeDao.getAutoTour(request);
+
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -248,8 +417,17 @@ public class NodeService {
     }
 
     public int getNumOfUser(UserIdRequest request) {
+        String key = "user:count:" + request.getUserId();
+
+        Integer cached = cache.get(key, Integer.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return nodeDao.getNumOfUser(request);
+            int result = nodeDao.getNumOfUser(request);
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -261,8 +439,19 @@ public class NodeService {
     }
 
     public List<AutoTourResponse> searchAutoNode(String searchKey) {
+        String key = "autoTour:search:" + searchKey.toLowerCase();
+
+        List<AutoTourResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return nodeDao.searchAutoNode(searchKey);
+            List<AutoTourResponse> result =
+                    nodeDao.searchAutoNode(searchKey);
+
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -270,12 +459,18 @@ public class NodeService {
     }
 
     public boolean updateAutoTour(AutoTourUpdateRequest request) {
+        boolean ok;
         try {
-            return nodeDao.updateAutoTour(request);
+            ok = nodeDao.updateAutoTour(request);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
+
+        if (ok) {
+            cache.clear();
+        }
+        return ok;
     }
 
     public boolean updateLinkNode(List<NodeLinkRequest> reqs) {
@@ -301,7 +496,6 @@ public class NodeService {
         return result;
     }
 
-
     private void updatesIds(List<NodeCreateRequest> reqs, Map<String, Integer> idMapResponse) {
         for (NodeCreateRequest req : reqs) {
             if (idMapResponse.containsKey(req.getTempId())) {
@@ -317,6 +511,7 @@ public class NodeService {
             }
         }
     }
+
     private void updateIdIntegerForUpdateNavHotspot(List<NodeUpdateRequest> reqs, Map<String, Integer> idMapResponse) {
         for (NodeUpdateRequest req : reqs) {
             if (req.getNavHotspots() != null) {
@@ -382,8 +577,19 @@ public class NodeService {
     }
 
     public List<NodeFullResponse> getFailNodeByUser(UserIdRequest request) {
+        String key = "node:fail:user:" + request.getUserId();
+
+        List<NodeFullResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return nodeDao.getFailNodeByUser(request);
+            List<NodeFullResponse> result =
+                    nodeDao.getFailNodeByUser(request);
+
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

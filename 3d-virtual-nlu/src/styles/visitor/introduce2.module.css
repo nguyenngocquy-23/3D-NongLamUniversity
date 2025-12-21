@@ -1,0 +1,83 @@
+.virtual_tour_container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 20px;
+  padding-bottom: 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  color: black;
+}
+
+/* Mỗi section là 1 grid */
+.section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 60px;
+}
+
+/* Đảo cột */
+.reverse {
+  direction: rtl;
+}
+
+.reverse>* {
+  direction: ltr;
+}
+
+/* Ảnh */
+.imageWrap img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Nội dung */
+.content h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.content p {
+  font-size: 16px;
+  line-height: 1.6;
+  opacity: 0.9;
+  margin-bottom: 24px;
+}
+
+.content button {
+  padding: 12px 28px;
+  border-radius: 30px;
+  border: none;
+  background: #000;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.content button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 768px) {
+  .section {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .content h2 {
+    font-size: 26px;
+  }
+
+  .virtual_tour_container {
+    gap: 80px;
+    padding: 60px 16px;
+  }
+}

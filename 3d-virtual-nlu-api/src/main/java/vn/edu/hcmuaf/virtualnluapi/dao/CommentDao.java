@@ -1,10 +1,9 @@
 package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.CommentResponse;
-import vn.edu.hcmuaf.virtualnluapi.dto.response.FieldResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
 public class CommentDao {
 
     public boolean insertComment(SendCommentRequest req) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return  HikariCP.getJdbi().inTransaction(handle -> {
             int i = handle.createUpdate("INSERT INTO comments (userId, nodeId, parentId, content, status, createdAt, updatedAt) VALUES (:userId, :nodeId, :parentId, :content, :status, :createdAt, :updatedAt)")
                     .bind("userId", req.getUserId())
                     .bind("nodeId", req.getNodeId())
@@ -35,14 +34,14 @@ public class CommentDao {
                 WHERE c.nodeId = :nodeId and c.status = 1 and parentId = 0
                 ORDER BY c.updatedAt DESC
                 """;
-        List<CommentResponse> result = ConnectionPool.getConnection().withHandle(handle -> {
+        List<CommentResponse> result =  HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .bind("nodeId", request.getNodeId())
                     .mapToBean(CommentResponse.class)
                     .list();
         });
         for(CommentResponse comment: result){
-            List<CommentResponse> replies = ConnectionPool.getConnection().withHandle(handle -> {
+            List<CommentResponse> replies =  HikariCP.getJdbi().withHandle(handle -> {
                 return handle.createQuery("SELECT c.id, c.userId, u.username, u.avatar, c.nodeId, c.content, c.status, c.updatedAt " +
                                 "FROM comments c JOIN users u ON c.userId = u.id " +
                                 "WHERE c.parentId = :parentId AND c.status = 1 ORDER BY c.updatedAt DESC")
@@ -56,7 +55,7 @@ public class CommentDao {
     }
 
     public boolean updateComment(UpdateCommentRequest request) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return  HikariCP.getJdbi().inTransaction(handle -> {
             int i = handle.createUpdate("UPDATE comments SET content = :content, updatedAt = :updatedAt WHERE id = :id")
                     .bind("content", request.getContent())
                     .bind("updatedAt", LocalDateTime.now())
@@ -67,7 +66,7 @@ public class CommentDao {
     }
 
     public boolean removeComment(CommentIdRequest request) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return  HikariCP.getJdbi().inTransaction(handle -> {
             int i = handle.createUpdate("UPDATE comments SET status = 0, updatedAt = :updatedAt WHERE id = :id")
                     .bind("updatedAt", LocalDateTime.now())
                     .bind("id", request.getCommentId())
@@ -77,7 +76,7 @@ public class CommentDao {
     }
 
     public int getNumOfUser(UserIdRequest request) {
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery("SELECT COUNT(*) FROM comments WHERE userId = :userId AND status = 1")
                     .bind("userId", request.getUserId())
                     .mapTo(Integer.class)
@@ -87,7 +86,7 @@ public class CommentDao {
 
     public int countAllComments() {
         String sql = "SELECT COUNT(*) FROM comments";
-        return ConnectionPool.getConnection().withHandle(handle ->
+        return HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)
                         .one()

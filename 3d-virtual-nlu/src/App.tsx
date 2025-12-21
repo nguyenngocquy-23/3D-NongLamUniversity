@@ -1,4 +1,5 @@
 import "./App.css";
+import "./index.css";
 import { DeviceInfoProvider } from "./contexts/DeviceInfoContext";
 import { CacheProvider } from "./contexts/ImageCacheContext";
 import { DOMAIN_CLIENT } from "./env";

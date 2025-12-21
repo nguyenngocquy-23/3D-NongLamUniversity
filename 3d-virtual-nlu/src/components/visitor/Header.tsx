@@ -109,20 +109,11 @@ const Header: React.FC = () => {
 
       {(mobileNavOpen || !isMobile) && (
         <nav className={isMobile ? style.nav_mobile : style.nav}>
-          {/* <ScrollLink
-            to="campusMap"
-            className={style.navLink}
-            offset={-60}
-            smooth={true}
-            duration={800}
-            onClick={() => setMobileNavOpen(false)}
-          >
-            Sơ đồ trường
-          </ScrollLink> */}
-
           <ScrollLink
             to="introduce"
             className={style.navLink}
+            activeClass={style.navLinkActive}
+            spy={true}
             smooth={true}
             duration={800}
             onClick={() => setMobileNavOpen(false)}
@@ -133,6 +124,8 @@ const Header: React.FC = () => {
           <ScrollLink
             to="tourOverview"
             className={style.navLink}
+            activeClass={style.navLinkActive}
+            spy={true}
             smooth={true}
             duration={800}
             onClick={() => setMobileNavOpen(false)}
@@ -159,8 +152,9 @@ const Header: React.FC = () => {
           <ScrollLink
             to="contact"
             className={style.navLink}
+            activeClass={style.navLinkActive}
+            spy={true}
             smooth={true}
-            offset={-40}
             duration={800}
             onClick={() => setMobileNavOpen(false)}
           >
@@ -197,7 +191,10 @@ const Header: React.FC = () => {
                 </button>
               </li>
               <li>
-                <button className={style.dropdownBtn} onClick={handleCreateTour}>
+                <button
+                  className={style.dropdownBtn}
+                  onClick={handleCreateTour}
+                >
                   <Link to="">Tạo tour</Link>
                 </button>
               </li>

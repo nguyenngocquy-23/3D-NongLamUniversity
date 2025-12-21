@@ -5,15 +5,11 @@ import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.dao.ApproveTourDao;
-import vn.edu.hcmuaf.virtualnluapi.dao.FeedbackDao;
 import vn.edu.hcmuaf.virtualnluapi.dao.NodeDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.ApproveTourRequest;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.StatusRequest;
-import vn.edu.hcmuaf.virtualnluapi.entity.Feedback;
-
-import java.util.List;
 
 @ApplicationScoped
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -29,7 +25,7 @@ public class ApproveTourService {
     MailService mailService;
 
     public boolean approveTour(ApproveTourRequest request) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return  HikariCP.getJdbi().inTransaction(handle -> {
             try {
                 boolean changeStatus = false;
                 if(request.getFeedbackList().equals("")){

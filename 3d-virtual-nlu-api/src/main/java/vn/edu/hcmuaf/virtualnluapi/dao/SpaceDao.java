@@ -1,19 +1,14 @@
 package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.jdbi.v3.core.statement.PreparedBatch;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceFullResponse;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.SpaceResponse;
-import vn.edu.hcmuaf.virtualnluapi.entity.Space;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class SpaceDao {
@@ -24,7 +19,7 @@ public class SpaceDao {
      * @return
      */
     public boolean insertSpace(SpaceCreateRequest req) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int i = handle.createUpdate(
                             "INSERT INTO spaces (fieldId, name, code, description, url, status, createdAt, updatedAt) VALUES (:fieldId, :name, :code, :description, :url, :status, :createdAt, :updatedAt)")
                     .bind("fieldId", req.getFieldId())
@@ -41,7 +36,7 @@ public class SpaceDao {
     }
 
     public List<SpaceResponse> getSpaceByFieldId(SpaceReadRequest req) {
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
 
             return handle
                     .createQuery("SELECT id, name from spaces where fieldId = :fieldId and status IN (1,2,3)")
@@ -61,7 +56,7 @@ public class SpaceDao {
                 LIMIT :limit OFFSET :offset
                 """;
 
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             // Lấy danh sách spaces
             return handle.createQuery(spaceSql)
                     .bind("limit", request.getLimit())
@@ -81,7 +76,7 @@ public class SpaceDao {
                 LEFT JOIN nodes n ON s.masterNodeId = n.id
                 """;
 
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             // Lấy danh sách spaces
             return handle.createQuery(spaceSql)
                     .mapToBean(SpaceFullResponse.class)
@@ -100,7 +95,7 @@ public class SpaceDao {
                 WHERE s.status IN (1,2)
                 """;
 
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             // Lấy danh sách spaces
             return handle.createQuery(spaceSql)
                     .mapToBean(SpaceFullResponse.class)
@@ -120,7 +115,7 @@ public class SpaceDao {
                 WHERE s.id = :id
                 """;
 
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(spaceSql)
                     .bind("id", request.getSpaceId())
                     .mapToBean(SpaceFullResponse.class)
@@ -137,7 +132,7 @@ public class SpaceDao {
      * @return
      */
     public boolean changeStatusSpaceMaster(StatusRequest req) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             // Bước 1: Cập nhật tất cả status = 2 về 1
             handle.createUpdate("UPDATE spaces SET status = 1 WHERE status = 2")
                     .execute();
@@ -153,7 +148,7 @@ public class SpaceDao {
 
 
     public boolean changeStatus(StatusRequest req) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int i = handle.createUpdate("UPDATE spaces SET status = :status, updatedAt = :updatedAt WHERE id = :id")
                     .bind("status", req.getStatus())
                     .bind("id", req.getId())
@@ -165,7 +160,7 @@ public class SpaceDao {
 
     public boolean changeNameSpace(ChangeNameRequest req) {
         String updateSql = "UPDATE spaces SET name = :name, code = :code, updatedAt = :updatedAt WHERE id = :id";
-        return ConnectionPool.getConnection().inTransaction(
+        return HikariCP.getJdbi().inTransaction(
                 handle -> {
                     int i = handle.createUpdate(updateSql)
                             .bind("name", req.getName()
@@ -184,7 +179,7 @@ public class SpaceDao {
 
 
     public boolean setMasterNode(SpaceChangeMasterRequest req) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int updated = handle.createUpdate("UPDATE spaces SET masterNodeId = :masterNodeId WHERE id = :spaceId")
                     .bind("masterNodeId", req.getMasterNodeId())
                     .bind("spaceId", req.getId())
@@ -198,7 +193,7 @@ public class SpaceDao {
         String sql = "UPDATE spaces SET location = :location WHERE id = :id";
 
         try {
-            return ConnectionPool.getConnection().inTransaction(handle -> {
+            return HikariCP.getJdbi().inTransaction(handle -> {
                 PreparedBatch batch = handle.prepareBatch(sql);
                 for (AttachLocationRequest req : requestList) {
                     batch.bind("id", req.getSpaceId())
@@ -218,7 +213,7 @@ public class SpaceDao {
         String sql = "UPDATE spaces SET location = NULL WHERE id = :id";
 
         try {
-            return ConnectionPool.getConnection().inTransaction(handle -> {
+            return HikariCP.getJdbi().inTransaction(handle -> {
                 int i = handle.createUpdate(sql)
                         .bind("id", request.getSpaceId())
                         .execute();
@@ -232,7 +227,7 @@ public class SpaceDao {
 
     public int countAllSpaces() {
         String sql = "SELECT COUNT(*) FROM spaces";
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .mapTo(Integer.class)
                     .one();
@@ -249,7 +244,7 @@ public class SpaceDao {
                 WHERE s.name LIKE :searchKey OR s.code LIKE :searchKey
                 """;
         try {
-            return ConnectionPool.getConnection().withHandle(handle -> {
+            return HikariCP.getJdbi().withHandle(handle -> {
                 return handle.createQuery(searchSql)
                         .bind("searchKey", "%" + searchKey + "%")
                         .mapToBean(SpaceFullResponse.class)
@@ -262,7 +257,7 @@ public class SpaceDao {
     }
 
     public SpaceFullResponse updateSpacePartial(int id, SpaceUpdateRequest req) {
-        return ConnectionPool.getConnection()
+        return HikariCP.getJdbi()
                 .inTransaction(handle -> {
                     StringBuilder sql = new StringBuilder("UPDATE spaces SET");
                     Map<String, Object> binds = new HashMap<>();

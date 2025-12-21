@@ -5,9 +5,11 @@ import jakarta.inject.Inject;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import vn.edu.hcmuaf.virtualnluapi.config.CacheManager;
 import vn.edu.hcmuaf.virtualnluapi.dao.ContactDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.ContactResponse;
+import vn.edu.hcmuaf.virtualnluapi.dto.response.NodeFullResponse;
 
 import java.util.List;
 
@@ -19,19 +21,31 @@ public class ContactService {
     ContactDao contactDao;
     @Inject
     MailService mailService;
+    @Inject
+    CacheManager cache;
 
     public boolean sendContact(SendContactRequest req) {
-        try {
-            return contactDao.sendContact(req);
-        }catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        boolean ok = contactDao.sendContact(req);
+        if (ok) {
+            cache.invalidate("contact:all");
         }
+        return ok;
     }
 
     public List<ContactResponse> getAllContact() {
+        String key = "contact:all";
+
+        List<ContactResponse> cached = cache.get(key, List.class);
+        if (cached != null) {
+            return cached;
+        }
+
         try {
-            return contactDao.getAllContact();
+            List<ContactResponse> result =
+                    contactDao.getAllContact();
+
+            cache.put(key, result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return List.of();
@@ -39,12 +53,11 @@ public class ContactService {
     }
 
     public Boolean feedback(FeedbackContactRequest request) {
-        try {
-            mailService.sendMailReplyContact(request);
-            return contactDao.feedback(request);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        boolean ok = contactDao.feedback(request);
+        if (ok) {
+            mailService.sendMailReplyContact(request); // async càng tốt
+            cache.invalidate("contact:all");
         }
+        return ok;
     }
 }

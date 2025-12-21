@@ -7,10 +7,10 @@ import { useDispatch } from "react-redux";
 import { fetchDefaultNodes, fetchIcons } from "../../redux/slices/DataSlice";
 import { AppDispatch } from "../../redux/Store";
 import ScrollOnTop from "../../components/visitor/ScrollOnTop";
-import Introduce from "../../components/visitor/Introduce";
 import Contact from "../../components/visitor/Contact";
 import Footer from "../../components/visitor/Footer";
 import { useLocation } from "react-router-dom";
+import Introduce2 from "../../components/visitor/Introduce2";
 
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -25,7 +25,7 @@ const Home: React.FC = () => {
     <main className={styles.home_container}>
       <Banner />
 
-      <Introduce />
+      <Introduce2 />
 
       <TourOverview />
 

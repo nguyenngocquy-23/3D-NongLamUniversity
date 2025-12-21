@@ -56,6 +56,11 @@
   transition: all 0.3s ease;
 }
 
+.navLinkActive {
+  font-weight: 700;
+  color: #2e7d32;
+}
+
 .navLink:hover {
   color: black;
 }
@@ -156,6 +161,7 @@
   outline: none;
   border: none;
 }
+
 .menu_button {
   font-size: 24px;
   font-weight: 800;

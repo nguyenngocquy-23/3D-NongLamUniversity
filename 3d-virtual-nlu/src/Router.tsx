@@ -37,6 +37,7 @@ import ManagerContact from "./pages/admin/ManagerContact.tsx";
 import CreateAccount from "./pages/admin/CreateAccount.tsx";
 import ManagerAutoTour from "./pages/admin/ManagerAutoTour.tsx";
 import CreateAutoTourStep2 from "./pages/admin/CreateAutoTourStep2.tsx";
+import Pricing from "./components/visitor/pricing/Pricing.tsx";
 
 function RouterConfig() {
   return (
@@ -51,6 +52,7 @@ function RouterConfig() {
       <Route path="/autoTour" element={<ManageAutoTour />} />
       <Route path="/manageModel" element={<ManageModel />} />
       <Route path="/autoTourDetail/:tourId" element={<VirtualAutoTour />} />
+      <Route path="/pricing" element={<Pricing />} />
       <Route path="/manage/" element={<VisitorManage />}>
         <Route index element={<VisitorDashBoard />} />
         <Route path="createTour" element={<VisitorCreateTour />} />

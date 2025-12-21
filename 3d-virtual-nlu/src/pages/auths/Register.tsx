@@ -138,7 +138,10 @@ const Register: React.FC = () => {
   return (
     <div className={styles.container} style={{ position: "relative" }}>
       <div className={styles.loginContainer}>
-        <h2 className={styles.h2}>Đăng ký</h2>
+        <div className={styles.title}>
+          <h2 className={styles.h2}>Đăng ký</h2>
+          <i>Vui lòng nhập thông tin</i>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <FaRegUser className={styles.icon} />
@@ -202,7 +205,7 @@ const Register: React.FC = () => {
             {isLoading ? "Đang đăng ký..." : "Đăng ký"}
           </button>
         </form>
-        <p>
+        <p className={styles.footerText}>
           Đã có tài khoản?{" "}
           <Link className={styles.link} to="/login">
             Đăng nhập!
