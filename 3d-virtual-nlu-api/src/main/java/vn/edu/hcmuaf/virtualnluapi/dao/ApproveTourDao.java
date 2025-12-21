@@ -2,13 +2,9 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.jdbi.v3.core.Handle;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.ApproveTourRequest;
-import vn.edu.hcmuaf.virtualnluapi.dto.request.SendCommentRequest;
-import vn.edu.hcmuaf.virtualnluapi.entity.Feedback;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @ApplicationScoped
 public class ApproveTourDao {

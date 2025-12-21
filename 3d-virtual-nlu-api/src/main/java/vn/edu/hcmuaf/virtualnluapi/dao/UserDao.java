@@ -2,7 +2,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import vn.edu.hcmuaf.virtualnluapi.config.SystemConstant;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.entity.User;
 
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ import java.util.Optional;
 @ApplicationScoped
 public class UserDao {
     public boolean isAdmin(int id) {
-        return ConnectionPool.getConnection().withHandle(n -> {
+        return HikariCP.getJdbi().withHandle(n -> {
             return n.createQuery("select count(*) from users join roles on users.roleId = roles.id where users.id = ? and roles.name = 'ROLE_ADMIN'").bind(0, id).mapTo(Integer.class).one() > 0;
         });
     }
@@ -23,7 +23,7 @@ public class UserDao {
                 FROM users 
                 WHERE username = :username
                 """;
-        Optional<User> user = ConnectionPool.getConnection().withHandle(handle ->
+        Optional<User> user = HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .bind("username", username).mapToBean(User.class).stream().findFirst()
         );
@@ -31,7 +31,7 @@ public class UserDao {
     }
 
     public User getUserByEmail(String email) {
-        Optional<User> user = ConnectionPool.getConnection().withHandle(handle ->
+        Optional<User> user = HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery("SELECT * FROM users WHERE email = ?")
                         .bind(0, email).mapToBean(User.class).stream().findFirst()
         );
@@ -39,7 +39,7 @@ public class UserDao {
     }
 
     public User findById(int id) {
-        return ConnectionPool.getConnection().withHandle(handle ->
+        return HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery("select * from users where id = ?")
                         .bind(0, id).mapToBean(User.class).one());
     }
@@ -48,7 +48,7 @@ public class UserDao {
         String sql = "INSERT INTO users (roleId, email, username, password, status, avatar, createdAt ) " +
                 "VALUES(:roleId, :email, :username, :password, :status, :avatar , :createdAt)";
         try {
-            int result = ConnectionPool.getConnection().inTransaction(handle ->
+            int result = HikariCP.getJdbi().inTransaction(handle ->
                     handle.createUpdate(sql)
                             .bind("roleId", user.getRoleId())
                             .bind("email", user.getEmail())
@@ -68,7 +68,7 @@ public class UserDao {
 
     public boolean activatedUser(int userId) {
         try {
-            int result = ConnectionPool.getConnection().inTransaction(handle ->
+            int result = HikariCP.getJdbi().inTransaction(handle ->
                     handle.createUpdate("UPDATE users SET status = :status WHERE id = :id")
                             .bind("status", SystemConstant.ACTIVATED)
                             .bind("id", userId)
@@ -82,7 +82,7 @@ public class UserDao {
 
     public boolean updatePassword(int userId, String newPassword) {
         try {
-            int result = ConnectionPool.getConnection().inTransaction(handle ->
+            int result = HikariCP.getJdbi().inTransaction(handle ->
                     handle.createUpdate("UPDATE users SET password = :password WHERE id = :id")
                             .bind("id", userId)
                             .bind("password", newPassword)
@@ -95,7 +95,7 @@ public class UserDao {
     }
 
     public boolean updateProfile(User user) {
-        int result = ConnectionPool.getConnection().inTransaction(handle ->
+        int result = HikariCP.getJdbi().inTransaction(handle ->
                 handle.createUpdate("UPDATE users SET username = :username, email = :email WHERE id = :id")
                         .bind("username", user.getUsername())
                         .bind("email", user.getEmail())
@@ -106,13 +106,13 @@ public class UserDao {
     }
 
     public User getFirstNameAndLastName(Long userId) {
-        return ConnectionPool.getConnection().withHandle(n -> {
+        return HikariCP.getJdbi().withHandle(n -> {
             return n.createQuery("select firstName , lastName from users where id = ?").bind(0, userId).mapToBean(User.class).stream().findFirst().orElse(null);
         });
     }
 
     public List<User> getAllCustomerPaged(int pageIndex, int pageSize) {
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery("select id, firstName, lastName, username, email, phoneNumber, address, status from users where roleId = 1 " +
                             "order by firstName asc limit ? offset ?")
                     .bind(0, pageSize)
@@ -124,7 +124,7 @@ public class UserDao {
 
     public boolean changeStatusOfCustomer(User user) {
         try {
-            int result = ConnectionPool.getConnection().inTransaction(handle ->
+            int result = HikariCP.getJdbi().inTransaction(handle ->
                     handle.createUpdate("UPDATE users set status = ? where id = ?")
                             .bind(0, user.getStatus())
                             .bind(1, user.getId())
@@ -137,7 +137,7 @@ public class UserDao {
     }
 
     public boolean lockOrUnlock(Long userId, String activated, int numLoginFail) {
-        int row = ConnectionPool.getConnection().inTransaction(handle -> {
+        int row = HikariCP.getJdbi().inTransaction(handle -> {
             return handle.createUpdate("update users set status = :status, numLoginFailInDay = :numLoginFailInDay where id = :id")
                     .bind("status", activated)
                     .bind("numLoginFailInDay", numLoginFail)
@@ -148,7 +148,7 @@ public class UserDao {
     }
 
     public List<User> findUserByInput(String input) {
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery("select id,firstName, lastName, username, email, phoneNumber, address, status from users where firstName like :name and roleId = 1")
                     .bind("name", "%" + input + "%")
                     .mapToBean(User.class)
@@ -162,7 +162,7 @@ public class UserDao {
                 FROM users 
                 WHERE roleId in (1,3)
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .mapToBean(User.class)
                     .list();
@@ -170,27 +170,27 @@ public class UserDao {
     }
 
     public int countAll() {
-        Optional<Integer> total = ConnectionPool.getConnection().withHandle(handle ->
+        Optional<Integer> total = HikariCP.getJdbi().withHandle(handle ->
                         handle.createQuery("SELECT COUNT(u.id) FROM users u INNER JOIN roles r ON u.roleId = r.id WHERE r.name = :name"))
                 .bind("name", SystemConstant.USER).mapTo(Integer.class).stream().findFirst();
         return total.orElse(0);
     }
 
     public void resetNumLoginFail(Long userId) {
-        ConnectionPool.getConnection().inTransaction(handle -> {
+        HikariCP.getJdbi().inTransaction(handle -> {
             return handle.createUpdate("update users set numLoginFailInDay = 0 where id = ?")
                     .bind(0, userId).execute();
         });
     }
 
     public void resetNumLoginFail() {
-        ConnectionPool.getConnection().inTransaction(handle -> {
+        HikariCP.getJdbi().inTransaction(handle -> {
             return handle.createUpdate("update users set numLoginFailInDay = 0 where numLoginFailInDay >= 3").execute();
         });
     }
 
     public void loginFail(User user) {
-        ConnectionPool.getConnection().inTransaction(handle -> {
+        HikariCP.getJdbi().inTransaction(handle -> {
             return handle.createUpdate("update users set numLoginFailInDay = numLoginFailInDay + 1 where id = ? ")
                     .bind(0, user.getId()).execute();
         });
@@ -198,7 +198,7 @@ public class UserDao {
 
 
     public int getNumLoginFail(User user) {
-        Optional<Integer> i = ConnectionPool.getConnection().withHandle(handle -> {
+        Optional<Integer> i = HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery("select numLoginFailInDay from users where id = ?")
                     .bind(0, user.getId()).mapTo(Integer.class).findOne();
         });
@@ -206,7 +206,7 @@ public class UserDao {
     }
 
     public boolean unlockAccountLockedLastDay() {
-        int row = ConnectionPool.getConnection().inTransaction(handle -> {
+        int row = HikariCP.getJdbi().inTransaction(handle -> {
             return handle.createUpdate("update users set status = 'Đã kích hoạt' where numLoginFailInDay >= 3")
                     .execute();
         });
@@ -214,7 +214,7 @@ public class UserDao {
     }
 
     public boolean existsAdminUser() {
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery("select count(*) from users where roleId = 2").mapTo(Integer.class
             ).one() > 0;
         });
@@ -222,7 +222,7 @@ public class UserDao {
 
     public boolean updateAvatar(User user) {
         try {
-            return ConnectionPool.getConnection().inTransaction(handle -> {
+            return HikariCP.getJdbi().inTransaction(handle -> {
                 int updatedRows = handle.createUpdate("update users set avatar = :avatar where id = :id")
                         .bind("id", user.getId())
                         .bind("avatar", user.getAvatar())
@@ -237,7 +237,7 @@ public class UserDao {
 
     public boolean toggleLockStatus(int userId, int locked) {
         try {
-            int result = ConnectionPool.getConnection().inTransaction(handle ->
+            int result = HikariCP.getJdbi().inTransaction(handle ->
                     handle.createUpdate("UPDATE users SET status = :status WHERE id = :id")
                             .bind("status", locked)
                             .bind("id", userId)
@@ -255,7 +255,7 @@ public class UserDao {
                     FROM users
                     WHERE roleId = 1 AND createdAt >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .mapTo(Integer.class)
                     .one();
@@ -268,7 +268,7 @@ public class UserDao {
                     FROM users
                     WHERE roleId = 1
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .mapTo(Integer.class)
                     .one();
@@ -281,7 +281,7 @@ public class UserDao {
                 FROM users 
                 WHERE email = :email
                 """;
-        Optional<User> user = ConnectionPool.getConnection().withHandle(handle ->
+        Optional<User> user = HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .bind("email", email).mapToBean(User.class).stream().findFirst()
         );
@@ -290,7 +290,7 @@ public class UserDao {
 
 
 //    public List<String> getAllAdminEmail() {
-//        return ConnectionPool.getConnection().withHandle(n -> {
+//        return HikariCP.getJdbi().withHandle(n -> {
 //            return n.createQuery("Select email from users where roleId = 2").mapTo(String.class).stream().toList();
 //        });
 //    }

@@ -1,14 +1,14 @@
 package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.entity.InvalidatedToken;
 
 @ApplicationScoped
 public class InvalidatedTokenDao {
 
     public void saveInvalidToken(InvalidatedToken token) {
-        ConnectionPool.getConnection().inTransaction(handle -> {
+        HikariCP.getJdbi().inTransaction(handle -> {
             return handle.createUpdate("INSERT INTO invalidated_tokens (id, expiredAt) VALUES (:id, :expiredAt)")
                     .bind("id", token.getId())
                     .bind("expiredAt", token.getExpiredAt())
@@ -17,7 +17,7 @@ public class InvalidatedTokenDao {
     }
 
     public boolean existsById(String token) {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             return handle.createQuery("SELECT COUNT(*) FROM invalidated_tokens WHERE id = :id")
                     .bind("id", token)
                     .mapTo(Integer.class)
@@ -26,7 +26,7 @@ public class InvalidatedTokenDao {
     }
 
     public boolean removeAll() {
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             return handle.createUpdate("DELETE FROM invalidated_tokens")
                     .execute() > 0;
         });

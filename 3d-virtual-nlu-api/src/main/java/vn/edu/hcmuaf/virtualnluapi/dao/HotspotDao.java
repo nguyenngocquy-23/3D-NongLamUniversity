@@ -4,7 +4,7 @@ package vn.edu.hcmuaf.virtualnluapi.dao;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.PreparedBatch;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
 
@@ -186,7 +186,7 @@ public class HotspotDao {
 
     public List<HotspotMediaResponse> getMediaByNodeId(int nodeId) {
         String sql = "SELECT h.id, h.nodeId,h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity" + ", m.mediaType, m.mediaUrl, m.caption, m.cornerPointList " + "FROM hotspots AS h JOIN hotspot_medias " + "AS m ON h.id = m.hotspotId WHERE h.nodeId = :nodeId and h.status = 1";
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotMediaResponse.class).list();
         });
     }
@@ -202,7 +202,7 @@ public class HotspotDao {
         WHERE h.nodeId = :nodeId and h.status = 1 
         
         """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotNavigationResponse.class).list();
         });
     }
@@ -217,7 +217,7 @@ public class HotspotDao {
                         JOIN icons ic ON h.iconId = ic.id
                          WHERE h.nodeId = :nodeId and h.status = 1
                         """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotInformationResponse.class).list();
         });
     }
@@ -225,7 +225,7 @@ public class HotspotDao {
 
     public List<HotspotModelResponse> getModelByNodeId(int nodeId) {
         String sql = "SELECT h.id, h.nodeId, h.type, h.iconId, h.status, h.positionX, h.positionY, h.positionZ, " + "h.pitchX, h.yawY, h.rollZ, h.scale, h.color, h.backgroundColor, h.allowBackgroundColor, h.opacity, m.modelUrl, m.thumbnailUrl, m.name, m.description, m.numDownload " + "FROM hotspots AS h JOIN hotspot_models " + "AS m ON h.id = m.hotspotId WHERE h.nodeId = :nodeId and h.status = 1";
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql).bind("nodeId", nodeId).mapToBean(HotspotModelResponse.class).list();
         });
     }
@@ -386,7 +386,7 @@ public class HotspotDao {
                 JOIN users as u ON n.userId = u.id
                 WHERE h.id = :hotspotId
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql).bind("hotspotId", hotspotId).mapToBean(HotspotModelResponse.class).findOne().orElse(null);
         });
     }
@@ -405,7 +405,7 @@ public class HotspotDao {
                 LIMIT :limit OFFSET :offset
                 """;
 
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .bind("limit", reqs.getLimit())
                     .bind("offset", reqs.getPage() * reqs.getLimit())
@@ -415,7 +415,7 @@ public class HotspotDao {
 
     public boolean countDownloadModel(HotspotIdRequest reqs) {
         String sql = "UPDATE hotspot_models SET numDownload = numDownload + 1 WHERE hotspotId = :hotspotId";
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int updatedRows = handle.createUpdate(sql).bind("hotspotId", reqs.getHotspotId()).execute();
             return updatedRows > 0;
         });
@@ -435,7 +435,7 @@ public class HotspotDao {
                 LIMIT 10 OFFSET 0
                 """;
 
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql)
                     .bind("searchKey", "%" + searchKey + "%")
                     .mapToBean(HotspotModelResponse.class).list();
@@ -444,14 +444,14 @@ public class HotspotDao {
 
     public int getNumTotalModel() {
         String sql = "SELECT COUNT(*) FROM hotspots AS h JOIN hotspot_models AS m ON h.id = m.hotspotId WHERE h.status = 1";
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql).mapTo(Integer.class).findOne().orElse(0);
         });
     }
 
     public int getNumDownloadModel(UserIdRequest reqs) {
         String sql = "SELECT SUM(m.numDownload) FROM hotspot_models AS m JOIN hotspots AS h ON m.hotspotId = h.id JOIN nodes AS n ON h.nodeId = n.id WHERE n.userId = :userId";
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sql).bind("userId", reqs.getUserId()).mapTo(Integer.class).findOne().orElse(0);
         });
     }

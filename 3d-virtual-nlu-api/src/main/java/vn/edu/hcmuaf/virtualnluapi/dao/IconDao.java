@@ -1,7 +1,7 @@
 package vn.edu.hcmuaf.virtualnluapi.dao;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.IconResponse;
 
@@ -19,7 +19,7 @@ public class IconDao {
                 FROM icons
                 ORDER BY createdAt DESC
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sqlQuery)
                     .mapToBean(IconResponse.class)
                     .list();
@@ -31,7 +31,7 @@ public class IconDao {
                 INSERT INTO icons(name, code, url, isActive, type, thumbnail, createdAt) 
                 VALUES (:name, :code, :url, :isActive, :type, :thumbnail, :createdAt)
                 """;
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("name", req.getName())
                     .bind("code", req.getCode())
@@ -52,7 +52,7 @@ public class IconDao {
                 WHERE name LIKE :searchKey
                 ORDER BY createdAt DESC
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             return handle.createQuery(sqlQuery)
                     .bind("searchKey", "%" + searchKey + "%")
                     .mapToBean(IconResponse.class)
@@ -62,7 +62,7 @@ public class IconDao {
 
     public boolean changeStatusIcon(StatusRequest req) {
         String sqlQuery = "UPDATE icons SET isActive = :isActive WHERE id = :id";
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("isActive", req.getStatus())
                     .bind("id", req.getId())
@@ -76,7 +76,7 @@ public class IconDao {
                 UPDATE icons SET name = :name, code = :code 
                 WHERE id = :id
                 """;
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("name", req.getName())
                     .bind("code", req.getCode())
@@ -88,7 +88,7 @@ public class IconDao {
 
     public boolean changeThumbnail(ThumbnailRequest req) {
         String sqlQuery = "UPDATE icons SET thumbnail = :thumbnail WHERE id = :id";
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int rows = handle.createUpdate(sqlQuery)
                     .bind("thumbnail", req.getThumbnail())
                     .bind("id", req.getId())

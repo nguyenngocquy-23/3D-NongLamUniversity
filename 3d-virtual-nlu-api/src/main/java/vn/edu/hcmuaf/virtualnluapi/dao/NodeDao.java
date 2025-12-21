@@ -6,11 +6,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.PreparedBatch;
-import vn.edu.hcmuaf.virtualnluapi.connection.Connection;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.*;
-import vn.edu.hcmuaf.virtualnluapi.service.HotspotService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -74,7 +72,7 @@ public class NodeDao {
                  ORDER BY n.updatedAt DESC
                  LIMIT :limit OFFSET :offset
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("limit", request.getLimit()).bind("offset", request.getPage() * request.getLimit()).mapToBean(NodeFullResponse.class).list());
+        return HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql).bind("limit", request.getLimit()).bind("offset", request.getPage() * request.getLimit()).mapToBean(NodeFullResponse.class).list());
     }
 
     public List<NodeFullResponse> getAllNodes() {
@@ -87,7 +85,7 @@ public class NodeDao {
                  WHERE n.status IN (0,2,3)
                  ORDER BY n.updatedAt DESC
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
+        return HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql).mapToBean(NodeFullResponse.class).list());
     }
 
     public List<NodeFullResponse> getAllApprovingNodes(PageRequest request) {
@@ -101,12 +99,12 @@ public class NodeDao {
                  ORDER BY n.updatedAt DESC
                  LIMIT :limit OFFSET :offset
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("limit", request.getLimit()).bind("offset", request.getPage() * request.getLimit()).mapToBean(NodeFullResponse.class).list());
+        return HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql).bind("limit", request.getLimit()).bind("offset", request.getPage() * request.getLimit()).mapToBean(NodeFullResponse.class).list());
     }
 
     public int countAllNodes() {
         String sql = "SELECT COUNT(*) FROM nodes WHERE status IN (0,2,3)";
-        return ConnectionPool.getConnection().withHandle(handle ->
+        return HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)
                         .one()
@@ -115,7 +113,7 @@ public class NodeDao {
 
     public int countApprovingNodes() {
         String sql = "SELECT COUNT(*) FROM nodes WHERE status = 3";
-        return ConnectionPool.getConnection().withHandle(handle ->
+        return HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)
                         .one()
@@ -133,7 +131,7 @@ public class NodeDao {
                  ORDER BY n.updatedAt DESC
                  LIMIT :limit OFFSET :page
                 """;
-        List<NodeFullResponse> result = ConnectionPool.getConnection().withHandle(handle ->
+        List<NodeFullResponse> result = HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .bind("limit", request.getLimit())
                         .bind("page", request.getPage() * request.getLimit())
@@ -163,7 +161,7 @@ public class NodeDao {
                 
                 WHERE s.status = 2 AND n.id = s.masterNodeId    
                 """;
-        NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+        NodeFullResponse nodeFullResponse = HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql)
                 .mapToBean(NodeFullResponse.class).one());
         if (nodeFullResponse == null) {
             return null;
@@ -193,7 +191,7 @@ public class NodeDao {
         String getTargetNodeIdSQL = " SELECT hn.targetNodeId FROM hotspots h JOIN hotspot_navigations hn ON h.id = hn.hotspotId" +
                 " WHERE h.nodeId = :nodeId AND h.type = 1";
 
-        List<Integer> targetNodeIds = ConnectionPool.getConnection().withHandle(
+        List<Integer> targetNodeIds = HikariCP.getJdbi().withHandle(
                 handle -> handle.createQuery(getTargetNodeIdSQL)
                         .bind("nodeId", nodeId)
                         .mapTo(Integer.class)
@@ -243,7 +241,7 @@ public class NodeDao {
                 """;
 
         //Danh sách targetNodeId.
-        List<Integer> targetNodeIds = ConnectionPool.getConnection().withHandle(
+        List<Integer> targetNodeIds = HikariCP.getJdbi().withHandle(
                 handle -> handle.createQuery(getTargetNodeIdSQL)
                         .bind("nodeId", nodeId)
                         .mapTo(Integer.class)
@@ -254,7 +252,7 @@ public class NodeDao {
             return listNodesOfTour;
         }
 
-        List<NodeStatusResponse> nodesWithStatus = ConnectionPool.getConnection().withHandle(
+        List<NodeStatusResponse> nodesWithStatus = HikariCP.getJdbi().withHandle(
                 handle -> handle.createQuery(getNodeStatusSQL).bindList("ids", targetNodeIds)
                         .map((rs, ctx) -> new NodeStatusResponse(rs.getInt("id"),
                                 rs.getByte("status")
@@ -288,7 +286,7 @@ public class NodeDao {
                 LEFT JOIN users u ON n.userId = u.id
                 WHERE n.id = :nodeId
                 """;
-        NodeExpandResponse nodeExpandResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+        NodeExpandResponse nodeExpandResponse = HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql)
                 .bind("nodeId", nodeId)
                 .mapToBean(NodeExpandResponse.class).one());
         if (nodeExpandResponse == null) {
@@ -319,7 +317,7 @@ public class NodeDao {
                 LEFT JOIN users u ON n.userId = u.id
                 WHERE n.id = :nodeId
                 """;
-        NodeExpandResponse nodeExpandResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+        NodeExpandResponse nodeExpandResponse = HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql)
                 .bind("nodeId", nodeId)
                 .mapToBean(NodeExpandResponse.class).one());
         if (nodeExpandResponse == null) {
@@ -339,7 +337,7 @@ public class NodeDao {
                 WHERE n.userId = :userId and (n.status = 2 or n.status = 0)
                 ORDER BY n.updatedAt DESC
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+        return HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql)
                 .bind("userId", request.getUserId())
                 .mapToBean(NodeFullResponse.class).list());
     }
@@ -353,7 +351,7 @@ public class NodeDao {
                 JOIN fields f ON s.fieldId = f.id
                 WHERE n.id = :nodeId AND n.status IN (1,2)
                 """;
-        NodeFullResponse nodeFullResponse = ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+        NodeFullResponse nodeFullResponse = HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql)
                 .bind("nodeId", request.getNodeId())
                 .mapToBean(NodeFullResponse.class).one());
         if (nodeFullResponse == null) {
@@ -385,7 +383,7 @@ public class NodeDao {
 
     public boolean removeNode(NodeIdRequest request) {
         String sql = "UPDATE nodes SET status = -1, updatedAt = :updatedAt WHERE id = :nodeId";
-        int rowsUpdated = ConnectionPool.getConnection().withHandle(handle -> handle.createUpdate(sql)
+        int rowsUpdated = HikariCP.getJdbi().withHandle(handle -> handle.createUpdate(sql)
                 .bind("updatedAt", LocalDateTime.now())
                 .bind("nodeId", request.getNodeId())
                 .execute());
@@ -402,7 +400,7 @@ public class NodeDao {
                 WHERE n.userId = :userId and n.status = 3
                 ORDER BY n.updatedAt DESC
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+        return HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql)
                 .bind("userId", request.getUserId())
                 .mapToBean(NodeFullResponse.class).list());
     }
@@ -416,7 +414,7 @@ public class NodeDao {
                 JOIN fields f ON s.fieldId = f.id
                 WHERE n.spaceId = :spaceId and n.status IN (0,2,3)
                 """;
-        return ConnectionPool.getConnection().withHandle(handle ->
+        return HikariCP.getJdbi().withHandle(handle ->
         {
             List<NodeFullResponse> nodes = handle.createQuery(sql)
                     .bind("spaceId", request.getSpaceId())
@@ -500,7 +498,7 @@ public class NodeDao {
                  ORDER BY n.updatedAt DESC
                  LIMIT 10
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql).bind("searchKey", "%" + searchKey.toLowerCase() + "%").mapToBean(NodeFullResponse.class).list());
+        return HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql).bind("searchKey", "%" + searchKey.toLowerCase() + "%").mapToBean(NodeFullResponse.class).list());
     }
 
     public boolean createAutoTour(AutoTourCreateRequest request) {
@@ -510,7 +508,7 @@ public class NodeDao {
                 """;
 
         try {
-            Boolean result = ConnectionPool.getConnection().inTransaction(handle -> {
+            Boolean result = HikariCP.getJdbi().inTransaction(handle -> {
                 int inserted = handle.createUpdate(sql)
                         .bind("userId", request.getUserId())
                         .bind("name", request.getName())
@@ -538,7 +536,7 @@ public class NodeDao {
                 LIMIT :limit OFFSET :offset
                 """;
 
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             List<AutoTourResponse> result = handle.createQuery(sql)
                     .bind("limit", request.getLimit())
                     .bind("offset", request.getPage() * request.getLimit())
@@ -581,7 +579,7 @@ public class NodeDao {
                 LIMIT :limit OFFSET :offset
                 """;
 
-        return ConnectionPool.getConnection().withHandle(handle -> {
+        return HikariCP.getJdbi().withHandle(handle -> {
             List<AutoTourResponse> result = handle.createQuery(sql)
                     .bind("limit", request.getLimit())
                     .bind("offset", request.getPage() * request.getLimit())
@@ -622,7 +620,7 @@ public class NodeDao {
                     WHERE id = :id
                 """;
 
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             PreparedBatch batch = handle.prepareBatch(sql);
 
             for (NodeViewRequest req : requests) {
@@ -638,7 +636,7 @@ public class NodeDao {
 
     public int getNumOfUser(UserIdRequest request) {
         String sql = "SELECT SUM(numView) FROM nodes WHERE userId = :userId";
-        return ConnectionPool.getConnection().withHandle(handle ->
+        return HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .bind("userId", request.getUserId())
                         .mapTo(int.class)
@@ -648,7 +646,7 @@ public class NodeDao {
 
     public int getHighestNumViewOfNode() {
         String sql = "SELECT id FROM nodes group by id order by sum(numView) DESC limit 1";
-        return ConnectionPool.getConnection().withHandle(handle ->
+        return HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)
                         .one()
@@ -657,7 +655,7 @@ public class NodeDao {
 
     public int getLowestNumViewOfNode() {
         String sql = "SELECT id FROM nodes group by id order by sum(numView) ASC limit 1";
-        return ConnectionPool.getConnection().withHandle(handle ->
+        return HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)
                         .one()
@@ -666,7 +664,7 @@ public class NodeDao {
 
     public int countAllView() {
         String sql = "SELECT SUM(numView) FROM nodes";
-        return ConnectionPool.getConnection().withHandle(handle ->
+        return HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)
                         .one()
@@ -676,7 +674,7 @@ public class NodeDao {
     public boolean updateNodePartial(int id, NodeUpdateOverviewRequest req) {
         List<Integer> subNodeOfTour = getSubNodeByMasterNodeId(id);
 
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             Map<String, Object> binds = new HashMap<>();
 
             // 1. Cập nhật cho node gốc
@@ -753,7 +751,7 @@ public class NodeDao {
                      WHERE h.nodeId = :nodeId AND h.type = 1 AND n.status = 1
             """;
 
-            return ConnectionPool.getConnection().withHandle(
+            return HikariCP.getJdbi().withHandle(
                     handle -> handle.createQuery(sql)
                             .bind("nodeId", nodeId)
                             .mapTo(Integer.class)
@@ -763,7 +761,7 @@ public class NodeDao {
 
     public int countAllAutoNodes() {
         String sql = "SELECT COUNT(*) FROM auto_tours WHERE status = 1";
-        return ConnectionPool.getConnection().withHandle(handle ->
+        return HikariCP.getJdbi().withHandle(handle ->
                 handle.createQuery(sql)
                         .mapTo(int.class)
                         .one()
@@ -778,7 +776,7 @@ public class NodeDao {
                 ORDER BY at.updatedAt DESC
                 LIMIT 10
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+        return HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql)
                 .bind("searchKey", "%" + searchKey.toLowerCase() + "%")
                 .mapToBean(AutoTourResponse.class)
                 .list());
@@ -791,7 +789,7 @@ public class NodeDao {
                 WHERE id = :id
                 """;
 
-        return ConnectionPool.getConnection().inTransaction(handle -> {
+        return HikariCP.getJdbi().inTransaction(handle -> {
             int updatedRows = handle.createUpdate(sql)
                     .bind("name", request.getName())
                     .bind("indexNode", request.getIndexNode())
@@ -839,7 +837,7 @@ public class NodeDao {
                 WHERE n.userId = :userId and n.status = 4
                 ORDER BY n.updatedAt DESC
                 """;
-        return ConnectionPool.getConnection().withHandle(handle -> handle.createQuery(sql)
+        return HikariCP.getJdbi().withHandle(handle -> handle.createQuery(sql)
                 .bind("userId", request.getUserId())
                 .mapToBean(NodeFullResponse.class).list());
     }

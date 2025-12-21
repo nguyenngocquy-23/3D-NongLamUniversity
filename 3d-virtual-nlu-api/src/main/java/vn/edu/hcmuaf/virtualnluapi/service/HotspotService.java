@@ -3,7 +3,7 @@ package vn.edu.hcmuaf.virtualnluapi.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jdbi.v3.core.Handle;
-import vn.edu.hcmuaf.virtualnluapi.connection.ConnectionPool;
+import vn.edu.hcmuaf.virtualnluapi.connection.HikariCP;
 import vn.edu.hcmuaf.virtualnluapi.dao.HotspotDao;
 import vn.edu.hcmuaf.virtualnluapi.dto.request.*;
 import vn.edu.hcmuaf.virtualnluapi.dto.response.HotspotMediaResponse;
@@ -36,7 +36,7 @@ public class HotspotService {
 
     public boolean insertNavigationForLinkNode(List<HotspotNavCreateRequest> reqs, String nodeId) {
         try {
-            return ConnectionPool.getConnection().inTransaction(
+            return HikariCP.getJdbi().inTransaction(
                     handle -> {
                         boolean result = hotspotDao.insertHotspotNavigation(handle, reqs, nodeId);
                         if (!result) {
